@@ -1,0 +1,167 @@
+#!/bin/sh
+# moblock.if-up - insert iptables whitelisting rules for newly brought up
+# interfaces.
+# Copyright (C) 2008 - 2009 jre <jre-phoenix@users.sourceforge.net>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+################################################################################
+# The following code is common between moblock-control, init, cron.daily,
+# moblock.if-up and debian/postinst.
+# It sets/loads the variables and functions
+
+# These two variables have to be set correctly in all just mentioned files.
+# Everything else can then be done in moblock.conf.
+CONTROL_CONF="/etc/moblock/moblock.conf"
+SCRIPT_DEFAULTS="/usr/lib/moblock-control/moblock-control.defaults"
+
+# Remember standard IFS (Internal Field Seperator)
+STDIFS=$IFS
+
+# Set sane configuration defaults. They will be overwritten by the values in
+# CONTROL_CONF and CONTROL_DEFAULT
+if [ -f "$SCRIPT_DEFAULTS" ] ; then
+	. $SCRIPT_DEFAULTS || { echo "Error: Failed to source $SCRIPT_DEFAULTS although this file exists."; exit 1; }
+else
+	echo "Error 7: Missing file $SCRIPT_DEFAULTS."
+	exit 7
+fi
+
+# Check what daemon is installed in PATH and set variables accordingly.
+# We first need to know the NAME, so this needs to be the first thing we do.
+NAME=
+DAEMON=
+DESC=
+IFS=":"
+for PATH_I in $PATH ; do
+	if [ -x "$PATH_I/moblock" ] ; then
+		NAME="moblock"
+		DAEMON="$PATH_I/moblock"
+		DESC="MoBlock"
+		break
+	elif [ -x "$PATH_I/nfblockd" ] ; then
+		NAME="nfblockd"
+		DAEMON="$PATH_I/$NAME"
+		DESC="Netfilter Blocking Daemon"
+		break
+	fi
+done
+IFS=$STDIFS
+
+# Load configuration. This overwrites the above values.
+if [ -f "$CONTROL_CONF" ] ; then
+	. $CONTROL_CONF || { echo "Error: Failed to source $CONTROL_CONF although this file exists."; exit 1; }
+else
+	[ -d "$(dirname $CONTROL_CONF)" ] || {
+		echo -n "Creating missing directory $(dirname $CONTROL_CONF)"
+		mkdir "$(dirname $CONTROL_CONF)" && echo "."
+		} || {
+		log_failure_msg "Error $E_XCD: Missing directory "$(dirname $CONTROL_CONF)"."
+		log_failure_msg "Check the CONTROL_CONF setting in $0."
+		exit $E_XCD
+	}
+	echo -n "Creating missing $CONTROL_CONF"
+	echo "# moblock.conf - configuration file for moblock-control" > $CONTROL_CONF
+	echo "# This file was created automatically by $0." >> $CONTROL_CONF
+	echo "" >> $CONTROL_CONF
+	echo "# This file is sourced by a shell script. Any line which starts with a # (hash) " >> $CONTROL_CONF
+	echo "# is a comment and is ignored. If you set the same variable several times," >> $CONTROL_CONF
+	echo "# then only the last line will be used. You have to stop and restart $NAME" >> $CONTROL_CONF
+	echo "# if you change entries." >> $CONTROL_CONF
+	echo "" >> $CONTROL_CONF
+	echo "# Values from this file (moblock.conf) will be overwritten by moblock.default" >> $CONTROL_CONF
+	echo "# (/etc/default/moblock) if they are set there." >> $CONTROL_CONF
+	echo "."
+fi
+
+# Load default configuration. This overwrites the above values.
+if [ -f "$CONTROL_DEFAULT" ] ; then
+	. $CONTROL_DEFAULT || { echo "Error: Failed to source $CONTROL_DEFAULT although this file exists."; exit 1; }
+else
+	[ -d "$(dirname $CONTROL_DEFAULT)" ] || {
+		echo -n "Creating missing directory $(dirname $CONTROL_DEFAULT)"
+		mkdir "$(dirname $CONTROL_DEFAULT)" && echo "."
+		} || {
+		log_failure_msg "Error $E_XCD: Missing directory "$(dirname $CONTROL_CONF)"."
+		log_failure_msg "Check the CONTROL_DEFAULT setting in $0."
+		exit $E_XCD
+	}
+	echo -n "Creating missing $CONTROL_DEFAULT"
+	echo "# moblock.default - default configuration file for moblock-control" >> $CONTROL_DEFAULT
+	echo "# This file was created automatically by $0." >> $CONTROL_DEFAULT
+	echo "" >> $CONTROL_DEFAULT
+	echo "# In this file you can put any configuration variable from moblock.conf" >> $CONTROL_DEFAULT
+	echo "# ($CONTROL_CONF). Values in moblock.conf will be overwritten by" >> $CONTROL_DEFAULT
+	echo "# values in this file (moblock.default)." >> $CONTROL_DEFAULT
+	echo "" >> $CONTROL_DEFAULT
+	echo "# Do a \"moblock-control restart\" when you have edited this file." >> $CONTROL_DEFAULT
+	echo "" >> $CONTROL_DEFAULT
+	echo "."
+fi
+
+# If the daemon was neither found, nore set manually, then abort now.
+if [ -z $NAME ] || [ -z $DAEMON ] || [ -z $DESC ] ; then
+	echo "Could not detect an IPBlocker daemon. MoBlock and NFBlockD are supported."
+	echo "Neither of them was found in PATH: $PATH."
+	echo "Error $E_CONFIG: You may set NAME, DAEMON and DESC manually in $CONTROL_CONF."
+	exit $E_CONFIG
+fi
+
+# Load moblock-control library.
+if [ -f "$SCRIPT_LIB" ] ; then
+	. $SCRIPT_LIB || { echo "Error: Failed to source $SCRIPT_LIB although this file exists."; exit 1; }
+else
+	echo "Error $E_CONFIG: You need $SCRIPT_LIB."
+	exit $E_CONFIG
+fi
+
+load_lsb
+
+# End of the common code between moblock-control, init, cron.daily,
+# moblock.if-up and debian/postinst.
+################################################################################
+
+if [ "$WHITE_LOCAL" -eq 1 ] && [ "$IPTABLES_SETTINGS" -eq 1 ] && daemon_status exitifstrange ; then
+	test_external iptables
+
+	# Get IPs (only the first triplets) of interfaces that are up
+	LOCAL_IPS=$(ifconfig | grep -o "inet addr:[[:space:]]*[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\." | sed s/inet\ addr:[[:space:]]*//)
+	for IP in $LOCAL_IPS ; do
+		case $IP in
+			127.*)	# IP is the loopback IP: If loopback device is not already whitelisted then insert whitelisting rules for whole loopback interface
+				iptables -nv -L $NAME\_in |  grep "${IPTABLES_TARGET_WHITELISTING}[[:space:]]*all[[:space:]]*--[[:space:]]*lo" > /dev/null 2>&1 || { \
+				iptables -I $NAME\_in -i lo -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+					}
+				iptables -nv -L $NAME\_out |  grep "${IPTABLES_TARGET_WHITELISTING}[[:space:]]*all[[:space:]]*--[[:space:]]*\*[[:space:]]*lo" > /dev/null 2>&1 || { \
+					iptables -I $NAME\_out -o lo -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+					}
+				;;
+			*)	# If the LAN is not already whitelisted then insert whitelisting rules for LAN (IP with subnetmask /24)
+				iptables -nv -L $NAME\_in | grep ${IP}0/24  > /dev/null 2>&1 || { \
+					iptables -I $NAME\_in --source ${IP}0/24 -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+					}
+				iptables -nv -L $NAME\_out | grep ${IP}0/24  > /dev/null 2>&1 || { \
+					iptables -I $NAME\_out --destination ${IP}0/24 -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+					}
+				iptables -nv -L $NAME\_fw | grep ${IP}0/24  > /dev/null 2>&1 || { \
+					iptables -I $NAME\_fw --source ${IP}0/24 -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+					iptables -I $NAME\_fw --destination ${IP}0/24 -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+					}
+				;;
+		esac
+	done
+fi
+
+exit 0

@@ -1,0 +1,1266 @@
+moblock-control (1.3-1~pre1) sid lenny; urgency=low
+
+  * TODO: add support for moblock -z NFQUEUE length from patch 41_Patch_2589_All
+    ow__nfq_set_queue_maxlen__to_be_increased_from_default.dpatch
+
+  * Depend on nfblock (instead of nfblockd), since upstream name changed.
+  * Check for ipv6 module before running ip6tables (cader)
+  * Email the results of the update rather than let cron email the output (cader)
+    This makes for a nicer email message.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sat, 10 Jan 2009 00:58:19 +0100
+
+moblock-control (1.2-1) sid lenny; urgency=low
+
+  * moblock-control, moblock.if-up, cron.daily, init, debian/postinst:
+    - moved most code as functions to moblock-control.lib and
+      moblock-control.defaults.lib and source these files instead.
+    - Use the same initialization code in these files. If moblock.conf
+      and moblock-control.defaults.lib are not installed at the default places,
+      CONTROL_CONF and DEFAULTS_LIB have to be adjusted in all these files, 
+    - Improved handling of missing configuration files.
+    - improved/fixed regular expressions for sed and grep
+  * New handling of blocklists:
+    - php redirects are supported now. This allows to use the lists from
+      iblocklist.com.
+    - Download all blocklists from the newly supported iblocklist.com php URLs.
+    - the blocklist archive type is detected by file header instead of file
+      suffix.
+    - The single blocklists are saved in new places now (but still under
+      /var/spool/moblock/.
+    - Removed variable BLOCKLISTS_DIR_USED.
+    - The master blocklist (e.g. guarding.p2p) is now saved in
+      /var/lib/moblock/ instead of /etc/moblock/.
+    - Already existing single and master blocklists are moved to the new places
+      on updates from versions prior to 1.2. (debian/postinst)
+    - If the blocklist configuration changed, the master blocklist is rebuilt on
+      "start" (Not just on "reload" and "update").
+    - Missing blocklists are downloaded during the master blocklist built
+      (previously a "update" was necessary).
+    - The (Debian) installation only requires the blocklists (and therefore
+      network access) to be available if the automatic start is selected.
+    - Really ignore all comments when reading blocklists.list.
+    - debconf: Keep "http://" when readding a previously commented blocklists,
+      instead of just replacing the comment line with LIST_URL
+    - Moved extraction of blocklists from build_blocklist to update_blocklist
+    - If blocklists.list, BLOCKLIST_FORMAT or IP_REMOVE changed since the last
+      build_blocklist, the master blocklist is rebuilt on "start", too.
+      Therefore introduce a new variable MD5SUM_FILE (per default
+      /var/spool/moblock/MD5SUM).
+    - build_blocklist if the test for the master blocklist fails, and only exit
+      if this fails, too.
+    - update_blocklists does no more contain a do_reload. This is just a
+      internal change, the behaviour of the script did not change because of
+      this.
+    - only build_blocklist on reload if daemon is running.
+    - If build_blocklist fails because of a missing blocklist, do a
+      get_blocklist LIST
+    - use p7zip instead of 7z, and zcat instead of gunzip
+    - keep standard IFS
+    - New variable WGET_OPTS to specify the download application and additional
+      options. This allows e.g. to specify a proxy for blocklist downloading.
+    - The bluetack nipfilter.dat.gz and pipfilter.dat.gz are no more
+      downloadable directly( instead a 1 byte file is downloaded). So they get
+      disabled by debconf.
+    - Bluetack "templist" is now "badpeers". The URL is renamed by debconf
+      automatically.
+  * start_daemon
+    - reorganised code
+    - fixed MoBlock (LSB=1) start options to also work without marking
+    - use LOG_TIMESTAMP_OPT as first option for moblock, because of reports that
+      it doesn't work immediately otherwise.
+  * LSB:
+    - new setting LSB_MODE=2: don't use "-p $PIDFILE" in start_daemon and
+      killproc. Use this for broken init-functions like Fedora Core 9's (and
+      other redhat variants). See
+      http://forums.phoenixlabs.org/showpost.php?p=120563&postcount=47
+    - never use "-p $PIDFILE" in pidofproc
+    - init-functions: updated to Debian version 3.2-20, completely renewed.
+  * Whitelisting:
+    - per default disable allow.p2p for forwarded traffic.
+    - iptables-custom-[insert|remove].sh:
+      - minor changes
+      - real life example for combined IP range and port whitelisting
+    - whitelist LAN automatically: detect the actual subnetmask (instead of
+      using a hardcoded 24)
+  * replaced backticks for command substitution with the $(command) syntax,
+    since it is considered obsolete by the X/Open Portability Guide Issue 4 and
+    POSIX standards.
+  * use sed with -i option to edit files directly (no .tmp)
+  * added hint how to turn off daemon's logging to the logfile (moblock.conf,
+    debian/templates).
+  * automatically create the directories CONF_DIR, MASTER_BLOCKLIST_DIR,
+    BLOCKLISTS_DIR and LOG_DIR if they are missing.
+  * daemon_status: fixed output for "dead daemon, but /var/run/ pid file
+    exists".
+  * test_external:
+    - don't exit in function but return a value
+    - simplified IFS setting
+  * Also show configured blocklists on show_config
+  * NFBlockD support:
+    - debian/control: moved nfblockd from conflicts to depends (alternatively to
+      moblock).
+    - Check what daemon is installed in PATH and set NAME, DESC and DAEMON
+      accordingly. Per default don't set them manually in moblock.conf.
+      (moblock-control, init, cron and if-up)
+    - accept QUEUE as IPTABLES_TARGET for NFBlockD, since this is the same as
+      NFQUEUE 0.
+  * installation/debconf:
+    - postinst: removed the start||reload||update sequence. The normal start
+      added by dh_installdeb for the init file is enough now, because of the new
+      blocklist build/download changes.
+    - Therefore also removed the debconf question fail_installation again, which
+      allowed a non-broken installation although the blocklist was still
+      missing. Hint to set MOBLOCK_INIT=0 instead.
+    - debian/postinst: removed hint how to abort "tail -f" to avoid
+      misunderstandings (it's not about aborting the update process).
+  * debian/patches/50_debianize.dpatch: renewed
+  * debian/patches/51_hardy.dpatch: completely new, check return code of
+    killproc and accept 3 as success.
+  * packaging:
+    - corrected error to not produce a Debian native package (already in 1.1-1).
+    - debian/control: removed dpkg-dev from build-depends since this is already
+      build-essential.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Fri, 09 Jan 2009 17:20:01 +0100
+
+moblock-control (1.1-1) sid lenny; urgency=low
+
+  * blocklist changes:
+    - per default the new blocklists by TBG (The Blocklist Group) from
+      tbg.iblocklist.com/Lists are used now instead of bluetack's.
+      (blocklists.list, debian/postinst, debian/templates, README.blocklists).
+  * use iblocklist.com as TESTHOST (moblock-control, moblock.conf)
+  * debconf:
+    - select-blocklists: use more code independently of the selected blocklist
+      format, major code changes
+    - ipfilter.dat is a multiselect question now instead of select.
+  * moblock-control:
+    - update_blocklist: removed separate notimestamp function. The
+      functionality is implemented as fallback for all remote blocklists since
+      many versions. Implemented backwards compatibility code.
+    - Check all traffic (not only NEW) for IPTABLES_ACTIVATION="2". Adjusted
+      moblock.conf, debian/templates, debian/postinst.
+    - Only check for netfilter STATE support and load the kernel module, if 
+      IPTABLES_ACTIVATION="1" is set.
+    - Added IPv6 to "status" output.
+    - improved logging messages
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Fri, 26 Sep 2008 13:05:49 +0200
+
+moblock-control (1.0-1) sid lenny; urgency=low
+
+  * Changed packaging: moblock-control has been split off the moblock package
+    and is a separate project now.
+
+  * execute custom iptables scripts also for IPTABLES_SETTINGS="1" to allow e.g.
+    sophisticated whitelisting rules in combination with moblock-control's
+    iptables management. Thanks, Felix Triebel, for the hints about iptables
+    owner module and IPv6.
+  * changed default NFQUEUE number to 92 (instead of 0), to avoid conflicts with
+    other firewalls.
+  * moblock-control :
+    - build_blocklist: set $SINGLE_REMOVE in double quotes to fix bug with
+      whitespace in IP_REMOVE (Closes: sf.net bug #2069337)
+    - removed warning that the variables WHITE_IP_[IN|OUT|FORWARD] are
+      deprecated. I don't intend to remove them any more.
+    - do_start (test if netfilter support is built in the kernel directly):
+      first check if files exist before grep'ping them.
+  * documentation and output/logging updates
+  * deprecate "notimestamp" option for blocklists, because this is implemented
+    as fallback for all remote blocklists:
+    - blocklists.list: removed documentation
+    - moblock-control: add hint
+  * debian/postinst:
+    - accept "reconfigure" as $1, the functionality is the same as "configure"
+    - always save non-default debconf answers in /etc/default/moblock
+    - minor changes
+  * debconf:
+    - if a necessary blocklist download fails on installation, ask if
+      moblock-control shall be listed as "unconfigured" (current setting) or if
+      the installation shall be seen as successful.
+    - templates, config: removed "configuration" question to ask if user wants
+      to use values from the config files. This is now always the case.
+    - removed debconf question for IPTABLES_TARGET_WHITELISTING. The variable
+      itself stays of course. The question was not really useful, since RETURN
+      should be good for everybody and custom values aren't possible within the
+      debconf setting. Further the question was buggy before.
+    - removed unimportant debconf questions (variable stays):
+      - REJECT_MARK
+      - ACCEPT_MARK
+    - config: remove variables which tell if a configuration file is present -
+      unnecessary.
+    - moved config code to postinst, this seems to solve all current issues with
+      debconf, see http://bugs.debian.org/352697 and BUGS.
+  * debconf, moblock.conf:
+    - WHITE_TCP_OUT: change port numbers (80 443) to associated service names
+      (http https) because of a bug in mobloquer (0.5).
+  * debian/control:
+    - added "Bugs:" line, so that mails created by "reportbug" are sent to me.
+    - add hint that internet access is needed to complete the installation.
+  * debian/patches/51_hardy.dpatch:
+    - renewed to get rid of whole code copy in the patch.
+  * add Ubuntu hardy specific patch directly via debian/rules, if the version
+    read from changelog contains "hardy". Previously this was done by a
+    not-packaged external script. Therefore add "dpkg-dev" to build-depends in
+    debian/control.
+  * added debian/watch
+  * fixed typo deprecated - depreciated; again, this time the other way ;-)
+  * added Ubuntu intrepid ibex
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 22 Sep 2008 18:05:54 +0200
+
+moblock (0.9~rc2-17) sid lenny; urgency=low
+
+  * [ Ubuntu hardy only ]
+    Added fix for hardy LSB init-functions: stopping a stopped daemon gives fail
+    instead of success there. See also Debian Bug report #475258, lsb-base:
+    killproc returns 3 if daemon not running. (debian/patches/51_hardy.dpatch
+    and debian/prerm).
+
+  * kernel module loading:
+    - check the values in /proc/net/ to see if kernel modules need to be loaded.
+      Therefore removed the obsolete configuration option IPTABLES_MODULES.
+      (moblock-control, moblock.conf, debian/templates, debian/config,
+      debian/postinst, README.Debian, README.moblock-control,
+      moblock-control.1).
+      Thanks anonymous for the patch 2039301 at moblock-deb.sf.net.
+    - Load modules quietly (modprobe -q) (moblock-control).
+  * removed NFQUEUE/QUEUE question in debconf, since a change here requires
+    recompiling of the daemon with edits in the Makefile. (moblock-control,
+    moblock.conf, debian/templates, debian/config, debian/postinst).
+  * moblock-control:
+    - fix logging when a blocklist fails to download while no backup is
+      available.
+    - fix output when moblock-control is called without arguments.
+    - splitted test, if the deprecated configuration variables
+      WHITE_IP_[IN|OUT|FORWARD] are used, in three separate tests.
+    - insert iptables rule for "marked block" incoming packets always (when
+      marking is on). This is useless for the unpatched MoBlock source, but
+      makes development easier.
+  * moblock-control, init, cron:
+    - error/warning messages on testing variables tell if the variable is set in
+      moblock.conf or moblock.default.
+    - rewrote variable tests in init and cron
+  * init, cron:
+    - Tell on STDOUT how to configure MoBlock to not show warnings when
+      automatic start/update is off.
+  * moblock.conf:
+    - move per default whitelisting of port 80 and 443 to moblock.conf, so this
+      is default everywhere, not only in Debian.
+  * patches:
+    - updated all
+    - 50_debianize:
+      - remove most parts to make development easier
+    - 80_mark_and_log.dpatch:
+      - removed parts for mobloblock-control, iptables insertion
+  * debian/control:
+    - added transitional dummy package to update moblock-nfq to moblock
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 19 Aug 2008 19:59:50 +0200
+
+moblock (0.9~rc2-16) sid lenny; urgency=low
+
+  * moblock-control:
+    - build_blocklist: fixed IP_REMOVE
+  * fixed typo depreciate - deprecate
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Fri, 18 Jul 2008 23:24:04 +0200
+
+moblock (0.9~rc2-15) sid lenny; urgency=low
+
+  * moblock-control:
+    - just warn that WHITE_IP_[IN|OUT|FORWARD] is deprecated. Behaviour stays
+      the same.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Thu, 17 Jul 2008 21:23:10 +0200
+
+moblock (0.9~rc2-14) sid lenny; urgency=low
+
+  * moblock.conf:
+    - readded deprecated variables in WHITE_IP_[IN|OUT|FORWARD] to make
+      mobloquer happy.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Thu, 17 Jul 2008 20:31:54 +0200
+
+moblock (0.9~rc2-13) sid lenny; urgency=low
+
+  * debian/config:
+    - check if configuration files exist before grep'ing for variables.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 14 Jul 2008 19:04:05 +0200
+
+moblock (0.9~rc2-12) sid lenny; urgency=low
+
+  * The have a look at the NEWS file release
+
+  * debian/control, debian/postinst, debian/postrm, debian/templates,
+    debian/config, debian/rules, debian/po/*:
+    - added debconf support
+    - always reload/update in postinst to make sure the selected blocklists are
+      used.
+    - in the Debian packages whitelist port 80 and 443 per default, thanks
+      debconf ;-)
+  * moblock-control, moblock.conf, allow.p2p, debian/install:
+    - added support for allow lists in the PeerGuardian .p2p text format. This
+      deprecates the variables WHITE_IP_[IN|OUT|FORWARD]. They can still be
+      used but will be removed in a future version.
+  * moblock-control, moblock.conf, moblock.if-up:
+    - automatically whitelist traffic in the LAN and on the loopback device. For
+      all interfaces that are up on "start" the inet addr will be whitelisted
+      with subnetmask /24 (for 127.0.0.x the whole loopback interface will be
+      whitelisted). The same will happen whenever an interface is brought up.
+      Note that the latter will only work as long as the NEW traffic used to
+      bring an interface up is not blocked by MoBlock.
+    - new configuration variable WHITE_LOCAL, replacing old LOOPBACK
+  * moblock-control:
+    - added support for the deprecated iptables module QUEUE again. Note that
+      the marking feature does not work with this. Use only if you have a kernel
+      < 2.6.13.
+    - added support for compressed (.7z, .gz, .zip) local blocklists, not only
+      plain text ones
+    - insert iptables rules for blocking marked-block packets at the head of the
+      moblock_* chains instead of the head of the INPUT/OUTPUT/FORWARD chains.
+    - use function for daemon status and its evaluation instead of code in
+      several places. Therefore also better information in case of strange
+      daemon status.
+    - test most configuration variables every time moblock-control is called (as
+      long as option is not "stop") instead of calling the tests in functions at
+      several places of moblock-control.
+    - added test if pidfile directory exists
+    - added stats and reset_stats options (by cader <cade.robinson@gmail.com>)
+    - also ignore commented lines in blocklists.list if they begin with
+      whitespace: grep -E -v "^[:blank:]*#" FILE
+    - on update after download explicitly check if blocklist already exists in
+      BLOCKLISTS_DIR_USED, otherwise copy list there.
+    - added option show_config to show the current settings
+    - improved logging for module loading
+    - syntax standardisations
+    - removed bashisms:
+      - $UID replaced with `id -ru`
+      - $SINGLE_REMOVE with sed
+      - kill with "-s"
+    - when IFS is set to newline only use a real newline to do this instead of
+      IFS=$'\n' because the latter seems not to work with dash. No idea how to
+      do this properly.
+  * logrotate:
+    - removed bashisms: kill with "-s"
+  * moblock-control, moblock.conf:
+    - added configuration variable IPTABLES_MODULES, if turned off no kernel
+      modules will be loaded. This allows iptables support built-in the kernel.
+    - removed unused ACCEPT_[IN|OUT|FW] variables. No need to declare an
+      iptables target here because marked unmatched packets are just not send to
+      the moblock_* chains again.
+    - added configuration variable LOG_IPTABLES to log matched packets to
+      syslog. This allows to find out e.g. the port. Thanks cader 
+      <cade.robinson@gmail.com>
+  * moblock-control, moblock.conf, debian/postinst:
+    - added new variable MASTER_BLOCKLIST_DIR, so that it is possible to have
+      the master blocklist that is used by the moblock daemon in another
+      directory then the rest of the configuration. For now, the path stays the
+      same. Note that this is not related to the directories for downloading
+      and storing successfully downloaded single blocklists (BLOCKLISTS_DIR and
+      BLOCKLISTS_DIR_USED).
+  * moblock-control, init, cron, debian/postinst:
+    - error and exit if sourcing a configuration file fails although this file
+      exists.
+    - declare as /bin/sh instead of /bin/bash. Hopefully all bashisms removed.
+  * debian/patches:
+    - added 50_debianize.dpatch:
+      - change moblock-control and moblock.conf to default to full Debian
+        compatibility. So on Debian packages the default is full Debian
+        compatibility, while in the separate moblock-control package LSB
+        compatibility is the default. Note that LSB="1" is broken with the
+        current (3.2-12) unmodified Debian LSB init-functions.
+      - remove the copy of the non-LSB Debian LSB init-functions parts which is
+        only needed for other distributions.
+      - whitelist outgoing TCP ports 80 and 443 in moblock.conf, because this is
+        the debconf default. General moblock-control default will stay with no
+        default whitelisting.
+    - added 80_mark_and_log.dpatch (replacing 81_MoBlock.c-logging_block.dpatch)
+      for MoBlock.c and moblock-control:
+      - adds mark-block feature also for INPUT.
+      - strips "Blocked" from the logging, so that the logging doesn't claim
+        too much if mark-block is used (instead of my previous distinguishing
+        between "Blocked" and "Marked block" in
+        81_MoBlock.c-logging_block.dpatch).
+    - removed 82_MoBlock.c-logging_accept.dpatch
+  [ - <not applied> 90_log.dpatch by cader <cade.robinson@gmail.com>.
+      Use this patch instead of 80_mark_and_log.dpatch (edit in the Debian
+      source package debian/patches/00list if you want to use it. Currently this
+      breaks the logging part in mobloquer.
+      - MoBlock.c backups MARKing OUT and FWD packets.
+      - log ports and protocol in moblock.log
+      - SIGUSR1 resets stats, too.
+      - ll_log() function in rbt.c logs the IP range as well
+      - I fixed rbt.c ll_clear() where it wasn't clearing a element in the
+        list.  I am assuming because there is traffic coming in on that range.
+        So I just set "hits" to 0 and then try the free().]
+  * init.functions:
+    - updated, based on Debian init.functions 3.2-12. This file does work with
+      LSB="1".
+  * added support for nfblockd daemon
+  * reorganized packaging:
+    - moved moblock-control stuff to an own folder.
+    - created hard links to debian/ for changelog, cron.daily, init and
+      logrotate, otherwise debhelper doesn't find them.
+  * debian/control:
+    - added Conflicts: nfblockd, iplist
+    - bumped version to 3.8.0: remove copy of parts of init-funtions in
+      moblock-control (50_debianize.dpatch) to satisfy policy 4.13.
+    - added Depends:${misc:Depends}. This pulls e.g. debconf in.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 06 Jul 2008 18:03:16 +0200
+
+moblock (0.9~rc2-11) sid lenny; urgency=low
+
+  * repository: added amd64 support again
+  * moblock-control:
+    - start: readded slightly improved test for the deprecated variables
+      IP_[TCP|UDP]_[IN|OUT|FORWARD]
+  * debian/control:
+    - removed: Conflicts: peerguardnf
+    - added: Conflicts: moblock-ipq, moblock-nfq
+  * debian/postrm (new):
+    - remove recursively /var/spool/moblock
+    - remove master blocklists and their backups in /etc/moblock
+  * minor documentation updates
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Thu, 08 May 2008 22:19:28 +0200
+
+moblock (0.9~rc2-10) sid; urgency=low
+
+  * skipped versions to fix repository
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 07 Apr 2008 22:15:12 +0200
+
+moblock (0.9~rc2-8) sid; urgency=low
+
+  * blocklists.list, README.blocklists:
+    - changed default blocklists to be the same as in nipfilter.dat (added
+      fornonlancomputers.gz and the new proxy.gz, removed rangetest.gz,
+      spiders.gz and spyware.gz)
+    - removed trojan.gz list because bluetack doesn't offer it anymore
+  * moblock-control, cron.daily, init, postinst:
+    - code cleanup
+    - more and better tests, implemented as functions. Removed some tests.
+    - set variables of file tests in parentheses. Fixes "no error" on empty
+      variable.
+  * moblock-control:
+    - update:
+      - if download with timestamping on fails then remove the old list in the
+        download folder and try again without timestamping.
+      - print the "last modified" timestamp of each list in the summary after
+        the update.
+    - insert_iptables:
+      - on IPTABLES_ACTIVATION=0 insert the reject-"marked reject"-rule at the
+        head of the moblock chains (instead of the INPUT/OUTPUT/FORWARD
+        chains), to keep the latter untouched.
+      - exit if any rule fails to be inserted.
+      - specify the queue number. Fixes broken iptables insertion for nfqueue
+        numbers other then 0.
+    - delete_iptables:
+      - if any iptables deletion failed explain what might be the reason.
+    - build_blocklist:
+      - exit with error if there are no blocklists to cat together.
+    - print warning messages (if any operation is configured not to be
+      executed) only if VERBOSITY="1". This makes the VERBOSITY setting
+      consistent to the handling in cron and init.
+  * minor documentation updates
+  * logrotate:
+    - send HUP signal to moblock only if PID exists not is false. Now really
+      fixes error if moblock is not running.
+  * debian/rules:
+    - use xargs when chmod'ing the .sh files to avoid errors if theywhere
+      deleted
+  * debian/patches/8*_MoBlock.c*:
+    - renewed, added explanations
+  * debian/control:
+    - bumped version to 3.7.3, no changes needed
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 06 Apr 2008 10:38:40 +0200
+
+moblock (0.9~rc2-7) sid; urgency=low
+
+  * debian/postinst:
+    - make default variables definitions, to have a fallback if they aren't in
+      moblock.conf
+    - minor changes
+    - don't abort anymore if moblock.conf is not installed. Now really fixes
+      "moblock uninstallable" if moblock.conf was deleted
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Fri, 21 Mar 2008 18:55:32 +0100
+
+moblock (0.9~rc2-6) sid; urgency=low
+
+  * skipping one version number
+  * cron.daily, init:
+    - make default variables definitions, to have a fallback if they aren't in
+      moblock.conf
+    - removed checks if VERBOSITY is set in any way. Better checks for correct
+      variables settings are needed sometimes. See BUGS.
+    - don't abort anymore if moblock.conf is not installed. Fixes "moblock
+      uninstallable" if moblock.conf was deleted
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Thu, 20 Mar 2008 18:33:29 +0100
+
+moblock (0.9~rc2-4) sid; urgency=low
+
+  * moblock-control:
+    - build_blocklist: remove a downloaded blocklist in the "used" directory if
+      extracting fails. Reason: sometimes wget gives a return code 0 (success)
+      for a incompletely downloaded blocklist which will then be copied to
+      "used" erroneously. The cause for this may be that the Coral Cache node
+      has a corrupt level1 blocklist in cache. Or did I miss a bug in the code?
+    - use log_daemon_msg for output
+    - start: moved all tests for sane variables settings to the beginning of
+      the function
+  * moblock-control, cron.daily, init:
+    - Also output the path of moblock.default next to the path of moblock.conf
+      on configuration errors.
+  * logrotate:
+    - send HUP signal to moblock only if PID exists. Fixes error if moblock is
+      not running.
+  * cron.daily, init:
+    - don't warn when configured not to run if VERBOSITY is 0 or 2. Fixes
+      unnecessary mail. Therefore a new setting VERBOSITY="2" in moblock.conf.
+  * init:
+    - fix script to only abort on "start" if moblock is configured not to start
+      automatically (MOBLOCK_INIT="0"). So moblock will always stop on
+      shutdown.
+  * documentation:
+    - minor updates, partly reformatted
+    - fixed errors in moblock.conf regarding the defaults of init and cron
+    - use a pure moblock man page and patch it to also consider moblock-control
+  * copyright: updated
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Thu, 06 Mar 2008 21:46:43 +0100
+
+moblock (0.9~rc2-3) sid; urgency=low
+
+  * added option IPTABLES_TARGET_WHITELISTING in moblock.conf for the iptables
+    target of whitelisted ports/IPs (per default RETURN as it was hardcoded
+    previously)
+  * fixed moblock options so that they don't contain -r/-a for REJECT/ACCEPT=0
+    as it should be. So now the behaviour of MoBlock 0.8 (drop/accept directly)
+    is really possible again.
+  * added most variable definitions to moblock.conf. So porters can adjust the
+    paths easily there. Of course the path of moblock.conf (CONTROL_CONF) still
+    has to be specified in moblock-control, init and cron.
+  * moblock-control test:
+    - exit the test if MoBlock is not running
+    - better differentiate the results
+    - remove leading zeros only for ipfilter.dat blocklists, no more for lists
+      in the p2p format. After removing leading zeros change ".." to ".0.".
+      This is a fix for IPs which contain a real zero octet. For the bugreport
+      see http://ubuntuforums.org/showthread.php?p=4364654
+    - better differentiate the results (check for grep error and always
+      consider if packets are marked or dropped directly) and changed the
+      wording of the results.
+  * debian/control: emphasized warning about MoBlock blocking very much
+  * repository: removed amd64 support until I've fixed that
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Thu, 28 Feb 2008 18:44:06 +0100
+
+moblock (0.9~rc2-2+hardy+amd64) hardy; urgency=low
+
+  * rebuild package for hardy on amd64
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 17 Feb 2008 21:13:54 +0100
+
+moblock (0.9~rc2-2+hardy+i386) hardy; urgency=low
+
+  * rebuild package for hardy on i386
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 17 Feb 2008 21:11:32 +0100
+
+moblock (0.9~rc2-2+gutsy+amd64) gutsy; urgency=low
+
+  * rebuild package for gutsy on amd64
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 17 Feb 2008 21:09:06 +0100
+
+moblock (0.9~rc2-2+gutsy+i386) gutsy; urgency=low
+
+  * rebuild package for gutsy on i386
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 17 Feb 2008 21:05:57 +0100
+
+moblock (0.9~rc2-2+feisty+amd64) feisty; urgency=low
+
+  * rebuild package for feisty on amd64
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 17 Feb 2008 21:03:38 +0100
+
+moblock (0.9~rc2-2+feisty+i386) feisty; urgency=low
+
+  * rebuild package for feisty on i386
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 17 Feb 2008 21:01:47 +0100
+
+moblock (0.9~rc2-2+etch+amd64) etch; urgency=low
+
+  * rebuild package for etch on amd64
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 17 Feb 2008 20:59:40 +0100
+
+moblock (0.9~rc2-2+etch+i386) etch; urgency=low
+
+  * rebuild package for etch on i386
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 17 Feb 2008 20:57:48 +0100
+
+moblock (0.9~rc2-2+lenny+amd64) lenny; urgency=low
+
+  * rebuild package for lenny on amd64
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 17 Feb 2008 20:54:40 +0100
+
+moblock (0.9~rc2-2+lenny+i386) lenny; urgency=low
+
+  * rebuild package for lenny on i386
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 17 Feb 2008 20:51:44 +0100
+
+moblock (0.9~rc2-2+sid+amd64) sid; urgency=low
+
+  * rebuild package for sid on amd64
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 17 Feb 2008 20:48:11 +0100
+
+moblock (0.9~rc2-2) sid; urgency=low
+
+  * debian/moblock-control, debian/init, debian/cron.daily:
+    changed shebang back to /bin/bash. With dash the script is broken.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 17 Feb 2008 20:42:07 +0100
+
+moblock (0.9~rc2-1) sid; urgency=low
+
+  * New upstream code (0.9rc2 from CVS):
+    - fixed loading pg1 lists with comments (lines starting with '#')
+    - fixed a bug in ranges merge (Closes: bug 1818886 (https://sourceforge.net
+      /tracker/index.php?func=detail&aid=1818886&group_id=162910&atid=825649)
+    - applied patch 2223 by badfish99: "IPs logged with bytes reversed on
+      big-endian m/c"
+  * use multiple blocklists from bluetack.co.uk in peerguardian .p2p text
+    format (option "p" instead of "d", also as new default) instead of
+    nipfilter.dat, since the range merging bug is fixed now (same blocklists as
+    up to 0.8-32).
+  * debian/init: added "Should-Start: firehol firestarter"
+  * debian/moblock-control, debian/init, debian/cron.daily:
+    changed shebang to /bin/sh
+  * documentation updates
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 11 Feb 2008 19:28:06 +0100
+
+moblock (0.9~rc1-6+gutsy+amd64) gutsy; urgency=low
+
+  * rebuild package for gutsy on amd64
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 06 Feb 2008 22:42:32 +0100
+
+moblock (0.9~rc1-6+feisty+amd64) feisty; urgency=low
+
+  * rebuild package for feisty on amd64
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 06 Feb 2008 22:21:32 +0100
+
+moblock (0.9~rc1-6+etch+amd64) etch; urgency=low
+
+  * rebuild package for etch on amd64
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 06 Feb 2008 22:19:59 +0100
+
+moblock (0.9~rc1-6+lenny+amd64) lenny; urgency=low
+
+  * rebuild package for lenny on amd64
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 06 Feb 2008 22:14:05 +0100
+
+moblock (0.9~rc1-6+sid+amd64) sid; urgency=low
+
+  * rebuild package for sid on amd64
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 06 Feb 2008 21:43:35 +0100
+
+moblock (0.9~rc1-6) sid; urgency=low
+
+  * moblock.conf:
+    - added variables for logging to syslog and timestamping in the logfile.
+    - Therefore removed DAEMON_OPTS here again, see below
+  * moblock-control:
+    - for LSB_MODE=0: start moblock with Debian specific "start-stop-daemon -b"
+      and DAEMON_OPTS without "&". Otherwise keep old behaviour: lsb
+      "start_daemon" with running moblock with "&" in the background. This
+      seems to fix the "MoBlock fails to start the first time after installing/
+      updating with aptitude" bug. Therefore moved the declaration of
+      DAEMON_OPTS to a new place.
+    - eventually missing function (log_end_msg) is always declared first now
+      and will be overwritten by "init-functions" if it provides this function.
+      (the configuration variable LSB_MODE is therefore no more needed for this)
+    - applied (slightly changed) patch by hemisfear to optimize the IP_REMOVE.
+      Thanks!
+  * load default configuration (/etc/default/moblock) also in cron, init and
+    postinst
+  * postinst:
+    - removed unnecessary LOG_DIR and CONTROL_LOG declaration
+  * documentation updates
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 21 Jan 2008 20:49:41 +0100
+
+moblock (0.9~rc1-5) sid; urgency=low
+
+  * moblock-control test: considers if packets get marked
+  * moblock-control:
+    - if "marking accept" send only new AND marked packets to the moblock 
+      chains. Therefore no more RETURN of the marked packets in the chains
+      necessary.
+    - moved loopback traffic fix to the moblock_in and moblock_out chains with
+      target RETURN instead of ACCEPT
+  * moblock.conf:
+    - added DAEMON_OPTS (before only directly in moblock-control), so that
+      moblock's new logging options can be used (timestamping is already on by
+      default, logging to syslog is now possible, logging to STDOUT doesn't
+      work because moblock is started in the background)
+    - values of variables are now all in double quotes ("") (except DAEMON_OPTS
+      which is put in single quotes ('')) for better parsing by frontends like
+      mobloquer
+  * debian/control:
+    - added mobloquer as suggests
+    - replaces instead of conflicts moblock-nfq and moblock-ipq
+    - removed versioned directory (moblock-0.8) from VCS links
+    - updated description
+  * debian/install: removed "moblock.default" line, this already works
+    automatically. moblock.default is now installed as /etc/default/moblock
+  * patches: compile without 82_MoBlock.c-logging_accept.dpatch
+  * BUGS: newly introduced or noticed the first time: moblock was not running
+    after the update, but didn't give an error message
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 07 Jan 2008 21:52:28 +0100
+
+moblock (0.9~rc1-4) sid; urgency=low
+
+  * postinst: remove the old -nfq and -ipq conf files (init.d and
+    links, logrotate.d, cron.daily)
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 31 Dec 2007 14:48:55 +0100
+
+moblock (0.9~rc1-3) sid; urgency=low
+
+  * moblock-control test:
+    - check if matched line was really a block and not a accept (because i
+      temporarily added logging for accepted packets).
+    - add a warning if packets are only marked and not dropped (because the
+      test only checks the logfile, but doesn't know what really happened to
+      the packet, unless there is a reply from the remote host).
+  * insert iptables rules for marked packets always (not only on
+    IPTABLES_ACTIVATION=1)
+  * insert for "Marked accept" packages the target (default: RETURN) at the
+    head of the moblock chains
+  * minor manpage and documentation update
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sat, 29 Dec 2007 22:14:16 +0100
+
+moblock (0.9~rc1-1) sid; urgency=low
+
+  * New upstream code (0.9rc1 from CVS):
+    - support for MARKing packets instead of DROPping or ACCEPTing
+    - Integrated a patch from David Walluck for proper loading of p2b files
+      (version 2)
+    - command line options for logging to syslog, stdout and log
+      timestamping (on per default in Debian packaging)
+  * packaging:
+    - updated debian packaging to version 3.7.2
+    - only build single package: moblock (nfq version), deleted/renamed/
+      edited Debian files accordingly
+    - patches:
+      - 30_makefile.dpatch (not in this version of sid and etch, but I don't
+        want to make a clean release now):
+        - only change CFLAGS, removed everything else
+      - 70_MoBlock-nfq.sh.dpatch and 72_MoBlock-nfq-reject.sh.dpatch:
+        - start moblock with our filenames
+        - use ipfilter.dat as blocklist (like upstream)
+      - 80_MoBlock.c-nfq_unbind_pf.dpatch (removed, since it's already in
+        upstream source)
+      - 81_MoBlock.c-logging_block.dpatch:
+        - distinguish between "Blocked" and (new) "Marked block"
+      - 82_MoBlock.c-logging_accept.dpatch:
+        - also log "Accepted" and "Marked accepted" packets (for testing
+          purposes)
+  * added extra configuration variable for loopback whitelisting
+  * added default configuration file, so that it is easier to keep special
+    configurations
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sat, 29 Dec 2007 02:40:55 +0100
+
+moblock (0.8-39) sid; urgency=low
+
+  * moblock-control
+    - added default conf variables for people using deprecated conf files
+    - made VERBOSITY test a function which is called only when it's necessary
+  * postinst:
+    - removed check for outdated blocklist
+    - load configuration file to know which blocklist to use
+    - new procedure: test if blocklist exists, else reload, else update, else
+      exit
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 16 Dec 2007 14:34:23 +0100
+
+moblock (0.8-36) sid; urgency=low
+
+  * postinst: fixed blocklist name (ipfilter.dat)
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sat, 15 Dec 2007 21:13:26 +0100
+
+moblock (0.8-35) sid; urgency=low
+
+  * moblock-control: reverted port whitelisting behaviour, sorry for any
+    inconvenience
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sat, 15 Dec 2007 02:29:46 +0100
+
+moblock (0.8-33+hardy) hardy; urgency=low
+
+  * rebuild package for hardy
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Fri, 14 Dec 2007 21:17:03 +0100
+
+moblock (0.8-33) sid; urgency=low
+
+  * moblock-control port and IP whitelisting: The names of the conf variables
+    have changed, the old ones aren't used anymore! Removed udp and tcp
+    options, now always all protocols are whitelisted. This should solve many
+    user problems and eases configuration. For special needs use custom
+    iptables instead.
+  * changed default blocklist to www.bluetack.co.uk/config/nipfilter.dat.gz
+    because of bug 1818886 (https://sourceforge.net/tracker/index.php?func=deta
+    il&aid=1818886&group_id=162910&atid=825649). So also changed the configured
+    blocklist format to ipfilter.dat (-d) instead of peerguardian .p2p text
+    (-p) format!
+  * moblock-control: automatically determine BLOCKLIST name according to the
+    configured type in moblock.conf
+  * moblock-control test:
+    - also test blocklists in eMule ipfilter.dat format
+    - take as TEST_IP the last IP from the first 10 lines to avoid problems
+      with ping
+  * moblock-control build_blocklist: log to logfile which lines will be removed
+    (if IP_REMOVE is set in moblock.conf)
+  * moblock-control: minor bugfixes
+    - missing "log_failure_msg" entry
+    - return code 6 on missing conf file
+    - typo "assuming"
+  * not in Debian package: added LSB init functions for distributions lacking
+    this file
+  * copyright: updated
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 09 Dec 2007 16:26:59 +0100
+
+moblock (0.8-32) sid; urgency=low
+
+  * moblock.conf: added more examples
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 02 Dec 2007 18:05:50 +0100
+
+moblock (0.8-31) sid; urgency=low
+
+  * The "test even small changes before releasing even if there is a birthday
+    to be celebrated the next day if you don't want to upload the backup 5
+    minutes after releasing" release
+  * moblock-control
+    - update: fixed output from last version
+    - added VERBOSITY option in moblock.conf
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 02 Dec 2007 14:01:43 +0100
+
+moblock (0.8-30) sid; urgency=low
+
+  * moblock-control
+    - added optional possibility to set custom iptables rules
+    - removed IPTABLES_STATE option. Paranoid people can use custom
+      iptables rules instead.
+    - update: error and exit if URLs in blocklists.list are php redirects or if
+      any blocklist is completely missing
+    - update: output to stdout the update success status of every blocklist
+    - test: also check if there is an blocklist
+  * documentation updates:
+    - updated/added man pages "moblock" and "moblock-control"
+    - moblock.conf: more documentation
+    - package description: added warning for installation via SSH
+    - README.blocklists: updated entry blocklist.org (dead)
+  * postinst: adjusted routine to check if "update" is necessary on install
+  * packaging:
+    - restructured packaging, moved own stuff (moblock-control, man pages,
+      etc.) to debian/
+    - replaced Makefile installation patches with debhelper stuff
+    - moved "make scripts in /etc/moblock executable" from .postinst to rules
+      mode is now 755 instead of 744, see Debian Policy 10.9
+    - patches: renamed and added descriptions
+    - 80_MoBlock.c-nfq_unbind_pf.dpatch: changed from deleting to uncommenting
+      a line in MoBlock.c (as in upstream CVS, Rev. 1.8)
+    - control: added Homepage, Vcs-Browser: and Vcs-Svn: fields
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 27 Nov 2007 21:11:55 +0100
+
+moblock (0.8-29) lenny sid; urgency=low
+
+  * moblock-control: add blank line at end of each blocklist to make sure that
+    cat'ting them together results in a proper blocklist (fixes broken
+    iana-multicast).
+  * reverted behaviour of using all blocklists in "used" back to behaviour as
+    until 0.8-26 (using exactly the blocklists specified in blocklists.list).
+    Directory "used" is of course still used.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 13 Nov 2007 16:56:46 +0100
+
+moblock (0.8-28) lenny sid; urgency=low
+
+  * moblock-control: extra directory for completely downloaded lists. Fixes
+    incomplete fix from 0.8-27. Closes: Feature Request 1818262.
+  * moblock-control: improved "test" to distinguish between successful and
+    failed pings if the ping was not blocked by moblock.
+  * moblock-control: remove loopback whitelisting on stop
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 29 Oct 2007 21:10:43 +0100
+
+moblock (0.8-27) lenny sid; urgency=low
+
+  * moblock-conf: documentation update port ranges
+  * moblock-control: keep old blocklist if updating remote blocklist fails. Thx
+    dathi and jamesford for hinting me to this problem
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 24 Oct 2007 21:04:43 +0200
+
+moblock (0.8-26) lenny sid; urgency=low
+
+  * moblock-control: status now prints numeric iptables rules (-n) as
+    upstream always recommends
+  * moblock-control: always build new blocklist after update, even if nothing
+    was updated. This was only necessary in the past when there was only
+    "restart" but no "reload". Therefore much code (and one bug) removed.
+  * MoBlock.c-nfq_unbind_pf.dpatch: applied suggested workaround by
+    upstream for bug "NFNETLINK answers: Invalid argument" with kernel
+    2.6.23 (reported on Ubuntu gutsy). Affected users should have a look at
+    https://developer.berlios.de/bugs/?func=detailbug&bug_id=12156&group
+    _id=2509
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 16 Oct 2007 19:19:19 +0200
+
+moblock (0.8-25) lenny sid; urgency=low
+
+  * moblock control: "test" checks all new lines in logfile, not only the
+    last one. Patch by uljanow, thx!
+  * skipping one unreleased version
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 10 Oct 2007 20:54:44 +0200
+
+moblock (0.8-23) lenny sid; urgency=low
+
+  * moblock-control: fixed typo "succeded"
+  * blocklists.list: changed order so that the first list to download is
+    not the biggest one
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Fri, 05 Oct 2007 22:34:05 +0200
+
+moblock (0.8-22) lenny sid; urgency=low
+
+  * moblock-control: always build new blocklist on reload, even if moblock is
+    not running. Fixes "Empty blocklist!" after initial update on installation.
+    thx pelle.k
+  * moblock-control: insert line to moblock.log on test so that several
+    tests in a short time don't falsify the result.
+  * moblock-control: ping in background on test. Quicker and less time
+    for other blocks that falsify the result. Thx pelle.k
+  * moblock-control: changed back localhost whitelisting from RETURN to ACCEPT
+  * moblock-control: iptables output on "status" now verbose
+  * moblock-control: extended "test" failure messages
+  * postinst: output to be patient on initial update
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Thu, 04 Oct 2007 18:45:06 +0200
+
+moblock (0.8-21) lenny sid; urgency=low
+
+  * no changes. sorted out repository signing problems
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 25 Sep 2007 23:01:22 +0200
+
+moblock (0.8-20) lenny sid; urgency=low
+
+  * no changes. only rebuild to include source and get a nice version number
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 25 Sep 2007 19:49:27 +0200
+
+moblock (0.8-19) lenny sid; urgency=low
+
+  * changed output of test function
+  * updated documentation in configuration files
+  * added THANKS file
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 16 Sep 2007 14:16:07 +0200
+
+moblock (0.8-18) lenny sid; urgency=low
+
+  * changed whitelisting from ACCEPT to RETURN
+  * several documentation updates
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Thu, 13 Sep 2007 20:46:49 +0200
+
+moblock (0.8-17+gutsy) gutsy; urgency=low
+
+  * binary upload
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 09 Sep 2007 19:58:18 +0200
+
+moblock (0.8-17+feisty) feisty; urgency=low
+
+  * binary upload
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 05 Sep 2007 22:20:31 +0200
+
+moblock (0.8-17) testing unstable; urgency=low
+
+  * cron and init: testing for missing control script and proper exit codes
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 05 Sep 2007 19:32:21 +0200
+
+moblock (0.8-16) testing unstable; urgency=low
+
+  * Per default *no* whitelisting
+  * new man page by sloter
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 04 Sep 2007 19:01:33 +0200
+
+moblock (0.8-16~pre3) testing unstable; urgency=low
+
+  * added "test" to moblock-control (code by sloter)
+  * minor documentation updates
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 27 Aug 2007 19:15:54 +0200
+
+moblock (0.8-16~pre2) testing unstable; urgency=low
+
+  * added support for ipq again
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 14 Aug 2007 12:42:36 +0200
+
+moblock (0.8-16~pre1+etch) stable; urgency=low
+
+  * binary upload
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 14 Aug 2007 12:42:36 +0200
+
+moblock (0.8-16~pre1+lenny) testing; urgency=low
+
+  * binary upload
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 14 Aug 2007 12:42:36 +0200
+
+moblock (0.8-16~pre1) unstable; urgency=low
+
+  * new maintainer. Many thanks to clessing on whose work I can build now!
+  * IMPORTANT: new script /usr/bin/moblock-control for manual usage, cron and
+    init. Configuration is done in /etc/moblock/moblock.conf and
+    /etc/moblock/blocklists.list. Logfile is in /var/log/moblock-control.log
+    Most files in debian/ changed.
+  * blocklists.list:
+    - added IANA lists
+  * currently only adapted for nfq version - so ipq version is broken.
+  * reverted MoBlock-ipq.sh + MoBlock-nfq.sh to upstream settings (without
+    whitelisting) because they are no more used (moblock-control has 
+    whitelisting for http and https on in the default setting)
+  * debian/control:
+    - depend on lsb-base (>= 3.0-6) instead of lsb-base (>= 3.0-3)
+    - added unzip, p7zip | p7zip-full as recommends
+    - removed gzip (essential package) and libnetfilter-queue1 (already
+      inserted via ${shlibs:Depends})
+    - moved wget from depends to recommends
+    - changed description
+  * debian/postinst:
+    - removed "touch /etc/moblock/guarding.p2p". Currently the installation
+      will abort if "moblock-control update" fails. So need for this.
+  * added README.blocklists and NEWS.Debian
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 14 Aug 2007 12:42:36 +0200
+
+moblock (0.8-15) unstable; urgency=low
+
+  * added manpage by sloter. Many thanks!
+
+ -- clessing <clessing@users.sourceforge.net>  Tue, 01 May 2007 18:24:23 +0200
+
+moblock (0.8-14) unstable; urgency=low
+
+  * blocklist update, many thanks to jre!
+
+ -- clessing <clessing@users.sourceforge.net>  Thu, 28 Dec 2006 18:04:56 +0100
+
+moblock (0.8-13) unstable; urgency=low
+
+  * libnetfilter-queue and libnfnetlink are in the debian repositories now
+
+ -- clessing <clessing@users.sourceforge.net>  Sun, 22 Oct 2006 14:13:34 +0200
+
+moblock (0.8-12) unstable; urgency=low
+
+  * bluetack ist back online
+
+ -- clessing <clessing@users.sourceforge.net>  Fri, 15 Sep 2006 11:59:18 +0200
+
+moblock (0.8-11) unstable; urgency=low
+
+  * move to http://fox.phoenixlabs.org/ until bluetack is back
+
+ -- clessing <clessing@users.sourceforge.net>  Sun, 10 Sep 2006 16:56:40 +0200
+
+moblock (0.8-10) unstable; urgency=low
+
+  * removed optimization for i586 to enable people to compile the package on
+  * other platforms
+
+ -- clessing <clessing@users.sourceforge.net>  Sat, 15 Jul 2006 08:54:04 +0200
+
+moblock (0.8-9) unstable; urgency=low
+
+  * fixed dependencies according to
+  * http://lists.alioth.debian.org/pipermail/pkg-lighttpd-maintainers/2005-December/000019.html
+  
+ -- clessing <clessing@users.sourceforge.net>  Thu,  1 Jun 2006 15:04:47 +0200
+
+moblock (0.8-8) unstable; urgency=low
+
+  * depends on gzip
+
+ -- clessing <clessing@users.sourceforge.net>  Thu, 20 Apr 2006 20:08:14 +0200
+
+moblock (0.8-7) unstable; urgency=low
+
+  * fixed dependencies (added lsb-base, wget)
+
+ -- clessing <clessing@users.sourceforge.net>  Sat, 15 Apr 2006 21:16:23 +0200
+
+moblock (0.8-6) unstable; urgency=low
+
+  * removed force-reload alias from restart in init scripts
+
+ -- clessing <clessing@users.sourceforge.net>  Sun,  9 Apr 2006 15:35:42 +0200
+
+moblock (0.8-5) unstable; urgency=low
+
+  * forgot to enable "reload" in init scripts
+
+ -- clessing <clessing@users.sourceforge.net>  Sun,  9 Apr 2006 15:08:23 +0200
+
+moblock (0.8-4) unstable; urgency=low
+
+  * fixed moblock-nfq init script
+
+ -- clessing <clessing@users.sourceforge.net>  Sun,  9 Apr 2006 14:11:07 +0200
+
+moblock (0.8-3) unstable; urgency=low
+
+  * fixed moblock-nfq dependency
+
+ -- clessing <clessing@users.sourceforge.net>  Thu,  6 Apr 2006 15:32:43 +0200
+
+moblock (0.8-2) unstable; urgency=low
+
+  * whitelisting outgoing http and https by default
+
+ -- clessing <clessing@users.sourceforge.net>  Sat,  1 Apr 2006 12:08:20 +0200
+
+moblock (0.8-1) unstable; urgency=low
+
+  * new upstream release
+
+ -- clessing <clessing@users.sourceforge.net>  Wed, 29 Mar 2006 20:26:52 +0200
+
+moblock (0.7cvs20060313-9) unstable; urgency=low
+
+  * create missing directory /var/spool/moblock 
+ 
+  * using wget to test internet connection while updating blocklists
+
+ -- clessing <clessing@users.sourceforge.net>  Mon, 27 Mar 2006 00:25:40 +0200
+
+moblock (0.7cvs20060313-8) unstable; urgency=low
+
+  * fixed postinstallation script to ensure that the old moblock package is
+    not started.
+
+ -- clessing <clessing@users.sourceforge.net>  Sun, 19 Mar 2006 21:36:34 +0100
+
+moblock (0.7cvs20060313-7) unstable; urgency=low
+
+  * modified the startup script to properly detect which module to load
+
+ -- clessing <clessing@users.sourceforge.net>  Sun, 19 Mar 2006 10:43:26 +0100
+
+moblock (0.7cvs20060313-6) unstable; urgency=low
+
+  * heavy modification of the startup script due to a misunderstanding of
+    how the QUEUE target works. Now it creates  three chains that you can
+    use in your own firewall. (MOBLOCK_IN, MOBLOCK_OUT, MOBLOCK_FW). 
+
+ -- clessing <clessing@users.sourceforge.net>  Fri, 17 Mar 2006 11:25:31 +0100
+
+moblock (0.7cvs20060313-5) unstable; urgency=low
+
+  * modified MoBlock.sh for better port whitelisting. You can now set six
+    variables in /etc/moblock/MoBlock.sh that whitelist tcp and udp ports in
+    INCOMING, OUTPUT and FORWARD
+
+ -- clessing <clessing@users.sourceforge.net>  Fri, 17 Mar 2006 09:33:33 +0100
+
+moblock (0.7cvs20060313-4) unstable; urgency=low
+
+  * fixed MoBlock.sh: proper checking for pidfile, generic handling of
+    QUEUE/NFQUEUE, allowing http and https traffic, 
+  * modified MoBlock.c to remove pidfile on SIGTERM before exiting
+
+ -- clessing <clessing@users.sourceforge.net>  Fri, 17 Mar 2006 08:48:25 +0100
+
+moblock (0.7cvs20060313-3) unstable; urgency=low
+
+  * fixed package creation: due to an error some debian installation scripts
+    were executed twice.
+  * fixed MoBlock.c to check for /var/run/moblock.pid. Exit if exists.
+
+ -- clessing <clessing@users.sourceforge.net>  Fri, 17 Mar 2006 08:00:44 +0100
+
+moblock (0.7cvs20060313-2) unstable; urgency=low
+
+  * fixed MoBlock.sh to check if moblock is already running
+
+ -- clessing <clessing@users.sourceforge.net>  Fri, 17 Mar 2006 01:31:09 +0100
+
+moblock (0.7cvs20060313-1) unstable; urgency=low
+
+  * massive package restructuring to create both the ipq and nfq version
+    building results in _two_ binary packages 
+
+ -- clessing <clessing@users.sourceforge.net>  Thu, 16 Mar 2006 18:50:15 +0100
+
+moblock (0.7-4) unstable; urgency=low
+
+  * removed dependency (libnetfilter-queue and libnetfilter-queue-dev)
+    for the time being
+
+ -- clessing <clessing@users.sourceforge.net>  Thu,  9 Mar 2006 19:25:04 +0100
+
+moblock (0.7-3) unstable; urgency=low
+
+  * reverted to libipq until I get nfqueue working. everything works now.
+
+ -- clessing <clessing@users.sourceforge.net>  Thu,  9 Mar 2006 18:58:01 +0100
+
+moblock (0.7-2) unstable; urgency=low
+
+  * changed source to create pid file and to reopen logfile on SIGHUP
+
+ -- clessing <clessing@users.sourceforge.net>  Thu,  9 Mar 2006 16:02:32 +0100
+
+moblock (0.7-1) unstable; urgency=low
+
+  * Initial release
+
+ -- clessing <clessing@users.sourceforge.net>  Tue,  7 Mar 2006 18:32:45 +0100

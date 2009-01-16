@@ -1,0 +1,348 @@
+#!/bin/sh
+# moblock-control - script to manage MoBlock.
+# Adapted to work with nfblockd, too.
+# Copyright (C) 2005 - 2009 jre <jre-phoenix@users.sourceforge.net>
+# Parts and ideas from JFM, /meth/usr, lestlest (clessing), Morpheus and
+# perhaps others. More Info: http://forums.phoenixlabs.org
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+################################################################################
+# The following code is common between moblock-control, init, cron.daily,
+# moblock.if-up and debian/postinst.
+# It sets/loads the variables and functions
+
+# These two variables have to be set correctly in all just mentioned files.
+# Everything else can then be done in moblock.conf.
+CONTROL_CONF="/etc/moblock/moblock.conf"
+SCRIPT_DEFAULTS="/usr/lib/moblock-control/moblock-control.defaults"
+
+# Remember standard IFS (Internal Field Seperator)
+STDIFS=$IFS
+
+# Set sane configuration defaults. They will be overwritten by the values in
+# CONTROL_CONF and CONTROL_DEFAULT
+if [ -f "$SCRIPT_DEFAULTS" ] ; then
+	. $SCRIPT_DEFAULTS || { echo "Error: Failed to source $SCRIPT_DEFAULTS although this file exists."; exit 1; }
+else
+	echo "Error 7: Missing file $SCRIPT_DEFAULTS."
+	exit 7
+fi
+
+# Check what daemon is installed in PATH and set variables accordingly.
+# We first need to know the NAME, so this needs to be the first thing we do.
+NAME=
+DAEMON=
+DESC=
+IFS=":"
+for PATH_I in $PATH ; do
+	if [ -x "$PATH_I/moblock" ] ; then
+		NAME="moblock"
+		DAEMON="$PATH_I/moblock"
+		DESC="MoBlock"
+		break
+	elif [ -x "$PATH_I/nfblockd" ] ; then
+		NAME="nfblockd"
+		DAEMON="$PATH_I/$NAME"
+		DESC="Netfilter Blocking Daemon"
+		break
+	fi
+done
+IFS=$STDIFS
+
+# Load configuration. This overwrites the above values.
+if [ -f "$CONTROL_CONF" ] ; then
+	. $CONTROL_CONF || { echo "Error: Failed to source $CONTROL_CONF although this file exists."; exit 1; }
+else
+	[ -d "$(dirname $CONTROL_CONF)" ] || {
+		echo -n "Creating missing directory $(dirname $CONTROL_CONF)"
+		mkdir "$(dirname $CONTROL_CONF)" && echo "."
+		} || {
+		log_failure_msg "Error $E_XCD: Missing directory "$(dirname $CONTROL_CONF)"."
+		log_failure_msg "Check the CONTROL_CONF setting in $0."
+		exit $E_XCD
+	}
+	echo -n "Creating missing $CONTROL_CONF"
+	echo "# moblock.conf - configuration file for moblock-control" > $CONTROL_CONF
+	echo "# This file was created automatically by $0." >> $CONTROL_CONF
+	echo "" >> $CONTROL_CONF
+	echo "# This file is sourced by a shell script. Any line which starts with a # (hash) " >> $CONTROL_CONF
+	echo "# is a comment and is ignored. If you set the same variable several times," >> $CONTROL_CONF
+	echo "# then only the last line will be used. You have to stop and restart $NAME" >> $CONTROL_CONF
+	echo "# if you change entries." >> $CONTROL_CONF
+	echo "" >> $CONTROL_CONF
+	echo "# Values from this file (moblock.conf) will be overwritten by moblock.default" >> $CONTROL_CONF
+	echo "# (/etc/default/moblock) if they are set there." >> $CONTROL_CONF
+	echo "."
+fi
+
+# Load default configuration. This overwrites the above values.
+if [ -f "$CONTROL_DEFAULT" ] ; then
+	. $CONTROL_DEFAULT || { echo "Error: Failed to source $CONTROL_DEFAULT although this file exists."; exit 1; }
+else
+	[ -d "$(dirname $CONTROL_DEFAULT)" ] || {
+		echo -n "Creating missing directory $(dirname $CONTROL_DEFAULT)"
+		mkdir "$(dirname $CONTROL_DEFAULT)" && echo "."
+		} || {
+		log_failure_msg "Error $E_XCD: Missing directory "$(dirname $CONTROL_CONF)"."
+		log_failure_msg "Check the CONTROL_DEFAULT setting in $0."
+		exit $E_XCD
+	}
+	echo -n "Creating missing $CONTROL_DEFAULT"
+	echo "# moblock.default - default configuration file for moblock-control" >> $CONTROL_DEFAULT
+	echo "# This file was created automatically by $0." >> $CONTROL_DEFAULT
+	echo "" >> $CONTROL_DEFAULT
+	echo "# In this file you can put any configuration variable from moblock.conf" >> $CONTROL_DEFAULT
+	echo "# ($CONTROL_CONF). Values in moblock.conf will be overwritten by" >> $CONTROL_DEFAULT
+	echo "# values in this file (moblock.default)." >> $CONTROL_DEFAULT
+	echo "" >> $CONTROL_DEFAULT
+	echo "# Do a \"moblock-control restart\" when you have edited this file." >> $CONTROL_DEFAULT
+	echo "" >> $CONTROL_DEFAULT
+	echo "."
+fi
+
+# If the daemon was neither found, nore set manually, then abort now.
+if [ -z $NAME ] || [ -z $DAEMON ] || [ -z $DESC ] ; then
+	echo "Could not detect an IPBlocker daemon. MoBlock and NFBlockD are supported."
+	echo "Neither of them was found in PATH: $PATH."
+	echo "Error $E_CONFIG: You may set NAME, DAEMON and DESC manually in $CONTROL_CONF."
+	exit $E_CONFIG
+fi
+
+# Load moblock-control library.
+if [ -f "$SCRIPT_LIB" ] ; then
+	. $SCRIPT_LIB || { echo "Error: Failed to source $SCRIPT_LIB although this file exists."; exit 1; }
+else
+	echo "Error $E_CONFIG: You need $SCRIPT_LIB."
+	exit $E_CONFIG
+fi
+
+load_lsb
+
+# End of the common code between moblock-control, init, cron.daily,
+# moblock.if-up and debian/postinst.
+################################################################################
+
+# Test (nearly) all variables and paths if option is not stop:
+if [ "$1" != stop ] ; then
+	test_VERBOSITY
+	# Test correct BLOCKLIST_FORMAT setting.
+	# Set the blocklist name depending on the type of the blocklist (configuration setting).
+	test_set_BLOCKLIST
+	test_DAEMON
+	test_CONF_DIR
+	test_MASTER_BLOCKLIST_DIR
+	test_LOG_TIMESTAMP
+	test_LOG_SYSLOG
+	test_IPTABLES_TARGET
+	test_REJECT
+	test_ACCEPT
+	test_LSB_MODE
+	test_BLOCKLISTS_DIR
+	test_BLOCKLISTS_LIST
+	test_LOG_DIR
+fi
+
+# Test variables that are also needed on "stop"
+test_PIDFILE
+test_IPTABLES_VARS
+test_root
+
+# And now, make this script usable:
+case "$1" in
+	'start')
+		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Starting $DESC" "$NAME"
+		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		do_start >> $CONTROL_LOG 2>&1
+		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
+		;;
+	'stop')
+		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Stopping $DESC" "$NAME"
+		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		do_stop >> $CONTROL_LOG 2>&1
+		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
+		;;
+	'restart')
+		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Restarting $DESC" "$NAME"
+		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		do_restart >> $CONTROL_LOG 2>&1
+		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
+		;;
+	'reload'|'force-reload')
+		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Reloading $DESC" "$NAME"
+		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		do_reload >> $CONTROL_LOG 2>&1
+		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
+		;;
+	'update')
+		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Updating blocklists and reloading $DESC" "$NAME"
+		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		update_blocklists >> $CONTROL_LOG 2>&1
+		do_reload >> $CONTROL_LOG 2>&1
+		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
+		if [ "$VERBOSITY" -gt 0 ] ; then
+			IFS=";"
+			if [ -n "$UPDATE_FAIL" ] ; then
+				echo ""
+				echo "The following lists failed to update but have old usable versions:"
+				for i in $UPDATE_FAIL ; do
+					echo "$i"
+				done
+			fi
+			if [ -n "$UPDATE_SUCCESS" ] ; then
+				echo ""
+				echo "The following lists were updated:"
+				for i in $UPDATE_SUCCESS ; do
+					echo "$i"
+				done
+			fi
+			if [ -n "$UPDATE_SUCCESS_NA" ] ; then
+				echo ""
+				echo "For the following lists there was no update available:"
+				for i in $UPDATE_SUCCESS_NA ; do
+					echo "$i"
+				done
+			fi
+			if [ -n "$UPDATE_LOCAL" ] ; then
+				echo ""
+				echo "The following local blocklists are used:"
+				for i in $UPDATE_LOCAL ; do
+					echo "$i"
+				done
+			fi
+			IFS=$STDIFS
+		fi
+		;;
+	'status')
+		echo "Current IPv4 iptables rules (this may take a while):"
+		echo
+		iptables -L -nv
+		if [ "`lsmod | grep ipv6`" ]
+		then
+			echo
+			echo "Current IPv6 iptables rules (this may take a while):"
+			echo
+			ip6tables -L -nv
+		fi
+		echo
+		echo "Please check if the above printed iptables rules are correct!"
+		echo
+		daemon_status
+		;;
+	'stats')
+		daemon_status
+		if [ "$?" -eq 0 ] ; then
+			dump_stats
+		fi
+		;;
+	'reset_stats')
+		daemon_status
+		if [ "$?" -eq 0 ] ; then
+			reset_stats
+		fi
+		;;
+	'show_config')
+		echo "$(basename $0) current settings:"
+		VARIABLES="BLOCKLIST_FORMAT
+		LOG_TIMESTAMP
+		LOG_SYSLOG
+		LOG_IPTABLES
+		VERBOSITY
+		MOBLOCK_INIT
+		MOBLOCK_CRON
+		WGET_OPTS
+		IPTABLES_TARGET
+		NFQUEUE_NUMBER
+		IPTABLES_SETTINGS
+		IPTABLES_ACTIVATION
+		REJECT
+		REJECT_MARK
+		REJECT_IN
+		REJECT_OUT
+		REJECT_FW
+		ACCEPT
+		ACCEPT_MARK
+		IPTABLES_TARGET_WHITELISTING
+		WHITE_LOCAL
+		WHITE_TCP_IN
+		WHITE_UDP_IN
+		WHITE_TCP_OUT
+		WHITE_UDP_OUT
+		WHITE_TCP_FORWARD
+		WHITE_UDP_FORWARD
+		WHITE_IP_IN
+		WHITE_IP_OUT
+		WHITE_IP_FORWARD
+		IP_REMOVE
+		PATH
+		NAME
+		DAEMON
+		DESC
+		CONTROL_SCRIPT
+		CONF_DIR
+		CONTROL_DEFAULT
+		MASTER_BLOCKLIST_DIR
+		BLOCKLISTS_DIR
+		BLOCKLISTS_LIST
+		MD5SUM_FILE
+		ALLOW_IN
+		ALLOW_OUT
+		ALLOW_FW
+		IPTABLES_CUSTOM_INSERT
+		IPTABLES_CUSTOM_DELETE
+		LOG_DIR
+		DAEMON_LOG
+		CONTROL_LOG
+		STATFILE
+		PIDFILE
+		LSB
+		TESTHOST
+		LSB_MODE"
+		for VAR in $VARIABLES ; do
+			eval VALUE=\$$VAR
+			echo ${VAR}=\"$VALUE\"
+		done
+		echo
+		echo "The following blocklists are configured to be used:"
+		set_LISTS_URL
+		for LIST in $LISTS_URL ; do
+			echo "$LIST"
+		done
+		;;
+	'test')
+		test_ipblocking
+		;;
+	*)
+		echo "Usage: $(basename $0) OPTION"
+		echo "Options:"
+		echo "        start"
+		echo "        stop"
+		echo "        restart"
+		echo "        reload"
+		echo "        update"
+		echo "        status"
+		echo "        test"
+		echo "        stats"
+		echo "        reset_stats"
+		echo "        show_config"
+		exit $E_BADARGS
+		;;
+esac
+exit $RETVAL

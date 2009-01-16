@@ -1,0 +1,77 @@
+BUGS of moblock-control and MoBlock debian packaging:
+
+################################## Open bugs: ##################################
+
+- moblock-control can't verify if MoBlock is really started, since MoBlock is
+  started in the background.
+  A successful start is reported before this is really the case. If MoBlock
+  crashes while loading its configuration this will stay unnoticed.
+  Would be (partly) solved if MoBlock was a real daemon!
+  Additionally (as seen in other init scripts) a timeout of X seconds and then
+  a "kill -0" or a "moblock-control test" is possible.
+  --
+  2008-01-21, jre <jre-phoenix@users.sourceforge.net>
+
+- User cybergypsy reports that he has to restart MoBlock after 24h, otherwise
+  he's "Running out of network connections"
+  http://ubuntuforums.org/showthread.php?t=831683
+  --
+  2008-06-19
+
+
+############################# (Major) closed bugs: #############################
+
+- <SOLVED in moblock-control 1.0-1>
+  debconf doesn't work as expected. Debconf runs twice during installation:
+  first it asks questions and then it overwrites the answers with the not-yet
+  modified configuration files.
+  Further the debconf database is not cleared properly on purge.
+
+  Solution: move all stuff from debian/config to debian/postinst.
+  --
+  2008-07-14, jre <jre-phoenix@users.sourceforge.net>
+
+- <SOLVED in 0.9~rc1-6 and 0.8-40> MoBlock fails to start after install/update
+  -
+  I frequently have the problem that after updating moblock with aptitude
+  moblock was not running (no pid, no process). moblock.log stated:
+  "Error opening , aborting...".
+  "moblock-control restart" solves this.
+
+  A test with MoBlock 0.8-39 showed: the process was dead, but the pidfile
+  existed. Restarting also solved this...
+
+  Solution:
+  On Debian start MoBlock with Debian specific "start-stop-daemon -b"
+  and DAEMON_OPTS without "&" instead of the LSB way.
+
+  Have a look for bugs in the init.functions :-/
+
+  Note that moblock-control can't verify if MoBlock is really started, since
+  MoBlock is started in the background. See separate bug of 2008-01-21.
+  --
+  2008-01-07, jre <jre-phoenix@users.sourceforge.net>
+
+
+- <SOLVED upstream in 0.9~rc2-1> Merging blocklists results in incomplete IP
+  ranges
+  --
+  https://sourceforge.net/tracker/?atid=825649&group_id=162910
+
+################################ Archived bugs: ################################
+
+- <Not reproducible> moblock-control stop doesn't stop moblock
+  Found on Debian sid, moblock 0.9~rc2-3,
+  Kernel 2.6.24-1-686 #1 SMP Mon Feb 11 14:37:45 UTC 2008 i686 GNU/Linux
+  -
+  Bug in lsb-base?
+  --
+  2008-03-05, jre <jre-phoenix@users.sourceforge.net>
+
+- <Not confirmed> moblock-control fails with openbox start menu / rxvt
+  Environment problems?
+  --
+  http://ubuntuforums.org/showthread.php?t=192559
+  [QUOTE=quixotic-cynic;3434826]If I run moblock off my openbox start menu with
+  the command [CODE]rxvt -e sudo /etc/init.d/moblock-nfq start[/CODE] it
+  completely nerfs my internet connection.[/QUOTE]

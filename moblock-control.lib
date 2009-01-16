@@ -1,0 +1,1695 @@
+# moblock-control defaults library
+# Copyright (C) 2005 - 2009 jre <jre-phoenix@users.sourceforge.net>
+# Parts and ideas from JFM, /meth/usr, lestlest (clessing), Morpheus and
+# perhaps others. More Info: http://forums.phoenixlabs.org
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+# Define functions which may only be present in the Debian LSB
+# /lib/lsb/init-functions file. They will be overwritten by the system's
+# init-functions, if they are provided there.
+################################################################################
+# Following are parts of the Debian /lib/lsb/init-functions:
+#1. Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#2. Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+#3. Neither the name of the author nor the names of other contributors
+#   may be used to endorse or promote products derived from this software
+#   without specific prior written permission.
+#
+#THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+#ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+#FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+#DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+#OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+#HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+#LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+#OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+#SUCH DAMAGE.
+log_daemon_msg () {
+	if [ -z "${1:-}" ] ; then
+		return 1
+	fi
+
+	if [ -z "${2:-}" ] ; then
+		echo -n "$1:"
+		return
+	fi
+	echo -n "$1: $2"
+}
+
+log_end_msg () {
+	if [ "$1" -eq 0 ] ; then
+		log_success_msg "   ...done."
+	else
+		log_failure_msg "   ...fail!"
+	fi
+}
+# End of parts of the Debian /lib/lsb/init-functions.
+################################################################################
+
+# Load LSB-init-functions shell library
+# Debian: Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
+# Some LSB init.functions (depending on your distribution) overwrite the above logging functions.
+load_lsb () {
+	if [ -f "$LSB" ] ; then
+		. $LSB || { echo "Error: Failed to source $LSB."; exit 1; }	# Don't use log_failure_msg!
+	else
+		echo "Error $E_XEXTERNAL: You need the LSB (3.1) init functions in $LSB."	# Don't use log_failure_msg!
+		echo "If your distribution doesn't provide this file you can use init.functions"
+		echo "from moblock-control from moblock-deb.sourceforge.net."
+		exit $E_XEXTERNAL
+	fi
+}
+
+# Test correct BLOCKLIST_FORMAT setting.
+# Set the blocklist name depending on the type of the blocklist (configuration setting).
+test_set_BLOCKLIST () {
+	case "$BLOCKLIST_FORMAT" in
+		'd')	# blocklist file is in eMule ipfilter.dat format
+			BLOCKLIST="$MASTER_BLOCKLIST_DIR/ipfilter.dat"
+			;;
+		'n')	# blocklist file is in peerguardian .p2b v2 binary format
+			BLOCKLIST="$MASTER_BLOCKLIST_DIR/guarding.p2b"
+			;;
+		'p')	# blocklist file is in peerguardian .p2p text format
+			BLOCKLIST="$MASTER_BLOCKLIST_DIR/guarding.p2p"
+			;;
+		*)
+			log_failure_msg "Error $E_CONFIG: Check the BLOCKLIST_FORMAT setting."
+			grep -Eq "^[[:space:]]*BLOCKLIST_FORMAT=" $CONTROL_DEFAULT && \
+				log_failure_msg "BLOCKLIST_FORMAT is set in $CONTROL_DEFAULT." || \
+				log_failure_msg "BLOCKLIST_FORMAT is set in $CONTROL_CONF."
+			exit $E_CONFIG
+			;;
+	esac
+}
+
+test_MOBLOCK_INIT () {
+	case "$MOBLOCK_INIT" in
+		'0'|'1'|'2')
+			true
+			;;
+		*)
+			log_failure_msg "Error $E_CONFIG: Check the MOBLOCK_INIT setting."
+			grep -Eq "^[[:space:]]*MOBLOCK_INIT=" $CONTROL_DEFAULT && \
+				log_failure_msg "MOBLOCK_INIT is set in $CONTROL_DEFAULT." || \
+				log_failure_msg "MOBLOCK_INIT is set in $CONTROL_CONF."
+			exit $E_CONFIG
+			;;
+	esac
+}
+
+test_MOBLOCK_CRON () {
+	case "$MOBLOCK_CRON" in
+		'0'|'1')
+			true
+			;;
+		*)
+			log_failure_msg "Error $E_CONFIG: Check the MOBLOCK_CRON setting."
+			grep -Eq "^[[:space:]]*MOBLOCK_CRON=" $CONTROL_DEFAULT && \
+				log_failure_msg "MOBLOCK_CRON is set in $CONTROL_DEFAULT." || \
+				log_failure_msg "MOBLOCK_CRON is set in $CONTROL_CONF."
+			exit $E_CONFIG
+			;;
+	esac
+}
+
+
+test_VERBOSITY () {
+	case "$VERBOSITY" in
+		'0'|'1'|'2')
+			true
+			;;
+		*)
+			log_failure_msg "Error $E_CONFIG: Check the VERBOSITY setting."
+			grep -Eq "^[[:space:]]*VERBOSITY=" $CONTROL_DEFAULT && \
+				log_failure_msg "VERBOSITY is set in $CONTROL_DEFAULT." || \
+				log_failure_msg "VERBOSITY is set in $CONTROL_CONF."
+			exit $E_CONFIG
+			;;
+	esac
+}
+
+test_DAEMON () {
+	[ -x "$DAEMON" ] || { 
+			log_failure_msg "Error $E_XBIN: $DAEMON not installed."
+			exit $E_XBIN
+	}
+}
+
+test_CONTROL_SCRIPT () {
+	[ -x "$CONTROL_SCRIPT" ] || {
+		log_failure_msg "$0: $CONTROL_SCRIPT not installed."
+		exit $E_XBIN
+	}
+}
+
+test_CONF_DIR () {
+	[ -d "$CONF_DIR" ] || {
+		echo -n "Creating missing directory $CONF_DIR ..."
+		mkdir $CONF_DIR && echo "."
+	} || {
+		log_failure_msg "Error $E_XCD: Missing directory $CONF_DIR."
+		log_failure_msg "Check the CONF_DIR setting."
+		grep -Eq "^[[:space:]]*CONF_DIR=" $CONTROL_DEFAULT && \
+			log_failure_msg "CONF_DIR is set in $CONTROL_DEFAULT." || \
+			log_failure_msg "CONF_DIR is set in $CONTROL_CONF."
+		exit $E_XCD
+	}
+}
+
+test_MASTER_BLOCKLIST_DIR () {
+	[ -d "$MASTER_BLOCKLIST_DIR" ] || {
+		echo -n "Creating missing directory $MASTER_BLOCKLIST_DIR ..."
+		mkdir $MASTER_BLOCKLIST_DIR && echo "."
+	} || {
+		log_failure_msg "Error $E_XCD: Missing directory $MASTER_BLOCKLIST_DIR."
+		log_failure_msg "Check the MASTER_BLOCKLIST_DIR setting."
+		grep -Eq "^[[:space:]]*MASTER_BLOCKLIST_DIR=" $CONTROL_DEFAULT && \
+			log_failure_msg "MASTER_BLOCKLIST_DIR is set in $CONTROL_DEFAULT." || \
+			log_failure_msg "MASTER_BLOCKLIST_DIR is set in $CONTROL_CONF."
+		exit $E_XCD
+	}
+}
+
+test_LOG_TIMESTAMP () {
+	case "$LOG_TIMESTAMP" in
+		'0'|'1')
+			true
+			;;
+		*)
+			log_failure_msg "Error $E_CONFIG: Check the LOG_TIMESTAMP setting."
+		grep -Eq "^[[:space:]]*LOG_TIMESTAMP=" $CONTROL_DEFAULT && \
+			log_failure_msg "LOG_TIMESTAMP is set in $CONTROL_DEFAULT." || \
+			log_failure_msg "LOG_TIMESTAMP is set in $CONTROL_CONF."
+			exit $E_CONFIG
+			;;
+	esac
+}
+
+test_LOG_SYSLOG () {
+	case "$LOG_SYSLOG" in
+		'0'|'1')
+			true
+			;;
+		*)
+			log_failure_msg "Error $E_CONFIG: Check the LOG_SYSLOG setting."
+		grep -Eq "^[[:space:]]*LOG_SYSLOG=" $CONTROL_DEFAULT && \
+			log_failure_msg "LOG_SYSLOG is set in $CONTROL_DEFAULT." || \
+			log_failure_msg "LOG_SYSLOG is set in $CONTROL_CONF."
+			exit $E_CONFIG
+			;;
+	esac
+}
+
+test_IPTABLES_TARGET () {
+	case "$IPTABLES_TARGET" in
+		'NFQUEUE')
+			[ "$NFQUEUE_NUMBER" -ge 0 ] && [ "$NFQUEUE_NUMBER" -le 65535 ] || {
+				log_failure_msg "Error $E_CONFIG: Check the NFQUEUE_NUMBER setting."
+				grep -Eq "^[[:space:]]*NFQUEUE_NUMBER=" $CONTROL_DEFAULT && \
+					log_failure_msg "NFQUEUE_NUMBER is set in $CONTROL_DEFAULT." || \
+					log_failure_msg "NFQUEUE_NUMBER is set in $CONTROL_CONF."
+				exit $E_CONFIG
+				}
+			;;
+		# although QUEUE is deprecated, it is the same as NFQUEUE 0.
+		'QUEUE')
+			true
+			;;
+		*)
+			log_failure_msg "Error $E_CONFIG: Check the IPTABLES_TARGET setting."
+			grep -Eq "^[[:space:]]*IPTABLES_TARGET=" $CONTROL_DEFAULT && \
+				log_failure_msg "IPTABLES_TARGET is set in $CONTROL_DEFAULT." || \
+				log_failure_msg "IPTABLES_TARGET is set in $CONTROL_CONF."
+			exit $E_CONFIG
+			;;
+	esac
+}
+
+test_REJECT () {
+	case "$REJECT" in
+		'0')
+			true
+			;;
+		'1')
+			# No test for REJECT_MARK, yet
+			# No test for REJECT_IN. Valid: all iptables targets
+			# No test for REJECT_OUT. Valid: all iptables targets
+			# No test for REJECT_FW. Valid: all iptables targets
+			true
+			;;
+		*)
+			log_failure_msg "Error $E_CONFIG: Check the REJECT setting."
+			grep -Eq "^[[:space:]]*REJECT=" $CONTROL_DEFAULT && \
+				log_failure_msg "REJECT is set in $CONTROL_DEFAULT." || \
+				log_failure_msg "REJECT is set in $CONTROL_CONF."
+			exit $E_CONFIG
+			;;
+	esac
+}
+
+test_ACCEPT () {
+	case "$ACCEPT" in
+		'0')
+			true
+			;;
+		'1')
+			# No test for ACCEPT_MARK, yet
+			true
+			;;
+		*)
+			log_failure_msg "Error $E_CONFIG: Check the ACCEPT setting."
+			grep -Eq "^[[:space:]]*ACCEPT=" $CONTROL_DEFAULT && \
+				log_failure_msg "ACCEPT is set in $CONTROL_DEFAULT." || \
+				log_failure_msg "ACCEPT is set in $CONTROL_CONF."
+			exit $E_CONFIG
+			;;
+	esac
+}
+
+test_LSB_MODE () {
+	case "$LSB_MODE" in
+		'0'|'1'|'2')
+			true
+			;;
+		*)
+			log_failure_msg "Error $E_CONFIG: Check the LSB_MODE setting."
+			grep -Eq "^[[:space:]]*LSB_MODE=" $CONTROL_DEFAULT && \
+				log_failure_msg "LSB_MODE is set in $CONTROL_DEFAULT." || \
+				log_failure_msg "LSB_MODE is set in $CONTROL_CONF."
+			exit $E_CONFIG
+			;;
+	esac
+}
+
+test_BLOCKLISTS_DIR () {
+	[ -d "$BLOCKLISTS_DIR" ] || {
+		echo -n "Creating missing directory $BLOCKLISTS_DIR ..."
+		mkdir $BLOCKLISTS_DIR && echo "."
+	} || {
+		log_failure_msg "Error $E_XCD: Missing directory $BLOCKLISTS_DIR."
+		log_failure_msg "Check the BLOCKLISTS_DIR setting."
+		grep -Eq "^[[:space:]]*BLOCKLISTS_DIR=" $CONTROL_DEFAULT && \
+			log_failure_msg "BLOCKLISTS_DIR is set in $CONTROL_DEFAULT." || \
+			log_failure_msg "BLOCKLISTS_DIR is set in $CONTROL_CONF."
+		exit $E_XCD
+	}
+}
+
+test_BLOCKLISTS_LIST () {
+	[ -f "$BLOCKLISTS_LIST" ] || {
+		log_failure_msg "Error $E_XFILE: Missing file $BLOCKLISTS_LIST."
+		log_failure_msg "Check the BLOCKLISTS_LIST setting."
+		grep -Eq "^[[:space:]]*BLOCKLISTS_LIST=" $CONTROL_DEFAULT && \
+			log_failure_msg "BLOCKLISTS_LIST is set in $CONTROL_DEFAULT." || \
+			log_failure_msg "BLOCKLISTS_LIST is set in $CONTROL_CONF."
+		exit $E_XFILE
+	}
+}
+
+test_LOG_DIR () {
+	[ -d "$LOG_DIR" ] || {
+		echo -n "Creating missing directory $LOG_DIR ..."
+		mkdir $LOG_DIR && echo "."
+	} || {
+		log_failure_msg "Error $E_XCD: Missing directory $LOG_DIR."
+		log_failure_msg "Check the LOG_DIR setting."
+		grep -Eq "^[[:space:]]*LOG_DIR=" $CONTROL_DEFAULT && \
+			log_failure_msg "LOG_DIR is set in $CONTROL_DEFAULT." || \
+			log_failure_msg "LOG_DIR is set in $CONTROL_CONF."
+		exit $E_XCD
+	}
+}
+
+test_PIDFILE () {
+	[ -d "$(dirname $PIDFILE)" ] || {
+		log_failure_msg "Error $E_XCD: Missing directory "$(dirname $PIDFILE)"."
+		log_failure_msg "$DESC needs a directory to write its pidfile to!"
+		log_failure_msg "Check the PIDFILE setting."
+		grep -Eq "^[[:space:]]*PIDFILE=" $CONTROL_DEFAULT && \
+			log_failure_msg "PIDFILE is set in $CONTROL_DEFAULT." || \
+			log_failure_msg "PIDFILE is set in $CONTROL_CONF."
+		exit $E_XCD
+	}
+}
+
+test_IPTABLES_VARS () {
+	case "$IPTABLES_SETTINGS" in
+		'0')
+			true
+			;;
+		'1')
+			case "$IPTABLES_ACTIVATION" in
+				'0'|'1'|'2')
+					true
+					;;
+				*)
+					log_failure_msg "Error $E_CONFIG: Check the IPTABLES_ACTIVATION setting."
+					grep -Eq "^[[:space:]]*IPTABLES_ACTIVATION=" $CONTROL_DEFAULT && \
+						log_failure_msg "IPTABLES_ACTIVATION is set in $CONTROL_DEFAULT." || \
+						log_failure_msg "IPTABLES_ACTIVATION is set in $CONTROL_CONF."
+					exit $E_CONFIG
+					;;
+			esac
+			# Test if old unused config variables are still used
+			if [ -n "$IP_TCP_IN" ] \
+			|| [ -n "$IP_UDP_IN" ] \
+			|| [ -n "$IP_TCP_OUT" ] \
+			|| [ -n "$IP_UDP_OUT" ] \
+			|| [ -n "$IP_TCP_FORWARD" ] \
+			|| [ -n "$IP_UDP_FORWARD" ] ; then
+				log_failure_msg "Error $E_CONFIG: You're using the obsolete variables IP_[TCP|UDP]_[IN|OUT|FORWARD]."
+				grep -Eq "^[[:space:]]*IP_.*=" $CONTROL_DEFAULT && \
+					log_failure_msg "They are set in $CONTROL_DEFAULT." || \
+					log_failure_msg "They are set in $CONTROL_CONF."
+				log_failure_msg "Since they are no more used this would result in an unwanted behaviour."
+				log_failure_msg "Therefore not starting $DESC."
+				exit $E_CONFIG
+			fi
+			if [ -n "$LOOPBACK" ] ; then
+				log_warning_msg "The variable LOOPBACK is no more used. Use WHITE_LOCAL instead."
+				grep -Eq "^[[:space:]]*LOOPBACK=" $CONTROL_DEFAULT && \
+					log_warning_msg "LOOPBACK is set in $CONTROL_DEFAULT." || \
+					log_warning_msg "LOOPBACK is set in $CONTROL_CONF."
+			fi
+			case "$WHITE_LOCAL" in
+				'0'|'1'|'2')
+					true
+					;;
+				*)
+					log_failure_msg "Error $E_CONFIG: Check the WHITE_LOCAL setting."
+					grep -Eq "^[[:space:]]*WHITE_LOCAL=" $CONTROL_DEFAULT && \
+						log_failure_msg "WHITE_LOCAL is set in $CONTROL_DEFAULT." || \
+						log_failure_msg "WHITE_LOCAL is set in $CONTROL_CONF."
+					exit $E_CONFIG
+					;;
+			esac
+			# No test for WHITE_TCP_IN. Valid: port number or associated service name
+			# No test for WHITE_UDP_IN.
+			# No test for WHITE_TCP_OUT.
+			# No test for WHITE_UDP_OUT.
+			# No test for WHITE_TCP_FORWARD.
+			# No test for WHITE_UDP_FORWARD.
+			# No test for WHITE_IP_IN. Valid: network name, a hostname (please note that specifying any name to be resolved with a remote query such as DNS is a really bad idea), a network IP address (with /mask), or a plain IP address.
+			# No test for WHITE_IP_OUT.
+			# No test for WHITE_IP_FORWARD.
+			# No test for IP_REMOVE. Valid: all regular expressions for grep
+			;;
+		'2')
+			[ -f "$IPTABLES_CUSTOM_INSERT" ] || {
+				log_failure_msg "Error $E_XFILE: Could not find $IPTABLES_CUSTOM_INSERT."
+				log_failure_msg "Check the IPTABLES_CUSTOM_INSERT setting."
+				grep -Eq "^[[:space:]]*IPTABLES_CUSTOM_INSERT=" $CONTROL_DEFAULT && \
+					log_failure_msg "IPTABLES_CUSTOM_INSERT is set in $CONTROL_DEFAULT." || \
+					log_failure_msg "IPTABLES_CUSTOM_INSERT is set in $CONTROL_CONF."
+				exit $E_XFILE
+			}
+			[ -f "$IPTABLES_CUSTOM_DELETE" ] || {
+				log_failure_msg "Error $E_XFILE: Could not find $IPTABLES_CUSTOM_DELETE."
+				log_failure_msg "Check the IPTABLES_CUSTOM_DELETE setting."
+				grep -Eq "^[[:space:]]*IPTABLES_CUSTOM_DELETE=" $CONTROL_DEFAULT && \
+					log_failure_msg "IPTABLES_CUSTOM_DELETE is set in $CONTROL_DEFAULT." || \
+					log_failure_msg "IPTABLES_CUSTOM_DELETE is set in $CONTROL_CONF."
+				exit $E_XFILE
+			}
+			;;
+		*)
+			log_failure_msg "Error $E_CONFIG: Check the IPTABLES_SETTINGS setting."
+			grep -Eq "^[[:space:]]*IPTABLES_SETTINGS=" $CONTROL_DEFAULT && \
+				log_failure_msg "IPTABLES_SETTINGS is set in $CONTROL_DEFAULT." || \
+				log_failure_msg "IPTABLES_SETTINGS is set in $CONTROL_CONF."
+			exit $E_CONFIG
+			;;
+	esac
+}
+
+# Test if user is root
+# Note: pidofproc (in test and status) needs root privileges (up to Debian LSB init-functions 3.2-13),
+# otherwise it won't receive an answer from moblock
+# So we always need root privileges.
+test_root () {
+	case "$(id -ru)" in
+		'0')
+			true
+			;;
+		*)
+			log_failure_msg "Error $E_NOTROOT: This program must be run as root."
+			exit $E_NOTROOT
+			;;
+	esac
+}
+
+################################################################################
+# Functions
+
+# Function to test if an external application exists.
+# Usage: test_external basename_of_the_application
+test_external () {
+	local EXTERNAL TESTEXTERNAL=0
+	EXTERNAL=$1
+	IFS=":"
+	for PATH_I in $PATH ; do
+		[ -x "$PATH_I"/"$EXTERNAL" ] && TESTEXTERNAL=1 && break
+	done
+	IFS=$STDIFS
+	if [ "$TESTEXTERNAL" -ne 1 ] ; then
+		{ log_failure_msg "Error $E_XEXTERNAL: $EXTERNAL not installed." ; return $E_XEXTERNAL ; }
+	fi
+}
+
+# Function to test if there is an internet connection (currently: if testhost is reachable)
+test_net () {
+	test_external wget || exit $E_XEXTERNAL
+	$WGET_OPTS -Q 1 -O /dev/null $TESTHOST	# Don't quote WGET_OPTS!
+	if [ "$?" -ne 0 ] ; then
+		log_failure_msg "Error $E_NETWORK_DOWN: No connection to $TESTHOST. Aborting!"
+		exit $E_NETWORK_DOWN
+	fi
+}
+
+# TODO: Use the new status_of_proc of Debian LSB instead, and hardcode it as
+# backup function for distributions that lack it.
+# This function accepts either no or one argument (only valid value: start).
+# With "exitifstrange" the function exits if the resulting RETVAL is not 0 or 3.
+daemon_status () {
+	PID="$(pidofproc $DAEMON)"
+	RETVAL=$?
+	case "$RETVAL" in
+		'0')
+			[ "$1" = exitifstrange ] || log_success_msg "$NAME is running, pid is $PID."
+			;;
+		'1')
+			log_failure_msg "$NAME is dead, but /var/run/ pid file exists."
+			log_failure_msg "Try \"$(basename $0) stop\". Otherwise delete $PIDFILE"
+			log_failure_msg "and all iptables rules related to $DESC."
+			[ "$1" = exitifstrange ] && { log_end_msg $RETVAL ; exit $RETVAL ; }
+			;;
+		'3')
+			[ "$1" = exitifstrange ] || log_success_msg "$NAME is not running."
+			;;
+		'4')
+			log_failure_msg "$NAME is unknown. You need to install it to $DAEMON"
+			log_failure_msg "and make it executable."
+			[ "$1" = exitifstrange ] && { log_end_msg $RETVAL ; exit $RETVAL ; }
+			;;
+		*)
+			log_failure_msg "Status of $NAME: $RETVAL, PID: $PID. This line should never be shown. Bug."
+			exit 1	# It's not nice that this is the same exit code like in process dead but pid exists.
+			;;
+	esac
+	return $RETVAL
+}
+
+test_BLOCKLIST () {
+	[ -f "$BLOCKLIST" ] || build_blocklist || {
+		log_failure_msg "Error $E_XFILE: Missing file $BLOCKLIST."
+		exit $E_XFILE
+	}
+}
+
+# Function that inserts the iptables rules
+insert_iptables () {
+	case "$IPTABLES_SETTINGS" in
+	'0')
+		if [ "$VERBOSITY" -eq 1 ] ; then
+			log_warning_msg "$DESC is configured not to insert iptables rules."
+		fi
+		;;
+	# Place MoBlock's iptables rules in separate iptables chains (moblock_in, moblock_out and moblock_fw).
+	'1')
+		echo -n "Inserting iptables ..."
+		test_external iptables
+
+		case "$IPTABLES_TARGET" in
+			NFQUEUE)
+				IPTABLES_TARGET_BLOCK="$IPTABLES_TARGET --queue-num $NFQUEUE_NUMBER"
+				;;
+			QUEUE)
+				IPTABLES_TARGET_BLOCK="$IPTABLES_TARGET"
+				;;
+		esac
+
+		iptables -N $NAME\_in || { log_end_msg $? ; exit $E_IPTABLES ; }
+		iptables -N $NAME\_out || { log_end_msg $? ; exit $E_IPTABLES ; }
+		iptables -N $NAME\_fw || { log_end_msg $? ; exit $E_IPTABLES ; }
+
+		iptables -I $NAME\_in -j $IPTABLES_TARGET_BLOCK || { log_end_msg $? ; exit $E_IPTABLES ; }
+		iptables -I $NAME\_out -j $IPTABLES_TARGET_BLOCK || { log_end_msg $? ; exit $E_IPTABLES ; }
+		iptables -I $NAME\_fw -j $IPTABLES_TARGET_BLOCK || { log_end_msg $? ; exit $E_IPTABLES ; }
+
+		# Port Whitelisting
+		for PORT in $WHITE_TCP_IN ; do
+			iptables -I $NAME\_in -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+		done
+		for PORT in $WHITE_UDP_IN ; do
+			iptables -I $NAME\_in -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+		done
+	
+		for PORT in $WHITE_TCP_OUT ; do
+			iptables -I $NAME\_out -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+		done
+		for PORT in $WHITE_UDP_OUT ; do
+			iptables -I $NAME\_out -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+		done
+		
+		for PORT in $WHITE_TCP_FORWARD ; do
+			iptables -I $NAME\_fw -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+		done
+		for PORT in $WHITE_UDP_FORWARD ; do
+			iptables -I $NAME\_fw -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+		done
+
+		# IP Whitelisting
+		for IP in $WHITE_IP_IN ; do
+			iptables -I $NAME\_in --source $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+		done
+
+		for IP in $WHITE_IP_OUT ; do
+			iptables -I $NAME\_out --destination $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+		done
+
+		for IP in $WHITE_IP_FORWARD ; do
+			iptables -I $NAME\_fw --source $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I $NAME\_fw --destination $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+		done
+
+		# IP ranges whitelisting
+		IFS='
+'	# Set IFS to newline only
+		if [ -f "$ALLOW_IN" ] ; then
+			ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOW_IN)"	# Read the non-comment|not-empty lines from $ALLOW_IN
+			for LINE in $ALLOW ; do
+				IPRANGE_BEGIN="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -n1)"
+				IPRANGE_END="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1)"
+				iptables -I $NAME\_in -m iprange --src-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
+					# If iptables insertion failed assume that the line is malformed.
+					# Comment this line out.
+					sed -i "s|$LINE|# Malformed line commented out by $(basename $0): &|" $ALLOW_IN
+					log_failure_msg "Commented out malformed line \"$LINE\" in $ALLOW_IN."
+					}
+			done
+		fi
+		if [ -f "$ALLOW_OUT" ] ; then
+			ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOW_OUT)"	# Read the non-comment|not-empty lines from $ALLOW_OUT
+			for LINE in $ALLOW ; do
+				IPRANGE_BEGIN="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -n1)"
+				IPRANGE_END="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1)"
+				iptables -I $NAME\_out -m iprange --dst-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
+					# If iptables insertion failed assume that the line is malformed.
+					# Comment this line out.
+					sed -i "s|$LINE|# Malformed line commented out by $(basename $0): &|" $ALLOW_OUT
+					log_failure_msg "Commented out malformed line \"$LINE\" in $ALLOW_OUT."
+					}
+			done
+		fi
+		if [ -f "$ALLOW_FW" ] ; then
+			ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOW_FW)"	# Read the non-comment|not-empty lines from $ALLOW_FW
+			for LINE in $ALLOW ; do
+				IPRANGE_BEGIN="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -n1)"
+				IPRANGE_END="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1)"
+				iptables -I $NAME\_fw -m iprange --dst-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING && \
+				iptables -I $NAME\_fw -m iprange --src-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
+					# If iptables insertion failed assume that the line is malformed.
+					# Comment this line out.
+					sed -i "s|$LINE|# Malformed line commented out by $(basename $0): &|" $ALLOW_FW
+					log_failure_msg "Commented out malformed line \"$LINE\" in $ALLOW_FW."
+					}
+			done
+		fi
+		IFS=$STDIFS
+
+		# Whitelisting of local networks
+		case $WHITE_LOCAL in
+			1)	# Automatically whitelist all up interfaces
+				# For this the output of "ifconfig" and "iptables -L -nv" is scanned for certain patterns
+				# Use the moblock.if-up script whenever an additional interface is brought up
+				# (e.g. place that script in /etc/network/if-up.d/) to add additional whitelisting rules
+				#
+				# Get IPs of interfaces that are up
+				LOCAL_IPS="$(ifconfig | grep -Eo "inet addr:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | sed s/inet\ addr://)"
+				for IP in $LOCAL_IPS ; do
+					case $IP in
+						127.*)	# IP is a loopback IP: Insert whitelisting rules for whole loopback interface
+							iptables -I $NAME\_in -i lo -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+							iptables -I $NAME\_out -o lo -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+							;;
+						*)	# Insert whitelisting rules for LAN (with subnetmask SUBNETMASK (per default 24))
+							SUBNETMASK="$(ifconfig | grep "$IP" | grep -Eo "Mask:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | sed s/Mask://)"
+							iptables -I $NAME\_in --source ${IP}/$SUBNETMASK -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+							iptables -I $NAME\_out --destination ${IP}/$SUBNETMASK -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+							# Forward whitelisting can only be implemented partly (for traffic within the LAN) with iptables rules.
+							# Don't insert two seperate rules for source and destination
+							# - this would disable the whole checking for forward!
+							iptables -I $NAME\_fw --source ${IP}/$SUBNETMASK --destination ${IP}/$SUBNETMASK -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+							;;
+					esac
+				done
+				;;
+			2)	# Insert whitelisting rules for whole loopback interface (Loopback traffic fix)
+				iptables -I $NAME\_in -i lo -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I $NAME\_out -o lo -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+				;;
+		esac
+
+		# Block "Marked block" packages: "Marked block" packages are sent back
+		# to the head of the chain again (NF_REPEAT repeats the hook function)
+		# by MoBlock. Block them at the head of the moblock_ chains.
+		# Alternatively they could be blocked at the head of the
+		# INPUT/OUTPUT/FORWARD chains, but I decided against that in order to
+		# keep those chains cleaner. It has to be made sure that the MARK of the
+		# packets is not changed by other iptables rules.
+		if [ "$REJECT" -eq 1 ] ; then
+			# The unpatched MoBlock source (0.8 and 0.9RC2) drops
+			# matched incoming packets directly. So the DROP rule in
+			# the iptables chain moblock_in will never be met, i.e.
+			# it is unnecessary. But I insert it always for the sake
+			# of simplicity and to avoid doing it by an error-prone
+			# patch.
+			iptables -I $NAME\_in -m mark --mark $REJECT_MARK -j $REJECT_IN || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I $NAME\_out -m mark --mark $REJECT_MARK -j $REJECT_OUT || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I $NAME\_fw -m mark --mark $REJECT_MARK -j $REJECT_FW || { log_end_msg $? ; exit $E_IPTABLES ; }
+			# Log "Marked block" packages: The log-iptables-rules should be
+			# placed directly before the block-iptables-rules (i.e. Insert them
+			# directly after them)
+			if [ -n "$LOG_IPTABLES" ] ; then	# string is not empty
+				# See above comment, logging won't work for the
+				# unpatched MoBlock source (0.8 and 0.9RC2).
+				iptables -I $NAME\_in -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || { log_end_msg $? ; exit $E_IPTABLES ; }	
+				iptables -I $NAME\_out -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I $NAME\_fw -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || { log_end_msg $? ; exit $E_IPTABLES ; }
+			fi
+		fi
+
+		# Chain activation
+		case "$IPTABLES_ACTIVATION" in
+			'0')
+				if [ "$VERBOSITY" -eq 1 ] ; then
+					echo -n " - not activating the chains"
+				fi
+				;;
+			'1'|'2')
+				case "$IPTABLES_ACTIVATION" in
+					'1')
+						IPTABLES_STATE="-m state --state NEW"
+						;;
+					'2')
+						IPTABLES_STATE=""
+						;;
+				esac
+				case "$ACCEPT" in
+					'0')
+						IPTABLES_MARK_ACCEPT=""
+						;;
+					'1')
+						# Send all NEW packages except the "marked accept" packages to the moblock chains.
+						# From there "marked accept" packages are sent back to the head of the chain again
+						# (NF_REPEAT repeats the hook function). Don't send them to the MoBlock chains again.
+						# Problem: If another rule changes the MARK the packet will forever be "marked accept".
+						IPTABLES_MARK_ACCEPT="-m mark ! --mark $ACCEPT_MARK"
+						;;
+				esac
+				iptables -I INPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j $NAME\_in || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I OUTPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j $NAME\_out || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I FORWARD $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j $NAME\_fw || { log_end_msg $? ; exit $E_IPTABLES ; }
+				;;
+		esac
+
+		log_end_msg 0	# Complete iptables insertion went well.
+
+		# If custom iptables insertion script exists execute it:
+		[ -f "$IPTABLES_CUSTOM_INSERT" ] && {
+			echo -n "Executing $IPTABLES_CUSTOM_INSERT ..."
+			sh $IPTABLES_CUSTOM_INSERT
+			log_end_msg "$?"
+			}
+		;;
+	'2')
+		echo -n "Executing $IPTABLES_CUSTOM_INSERT ..."
+		sh $IPTABLES_CUSTOM_INSERT && log_end_msg $? || { log_end_msg $? ; exit $E_IPTABLES ; }
+		;;
+	esac
+}
+
+# Function that deletes the iptables rules
+delete_iptables () {
+	case "$IPTABLES_SETTINGS" in
+	'0')
+		if [ "$VERBOSITY" -eq 1 ] ; then
+			log_warning_msg "$DESC configured not to delete iptables rules."
+		fi
+		;;
+	'1')
+		echo -n "Deleting iptables ..."
+		test_external iptables
+
+		IPTABLES_DELETE="0"
+
+		if [ "$IPTABLES_ACTIVATION" -eq 1 ] || [ "$IPTABLES_ACTIVATION" -eq 2 ] ; then
+			case "$IPTABLES_ACTIVATION" in
+				'1')
+					IPTABLES_STATE="-m state --state NEW"
+					;;
+				'2')
+					IPTABLES_STATE=""
+					;;
+			esac
+			case "$ACCEPT" in
+				'0')
+					IPTABLES_MARK_ACCEPT=""
+					;;
+				'1')
+					# Send all NEW packages except the "marked accept" packages to the moblock chains.
+					# From there "marked accept" packages are sent back to the head of the chain again
+					# (NF_REPEAT repeats the hook function). Don't send them to the MoBlock chains again.
+					# Problem: If another rule changes the MARK the packet will forever be "marked accept".
+					IPTABLES_MARK_ACCEPT="-m mark ! --mark $ACCEPT_MARK"
+					;;
+			esac
+			iptables -D INPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j $NAME\_in || IPTABLES_DELETE="1"
+			iptables -D OUTPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j $NAME\_out || IPTABLES_DELETE="1"
+			iptables -D FORWARD $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j $NAME\_fw || IPTABLES_DELETE="1"
+		fi
+
+		iptables -F $NAME\_in || IPTABLES_DELETE="1"
+		iptables -F $NAME\_out || IPTABLES_DELETE="1"
+		iptables -F $NAME\_fw || IPTABLES_DELETE="1"
+		iptables -X $NAME\_in || IPTABLES_DELETE="1"
+		iptables -X $NAME\_out || IPTABLES_DELETE="1"
+		iptables -X $NAME\_fw || IPTABLES_DELETE="1"
+
+		log_end_msg $IPTABLES_DELETE
+		
+		if [ "$IPTABLES_DELETE" = 1 ] ; then
+			log_warning_msg "There occured some errors during the deletion of the iptables rules."
+			log_warning_msg "The most common reason for this is that they did not exist, because $DESC"
+			log_warning_msg "was not running. In this case you don't have to worry."
+			log_warning_msg "But if $DESC was running there is some problem. Most probably you have"
+			log_warning_msg "installed another firewall application that did delete the iptables rules."
+			log_warning_msg "A \"$(basename $0) restart\" will then fix the situation."
+		fi
+
+		# If custom iptables deletion script exists execute it:
+		[ -f "$IPTABLES_CUSTOM_DELETE" ] && {
+			echo -n "Executing $IPTABLES_CUSTOM_DELETE ..."
+			sh $IPTABLES_CUSTOM_DELETE
+			log_end_msg $?
+			}
+
+		;;
+	'2')
+		echo -n "Executing $IPTABLES_CUSTOM_DELETE ..."
+		sh $IPTABLES_CUSTOM_DELETE && log_end_msg $? || { log_end_msg $? ; exit $E_IPTABLES ; }
+		;;
+	esac
+}
+
+# Function that starts daemon
+do_start () {
+	# Check if daemon is already running
+	# With the argument "exitifstrange" the function exits if the resulting RETVAL is not 0 or 3
+	daemon_status exitifstrange
+	case "$?" in
+		0)	# Daemon is running
+			log_success_msg "$DESC is already running, doing nothing."
+			;;
+ 		3)	# Daemon is not running.
+			# Build blocklist if necessary to make sure moblock-control's settings are taken.
+			[ -e "$MD5SUM_FILE" ] && {
+				SUM="$(echo $BLOCKLIST_FORMAT $IP_REMOVE ; md5sum /etc/moblock/blocklists.list)"
+				MD5SUM="$(echo $SUM | md5sum | cut -c -32)"
+				[ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ]
+				} || build_blocklist
+			test_BLOCKLIST
+			# Load kernel modules after checking with grep if they were compiled in the kernel directly.
+			# Note: I have not seen documentation how this works. E.g. loading (modprobe) a module does
+			# not give the specified entries in /proc/net. But once MoBlock was started they are there.
+			case "$IPTABLES_TARGET" in
+				NFQUEUE)
+					[ -f /proc/net/ip_tables_targets ] && grep -q NFQUEUE /proc/net/ip_tables_targets || \
+						modprobe -q xt_NFQUEUE || \
+						modprobe -q ipt_NFQUEUE || {
+						log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_NFQUEUE, not starting $DESC!"
+						exit $E_XEXTERNAL
+						}
+					;;
+				QUEUE)
+					[ -f /proc/net/ip_queue ] || \
+						modprobe -q ip_queue || {
+						log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module ip_queue, not starting $DESC!"
+						exit $E_XEXTERNAL
+						}
+					;;
+			esac
+			if [ "$REJECT" = 1 ] || [ "$ACCEPT" = 1 ] ; then
+				[ -f /proc/net/ip_tables_matches ] && grep -q mark /proc/net/ip_tables_matches || \
+					modprobe -q xt_mark || \
+					modprobe -q ipt_mark || {
+					log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_mark, not starting $DESC!"
+					log_failure_msg "Use a kernel with netfilter MARK support or reconfigure $(basename $0)"
+					log_failure_msg "to not use the MARKing feature (options REJECT and ACCEPT)."
+					exit $E_XEXTERNAL
+					}
+			fi
+			if [ "$IPTABLES_ACTIVATION" = 1 ] ; then
+				[ -f /proc/net/ip_tables_matches ] && grep -q state /proc/net/ip_tables_matches || \
+					modprobe -q xt_state || \
+					modprobe -q ipt_state || {
+					log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_state, not starting $DESC!"
+					log_failure_msg "Use a kernel with netfilter STATE support or reconfigure $(basename $0)"
+					log_failure_msg "to check all traffic (not only NEW) traffic (option IPTABLES_ACTIVATION)."
+					exit $E_XEXTERNAL
+					}
+			fi
+			[ -f /proc/net/ip_tables_matches ] && grep -q iprange /proc/net/ip_tables_matches || \
+				modprobe -q xt_iprange || \
+				modprobe -q ipt_iprange || {
+				log_warning_msg "Warning: Could not load kernel module xt_iprange, continuing anyway."
+				log_warning_msg "Whitelisting IP ranges with the allow list will not work."
+				log_warning_msg "The allow list is in $ALLOW_OUT".
+				if [ -n "$ALLOW_IN" ] && [ "$ALLOW_IN" != "$ALLOW_OUT" ] ; then
+					log_warning_msg "And in $ALLOW_IN."
+				fi
+				if [ -n "$ALLOW_FW" ] && [ "$ALLOW_FW" != "$ALLOW_OUT" ] ; then
+					log_warning_msg "And in $ALLOW_FW."
+				fi
+				}
+			# Assuming that iptables rules are not inserted yet since daemon was not running.
+			insert_iptables
+			echo -n "Starting $DESC ..."
+			# Set the log to syslog option
+			if [ "$LOG_SYSLOG" -eq 1 ] ; then
+				LOG_SYSLOG_OPT="-s"
+			else
+				LOG_SYSLOG_OPT=""
+			fi
+			# Set the timestamping option
+			if [ "$LOG_TIMESTAMP" -eq 1 ] ; then
+				LOG_TIMESTAMP_OPT="-t"
+			else
+				LOG_TIMESTAMP_OPT=""
+			fi
+			# Set the options for marking matched packets
+			if [ "$REJECT" -eq 1 ] ; then
+				REJECT_OPT="-r $REJECT_MARK"
+			else
+				REJECT_OPT=""
+			fi
+			# Set the options for marking not matched packets
+			if [ "$ACCEPT" -eq 1 ] ; then
+				ACCEPT_OPT="-a $ACCEPT_MARK"
+			else
+				ACCEPT_OPT=""
+			fi
+			# Set the NFQUEUE number only if NFQUEUE and not QUEUE is used
+			case "$IPTABLES_TARGET" in
+				NFQUEUE)
+					NFQUEUE_NUMBER_OPT="-q $NFQUEUE_NUMBER"
+					;;
+				QUEUE)
+					NFQUEUE_NUMBER_OPT=""
+					;;
+			esac
+
+			# Start daemon depending on the LSB_MODE settings
+			if [ "$NAME" = moblock ] ; then
+				# The options MoBlock is started with
+				DAEMON_OPTS="$LOG_TIMESTAMP_OPT -$BLOCKLIST_FORMAT $BLOCKLIST $NFQUEUE_NUMBER_OPT $LOG_SYSLOG_OPT $REJECT_OPT $ACCEPT_OPT $DAEMON_LOG"
+				if [ "$LSB_MODE" -eq 0 ] ; then
+					# Use Debian specific starting. This seems to fix the "MoBlock fails to start
+					# the first time after installing/updating with aptitude" bug.
+					# Start MoBlock in the background with "-b"
+					start-stop-daemon -b -p $PIDFILE --exec $DAEMON --start -- $DAEMON_OPTS
+				elif [ "$LSB_MODE" -eq 1 ] ; then
+					# Start MoBlock in the background with "&"
+					start_daemon -p $PIDFILE $DAEMON $DAEMON_OPTS &
+				else
+					# Start MoBlock in the background with "&", don't specify pidfile.
+					start_daemon $DAEMON $DAEMON_OPTS &
+				fi
+			elif [ "$NAME" = nfblockd ] ; then
+				# The options NFBlockD is started with
+				DAEMON_OPTS="-d -v $ACCEPT_OPT $REJECT_OPT $NFQUEUE_NUMBER_OPT $BLOCKLIST"
+				if [ "$LSB_MODE" -eq 0 ] ; then
+					# Use Debian specific starting.
+					start-stop-daemon -p $PIDFILE --exec $DAEMON --start -- $DAEMON_OPTS
+				elif [ "$LSB_MODE" -eq 1 ] ; then
+					start_daemon -p $PIDFILE $DAEMON $DAEMON_OPTS
+				else
+					# Don't specify pidfile.
+					start_daemon $DAEMON $DAEMON_OPTS
+				fi
+			fi
+			RETVAL=$?
+			log_end_msg $RETVAL
+			;;
+	esac
+}
+
+# Function that stops daemon
+do_stop () {
+	delete_iptables
+	echo -n "Stopping $DESC ..."
+	if [ "$LSB_MODE" -eq 0 ] || [ "$LSB_MODE" -eq 1 ] ; then
+		killproc -p $PIDFILE $DAEMON
+	else
+		# Don't specify pidfile
+		killproc $DAEMON
+	fi
+	RETVAL=$?
+	log_end_msg $RETVAL
+}
+
+# Function that restarts daemon
+do_restart () {
+	do_stop
+	sleep 1	# previous value 4, reduced to 1 in 0.9~rc2-12
+	do_start
+}
+
+# Function that rebuilds master blocklist and reloads daemon
+do_reload () {
+	# Check if daemon is running
+	# With the argument "exitifstrange" the function exits if the resulting RETVAL is not 0 or 3
+	daemon_status exitifstrange
+	case "$?" in
+		0)	# Daemon is running
+			build_blocklist
+			test_BLOCKLIST
+			echo -n "Reloading $DESC... "
+			kill -s HUP "$(pidofproc $DAEMON)"
+			RETVAL=$?
+			log_end_msg $RETVAL
+			;;
+		3)	# Daemon is not running
+			log_success_msg "$DESC is not running, doing nothing."
+			RETVAL=0
+			;;
+	esac
+}
+
+# Read the non-comment|not-empty lines from BLOCKLISTS_LIST.
+# Ignore all entries after # (comments).
+set_LISTS_URL () {
+	LISTS_URL="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $BLOCKLISTS_LIST | sed "s|#.*$||g")"
+	[ $? -eq 0 ] || { log_failure_msg "Error: set_LISTS_URL exited with $?" ; exit 1 ; }
+	# (Re-)set LOCALLIST for further use.
+	LOCALLIST=""
+}
+
+# This function depends on LIST:
+LIST_URL2LIST_NAME () {
+	# Set LIST_URL depending on LIST
+	# Since IFS now is standard IFS, separate words (not the complete lines from
+	# blocklists.list) are used for LIST.
+	case "$LIST" in
+		# Local blocklists:
+		locallist)
+			# Remember that the next LIST is a locallist and reset it after usage (in get_blocklist)
+			LOCALLIST=1
+			LIST_URL=""
+			LIST_NAME=""
+			return
+			;;
+		notimestamp)
+			# Remote blocklists on servers without timestamping
+			# This is marked as deprecated since moblock-control 1.0
+			# The separate function has been removed in moblock-control 1.1
+			echo "Usage of the \"notimestamp\" option is deprecated."
+			echo "Its functionality has been implemented as fallback for all remote lists."
+			LIST_URL=""
+			LIST_NAME=""
+			return
+			;;
+		# Assuming remote blocklists for the rest:
+		*)
+			LIST_URL="$(echo $LIST | sed -r "s|http://||")"
+			;;
+	esac
+
+	# Translate LIST_URL to human readable/debconf LIST_NAME.
+	# Several LIST_URL may resolve to the same LIST_NAME, if alternative URLs are known for the same list.
+	case "$LIST_URL" in
+		list.iblocklist.com/?list=bt_level1 | www.bluetack.co.uk/config/level1.gz)
+			LIST_NAME="Bluetack_level1"
+			;;
+		list.iblocklist.com/?list=bt_level2 | www.bluetack.co.uk/config/level2.gz)
+			LIST_NAME="Bluetack_level2"
+			;;
+		list.iblocklist.com/?list=bt_level3 | www.bluetack.co.uk/config/level3.gz)
+			LIST_NAME="Bluetack_level3"
+			;;
+		list.iblocklist.com/?list=bt_edu | www.bluetack.co.uk/config/edu.gz)
+			LIST_NAME="Bluetack_edu"
+			;;
+		list.iblocklist.com/?list=bt_ads | www.bluetack.co.uk/config/ads-trackers-and-bad-pr0n.gz)
+			LIST_NAME="Bluetack_ads"
+			;;
+		list.iblocklist.com/?list=bt_bogon | www.bluetack.co.uk/config/bogon.gz)
+			LIST_NAME="Bluetack_bogon"
+			;;
+		list.iblocklist.com/?list=bt_spyware | www.bluetack.co.uk/config/spyware.gz)
+			LIST_NAME="Bluetack_spyware"
+			;;
+		list.iblocklist.com/?list=bt_spider | www.bluetack.co.uk/config/spider.gz)
+			LIST_NAME="Bluetack_spider"
+			;;
+		list.iblocklist.com/?list=bt_microsoft | www.bluetack.co.uk/config/Microsoft.gz)
+			LIST_NAME="Bluetack_Microsoft"
+			;;
+		list.iblocklist.com/?list=bt_proxy | www.bluetack.co.uk/config/proxy.gz)
+			LIST_NAME="Bluetack_proxy"
+			;;
+		list.iblocklist.com/?list=bt_hijacked | www.bluetack.co.uk/config/hijacked.gz)
+			LIST_NAME="Bluetack_hijacked"
+			;;
+		list.iblocklist.com/?list=bt_templist | www.bluetack.co.uk/config/badpeers.gz)
+			LIST_NAME="Bluetack_badpeers"
+			;;
+		list.iblocklist.com/?list=bt_rangetest | www.bluetack.co.uk/config/rangetest.gz)
+			LIST_NAME="Bluetack_rangetest"
+			;;
+		list.iblocklist.com/?list=bt_dshield | www.bluetack.co.uk/config/dshield.gz)
+			LIST_NAME="Bluetack_dshield"
+			;;
+		list.iblocklist.com/?list=ijfqtofzixtwayqovmxn | tbg.iblocklist.com/Lists/PrimaryThreats.zip)
+			LIST_NAME="TBG_Primary_Threats"
+			;;
+		list.iblocklist.com/?list=ecqbsykllnadihkdirsh | tbg.iblocklist.com/Lists/GeneralCorporateRanges.zip)
+			LIST_NAME="TBG_General_Corporate_Ranges"
+			;;
+		list.iblocklist.com/?list=jcjfaxgyyshvdbceroxf | tbg.iblocklist.com/Lists/BusinessISPs.zip)
+			LIST_NAME="TBG_Business_ISPs"
+			;;
+		list.iblocklist.com/?list=lljggjrpmefcwqknpalp | tbg.iblocklist.com/Lists/Educational-Institutions.zip)
+			LIST_NAME="TBG_Educational_Institutions"
+			;;
+		list.iblocklist.com/?list=pfefqteoxlfzopecdtyw | tbg.iblocklist.com/Lists/SearchEngines.zip)
+			LIST_NAME="TBG_Search_Engines"
+			;;
+		list.iblocklist.com/?list=tbnuqfclfkemqivekikv | tbg.iblocklist.com/Lists/Hijacked.zip)
+			LIST_NAME="TBG_Hijacked"
+			;;
+		list.iblocklist.com/?list=ewqglwibdgjttwttrinl | tbg.iblocklist.com/Lists/Bogon.zip)
+			LIST_NAME="TBG_Bogon"
+			;;
+		*)
+			# Otherwise, use LIST_URL. For file/directory operations problematic letters have to be replaced!
+			LIST_NAME="$LIST_URL"
+			;;
+	esac
+	LIST_NAME_FIX="$(echo $LIST_NAME | sed "s|.*://|_|" | sed "s|/|_|g" | sed "s/?/_/g" | sed "s/ /_/g")"
+}
+
+# Translate human readable/debconf LIST_NAME to LIST_URL.
+# Only used by debconf.
+LIST_NAME2LIST_URL () {
+	case "$LIST_NAME" in
+		Bluetack_level1)
+			LIST_URL="list.iblocklist.com/?list=bt_level1"
+			;;
+		Bluetack_level2)
+			LIST_URL="list.iblocklist.com/?list=bt_level2"
+			;;
+		Bluetack_level3)
+			LIST_URL="list.iblocklist.com/?list=bt_level3"
+			;;
+		Bluetack_edu)
+			LIST_URL="list.iblocklist.com/?list=bt_edu"
+			;;
+		Bluetack_ads)
+			LIST_URL="list.iblocklist.com/?list=bt_ads"
+			;;
+		Bluetack_bogon)
+			LIST_URL="list.iblocklist.com/?list=bt_bogon"
+			;;
+		Bluetack_spyware)
+			LIST_URL="list.iblocklist.com/?list=bt_spyware"
+			;;
+		Bluetack_spider)
+			LIST_URL="list.iblocklist.com/?list=bt_spider"
+			;;
+		Bluetack_Microsoft)
+			LIST_URL="list.iblocklist.com/?list=bt_microsoft"
+			;;
+		Bluetack_proxy)
+			LIST_URL="list.iblocklist.com/?list=bt_proxy"
+			;;
+		Bluetack_hijacked)
+			LIST_URL="list.iblocklist.com/?list=bt_hijacked"
+			;;
+		Bluetack_badpeers)
+			LIST_URL="list.iblocklist.com/?list=bt_templist"
+			;;
+		Bluetack_rangetest)
+			LIST_URL="list.iblocklist.com/?list=bt_rangetest"
+			;;
+		Bluetack_dshield)
+			LIST_URL="list.iblocklist.com/?list=bt_dshield"
+			;;
+		TBG_Primary_Threats)
+			LIST_URL="list.iblocklist.com/?list=ijfqtofzixtwayqovmxn"
+			;;
+		TBG_General_Corporate_Ranges)
+			LIST_URL="list.iblocklist.com/?list=ecqbsykllnadihkdirsh"
+			;;
+		TBG_Business_ISPs)
+			LIST_URL="list.iblocklist.com/?list=jcjfaxgyyshvdbceroxf"
+			;;
+		TBG_Educational_Institutions)
+			LIST_URL="list.iblocklist.com/?list=lljggjrpmefcwqknpalp"
+			;;
+		TBG_Search_Engines)
+			LIST_URL="list.iblocklist.com/?list=pfefqteoxlfzopecdtyw"
+			;;
+		TBG_Hijacked)
+			LIST_URL="list.iblocklist.com/?list=tbnuqfclfkemqivekikv"
+			;;
+		TBG_Bogon)
+			LIST_URL="list.iblocklist.com/?list=ewqglwibdgjttwttrinl"
+			;;
+		*)
+			LIST_URL="$LIST_NAME"
+			;;
+	esac
+	# Escape ? (\?) for "grep -E":
+	LIST_URL_REGEX="$(echo $LIST_URL | sed "s/\?/\\\?/g")"
+}
+
+# Translate human readable/debconf LIST_NAME to LIST_URL_ALT.
+# Only used by debconf.
+LIST_NAME2LIST_URL_ALT () {
+	case "$LIST_NAME" in
+		Bluetack_level1)
+			LIST_URL_ALT="www.bluetack.co.uk/config/level1.gz"
+			;;
+		Bluetack_level2)
+			LIST_URL_ALT="www.bluetack.co.uk/config/level2.gz"
+			;;
+		Bluetack_level3)
+			LIST_URL_ALT="www.bluetack.co.uk/config/level3.gz"
+			;;
+		Bluetack_edu)
+			LIST_URL_ALT="www.bluetack.co.uk/config/edu.gz"
+			;;
+		Bluetack_ads)
+			LIST_URL_ALT="www.bluetack.co.uk/config/ads-trackers-and-bad-pr0n.gz"
+			;;
+		Bluetack_bogon)
+			LIST_URL_ALT="www.bluetack.co.uk/config/bogon.gz"
+			;;
+		Bluetack_spyware)
+			LIST_URL_ALT="www.bluetack.co.uk/config/spyware.gz"
+			;;
+		Bluetack_spider)
+			LIST_URL_ALT="www.bluetack.co.uk/config/spider.gz"
+			;;
+		Bluetack_Microsoft)
+			LIST_URL_ALT="www.bluetack.co.uk/config/Microsoft.gz"
+			;;
+		Bluetack_proxy)
+			LIST_URL_ALT="www.bluetack.co.uk/config/proxy.gz"
+			;;
+		Bluetack_hijacked)
+			LIST_URL_ALT="www.bluetack.co.uk/config/hijacked.gz"
+			;;
+		Bluetack_badpeers)
+			LIST_URL_ALT="www.bluetack.co.uk/config/badpeers.gz"
+			;;
+		Bluetack_rangetest)
+			LIST_URL_ALT="www.bluetack.co.uk/config/rangetest.gz"
+			;;
+		Bluetack_dshield)
+			LIST_URL_ALT="www.bluetack.co.uk/config/dshield.gz"
+			;;
+		TBG_Primary_Threats)
+			LIST_URL_ALT="tbg.iblocklist.com/Lists/PrimaryThreats.zip"
+			;;
+		TBG_General_Corporate_Ranges)
+			LIST_URL_ALT="tbg.iblocklist.com/Lists/GeneralCorporateRanges.zip"
+			;;
+		TBG_Business_ISPs)
+			LIST_URL_ALT="tbg.iblocklist.com/Lists/BusinessISPs.zip"
+			;;
+		TBG_Educational_Institutions)
+			LIST_URL_ALT="tbg.iblocklist.com/Lists/Educational-Institutions.zip"
+			;;
+		TBG_Search_Engines)
+			LIST_URL_ALT="tbg.iblocklist.com/Lists/SearchEngines.zip"
+			;;
+		TBG_Hijacked)
+			LIST_URL_ALT="tbg.iblocklist.com/Lists/Hijacked.zip"
+			;;
+		TBG_Bogon)
+			LIST_URL_ALT="tbg.iblocklist.com/Lists/Bogon.zip"
+			;;
+		*)
+			LIST_URL_ALT=""
+			;;
+	esac
+}
+
+# Get blocklist.
+# Depends on LIST being set.
+get_blocklist () {
+	# This function depends on LIST:
+	LIST_URL2LIST_NAME
+	# LIST_URL is empty, if LIST is notimestamp or locallist - so we can return to the for loop to the next LIST.
+	# If it is a locallist, LOCALLIST=1 was just set, so that the next LIST can be handled as such.
+	[ -z "$LIST_URL" ] && return
+
+	# Set blocklist directory name.
+	BLOCKLIST_DIR="$BLOCKLISTS_DIR/$LIST_NAME_FIX"
+	# Gives the name of the blocklist downloaded by wget. Reset the value here
+	# and set it later in the script:
+	BLOCKLIST_DOWNLOAD=""
+	# Gives the name of successfully downloaded file or links to local blocklist:
+	BLOCKLIST_DOWNLOADED="$BLOCKLIST_DIR/downloaded/$LIST_NAME_FIX"
+	# BLOCKLIST_DOWNLOADED is extracted to this file
+	BLOCKLIST_EXTRACTED="$BLOCKLIST_DIR/extracted/$LIST_NAME_FIX"
+
+	echo -n "Updating $LIST_NAME... "
+
+	# Create necessary (for local and remote lists) directories if missing:
+	[ -d "$BLOCKLIST_DIR" ] || mkdir "$BLOCKLIST_DIR" || { log_failure_msg "Error: mkdir exited with $?" ; exit 1 ; }
+	[ -d "$(dirname $BLOCKLIST_DOWNLOADED)" ] || mkdir "$(dirname $BLOCKLIST_DOWNLOADED)" || { log_failure_msg "Error: mkdir exited with $?" ; exit 1 ; }
+
+	# Get lists
+	if [ "$LOCALLIST" = 1 ] ; then
+		# This is a locallist as announced by the previous LIST.
+		# Reset LOCALLIST for the next LIST.
+		LOCALLIST=""
+		if [ -f "$LIST_URL" ] ; then
+			ln -fs $LIST_URL $BLOCKLIST_DOWNLOADED || { log_failure_msg " Error: ln exited with $?"; exit 1; }
+			echo "... using local blocklist."
+			[ -f "$BLOCKLIST_DOWNLOADED" ] && \
+				UPDATE_LOCAL="$UPDATE_LOCAL $LIST_NAME (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));" || { \
+				log_failure_msg " Error: $LIST_URL exists, but $BLOCKLIST_DOWNLOADED doesn't exist! Strange, aborting!" ; exit 1 ; }
+		else
+			log_failure_msg " Error $E_BLOCKLIST: $LIST_URL not available. Aborting!"
+			exit $E_BLOCKLIST
+		fi
+	else
+		# Assuming remote blocklists for the rest:
+		# Create necessary directories if missing:
+		[ -d "$BLOCKLIST_DIR/download" ] || mkdir "$BLOCKLIST_DIR/download" || { log_failure_msg " Error: mkdir exited with $?" ; exit 1 ; }
+
+		cd "$BLOCKLIST_DIR/download"|| { log_failure_msg " Error: cd exited with $?" ; exit 1 ; }
+		# Download blocklists with timestamping. If this fails remove
+		# the old blocklist and try again without timestamping:
+		$WGET_OPTS -N "$LIST_URL" || {
+			echo -n "... failed!"
+			rm -Rf "$BLOCKLIST_DIR/download/*" || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
+			echo -n " Trying without timestamping ..."
+			$WGET_OPTS "$LIST_URL"
+			}
+		WGET_RET=$?
+
+		# Get the name of the downloaded blocklist: BLOCKLIST_DOWNLOAD
+		# Take the newest file, in case there are several files in the folder.
+		# There may be several files from different URLs for the same LIST_NAME
+		# If the directory is empty the variable will stay empty, too.
+		ls $BLOCKLIST_DIR/download/* > /dev/null 2>&1 && \
+			BLOCKLIST_DOWNLOAD="$BLOCKLIST_DIR/download/$(ls -1t $BLOCKLIST_DIR/download/ | head -n 1)"
+
+		# Download was not successful:
+		if [ "$WGET_RET" -ne 0 ] ; then
+			if [ -f "$BLOCKLIST_DOWNLOADED" ] ; then
+				echo " failed! Using old blocklist."
+				UPDATE_FAIL="$UPDATE_FAIL $LIST_NAME (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));"
+			else
+				log_failure_msg " Error $E_BLOCKLIST: $LIST_NAME not available. Aborting!"
+				log_failure_msg "To fix this manually download $LIST_URL and save it as $BLOCKLIST_DOWNLOADED"
+				exit $E_BLOCKLIST
+			fi
+		# Download was successful:
+		# This should not happen, just for debugging:
+		elif [ -z "$BLOCKLIST_DOWNLOAD" ] ; then
+			log_failure_msg " Error: $LIST_URL was downloaded successfully but BLOCKLIST_DOWNLOAD is empty! Strange, aborting!"
+			exit 1
+		# This should not happen, just for debugging:
+		elif [ ! -f "$BLOCKLIST_DOWNLOAD" ] ; then
+			log_failure_msg " Error: $LIST_URL was downloaded successfully but $BLOCKLIST_DOWNLOAD doesn't exist! Strange, aborting!"
+			exit 1
+		# Download was successful, old blocklist is not available or older than the new one:
+		elif ( [ ! -f "$BLOCKLIST_DOWNLOADED" ] || [ "$BLOCKLIST_DOWNLOAD" -nt "$BLOCKLIST_DOWNLOADED" ] ) ; then
+			cp -f --preserve=timestamps $BLOCKLIST_DOWNLOAD $BLOCKLIST_DOWNLOADED && \
+				echo "done." || { log_failure_msg " Error: cp exited with $?"; exit 1; }
+			[ -f "$BLOCKLIST_DOWNLOADED" ] && \
+				UPDATE_SUCCESS="$UPDATE_SUCCESS $LIST_NAME (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));" || { \
+				log_failure_msg " Error: $LIST_URL exists, but $BLOCKLIST_DOWNLOADED doesn't exist! Strange, aborting!" ; exit 1 ; }
+		# Download was successful, blocklist is not newer than the old one:
+		else
+			echo ". No update available."
+			[ -f "$BLOCKLIST_DOWNLOADED" ] && \
+				UPDATE_SUCCESS_NA="$UPDATE_SUCCESS_NA $LIST_NAME (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));" || { \
+				log_failure_msg " Error: $LIST_URL exists, but $BLOCKLIST_DOWNLOADED doesn't exist! Strange, aborting!" ; exit 1 ; }
+		fi
+	fi
+
+	# Unpack the lists
+	echo -n "Extracting $LIST_NAME, "
+	# Create necessary directories if missing:
+	[ -d "$(dirname $BLOCKLIST_EXTRACTED)" ] || mkdir "$(dirname $BLOCKLIST_EXTRACTED)" || { log_failure_msg " Error: mkdir exited with $?" ; exit 1 ; }
+
+	# This should not happen, just for debugging:
+	[ -f "$BLOCKLIST_DOWNLOADED" ] || { \
+		log_failure_msg " D'oh, why does $BLOCKLIST_DOWNLOADED not exist? Strange, aborting!" ; exit 1 ; }
+
+	# General: To analyze the file header check
+	# http://mark0.net/hexdump.html and get a list of TrID file type / file
+	# extension definitions from http://mark0.net/soft-trid-deflist.html
+	#
+	# Using bytes with hexadecimal value HH:
+	# $'\xHH' is a bashism.
+	# "$(printf '\xHH')" doesn't work at least for the dash builtin printf, so
+	# use: "$(/usr/bin/printf '\xHH')"
+
+	# Read the first six (length of the 7z header) bytes of the packed
+	# blocklist:
+	case "$(head -c 6 $BLOCKLIST_DOWNLOADED)" in
+		# 7z packed file
+		"$(/usr/bin/printf '\x37\x7A\xBC\xAF\x27\x1C')")
+			echo -n "detected 7z..."
+			# TODO: 7z, 7zr, ...
+			test_external p7zip || exit $E_XEXTERNAL
+			p7zip -d < "$BLOCKLIST_DOWNLOADED" > "$BLOCKLIST_EXTRACTED.tmp" || {
+				log_failure_msg " Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
+				log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
+				log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
+				rm "$BLOCKLIST_DOWNLOADED" || { log_failure_msg "Error: rm exited with $?" ; exit 1 ; }
+				exit $E_BLOCKLIST
+			}
+			mv -f "$BLOCKLIST_EXTRACTED.tmp" "$BLOCKLIST_EXTRACTED" || { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
+			echo "done."
+			;;
+		# gz packed file
+		"$(/usr/bin/printf '\x1F\x8B\x08')"*)
+			echo -n "detected gz..."
+			zcat "$BLOCKLIST_DOWNLOADED" > "$BLOCKLIST_EXTRACTED.tmp" || {
+				log_failure_msg " Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
+				log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
+				log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
+				rm "$BLOCKLIST_DOWNLOADED" || { log_failure_msg "Error: rm exited with $?" ; exit 1 ; }
+				exit $E_BLOCKLIST
+			}
+			mv -f "$BLOCKLIST_EXTRACTED.tmp" "$BLOCKLIST_EXTRACTED" || { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
+			echo "done."
+			;;
+		# zip packed file
+		"$(/usr/bin/printf '\x50\x4B\x03\x04')"*)
+			echo -n "detected zip..."
+			test_external unzip || exit $E_XEXTERNAL
+			unzip -p "$BLOCKLIST_DOWNLOADED" > "$BLOCKLIST_EXTRACTED.tmp" || {
+				log_failure_msg " Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
+				log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
+				log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
+				rm "$BLOCKLIST_DOWNLOADED" || { log_failure_msg "Error: rm exited with $?" ; exit 1 ; }
+				exit $E_BLOCKLIST
+			}
+			mv -f $BLOCKLIST_EXTRACTED.tmp $BLOCKLIST_EXTRACTED || { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
+			echo "done."
+			;;
+		# Assuming non-packed otherwise:
+		*)
+			echo -n "not packed..."
+			ln -fs $BLOCKLIST_DOWNLOADED $BLOCKLIST_EXTRACTED || { log_failure_msg " Error: ln exited with $?"; exit 1; }
+			echo "done."
+			;;
+	esac
+}
+
+# Function that updates blocklists and reloads daemon
+update_blocklists () {
+	test_net
+	echo "Updating blocklists ..."
+
+	# Remove the old MD5SUM file now, so that if anything goes wrong it's clear we have to rebuild the blocklist:
+	[ -e "$MD5SUM_FILE" ] && { rm "$MD5SUM_FILE" || { log_failure_msg " Error: rm exited with $?" ; exit 1; } ; }
+
+	UPDATE_FAIL=""		# Lists failed blocklist updates
+	UPDATE_SUCCESS=""	# Lists successful blocklist updates
+	UPDATE_SUCCESS_NA=""	# Lists blocklist where no update was available
+	UPDATE_LOCAL=""		# Lists local blocklists
+
+	# Read the non-comment|not-empty lines from BLOCKLISTS_LIST.
+	# Ignore all entries after # (comments).
+	set_LISTS_URL
+
+	for LIST in $LISTS_URL ; do
+		get_blocklist
+	done
+
+	echo "Blocklists updated."
+}
+
+# Function that builds the blocklist
+build_blocklist () {
+	echo -n "Building blocklist... "
+
+	BLOCKLISTSCAT=""
+
+	# Remove the old MD5SUM file now, so that if anything goes wrong it's clear we have to rebuild the blocklist:
+	[ -e "$MD5SUM_FILE" ] && { rm "$MD5SUM_FILE" || { log_failure_msg " Error: rm exited with $?" ; exit 1; } ; }
+
+	# Read the non-comment|not-empty lines from BLOCKLISTS_LIST.
+	# Ignore all entries after # (comments).
+	set_LISTS_URL
+
+	for LIST in $LISTS_URL ; do
+		# This function depends on LIST:
+		LIST_URL2LIST_NAME
+		# LIST_URL is empty, if LIST is notimestamp or locallist - so we can continue with the next LIST.
+		[ -z "$LIST_URL" ] && continue
+
+		# Set blocklist directory name.
+		BLOCKLIST_DIR="$BLOCKLISTS_DIR/$LIST_NAME_FIX"
+		# Set name of the extracted blocklist.
+		BLOCKLIST_EXTRACTED="$BLOCKLIST_DIR/extracted/$LIST_NAME_FIX"
+		# The single lists are modified by this script (IP_REMOVE and empty line at the end)
+		# This might be omitted and done directly during master blocklist creation.
+		# I decided against that, to allow IPBlockers, which support several single
+		# blocklists in different formats, to use these single blocklists (planned feature):
+		BLOCKLIST_USED="$BLOCKLIST_DIR/used/$LIST_NAME_FIX"
+
+		# Test if list is available:
+		[ -f "$BLOCKLIST_EXTRACTED" ] || \
+			get_blocklist || {
+			log_failure_msg "Error $E_BLOCKLIST: $LIST_NAME not available."
+			log_failure_msg "Check the entry $LIST"
+			log_failure_msg "in $BLOCKLISTS_LIST. Aborting!"
+			exit $E_BLOCKLIST
+			}
+
+		# Create necessary directories if missing:
+		[ -d "$(dirname $BLOCKLIST_USED)" ] || mkdir "$(dirname $BLOCKLIST_USED)" || { log_failure_msg "Error: mkdir exited with $?" ; exit 1 ; }
+
+		# Remove lines from the blocklist (if configured, otherwise just copy) and save in .../used/
+		if [ -n "$IP_REMOVE" ] ; then
+			# Delete lines from the blocklist:
+			# Replace all semicolons with pipe character 
+			SINGLE_REMOVE="$(echo $IP_REMOVE | sed "s/;/|/g")"
+			echo "Removing the following lines from $LIST_NAME:"
+			grep -Ei "$SINGLE_REMOVE" "$BLOCKLIST_EXTRACTED" | sort
+			grep -Eiv "$SINGLE_REMOVE" "$BLOCKLIST_EXTRACTED" > "$BLOCKLIST_USED" || { log_failure_msg "Error: grep exited with $?"; exit 1; }
+			log_end_msg 0
+		else
+			cp -f $BLOCKLIST_EXTRACTED $BLOCKLIST_USED || { log_failure_msg "Error: cp exited with $?" ; exit 1 ; }
+		fi
+
+		# # convert lists from ISO8859-1 to default locale, remove return (so CR+LF gets LF):
+		# cat "$BLOCKLIST_USED" | \
+		# 	iconv -c -f ISO8859-1 | \
+		# 	tr -d '\r' | \
+		# 	> "$BLOCKLIST_USED.tmp"
+		# mv $BLOCKLIST_USED.tmp $BLOCKLIST_USED
+
+		[ -f "$BLOCKLIST_USED" ] || { \
+			log_failure_msg " Error: $BLOCKLIST_USED doesn't exist! Strange, aborting!" ; exit 1 ; }
+
+		# Add a newline at the end of the blocklist to fix broken lists:
+		echo "" >> $BLOCKLIST_USED
+
+		BLOCKLISTSCAT="$BLOCKLISTSCAT $BLOCKLIST_USED"
+	done
+
+	if [ -z "$BLOCKLISTSCAT" ] ; then
+		log_failure_msg "Error $E_BLOCKLIST: There are no blocklists configured to be used! Aborting."
+		exit $E_BLOCKLIST
+	else
+		[ -f "$BLOCKLIST" ] && mv $BLOCKLIST $BLOCKLIST.backup	# Backup old master blocklist
+		# Build blocklist:
+		cat --squeeze-blank $BLOCKLISTSCAT > $BLOCKLIST && log_end_msg 0 || {
+			log_failure_msg "Error: cat exited with $?"
+			if [ -f $BLOCKLIST.backup ] ; then
+				echo -n "Restoring $BLOCKLIST ..."
+				mv $BLOCKLIST.backup $BLOCKLIST || { log_failure_msg " Error: mv exited with $?" ; exit 1 ; }
+				log_end_msg 0
+			else
+				exit $E_BLOCKLIST
+			fi
+			}
+	fi
+	# Save configuration settings on which this blocklist bases:
+	SUM="$(echo $BLOCKLIST_FORMAT $IP_REMOVE ; md5sum /etc/moblock/blocklists.list)"
+	MD5SUM="$(echo $SUM | md5sum | cut -c -32)"
+	echo "$MD5SUM" > "$MD5SUM_FILE"
+}
+
+# Function that tests if MoBlock is blocking
+test_ipblocking () {
+	echo "Testing $DESC:"
+
+	test_BLOCKLIST
+	# Check if daemon is running
+	# With the argument "exitifstrange" the function exits if the resulting RETVAL is not 0 or 3
+	daemon_status exitifstrange
+	case "$?" in
+		0)	# Daemon is running
+			true
+			;;
+		3)	# Daemon is not running
+			log_failure_msg "$DESC is not running."
+			exit $RETVAL
+			;;
+	esac
+
+	[ -f "$DAEMON_LOG" ] || {
+		log_failure_msg "Error $E_XFILE: Missing file $DAEMON_LOG."
+		log_failure_msg "Was $DESC ever running?"
+		log_failure_msg "Check the DAEMON_LOG settings in $CONTROL_CONF."
+		[ -f "$CONTROL_DEFAULT" ] && log_failure_msg "Also check $CONTROL_DEFAULT."
+		exit $E_XFILE
+	}
+
+	# Pick TEST_IP
+	case "$BLOCKLIST_FORMAT" in
+		'd')	# blocklist file is in eMule ipfilter.dat format
+			# Pick the last IP address from the 10th line in BLOCKLIST file (earlier IPs often result in problems with ping)
+			# Remove the leading zeros in the IPs of ipfilter.dat format.
+			TEST_IP="$(head -n10 $BLOCKLIST | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1 | sed -r "s/0{,2}([0-9]{1,2})/\1/g")"
+			;;
+		'p')	# blocklist file is in peerguardian .p2p text format
+			# Pick the last IP address from the 10th line in BLOCKLIST file (earlier IPs often result in problems with ping)
+			TEST_IP="$(head -n10 $BLOCKLIST | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1)"
+			;;
+		'n')	# blocklist file is in peerguardian .p2b v2 binary format
+			log_failure_msg "At the moment it's not possible to test blocklists in"
+			log_failure_msg "peerguardian .p2b v2 binary format"
+			exit 1
+			;;
+	esac
+	echo ""
+	echo "CAUTION: This is just a simple test to check if $DESC blocks outgoing"
+	echo "connections. For this, an IP from the blocklist will be pinged. Then the test"
+	echo "checks if this IP appears in the logfile $DAEMON_LOG."
+	if [ "$REJECT" -eq 1 ] ; then
+		echo ""
+		echo "$DESC marks packets to be blocked. This means you have to make sure that the"
+		echo "marked packets are also blocked later (with appropriate iptables rules). If you"
+		echo "are using the default configuration and $DESC is started after other firewalls"
+		echo "this will be the case."
+	fi
+	echo ""
+	echo "This test does not check if you have sane iptables rules or if your complete"
+	echo "blocklist is in the correct format. Therefore success doesn't imply that"
+	echo "everything is working as you expect it."
+	echo ""
+	echo "Also have a look at \"$(basename $0) status\" and test manually with traceroute."
+	echo ""
+
+	echo "Trying to ping $TEST_IP from $BLOCKLIST ..."
+	echo "$(basename $0): trying to ping $TEST_IP from $BLOCKLIST ..." >> $DAEMON_LOG
+	LOG_LENGTH="$(wc -l ${DAEMON_LOG} | awk '{ print $1 }')"	# remember log length before test
+	ping -c1 -W2 $TEST_IP > /dev/null 2>&1
+	RETVAL_PING=$? # the ping exit code
+	# The ping exit status is 0 if ping succeeds and 1 if ping does not receive any reply packets.
+	# On other error it exits with code 2.
+	LOG_LENGTH_NEW="$(wc -l ${DAEMON_LOG} | awk '{ print $1 }')" # new log length
+
+	if [ "$LOG_LENGTH" -ne "$LOG_LENGTH_NEW" ] ; then	# log length changed
+		tail -n$(($LOG_LENGTH_NEW-$LOG_LENGTH)) $DAEMON_LOG | \
+		grep $TEST_IP > /dev/null 2>&1
+		RETVAL=$? # the grep exit status
+		# The grep exit status is 0 if selected lines are found and 1 otherwise.
+		# If an error occurred the grep exit status is 2.
+	else
+		RETVAL=1
+	fi
+
+	if [ "$RETVAL" -eq 0 ] ; then	# IP in logfile
+		if [ "$RETVAL_PING" -eq 1 ] ; then	# No reply to ping
+			if [ "$REJECT" -eq 1 ] ; then
+				log_success_msg "$DESC marked the IP to be blocked and the IP did not answer. Test succeeded."
+			else
+				log_success_msg "$DESC blocked the IP. Test succeeded."
+			fi
+		elif [ "$RETVAL_PING" -eq 0 ] ; then	# Reply to ping
+			if [ "$REJECT" -eq 1 ] ; then
+				log_failure_msg "$DESC blocked the IP, but ping got an answer or failed."
+				log_failure_msg "Check the iptables settings and make sure that \"marked block\" packets really"
+ 				log_failure_msg "get blocked."
+				RETVAL=2
+			else	# REJECT is 0
+				log_failure_msg "$DESC blocked the IP, but ping got an answer or failed - strange."
+				RETVAL=2
+			fi
+		else
+			log_failure_msg "Some error occured with ping, no test result."
+			RETVAL=2
+		fi
+	elif [ "$RETVAL" -eq 1 ] ; then	# IP not in logfile
+		if [ "$REJECT" -eq 1 ] ; then
+			log_failure_msg "$DESC did not mark the IP to be blocked."
+		else	# REJECT is 0
+			log_failure_msg "$DESC did not block the IP."
+		fi
+		log_failure_msg "Was $DESC already loaded completely? Wait some minutes and try again."
+		log_failure_msg ""
+		if [ "$RETVAL_PING" -eq 0 ] ; then	# Reply to ping
+			log_failure_msg "$TEST_IP answered. Test failed."
+		elif [ "$RETVAL_PING" -eq 1 ] ; then	# No reply to ping
+			log_failure_msg "$TEST_IP did not answer."
+			log_failure_msg ""
+			log_failure_msg "Maybe $TEST_IP is down/doesn't answer to pings"
+			log_failure_msg "(this would still mean that $DESC is not working)"
+			log_failure_msg "or your firewall filtered the ping before $DESC could check it"
+			log_failure_msg "(then $DESC may be working as desired, check your iptables rules)."
+		else
+			log_failure_msg "Some error occured with ping, no test result."
+			RETVAL=2
+		fi
+	else	# grep error
+		log_failure_msg "Some error occured with grep, no test result."
+		RETVAL=2
+	fi
+}
+
+
+dump_stats () {
+	CURLINE="$(wc -l $STATFILE | awk '{print$1}')"
+	kill -s USR2 "$(pidofproc $DAEMON)"
+}
+
+reset_stats () {
+	CURLINE="$(wc -l $STATFILE | awk '{print$1}')"
+	kill -s USR1 "$(pidofproc $DAEMON)"
+	tail -n+$CURLINE $STATFILE
+}

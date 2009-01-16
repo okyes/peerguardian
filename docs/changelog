@@ -1,0 +1,189 @@
+Changelog moblock-control
+
+moblock-control (1.0)
+
+  * Split again from the moblock debian package. Still all changes are recorded
+    in debian/changelog.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Fri, 19 Sep 2008 16:21:48 +0200
+
+moblock-control (0.8-16)
+
+  * merged in the moblock debian packages on moblock-deb.sourceforge.net. See
+    the debian/changelog for further changes.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 14 Aug 2007 12:42:36 +0200
+
+
+moblock-control (0.8-15jre4)
+
+  * renamed /etc/default/moblock (moblock.default) to /etc/moblock/moblock.conf
+  * build new master blocklist after update if no master blocklist is installed
+    even if no blocklist was updated.
+  * reload only if moblock is really running
+  * some minor changes
+
+ -- jre <jre-phoenix@users.sourceforge.net> 
+
+
+moblock-control (0.8-15jre3)
+
+  * moblock-control: fixed bug with testing for "md5sum"
+  * renamed some internal variables
+
+ -- jre <jre-phoenix at users.sourceforge.net>  Mon, 06 Aug 2007 10:48:29 +0200
+
+
+moblock-control (0.8-15jre2)
+
+  * moblock-control: fixed locallist update errors, oops.
+      Some strange bug with testing for "md5sum" still exists. The
+      relevant line is not used for now. Everything will still work.
+
+ -- jre <jre-phoenix at users.sourceforge.net>  Sat, 04 Aug 2007 17:51:39 +0200
+
+
+moblock-control (0.8-15jre)
+
+  * initial release for moblock (*only nfq*)
+
+  [ changes to peerguardnf init & update script: ]
+  * restructured: main script is /usr/bin/moblock-control.
+     cron and init source the main script
+  * scripts are now #!/bin/bash instead of #!/bin/sh. Not sure if this is
+    necessary. Tests with other shells are welcome.
+  * moblock-control:
+    - added option "reload", same as "force-reload":
+       rebuilds blocklist and reloads moblock
+    - paths to external applications no more hardcoded in script
+    - fewer PATHs set
+  * moblock-control and moblock.default:
+    new configuration variables instead of IPTABLES=
+    - IPTABLES_SETTINGS: Defines how traffic is sent to moblock
+        (removed uncommon alternatives, tell me if you need them)
+    - IPTABLES_ACTIVATION: defines if and when traffic is sent to moblock
+    - IPTABLES_STATE: defines if all or only NEW traffic is sent to moblock
+  * moblock-control and blocklists.list:
+    - special keywords for special cases:
+       notimestamp (blocklists on servers which don´t support timestamping)
+       locallist (local blocklists)
+  * blocklists.list:
+    - changed list sources from .zip to .gz
+    - added IANA lists
+  * moblock.init:
+    - relaxed "Required-Start", added "Required-Stop"
+    - new description
+  * minor changes, improved output
+
+ -- jre <contact me at forums.phoenixlabs.org>  Mon, 30 Jul 2007 23:11:50 +0200
+
+
+peerguardnf (1.5-cvs20060228-14jre) unstable; urgency=low
+
+  * control: changed recommends to: p7zip | p7zip-full
+  * Minor documentation updates
+  * peerguardnf.init: removed Debian Etch specific non-LSB extensions, minor
+    changes
+  * peerguardnf.init: improved ´status´ output
+
+ -- jre <contact me at forums.phoenixlabs.org>  Thu, 26 Oct 2006 20:17:06 +0200
+
+
+peerguardnf (1.5-cvs20060228-13jre) unstable; urgency=low
+
+  * support for local (custom) blocklists
+  * support for *.zip'ped blocklists, added 'unzip' under Depends to
+    'debian/control'
+  * blocklists.list: changed to bluetack's zip'ped lists since they seem to be
+    newer; added bogon, dshield and hijacked
+  * peerguardnf.init: removed all "exit on error" options (i.e. set -e)
+  * peerguardnf.init: changed network test on 'update' to "exit" instead of
+    "return"
+  * peerguardnf.init: iptables rules are only inserted on 'start' if peerguardnf
+    wasn't already running
+  * peerguardnf.init: test for and download missing blocklists before building
+    the master blocklist
+  * added README.blocklists to help users in deciding what blocklists to use.
+  * man page: update
+
+ -- jre <contact me at forums.phoenixlabs.org>  Thu,  4 May 2006 21:33:21 +0200
+
+
+peerguardnf (1.5-cvs20060228-12jre) unstable; urgency=low
+
+  * man page: Minor edits
+  * Main.cpp: Typo 'Deamon' corrected
+  * AUTHORS: Deleted
+
+ -- jre <contact me at forums.phoenixlabs.org>   Fri, 21 Apr 2006 16:15:23 +0200
+
+
+peerguardnf (1.5-cvs20060228-11jre) unstable; urgency=low
+
+  * Changed PG.conf to not blocking no ports (i.e. blocking all ports)
+    (deprecated by /etc/default/peerguardnf)
+  * Renamed "/etc/peerguardnf/peerguardian.blocklists" to
+    "/etc/peerguardnf/blocklists.list", adjusted script
+  * logrotation: removed line 7 because of this:
+     localhost:/# logrotate /etc/logrotate.d/peerguardnf
+     error: /etc/logrotate.d/peerguardnf:7 unknown option 'endscript' --
+     ignoring line
+  * /etc/init.d/peerguardnf and /etc/default/peerguardnf: Minor edits
+  * Updated and integrated README.jre to the man page
+
+ -- jre <contact me at forums.phoenixlabs.org>  Sat, 15 Apr 2006 06:04:25 +0200
+
+
+peerguardnf (1.5-cvs20060228-10jre) unstable; urgency=low
+
+  * Updated README.jre
+
+ -- jre <contact me at forums.phoenixlabs.org>  Sat, 01 Apr 2006 16:50:00 +0200 
+
+
+peerguardian (cvs20060228-5-20060321 aka cougar)
+  * Now you can choose in /etc/default/peerguardian:
+    Which Ports to whitelist (since last version)
+    Which IPs to whitelist
+    Which lines with IP-Ranges to remove from the blocklist
+    Which lines with IP-Ranges to add to the blocklist
+  * Changed init: Runlevel 0 and 6: S35; Runlevel S: S42
+  * Reduced the warnings in ./INSTALL
+
+peerguardian (cvs20060228-5-20060319)
+  * Now /etc/default/peerguardian is used to *choose* how and if iptables rules
+    shall be installed
+  * added lestlest's iptables-solution with multiple seperate chains for
+    whitelisting ports and integrating peerguardnf in other firewalls. This is
+    new default.
+  * All blocklists are now handled like .7z and .gz (before they were deleted
+    after merging the blocklist
+
+peerguardian (cvs20060228-5-20060316)
+  * Using only logging functions from /lib/lsb/init-functions (In Debian there
+    are also some non-LSB functions in this file. I don't know if they don't
+    exist in other distros.
+  * During INSTALL remove conflicting files from lestlest's debian package.
+    This means that after removing this script the Debian package will be
+    broken. In this case you have to uninstall and install it again!
+
+peerguardian (cvs20060228-5-20060312)
+  * This script depends on the new peerguardnf CVS version from lestlest
+    because it assumes that the iptables rules aren't inserted by the daemon and
+    that the PID is /var/run/peerguardnf.pid
+  * logrotation uses HUP
+  * The script is now LSB-compatible (I hope so, it uses LSB functions for
+    starting/stopping and some log-messages).
+  * 'status' is now implemented
+  * The blocklists are now downloaded to /var/spool/peerguardian
+  * The configuration file for which lists to download is now
+    /etc/peerguardian.blocklists
+
+peerguardian (20060303)
+  * Support for 7z packed blocklists
+  * One second delay between starting the daemon and removing the old iptables rules
+  * INSTALL (re-)starts PeerGuardian, UNINSTALL stops PeerGuardian
+  * Some logfile improvements
+
+peerguardian (20060206) and earlier versions:
+see http://forums.phoenixlabs.org/t10762-updateampinit-script.html

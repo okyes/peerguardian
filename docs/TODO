@@ -1,0 +1,47 @@
+TODO for moblock-control and MoBlock debian packaging
+
+moblock-control:
+
+- send error messages to console and logfile. [João]
+
+- fix debconf to use debian/config again.
+
+- [DISCUSS] Block IPv6 completely because currently only IPv4 is checked?
+
+- [DISCUSS] /usr/sbin/moblock-control instead of /usr/bin/moblock-control?
+
+- add blocklist conversion to UTF8 (code already implemented, but not used. Use
+  better checks). Wait for blocklist converter by João instead.
+
+- expand test to also use traceroute (with a timeout)
+
+- new manual test to find out in which list and with which entry a blocked IP
+  appears. [see also -i option of peerguardnf!]
+  Partly solved by patch 90_log.dpatch by cader!
+
+- build_blocklist: disable concatenating blocklists in .p2b (binary) format.
+  Abort (?) if several binary lists are used, MoBlock can't cope with this. What
+  about nfblockd?
+
+- adapt test function for peerguardian .p2b v2 binary format blocklist formats.
+
+- find a new name that suits for MoBlock and NFBlockD. Then clear up the mess of
+  different file and variables names (and make new ones backwards compatible).
+  Possible names: IPGuardian or BlockGuardian. Suggestions and comments are
+  welcome!
+
+
+Requests for upstream:
+
+- [moblock]:  check if blocklists are in the correct format. Or better:
+  automatic detection of format + possibility to use several blocklists at once.
+
+- [moblock]: use a real allowlist (instead of the iptables whitelisting)
+
+- [iblocklist.com]: This site renames some filenames. So it is not possible to
+  use the upstream URL and the iblocklist.com URL, and avoid the second download
+  with wget's timestamp option.
+
+packaging:
+
+- add debtags

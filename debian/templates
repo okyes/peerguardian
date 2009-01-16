@@ -1,0 +1,431 @@
+Template: moblock/warning_block
+Type: note
+_Description: WARNING: MoBlock may block your complete network/internet access!
+ MoBlock starts automatically at system boot per default. Some preconfigured
+ blocklists are updated once a day. Be warned, that MoBlock will not only block
+ many unwanted IPs, but in most cases running MoBlock will result in a limited
+ network availability. This includes your own LAN and router, many webpages,
+ services like eMail, instant messaging or the "weather applet" and your
+ machine's accessibility from the internet.
+ .
+ There are many configuration options to prevent this. Per default traffic to
+ your own LAN will always be allowed (whitelisted). This feature is still
+ experimental. If you are on a public LAN, you probably want to disable this
+ feature.
+ .
+ You can now tweak MoBlock's behaviour.
+ .
+ These settings can later be changed with
+  sudo dpkg-reconfigure moblock-control
+
+Template: moblock/warning_firewall
+Type: note
+_Description: WARNING: Users with firewall (iptables rules)
+ Since version 0.9, MoBlock no longer conflicts with other firewalls. Make sure
+ the following three conditions hold:
+  - MoBlock marks non-matched (IP is not in the blocklist)
+    packets. (The marking feature is on per default. It
+    will be explained and asked for later.)
+  - Other firewalls do not mark packets.
+  - MoBlock is started after other firewalls. If other
+    firewalls are started/reloaded after MoBlock, then you
+    need to restart MoBlock again. You will be fine, if the
+    iptables rules which send traffic to MoBlock's iptables
+    chains (moblock_in, moblock_out and moblock_fw) stand
+    before all other iptables rules which ACCEPT traffic.
+ .
+ You can check your iptables rules with
+  iptables -L -nv
+ or
+  moblock-control status.
+
+Template: moblock/BLOCKLIST_FORMAT
+Type: select
+Choices: eMule ipfilter.dat format, PeerGuardian .p2b v2 binary format, PeerGuardian .p2p text format
+Default: PeerGuardian .p2p text format
+_Description: Set the blocklist format:
+ Configuration variable: BLOCKLIST_FORMAT
+ .
+ Set the format of the blocklists that you use. All your blocklists have to be
+ in this format.
+ .
+  eMule ipfilter.dat format:
+   MoBlock option: -d
+   Example line:
+   001.000.000.000 , 001.000.000.255 , 100 , Some organization
+ .
+  PeerGuardian .p2b v2 binary format:
+   MoBlock option: -n
+ .
+  PeerGuardian .p2p text format (default)
+   MoBlock option: -p
+   Example line:
+   Some organization:1.0.0.0-1.000.000.255
+
+Template: moblock/blocklists_dat
+Type: multiselect
+Choices: tbg.iblocklist.com/Lists/ipfilter.dat.gz
+Default: tbg.iblocklist.com/Lists/ipfilter.dat.gz
+_Description: What blocklists shall MoBlock use?
+ This selects the blocklist that MoBlock should use. They are all in the eMule
+ ipfilter.dat format.
+ .
+ /usr/share/doc/moblock-control/README.blocklists.gz provides more information
+ about these blocklists. Online information sources are
+  http://tbg.iblocklist.com/pages/faq.html and
+  http://www.bluetack.co.uk/forums/index.php?autocom=faq&CODE=02&qid=17 and of
+ course http://phoenixlabs.org.
+ .
+ If you have specified additional blocklists in /etc/moblock/blocklists.list
+ they will be kept as well. Known blocklists in an incompatible blocklist format
+ will be commented out.
+
+Template: moblock/blocklists_p2p
+Type: multiselect
+Choices: TBG_Primary_Threats, TBG_General_Corporate_Ranges, TBG_Business_ISPs, TBG_Educational_Institutions, TBG_Search_Engines, TBG_Hijacked, TBG_Bogon, Bluetack_level1, Bluetack_level2, Bluetack_level3, Bluetack_edu, Bluetack_ads, Bluetack_bogon, Bluetack_spyware, Bluetack_spider, Bluetack_Microsoft, Bluetack_proxy, Bluetack_hijacked, Bluetack_badpeers, Bluetack_rangetest, Bluetack_dshield
+Default: TBG_Primary_Threats, TBG_General_Corporate_Ranges, TBG_Business_ISPs, TBG_Search_Engines, TBG_Hijacked, TBG_Bogon, Bluetack_proxy, Bluetack_dshield
+_Description: What blocklists shall MoBlock use?
+ This selects the blocklists that MoBlock should use. They are all in the
+ PeerGuardian .p2p text format.
+ .
+ These lists were created by Bluetack (http://www.bluetack.co.uk) and TBG
+ (http://tbg.iblocklist.com) and are provided by iblocklist.com.
+ .
+ You can get more information  about these blocklists in
+  /usr/share/doc/moblock-control/README.blocklists.gz and online at
+  http://www.bluetack.co.uk/forums/index.php?autocom=faq&CODE=02&qid=17 and
+  http://tbg.iblocklist.com/pages/faq.html
+ .
+ If you have specified additional blocklists in /etc/moblock/blocklists.list,
+ they will be kept as well. Known blocklists in an incompatible blocklist
+ format will be commented out.
+
+Template: moblock/LOG_TIMESTAMP
+Type: boolean
+Default: true
+_Description: Turn on timestamping in the logfile?
+ Configuration variable: LOG_TIMESTAMP
+ .
+ This lets the MoBlock daemon add timestamps to the logging.
+
+Template: moblock/LOG_SYSLOG
+Type: boolean
+Default: false
+_Description: Turn on daemon logging to syslog?
+ Configuration variable: LOG_SYSLOG
+ .
+ This lets the MoBlock daemon also log to syslog.
+ .
+ If you want to turn off the daemon's logging to the logfile, you can set
+  DAEMON_LOG=""
+ in /etc/default/moblock. Please note that "test" will not work then.
+
+
+Template: moblock/LOG_IPTABLES
+Type: select
+Choices: Do not log blocked packets to syslog., Log blocked packets to syslog., Do not touch my settings. Use the current custom value instead.
+Default: Do not log blocked packets to syslog.
+_Description: Turn on iptables logging of blocked packets to syslog?
+ Configuration variable: LOG_IPTABLES
+ .
+ If you choose to log blocked packets to syslog, an iptables rule with the
+ target "LOG --log-level info" for "marked block" packets will be inserted
+ directly before the iptables rule which decides what happens to "marked block"
+ packets.
+ .
+ This will only work if you mark matched (IP is in the blocklist) packets. (The
+ marking feature is on per default. It will be explained and asked for later.)
+ .
+ The default is not to log blocked packets to syslog.
+
+Template: moblock/VERBOSITY
+Type: select
+Choices: Output to STDOUT is off (only errors will be reported)., Output to STDOUT is on., Output to STDOUT is on but no warning will be shown if an operation is configured not to be executed.
+Default: Output to STDOUT is on.
+_Description: Set the verbosity of moblock-control:
+ Configuration variable: VERBOSITY
+ .
+ This only affects the output to STDOUT by moblock-control, cron and init.
+ This does not affect logging or the output of the MoBlock daemon.
+ .
+  0 - Output to STDOUT is off (only errors will be reported).
+  1 - Output to STDOUT is on. (default)
+  2 - Output to STDOUT is on but no warning will be shown
+      if an operation is configured not to be executed.
+
+Template: moblock/MOBLOCK_INIT
+Type: boolean
+Default: true
+_Description: Turn on automatic start?
+ Configuration variable: MOBLOCK_INIT
+ .
+ "No" prevents the MoBlock init script from starting on "start". Therefore
+ MoBlock will not be started at system boot. The same behaviour can be achieved
+ by removing/tweaking the init file and the links pointing to it. You can do
+ this manually or by using an application such as rcconf.
+
+Template: moblock/MOBLOCK_CRON
+Type: boolean
+Default: true
+_Description: Turn on automatic blocklist update?
+ Configuration variable: MOBLOCK_CRON
+ .
+ This sets if the daily MoBlock cron job updates the blocklists.
+
+Template: moblock/NFQUEUE_NUMBER
+Type: string
+Default: 92
+_Description: Set the NFQUEUE queue number:
+ Configuration variable: NFQUEUE_NUMBER
+ .
+ Valid queue numbers are 0 to 65535. The default value is 92.
+ .
+ Insert the plain number as you would give it in an iptables command after
+ "--queue-num". Do not use surrounding "quotes".
+
+Template: moblock/IPTABLES_SETTINGS
+Type: select
+Choices: Do not set any iptables rules. You or another script/firewall has to do this!, Use separate iptables chains for MoBlock., Only set custom iptables rules.
+Default: Use separate iptables chains for MoBlock.
+_Description: Set how traffic is sent to MoBlock:
+ Configuration variable: IPTABLES_SETTINGS
+ .
+ The default is to place MoBlock's iptables rules in separate iptables chains
+ (moblock_in, moblock_out and moblock_fw).
+ .
+ You can set custom iptables rules in /etc/moblock/iptables-custom-insert.sh
+ and iptables-custom-remove.sh. These scripts are executed either additionally
+ to the default iptables rules insertion/removal or exclusively.
+
+Template: moblock/IPTABLES_ACTIVATION
+Type: select
+Choices: Do nothing. You or another script/firewall has to do this!, Send all NEW traffic to the iptables chains of MoBlock., Send all traffic to the iptables chains of MoBlock.
+Default: Send all NEW traffic to the iptables chains of MoBlock.
+_Description: Activate MoBlock's iptables chains?
+ Configuration variable: IPTABLES_ACTIVATION
+ .
+ Decide what traffic shall be checked by MoBlock. If you previously decided to
+ use MoBlock's separate iptables chains, then it is a good idea to send all NEW
+ traffic there. It is absolutely safe to only check NEW traffic.
+ .
+ Checking all (not only NEW) traffic might cause problems because MoBlock has to
+ check much more traffic then. Further whitelisting gets more complicated, since
+ you have to think of both directions, incoming and outgoing. Only do this, if
+ you are sure that you want to.
+ .
+ The iptables rules that activate the iptables chains of MoBlock are inserted at
+ the head of the chains INPUT, OUTPUT and FORWARD.
+
+Template: moblock/REJECT
+Type: boolean
+Default: true
+_Description: Do you want to mark matched (IP is in the blocklist) packets?
+ Configuration variable: REJECT
+ .
+ Set what happens to matched (IP is in the blocklist) packets.
+ .
+ No, DROP them directly (as in MoBlock 0.8).
+ .
+ Yes, MARK them. Further iptables rules that match this MARK decide what happens
+ to them. E.g. this allows to REJECT packets to avoid the long timeout which
+ occurs when packets are DROPped, see below. This setting is also necessary for
+ iptables logging to syslog, see above. (default)
+
+Template: moblock/REJECT_IN
+Type: select
+Choices: REJECT, DROP, Do not touch my settings. Use the current custom value instead.
+Default: DROP
+_Description: Set the iptables target for "marked block" incoming packets:
+ Configuration variable: REJECT_IN
+ .
+ REJECT: The sender of the packet is notified that the packet was blocked.
+ .
+ DROP: The sender of the packet is not notified that the packet was blocked.
+ .
+ Be careful: senseless values are also accepted.
+
+Template: moblock/REJECT_OUT
+Type: select
+Choices: REJECT, DROP, Do not touch my settings. Use the current custom value instead.
+Default: REJECT
+_Description: Set the iptables target for "marked block" outgoing packets:
+ Configuration variable: REJECT_OUT
+ .
+ REJECT: The sender of the packet is notified that the packet was blocked.
+ .
+ DROP: The sender of the packet is not notified that the packet was blocked.
+ .
+ Be careful: senseless values are also accepted.
+
+Template: moblock/REJECT_FW
+Type: select
+Choices: REJECT, DROP, Do not touch my settings. Use the current custom value instead.
+Default: DROP
+_Description: Set the iptables target for "marked block" forwarded packets:
+ Configuration variable: REJECT_FW
+ .
+ REJECT: The sender of the packet is notified that the packet was blocked.
+ .
+ DROP: The sender of the packet is not notified that the packet was blocked.
+ .
+ Be careful: senseless values are also accepted.
+
+Template: moblock/ACCEPT
+Type: boolean
+Default: true
+_Description: Do you want to mark non-matched (IP is not in the blocklist) packets?
+ Configuration variable: ACCEPT
+ .
+ Set what happens to non-matched (IP is not in the blocklist) packets.
+ .
+ No, ACCEPT them directly (as in MoBlock 0.8).
+ .
+ Yes, MARK them. MoBlock will then ignore them. This allows integration with
+ other firewalls. (default)
+
+Template: moblock/info_whitelisting
+Type: note
+_Description: Whitelisting
+ The following questions help you define which traffic will NOT be checked by
+ MoBlock. This is called "whitelisting".
+ .
+ Do a "dpkg-reconfigure moblock" to get the full set of questions (many have
+ only low priority and will not be asked per default).
+ .
+ Traffic is categorized as:
+  incoming:
+  someone from the internet wants to access your machine
+  outgoing:
+  you want to access someone on the internet, e.g. websurfing
+  forward:
+  traffic passes your machine, e.g. because it is a router
+  or an emulator such as Virtualbox XP
+
+Template: moblock/WHITE_TCP_OUT
+Type: string
+Default: http https
+_Description: Whitelist outgoing TCP ports:
+ Configuration variable: WHITE_TCP_OUT
+ .
+ Whitelist ports by port number or with the associated service name. Port ranges
+ are specified in the format "port:port". Up to 15 ports can be specified. A
+ port range (port:port) counts as two ports.
+ .
+ Common ports:
+   80 - http
+  443 - https
+   22 - ssh
+  993 - SSL IMAP
+ .
+ Seperate multiple entries with whitespace (" "). Do not use surrounding
+ "quotes". Be careful: senseless values are also accepted.
+
+Template: moblock/WHITE_UDP_OUT
+Type: string
+Default: 
+_Description: Whitelist outgoing UDP ports:
+ Configuration variable: WHITE_UDP_OUT
+ .
+ Whitelist ports by port number or with the associated service name. Port
+ ranges are specified in the format "port:port". Up to 15 ports can be
+ specified. A port range (port:port) counts as two ports.
+ .
+ Seperate multiple entries with whitespace (" "). Do not use surrounding
+ "quotes". Be careful: senseless values are also accepted.
+
+Template: moblock/WHITE_TCP_IN
+Type: string
+Default: 
+_Description: Whitelist incoming TCP ports:
+ Configuration variable: WHITE_TCP_IN
+ .
+ Whitelist ports by port number or with the associated service name. Port
+ ranges are specified in the format "port:port". Up to 15 ports can be
+ specified. A port range (port:port) counts as two ports.
+ .
+ Seperate multiple entries with whitespace (" "). Do not use surrounding
+ "quotes". Be careful: senseless values are also accepted.
+
+Template: moblock/WHITE_UDP_IN
+Type: string
+Default: 
+_Description: Whitelist incoming UDP ports:
+ Configuration variable: WHITE_UDP_IN
+ .
+ Whitelist ports by port number or with the associated service name. Port
+ ranges are specified in the format "port:port". Up to 15 ports can be
+ specified. A port range (port:port) counts as two ports.
+ .
+ Seperate multiple entries with whitespace (" "). Do not use surrounding
+ "quotes". Be careful: senseless values are also accepted.
+
+Template: moblock/WHITE_TCP_FORWARD
+Type: string
+Default: 
+_Description: Whitelist forwarded TCP ports:
+ Configuration variable: WHITE_TCP_FORWARD
+ .
+ Whitelist ports by port number or with the associated service name. Port
+ ranges are specified in the format "port:port". Up to 15 ports can be
+ specified. A port range (port:port) counts as two ports.
+ .
+ Seperate multiple entries with whitespace (" "). Do not use surrounding
+ "quotes". Be careful: senseless values are also accepted.
+
+Template: moblock/WHITE_UDP_FORWARD
+Type: string
+Default: 
+_Description: Whitelist forwarded UDP ports:
+ Configuration variable: WHITE_UDP_FORWARD
+ .
+ Whitelist ports by port number or with the associated service name. Port
+ ranges are specified in the format "port:port". Up to 15 ports can be
+ specified. A port range (port:port) counts as two ports.
+ .
+ Seperate multiple entries with whitespace (" "). Do not use surrounding
+ "quotes". Be careful: senseless values are also accepted.
+
+Template: moblock/WHITE_LOCAL
+Type: select
+Choices: Do nothing., Automatically whitelist LAN traffic and traffic on the loopback device., Whitelist the loopback device.
+Default: Automatically whitelist LAN traffic and traffic on the loopback device.
+_Description: Set your whitelisting options for local traffic:
+ Configuration variable: WHITE_LOCAL
+ .
+ The default is to automatically whitelist LAN traffic and traffic on the
+ loopback device. This feature is still experimental. If you are on a public
+ LAN, you probably want to only whitelist the loopback device instead.
+ .
+ "Whitelist the loopback device" is the same as the obsolete setting
+ LOOPBACK="1".
+
+Template: moblock/allowlist
+Type: string
+Default: 
+_Description: Add a line to the allowlist:
+ Any value given here will be added to the allow list (per default this is
+ /etc/moblock/allow.p2p). Lines in the allow list must be in the PeerGuardian
+ .p2p text format:
+   Some organization:1.0.0.0-1.255.255.255
+ .
+ This is also true if your blocklists are in another format.
+ .
+ You can whitelist more IP ranges by adding them to /etc/moblock/allow.p2p.
+
+Template: moblock/IP_REMOVE
+Type: string
+Default: 
+_Description: Remove lines from the blocklist:
+ Configuration variable: IP_REMOVE
+ .
+ Remove lines from the blocklist matching the specified pattern (the search
+ pattern is case-insensitive).
+ .
+ Seperate patterns with a semicolon ";". Do not use surrounding "quotes".
+ Be careful: senseless values are also accepted.
+ .
+ Example:
+  google;yahoo;altavista;debian;sourceforge
+ .
+ Warning for beginners: If you want to whitelist a special IP then use the
+ allowlist. If you specify an IP here you will most likely fail.

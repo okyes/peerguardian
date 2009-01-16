@@ -1,0 +1,313 @@
+README for moblock-control                          Thu Jan  8 19:45:56 CET 2009
+
+================================================================================
+
+Table of Contents:
+
+Description
+Features
+Usage
+Options
+Configuration
+Files / Installation
+Example for installation (on Debian)
+  Fedora7 / CentOS5
+Supported systems
+Requirements
+
+================================================================================
+
+Description:
+
+moblock-control provides easy ways to interact with MoBlock and do all common
+related tasks. Remember this is only a addon for MoBlock, so you still need
+MoBlock installed. Alternatively to MoBlockk you may use NFBlockD.
+MoBlock and NFBlockD check internet traffic based on large lists of IP address
+ranges in order to protect your privacy. You can get them at
+http://moblock.berlios.de and
+http://sites.google.com/site/makovick/nfblockd-daemon
+
+WARNING: MoBlock may block your complete network/internet access!
+
+MoBlock starts automatically at system boot per default. Some preconfigured
+blocklists are updated once a day. Be warned, that MoBlock will not only block
+many unwanted IPs, but in most cases running MoBlock will result in a limited
+network availability. This includes your own LAN and router, many webpages,
+services like eMail, instant messaging or the "weather applet" and your
+machine's accessibility from the internet.
+
+There are many configuration options to prevent this. Per default traffic to
+your own LAN will always be allowed (whitelisted). This feature is still
+experimental. If you are on a public LAN, you probably want to disable this
+feature.
+
+WARNING: Users with firewall (iptables rules)
+Since version 0.9, MoBlock no longer conflicts with other firewalls. Make sure
+the following three conditions hold:
+  - MoBlock marks non-matched (IP is not in the blocklist)
+    packets. (The marking feature is on per default. It
+    will be explained and asked for later.)
+  - Other firewalls do not mark packets.
+  - MoBlock is started after other firewalls. If other
+    firewalls are started/reloaded after MoBlock, then you
+    need to restart MoBlock again. You will be fine, if the
+    iptables rules which send traffic to MoBlock's iptables
+    chains (moblock_in, moblock_out and moblock_fw) stand
+    before all other iptables rules which ACCEPT traffic.
+
+Technical note:
+MoBlock checks traffic (packets) that is sent to the iptables NFQUEUE (or the
+deprecated QUEUE) target. If the necessary support is not built in the kernel
+directly, moblock-control will load the necessary kernel modules.
+Up to MoBlock 0.8 packets that do not match the blocklist are ACCEPTed and
+packets that match the blocklist are DROPped.
+Since MoBlock 0.9 packets can also be MARKed, so that iptables rules that match
+this mark decide what happens with these packets. Per default marking is on.
+Marked packets repeat the hook function (NF_REPEAT). So they are sent back to
+the head of the iptables chain again. A packet may only bear one mark, so there
+mustn't be any other applications / iptables rules that mark packets. Otherwise
+MoBlock (with marking on) will not work and packets will loop forever.
+"Marked block" outgoing packets will be REJECTED, "Marked block" incoming and 
+forwarded packets will be DROPped. "Marked accept" packets will be ignored by
+MoBlock, so other iptables rules decide what happens to them.
+
+================================================================================
+
+Features:
+
+- Start and stop MoBlock. Or let init do this automatically.
+- Update your blocklist from online sources and local blocklists. Or let cron do
+  this automatically on a regular basis.
+- Remove lines by keyword from the blocklists.
+- Handle your iptables rules: use a default setup, easily allow all traffic on
+  specific ports and use an allow list, or add your own sophisticated iptables
+  rules.
+- Allow all LAN traffic automatically. This feature is still experimental. Don't
+  use it on public networks.
+- Check the status and test MoBlock.
+- Detects if kernel modules are needed and loads them if necessary.
+- Set verbosity and logging options.
+- Provides LSB 3.1 compatible init script.
+- Daily rotation of the logfiles.
+
+================================================================================
+
+Usage:
+
+moblock-control OPTION
+
+================================================================================
+
+Options:
+
+start	inserts iptables rules and starts MoBlock
+stop	deletes iptables rules and stops MoBlock
+restart	restarts MoBlock
+reload	rebuilds the blocklist and reloads MoBlock
+update	updates the blocklists and reloads MoBlock
+status	gives the iptables settings and the status of the MoBlock daemon
+test	simple test to check if MoBlock is working
+stats	reports MoBlock's statistics
+reset_stats resets MoBlock's statistics
+show_config shows the complete configuration
+
+================================================================================
+
+Configuration:
+
+Blocklists are configured in blocklists.list (/etc/moblock/blocklists.list). The
+allow list is allow.p2p (/etc/moblock/allow.p2p). Per default, the allowlist is
+used for incoming and outgoing connections. If desired different allow lists for
+incoming, outgoing and forward connections may be used.
+
+The rest is done in "moblock.conf".
+
+moblock-control first reads its defaults from
+moblock-control.defaults (/usr/lib/moblock-control/moblock-control.defaults),
+then the configuration file moblock.conf (/etc/moblock/moblock.conf) and last
+moblock.default (/etc/default/moblock). The latter overwrites the previous
+values. It is recommended to make all user changes in moblock.default to ease
+updates.
+
+================================================================================
+
+Files / Installation:
+
+moblock-control consists of the following files. Copy them to the appropriate
+places on your distribution and adjust the paths if necessary in moblock.conf
+(Towards the end of that file. There you can also see where the files are placed
+under Debian). Note that some files have to be renamed, again have a look at
+moblock.conf or at the installation example for Debian below.
+moblock-control will detect if you have installed moblock or nfblockd (in PATH)
+automatically. Otherwise you can specify this in moblock.conf.
+The path to moblock.conf and moblock-control.defaults has to be specified in
+moblock-control, moblock.if-up, cron.daily and init.
+moblock-control is provided with a configuration suitable for Debian.
+
+- moblock-control (required)
+  The shell script moblock-control. Must be executable.
+
+- moblock-control.defaults (required)
+  Default settings for all variables and pathnames.
+
+- moblock-control.lib (required)
+  Library for moblock-control, moblock.if-up, cron.daily and init.
+
+- blocklists.list (required)
+  Lists all blocklists that are used (and downloaded) by moblock-control for
+  use by moblock.
+
+- moblock.conf
+  The configuration file for moblock-control.
+  Referenced as CONTROL_CONF in moblock-control, init, cron.daily and
+  moblock-if.up
+
+- moblock.default
+  The default configuration file for user changes (overwrites values from
+  moblock.conf).
+
+- allow.p2p
+  Allow List which contains IP ranges that shall be whitelisted.
+
+- moblock.if-up
+  Gets executed whenever a network interface is brought up to make sure that
+  the automatic whitelisting of traffic in the LAN does work. Must be
+  executable.
+
+- iptables-custom-insert.sh (optional)
+  Script to insert custom iptables rules. This script will be executed on every
+  "moblock-control start" if IPTABLES_SETTINGS="1" or "2" is configured.
+
+- iptables-custom-remove.sh (optional)
+  Script to delete custom iptables rules. See above.
+
+- init (optional)
+  Init file for starting moblock automatically on every bootup. Must be
+  executable.
+
+- cron.daily (optional)
+  Cron file for updating the blocklists automatically with cron. Must be
+  executable.
+
+- logrotate (optional, configuration file for logrotate)
+  Debian place: /etc/logrotate.d/moblock
+  assumes logfile in /var/log/moblock-control.log
+  Note: You should add another logrotate for the MoBlock daemon, too! Download
+  one from: http://moblock-deb.svn.sourceforge.net/viewvc/moblock-deb/moblock/mo
+  block-0.9~rc2/moblock-0.9~rc2/debian/logrotate
+
+- init-functions (required if your distribution lacks the LSB init-functions)
+  moblock-control depends on the LSB init-functions. This is a modified version
+  based on the Debian one.
+
+- docs/
+  Some documentatation. moblock-control.1 is a man page.
+
+- debian/
+  You don't need this, this is only needed for the Debian packages.
+
+The following directories/files will be created on usage (path examples for
+Debian, configurable in moblock.conf):
+
+- /usr/lib/moblock-control
+  The library and hardcoded defaults are placed here.
+
+- /etc/moblock
+  The configuration files are placed here.
+
+- /var/lib/moblock
+  The master blocklist is saved here.
+
+- /var/spool/moblock + subfolders
+  The blocklists are saved here.
+
+- /var/log/
+
+- /var/log/moblock-control.log + rotated logs
+  The logfile of the moblock-control script. This file contains amongst other
+  things about starting/stopping moblock and updating the blocklists.
+
+- /var/log/moblock.log + rotated logs
+  The logfile of the moblock binary
+
+- /var/lib/moblock/guarding.p2p + backup or
+  /var/lib/moblock/guarding.p2b + backup or
+  /var/lib/moblock/ipfilter.dat + backup
+  The master blocklist used by moblock depending on the used format.
+
+================================================================================
+
+Example for installation (on Debian):
+
+If you choose other file places see above for the necessary adjustment in the
+files.
+
+cp moblock-control /usr/bin/moblock-control
+	chmod +x /usr/bin/moblock-control
+mkdir /usr/lib/moblock-control
+cp moblock-control.defaults /usr/lib/moblock-control/
+cp moblock-control.lib /usr/lib/moblock-control/
+mkdir /etc/moblock/
+cp blocklists.list /etc/moblock/blocklists.list
+cp moblock.conf /etc/moblock/moblock.conf
+cp allow.p2p  /etc/moblock/allow.p2p
+cp moblock.default /etc/default/moblock
+cp moblock.if-up /etc/network/if-up.d/moblock
+	chmod +x /etc/network/if-up.d/moblock
+cp cron.daily /etc/cron.daily/moblock
+	chmod +x /etc/cron.daily/moblock
+cp init /etc/init.d/moblock
+	chmod +x /etc/init.d/moblock
+	update-rc.d moblock defaults 20
+cp logrotate /etc/logrotate.d/moblock-control
+mkdir /var/spool/moblock/
+[optional, only if your distribution doesn't provide this file]:
+mkdir /lib/lsb/
+cp init.functions /lib/lsb/init-functions
+
+
+Note for Fedora 7 and CentOS 5 users:
+http://forums.phoenixlabs.org/showpost.php?p=107810&postcount=22
+
+================================================================================
+
+Supported systems:
+
+moblock-control was written for a Debian system. However it should run under
+every Linux distribution.
+
+================================================================================
+
+Requirements:
+
+- functions provided by /lib/lsb/init-functions (version 3.1):
+   - start_daemon (with LSB=1) or start-stop-daemon (with LSB=0)
+   - killproc
+   - pidofproc
+   - log_failure_msg
+   - log_warning_msg
+   - log_success_msg
+- iptables
+- wget (optional, needed for blocklists update)
+- /usr/bin/printf (optional, needed during "update" for archive type detection)
+- p7zip (optional, needed for blocklists packed as .7z)
+- unzip (optional, needed for blocklists packed as .zip)
+- sed, grep, dirname, cat, cd, mv, cp, zcat, md5sum (those should really be on
+  every system)
+- netfilter kernel support (either as modules or directly built in the kernel)
+  These are the modules that are loaded here (The list was compiled with this
+  command: lsmod|grep -E "xt|ip"|grep -Ev "ext3|cipher"|sort ):
+  iptable_filter          7808  1 
+  ip_tables              25704  1 iptable_filter
+  ipt_iprange             6400  0 
+  ipt_REJECT              9472  1 
+  nf_conntrack           78576  2 nf_conntrack_ipv4,xt_state
+  nf_conntrack_ipv4      24464  3 
+  x_tables               24968  7 ipt_REJECT,xt_mark,xt_tcpudp,ip_tables,
+                                  ipt_iprange,xt_state,xt_NFQUEUE
+  xt_mark                 7040  6 
+  xt_NFQUEUE              6656  3 
+  xt_state                7168  3 
+  xt_tcpudp               8064  2 
+
+================================================================================

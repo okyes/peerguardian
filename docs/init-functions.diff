@@ -1,0 +1,62 @@
+2a3,6
+> # modified version 3.2-20 for use with moblock-control by jre
+> # <jre-phoenix@users.sourceforge.net>
+> # see init-functions.diff for the modifications
+> #
+52,58c56,58
+<     if [ $force = 1 ]; then
+<         /sbin/start-stop-daemon --start --nicelevel $nice --quiet --startas $exec --pidfile /dev/null --oknodo -- "$@"
+<     elif [ $pidfile ]; then
+<         /sbin/start-stop-daemon --start --nicelevel $nice --quiet --exec $exec --oknodo --pidfile "$pidfile" -- "$@"
+<     else
+<         /sbin/start-stop-daemon --start --nicelevel $nice --quiet --exec $exec --oknodo -- "$@"
+<     fi
+---
+> 	# moblock-control first checks the daemon status with pidofproc,
+> 	# so it's safe to just start with "$DAEMON $DAEMON_OPTS"
+> 	eval $exec $@
+104d103
+< # start-stop-daemon uses the same algorithm as "pidofproc" above.
+121,145c120
+<         name_param="--name $base --pidfile /var/run/$base.pid"
+<     else
+<         name_param="--pidfile $pidfile"
+<     fi
+< 
+<     sig=$(echo ${2:-} | sed -e 's/^-\(.*\)/\1/')
+<     sig=$(echo $sig | sed -e 's/^SIG\(.*\)/\1/')
+<     if [ -z "$sig" -o "$sig" = 15 -o "$sig" = TERM ]; then
+<         is_term_sig=yes
+<     fi
+<     status=0
+<     if [ ! "$is_term_sig" = yes ]; then
+<         if [ -n "$sig" ]; then
+<             /sbin/start-stop-daemon --stop --signal "$sig" --quiet $name_param || status="$?"
+<         else
+<             /sbin/start-stop-daemon --stop --quiet $name_param || status="$?"
+<         fi
+<     else
+<         /sbin/start-stop-daemon --stop --quiet --oknodo $name_param || status="$?"
+<     fi
+<     if [ "$status" = 1 ]; then
+<         if [ -n "$sig" ]; then
+<             return 0
+<         fi
+<         return 3 # program is not running
+---
+>         pidfile="/var/run/$base.pid"
+148,151c123,131
+<     if [ "$status" = 0 -a "$is_term_sig" = yes -a "$pidfile" ]; then
+<         pidofproc -p "$pidfile" "$1" >/dev/null || rm -f "$pidfile"
+<     fi
+<     return 0
+---
+> 	# Assume "process is not running" if no pidfile exists.
+> 	if [ -f "$pidfile" ] ; then
+> 		kill "$(pidofproc -p $pidfile $base)"
+> 	fi
+> 	# Return the LSB status
+> 	pidofproc -p $pidfile $base >/dev/null 2>&1
+> 	RETVAL=$?
+> 	[ "$RETVAL" -eq 3 ] && RETVAL=0
+> 	return $RETVAL

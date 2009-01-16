@@ -1,0 +1,7 @@
+# moblock.default - default configuration file for moblock-control
+
+# In this file you can put any configuration variable from moblock.conf
+# (/etc/moblock/moblock.conf). Values in moblock.conf will be overwritten by
+# values in this file (moblock.default).
+
+# Do a "moblock-control restart" when you have edited this file.

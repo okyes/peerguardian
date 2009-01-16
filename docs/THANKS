@@ -1,0 +1,39 @@
+Thanks and Greets go to:
+
+- Cade <cade.robinson@gmail.com> for hinting me to the iptables logging to
+  syslog and his MoBlock patches (e.g. log the port in moblock.log).
+
+- João, for all his work that just started
+
+- Jindrich for his NFBlockD
+
+- Morpheus - he's our upstream author and always cooperative
+
+- uljanow - author of iplist (iplist.sourceforge.net). Both moblock (especially
+  the marking packets) and moblock-control (a complete patch for "test") did
+  profit from his knowledge and *active* help. Seeing the author of another
+  program helping out his "rivals" shows that he got the spirit of opensource.
+  Thank you and all the best wishes.
+
+- CyrusJones/daradib - for the Ubuntu wiki based on pelle.k's howto
+
+- clessing/lestlest - who started the moblock-deb.sf.net project, now retired
+
+- pelle.k for his ubuntu howto and the corresponding support, now retired
+
+- quixotic-cynic - for starting the discussion about security risks with
+  whitelisting port 80/443 and also for his support at the forums
+
+- sloter - for the man page, the test function and his support at the forums
+
+- phoenixlabs.org, especially Pepsi.One and fakhir - for providing a place and
+  a nice community for discussions and support. Also thx, fakhir, for
+  iblocklist.com!
+
+- /meth/usr, JFM, braindancer and cougar who were at phoenixlabs in the
+  beginning of my script writing
+
+- all the people giving support at phoenixlabs.org and ubuntuforums.com
+
+- all the people giving feedback and/or bugreports (especially if they include
+  the needed information)

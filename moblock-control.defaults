@@ -1,0 +1,74 @@
+# moblock-control defaults library
+
+# This file sets sane configuration defaults. They will be overwritten by the
+# values in CONTROL_CONF and CONTROL_DEFAULT. Make your changes in those files,
+# not here!
+
+SCRIPT_LIB="/usr/lib/moblock-control/moblock-control.lib"
+
+# Exit Status Codes
+E_BADARGS="2"	# Started with bad arguments
+E_XCD="66"	# No directory
+E_NOTROOT="4"	# Non-root exit error
+E_XBIN="5"	# Missing binary
+E_CONFIG="6"	# Not configured correctly
+E_XFILE="7"	# Missing file
+E_IPTABLES="8"
+E_BLOCKLIST="9"
+E_XEXTERNAL="170"	# Missing external binary/function
+E_NETWORK_DOWN="171"
+
+PATH="/usr/bin:/bin:/sbin:/usr/sbin"
+
+BLOCKLIST_FORMAT="p"
+LOG_TIMESTAMP="1"
+LOG_SYSLOG="0"
+LOG_IPTABLES=""
+VERBOSITY="1"
+MOBLOCK_INIT="1"
+MOBLOCK_CRON="1"
+WGET_OPTS="wget -q -t 5 -T 120 -w 5"
+IPTABLES_TARGET="NFQUEUE"
+NFQUEUE_NUMBER="92"
+IPTABLES_SETTINGS="1"
+IPTABLES_ACTIVATION="1"
+REJECT="1"
+REJECT_MARK="10"
+REJECT_IN="DROP"
+REJECT_OUT="REJECT"
+REJECT_FW="DROP"
+ACCEPT="1"
+ACCEPT_MARK="20"
+IPTABLES_TARGET_WHITELISTING="RETURN"
+WHITE_LOCAL="1"
+WHITE_TCP_IN=""
+WHITE_UDP_IN=""
+WHITE_TCP_OUT=""
+WHITE_UDP_OUT=""
+WHITE_TCP_FORWARD=""
+WHITE_UDP_FORWARD=""
+WHITE_IP_IN=""
+WHITE_IP_OUT=""
+WHITE_IP_FORWARD=""
+IP_REMOVE=""
+PATH="/sbin:/bin:/usr/sbin:/usr/bin"
+CONF_DIR="/etc/$NAME"
+CONTROL_DEFAULT="/etc/default/$NAME"
+MASTER_BLOCKLIST_DIR="/var/lib/$NAME"
+BLOCKLISTS_DIR="/var/spool/$NAME"
+BLOCKLISTS_LIST="$CONF_DIR/blocklists.list"
+MD5SUM_FILE="$BLOCKLISTS_DIR/MD5SUM"
+ALLOW_IN="$CONF_DIR/allow.p2p"
+ALLOW_OUT="$CONF_DIR/allow.p2p"
+ALLOW_FW=""
+IPTABLES_CUSTOM_INSERT="$CONF_DIR/iptables-custom-insert.sh"
+IPTABLES_CUSTOM_DELETE="$CONF_DIR/iptables-custom-remove.sh"
+LOG_DIR="/var/log"
+DAEMON_LOG="$LOG_DIR/$NAME.log"
+CONTROL_LOG="$LOG_DIR/$NAME-control.log"
+STATFILE="/var/log/MoBlock.stats"
+PIDFILE="/var/run/$NAME.pid"
+LSB="/lib/lsb/init-functions"
+TESTHOST="iblocklist.com"
+LSB_MODE="1"
+CRON_EMAILTO="root"

@@ -1,0 +1,17 @@
+#!/bin/sh
+# debconf config script for MoBlock
+
+set -e
+
+# All code was moved to debian/postinst.
+# TODO: Bring it back here, but make sure that
+# - purge cleans debconf db
+# - configuration works (http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=352697)
+
+# Source debconf library.
+. /usr/share/debconf/confmodule
+
+db_version 2.0
+
+# This (deb)conf script is capable of backing up
+db_capb backup

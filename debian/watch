@@ -1,0 +1,11 @@
+# watch control file for uscan
+# run the "uscan" command to check for upstream updates and more.
+# See uscan(1) for format
+
+# Compulsory line, this is a version 3 file
+version=3
+
+# qa.debian.org runs a redirector which allows a simpler form of URL
+# for SourceForge based projects. The format below will automatically
+# be rewritten to use the redirector.
+http://sf.net/moblock-deb/moblock-control-(.+)\.tar\.gz

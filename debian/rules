@@ -1,0 +1,133 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	# Add here commands to configure the package.
+	touch configure-stamp
+
+
+build: patch build-stamp
+
+build-stamp: configure-stamp
+	dh_testdir
+	# Add here commands to compile the package.
+	# Link some files to debian/ directory until debhelper can handel such
+	# cases better. See http://bugs.debian.org/499486
+	ln init debian/moblock-control.moblock.init
+	ln moblock.default debian/moblock-control.moblock.default
+	ln cron.daily debian/moblock-control.moblock.cron.daily
+	ln moblock.if-up debian/moblock-control.moblock.if-up
+	ln logrotate debian/moblock-control.logrotate
+# 	$(MAKE)
+	#docbook-to-man debian/moblock-control.sgml > moblock-control.1
+
+	touch $@
+
+clean: clean-patched unpatch
+	# This will guarantee that PO files are always synced with templates
+	debconf-updatepo
+
+
+clean-patched:
+	dh_testdir
+	dh_testroot
+	# Check the version we build for, needed because of a bug
+	# in hardy init.functions
+	test ! -e debian/patches/00list || rm debian/patches/00list
+	test ! -e debian/prerm || rm debian/prerm ; \
+	if dpkg-parsechangelog | grep "^Version: " | grep "hardy" ; then \
+		ln debian/patches/00list.hardy debian/patches/00list ; \
+		ln debian/prerm.hardy debian/prerm ; \
+	else \
+		ln debian/patches/00list.default debian/patches/00list ; \
+	fi
+
+	rm -f build-stamp configure-stamp patch
+
+	# Add here commands to clean up after the build process.
+# 	$(MAKE) clean
+	# Remove the hardlinks from debian/ directory again. See above.
+	find debian -name "moblock-control.*" -print0 | xargs -0r rm
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Add here commands to install the package into debian/$*.
+# 	$(MAKE) DESTDIR=$(CURDIR)/debian/moblock-control install
+
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs docs/changelog
+	dh_installdocs
+#	dh_installexamples
+	dh_install
+#	dh_installmenu
+	dh_installdebconf
+	dh_installlogrotate
+#	dh_installemacsen
+#	dh_installpam
+#	dh_installmime
+	dh_installinit --name=moblock
+	dh_installcron --name=moblock
+#	Does not exist in etch:
+#	dh_installifupdown --name=moblock
+		install -m 755 moblock.if-up debian/moblock-control/etc/network/if-up.d/moblock
+#	dh_installinfo
+	dh_installman
+#	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+		find . -name "*.sh" -print0 | xargs -0r chmod 755
+#	dh_perl
+#	dh_python
+#	dh_makeshlibs
+	dh_installdeb
+#	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+patch:
+	# Check the version we build for, needed because of a bug
+	# in hardy init.functions
+	test ! -e debian/patches/00list || rm debian/patches/00list
+	test ! -e debian/prerm || rm debian/prerm ; \
+	if dpkg-parsechangelog | grep "^Version: " | grep "hardy" ; then \
+		ln debian/patches/00list.hardy debian/patches/00list ; \
+		ln debian/prerm.hardy debian/prerm ; \
+	else \
+		ln debian/patches/00list.default debian/patches/00list ; \
+	fi
+
+	dpatch apply-all
+	echo patched >patch
+
+unpatch:
+	dpatch deapply-all
+	rm -rf patch debian/patched
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

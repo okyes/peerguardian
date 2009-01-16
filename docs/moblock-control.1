@@ -1,0 +1,256 @@
+.\" Last modified by jre <jre-phoenix@users.sourceforge.net>:
+.\" Thu Jan  8 19:49:41 CET 2009
+.\" Sun Nov 18 00:14:09 CET 2007: jre <jre-phoenix@users.sourceforge.net>
+.\"
+.\"   This documentation is free software; you can redistribute it and/or modify
+.\"   it under the terms of the GNU General Public License as published by
+.\"   the Free Software Foundation; either version 2 of the License, or
+.\"   (at your option) any later version.
+.\" 
+.\"   This documentation is distributed in the hope that it will be useful,
+.\"   but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\"   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\"   GNU General Public License for more details.
+.\"
+.\"   You should have received a copy of the GNU General Public License with
+.\"   the Debian GNU/Linux distribution in file /usr/share/common-licenses/GPL;
+.\"   if not, write to the Free Software Foundation, Inc., 59 Temple Place,
+.\"   Suite 330, Boston, MA  02111-1307  USA
+.TH MOBLOCK-CONTROL 1 "2009-01-08" "Version 1.2" "moblock-control Manual"
+
+.SH NAME
+moblock-control \- handling moblock.
+
+.SH SYNOPSIS
+.B moblock-control
+OPTION
+
+.SH DESCRIPTION
+.B moblock-control 
+is designed to do all tasks related to MoBlock:
+.IP \(em 3
+Start and stop MoBlock. Or let init do this automatically.
+.IP \(em 3
+Update your blocklist from online sources and local blocklists. Or let cron do
+this automatically on a regular basis.
+.IP \(em 3
+Remove lines by keyword from the blocklists.
+.IP \(em 3
+Handle your iptables rules: use a default setup, easily allow all traffic on
+specific ports and use an allow list, or add your own sophisticated iptables
+rules.
+.IP \(em 3
+Allow all LAN traffic automatically. This feature is still experimental. If you
+are on a public LAN, you probably want to disable this feature.
+.IP \(em 3
+Check the status and test MoBlock.
+.IP \(em 3
+Detects if kernel modules are needed and loads them if necessary.
+.IP \(em 3
+Set verbosity and logging options.
+.IP \(em 3
+Provides LSB 3.1 compatible init script.
+.IP \(em 3
+Daily rotation of the logfiles.
+
+.SH OPTIONS
+.TP
+.B start
+inserts iptables rules and starts moblock
+.TP
+.B stop
+deletes iptables rules and stops moblock
+.TP
+.B restart
+restarts moblock
+.TP
+.B reload
+rebuilds the blocklist and reloads moblock if it is running. If a downloaded
+blocklist in the "used" directory fails to extract it is deleted and the reload
+aborts.
+.TP
+.B update
+updates the blocklists and reloads moblock. If any blocklist fails to download
+and if there is no old version available the update aborts.
+.TP
+.B status
+gives the iptables settings and the status of moblock.
+.TP
+.B test
+does a simple test to check if MoBlock is working (pings the first IP in the
+blocklist and checks if this IP was blocked via /var/log/moblock.log).
+.TP
+.B stats
+reports MoBlock's statistics.
+.TP
+.B reset_stats
+resets MoBlock's statistics.
+.TP
+.B show_config
+shows the current configuration setting
+
+.SH CONFIGURATION
+Blocklists are configured in \fIblocklists.list\fR
+(/etc/moblock/blocklists.list). The allow list is \fIallow.p2p\fR
+(/etc/moblock/allow.p2p). Per default, the allowlist is
+used for incoming and outgoing connections. If desired different allow lists for
+incoming, outgoing and forward connections may be used.
+.P
+The rest is done in \fImoblock.conf\fR.
+.P
+moblock-control first reads its defaults from \fImoblock-control.defaults\fR 
+(/usr/lib/moblock-control/moblock-control.defaults), then the configuration file
+\fImoblock.conf\fR (/etc/moblock/moblock.conf) and last \fImoblock.default\fR
+(/etc/default/moblock). The latter overwrites the previous values. It is
+recommended to make all user changes in \fImoblock.default\fR to ease updates.
+
+.SH RETURN VALUES
+\fImoblock-control status\fR gives you the following return values:
+.IP
+.B 0
+moblock is running
+.br
+.B 1
+moblock is dead and /var/run/moblock.pid exists
+.br
+.B 3
+moblock is not running
+.br
+.B 4
+moblock is unknown
+.PP
+\fImoblock-control test\fR gives you the following return values:
+.IP
+.B 0
+test succeeded
+.br
+.B 1
+test failed
+.br
+.B 2
+not testable
+.PP
+
+.SH EXIT STATUS 
+.IP
+.B 2
+The MoBlock daemon was started with bad arguments
+.br
+.B 4
+User is not root
+.br
+.B 5
+The MoBlock daemon is not installed
+.br
+.B 6
+moblock-control is not configured correctly
+.br
+.B 7
+File is missing/has wrong mode
+.br
+.B 8
+iptables command failed
+.br
+.B 9
+blocklist is not available or blocklist archive is corrupted
+.br
+.B 66
+Directory is missing
+.br
+.B 170
+External binary or function is missing
+.br
+.B 171
+Testhost (serving the default blocklists) is not reachable
+
+.SH FILES
+.IP /usr/bin/moblock-control
+The shell script \fBmoblock-control\fR.
+.IP /usr/lib/moblock-control/moblock-control.defaults
+Default settings for all variables and pathnames.
+.IP /usr/lib/moblock-control/moblock-control.lib
+Library for moblock-control, moblock.if-up, cron.daily and init.
+.IP /etc/moblock/blocklists.list
+Lists all blocklists that are used (and downloaded) by \fBmoblock-control\fR
+for use by \fBmoblock\fR.
+.IP /etc/moblock/moblock.conf
+The configuration file moblock.conf for \fBmoblock-control\fR. It contains
+variables for the automatic start and update, iptables handling, IP and port
+whitelisting and the paths of all files.
+.IP /etc/default/moblock
+The default configuration file moblock.default for \fBmoblock-control\fR
+(overwrites values from moblock.conf). It is recommended to set non-default
+values here to ease updates.
+.BR mobloquer (1)
+saves its configuration here, too.
+.IP /etc/moblock/allow.p2p
+The allow list in the peerguardian .p2p text format.
+.IP /etc/network/if-up.d/moblock
+Gets executed whenever a network interface is brought up to make sure that the
+automatic whitelisting of traffic in the LAN does work.
+.IP /etc/moblock/iptables-custom-insert.sh
+Custom iptables insertion script. This script will be executed on every
+\fI"moblock-control start"\fR if IPTABLES_SETTINGS="1" or "2" is configured.
+.IP /etc/moblock/iptables-custom-remove.sh
+Custom iptables deletion script. See above.
+.IP /etc/init.d/moblock
+Starts moblock automatically on every bootup.
+.IP /etc/cron.daily/moblock
+Updates the blocklists automatically.
+.IP /etc/logrotate.d/moblock-control
+Rotates the logfiles daily.
+.IP /var/lib/moblock/ipfilter.dat
+The master blocklist used by \fBmoblock\fR if the blocklist is in eMule
+ipfilter.dat format.
+.IP /var/lib/moblock/guarding.p2b
+The master blocklist used by \fBmoblock\fR if the blocklist is in
+peerguardian .p2b v2 binary format.
+.IP /var/lib/moblock/guarding.p2p
+The master blocklist used by \fBmoblock\fR if the blocklist is in
+peerguardian .p2p text format.
+.IP /var/log/moblock-control.log
+The log file of the \fBmoblock-control\fR script. This file contains amongst
+other things about starting/stopping \fBmoblock\fR and updating the blocklists.
+.IP /var/spool/moblock
+Blocklists are downloaded to subfolders of this folder.
+
+.SH WARNING: Users with firewall (iptables rules)
+Since version 0.9, \fBMoBlock\fR no longer conflicts with other firewalls. Make
+sure the following three conditions hold:
+.IP \(em 3
+MoBlock marks non-matched (IP is not in the blocklist) packets. (The marking
+feature is on per default.)
+.IP \(em 3
+Other firewalls do not mark packets.
+.IP \(em 3
+MoBlock is started after other firewalls. If other firewalls are
+started/reloaded after MoBlock, then you need to restart MoBlock again. You will
+be fine, if the iptables rules which send  traffic to MoBlock's iptables chains
+(moblock_in, moblock_out and moblock_fw) stand before all other iptables rules
+which ACCEPT traffic.
+
+.SH NOTES
+.PP
+By default MoBlock will be started at every system boot up and the blocklists
+will be updated once a day.
+
+.SH HOMEPAGE
+.PP
+MoBlock - \fIhttp://moblock.berlios.de/\fR
+.PP
+moblock-control - \fIhttp://moblock-deb.sourceforge.net/\fR
+.PP
+PeerGuardian - \fIhttp://phoenixlabs.org/\fR
+
+.SH AUTHORS
+.PP
+moblock-control was written by jre <jre-phoenix at users.sourceforge.net>.
+.PP
+This man page was written by sloter and jre <jre-phoenix at users.sourceforge.net>
+.fi
+
+.SH SEE ALSO
+.BR "moblock" "(1), "
+.BR "/usr/share/doc/moblock/README.blocklists" ", "
+.BR "mobloquer" "(1), "
+.BR "iptables" "(8)"

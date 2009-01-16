@@ -1,0 +1,22 @@
+#!/bin/sh
+# prerm script for moblock for ubuntu hardy
+#
+# see: dh_installdeb(1)
+
+set -e
+if [ -x "/etc/init.d/moblock" ]; then
+	#Because of hardy LSB init-functions bug: Only stop MoBlock if it was not already stopped:
+	set +e
+	/etc/init.d/moblock status > /dev/null
+	RETVAL="$?"
+	set -e
+	if [ "$RETVAL" -ne 3 ] ; then
+		if [ -x "$(which invoke-rc.d 2>/dev/null)" ]; then
+			invoke-rc.d moblock stop || exit $?
+		else
+			/etc/init.d/moblock stop || exit $?
+		fi
+	else
+		exit 0
+	fi
+fi
