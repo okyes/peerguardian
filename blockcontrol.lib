@@ -1,4 +1,5 @@
-# defaults library
+# blockcontrol.library - shell functions for blockcontrol
+#
 # Copyright (C) 2005 - 2009 jre <jre-phoenix@users.sourceforge.net>
 # Parts and ideas from JFM, /meth/usr, lestlest (clessing), Morpheus and
 # perhaps others. More Info: http://forums.phoenixlabs.org
@@ -16,6 +17,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+
 
 # Define functions which may only be present in the Debian LSB
 # /lib/lsb/init-functions file. They will be overwritten by the system's
@@ -64,7 +67,7 @@ log_end_msg () {
 # End of parts of the Debian /lib/lsb/init-functions.
 ################################################################################
 
-# Load LSB-init-functions shell library
+# Load LSB init-functions shell library
 # Debian: Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
 # Some LSB init.functions (depending on your distribution) overwrite the above logging functions.
 load_lsb () {
@@ -462,6 +465,9 @@ test_root () {
 
 # Function to test if an external application exists.
 # Usage: test_external basename_of_the_application
+# NOTE: "which" should not be used, because it is not available on all systems,
+# e.g. routers.
+# TODO: remove TESTEXTERNAL, instead simply check return code.
 test_external () {
 	local EXTERNAL TESTEXTERNAL=0
 	EXTERNAL=$1
@@ -486,7 +492,8 @@ test_net () {
 }
 
 # TODO: Use the new status_of_proc of Debian LSB instead, and hardcode it as
-# backup function for distributions that lack it.
+# backup function for distributions that lack it, in the backup lsb initfunction
+# part above. This implies changes in several scripts.
 # This function accepts either no or one argument (only valid value: start).
 # With "exitifstrange" the function exits if the resulting RETVAL is not 0 or 3.
 daemon_status () {
@@ -536,7 +543,7 @@ insert_iptables () {
 	# Place MoBlock's iptables rules in separate iptables chains (blockcontrol_in, blockcontrol_out and blockcontrol_fw).
 	'1')
 		echo -n "Inserting iptables ..."
-		test_external iptables
+		test_external iptables || exit $?
 
 		case "$IPTABLES_TARGET" in
 			NFQUEUE)
@@ -758,7 +765,7 @@ delete_iptables () {
 		;;
 	'1')
 		echo -n "Deleting iptables ..."
-		test_external iptables
+		test_external iptables || exit $?
 
 		IPTABLES_DELETE="0"
 
@@ -980,7 +987,8 @@ do_stop () {
 # Function that restarts daemon
 do_restart () {
 	do_stop
-	sleep 1	# previous value 4, reduced to 1 in 0.9~rc2-12
+	sleep 1	# previous value 4, reduced to 1 in 0.9~rc2-12, gives the
+		# iptables time to clean up on slower systems.
 	do_start
 }
 
