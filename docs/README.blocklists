@@ -32,7 +32,7 @@ Only use the blocklists that you need. More is not always better!
 Note about different blocklist formats:
 
 MoBlock supports several blocklist formats. YOU CAN´T USE DIFFERENT BLOCKLIST
-FORMATS AT THE SAME TIME. You need to tell moblock in /etc/blockcontrol.conf
+FORMATS AT THE SAME TIME. You need to tell moblock in /etc/blockcontrol/blockcontrol.conf
 in which format the lists are.
 
 The following formats are supported:

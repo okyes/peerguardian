@@ -26,8 +26,8 @@
 
 # These two variables have to be set correctly in all just mentioned files.
 # Everything else can then be done in blockcontrol.conf.
-CONTROL_CONF="/etc/blockcontrol.conf"
-CONTROL_DEFAULTS="/usr/lib/defaults"
+CONTROL_CONF="/etc/blockcontrol/blockcontrol.conf"
+CONTROL_DEFAULTS="/usr/lib/blockcontrol/blockcontrol.defaults"
 
 # Remember standard IFS (Internal Field Seperator)
 STDIFS=$IFS
@@ -122,10 +122,10 @@ if [ -z $NAME ] || [ -z $DAEMON ] || [ -z $DESC ] ; then
 fi
 
 # Load blockcontrol library.
-if [ -f "$SCRIPT_LIB" ] ; then
-	. $SCRIPT_LIB || { echo "Error: Failed to source $SCRIPT_LIB although this file exists."; exit 1; }
+if [ -f "$CONTROL_LIB" ] ; then
+	. $CONTROL_LIB || { echo "Error: Failed to source $CONTROL_LIB although this file exists."; exit 1; }
 else
-	echo "Error $E_CONFIG: You need $SCRIPT_LIB."
+	echo "Error $E_CONFIG: You need $CONTROL_LIB."
 	exit $E_CONFIG
 fi
 

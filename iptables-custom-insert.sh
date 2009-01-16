@@ -3,7 +3,7 @@
 # blockcontrol
 
 # This script will be executed on every "blockcontrol start" for 2 settings:
-# If IPTABLES_SETTINGS="1" is set in blockcontrol.conf (/etc/blockcontrol.conf) or
+# If IPTABLES_SETTINGS="1" is set in blockcontrol.conf (/etc/blockcontrol/blockcontrol.conf) or
 # default (/etc/default/blockcontrol), then first blockcontrol will insert
 # its iptables chains and rules, and afterwards this script gets executed.
 # If IPTABLES_SETTINGS="2" is set, then only this script will be executed.

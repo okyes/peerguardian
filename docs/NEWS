@@ -117,6 +117,6 @@ moblock (0.8-16) sid; urgency=low
 
   The package was restructured. A new script blockcontrol was
   introduced. There is no more whitelisting per default! If you need
-  it then turn it on in /etc/blockcontrol.conf.
+  it then turn it on in /etc/blockcontrol/blockcontrol.conf.
 
  -- jre <jre-phoenix@users.sourceforge.net>  Tue, 04 Sep 2007 19:01:33 +0200

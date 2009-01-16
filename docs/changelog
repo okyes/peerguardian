@@ -17,7 +17,7 @@ blockcontrol (0.8-16)
 
 blockcontrol (0.8-15jre4)
 
-  * renamed /etc/default/blockcontrol (default) to /etc/blockcontrol.conf
+  * renamed /etc/default/blockcontrol (default) to /etc/blockcontrol/blockcontrol.conf
   * build new master blocklist after update if no master blocklist is installed
     even if no blocklist was updated.
   * reload only if moblock is really running

@@ -123,8 +123,8 @@ incoming, outgoing and forward connections may be used.
 The rest is done in "blockcontrol.conf".
 
 blockcontrol first reads its defaults from
-defaults (/usr/lib/defaults),
-then the configuration file blockcontrol.conf (/etc/blockcontrol.conf) and last
+defaults (/usr/lib/blockcontrol/blockcontrol.defaults),
+then the configuration file blockcontrol.conf (/etc/blockcontrol/blockcontrol.conf) and last
 default (/etc/default/blockcontrol). The latter overwrites the previous
 values. It is recommended to make all user changes in default to ease
 updates.
@@ -249,7 +249,7 @@ cp defaults /usr/lib/blockcontrol/
 cp blockcontrol.lib /usr/lib/blockcontrol/
 mkdir /etc/blockcontrol/
 cp blocklists.list /etc/blockcontrol/blocklists.list
-cp blockcontrol.conf /etc/blockcontrol.conf
+cp blockcontrol.conf /etc/blockcontrol/blockcontrol.conf
 cp allow.p2p  /etc/blockcontrol/allow.p2p
 cp default /etc/default/blockcontrol
 cp if-up /etc/network/if-up.d/moblock

@@ -1,7 +1,7 @@
 # default - default configuration file for blockcontrol
 
 # In this file you can put any configuration variable from blockcontrol.conf
-# (/etc/blockcontrol.conf). Values in blockcontrol.conf will be overwritten by
+# (/etc/blockcontrol/blockcontrol.conf). Values in blockcontrol.conf will be overwritten by
 # values in this file (default).
 
 # Do a "blockcontrol restart" when you have edited this file.

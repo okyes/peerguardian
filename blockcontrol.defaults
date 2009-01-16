@@ -4,7 +4,7 @@
 # values in CONTROL_CONF and CONTROL_DEFAULT. Make your changes in those files,
 # not here!
 
-SCRIPT_LIB="/usr/lib/blockcontrol.lib"
+CONTROL_LIB="/usr/lib/blockcontrol.lib"
 
 # Exit Status Codes
 E_BADARGS="2"	# Started with bad arguments
@@ -65,7 +65,7 @@ IPTABLES_CUSTOM_INSERT="$CONF_DIR/iptables-custom-insert.sh"
 IPTABLES_CUSTOM_DELETE="$CONF_DIR/iptables-custom-remove.sh"
 LOG_DIR="/var/log"
 DAEMON_LOG="$LOG_DIR/$NAME.log"
-CONTROL_LOG="$LOG_DIR/$NAME-control.log"
+CONTROL_LOG="$LOG_DIR/blockcontrol.log"
 STATFILE="/var/log/MoBlock.stats"
 PIDFILE="/var/run/$NAME.pid"
 LSB="/lib/lsb/init-functions"

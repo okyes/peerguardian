@@ -99,8 +99,8 @@ incoming, outgoing and forward connections may be used.
 The rest is done in \fIblockcontrol.conf\fR.
 .P
 blockcontrol first reads its defaults from \fIdefaults\fR 
-(/usr/lib/defaults), then the configuration file
-\fIblockcontrol.conf\fR (/etc/blockcontrol.conf) and last \fIdefault\fR
+(/usr/lib/blockcontrol/blockcontrol.defaults), then the configuration file
+\fIblockcontrol.conf\fR (/etc/blockcontrol/blockcontrol.conf) and last \fIdefault\fR
 (/etc/default/blockcontrol). The latter overwrites the previous values. It is
 recommended to make all user changes in \fIdefault\fR to ease updates.
 
@@ -166,14 +166,14 @@ Testhost (serving the default blocklists) is not reachable
 .SH FILES
 .IP /usr/bin/blockcontrol
 The shell script \fBblockcontrol\fR.
-.IP /usr/lib/defaults
+.IP /usr/lib/blockcontrol/blockcontrol.defaults
 Default settings for all variables and pathnames.
 .IP /usr/lib/blockcontrol.lib
 Library for blockcontrol, if-up, cron.daily and init.
 .IP /etc/blockcontrol/blocklists.list
 Lists all blocklists that are used (and downloaded) by \fBblockcontrol\fR
 for use by \fBmoblock\fR.
-.IP /etc/blockcontrol.conf
+.IP /etc/blockcontrol/blockcontrol.conf
 The configuration file blockcontrol.conf for \fBblockcontrol\fR. It contains
 variables for the automatic start and update, iptables handling, IP and port
 whitelisting and the paths of all files.
