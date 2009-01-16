@@ -1,5 +1,6 @@
 #!/bin/sh
-# prerm script for moblock for ubuntu hardy
+# prerm script for blockcontrol for ubuntu hardy
+# This special script is necessary because of broken hardy LSB init-functions.
 #
 # see: dh_installdeb(1)
 

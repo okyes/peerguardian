@@ -2,7 +2,7 @@ README.Debian:
 
 Building your own package (Just ignore this, if you use the prebuilt packages):
 
-Caution: debian/rules removes debian/patches/00list and /debian/prerm. Instead
+Caution: debian/rules removes debian/patches/00list and debian/prerm. Instead
 00list.default is hardlinked to 00list during package-build.
 If the version (as read by dpkg_parsechangelog in the first line of
 debian/changelog) contains "hardy" 00list.hardy and prerm.hardy are used

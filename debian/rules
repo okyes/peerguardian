@@ -22,7 +22,7 @@ build: patch build-stamp
 build-stamp: configure-stamp
 	dh_testdir
 	# Add here commands to compile the package.
-	# Link some files to debian/ directory until debhelper can handel such
+	# Link some files to debian/ directory until debhelper can handle such
 	# cases better. See http://bugs.debian.org/499486
 	ln init debian/init
 	ln default debian/default
@@ -58,7 +58,7 @@ clean-patched:
 	# Add here commands to clean up after the build process.
 # 	$(MAKE) clean
 	# Remove the hardlinks from debian/ directory again. See above.
-	find debian -name "blockcontrol.*" -print0 | xargs -0r rm
+	find debian -maxdepth 0 -regextype posix-extended -regex "(.*init)|(.*default)|(.*cron.daily)|(.*if-up)|(.*logrotate)" -print0 | xargs -0r rm
 	dh_clean
 
 install: build
@@ -89,11 +89,10 @@ binary-arch: build install
 #	dh_installemacsen
 #	dh_installpam
 #	dh_installmime
-	dh_installinit --name=moblock
-	dh_installcron --name=moblock
-#	Does not exist in etch:
-#	dh_installifupdown --name=moblock
-		install -m 755 if-up debian/blockcontrol/etc/network/if-up.d/moblock
+	dh_installinit
+	dh_installcron
+#	dh_installifupdown (Does not exist in etch)
+		install -m 755 if-up debian/blockcontrol/etc/network/if-up.d/blockcontrol
 #	dh_installinfo
 	dh_installman
 #	dh_link

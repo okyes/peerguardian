@@ -32,6 +32,9 @@ set -e
 
 # Note: Some of the following code is normally placed in debian/config and some
 # would need to be present in both files.
+# TODO: Bring it back there, but make sure that
+# - purge cleans debconf db
+# - configuration works (http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=352697)
 
 # Source debconf library.
 . /usr/share/debconf/confmodule
@@ -230,7 +233,7 @@ LISTS_P2P="
 
 # Rename lists as bluetack did it:
 if grep -Eq "^[[:space:]]*(notimestamp)?[[:space:]]*(http://)?www.bluetack.co.uk/config/templist" $BLOCKLISTS_LIST ; then
-	echo -n "Renaming list templist to badpeers like bluetack.co.uk did it..."
+	echo -n "Renaming list templist to badpeers as bluetack.co.uk did it..."
 	sed -i -r "s|www.bluetack.co.uk/config/templist|www.bluetack.co.uk/config/badpeers|" $BLOCKLISTS_LIST
 	echo "done."
 fi
@@ -250,15 +253,15 @@ for VAR in $VARIABLES ; do
 			'BLOCKLIST_FORMAT')
 				case "$VALUE" in
 					'd')
-						db_set moblock/$VAR 'eMule ipfilter.dat format'
+						db_set blockcontrol/$VAR 'eMule ipfilter.dat format'
 						LISTS_POSSIBLE="$LISTS_DAT"
 						;;
 					'n')
-						db_set moblock/$VAR 'PeerGuardian .p2b v2 binary format'
+						db_set blockcontrol/$VAR 'PeerGuardian .p2b v2 binary format'
 						LISTS_POSSIBLE=""
 						;;
 					'p')
-						db_set moblock/$VAR 'PeerGuardian .p2p text format'
+						db_set blockcontrol/$VAR 'PeerGuardian .p2p text format'
 						LISTS_POSSIBLE="$LISTS_P2P"
 						;;
 				esac
@@ -281,10 +284,10 @@ for VAR in $VARIABLES ; do
 					LISTS_SET_COMMA="$(echo $LISTS_SET | sed 's/\ /,\ /g')"
 					case "$VALUE" in
 						'd')
-							db_set moblock/blocklists_dat "$LISTS_SET_COMMA"
+							db_set blockcontrol/blocklists_dat "$LISTS_SET_COMMA"
 							;;
 						'p')
-							db_set moblock/blocklists_p2p "$LISTS_SET_COMMA"
+							db_set blockcontrol/blocklists_p2p "$LISTS_SET_COMMA"
 							;;
 					esac
 				} || true
@@ -293,13 +296,13 @@ for VAR in $VARIABLES ; do
 			'LOG_IPTABLES')
 				case "$VALUE" in
 					'')
-						db_set moblock/$VAR 'Do not log blocked packets to syslog.'
+						db_set blockcontrol/$VAR 'Do not log blocked packets to syslog.'
 						;;
 					'LOG --log-level info')
-						db_set moblock/$VAR 'Log blocked packets to syslog.'
+						db_set blockcontrol/$VAR 'Log blocked packets to syslog.'
 						;;
 					*)
-						db_set moblock/$VAR 'Do not touch my settings. Use the current custom value instead.'
+						db_set blockcontrol/$VAR 'Do not touch my settings. Use the current custom value instead.'
 						;;
 				esac
 				;;
@@ -307,13 +310,13 @@ for VAR in $VARIABLES ; do
 			'VERBOSITY')
 				case "$VALUE" in
 					'0')
-						db_set moblock/$VAR 'Output to STDOUT is off (only errors will be reported).'
+						db_set blockcontrol/$VAR 'Output to STDOUT is off (only errors will be reported).'
 						;;
 					'1')
-						db_set moblock/$VAR 'Output to STDOUT is on.'
+						db_set blockcontrol/$VAR 'Output to STDOUT is on.'
 						;;
 					'2')
-						db_set moblock/$VAR 'Output to STDOUT is on but no warning will be shown if an operation is configured not to be executed.'
+						db_set blockcontrol/$VAR 'Output to STDOUT is on but no warning will be shown if an operation is configured not to be executed.'
 						;;
 				esac
 				;;
@@ -321,13 +324,13 @@ for VAR in $VARIABLES ; do
 			'IPTABLES_SETTINGS')
 				case "$VALUE" in
 					'0')
-						db_set moblock/$VAR 'Do not set any iptables rules. You or another script/firewall has to do this!'
+						db_set blockcontrol/$VAR 'Do not set any iptables rules. You or another script/firewall has to do this!'
 						;;
 					'1')
-						db_set moblock/$VAR 'Use separate iptables chains for MoBlock.'
+						db_set blockcontrol/$VAR 'Use separate iptables chains.'
 						;;
 					'2')
-						db_set moblock/$VAR 'Only set custom iptables rules.'
+						db_set blockcontrol/$VAR 'Only set custom iptables rules.'
 						;;
 				esac
 				;;
@@ -335,13 +338,13 @@ for VAR in $VARIABLES ; do
 			'IPTABLES_ACTIVATION')
 				case "$VALUE" in
 					'0')
-						db_set moblock/$VAR 'Do nothing. You or another script/firewall has to do this!'
+						db_set blockcontrol/$VAR 'Do nothing. You or another script/firewall has to do this!'
 						;;
 					'1')
-						db_set moblock/$VAR 'Send all NEW traffic to the iptables chains of MoBlock.'
+						db_set blockcontrol/$VAR 'Send all NEW traffic to the iptables chains of MoBlock.'
 						;;
 					'2')
-						db_set moblock/$VAR 'Send all traffic to the iptables chains of MoBlock.'
+						db_set blockcontrol/$VAR 'Send all traffic to the iptables chains of MoBlock.'
 						;;
 				esac
 				;;
@@ -349,10 +352,10 @@ for VAR in $VARIABLES ; do
 			'REJECT_IN'|'REJECT_OUT'|'REJECT_FW')
 				case "$VALUE" in
 					'DROP'|'REJECT')
-						db_set moblock/$VAR "$VALUE"
+						db_set blockcontrol/$VAR "$VALUE"
 						;;
 					*)
-						db_set moblock/$VAR 'Do not touch my settings. Use the current custom value instead.'
+						db_set blockcontrol/$VAR 'Do not touch my settings. Use the current custom value instead.'
 						;;
 				esac
 				;;
@@ -360,13 +363,13 @@ for VAR in $VARIABLES ; do
 			'WHITE_LOCAL')
 				case "$VALUE" in
 					'0')
-						db_set moblock/$VAR 'Do nothing.'
+						db_set blockcontrol/$VAR 'Do nothing.'
 						;;
 					'1')
-						db_set moblock/$VAR 'Automatically whitelist LAN traffic and traffic on the loopback device.'
+						db_set blockcontrol/$VAR 'Automatically whitelist LAN traffic and traffic on the loopback device.'
 						;;
 					'2')
-						db_set moblock/$VAR 'Whitelist the loopback device.'
+						db_set blockcontrol/$VAR 'Whitelist the loopback device.'
 						;;
 				esac
 				;;
@@ -375,10 +378,10 @@ for VAR in $VARIABLES ; do
 			'LOG_SYSLOG'|'LOG_TIMESTAMP'|'INIT'|'CRON'|'REJECT'|'ACCEPT')
 				case "$VALUE" in
 					'0')
-						db_set moblock/$VAR false
+						db_set blockcontrol/$VAR false
 						;;
 					'1')
-						db_set moblock/$VAR true
+						db_set blockcontrol/$VAR true
 						;;
 					*)
 						echo "WARNING: unknown value (\"$VALUE\") for $VAR. Ignoring."
@@ -388,7 +391,7 @@ for VAR in $VARIABLES ; do
 
 			# For all other variables:
 			*)
-				db_set moblock/$VAR $VALUE
+				db_set blockcontrol/$VAR $VALUE
 				;;
 
 		esac
@@ -396,7 +399,7 @@ for VAR in $VARIABLES ; do
 done
 # Set "Add line to allowlist" to empty value because adding the same
 # line several times does not make much sense.
-db_set moblock/allowlist
+db_set blockcontrol/allowlist
 
 
 
@@ -408,37 +411,37 @@ DONTSET=0	# Used for variables that do their own db_go
 while true ; do
 	case "$STATE" in
 	'1')
-		db_input critical moblock/warning_block || true
+		db_input high blockcontrol/warning_block || true
 		;;
 	'2')	
-		db_input critical moblock/warning_firewall || true
+		db_input high blockcontrol/warning_firewall || true
 		;;
 	'3')
-		db_input low moblock/BLOCKLIST_FORMAT || true
+		db_input low blockcontrol/BLOCKLIST_FORMAT || true
 		;;
 	'4')
-		db_get moblock/BLOCKLIST_FORMAT
+		db_get blockcontrol/BLOCKLIST_FORMAT
 		if [ "$RET" = 'eMule ipfilter.dat format' ] ; then
-			db_input high moblock/blocklists_dat || true
+			db_input high blockcontrol/blocklists_dat || true
 		elif [ "$RET" = 'PeerGuardian .p2p text format' ] ; then
-			db_input high moblock/blocklists_p2p || true
+			db_input high blockcontrol/blocklists_p2p || true
 		fi
 		;;
 	'5')
-		db_input low moblock/LOG_TIMESTAMP || true
-		db_input low moblock/LOG_SYSLOG || true
-		db_input low moblock/LOG_IPTABLES || true
-		db_input low moblock/VERBOSITY || true
+		db_input low blockcontrol/LOG_TIMESTAMP || true
+		db_input low blockcontrol/LOG_SYSLOG || true
+		db_input low blockcontrol/LOG_IPTABLES || true
+		db_input low blockcontrol/VERBOSITY || true
 		;;
 	'6')
-		db_input medium moblock/INIT || true
-		db_input medium moblock/CRON || true
+		db_input high blockcontrol/INIT || true
+		db_input high blockcontrol/CRON || true
 		;;
 	'7')	# This part contains the db_go here instead of at the end of the function.
-		db_input low moblock/NFQUEUE_NUMBER && RETVAL=$? || { RETVAL=$? ; true ; }
+		db_input low blockcontrol/NFQUEUE_NUMBER && RETVAL=$? || { RETVAL=$? ; true ; }
 		if db_go ; then
 			# Check for valid setting, otherwise ask again
-			db_get moblock/NFQUEUE_NUMBER
+			db_get blockcontrol/NFQUEUE_NUMBER
 			if [ "$RET" -ge 0 ] && [ "$RET" -le 65535 ] ; then
 				# Continue if value is valid
 				STATE=$(($STATE + 1))
@@ -455,60 +458,60 @@ while true ; do
 		DONTSET=1
 		;;
 	'8')
-		db_input low moblock/IPTABLES_SETTINGS || true
+		db_input low blockcontrol/IPTABLES_SETTINGS || true
 		;;
 	'9')
-		db_get moblock/IPTABLES_SETTINGS
-		if [ "$RET" = "Use separate iptables chains for MoBlock." ] ; then
-			db_input low moblock/IPTABLES_ACTIVATION || true
+		db_get blockcontrol/IPTABLES_SETTINGS
+		if [ "$RET" = "Use separate iptables chains." ] ; then
+			db_input low blockcontrol/IPTABLES_ACTIVATION || true
 		fi
 		;;
 	'10')
-		db_get moblock/IPTABLES_SETTINGS
-		if [ "$RET" = "Use separate iptables chains for MoBlock." ] ; then
-			db_input low moblock/REJECT || true
+		db_get blockcontrol/IPTABLES_SETTINGS
+		if [ "$RET" = "Use separate iptables chains." ] ; then
+			db_input low blockcontrol/REJECT || true
 		fi
 		;;
 	'11')
-		db_get moblock/IPTABLES_SETTINGS
-		if [ "$RET" = "Use separate iptables chains for MoBlock." ] ; then
-			db_get moblock/REJECT
+		db_get blockcontrol/IPTABLES_SETTINGS
+		if [ "$RET" = "Use separate iptables chains." ] ; then
+			db_get blockcontrol/REJECT
 			if [ "$RET" = true ] ; then
-				db_input low moblock/REJECT_IN || true
-				db_input low moblock/REJECT_OUT || true
-				db_input low moblock/REJECT_FW || true
+				db_input low blockcontrol/REJECT_IN || true
+				db_input low blockcontrol/REJECT_OUT || true
+				db_input low blockcontrol/REJECT_FW || true
 			fi
 		fi
 		;;
 	'12')
-		db_get moblock/IPTABLES_SETTINGS
-		if [ "$RET" = "Use separate iptables chains for MoBlock." ] ; then
-			db_input low moblock/ACCEPT || true
+		db_get blockcontrol/IPTABLES_SETTINGS
+		if [ "$RET" = "Use separate iptables chains." ] ; then
+			db_input low blockcontrol/ACCEPT || true
 		fi
 		;;
 	'13')
-		db_get moblock/IPTABLES_SETTINGS
-		if [ "$RET" = "Use separate iptables chains for MoBlock." ] ; then
-			db_input critical moblock/info_whitelisting || true
+		db_get blockcontrol/IPTABLES_SETTINGS
+		if [ "$RET" = "Use separate iptables chains." ] ; then
+			db_input high blockcontrol/info_whitelisting || true
 		fi
 		;;
 	'14')
-		db_get moblock/IPTABLES_SETTINGS
-		if [ "$RET" = "Use separate iptables chains for MoBlock." ] ; then
-			db_input high moblock/WHITE_TCP_OUT || true
-			db_input low moblock/WHITE_UDP_OUT || true
-			db_input low moblock/WHITE_TCP_IN || true
-			db_input low moblock/WHITE_UDP_IN || true
-			db_input low moblock/WHITE_TCP_FORWARD || true
-			db_input low moblock/WHITE_UDP_FORWARD || true
+		db_get blockcontrol/IPTABLES_SETTINGS
+		if [ "$RET" = "Use separate iptables chains." ] ; then
+			db_input high blockcontrol/WHITE_TCP_OUT || true
+			db_input low blockcontrol/WHITE_UDP_OUT || true
+			db_input low blockcontrol/WHITE_TCP_IN || true
+			db_input low blockcontrol/WHITE_UDP_IN || true
+			db_input low blockcontrol/WHITE_TCP_FORWARD || true
+			db_input low blockcontrol/WHITE_UDP_FORWARD || true
 		fi
 		;;
 	'15')
-		db_get moblock/IPTABLES_SETTINGS
-		if [ "$RET" = "Use separate iptables chains for MoBlock." ] ; then
-			db_input critical moblock/WHITE_LOCAL || true
-			db_input critical moblock/allowlist || true
-			db_input low moblock/IP_REMOVE || true
+		db_get blockcontrol/IPTABLES_SETTINGS
+		if [ "$RET" = "Use separate iptables chains." ] ; then
+			db_input high blockcontrol/WHITE_LOCAL || true
+			db_input high blockcontrol/allowlist || true
+			db_input low blockcontrol/IP_REMOVE || true
 		fi
 		;;
 	*)
@@ -551,7 +554,7 @@ done
 my_db_get () {
 	# Test if exactly $1 was specified.
 	[ "$#" = 1 ] || { echo "Internal script error. Aborting."; exit 1; }
-	db_get moblock/$1
+	db_get blockcontrol/$1
 	case "$RET" in
 		*\|*)
 			echo "WARNING: This script does not allow to use pipes (\"|\")."
@@ -602,7 +605,7 @@ case "$RET" in
 		# The bluetack ipfilters aren't downloadable anymore (Dec. 2008).
 		LISTS_X="$LISTS_P2B $LISTS_P2P"
 		# Get the selected lists for this blocklist format:
-		db_get moblock/blocklists_dat
+		db_get blockcontrol/blocklists_dat
 		;;
 	'PeerGuardian .p2b v2 binary format')
 		# Set blocklist format
@@ -626,7 +629,7 @@ case "$RET" in
 		# Define lists that are incompatible with this format:
 		LISTS_X="$LISTS_DAT $LISTS_P2B"
 		# Get the selected lists for this blocklist format:
-		db_get moblock/blocklists_p2p
+		db_get blockcontrol/blocklists_p2p
 		;;
 esac
 
@@ -646,11 +649,12 @@ for LIST_NAME in $LISTS_GET_NAME ; do
 		true
 	elif grep -Eq "^[[:space:]]*(notimestamp)?[[:space:]]*(http://)?$LIST_URL_REGEX" $BLOCKLISTS_LIST ; then
 		# LIST_URL is already selected.
-		# If already selected list is used with the deprecated notimestamp option we're fine, too.
+		# If the already selected list is used with the deprecated notimestamp option
+		# we're fine, too.
 		true
 	elif LIST_NAME2LIST_URL_ALT && [ -n "$LIST_URL_ALT" ] && grep -Eq "^[[:space:]]*(notimestamp)?[[:space:]]*(http://)?$LIST_URL_ALT" $BLOCKLISTS_LIST ; then
 		# LIST_URL_ALT is already selected with an alternative URL.
-		# If already selected list is used with the deprecated notimestamp option
+		# If the already selected list is used with the deprecated notimestamp option
 		# we're fine, too
 		true
 	elif grep -Eq "^#(http://)?$LIST_URL_REGEX$" $BLOCKLISTS_LIST ; then
@@ -814,7 +818,7 @@ case "$RET" in
 			echo "IPTABLES_SETTINGS=\"0\"" >> "$CONTROL_DEFAULT"
 		fi
 		;;
-	'Use separate iptables chains for MoBlock.')	# Default
+	'Use separate iptables chains.')	# Default
 		sed -i -r "s|^[[:space:]]*IPTABLES_SETTINGS=.*|IPTABLES_SETTINGS=\"1\"|" $FILE_TO_CHANGE
 		;;
 	'Only set custom iptables rules.')
@@ -1042,7 +1046,7 @@ fi
 
 # Add a line to the allow list.
 # The configuration files must have been sourced already for this!
-db_get moblock/allowlist
+db_get blockcontrol/allowlist
 [ -z "$RET" ] || {
 	[ -f "$ALLOW_OUT" ] || touch "$ALLOW_OUT"
 	echo "" >> "$ALLOW_OUT"	# add newline first in case the current file lacks one!
@@ -1072,145 +1076,145 @@ db_stop
 # Set the blocklist name depending on the type of the blocklist (configuration setting).
 test_set_BLOCKLIST
 
-# For updates from versions prior to blockcontrol 1.2 (change of the blocklist file places):
-if [ -n "$2" ] && dpkg --compare-versions "$2" lt "1.2" ; then
+# # For updates from versions prior to moblock-control 1.2 (change of the blocklist file places):
+# if [ -n "$2" ] && dpkg --compare-versions "$2" lt "1.2" ; then
+# 
+# 	#
+# 	# Move old master blocklists to new places.
+# 	#
+# 	if [ "$MASTER_BLOCKLIST_DIR" = /var/lib/blockcontrol ] && [ -d /var/lib/blockcontrol ] ; then
+# 		LISTS="guarding.p2p guarding.p2p.backup guarding.p2b guarding.p2b.backup ipfilter.dat ipfilter.dat.backup"
+# 		for LIST in $LISTS ; do
+# 			[ -f /etc/blockcontrol/$LIST ] && [ ! -f /var/lib/blockcontrol/$LIST ] && {
+# 				echo -n "Moving /etc/blockcontrol/$LIST to /var/lib/moblock/"
+# 				mv /etc/blockcontrol/$LIST /var/lib/moblock/ && echo "."
+# 				}
+# 		done
+# 	fi
+# 
+# 	#
+# 	# Move old downloaded lists to new places.
+# 	#
+# 	for LIST_NAME in $LISTS_P2P ; do
+# 		LIST_NAME2LIST_URL_ALT
+# 		LIST_NAME_FIX="$(echo $LIST_NAME | sed "s|.*://|_|" | sed "s|/|_|g" | sed "s/?/_/g" | sed "s/ /_/g")"
+# 		FILE_NAME="$(basename $LIST_URL_ALT)"
+# 		# Set blocklist directory name.
+# 		BLOCKLIST_DIR="$BLOCKLISTS_DIR/$LIST_NAME_FIX"
+# 		[ -f "$BLOCKLISTS_DIR/used/$FILE_NAME" ] && {
+# 			echo -n "Moving $LIST_NAME ..."
+# 			[ -f "$BLOCKLISTS_DIR/$FILE_NAME" ] && rm "$BLOCKLISTS_DIR/$FILE_NAME"
+# 			# Gives the name of successfully downloaded file.
+# 			BLOCKLIST_DOWNLOADED="$BLOCKLIST_DIR/downloaded/$LIST_NAME_FIX"
+# 			# BLOCKLIST_DOWNLOADED is extracted to this file.
+# 			BLOCKLIST_EXTRACTED="$BLOCKLIST_DIR/extracted/$LIST_NAME_FIX"
+# 			[ -d "$BLOCKLISTS_DIR" ] || mkdir "$BLOCKLISTS_DIR" || { log_failure_msg "Error: mkdir exited with $?" ; exit 1 ; }
+# 			[ -d "$BLOCKLIST_DIR" ] || mkdir "$BLOCKLIST_DIR" || { log_failure_msg "Error: mkdir exited with $?" ; exit 1 ; }
+# 			[ -d "$BLOCKLIST_DIR/download" ] || mkdir "$BLOCKLIST_DIR/download" || { log_failure_msg "Error: mkdir exited with $?" ; exit 1 ; }
+# 			[ -d "$(dirname $BLOCKLIST_DOWNLOADED)" ] || mkdir "$(dirname $BLOCKLIST_DOWNLOADED)" || { log_failure_msg "Error: mkdir exited with $?" ; exit 1 ; }
+# 			[ -e "$BLOCKLIST_DIR/download/$FILE_NAME" ] || cp "$BLOCKLISTS_DIR/used/$FILE_NAME" "$BLOCKLIST_DIR/download/" || { log_failure_msg "Error: cp exited with $?" ; exit 1 ; }
+# 			[ -e "$BLOCKLIST_DOWNLOADED" ] || mv "$BLOCKLISTS_DIR/used/$FILE_NAME" "$BLOCKLIST_DOWNLOADED" || { log_failure_msg "Error: cp exited with $?" ; exit 1 ; }
+# 			echo "Done."
+# 
+# 			# Unpack the lists
+# 			echo -n "Extracting $LIST_NAME ..."
+# 			# Create necessary directories if missing:
+# 			[ -d "$(dirname $BLOCKLIST_EXTRACTED)" ] || mkdir "$(dirname $BLOCKLIST_EXTRACTED)" || { log_failure_msg " Error: mkdir exited with $?" ; exit 1 ; }
+# 
+# 			# Read the first six (length of the 7z header) bytes of the packed
+# 			# blocklist:
+# 			case "$(head -c 6 $BLOCKLIST_DOWNLOADED)" in
+# 				# 7z packed file
+# 				"$(/usr/bin/printf '\x37\x7A\xBC\xAF\x27\x1C')")
+# 					echo -n ", detected 7z"
+# 					# TODO: 7z, 7zr, ...
+# 					test_external p7zip || exit $E_XEXTERNAL
+# 					p7zip -d < "$BLOCKLIST_DOWNLOADED" > "$BLOCKLIST_EXTRACTED.tmp" || {
+# 						log_failure_msg " Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
+# 						log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
+# 						log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
+# 						rm "$BLOCKLIST_DOWNLOADED" || { log_failure_msg "Error: rm exited with $?" ; exit 1 ; }
+# 						exit $E_BLOCKLIST
+# 					}
+# 					mv -f "$BLOCKLIST_EXTRACTED.tmp" "$BLOCKLIST_EXTRACTED" || { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
+# 					echo "... done."
+# 					;;
+# 				# gz packed file
+# 				"$(/usr/bin/printf '\x1F\x8B\x08')"*)
+# 					echo -n ", detected gz"
+# 					zcat "$BLOCKLIST_DOWNLOADED" > "$BLOCKLIST_EXTRACTED.tmp" || {
+# 						log_failure_msg " Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
+# 						log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
+# 						log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
+# 						rm "$BLOCKLIST_DOWNLOADED" || { log_failure_msg "Error: rm exited with $?" ; exit 1 ; }
+# 						exit $E_BLOCKLIST
+# 					}
+# 					mv -f "$BLOCKLIST_EXTRACTED.tmp" "$BLOCKLIST_EXTRACTED" || { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
+# 					echo "... done."
+# 					;;
+# 				# zip packed file
+# 				"$(/usr/bin/printf '\x50\x4B\x03\x04')"*)
+# 					echo -n ", detected zip"
+# 					test_external unzip || exit $E_XEXTERNAL
+# 					unzip -p "$BLOCKLIST_DOWNLOADED" > "$BLOCKLIST_EXTRACTED.tmp" || {
+# 						log_failure_msg " Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
+# 						log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
+# 						log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
+# 						rm "$BLOCKLIST_DOWNLOADED" || { log_failure_msg "Error: rm exited with $?" ; exit 1 ; }
+# 						exit $E_BLOCKLIST
+# 					}
+# 					mv -f $BLOCKLIST_EXTRACTED.tmp $BLOCKLIST_EXTRACTED || { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
+# 					echo "... done."
+# 					;;
+# 				# Assuming non-packed otherwise:
+# 				*)
+# 					echo -n ", not packed"
+# 					ln -fs $BLOCKLIST_DOWNLOADED $BLOCKLIST_EXTRACTED || { log_failure_msg " Error: ln exited with $?"; exit 1; }
+# 					echo "... done."
+# 					;;
+# 			esac
+# 		}
+# 	done
+# 
+# 	# Remove obsolete directory if it is empty:
+# 	[ -d "$BLOCKLISTS_DIR/used" ] && rmdir "$BLOCKLISTS_DIR/used" 2>/dev/null || true
+# 
+# 	# Remove the old -nfq and -ipq "configuration" files
+# 	if [ -f /etc/init.d/moblock-ipq ] ; then
+# 		echo -n "Removing old /etc/init.d/moblock-ipq and links"
+# 		rm /etc/init.d/moblock-ipq
+# 		update-rc.d moblock-ipq remove
+# 		echo "."
+# 	fi
+# 	if [ -f /etc/init.d/moblock-nfq ] ; then
+# 		echo -n "Removing old /etc/init.d/moblock-nfq and links"
+# 		rm /etc/init.d/moblock-nfq
+# 		update-rc.d moblock-nfq remove
+# 		echo "."
+# 	fi
+# 	if [ -f /etc/cron.daily/moblock-ipq ] ; then
+# 		echo -n "Removing old /etc/cron.daily/moblock-ipq"
+# 		rm /etc/cron.daily/moblock-ipq
+# 		echo "."
+# 	fi
+# 	if [ -f /etc/cron.daily/moblock-nfq ] ; then
+# 		echo -n "Removing old /etc/cron.daily/moblock-nfq"
+# 		rm /etc/cron.daily/moblock-nfq
+# 		echo "."
+# 	fi
+# 	if [ -f /etc/logrotate.d/moblock-ipq ] ; then
+# 		echo -n "Removing old /etc/logrotate.d/moblock-ipq"
+# 		rm /etc/logrotate.d/moblock-ipq
+# 		echo "."
+# 	fi
+# 	if [ -f /etc/logrotate.d/moblock-nfq ] ; then
+# 		echo -n "Removing old /etc/logrotate.d/moblock-nfq"
+# 		rm /etc/logrotate.d/moblock-nfq
+# 		echo "."
+# 	fi
+# fi
 
-	#
-	# Move old master blocklists to new places.
-	#
-	if [ "$MASTER_BLOCKLIST_DIR" = /var/lib/moblock ] && [ -d /var/lib/moblock ] ; then
-		LISTS="guarding.p2p guarding.p2p.backup guarding.p2b guarding.p2b.backup ipfilter.dat ipfilter.dat.backup"
-		for LIST in $LISTS ; do
-			[ -f /etc/blockcontrol/$LIST ] && [ ! -f /var/lib/moblock/$LIST ] && {
-				echo -n "Moving /etc/blockcontrol/$LIST to /var/lib/moblock/"
-				mv /etc/blockcontrol/$LIST /var/lib/moblock/ && echo "."
-				}
-		done
-	fi
-
-	#
-	# Move old downloaded lists to new places.
-	#
-	for LIST_NAME in $LISTS_P2P ; do
-		LIST_NAME2LIST_URL_ALT
-		LIST_NAME_FIX="$(echo $LIST_NAME | sed "s|.*://|_|" | sed "s|/|_|g" | sed "s/?/_/g" | sed "s/ /_/g")"
-		FILE_NAME="$(basename $LIST_URL_ALT)"
-		# Set blocklist directory name.
-		BLOCKLIST_DIR="$BLOCKLISTS_DIR/$LIST_NAME_FIX"
-		[ -f "$BLOCKLISTS_DIR/used/$FILE_NAME" ] && {
-			echo -n "Moving $LIST_NAME ..."
-			[ -f "$BLOCKLISTS_DIR/$FILE_NAME" ] && rm "$BLOCKLISTS_DIR/$FILE_NAME"
-			# Gives the name of successfully downloaded file.
-			BLOCKLIST_DOWNLOADED="$BLOCKLIST_DIR/downloaded/$LIST_NAME_FIX"
-			# BLOCKLIST_DOWNLOADED is extracted to this file.
-			BLOCKLIST_EXTRACTED="$BLOCKLIST_DIR/extracted/$LIST_NAME_FIX"
-			[ -d "$BLOCKLISTS_DIR" ] || mkdir "$BLOCKLISTS_DIR" || { log_failure_msg "Error: mkdir exited with $?" ; exit 1 ; }
-			[ -d "$BLOCKLIST_DIR" ] || mkdir "$BLOCKLIST_DIR" || { log_failure_msg "Error: mkdir exited with $?" ; exit 1 ; }
-			[ -d "$BLOCKLIST_DIR/download" ] || mkdir "$BLOCKLIST_DIR/download" || { log_failure_msg "Error: mkdir exited with $?" ; exit 1 ; }
-			[ -d "$(dirname $BLOCKLIST_DOWNLOADED)" ] || mkdir "$(dirname $BLOCKLIST_DOWNLOADED)" || { log_failure_msg "Error: mkdir exited with $?" ; exit 1 ; }
-			[ -e "$BLOCKLIST_DIR/download/$FILE_NAME" ] || cp "$BLOCKLISTS_DIR/used/$FILE_NAME" "$BLOCKLIST_DIR/download/" || { log_failure_msg "Error: cp exited with $?" ; exit 1 ; }
-			[ -e "$BLOCKLIST_DOWNLOADED" ] || mv "$BLOCKLISTS_DIR/used/$FILE_NAME" "$BLOCKLIST_DOWNLOADED" || { log_failure_msg "Error: cp exited with $?" ; exit 1 ; }
-			echo "Done."
-
-			# Unpack the lists
-			echo -n "Extracting $LIST_NAME ..."
-			# Create necessary directories if missing:
-			[ -d "$(dirname $BLOCKLIST_EXTRACTED)" ] || mkdir "$(dirname $BLOCKLIST_EXTRACTED)" || { log_failure_msg " Error: mkdir exited with $?" ; exit 1 ; }
-
-			# Read the first six (length of the 7z header) bytes of the packed
-			# blocklist:
-			case "$(head -c 6 $BLOCKLIST_DOWNLOADED)" in
-				# 7z packed file
-				"$(/usr/bin/printf '\x37\x7A\xBC\xAF\x27\x1C')")
-					echo -n ", detected 7z"
-					# TODO: 7z, 7zr, ...
-					test_external p7zip || exit $E_XEXTERNAL
-					p7zip -d < "$BLOCKLIST_DOWNLOADED" > "$BLOCKLIST_EXTRACTED.tmp" || {
-						log_failure_msg " Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
-						log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
-						log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
-						rm "$BLOCKLIST_DOWNLOADED" || { log_failure_msg "Error: rm exited with $?" ; exit 1 ; }
-						exit $E_BLOCKLIST
-					}
-					mv -f "$BLOCKLIST_EXTRACTED.tmp" "$BLOCKLIST_EXTRACTED" || { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
-					echo "... done."
-					;;
-				# gz packed file
-				"$(/usr/bin/printf '\x1F\x8B\x08')"*)
-					echo -n ", detected gz"
-					zcat "$BLOCKLIST_DOWNLOADED" > "$BLOCKLIST_EXTRACTED.tmp" || {
-						log_failure_msg " Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
-						log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
-						log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
-						rm "$BLOCKLIST_DOWNLOADED" || { log_failure_msg "Error: rm exited with $?" ; exit 1 ; }
-						exit $E_BLOCKLIST
-					}
-					mv -f "$BLOCKLIST_EXTRACTED.tmp" "$BLOCKLIST_EXTRACTED" || { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
-					echo "... done."
-					;;
-				# zip packed file
-				"$(/usr/bin/printf '\x50\x4B\x03\x04')"*)
-					echo -n ", detected zip"
-					test_external unzip || exit $E_XEXTERNAL
-					unzip -p "$BLOCKLIST_DOWNLOADED" > "$BLOCKLIST_EXTRACTED.tmp" || {
-						log_failure_msg " Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
-						log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
-						log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
-						rm "$BLOCKLIST_DOWNLOADED" || { log_failure_msg "Error: rm exited with $?" ; exit 1 ; }
-						exit $E_BLOCKLIST
-					}
-					mv -f $BLOCKLIST_EXTRACTED.tmp $BLOCKLIST_EXTRACTED || { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
-					echo "... done."
-					;;
-				# Assuming non-packed otherwise:
-				*)
-					echo -n ", not packed"
-					ln -fs $BLOCKLIST_DOWNLOADED $BLOCKLIST_EXTRACTED || { log_failure_msg " Error: ln exited with $?"; exit 1; }
-					echo "... done."
-					;;
-			esac
-		}
-	done
-
-	# Remove obsolete directory if it is empty:
-	[ -d "$BLOCKLISTS_DIR/used" ] && rmdir "$BLOCKLISTS_DIR/used" 2>/dev/null || true
-
-	# Remove the old -nfq and -ipq "configuration" files
-	if [ -f /etc/init.d/moblock-ipq ] ; then
-		echo -n "Removing old /etc/init.d/moblock-ipq and links"
-		rm /etc/init.d/moblock-ipq
-		update-rc.d moblock-ipq remove
-		echo "."
-	fi
-	if [ -f /etc/init.d/moblock-nfq ] ; then
-		echo -n "Removing old /etc/init.d/moblock-nfq and links"
-		rm /etc/init.d/moblock-nfq
-		update-rc.d moblock-nfq remove
-		echo "."
-	fi
-	if [ -f /etc/cron.daily/moblock-ipq ] ; then
-		echo -n "Removing old /etc/cron.daily/moblock-ipq"
-		rm /etc/cron.daily/moblock-ipq
-		echo "."
-	fi
-	if [ -f /etc/cron.daily/moblock-nfq ] ; then
-		echo -n "Removing old /etc/cron.daily/moblock-nfq"
-		rm /etc/cron.daily/moblock-nfq
-		echo "."
-	fi
-	if [ -f /etc/logrotate.d/moblock-ipq ] ; then
-		echo -n "Removing old /etc/logrotate.d/moblock-ipq"
-		rm /etc/logrotate.d/moblock-ipq
-		echo "."
-	fi
-	if [ -f /etc/logrotate.d/moblock-nfq ] ; then
-		echo -n "Removing old /etc/logrotate.d/moblock-nfq"
-		rm /etc/logrotate.d/moblock-nfq
-		echo "."
-	fi
-fi
-
-if [ "$INIT" -ne 0 ] && [ -x "/etc/init.d/moblock" ] ; then
+if [ "$INIT" -ne 0 ] && [ -x "/etc/init.d/blockcontrol" ] ; then
 	# dh_installdeb inserts code to execute init "start".
 	echo "Starting $DESC. If any blocklist is missing, it will be downloaded now. This"
 	echo "may take several minutes. Please be patient and don't abort. If you want to"

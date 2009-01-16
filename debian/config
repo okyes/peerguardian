@@ -1,5 +1,5 @@
 #!/bin/sh
-# debconf config script for MoBlock
+# debconf config script for blockcontrol
 
 set -e
 

@@ -37,6 +37,9 @@ blockcontrol (1.3-1~pre2) sid lenny; urgency=low
     ow__nfq_set_queue_maxlen__to_be_increased_from_default.dpatch
 
   * Upstream NFBlock is now NFBlock, changed dependencies and all files.
+  * debconf:
+    - init and cron are now priority high (instead of medium)
+    - previously critical whitelisting questions are now high
   * Removed last traces of quickstart (MOBLOCK_INIT="2=") which was only present
     in an development version.
   * Added exit if iptables is not found.

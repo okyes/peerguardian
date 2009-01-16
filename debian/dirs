@@ -1,7 +1,7 @@
 etc/default
-etc/moblock
+etc/blockcontrol
 etc/network/if-up.d
 usr/bin
 usr/lib/blockcontrol
-var/lib/moblock
-var/spool/moblock
+var/lib/blockcontrol
+var/spool/blockcontrol
