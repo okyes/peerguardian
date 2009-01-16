@@ -5,12 +5,12 @@ Thanks and Greets go to:
 
 - João, for all his work that just started
 
-- Jindrich for his NFBlockD
+- Jindrich for his NFBlock
 
 - Morpheus - he's our upstream author and always cooperative
 
 - uljanow - author of iplist (iplist.sourceforge.net). Both moblock (especially
-  the marking packets) and moblock-control (a complete patch for "test") did
+  the marking packets) and blockcontrol (a complete patch for "test") did
   profit from his knowledge and *active* help. Seeing the author of another
   program helping out his "rivals" shows that he got the spirit of opensource.
   Thank you and all the best wishes.

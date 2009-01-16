@@ -1,10 +1,10 @@
-# moblock-control defaults library
+# defaults library
 
 # This file sets sane configuration defaults. They will be overwritten by the
 # values in CONTROL_CONF and CONTROL_DEFAULT. Make your changes in those files,
 # not here!
 
-SCRIPT_LIB="/usr/lib/moblock-control/moblock-control.lib"
+SCRIPT_LIB="/usr/lib/blockcontrol.lib"
 
 # Exit Status Codes
 E_BADARGS="2"	# Started with bad arguments
@@ -25,8 +25,8 @@ LOG_TIMESTAMP="1"
 LOG_SYSLOG="0"
 LOG_IPTABLES=""
 VERBOSITY="1"
-MOBLOCK_INIT="1"
-MOBLOCK_CRON="1"
+INIT="1"
+CRON="1"
 WGET_OPTS="wget -q -t 5 -T 120 -w 5"
 IPTABLES_TARGET="NFQUEUE"
 NFQUEUE_NUMBER="92"

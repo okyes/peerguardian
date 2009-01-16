@@ -1,6 +1,6 @@
-TODO for moblock-control and MoBlock debian packaging
+TODO for blockcontrol and MoBlock debian packaging
 
-moblock-control:
+blockcontrol:
 
 - send error messages to console and logfile. [João]
 
@@ -8,7 +8,7 @@ moblock-control:
 
 - [DISCUSS] Block IPv6 completely because currently only IPv4 is checked?
 
-- [DISCUSS] /usr/sbin/moblock-control instead of /usr/bin/moblock-control?
+- [DISCUSS] /usr/sbin/blockcontrol instead of /usr/bin/blockcontrol?
 
 - add blocklist conversion to UTF8 (code already implemented, but not used. Use
   better checks). Wait for blocklist converter by João instead.
@@ -21,11 +21,11 @@ moblock-control:
 
 - build_blocklist: disable concatenating blocklists in .p2b (binary) format.
   Abort (?) if several binary lists are used, MoBlock can't cope with this. What
-  about nfblockd?
+  about nfblock?
 
 - adapt test function for peerguardian .p2b v2 binary format blocklist formats.
 
-- find a new name that suits for MoBlock and NFBlockD. Then clear up the mess of
+- find a new name that suits for MoBlock and NFBlock. Then clear up the mess of
   different file and variables names (and make new ones backwards compatible).
   Possible names: IPGuardian or BlockGuardian. Suggestions and comments are
   welcome!

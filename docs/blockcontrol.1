@@ -16,17 +16,17 @@
 .\"   the Debian GNU/Linux distribution in file /usr/share/common-licenses/GPL;
 .\"   if not, write to the Free Software Foundation, Inc., 59 Temple Place,
 .\"   Suite 330, Boston, MA  02111-1307  USA
-.TH MOBLOCK-CONTROL 1 "2009-01-08" "Version 1.2" "moblock-control Manual"
+.TH MOBLOCK-CONTROL 1 "2009-01-08" "Version 1.2" "blockcontrol Manual"
 
 .SH NAME
-moblock-control \- handling moblock.
+blockcontrol \- handling moblock.
 
 .SH SYNOPSIS
-.B moblock-control
+.B blockcontrol
 OPTION
 
 .SH DESCRIPTION
-.B moblock-control 
+.B blockcontrol 
 is designed to do all tasks related to MoBlock:
 .IP \(em 3
 Start and stop MoBlock. Or let init do this automatically.
@@ -91,21 +91,21 @@ shows the current configuration setting
 
 .SH CONFIGURATION
 Blocklists are configured in \fIblocklists.list\fR
-(/etc/moblock/blocklists.list). The allow list is \fIallow.p2p\fR
-(/etc/moblock/allow.p2p). Per default, the allowlist is
+(/etc/blockcontrol/blocklists.list). The allow list is \fIallow.p2p\fR
+(/etc/blockcontrol/allow.p2p). Per default, the allowlist is
 used for incoming and outgoing connections. If desired different allow lists for
 incoming, outgoing and forward connections may be used.
 .P
-The rest is done in \fImoblock.conf\fR.
+The rest is done in \fIblockcontrol.conf\fR.
 .P
-moblock-control first reads its defaults from \fImoblock-control.defaults\fR 
-(/usr/lib/moblock-control/moblock-control.defaults), then the configuration file
-\fImoblock.conf\fR (/etc/moblock/moblock.conf) and last \fImoblock.default\fR
-(/etc/default/moblock). The latter overwrites the previous values. It is
-recommended to make all user changes in \fImoblock.default\fR to ease updates.
+blockcontrol first reads its defaults from \fIdefaults\fR 
+(/usr/lib/defaults), then the configuration file
+\fIblockcontrol.conf\fR (/etc/blockcontrol.conf) and last \fIdefault\fR
+(/etc/default/blockcontrol). The latter overwrites the previous values. It is
+recommended to make all user changes in \fIdefault\fR to ease updates.
 
 .SH RETURN VALUES
-\fImoblock-control status\fR gives you the following return values:
+\fIblockcontrol status\fR gives you the following return values:
 .IP
 .B 0
 moblock is running
@@ -119,7 +119,7 @@ moblock is not running
 .B 4
 moblock is unknown
 .PP
-\fImoblock-control test\fR gives you the following return values:
+\fIblockcontrol test\fR gives you the following return values:
 .IP
 .B 0
 test succeeded
@@ -143,7 +143,7 @@ User is not root
 The MoBlock daemon is not installed
 .br
 .B 6
-moblock-control is not configured correctly
+blockcontrol is not configured correctly
 .br
 .B 7
 File is missing/has wrong mode
@@ -164,40 +164,40 @@ External binary or function is missing
 Testhost (serving the default blocklists) is not reachable
 
 .SH FILES
-.IP /usr/bin/moblock-control
-The shell script \fBmoblock-control\fR.
-.IP /usr/lib/moblock-control/moblock-control.defaults
+.IP /usr/bin/blockcontrol
+The shell script \fBblockcontrol\fR.
+.IP /usr/lib/defaults
 Default settings for all variables and pathnames.
-.IP /usr/lib/moblock-control/moblock-control.lib
-Library for moblock-control, moblock.if-up, cron.daily and init.
-.IP /etc/moblock/blocklists.list
-Lists all blocklists that are used (and downloaded) by \fBmoblock-control\fR
+.IP /usr/lib/blockcontrol.lib
+Library for blockcontrol, if-up, cron.daily and init.
+.IP /etc/blockcontrol/blocklists.list
+Lists all blocklists that are used (and downloaded) by \fBblockcontrol\fR
 for use by \fBmoblock\fR.
-.IP /etc/moblock/moblock.conf
-The configuration file moblock.conf for \fBmoblock-control\fR. It contains
+.IP /etc/blockcontrol.conf
+The configuration file blockcontrol.conf for \fBblockcontrol\fR. It contains
 variables for the automatic start and update, iptables handling, IP and port
 whitelisting and the paths of all files.
-.IP /etc/default/moblock
-The default configuration file moblock.default for \fBmoblock-control\fR
-(overwrites values from moblock.conf). It is recommended to set non-default
+.IP /etc/default/blockcontrol
+The default configuration file default for \fBblockcontrol\fR
+(overwrites values from blockcontrol.conf). It is recommended to set non-default
 values here to ease updates.
 .BR mobloquer (1)
 saves its configuration here, too.
-.IP /etc/moblock/allow.p2p
+.IP /etc/blockcontrol/allow.p2p
 The allow list in the peerguardian .p2p text format.
 .IP /etc/network/if-up.d/moblock
 Gets executed whenever a network interface is brought up to make sure that the
 automatic whitelisting of traffic in the LAN does work.
-.IP /etc/moblock/iptables-custom-insert.sh
+.IP /etc/blockcontrol/iptables-custom-insert.sh
 Custom iptables insertion script. This script will be executed on every
-\fI"moblock-control start"\fR if IPTABLES_SETTINGS="1" or "2" is configured.
-.IP /etc/moblock/iptables-custom-remove.sh
+\fI"blockcontrol start"\fR if IPTABLES_SETTINGS="1" or "2" is configured.
+.IP /etc/blockcontrol/iptables-custom-remove.sh
 Custom iptables deletion script. See above.
 .IP /etc/init.d/moblock
 Starts moblock automatically on every bootup.
 .IP /etc/cron.daily/moblock
 Updates the blocklists automatically.
-.IP /etc/logrotate.d/moblock-control
+.IP /etc/logrotate.d/blockcontrol
 Rotates the logfiles daily.
 .IP /var/lib/moblock/ipfilter.dat
 The master blocklist used by \fBmoblock\fR if the blocklist is in eMule
@@ -208,8 +208,8 @@ peerguardian .p2b v2 binary format.
 .IP /var/lib/moblock/guarding.p2p
 The master blocklist used by \fBmoblock\fR if the blocklist is in
 peerguardian .p2p text format.
-.IP /var/log/moblock-control.log
-The log file of the \fBmoblock-control\fR script. This file contains amongst
+.IP /var/log/blockcontrol.log
+The log file of the \fBblockcontrol\fR script. This file contains amongst
 other things about starting/stopping \fBmoblock\fR and updating the blocklists.
 .IP /var/spool/moblock
 Blocklists are downloaded to subfolders of this folder.
@@ -226,7 +226,7 @@ Other firewalls do not mark packets.
 MoBlock is started after other firewalls. If other firewalls are
 started/reloaded after MoBlock, then you need to restart MoBlock again. You will
 be fine, if the iptables rules which send  traffic to MoBlock's iptables chains
-(moblock_in, moblock_out and moblock_fw) stand before all other iptables rules
+(blockcontrol_in, blockcontrol_out and blockcontrol_fw) stand before all other iptables rules
 which ACCEPT traffic.
 
 .SH NOTES
@@ -238,13 +238,13 @@ will be updated once a day.
 .PP
 MoBlock - \fIhttp://moblock.berlios.de/\fR
 .PP
-moblock-control - \fIhttp://moblock-deb.sourceforge.net/\fR
+blockcontrol - \fIhttp://moblock-deb.sourceforge.net/\fR
 .PP
 PeerGuardian - \fIhttp://phoenixlabs.org/\fR
 
 .SH AUTHORS
 .PP
-moblock-control was written by jre <jre-phoenix at users.sourceforge.net>.
+blockcontrol was written by jre <jre-phoenix at users.sourceforge.net>.
 .PP
 This man page was written by sloter and jre <jre-phoenix at users.sourceforge.net>
 .fi

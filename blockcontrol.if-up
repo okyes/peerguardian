@@ -1,5 +1,5 @@
 #!/bin/sh
-# moblock.if-up - insert iptables whitelisting rules for newly brought up
+# if-up - insert iptables whitelisting rules for newly brought up
 # interfaces.
 # Copyright (C) 2008 - 2009 jre <jre-phoenix@users.sourceforge.net>
 #
@@ -18,24 +18,24 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ################################################################################
-# The following code is common between moblock-control, init, cron.daily,
-# moblock.if-up and debian/postinst.
+# The following code is common between blockcontrol, init, cron.daily,
+# if-up and debian/postinst.
 # It sets/loads the variables and functions
 
 # These two variables have to be set correctly in all just mentioned files.
-# Everything else can then be done in moblock.conf.
-CONTROL_CONF="/etc/moblock/moblock.conf"
-SCRIPT_DEFAULTS="/usr/lib/moblock-control/moblock-control.defaults"
+# Everything else can then be done in blockcontrol.conf.
+CONTROL_CONF="/etc/blockcontrol.conf"
+CONTROL_DEFAULTS="/usr/lib/defaults"
 
 # Remember standard IFS (Internal Field Seperator)
 STDIFS=$IFS
 
 # Set sane configuration defaults. They will be overwritten by the values in
 # CONTROL_CONF and CONTROL_DEFAULT
-if [ -f "$SCRIPT_DEFAULTS" ] ; then
-	. $SCRIPT_DEFAULTS || { echo "Error: Failed to source $SCRIPT_DEFAULTS although this file exists."; exit 1; }
+if [ -f "$CONTROL_DEFAULTS" ] ; then
+	. $CONTROL_DEFAULTS || { echo "Error: Failed to source $CONTROL_DEFAULTS although this file exists."; exit 1; }
 else
-	echo "Error 7: Missing file $SCRIPT_DEFAULTS."
+	echo "Error 7: Missing file $CONTROL_DEFAULTS."
 	exit 7
 fi
 
@@ -51,10 +51,10 @@ for PATH_I in $PATH ; do
 		DAEMON="$PATH_I/moblock"
 		DESC="MoBlock"
 		break
-	elif [ -x "$PATH_I/nfblockd" ] ; then
-		NAME="nfblockd"
+	elif [ -x "$PATH_I/nfblock" ] ; then
+		NAME="nfblock"
 		DAEMON="$PATH_I/$NAME"
-		DESC="Netfilter Blocking Daemon"
+		DESC="NFblock"
 		break
 	fi
 done
@@ -73,7 +73,7 @@ else
 		exit $E_XCD
 	}
 	echo -n "Creating missing $CONTROL_CONF"
-	echo "# moblock.conf - configuration file for moblock-control" > $CONTROL_CONF
+	echo "# blockcontrol.conf - configuration file for blockcontrol" > $CONTROL_CONF
 	echo "# This file was created automatically by $0." >> $CONTROL_CONF
 	echo "" >> $CONTROL_CONF
 	echo "# This file is sourced by a shell script. Any line which starts with a # (hash) " >> $CONTROL_CONF
@@ -81,8 +81,8 @@ else
 	echo "# then only the last line will be used. You have to stop and restart $NAME" >> $CONTROL_CONF
 	echo "# if you change entries." >> $CONTROL_CONF
 	echo "" >> $CONTROL_CONF
-	echo "# Values from this file (moblock.conf) will be overwritten by moblock.default" >> $CONTROL_CONF
-	echo "# (/etc/default/moblock) if they are set there." >> $CONTROL_CONF
+	echo "# Values from this file (blockcontrol.conf) will be overwritten by default" >> $CONTROL_CONF
+	echo "# (/etc/default/blockcontrol) if they are set there." >> $CONTROL_CONF
 	echo "."
 fi
 
@@ -99,27 +99,27 @@ else
 		exit $E_XCD
 	}
 	echo -n "Creating missing $CONTROL_DEFAULT"
-	echo "# moblock.default - default configuration file for moblock-control" >> $CONTROL_DEFAULT
+	echo "# default - default configuration file for blockcontrol" >> $CONTROL_DEFAULT
 	echo "# This file was created automatically by $0." >> $CONTROL_DEFAULT
 	echo "" >> $CONTROL_DEFAULT
-	echo "# In this file you can put any configuration variable from moblock.conf" >> $CONTROL_DEFAULT
-	echo "# ($CONTROL_CONF). Values in moblock.conf will be overwritten by" >> $CONTROL_DEFAULT
-	echo "# values in this file (moblock.default)." >> $CONTROL_DEFAULT
+	echo "# In this file you can put any configuration variable from blockcontrol.conf" >> $CONTROL_DEFAULT
+	echo "# ($CONTROL_CONF). Values in blockcontrol.conf will be overwritten by" >> $CONTROL_DEFAULT
+	echo "# values in this file (default)." >> $CONTROL_DEFAULT
 	echo "" >> $CONTROL_DEFAULT
-	echo "# Do a \"moblock-control restart\" when you have edited this file." >> $CONTROL_DEFAULT
+	echo "# Do a \"blockcontrol restart\" when you have edited this file." >> $CONTROL_DEFAULT
 	echo "" >> $CONTROL_DEFAULT
 	echo "."
 fi
 
 # If the daemon was neither found, nore set manually, then abort now.
 if [ -z $NAME ] || [ -z $DAEMON ] || [ -z $DESC ] ; then
-	echo "Could not detect an IPBlocker daemon. MoBlock and NFBlockD are supported."
+	echo "Could not detect an IPBlocker daemon. MoBlock and NFBlock are supported."
 	echo "Neither of them was found in PATH: $PATH."
 	echo "Error $E_CONFIG: You may set NAME, DAEMON and DESC manually in $CONTROL_CONF."
 	exit $E_CONFIG
 fi
 
-# Load moblock-control library.
+# Load blockcontrol library.
 if [ -f "$SCRIPT_LIB" ] ; then
 	. $SCRIPT_LIB || { echo "Error: Failed to source $SCRIPT_LIB although this file exists."; exit 1; }
 else
@@ -129,8 +129,8 @@ fi
 
 load_lsb
 
-# End of the common code between moblock-control, init, cron.daily,
-# moblock.if-up and debian/postinst.
+# End of the common code between blockcontrol, init, cron.daily,
+# if-up and debian/postinst.
 ################################################################################
 
 if [ "$WHITE_LOCAL" -eq 1 ] && [ "$IPTABLES_SETTINGS" -eq 1 ] && daemon_status exitifstrange ; then

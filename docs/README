@@ -1,4 +1,4 @@
-README for moblock-control                          Thu Jan  8 19:45:56 CET 2009
+README for blockcontrol                          Thu Jan  8 19:45:56 CET 2009
 
 ================================================================================
 
@@ -19,13 +19,13 @@ Requirements
 
 Description:
 
-moblock-control provides easy ways to interact with MoBlock and do all common
+blockcontrol provides easy ways to interact with MoBlock and do all common
 related tasks. Remember this is only a addon for MoBlock, so you still need
-MoBlock installed. Alternatively to MoBlockk you may use NFBlockD.
-MoBlock and NFBlockD check internet traffic based on large lists of IP address
+MoBlock installed. Alternatively to MoBlockk you may use NFBlock.
+MoBlock and NFBlock check internet traffic based on large lists of IP address
 ranges in order to protect your privacy. You can get them at
 http://moblock.berlios.de and
-http://sites.google.com/site/makovick/nfblockd-daemon
+http://sites.google.com/site/makovick/nfblock-daemon
 
 WARNING: MoBlock may block your complete network/internet access!
 
@@ -52,13 +52,13 @@ the following three conditions hold:
     firewalls are started/reloaded after MoBlock, then you
     need to restart MoBlock again. You will be fine, if the
     iptables rules which send traffic to MoBlock's iptables
-    chains (moblock_in, moblock_out and moblock_fw) stand
+    chains (blockcontrol_in, blockcontrol_out and blockcontrol_fw) stand
     before all other iptables rules which ACCEPT traffic.
 
 Technical note:
 MoBlock checks traffic (packets) that is sent to the iptables NFQUEUE (or the
 deprecated QUEUE) target. If the necessary support is not built in the kernel
-directly, moblock-control will load the necessary kernel modules.
+directly, blockcontrol will load the necessary kernel modules.
 Up to MoBlock 0.8 packets that do not match the blocklist are ACCEPTed and
 packets that match the blocklist are DROPped.
 Since MoBlock 0.9 packets can also be MARKed, so that iptables rules that match
@@ -94,7 +94,7 @@ Features:
 
 Usage:
 
-moblock-control OPTION
+blockcontrol OPTION
 
 ================================================================================
 
@@ -115,68 +115,68 @@ show_config shows the complete configuration
 
 Configuration:
 
-Blocklists are configured in blocklists.list (/etc/moblock/blocklists.list). The
-allow list is allow.p2p (/etc/moblock/allow.p2p). Per default, the allowlist is
+Blocklists are configured in blocklists.list (/etc/blockcontrol/blocklists.list). The
+allow list is allow.p2p (/etc/blockcontrol/allow.p2p). Per default, the allowlist is
 used for incoming and outgoing connections. If desired different allow lists for
 incoming, outgoing and forward connections may be used.
 
-The rest is done in "moblock.conf".
+The rest is done in "blockcontrol.conf".
 
-moblock-control first reads its defaults from
-moblock-control.defaults (/usr/lib/moblock-control/moblock-control.defaults),
-then the configuration file moblock.conf (/etc/moblock/moblock.conf) and last
-moblock.default (/etc/default/moblock). The latter overwrites the previous
-values. It is recommended to make all user changes in moblock.default to ease
+blockcontrol first reads its defaults from
+defaults (/usr/lib/defaults),
+then the configuration file blockcontrol.conf (/etc/blockcontrol.conf) and last
+default (/etc/default/blockcontrol). The latter overwrites the previous
+values. It is recommended to make all user changes in default to ease
 updates.
 
 ================================================================================
 
 Files / Installation:
 
-moblock-control consists of the following files. Copy them to the appropriate
-places on your distribution and adjust the paths if necessary in moblock.conf
+blockcontrol consists of the following files. Copy them to the appropriate
+places on your distribution and adjust the paths if necessary in blockcontrol.conf
 (Towards the end of that file. There you can also see where the files are placed
 under Debian). Note that some files have to be renamed, again have a look at
-moblock.conf or at the installation example for Debian below.
-moblock-control will detect if you have installed moblock or nfblockd (in PATH)
-automatically. Otherwise you can specify this in moblock.conf.
-The path to moblock.conf and moblock-control.defaults has to be specified in
-moblock-control, moblock.if-up, cron.daily and init.
-moblock-control is provided with a configuration suitable for Debian.
+blockcontrol.conf or at the installation example for Debian below.
+blockcontrol will detect if you have installed moblock or nfblock (in PATH)
+automatically. Otherwise you can specify this in blockcontrol.conf.
+The path to blockcontrol.conf and defaults has to be specified in
+blockcontrol, if-up, cron.daily and init.
+blockcontrol is provided with a configuration suitable for Debian.
 
-- moblock-control (required)
-  The shell script moblock-control. Must be executable.
+- blockcontrol (required)
+  The shell script blockcontrol. Must be executable.
 
-- moblock-control.defaults (required)
+- defaults (required)
   Default settings for all variables and pathnames.
 
-- moblock-control.lib (required)
-  Library for moblock-control, moblock.if-up, cron.daily and init.
+- blockcontrol.lib (required)
+  Library for blockcontrol, if-up, cron.daily and init.
 
 - blocklists.list (required)
-  Lists all blocklists that are used (and downloaded) by moblock-control for
+  Lists all blocklists that are used (and downloaded) by blockcontrol for
   use by moblock.
 
-- moblock.conf
-  The configuration file for moblock-control.
-  Referenced as CONTROL_CONF in moblock-control, init, cron.daily and
+- blockcontrol.conf
+  The configuration file for blockcontrol.
+  Referenced as CONTROL_CONF in blockcontrol, init, cron.daily and
   moblock-if.up
 
-- moblock.default
+- default
   The default configuration file for user changes (overwrites values from
-  moblock.conf).
+  blockcontrol.conf).
 
 - allow.p2p
   Allow List which contains IP ranges that shall be whitelisted.
 
-- moblock.if-up
+- if-up
   Gets executed whenever a network interface is brought up to make sure that
   the automatic whitelisting of traffic in the LAN does work. Must be
   executable.
 
 - iptables-custom-insert.sh (optional)
   Script to insert custom iptables rules. This script will be executed on every
-  "moblock-control start" if IPTABLES_SETTINGS="1" or "2" is configured.
+  "blockcontrol start" if IPTABLES_SETTINGS="1" or "2" is configured.
 
 - iptables-custom-remove.sh (optional)
   Script to delete custom iptables rules. See above.
@@ -191,28 +191,28 @@ moblock-control is provided with a configuration suitable for Debian.
 
 - logrotate (optional, configuration file for logrotate)
   Debian place: /etc/logrotate.d/moblock
-  assumes logfile in /var/log/moblock-control.log
+  assumes logfile in /var/log/blockcontrol.log
   Note: You should add another logrotate for the MoBlock daemon, too! Download
   one from: http://moblock-deb.svn.sourceforge.net/viewvc/moblock-deb/moblock/mo
   block-0.9~rc2/moblock-0.9~rc2/debian/logrotate
 
 - init-functions (required if your distribution lacks the LSB init-functions)
-  moblock-control depends on the LSB init-functions. This is a modified version
+  blockcontrol depends on the LSB init-functions. This is a modified version
   based on the Debian one.
 
 - docs/
-  Some documentatation. moblock-control.1 is a man page.
+  Some documentatation. blockcontrol.1 is a man page.
 
 - debian/
   You don't need this, this is only needed for the Debian packages.
 
 The following directories/files will be created on usage (path examples for
-Debian, configurable in moblock.conf):
+Debian, configurable in blockcontrol.conf):
 
-- /usr/lib/moblock-control
+- /usr/lib/blockcontrol
   The library and hardcoded defaults are placed here.
 
-- /etc/moblock
+- /etc/blockcontrol
   The configuration files are placed here.
 
 - /var/lib/moblock
@@ -223,8 +223,8 @@ Debian, configurable in moblock.conf):
 
 - /var/log/
 
-- /var/log/moblock-control.log + rotated logs
-  The logfile of the moblock-control script. This file contains amongst other
+- /var/log/blockcontrol.log + rotated logs
+  The logfile of the blockcontrol script. This file contains amongst other
   things about starting/stopping moblock and updating the blocklists.
 
 - /var/log/moblock.log + rotated logs
@@ -242,24 +242,24 @@ Example for installation (on Debian):
 If you choose other file places see above for the necessary adjustment in the
 files.
 
-cp moblock-control /usr/bin/moblock-control
-	chmod +x /usr/bin/moblock-control
-mkdir /usr/lib/moblock-control
-cp moblock-control.defaults /usr/lib/moblock-control/
-cp moblock-control.lib /usr/lib/moblock-control/
-mkdir /etc/moblock/
-cp blocklists.list /etc/moblock/blocklists.list
-cp moblock.conf /etc/moblock/moblock.conf
-cp allow.p2p  /etc/moblock/allow.p2p
-cp moblock.default /etc/default/moblock
-cp moblock.if-up /etc/network/if-up.d/moblock
+cp blockcontrol /usr/bin/blockcontrol
+	chmod +x /usr/bin/blockcontrol
+mkdir /usr/lib/blockcontrol
+cp defaults /usr/lib/blockcontrol/
+cp blockcontrol.lib /usr/lib/blockcontrol/
+mkdir /etc/blockcontrol/
+cp blocklists.list /etc/blockcontrol/blocklists.list
+cp blockcontrol.conf /etc/blockcontrol.conf
+cp allow.p2p  /etc/blockcontrol/allow.p2p
+cp default /etc/default/blockcontrol
+cp if-up /etc/network/if-up.d/moblock
 	chmod +x /etc/network/if-up.d/moblock
 cp cron.daily /etc/cron.daily/moblock
 	chmod +x /etc/cron.daily/moblock
 cp init /etc/init.d/moblock
 	chmod +x /etc/init.d/moblock
-	update-rc.d moblock defaults 20
-cp logrotate /etc/logrotate.d/moblock-control
+	update-rc.d defaults 20
+cp logrotate /etc/logrotate.d/blockcontrol
 mkdir /var/spool/moblock/
 [optional, only if your distribution doesn't provide this file]:
 mkdir /lib/lsb/
@@ -273,7 +273,7 @@ http://forums.phoenixlabs.org/showpost.php?p=107810&postcount=22
 
 Supported systems:
 
-moblock-control was written for a Debian system. However it should run under
+blockcontrol was written for a Debian system. However it should run under
 every Linux distribution.
 
 ================================================================================

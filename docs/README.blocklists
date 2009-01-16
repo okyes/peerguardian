@@ -20,7 +20,7 @@ Introduction:
 
 This text shall help you to decide what blocklists you use.
 Just add the URLs of the blocklists that you want to use to
-"/etc/moblock/blocklists.list". Afterwards do a "moblock-control reload" to add
+"/etc/blockcontrol/blocklists.list". Afterwards do a "blockcontrol reload" to add
 the new blocklists to your master blocklist.
 It is your decision what blocklists you want to use. There might be other (good
 or even better) blocklists that I don't know. The blocklist descriptions in here
@@ -32,7 +32,7 @@ Only use the blocklists that you need. More is not always better!
 Note about different blocklist formats:
 
 MoBlock supports several blocklist formats. YOU CAN´T USE DIFFERENT BLOCKLIST
-FORMATS AT THE SAME TIME. You need to tell moblock in /etc/moblock/moblock.conf
+FORMATS AT THE SAME TIME. You need to tell moblock in /etc/blockcontrol.conf
 in which format the lists are.
 
 The following formats are supported:
@@ -58,7 +58,7 @@ http://tbg.iblocklist.com/pages/faq.html
 Lists are in here:
 http://tbg.iblocklist.com/Lists/
 
-Per default, moblock-control uses mirrored blocklists from iblocklist.com,
+Per default, blockcontrol uses mirrored blocklists from iblocklist.com,
 instead of the original ones from tbg.iblocklists.com. Don't use both!
 
 Lists from The Blocklist Group in peerguardian ’.p2p’ text format (guarding.p2p)
@@ -222,7 +222,7 @@ Lists from bluetack.co.uk
 For up to date information see here:
 http://www.bluetack.co.uk/forums/index.php?autocom=faq&CODE=02&qid=17
 
-Per default, moblock-control uses mirrored blocklists from iblocklist.com,
+Per default, blockcontrol uses mirrored blocklists from iblocklist.com,
 instead of the original ones from bluetack.co.uk. Don't use both!
 
 
@@ -410,7 +410,7 @@ I-Blocklist is a site dedicated to the creation and distribution of quality IP
 lists for use with IP blockers. It offers mirrors of all/most other blocklists,
 game allow lists, country lists and more.
 
-Per default, moblock-control uses these mirrored blocklists from iblocklist.com,
+Per default, blockcontrol uses these mirrored blocklists from iblocklist.com,
 instead of the original ones from bluetack.co.uk and tbg.iblocklist.com. Don't
 use both.
 
@@ -442,8 +442,8 @@ cause unnecessary traffic.
 Local (custom) blocklists:
 
 Put a line starting with "locallist" and the pathname of your local blocklist
-to /etc/moblock/blocklists.list.
+to /etc/blockcontrol/blocklists.list.
 Of course your local blocklist has to be in the same format as your other
-blocklists and the corresponding option has to be given in moblock.conf.
+blocklists and the corresponding option has to be given in blockcontrol.conf.
 
 ============================================================

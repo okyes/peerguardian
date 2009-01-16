@@ -2,13 +2,13 @@
 ## 50_debianize.dpatch by jre <jre-phoenix@users.sourceforge.net>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: - Change moblock-control.defaults and moblock.conf to default to full
+## DP: - Change defaults and blockcontrol.conf to default to full
 ## DP:   Debian compatibility.
 
 @DPATCH@
-diff -urNad moblock-control~/moblock-control.defaults moblock-control/moblock-control.defaults
---- moblock-control~/moblock-control.defaults	2009-01-05 17:51:22.000000000 +0100
-+++ moblock-control/moblock-control.defaults	2009-01-09 16:43:08.000000000 +0100
+diff -urNad blockcontrol~/defaults defaults
+--- blockcontrol~/defaults	2009-01-05 17:51:22.000000000 +0100
++++ defaults	2009-01-09 16:43:08.000000000 +0100
 @@ -70,5 +70,5 @@
  PIDFILE="/var/run/$NAME.pid"
  LSB="/lib/lsb/init-functions"
@@ -16,9 +16,9 @@ diff -urNad moblock-control~/moblock-control.defaults moblock-control/moblock-co
 -LSB_MODE="1"
 +LSB_MODE="0"
  CRON_EMAILTO="root"
-diff -urNad moblock-control~/moblock.conf moblock-control/moblock.conf
---- moblock-control~/moblock.conf	2009-01-09 16:13:57.000000000 +0100
-+++ moblock-control/moblock.conf	2009-01-09 16:43:39.000000000 +0100
+diff -urNad blockcontrol~/blockcontrol.conf blockcontrol.conf
+--- blockcontrol~/blockcontrol.conf	2009-01-09 16:13:57.000000000 +0100
++++ blockcontrol.conf	2009-01-09 16:43:39.000000000 +0100
 @@ -330,8 +330,8 @@
  # you can download one based on the Debian version from
  # moblock-deb.sourceforge.net.

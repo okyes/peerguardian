@@ -82,7 +82,7 @@ msgid ""
 " - MoBlock is started after other firewalls.\n"
 "If other firewalls are started/reloaded after MoBlock, then you need to "
 "restart MoBlock again. You will be fine, if the iptables rules which send "
-"traffic to the moblock_in, moblock_out and moblock_fw chains stand before "
+"traffic to the blockcontrol_in, blockcontrol_out and blockcontrol_fw chains stand before "
 "all other iptables rules which ACCEPT traffic."
 msgstr ""
 
@@ -93,7 +93,7 @@ msgid ""
 "You can check your iptables rules with\n"
 " iptables -L -nv\n"
 "or\n"
-" moblock-control status."
+" blockcontrol status."
 msgstr ""
 
 #. Type: select
@@ -175,7 +175,7 @@ msgstr ""
 #. Description
 #: ../templates:4001 ../templates:5001
 msgid ""
-"If you have specified additional blocklists in /etc/moblock/blocklists.list "
+"If you have specified additional blocklists in /etc/blockcontrol/blocklists.list "
 "they will be kept as well. Known blocklists in an incompatible blocklist "
 "format will be commented out."
 msgstr ""
@@ -270,7 +270,7 @@ msgstr ""
 #. Type: select
 #. Description
 #: ../templates:9001
-msgid "Set the verbosity of moblock-control:"
+msgid "Set the verbosity of blockcontrol:"
 msgstr ""
 
 #. Type: select
@@ -283,7 +283,7 @@ msgstr ""
 #. Description
 #: ../templates:9001
 msgid ""
-"This only affects the output to STDOUT by moblock-control, cron and init. "
+"This only affects the output to STDOUT by blockcontrol, cron and init. "
 "This does not affect logging or the output of the MoBlock daemon."
 msgstr ""
 
@@ -306,7 +306,7 @@ msgstr ""
 #. Type: boolean
 #. Description
 #: ../templates:10001
-msgid "Configuration variable: MOBLOCK_INIT"
+msgid "Configuration variable: INIT"
 msgstr ""
 
 #. Type: boolean
@@ -328,7 +328,7 @@ msgstr ""
 #. Type: boolean
 #. Description
 #: ../templates:11001
-msgid "Configuration variable: MOBLOCK_CRON"
+msgid "Configuration variable: CRON"
 msgstr ""
 
 #. Type: boolean
@@ -379,15 +379,15 @@ msgstr ""
 #. Description
 #: ../templates:13001
 msgid ""
-"The default is to place NFQUEUE in the chains moblock_in, moblock_out and "
-"moblock_fw."
+"The default is to place NFQUEUE in the chains blockcontrol_in, blockcontrol_out and "
+"blockcontrol_fw."
 msgstr ""
 
 #. Type: select
 #. Description
 #: ../templates:13001
 msgid ""
-"You can place custom iptables rules in /etc/moblock/iptables-custom-insert."
+"You can place custom iptables rules in /etc/blockcontrol/iptables-custom-insert."
 "sh and iptables-custom-remove.sh."
 msgstr ""
 
@@ -781,7 +781,7 @@ msgstr ""
 #. Description
 #: ../templates:28001
 msgid ""
-"You can whitelist more IP ranges by adding them to /etc/moblock/allow.p2p."
+"You can whitelist more IP ranges by adding them to /etc/blockcontrol/allow.p2p."
 msgstr ""
 
 #. Type: string

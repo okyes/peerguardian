@@ -2,6 +2,6 @@ etc/default
 etc/moblock
 etc/network/if-up.d
 usr/bin
-usr/lib/moblock-control
+usr/lib/blockcontrol
 var/lib/moblock
 var/spool/moblock

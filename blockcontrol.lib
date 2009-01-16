@@ -1,4 +1,4 @@
-# moblock-control defaults library
+# defaults library
 # Copyright (C) 2005 - 2009 jre <jre-phoenix@users.sourceforge.net>
 # Parts and ideas from JFM, /meth/usr, lestlest (clessing), Morpheus and
 # perhaps others. More Info: http://forums.phoenixlabs.org
@@ -73,7 +73,7 @@ load_lsb () {
 	else
 		echo "Error $E_XEXTERNAL: You need the LSB (3.1) init functions in $LSB."	# Don't use log_failure_msg!
 		echo "If your distribution doesn't provide this file you can use init.functions"
-		echo "from moblock-control from moblock-deb.sourceforge.net."
+		echo "from blockcontrol from moblock-deb.sourceforge.net."
 		exit $E_XEXTERNAL
 	fi
 }
@@ -101,31 +101,31 @@ test_set_BLOCKLIST () {
 	esac
 }
 
-test_MOBLOCK_INIT () {
-	case "$MOBLOCK_INIT" in
-		'0'|'1'|'2')
+test_INIT () {
+	case "$INIT" in
+		'0'|'1')
 			true
 			;;
 		*)
-			log_failure_msg "Error $E_CONFIG: Check the MOBLOCK_INIT setting."
-			grep -Eq "^[[:space:]]*MOBLOCK_INIT=" $CONTROL_DEFAULT && \
-				log_failure_msg "MOBLOCK_INIT is set in $CONTROL_DEFAULT." || \
-				log_failure_msg "MOBLOCK_INIT is set in $CONTROL_CONF."
+			log_failure_msg "Error $E_CONFIG: Check the INIT setting."
+			grep -Eq "^[[:space:]]*INIT=" $CONTROL_DEFAULT && \
+				log_failure_msg "INIT is set in $CONTROL_DEFAULT." || \
+				log_failure_msg "INIT is set in $CONTROL_CONF."
 			exit $E_CONFIG
 			;;
 	esac
 }
 
-test_MOBLOCK_CRON () {
-	case "$MOBLOCK_CRON" in
+test_CRON () {
+	case "$CRON" in
 		'0'|'1')
 			true
 			;;
 		*)
-			log_failure_msg "Error $E_CONFIG: Check the MOBLOCK_CRON setting."
-			grep -Eq "^[[:space:]]*MOBLOCK_CRON=" $CONTROL_DEFAULT && \
-				log_failure_msg "MOBLOCK_CRON is set in $CONTROL_DEFAULT." || \
-				log_failure_msg "MOBLOCK_CRON is set in $CONTROL_CONF."
+			log_failure_msg "Error $E_CONFIG: Check the CRON setting."
+			grep -Eq "^[[:space:]]*CRON=" $CONTROL_DEFAULT && \
+				log_failure_msg "CRON is set in $CONTROL_DEFAULT." || \
+				log_failure_msg "CRON is set in $CONTROL_CONF."
 			exit $E_CONFIG
 			;;
 	esac
@@ -533,7 +533,7 @@ insert_iptables () {
 			log_warning_msg "$DESC is configured not to insert iptables rules."
 		fi
 		;;
-	# Place MoBlock's iptables rules in separate iptables chains (moblock_in, moblock_out and moblock_fw).
+	# Place MoBlock's iptables rules in separate iptables chains (blockcontrol_in, blockcontrol_out and blockcontrol_fw).
 	'1')
 		echo -n "Inserting iptables ..."
 		test_external iptables
@@ -640,7 +640,7 @@ insert_iptables () {
 		case $WHITE_LOCAL in
 			1)	# Automatically whitelist all up interfaces
 				# For this the output of "ifconfig" and "iptables -L -nv" is scanned for certain patterns
-				# Use the moblock.if-up script whenever an additional interface is brought up
+				# Use the if-up script whenever an additional interface is brought up
 				# (e.g. place that script in /etc/network/if-up.d/) to add additional whitelisting rules
 				#
 				# Get IPs of interfaces that are up
@@ -671,7 +671,7 @@ insert_iptables () {
 
 		# Block "Marked block" packages: "Marked block" packages are sent back
 		# to the head of the chain again (NF_REPEAT repeats the hook function)
-		# by MoBlock. Block them at the head of the moblock_ chains.
+		# by MoBlock. Block them at the head of the blockcontrol_ chains.
 		# Alternatively they could be blocked at the head of the
 		# INPUT/OUTPUT/FORWARD chains, but I decided against that in order to
 		# keep those chains cleaner. It has to be made sure that the MARK of the
@@ -679,7 +679,7 @@ insert_iptables () {
 		if [ "$REJECT" -eq 1 ] ; then
 			# The unpatched MoBlock source (0.8 and 0.9RC2) drops
 			# matched incoming packets directly. So the DROP rule in
-			# the iptables chain moblock_in will never be met, i.e.
+			# the iptables chain blockcontrol_in will never be met, i.e.
 			# it is unnecessary. But I insert it always for the sake
 			# of simplicity and to avoid doing it by an error-prone
 			# patch.
@@ -831,9 +831,9 @@ do_start () {
 			log_success_msg "$DESC is already running, doing nothing."
 			;;
  		3)	# Daemon is not running.
-			# Build blocklist if necessary to make sure moblock-control's settings are taken.
+			# Build blocklist if necessary to make sure blockcontrol's settings are taken.
 			[ -e "$MD5SUM_FILE" ] && {
-				SUM="$(echo $BLOCKLIST_FORMAT $IP_REMOVE ; md5sum /etc/moblock/blocklists.list)"
+				SUM="$(echo $BLOCKLIST_FORMAT $IP_REMOVE ; md5sum /etc/blockcontrol/blocklists.list)"
 				MD5SUM="$(echo $SUM | md5sum | cut -c -32)"
 				[ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ]
 				} || build_blocklist
@@ -944,8 +944,8 @@ do_start () {
 					# Start MoBlock in the background with "&", don't specify pidfile.
 					start_daemon $DAEMON $DAEMON_OPTS &
 				fi
-			elif [ "$NAME" = nfblockd ] ; then
-				# The options NFBlockD is started with
+			elif [ "$NAME" = nfblock ] ; then
+				# The options NFBlock is started with
 				DAEMON_OPTS="-d -v $ACCEPT_OPT $REJECT_OPT $NFQUEUE_NUMBER_OPT $BLOCKLIST"
 				if [ "$LSB_MODE" -eq 0 ] ; then
 					# Use Debian specific starting.
@@ -1030,8 +1030,8 @@ LIST_URL2LIST_NAME () {
 			;;
 		notimestamp)
 			# Remote blocklists on servers without timestamping
-			# This is marked as deprecated since moblock-control 1.0
-			# The separate function has been removed in moblock-control 1.1
+			# This is marked as deprecated since blockcontrol 1.0
+			# The separate function has been removed in blockcontrol 1.1
 			echo "Usage of the \"notimestamp\" option is deprecated."
 			echo "Its functionality has been implemented as fallback for all remote lists."
 			LIST_URL=""
@@ -1548,7 +1548,7 @@ build_blocklist () {
 			}
 	fi
 	# Save configuration settings on which this blocklist bases:
-	SUM="$(echo $BLOCKLIST_FORMAT $IP_REMOVE ; md5sum /etc/moblock/blocklists.list)"
+	SUM="$(echo $BLOCKLIST_FORMAT $IP_REMOVE ; md5sum /etc/blockcontrol/blocklists.list)"
 	MD5SUM="$(echo $SUM | md5sum | cut -c -32)"
 	echo "$MD5SUM" > "$MD5SUM_FILE"
 }

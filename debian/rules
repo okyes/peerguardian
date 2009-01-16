@@ -24,13 +24,13 @@ build-stamp: configure-stamp
 	# Add here commands to compile the package.
 	# Link some files to debian/ directory until debhelper can handel such
 	# cases better. See http://bugs.debian.org/499486
-	ln init debian/moblock-control.moblock.init
-	ln moblock.default debian/moblock-control.moblock.default
-	ln cron.daily debian/moblock-control.moblock.cron.daily
-	ln moblock.if-up debian/moblock-control.moblock.if-up
-	ln logrotate debian/moblock-control.logrotate
+	ln init debian/init
+	ln default debian/default
+	ln cron.daily debian/cron.daily
+	ln if-up debian/if-up
+	ln logrotate debian/logrotate
 # 	$(MAKE)
-	#docbook-to-man debian/moblock-control.sgml > moblock-control.1
+	#docbook-to-man debian/blockcontrol.sgml > blockcontrol.1
 
 	touch $@
 
@@ -58,7 +58,7 @@ clean-patched:
 	# Add here commands to clean up after the build process.
 # 	$(MAKE) clean
 	# Remove the hardlinks from debian/ directory again. See above.
-	find debian -name "moblock-control.*" -print0 | xargs -0r rm
+	find debian -name "blockcontrol.*" -print0 | xargs -0r rm
 	dh_clean
 
 install: build
@@ -68,7 +68,7 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/$*.
-# 	$(MAKE) DESTDIR=$(CURDIR)/debian/moblock-control install
+# 	$(MAKE) DESTDIR=$(CURDIR)/debian/blockcontrol install
 
 
 # Build architecture-independent files here.
@@ -93,7 +93,7 @@ binary-arch: build install
 	dh_installcron --name=moblock
 #	Does not exist in etch:
 #	dh_installifupdown --name=moblock
-		install -m 755 moblock.if-up debian/moblock-control/etc/network/if-up.d/moblock
+		install -m 755 if-up debian/blockcontrol/etc/network/if-up.d/moblock
 #	dh_installinfo
 	dh_installman
 #	dh_link

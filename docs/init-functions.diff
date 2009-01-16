@@ -1,5 +1,5 @@
 2a3,6
-> # modified version 3.2-20 for use with moblock-control by jre
+> # modified version 3.2-20 for use with blockcontrol by jre
 > # <jre-phoenix@users.sourceforge.net>
 > # see init-functions.diff for the modifications
 > #
@@ -12,7 +12,7 @@
 <         /sbin/start-stop-daemon --start --nicelevel $nice --quiet --exec $exec --oknodo -- "$@"
 <     fi
 ---
-> 	# moblock-control first checks the daemon status with pidofproc,
+> 	# blockcontrol first checks the daemon status with pidofproc,
 > 	# so it's safe to just start with "$DAEMON $DAEMON_OPTS"
 > 	eval $exec $@
 104d103

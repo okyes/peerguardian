@@ -1,14 +1,14 @@
-moblock-control (1.2)
+blockcontrol (1.2)
 
   - New handling of blocklists:
     - php redirects are supported now. This allows to use the lists from
       iblocklist.com. All lists are downloaded from there per default now.
-    - Since moblock-control 1.1 the default blocklists are by "The Blocklist
+    - Since blockcontrol 1.1 the default blocklists are by "The Blocklist
       Group" (tbg.iblocklist.com) instead of Bluetack (bluetack.co.uk).
     - The single blocklists are saved in new places now (but still under
       /var/spool/moblock/.
     - The master blocklist (e.g. guarding.p2p) is now saved in
-      /var/lib/moblock/ instead of /etc/moblock/.
+      /var/lib/moblock/ instead of /etc/blockcontrol/.
     - Several changes to make sure that the master blocklist exists and reflects
       the configuration. All changes are always applied on "start" now.
     - The (Debian) installation only requires the blocklists (and therefore
@@ -18,19 +18,19 @@ moblock-control (1.2)
 
  -- jre <jre-phoenix@users.sourceforge.net>  Mon, 05 Jan 2009 01:57:00 +0100
 
-moblock-control (1.0)
+blockcontrol (1.0)
 
-  - "moblock-control" is a separate package now. So install "moblock" and
-    "moblock-control" to have the functionality of the old "moblock" package.
-  - the custom iptables scripts /etc/moblock/iptables-custom-insert.sh and
-    /etc/moblock/iptables-custom-remove.sh now are executed for
-    IPTABLES_SETTINGS="1", too. This happens after moblock-control's iptables
+  - "blockcontrol" is a separate package now. So install "moblock" and
+    "blockcontrol" to have the functionality of the old "moblock" package.
+  - the custom iptables scripts /etc/blockcontrol/iptables-custom-insert.sh and
+    /etc/blockcontrol/iptables-custom-remove.sh now are executed for
+    IPTABLES_SETTINGS="1", too. This happens after blockcontrol's iptables
     commands. Use these scripts e.g. for additional sophisticated whitelisting
     rules. Some examples are given in these files.
     Thanks, Felix Triebel, for the hints about iptables owner module and IPv6.
 
     IMPORTANT UPDATE WARNING:
-    If you are upgrading manually from an older version of moblock-control and
+    If you are upgrading manually from an older version of blockcontrol and
     did not use the custom iptables scripts before: Replace previous versions of
     these files with the current versions, to make sure that the old commands
     from these files are not executed.
@@ -115,8 +115,8 @@ moblock (0.8-26) sid; urgency=low
 
 moblock (0.8-16) sid; urgency=low
 
-  The package was restructured. A new script moblock-control was
+  The package was restructured. A new script blockcontrol was
   introduced. There is no more whitelisting per default! If you need
-  it then turn it on in /etc/moblock/moblock.conf.
+  it then turn it on in /etc/blockcontrol.conf.
 
  -- jre <jre-phoenix@users.sourceforge.net>  Tue, 04 Sep 2007 19:01:33 +0200

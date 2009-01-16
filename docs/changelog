@@ -1,13 +1,13 @@
-Changelog moblock-control
+Changelog blockcontrol
 
-moblock-control (1.0)
+blockcontrol (1.0)
 
   * Split again from the moblock debian package. Still all changes are recorded
     in debian/changelog.
 
  -- jre <jre-phoenix@users.sourceforge.net>  Fri, 19 Sep 2008 16:21:48 +0200
 
-moblock-control (0.8-16)
+blockcontrol (0.8-16)
 
   * merged in the moblock debian packages on moblock-deb.sourceforge.net. See
     the debian/changelog for further changes.
@@ -15,9 +15,9 @@ moblock-control (0.8-16)
  -- jre <jre-phoenix@users.sourceforge.net>  Tue, 14 Aug 2007 12:42:36 +0200
 
 
-moblock-control (0.8-15jre4)
+blockcontrol (0.8-15jre4)
 
-  * renamed /etc/default/moblock (moblock.default) to /etc/moblock/moblock.conf
+  * renamed /etc/default/blockcontrol (default) to /etc/blockcontrol.conf
   * build new master blocklist after update if no master blocklist is installed
     even if no blocklist was updated.
   * reload only if moblock is really running
@@ -26,51 +26,51 @@ moblock-control (0.8-15jre4)
  -- jre <jre-phoenix@users.sourceforge.net> 
 
 
-moblock-control (0.8-15jre3)
+blockcontrol (0.8-15jre3)
 
-  * moblock-control: fixed bug with testing for "md5sum"
+  * blockcontrol: fixed bug with testing for "md5sum"
   * renamed some internal variables
 
  -- jre <jre-phoenix at users.sourceforge.net>  Mon, 06 Aug 2007 10:48:29 +0200
 
 
-moblock-control (0.8-15jre2)
+blockcontrol (0.8-15jre2)
 
-  * moblock-control: fixed locallist update errors, oops.
+  * blockcontrol: fixed locallist update errors, oops.
       Some strange bug with testing for "md5sum" still exists. The
       relevant line is not used for now. Everything will still work.
 
  -- jre <jre-phoenix at users.sourceforge.net>  Sat, 04 Aug 2007 17:51:39 +0200
 
 
-moblock-control (0.8-15jre)
+blockcontrol (0.8-15jre)
 
   * initial release for moblock (*only nfq*)
 
   [ changes to peerguardnf init & update script: ]
-  * restructured: main script is /usr/bin/moblock-control.
+  * restructured: main script is /usr/bin/blockcontrol.
      cron and init source the main script
   * scripts are now #!/bin/bash instead of #!/bin/sh. Not sure if this is
     necessary. Tests with other shells are welcome.
-  * moblock-control:
+  * blockcontrol:
     - added option "reload", same as "force-reload":
        rebuilds blocklist and reloads moblock
     - paths to external applications no more hardcoded in script
     - fewer PATHs set
-  * moblock-control and moblock.default:
+  * blockcontrol and default:
     new configuration variables instead of IPTABLES=
     - IPTABLES_SETTINGS: Defines how traffic is sent to moblock
         (removed uncommon alternatives, tell me if you need them)
     - IPTABLES_ACTIVATION: defines if and when traffic is sent to moblock
     - IPTABLES_STATE: defines if all or only NEW traffic is sent to moblock
-  * moblock-control and blocklists.list:
+  * blockcontrol and blocklists.list:
     - special keywords for special cases:
        notimestamp (blocklists on servers which don´t support timestamping)
        locallist (local blocklists)
   * blocklists.list:
     - changed list sources from .zip to .gz
     - added IANA lists
-  * moblock.init:
+  * init:
     - relaxed "Required-Start", added "Required-Stop"
     - new description
   * minor changes, improved output

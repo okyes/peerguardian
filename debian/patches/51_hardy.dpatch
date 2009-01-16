@@ -5,9 +5,9 @@
 ## DP: Workaround the hardy LSB init-functions bug "Stopping a stopped daemon
 ## DP: returns 3 instead of 0."
 @DPATCH@
-diff -urNad moblock-control~/moblock-control.lib moblock-control/moblock-control.lib
---- moblock-control~/moblock-control.lib	2009-01-09 16:08:16.000000000 +0100
-+++ moblock-control/moblock-control.lib	2009-01-09 16:38:32.000000000 +0100
+diff -urNad blockcontrol~/blockcontrol.lib blockcontrol.lib
+--- blockcontrol~/blockcontrol.lib	2009-01-09 16:08:16.000000000 +0100
++++ blockcontrol.lib	2009-01-09 16:38:32.000000000 +0100
 @@ -978,6 +978,7 @@
  		killproc $DAEMON
  	fi

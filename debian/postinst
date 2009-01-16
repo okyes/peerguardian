@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for moblock-control
+# postinst script for blockcontrol
 # see: dh_installdeb(1)
 
 # Copyright (C) 2008 - 2009 jre <jre-phoenix@users.sourceforge.net>
@@ -55,24 +55,24 @@ case "$1" in
 esac
 
 ################################################################################
-# The following code is common between moblock-control, init, cron.daily,
-# moblock.if-up and debian/postinst.
+# The following code is common between blockcontrol, init, cron.daily,
+# if-up and debian/postinst.
 # It sets/loads the variables and functions
 
 # These two variables have to be set correctly in all just mentioned files.
-# Everything else can then be done in moblock.conf.
-CONTROL_CONF="/etc/moblock/moblock.conf"
-SCRIPT_DEFAULTS="/usr/lib/moblock-control/moblock-control.defaults"
+# Everything else can then be done in blockcontrol.conf.
+CONTROL_CONF="/etc/blockcontrol.conf"
+CONTROL_DEFAULTS="/usr/lib/defaults"
 
 # Remember standard IFS (Internal Field Seperator)
 STDIFS=$IFS
 
 # Set sane configuration defaults. They will be overwritten by the values in
 # CONTROL_CONF and CONTROL_DEFAULT
-if [ -f "$SCRIPT_DEFAULTS" ] ; then
-	. $SCRIPT_DEFAULTS || { echo "Error: Failed to source $SCRIPT_DEFAULTS although this file exists."; exit 1; }
+if [ -f "$CONTROL_DEFAULTS" ] ; then
+	. $CONTROL_DEFAULTS || { echo "Error: Failed to source $CONTROL_DEFAULTS although this file exists."; exit 1; }
 else
-	echo "Error 7: Missing file $SCRIPT_DEFAULTS."
+	echo "Error 7: Missing file $CONTROL_DEFAULTS."
 	exit 7
 fi
 
@@ -88,10 +88,10 @@ for PATH_I in $PATH ; do
 		DAEMON="$PATH_I/moblock"
 		DESC="MoBlock"
 		break
-	elif [ -x "$PATH_I/nfblockd" ] ; then
-		NAME="nfblockd"
+	elif [ -x "$PATH_I/nfblock" ] ; then
+		NAME="nfblock"
 		DAEMON="$PATH_I/$NAME"
-		DESC="Netfilter Blocking Daemon"
+		DESC="NFblock"
 		break
 	fi
 done
@@ -110,7 +110,7 @@ else
 		exit $E_XCD
 	}
 	echo -n "Creating missing $CONTROL_CONF"
-	echo "# moblock.conf - configuration file for moblock-control" > $CONTROL_CONF
+	echo "# blockcontrol.conf - configuration file for blockcontrol" > $CONTROL_CONF
 	echo "# This file was created automatically by $0." >> $CONTROL_CONF
 	echo "" >> $CONTROL_CONF
 	echo "# This file is sourced by a shell script. Any line which starts with a # (hash) " >> $CONTROL_CONF
@@ -118,8 +118,8 @@ else
 	echo "# then only the last line will be used. You have to stop and restart $NAME" >> $CONTROL_CONF
 	echo "# if you change entries." >> $CONTROL_CONF
 	echo "" >> $CONTROL_CONF
-	echo "# Values from this file (moblock.conf) will be overwritten by moblock.default" >> $CONTROL_CONF
-	echo "# (/etc/default/moblock) if they are set there." >> $CONTROL_CONF
+	echo "# Values from this file (blockcontrol.conf) will be overwritten by default" >> $CONTROL_CONF
+	echo "# (/etc/default/blockcontrol) if they are set there." >> $CONTROL_CONF
 	echo "."
 fi
 
@@ -136,27 +136,27 @@ else
 		exit $E_XCD
 	}
 	echo -n "Creating missing $CONTROL_DEFAULT"
-	echo "# moblock.default - default configuration file for moblock-control" >> $CONTROL_DEFAULT
+	echo "# default - default configuration file for blockcontrol" >> $CONTROL_DEFAULT
 	echo "# This file was created automatically by $0." >> $CONTROL_DEFAULT
 	echo "" >> $CONTROL_DEFAULT
-	echo "# In this file you can put any configuration variable from moblock.conf" >> $CONTROL_DEFAULT
-	echo "# ($CONTROL_CONF). Values in moblock.conf will be overwritten by" >> $CONTROL_DEFAULT
-	echo "# values in this file (moblock.default)." >> $CONTROL_DEFAULT
+	echo "# In this file you can put any configuration variable from blockcontrol.conf" >> $CONTROL_DEFAULT
+	echo "# ($CONTROL_CONF). Values in blockcontrol.conf will be overwritten by" >> $CONTROL_DEFAULT
+	echo "# values in this file (default)." >> $CONTROL_DEFAULT
 	echo "" >> $CONTROL_DEFAULT
-	echo "# Do a \"moblock-control restart\" when you have edited this file." >> $CONTROL_DEFAULT
+	echo "# Do a \"blockcontrol restart\" when you have edited this file." >> $CONTROL_DEFAULT
 	echo "" >> $CONTROL_DEFAULT
 	echo "."
 fi
 
 # If the daemon was neither found, nore set manually, then abort now.
 if [ -z $NAME ] || [ -z $DAEMON ] || [ -z $DESC ] ; then
-	echo "Could not detect an IPBlocker daemon. MoBlock and NFBlockD are supported."
+	echo "Could not detect an IPBlocker daemon. MoBlock and NFBlock are supported."
 	echo "Neither of them was found in PATH: $PATH."
 	echo "Error $E_CONFIG: You may set NAME, DAEMON and DESC manually in $CONTROL_CONF."
 	exit $E_CONFIG
 fi
 
-# Load moblock-control library.
+# Load blockcontrol library.
 if [ -f "$SCRIPT_LIB" ] ; then
 	. $SCRIPT_LIB || { echo "Error: Failed to source $SCRIPT_LIB although this file exists."; exit 1; }
 else
@@ -166,8 +166,8 @@ fi
 
 load_lsb
 
-# End of the common code between moblock-control, init, cron.daily,
-# moblock.if-up and debian/postinst.
+# End of the common code between blockcontrol, init, cron.daily,
+# if-up and debian/postinst.
 ################################################################################
 
 VARIABLES="
@@ -176,8 +176,8 @@ VARIABLES="
 	LOG_SYSLOG
 	LOG_IPTABLES
 	VERBOSITY
-	MOBLOCK_INIT
-	MOBLOCK_CRON
+	INIT
+	CRON
 	NFQUEUE_NUMBER
 	IPTABLES_SETTINGS
 	IPTABLES_ACTIVATION
@@ -372,7 +372,7 @@ for VAR in $VARIABLES ; do
 				;;
 
 			# For boolean variables:
-			'LOG_SYSLOG'|'LOG_TIMESTAMP'|'MOBLOCK_INIT'|'MOBLOCK_CRON'|'REJECT'|'ACCEPT')
+			'LOG_SYSLOG'|'LOG_TIMESTAMP'|'INIT'|'CRON'|'REJECT'|'ACCEPT')
 				case "$VALUE" in
 					'0')
 						db_set moblock/$VAR false
@@ -431,8 +431,8 @@ while true ; do
 		db_input low moblock/VERBOSITY || true
 		;;
 	'6')
-		db_input medium moblock/MOBLOCK_INIT || true
-		db_input medium moblock/MOBLOCK_CRON || true
+		db_input medium moblock/INIT || true
+		db_input medium moblock/CRON || true
 		;;
 	'7')	# This part contains the db_go here instead of at the end of the function.
 		db_input low moblock/NFQUEUE_NUMBER && RETVAL=$? || { RETVAL=$? ; true ; }
@@ -559,13 +559,13 @@ my_db_get () {
 			echo "Therefore not changing this variable."
 			;;
 		*)
-			# If the value is set in moblock.default then set it there:
+			# If the value is set in default then set it there:
 			if [ -f "$CONTROL_DEFAULT" ] && grep -Eq "^[[:space:]]*$1=" $CONTROL_DEFAULT ; then
 				FILE_TO_CHANGE=$CONTROL_DEFAULT
 			else
 				FILE_TO_CHANGE=$CONTROL_CONF
 				# If the admin deleted or commented some variables
-				# then (re-)add them to moblock.conf.
+				# then (re-)add them to blockcontrol.conf.
 				grep -Eq "^[[:space:]]*$1=" $CONTROL_CONF || {
 					echo "" >> $CONTROL_CONF
 					echo "# Variable (re-)added by debconf:" >> $CONTROL_CONF
@@ -583,9 +583,9 @@ my_db_get () {
 
 # Substitute in the values from the debconf db.
 # See `man debconf-devel`
-# Non-default values will be set in moblock.default.
-# Default values will be set in moblock.default if they were set there already,
-# otherwise they will be set in moblock.conf
+# Non-default values will be set in default.
+# Default values will be set in default if they were set there already,
+# otherwise they will be set in blockcontrol.conf
 
 my_db_get BLOCKLIST_FORMAT
 case "$RET" in
@@ -766,31 +766,31 @@ case "$RET" in
 		;;
 esac
 
-my_db_get MOBLOCK_INIT
+my_db_get INIT
 case "$RET" in
 	'false')
 		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*MOBLOCK_INIT=.*|MOBLOCK_INIT=\"0\"|" $FILE_TO_CHANGE
+			sed -i -r "s|^[[:space:]]*INIT=.*|INIT=\"0\"|" $FILE_TO_CHANGE
 		else
-			echo "MOBLOCK_INIT=\"0\"" >> "$CONTROL_DEFAULT"
+			echo "INIT=\"0\"" >> "$CONTROL_DEFAULT"
 		fi
 		;;
 	'true')	# Default
-		sed -i -r "s|^[[:space:]]*MOBLOCK_INIT=.*|MOBLOCK_INIT=\"1\"|" $FILE_TO_CHANGE
+		sed -i -r "s|^[[:space:]]*INIT=.*|INIT=\"1\"|" $FILE_TO_CHANGE
 		;;
 esac
 
-my_db_get MOBLOCK_CRON
+my_db_get CRON
 case "$RET" in
 	'false')
 		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*MOBLOCK_CRON=.*|MOBLOCK_CRON=\"0\"|" $FILE_TO_CHANGE
+			sed -i -r "s|^[[:space:]]*CRON=.*|CRON=\"0\"|" $FILE_TO_CHANGE
 		else
-			echo "MOBLOCK_CRON=\"0\"" >> "$CONTROL_DEFAULT"
+			echo "CRON=\"0\"" >> "$CONTROL_DEFAULT"
 		fi
 		;;
 	'true')	# Default
-		sed -i -r "s|^[[:space:]]*MOBLOCK_CRON=.*|MOBLOCK_CRON=\"1\"|" $FILE_TO_CHANGE
+		sed -i -r "s|^[[:space:]]*CRON=.*|CRON=\"1\"|" $FILE_TO_CHANGE
 		;;
 esac
 
@@ -929,7 +929,7 @@ esac
 my_db_get WHITE_TCP_OUT
 if [ "$RET" = "80 443" ] ; then
 	# Default, but change port numbers to associated service names because of mobloquer (0.5) bug.
-	# moblock.conf now ships with "http https"
+	# blockcontrol.conf now ships with "http https"
 	sed -i -r "s|^[[:space:]]*WHITE_TCP_OUT=.*|WHITE_TCP_OUT=\"http https\"|" $FILE_TO_CHANGE
 elif [ "$RET" = "http https" ] ; then	# Default
 	sed -i -r "s|^[[:space:]]*WHITE_TCP_OUT=.*|WHITE_TCP_OUT=\"$RET\"|" $FILE_TO_CHANGE
@@ -1072,7 +1072,7 @@ db_stop
 # Set the blocklist name depending on the type of the blocklist (configuration setting).
 test_set_BLOCKLIST
 
-# For updates from versions prior to moblock-control 1.2 (change of the blocklist file places):
+# For updates from versions prior to blockcontrol 1.2 (change of the blocklist file places):
 if [ -n "$2" ] && dpkg --compare-versions "$2" lt "1.2" ; then
 
 	#
@@ -1081,9 +1081,9 @@ if [ -n "$2" ] && dpkg --compare-versions "$2" lt "1.2" ; then
 	if [ "$MASTER_BLOCKLIST_DIR" = /var/lib/moblock ] && [ -d /var/lib/moblock ] ; then
 		LISTS="guarding.p2p guarding.p2p.backup guarding.p2b guarding.p2b.backup ipfilter.dat ipfilter.dat.backup"
 		for LIST in $LISTS ; do
-			[ -f /etc/moblock/$LIST ] && [ ! -f /var/lib/moblock/$LIST ] && {
-				echo -n "Moving /etc/moblock/$LIST to /var/lib/moblock/"
-				mv /etc/moblock/$LIST /var/lib/moblock/ && echo "."
+			[ -f /etc/blockcontrol/$LIST ] && [ ! -f /var/lib/moblock/$LIST ] && {
+				echo -n "Moving /etc/blockcontrol/$LIST to /var/lib/moblock/"
+				mv /etc/blockcontrol/$LIST /var/lib/moblock/ && echo "."
 				}
 		done
 	fi
@@ -1210,16 +1210,16 @@ if [ -n "$2" ] && dpkg --compare-versions "$2" lt "1.2" ; then
 	fi
 fi
 
-if [ "$MOBLOCK_INIT" -ne 0 ] && [ -x "/etc/init.d/moblock" ] ; then
+if [ "$INIT" -ne 0 ] && [ -x "/etc/init.d/moblock" ] ; then
 	# dh_installdeb inserts code to execute init "start".
 	echo "Starting $DESC. If any blocklist is missing, it will be downloaded now. This"
 	echo "may take several minutes. Please be patient and don't abort. If you want to"
 	echo "follow the process, then do in another terminal a"
-	echo " tail -f /var/log/moblock-control.log"
+	echo " tail -f /var/log/blockcontrol.log"
 	echo "The lists are saved to $BLOCKLISTS_DIR/."
 	echo "If starting $DESC fails, then your installation will fail, too. To turn the"
 	echo "automatic starting of $DESC off, set in $CONTROL_DEFAULT:"
-	echo " MOBLOCK_INIT=\"0\""
+	echo " INIT=\"0\""
 fi
 
 # dh_installdeb will replace this with shell code automatically
