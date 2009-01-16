@@ -20,8 +20,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ################################################################################
-# The following code is common between blockcontrol, init, cron.daily,
-# if-up and debian/postinst.
+# The following code is common between blockcontrol, cron.daily, if-up, init,
+# and debian/postinst.
 # It sets/loads the variables and functions
 
 # These two variables have to be set correctly in all just mentioned files.
@@ -35,9 +35,9 @@ STDIFS=$IFS
 # Set sane configuration defaults. They will be overwritten by the values in
 # CONTROL_CONF and CONTROL_DEFAULT
 if [ -f "$CONTROL_DEFAULTS" ] ; then
-	. $CONTROL_DEFAULTS || { echo "Error: Failed to source $CONTROL_DEFAULTS although this file exists."; exit 1; }
+	. $CONTROL_DEFAULTS || { echo "$0 Error: Failed to source $CONTROL_DEFAULTS although this file exists."; exit 1; }
 else
-	echo "Error 7: Missing file $CONTROL_DEFAULTS."
+	echo "$0 Error 7: Missing file $CONTROL_DEFAULTS."
 	exit 7
 fi
 
@@ -53,8 +53,8 @@ for PATH_I in $PATH ; do
 		DAEMON="$PATH_I/moblock"
 		DESC="MoBlock"
 		break
-	elif [ -x "$PATH_I/nfblock" ] ; then
-		NAME="nfblock"
+	elif [ -x "$PATH_I/nfblockd" ] ; then
+		NAME="nfblockd"
 		DAEMON="$PATH_I/$NAME"
 		DESC="NFblock"
 		break
@@ -64,13 +64,13 @@ IFS=$STDIFS
 
 # Load configuration. This overwrites the above values.
 if [ -f "$CONTROL_CONF" ] ; then
-	. $CONTROL_CONF || { echo "Error: Failed to source $CONTROL_CONF although this file exists."; exit 1; }
+	. $CONTROL_CONF || { echo "$0 Error: Failed to source $CONTROL_CONF although this file exists."; exit 1; }
 else
 	[ -d "$(dirname $CONTROL_CONF)" ] || {
 		echo -n "Creating missing directory $(dirname $CONTROL_CONF)"
 		mkdir "$(dirname $CONTROL_CONF)" && echo "."
 		} || {
-		log_failure_msg "Error $E_XCD: Missing directory "$(dirname $CONTROL_CONF)"."
+		log_failure_msg "$0 Error $E_XCD: Missing directory "$(dirname $CONTROL_CONF)"."
 		log_failure_msg "Check the CONTROL_CONF setting in $0."
 		exit $E_XCD
 	}
@@ -90,13 +90,13 @@ fi
 
 # Load default configuration. This overwrites the above values.
 if [ -f "$CONTROL_DEFAULT" ] ; then
-	. $CONTROL_DEFAULT || { echo "Error: Failed to source $CONTROL_DEFAULT although this file exists."; exit 1; }
+	. $CONTROL_DEFAULT || { echo "$0 Error: Failed to source $CONTROL_DEFAULT although this file exists."; exit 1; }
 else
 	[ -d "$(dirname $CONTROL_DEFAULT)" ] || {
 		echo -n "Creating missing directory $(dirname $CONTROL_DEFAULT)"
 		mkdir "$(dirname $CONTROL_DEFAULT)" && echo "."
 		} || {
-		log_failure_msg "Error $E_XCD: Missing directory "$(dirname $CONTROL_CONF)"."
+		log_failure_msg "$0 Error $E_XCD: Missing directory "$(dirname $CONTROL_CONF)"."
 		log_failure_msg "Check the CONTROL_DEFAULT setting in $0."
 		exit $E_XCD
 	}
@@ -115,24 +115,24 @@ fi
 
 # If the daemon was neither found, nore set manually, then abort now.
 if [ -z $NAME ] || [ -z $DAEMON ] || [ -z $DESC ] ; then
-	echo "Could not detect an IPBlocker daemon. MoBlock and NFBlock are supported."
+	echo "Could not detect an IPBlocker daemon. moblock and nfblockd are supported."
 	echo "Neither of them was found in PATH: $PATH."
-	echo "Error $E_CONFIG: You may set NAME, DAEMON and DESC manually in $CONTROL_CONF."
+	echo "$0 Error $E_CONFIG: You may set NAME, DAEMON and DESC manually in $CONTROL_CONF."
 	exit $E_CONFIG
 fi
 
 # Load blockcontrol library.
 if [ -f "$CONTROL_LIB" ] ; then
-	. $CONTROL_LIB || { echo "Error: Failed to source $CONTROL_LIB although this file exists."; exit 1; }
+	. $CONTROL_LIB || { echo "$0 Error: Failed to source $CONTROL_LIB although this file exists."; exit 1; }
 else
-	echo "Error $E_CONFIG: You need $CONTROL_LIB."
+	echo "$0 Error $E_CONFIG: You need $CONTROL_LIB."
 	exit $E_CONFIG
 fi
 
 load_lsb
 
-# End of the common code between blockcontrol, init, cron.daily,
-# if-up and debian/postinst.
+# End of the common code between blockcontrol, cron.daily, if-up, init,
+# and debian/postinst.
 ################################################################################
 
 # Test (nearly) all variables and paths if option is not stop:

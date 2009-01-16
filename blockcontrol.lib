@@ -554,48 +554,48 @@ insert_iptables () {
 				;;
 		esac
 
-		iptables -N $NAME\_in || { log_end_msg $? ; exit $E_IPTABLES ; }
-		iptables -N $NAME\_out || { log_end_msg $? ; exit $E_IPTABLES ; }
-		iptables -N $NAME\_fw || { log_end_msg $? ; exit $E_IPTABLES ; }
+		iptables -N ${CONTROL_NAME}_in || { log_end_msg $? ; exit $E_IPTABLES ; }
+		iptables -N ${CONTROL_NAME}_out || { log_end_msg $? ; exit $E_IPTABLES ; }
+		iptables -N ${CONTROL_NAME}_fw || { log_end_msg $? ; exit $E_IPTABLES ; }
 
-		iptables -I $NAME\_in -j $IPTABLES_TARGET_BLOCK || { log_end_msg $? ; exit $E_IPTABLES ; }
-		iptables -I $NAME\_out -j $IPTABLES_TARGET_BLOCK || { log_end_msg $? ; exit $E_IPTABLES ; }
-		iptables -I $NAME\_fw -j $IPTABLES_TARGET_BLOCK || { log_end_msg $? ; exit $E_IPTABLES ; }
+		iptables -I ${CONTROL_NAME}_in -j $IPTABLES_TARGET_BLOCK || { log_end_msg $? ; exit $E_IPTABLES ; }
+		iptables -I ${CONTROL_NAME}_out -j $IPTABLES_TARGET_BLOCK || { log_end_msg $? ; exit $E_IPTABLES ; }
+		iptables -I ${CONTROL_NAME}_fw -j $IPTABLES_TARGET_BLOCK || { log_end_msg $? ; exit $E_IPTABLES ; }
 
 		# Port Whitelisting
 		for PORT in $WHITE_TCP_IN ; do
-			iptables -I $NAME\_in -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I ${CONTROL_NAME}_in -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 		done
 		for PORT in $WHITE_UDP_IN ; do
-			iptables -I $NAME\_in -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I ${CONTROL_NAME}_in -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 		done
 	
 		for PORT in $WHITE_TCP_OUT ; do
-			iptables -I $NAME\_out -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I ${CONTROL_NAME}_out -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 		done
 		for PORT in $WHITE_UDP_OUT ; do
-			iptables -I $NAME\_out -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I ${CONTROL_NAME}_out -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 		done
 		
 		for PORT in $WHITE_TCP_FORWARD ; do
-			iptables -I $NAME\_fw -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I ${CONTROL_NAME}_fw -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 		done
 		for PORT in $WHITE_UDP_FORWARD ; do
-			iptables -I $NAME\_fw -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I ${CONTROL_NAME}_fw -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 		done
 
 		# IP Whitelisting
 		for IP in $WHITE_IP_IN ; do
-			iptables -I $NAME\_in --source $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I ${CONTROL_NAME}_in --source $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 		done
 
 		for IP in $WHITE_IP_OUT ; do
-			iptables -I $NAME\_out --destination $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I ${CONTROL_NAME}_out --destination $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 		done
 
 		for IP in $WHITE_IP_FORWARD ; do
-			iptables -I $NAME\_fw --source $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
-			iptables -I $NAME\_fw --destination $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I ${CONTROL_NAME}_fw --source $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I ${CONTROL_NAME}_fw --destination $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 		done
 
 		# IP ranges whitelisting
@@ -606,7 +606,7 @@ insert_iptables () {
 			for LINE in $ALLOW ; do
 				IPRANGE_BEGIN="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -n1)"
 				IPRANGE_END="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1)"
-				iptables -I $NAME\_in -m iprange --src-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
+				iptables -I ${CONTROL_NAME}_in -m iprange --src-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
 					# If iptables insertion failed assume that the line is malformed.
 					# Comment this line out.
 					sed -i "s|$LINE|# Malformed line commented out by $(basename $0): &|" $ALLOW_IN
@@ -619,7 +619,7 @@ insert_iptables () {
 			for LINE in $ALLOW ; do
 				IPRANGE_BEGIN="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -n1)"
 				IPRANGE_END="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1)"
-				iptables -I $NAME\_out -m iprange --dst-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
+				iptables -I ${CONTROL_NAME}_out -m iprange --dst-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
 					# If iptables insertion failed assume that the line is malformed.
 					# Comment this line out.
 					sed -i "s|$LINE|# Malformed line commented out by $(basename $0): &|" $ALLOW_OUT
@@ -632,8 +632,8 @@ insert_iptables () {
 			for LINE in $ALLOW ; do
 				IPRANGE_BEGIN="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -n1)"
 				IPRANGE_END="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1)"
-				iptables -I $NAME\_fw -m iprange --dst-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING && \
-				iptables -I $NAME\_fw -m iprange --src-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
+				iptables -I ${CONTROL_NAME}_fw -m iprange --dst-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING && \
+				iptables -I ${CONTROL_NAME}_fw -m iprange --src-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
 					# If iptables insertion failed assume that the line is malformed.
 					# Comment this line out.
 					sed -i "s|$LINE|# Malformed line commented out by $(basename $0): &|" $ALLOW_FW
@@ -655,24 +655,24 @@ insert_iptables () {
 				for IP in $LOCAL_IPS ; do
 					case $IP in
 						127.*)	# IP is a loopback IP: Insert whitelisting rules for whole loopback interface
-							iptables -I $NAME\_in -i lo -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
-							iptables -I $NAME\_out -o lo -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+							iptables -I ${CONTROL_NAME}_in -i lo -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+							iptables -I ${CONTROL_NAME}_out -o lo -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 							;;
 						*)	# Insert whitelisting rules for LAN (with subnetmask SUBNETMASK (per default 24))
 							SUBNETMASK="$(ifconfig | grep "$IP" | grep -Eo "Mask:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | sed s/Mask://)"
-							iptables -I $NAME\_in --source ${IP}/$SUBNETMASK -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
-							iptables -I $NAME\_out --destination ${IP}/$SUBNETMASK -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+							iptables -I ${CONTROL_NAME}_in --source ${IP}/$SUBNETMASK -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+							iptables -I ${CONTROL_NAME}_out --destination ${IP}/$SUBNETMASK -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 							# Forward whitelisting can only be implemented partly (for traffic within the LAN) with iptables rules.
 							# Don't insert two seperate rules for source and destination
 							# - this would disable the whole checking for forward!
-							iptables -I $NAME\_fw --source ${IP}/$SUBNETMASK --destination ${IP}/$SUBNETMASK -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+							iptables -I ${CONTROL_NAME}_fw --source ${IP}/$SUBNETMASK --destination ${IP}/$SUBNETMASK -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 							;;
 					esac
 				done
 				;;
 			2)	# Insert whitelisting rules for whole loopback interface (Loopback traffic fix)
-				iptables -I $NAME\_in -i lo -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
-				iptables -I $NAME\_out -o lo -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I ${CONTROL_NAME}_in -i lo -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I ${CONTROL_NAME}_out -o lo -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 				;;
 		esac
 
@@ -690,18 +690,18 @@ insert_iptables () {
 			# it is unnecessary. But I insert it always for the sake
 			# of simplicity and to avoid doing it by an error-prone
 			# patch.
-			iptables -I $NAME\_in -m mark --mark $REJECT_MARK -j $REJECT_IN || { log_end_msg $? ; exit $E_IPTABLES ; }
-			iptables -I $NAME\_out -m mark --mark $REJECT_MARK -j $REJECT_OUT || { log_end_msg $? ; exit $E_IPTABLES ; }
-			iptables -I $NAME\_fw -m mark --mark $REJECT_MARK -j $REJECT_FW || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I ${CONTROL_NAME}_in -m mark --mark $REJECT_MARK -j $REJECT_IN || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I ${CONTROL_NAME}_out -m mark --mark $REJECT_MARK -j $REJECT_OUT || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I ${CONTROL_NAME}_fw -m mark --mark $REJECT_MARK -j $REJECT_FW || { log_end_msg $? ; exit $E_IPTABLES ; }
 			# Log "Marked block" packages: The log-iptables-rules should be
 			# placed directly before the block-iptables-rules (i.e. Insert them
 			# directly after them)
 			if [ -n "$LOG_IPTABLES" ] ; then	# string is not empty
 				# See above comment, logging won't work for the
 				# unpatched MoBlock source (0.8 and 0.9RC2).
-				iptables -I $NAME\_in -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || { log_end_msg $? ; exit $E_IPTABLES ; }	
-				iptables -I $NAME\_out -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || { log_end_msg $? ; exit $E_IPTABLES ; }
-				iptables -I $NAME\_fw -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I ${CONTROL_NAME}_in -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || { log_end_msg $? ; exit $E_IPTABLES ; }	
+				iptables -I ${CONTROL_NAME}_out -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I ${CONTROL_NAME}_fw -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || { log_end_msg $? ; exit $E_IPTABLES ; }
 			fi
 		fi
 
@@ -733,9 +733,9 @@ insert_iptables () {
 						IPTABLES_MARK_ACCEPT="-m mark ! --mark $ACCEPT_MARK"
 						;;
 				esac
-				iptables -I INPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j $NAME\_in || { log_end_msg $? ; exit $E_IPTABLES ; }
-				iptables -I OUTPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j $NAME\_out || { log_end_msg $? ; exit $E_IPTABLES ; }
-				iptables -I FORWARD $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j $NAME\_fw || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I INPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${CONTROL_NAME}_in || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I OUTPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${CONTROL_NAME}_out || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I FORWARD $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${CONTROL_NAME}_fw || { log_end_msg $? ; exit $E_IPTABLES ; }
 				;;
 		esac
 
@@ -790,17 +790,17 @@ delete_iptables () {
 					IPTABLES_MARK_ACCEPT="-m mark ! --mark $ACCEPT_MARK"
 					;;
 			esac
-			iptables -D INPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j $NAME\_in || IPTABLES_DELETE="1"
-			iptables -D OUTPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j $NAME\_out || IPTABLES_DELETE="1"
-			iptables -D FORWARD $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j $NAME\_fw || IPTABLES_DELETE="1"
+			iptables -D INPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${CONTROL_NAME}_in || IPTABLES_DELETE="1"
+			iptables -D OUTPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${CONTROL_NAME}_out || IPTABLES_DELETE="1"
+			iptables -D FORWARD $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${CONTROL_NAME}_fw || IPTABLES_DELETE="1"
 		fi
 
-		iptables -F $NAME\_in || IPTABLES_DELETE="1"
-		iptables -F $NAME\_out || IPTABLES_DELETE="1"
-		iptables -F $NAME\_fw || IPTABLES_DELETE="1"
-		iptables -X $NAME\_in || IPTABLES_DELETE="1"
-		iptables -X $NAME\_out || IPTABLES_DELETE="1"
-		iptables -X $NAME\_fw || IPTABLES_DELETE="1"
+		iptables -F ${CONTROL_NAME}_in || IPTABLES_DELETE="1"
+		iptables -F ${CONTROL_NAME}_out || IPTABLES_DELETE="1"
+		iptables -F ${CONTROL_NAME}_fw || IPTABLES_DELETE="1"
+		iptables -X ${CONTROL_NAME}_in || IPTABLES_DELETE="1"
+		iptables -X ${CONTROL_NAME}_out || IPTABLES_DELETE="1"
+		iptables -X ${CONTROL_NAME}_fw || IPTABLES_DELETE="1"
 
 		log_end_msg $IPTABLES_DELETE
 		
@@ -903,8 +903,17 @@ do_start () {
 			echo -n "Starting $DESC ..."
 			# Set the log to syslog option
 			if [ "$LOG_SYSLOG" -eq 1 ] ; then
-				LOG_SYSLOG_OPT="-s"
+				if [ $NAME = moblock ] ; then
+					LOG_SYSLOG_OPT="-s"
+				else
+					LOG_SYSLOG_OPT=""
+				fi
 			else
+				if [ $NAME = moblock ] ; then
+					LOG_SYSLOG_OPT=""
+				else
+					LOG_SYSLOG_OPT="--no-syslog"
+				fi
 				LOG_SYSLOG_OPT=""
 			fi
 			# Set the timestamping option
@@ -951,9 +960,9 @@ do_start () {
 					# Start MoBlock in the background with "&", don't specify pidfile.
 					start_daemon $DAEMON $DAEMON_OPTS &
 				fi
-			elif [ "$NAME" = nfblock ] ; then
+			elif [ "$NAME" = nfblockd ] ; then
 				# The options NFBlock is started with
-				DAEMON_OPTS="-d -v $ACCEPT_OPT $REJECT_OPT $NFQUEUE_NUMBER_OPT $BLOCKLIST"
+				DAEMON_OPTS="-d -f $BLOCKLIST -p $PIDFILE $NFQUEUE_NUMBER_OPT $REJECT_OPT $ACCEPT_OPT $LOG_SYSLOG_OPT"
 				if [ "$LSB_MODE" -eq 0 ] ; then
 					# Use Debian specific starting.
 					start-stop-daemon -p $PIDFILE --exec $DAEMON --start -- $DAEMON_OPTS
@@ -980,15 +989,26 @@ do_stop () {
 		# Don't specify pidfile
 		killproc $DAEMON
 	fi
-	RETVAL=$?
+
+	# Verify that the daemon is really not running. This may take some
+	# time (e.g. nfblock 0.6.1), even after the killproc ended successfully.
+	COUNT=0
+	# Wait up to 20 seconds
+	while [ "$COUNT" -lt 20 ] ; do
+		daemon_status
+		# If old process is not running (3), remember success and break.
+		[ "$?" -eq 3 ] && RETVAL=0 && break
+		RETVAL=1
+		sleep 1
+		COUNT=$(($COUNT+1))
+	done
+
 	log_end_msg $RETVAL
 }
 
 # Function that restarts daemon
 do_restart () {
 	do_stop
-	sleep 1	# previous value 4, reduced to 1 in 0.9~rc2-12, gives the
-		# iptables time to clean up on slower systems.
 	do_start
 }
 
@@ -1579,8 +1599,14 @@ test_ipblocking () {
 			;;
 	esac
 
-	[ -f "$DAEMON_LOG" ] || {
-		log_failure_msg "Error $E_XFILE: Missing file $DAEMON_LOG."
+	if [ "$NAME" = moblock ] ; then
+		TEST_LOG="$DAEMON_LOG"
+	else
+		TEST_LOG="/var/log/syslog"
+	fi
+
+	[ -f "$TEST_LOG" ] || {
+		log_failure_msg "Error $E_XFILE: Missing file $TEST_LOG."
 		log_failure_msg "Was $DESC ever running?"
 		log_failure_msg "Check the DAEMON_LOG settings in $CONTROL_CONF."
 		[ -f "$CONTROL_DEFAULT" ] && log_failure_msg "Also check $CONTROL_DEFAULT."
@@ -1624,17 +1650,17 @@ test_ipblocking () {
 	echo ""
 
 	echo "Trying to ping $TEST_IP from $BLOCKLIST ..."
-	echo "$(basename $0): trying to ping $TEST_IP from $BLOCKLIST ..." >> $DAEMON_LOG
-	LOG_LENGTH="$(wc -l ${DAEMON_LOG} | awk '{ print $1 }')"	# remember log length before test
+	echo "$(basename $0): trying to ping $TEST_IP from $BLOCKLIST ..." >> $TEST_LOG
+	LOG_LENGTH="$(wc -l ${TEST_LOG} | awk '{ print $1 }')"	# remember log length before test
 	ping -c1 -W2 $TEST_IP > /dev/null 2>&1
 	RETVAL_PING=$? # the ping exit code
 	# The ping exit status is 0 if ping succeeds and 1 if ping does not receive any reply packets.
 	# On other error it exits with code 2.
-	LOG_LENGTH_NEW="$(wc -l ${DAEMON_LOG} | awk '{ print $1 }')" # new log length
+	LOG_LENGTH_NEW="$(wc -l ${TEST_LOG} | awk '{ print $1 }')" # new log length
 
 	if [ "$LOG_LENGTH" -ne "$LOG_LENGTH_NEW" ] ; then	# log length changed
-		tail -n$(($LOG_LENGTH_NEW-$LOG_LENGTH)) $DAEMON_LOG | \
-		grep $TEST_IP > /dev/null 2>&1
+		tail -n$(($LOG_LENGTH_NEW-$LOG_LENGTH)) $TEST_LOG | \
+			grep $TEST_IP > /dev/null 2>&1
 		RETVAL=$? # the grep exit status
 		# The grep exit status is 0 if selected lines are found and 1 otherwise.
 		# If an error occurred the grep exit status is 2.

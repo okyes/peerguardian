@@ -19,7 +19,7 @@ _Description: WARNING: IP blockers may block your complete network/internet acce
 Template: blockcontrol/warning_firewall
 Type: note
 _Description: WARNING: Users with firewall (iptables rules)
- When you use other firewalls or iptables rules, special care has to be taken to
+ If you use other firewalls or iptables rules, you have to take special care to
  avoid severe conflicts. Make sure the following three conditions hold:
   - The IP block daemon marks non-matched packets (IP is
     not in the blocklist). (The marking feature is on per

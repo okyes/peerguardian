@@ -15,7 +15,7 @@ Depends: ${misc:Depends}, iptables, lsb-base (>= 3.0-6), moblock (>0.9~rc2-19) |
 Recommends: wget, unzip, p7zip | p7zip-full
 Suggests: mobloquer
 Conflicts: moblock-ipq, moblock-nfq (<= 0.9~rc2-16), iplist, moblock (<0.9~rc2-19), moblock-control
-Replaces: moblock-ipq, moblock-nfq, moblock (<0.9~rc2-19)
+Replaces: moblock-ipq, moblock-nfq, moblock (<0.9~rc2-19), moblock-control
 Description: Manage IP blockers
  blockcontrol provides easy ways to interact with IP block daemons (MoBlock or NFGuard) and do all common
  related tasks.
