@@ -42,16 +42,6 @@ clean: clean-patched unpatch
 clean-patched:
 	dh_testdir
 	dh_testroot
-	# Check the version we build for, needed because of a bug
-	# in hardy init.functions
-	test ! -e debian/patches/00list || rm debian/patches/00list
-	test ! -e debian/prerm || rm debian/prerm ; \
-	if dpkg-parsechangelog | grep "^Version: " | grep "hardy" ; then \
-		ln debian/patches/00list.hardy debian/patches/00list ; \
-		ln debian/prerm.hardy debian/prerm ; \
-	else \
-		ln debian/patches/00list.default debian/patches/00list ; \
-	fi
 
 	rm -f build-stamp configure-stamp patch
 
@@ -110,17 +100,6 @@ binary-arch: build install
 	dh_builddeb
 
 patch:
-	# Check the version we build for, needed because of a bug
-	# in hardy init.functions
-	test ! -e debian/patches/00list || rm debian/patches/00list
-	test ! -e debian/prerm || rm debian/prerm ; \
-	if dpkg-parsechangelog | grep "^Version: " | grep "hardy" ; then \
-		ln debian/patches/00list.hardy debian/patches/00list ; \
-		ln debian/prerm.hardy debian/prerm ; \
-	else \
-		ln debian/patches/00list.default debian/patches/00list ; \
-	fi
-
 	dpatch apply-all
 	echo patched >patch
 
