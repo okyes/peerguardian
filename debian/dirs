@@ -1,7 +1,0 @@
-etc/default
-etc/blockcontrol
-etc/network/if-up.d
-usr/bin
-usr/lib/blockcontrol
-var/lib/blockcontrol
-var/spool/blockcontrol

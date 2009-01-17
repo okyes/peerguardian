@@ -1,8 +1,0 @@
-allow.p2p etc/blockcontrol
-blocklists.list etc/blockcontrol
-iptables-custom-insert.sh etc/blockcontrol
-iptables-custom-remove.sh etc/blockcontrol
-blockcontrol.conf etc/blockcontrol
-blockcontrol usr/bin
-blockcontrol.defaults usr/lib/blockcontrol/
-blockcontrol.lib usr/lib/blockcontrol/

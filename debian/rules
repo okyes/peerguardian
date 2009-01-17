@@ -29,7 +29,7 @@ build-stamp: configure-stamp
 	ln cron.daily debian/cron.daily
 	ln if-up debian/if-up
 	ln logrotate debian/logrotate
-# 	$(MAKE)
+	$(MAKE)
 	#docbook-to-man debian/blockcontrol.sgml > blockcontrol.1
 
 	touch $@
@@ -46,7 +46,7 @@ clean-patched:
 	rm -f build-stamp configure-stamp patch
 
 	# Add here commands to clean up after the build process.
-# 	$(MAKE) clean
+	$(MAKE) clean
 	# Remove the hardlinks from debian/ directory again. See above.
 	find debian -maxdepth 0 -regextype posix-extended -regex "(.*init)|(.*default)|(.*cron.daily)|(.*if-up)|(.*logrotate)" -print0 | xargs -0r rm
 	dh_clean
@@ -58,7 +58,7 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/$*.
-# 	$(MAKE) DESTDIR=$(CURDIR)/debian/blockcontrol install
+	$(MAKE) DESTDIR=$(CURDIR)/debian/blockcontrol install
 
 
 # Build architecture-independent files here.
@@ -82,14 +82,12 @@ binary-arch: build install
 	dh_installinit
 	dh_installcron
 #	dh_installifupdown (Does not exist in etch)
-		install -m 755 if-up debian/blockcontrol/etc/network/if-up.d/blockcontrol
 #	dh_installinfo
 	dh_installman
 #	dh_link
 	dh_strip
 	dh_compress
 	dh_fixperms
-		find . -name "*.sh" -print0 | xargs -0r chmod 755
 #	dh_perl
 #	dh_python
 #	dh_makeshlibs
