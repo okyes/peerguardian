@@ -7,9 +7,9 @@
 
 @DPATCH@
 diff -urNad blockcontrol~/blockcontrol.conf blockcontrol/blockcontrol.conf
---- blockcontrol~/blockcontrol.conf	2009-01-16 19:21:27.000000000 +0100
-+++ blockcontrol/blockcontrol.conf	2009-01-16 19:22:22.000000000 +0100
-@@ -329,9 +329,9 @@
+--- blockcontrol~/blockcontrol.conf	2009-01-17 17:13:17.000000000 +0100
++++ blockcontrol/blockcontrol.conf	2009-01-17 19:09:36.000000000 +0100
+@@ -122,12 +122,12 @@
  # you can download one based on the Debian version from
  # moblock-deb.sourceforge.net.
  # 0 - Debian compatible system (uses start-stop-daemon instead of start_daemon)
@@ -21,26 +21,3 @@ diff -urNad blockcontrol~/blockcontrol.conf blockcontrol/blockcontrol.conf
  #     variants).
 -LSB_MODE="1"
 +LSB_MODE="0"
-diff -urNad blockcontrol~/blockcontrol.conf.rej blockcontrol/blockcontrol.conf.rej
---- blockcontrol~/blockcontrol.conf.rej	1970-01-01 01:00:00.000000000 +0100
-+++ blockcontrol/blockcontrol.conf.rej	2009-01-16 19:21:49.000000000 +0100
-@@ -0,0 +1,19 @@
-+***************
-+*** 330,337 ****
-+  # you can download one based on the Debian version from
-+  # moblock-deb.sourceforge.net.
-+- # 0 - Debian compatible system (uses start-stop-daemon instead of start_daemon)
-+- # 1 - LSB 3.1 compatible system (default)
-+  # 2 - system with broken LSB 3.1 implementation, which doesn't understand the
-+  #     specification of the pidfile. Use this for Fedora Core 9 (and other redhat
-+  #     variants).
-+- LSB_MODE="1"
-+--- 330,337 ----
-+  # you can download one based on the Debian version from
-+  # moblock-deb.sourceforge.net.
-++ # 0 - Debian compatible system (uses start-stop-daemon instead of start_daemon) (default)
-++ # 1 - LSB 3.1 compatible system
-+  # 2 - system with broken LSB 3.1 implementation, which doesn't understand the
-+  #     specification of the pidfile. Use this for Fedora Core 9 (and other redhat
-+  #     variants).
-++ LSB_MODE="0"

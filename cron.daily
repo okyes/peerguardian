@@ -149,13 +149,17 @@ case "$CRON" in
 		;;
 	# Automatic update is on:
 	1)
-		if [ "$CRON_EMAILTO" ]
-		then
+		if [ -x /usr/sbin/sendmail ] ; then
+			SENDMAIL="/usr/sbin/sendmail"
+		elif [ -x /usr/lib/sendmail ] ; then
+			SENDMAIL="/usr/lib/sendmail"
+		fi
+		if [ $CRON_MAILTO ] && [ $SENDMAIL ] ; then
 			cat<<EOF | /usr/lib/sendmail -t
-To: $CRON_EMAILTO
-Subject: Results of $NAME block list update
+To: $CRON_MAILTO
+Subject: Results of $CONTROL_NAME blocklist update
 
-`$CONTROL_SCRIPT update`
+"$($CONTROL_SCRIPT update)"
 
 EOF
 		else

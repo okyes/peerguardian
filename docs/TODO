@@ -4,6 +4,8 @@ blockcontrol:
 
 - send error messages to console and logfile. [João]
 
+- implement options of NFBlock (no-dbus)
+
 - fix debconf to use debian/config again.
 
 - [DISCUSS] Block IPv6 completely because currently only IPv4 is checked?
@@ -24,11 +26,6 @@ blockcontrol:
   about nfblock?
 
 - adapt test function for peerguardian .p2b v2 binary format blocklist formats.
-
-- find a new name that suits for MoBlock and NFBlock. Then clear up the mess of
-  different file and variables names (and make new ones backwards compatible).
-  Possible names: IPGuardian or BlockGuardian. Suggestions and comments are
-  welcome!
 
 
 Requests for upstream:
