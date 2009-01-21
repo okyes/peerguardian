@@ -4,19 +4,23 @@ blockcontrol (1.3-1~pre2) sid lenny; urgency=low
   - NEWS
   - transition script for custom iptables rules
   - debian/postinst transition, extra package?
+  - test and fix update from moblock-control
   - formatting
   - documentation
   - add previously moblock-control hints in copyright, etc.
 
-  - check if the recent changes by cader are still present. E.g. the Email
-    part in init seems to got lost.
+  - check if the recent changes by cader are still present. Default blocklist!?
 
   - Check how NFBlock works with marking on/off.
   - Note in blockcontrol.conf for all variables that only work for one daemon.
-  - test and fix update from moblock-control
   - add support for moblock -z NFQUEUE length from patch 41_Patch_2589_All
     ow__nfq_set_queue_maxlen__to_be_increased_from_default.dpatch
   - move as much as possible of the common code part to blockcontrol.defaults
+  - show_config: read possible variables from .defaults (grep = | sed "s|^(.*)=|\1|")
+  - Improve makefile, check.
+  - test: Format of "echo ... >> syslog"
+
+
 
   DONE:
   * New name: moblock-control is now blockcontrol. If names relate to this
@@ -31,7 +35,6 @@ blockcontrol (1.3-1~pre2) sid lenny; urgency=low
       - SCRIPT_LIB > CONTROL_LIB
       - SCRIPT_DEFAULTS > CONTROL_DEFAULTS
 
-  * Upstream NFBlockD is now NFBlock, adjusted dependencies and all files.
 
   * debconf:
     - init and cron are now priority high (instead of medium)
@@ -40,6 +43,7 @@ blockcontrol (1.3-1~pre2) sid lenny; urgency=low
   * NFBlock:
     - new start options
     - test: use syslog as TEST_LOG, instead of DAEMON_LOG as for MoBlock.
+    - Upstream NFBlockD is now NFBlock, adjusted dependencies and all files.
 
   * stop: verify if daemon was really stopped, wait up to 20 secs.
     Otherwise restarting nfblock failed, because it was restarted too early.

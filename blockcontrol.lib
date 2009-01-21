@@ -995,7 +995,7 @@ do_stop () {
 	COUNT=0
 	# Wait up to 20 seconds
 	while [ "$COUNT" -lt 20 ] ; do
-		daemon_status
+		daemon_status > /dev/null 2>&1
 		# If old process is not running (3), remember success and break.
 		[ "$?" -eq 3 ] && RETVAL=0 && break
 		RETVAL=1
