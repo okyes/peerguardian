@@ -1,10 +1,9 @@
-# defaults library
+#!/bin/sh
+# blockcontrol.defaults: defaults library and configuration script.
 
 # This file sets sane configuration defaults. They will be overwritten by the
 # values in CONTROL_CONF and CONTROL_DEFAULT. Make your changes in those files,
 # not here!
-
-CONTROL_LIB="/usr/lib/blockcontrol.lib"
 
 # Exit Status Codes
 E_BADARGS="2"	# invalid or excess argument(s)
@@ -36,6 +35,37 @@ E_NETWORK_DOWN="171"	# Testhost not reachable
 # 200-254	reserved
 
 PATH="/usr/bin:/bin:/sbin:/usr/sbin"
+
+CONTROL_NAME="blockcontrol"
+CONTROL_SCRIPT="/usr/bin/$CONTROL_NAME"
+CONTROL_LIB="/usr/lib/$CONTROL_NAME/$CONTROL_NAME.lib"
+CONF_DIR="/etc/$CONTROL_NAME"
+CONTROL_CONF="$CONF_DIR/$CONTROL_NAME.conf"
+CONTROL_DEFAULT="/etc/default/$CONTROL_NAME"
+
+# Remember standard IFS (Internal Field Seperator)
+STDIFS=$IFS
+
+# Check what daemon is installed in PATH and set variables accordingly.
+# We first need to know the NAME, so this needs to be the first thing we do.
+NAME=
+DAEMON=
+DESC=
+IFS=":"
+for PATH_I in $PATH ; do
+	if [ -x "$PATH_I/moblock" ] ; then
+		NAME="moblock"
+		DAEMON="$PATH_I/moblock"
+		DESC="MoBlock"
+		break
+	elif [ -x "$PATH_I/nfblockd" ] ; then
+		NAME="nfblockd"
+		DAEMON="$PATH_I/$NAME"
+		DESC="NFblock"
+		break
+	fi
+done
+IFS=$STDIFS
 
 BLOCKLIST_FORMAT="p"
 LOG_TIMESTAMP="1"
@@ -69,9 +99,6 @@ WHITE_IP_IN=""
 WHITE_IP_OUT=""
 WHITE_IP_FORWARD=""
 IP_REMOVE=""
-PATH="/sbin:/bin:/usr/sbin:/usr/bin"
-CONF_DIR="/etc/$NAME"
-CONTROL_DEFAULT="/etc/default/$NAME"
 MASTER_BLOCKLIST_DIR="/var/lib/$NAME"
 BLOCKLISTS_DIR="/var/spool/$NAME"
 BLOCKLISTS_LIST="$CONF_DIR/blocklists.list"
@@ -89,3 +116,83 @@ PIDFILE="/var/run/$NAME.pid"
 LSB="/lib/lsb/init-functions"
 TESTHOST="iblocklist.com"
 LSB_MODE="1"
+
+
+# Load configuration. This overwrites the above values.
+if [ -f "$CONTROL_CONF" ] ; then
+	. $CONTROL_CONF || { echo "$0 Error: Failed to source $CONTROL_CONF although this file exists."; exit 1; }
+else
+	[ -d "$(dirname $CONTROL_CONF)" ] || {
+		echo -n "Creating missing directory $(dirname $CONTROL_CONF)"
+		mkdir "$(dirname $CONTROL_CONF)" && echo "."
+		} || {
+		log_failure_msg "$0 Error $E_XCD: Missing directory "$(dirname $CONTROL_CONF)"."
+		log_failure_msg "Check the CONTROL_CONF setting in $0."
+		exit $E_XCD
+	}
+	echo -n "Creating missing $CONTROL_CONF"
+	echo "# blockcontrol.conf - configuration file for blockcontrol" > $CONTROL_CONF
+	echo "# This file was created automatically by $0." >> $CONTROL_CONF
+	echo "" >> $CONTROL_CONF
+	echo "# This file is sourced by a shell script. Any line which starts with a # (hash) " >> $CONTROL_CONF
+	echo "# is a comment and is ignored. If you set the same variable several times," >> $CONTROL_CONF
+	echo "# then only the last line will be used. You have to stop and restart $NAME" >> $CONTROL_CONF
+	echo "# if you change entries." >> $CONTROL_CONF
+	echo "" >> $CONTROL_CONF
+	echo "# Values from this file (blockcontrol.conf) will be overwritten by default" >> $CONTROL_CONF
+	echo "# (/etc/default/blockcontrol) if they are set there." >> $CONTROL_CONF
+	echo "."
+fi
+
+# Load default configuration. This overwrites the above values.
+if [ -f "$CONTROL_DEFAULT" ] ; then
+	. $CONTROL_DEFAULT || { echo "$0 Error: Failed to source $CONTROL_DEFAULT although this file exists."; exit 1; }
+else
+	[ -d "$(dirname $CONTROL_DEFAULT)" ] || {
+		echo -n "Creating missing directory $(dirname $CONTROL_DEFAULT)"
+		mkdir "$(dirname $CONTROL_DEFAULT)" && echo "."
+		} || {
+		log_failure_msg "$0 Error $E_XCD: Missing directory "$(dirname $CONTROL_CONF)"."
+		log_failure_msg "Check the CONTROL_DEFAULT setting in $0."
+		exit $E_XCD
+	}
+	echo -n "Creating missing $CONTROL_DEFAULT"
+	echo "# default - default configuration file for blockcontrol" >> $CONTROL_DEFAULT
+	echo "# This file was created automatically by $0." >> $CONTROL_DEFAULT
+	echo "" >> $CONTROL_DEFAULT
+	echo "# In this file you can put any configuration variable from blockcontrol.conf" >> $CONTROL_DEFAULT
+	echo "# ($CONTROL_CONF). Values in blockcontrol.conf will be overwritten by" >> $CONTROL_DEFAULT
+	echo "# values in this file (default)." >> $CONTROL_DEFAULT
+	echo "" >> $CONTROL_DEFAULT
+	echo "# Do a \"blockcontrol restart\" when you have edited this file." >> $CONTROL_DEFAULT
+	echo "" >> $CONTROL_DEFAULT
+	echo "."
+fi
+
+# If the daemon was neither found, nore set manually, then abort now.
+if [ -z $NAME ] || [ -z $DAEMON ] || [ -z $DESC ] ; then
+	echo "Could not detect an IPBlocker daemon. moblock and nfblockd are supported."
+	echo "Neither of them was found in PATH: $PATH."
+	echo "$0 Error $E_CONFIG: You may set NAME, DAEMON and DESC manually in $CONTROL_CONF."
+	exit $E_CONFIG
+fi
+
+# Load blockcontrol library.
+if [ -f "$CONTROL_LIB" ] ; then
+	. $CONTROL_LIB || { echo "$0 Error: Failed to source $CONTROL_LIB although this file exists."; exit 1; }
+else
+	echo "$0 Error $E_CONFIG: You need $CONTROL_LIB."
+	exit $E_CONFIG
+fi
+
+# Load LSB init-functions shell library
+# Debian: Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
+# Some LSB init.functions (depending on your distribution) overwrite the logging functions from blockcontrol.lib.
+if [ -f "$LSB" ] ; then
+	. $LSB || { echo "Error: Failed to source $LSB."; exit 1; }	# Don't use log_failure_msg!
+else
+	echo "Error $E_XEXTERNAL: You need the LSB (3.1) init functions in $LSB."	# Don't use log_failure_msg!
+	echo "If your distribution doesn't provide this file you can use init.functions"
+	echo "from blockcontrol from moblock-deb.sourceforge.net."
+	exit $E_XEXTERNAL
+fi

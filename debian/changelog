@@ -58,6 +58,7 @@ blockcontrol (1.3-1~pre2) sid lenny; urgency=low
     CRON_MAILTO.
   * Removed special handling of Ubuntu hardy packages. This is solved indirectly
     by the new check in stop now.
+  * Move most common code to blockcontrol.defaults
 
  -- jre <jre-phoenix@users.sourceforge.net>  Wed, 14 Jan 2009 20:35:31 +0100
 

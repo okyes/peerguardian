@@ -67,20 +67,6 @@ log_end_msg () {
 # End of parts of the Debian /lib/lsb/init-functions.
 ################################################################################
 
-# Load LSB init-functions shell library
-# Debian: Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
-# Some LSB init.functions (depending on your distribution) overwrite the above logging functions.
-load_lsb () {
-	if [ -f "$LSB" ] ; then
-		. $LSB || { echo "Error: Failed to source $LSB."; exit 1; }	# Don't use log_failure_msg!
-	else
-		echo "Error $E_XEXTERNAL: You need the LSB (3.1) init functions in $LSB."	# Don't use log_failure_msg!
-		echo "If your distribution doesn't provide this file you can use init.functions"
-		echo "from blockcontrol from moblock-deb.sourceforge.net."
-		exit $E_XEXTERNAL
-	fi
-}
-
 # Test correct BLOCKLIST_FORMAT setting.
 # Set the blocklist name depending on the type of the blocklist (configuration setting).
 test_set_BLOCKLIST () {
