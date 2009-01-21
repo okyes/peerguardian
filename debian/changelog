@@ -16,6 +16,7 @@ blockcontrol (1.3-1~pre2) sid lenny; urgency=low
   - test and fix update from moblock-control
   - add support for moblock -z NFQUEUE length from patch 41_Patch_2589_All
     ow__nfq_set_queue_maxlen__to_be_increased_from_default.dpatch
+  - move as much as possible of the common code part to blockcontrol.defaults
 
   DONE:
   * New name: moblock-control is now blockcontrol. If names relate to this
