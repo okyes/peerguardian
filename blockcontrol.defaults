@@ -1,5 +1,5 @@
 #!/bin/sh
-# blockcontrol.defaults: defaults library and configuration script.
+# blockcontrol.defaults: blockcontrol defaults library and configuration script
 
 # This file sets sane configuration defaults. They will be overwritten by the
 # values in CONTROL_CONF and CONTROL_DEFAULT. Make your changes in those files,
