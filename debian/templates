@@ -15,6 +15,9 @@ _Description: WARNING: IP blockers may block your complete network/internet acce
  .
  You can now tweak your settings. They can later be changed with
   sudo dpkg-reconfigure blockcontrol
+ .
+ For those people, who cannot leave this screen: Press the TAB key select OK and
+ press enter.
 
 Template: blockcontrol/warning_firewall
 Type: note

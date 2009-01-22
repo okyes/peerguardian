@@ -15,7 +15,6 @@ blockcontrol (1.3-1~pre2) sid lenny; urgency=low
   - Note in blockcontrol.conf for all variables that only work for one daemon.
   - add support for moblock -z NFQUEUE length from patch 41_Patch_2589_All
     ow__nfq_set_queue_maxlen__to_be_increased_from_default.dpatch
-  - move as much as possible of the common code part to blockcontrol.defaults
   - show_config: read possible variables from .defaults (grep = | sed "s|^(.*)=|\1|")
   - Improve makefile, check.
   - test: Format of "echo ... >> syslog"
@@ -39,6 +38,7 @@ blockcontrol (1.3-1~pre2) sid lenny; urgency=low
   * debconf:
     - init and cron are now priority high (instead of medium)
     - previously critical whitelisting questions are now high
+    - added a hint for people who do not find how to confirm the first question.
 
   * NFBlock:
     - new start options
