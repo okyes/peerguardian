@@ -1600,7 +1600,7 @@ test_ipblocking () {
 	}
 
 	# Pick TEST_IP
-	TESTLINE="$(expr $$ % 100)"
+	TESTLINE="$(expr $$ % 100 + 10)"
 	case "$BLOCKLIST_FORMAT" in
 		'd')	# blocklist file is in eMule ipfilter.dat format
 			# Pick the last IP address from the 10th line in BLOCKLIST file (earlier IPs often result in problems with ping)
