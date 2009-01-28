@@ -34,6 +34,7 @@ E_NETWORK_DOWN="171"	# Testhost not reachable
 # 150-199	reserved for application use
 # 200-254	reserved
 
+# PATH has to be set here, nowhere else, for the automatic NAME detection.
 PATH="/usr/bin:/bin:/sbin:/usr/sbin"
 
 CONTROL_NAME="blockcontrol"

@@ -9,9 +9,8 @@ Features
 Usage
 Options
 Configuration
-Files / Installation
-Example for installation (on Debian)
-  Fedora7 / CentOS5
+Files
+Installation
 Supported systems
 Requirements
 
@@ -131,23 +130,12 @@ updates.
 
 ================================================================================
 
-Files / Installation:
-
-blockcontrol consists of the following files. Copy them to the appropriate
-places on your distribution and adjust the paths if necessary in blockcontrol.conf
-(Towards the end of that file. There you can also see where the files are placed
-under Debian). Note that some files have to be renamed, again have a look at
-blockcontrol.conf or at the installation example for Debian below.
-blockcontrol will detect if you have installed moblock or nfblock (in PATH)
-automatically. Otherwise you can specify this in blockcontrol.conf.
-The path to blockcontrol.conf and defaults has to be specified in
-blockcontrol, if-up, cron.daily and init.
-blockcontrol is provided with a configuration suitable for Debian.
+Files:
 
 - blockcontrol (required)
   The shell script blockcontrol. Must be executable.
 
-- defaults (required)
+- blockcontrol.defaults (required)
   Default settings for all variables and pathnames.
 
 - blockcontrol.lib (required)
@@ -237,44 +225,40 @@ Debian, configurable in blockcontrol.conf):
 
 ================================================================================
 
-Example for installation (on Debian):
+Installation:
 
-If you choose other file places see above for the necessary adjustment in the
-files.
+There's a simple Makefile, which will install blockcontrol in fileplaces as
+under Debian. This should be the same as defined by the File Hierarchy Standard
+(FHS). If this fits for you, simply type
 
-cp blockcontrol /usr/bin/blockcontrol
-	chmod +x /usr/bin/blockcontrol
-mkdir /usr/lib/blockcontrol
-cp defaults /usr/lib/blockcontrol/
-cp blockcontrol.lib /usr/lib/blockcontrol/
-mkdir /etc/blockcontrol/
-cp blocklists.list /etc/blockcontrol/blocklists.list
-cp blockcontrol.conf /etc/blockcontrol/blockcontrol.conf
-cp allow.p2p  /etc/blockcontrol/allow.p2p
-cp default /etc/default/blockcontrol
-cp if-up /etc/network/if-up.d/moblock
-	chmod +x /etc/network/if-up.d/moblock
-cp cron.daily /etc/cron.daily/moblock
-	chmod +x /etc/cron.daily/moblock
-cp init /etc/init.d/moblock
-	chmod +x /etc/init.d/moblock
-	update-rc.d defaults 20
-cp logrotate /etc/logrotate.d/blockcontrol
-mkdir /var/spool/moblock/
-[optional, only if your distribution doesn't provide this file]:
-mkdir /lib/lsb/
-cp init.functions /lib/lsb/init-functions
+  make install
 
+If you choose other file places, you have to adjust:
 
-Note for Fedora 7 and CentOS 5 users:
+- the path to blockcontrol.defaults (CONTROL_DEFAULTS) in blockcontrol, if-up,
+  cron.daily and init.
+- the path to blockcontrol.conf (CONTROL_CONF) in blockcontrol.defaults
+- PATH in blockcontrol.defaults. Either moblock or nfblock have to be installed
+  in PATH.
+- all other paths in blockcontrol.conf (packagers might also change them in
+  blockcontrol.defaults, but this is optional)
+- the Makefile
+
+If your system doesn't have the LSB init-funtions (/lib/lsb/init-functions) you
+may use those provided in this package.
+
+Note for Fedora 7 and CentOS 5 users (broken LSB init-functions):
 http://forums.phoenixlabs.org/showpost.php?p=107810&postcount=22
 
+
+blockcontrol will detect if you have installed moblock or nfblock (in PATH as specified in blockcontrol.defaults)
+automatically. Otherwise you can specify this in blockcontrol.conf.
 ================================================================================
 
 Supported systems:
 
-blockcontrol was written for a Debian system. However it should run under
-every Linux distribution.
+blockcontrol was written and tested under Debian Lenny. However it should run
+under every Linux distribution.
 
 ================================================================================
 
