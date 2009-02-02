@@ -47,11 +47,11 @@ CONTROL_DEFAULT="/etc/default/$CONTROL_NAME"
 # Remember standard IFS (Internal Field Seperator)
 STDIFS=$IFS
 
+# Set MoBlock as default IP blocker daemon.
+NAME="moblock"
+DAEMON="/usr/bin/$NAME"
+DESC="MoBlock"
 # Check what daemon is installed in PATH and set variables accordingly.
-# We first need to know the NAME, so this needs to be the first thing we do.
-NAME=
-DAEMON=
-DESC=
 IFS=":"
 for PATH_I in $PATH ; do
 	if [ -x "$PATH_I/moblock" ] ; then
@@ -168,14 +168,6 @@ else
 	echo "# Do a \"blockcontrol restart\" when you have edited this file." >> $CONTROL_DEFAULT
 	echo "" >> $CONTROL_DEFAULT
 	echo "."
-fi
-
-# If the daemon was neither found, nore set manually, then abort now.
-if [ -z $NAME ] || [ -z $DAEMON ] || [ -z $DESC ] ; then
-	echo "Could not detect an IPBlocker daemon. moblock and nfblockd are supported."
-	echo "Neither of them was found in PATH: $PATH."
-	echo "$0 Error $E_CONFIG: You may set NAME, DAEMON and DESC manually in $CONTROL_CONF."
-	exit $E_CONFIG
 fi
 
 # Load blockcontrol library.

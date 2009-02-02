@@ -8,6 +8,9 @@ blockcontrol (1.3-1~pre2) sid lenny; urgency=low
   - formatting
   - documentation
   - add previously moblock-control hints in copyright, etc.
+  - http://ubuntuforums.org/showthread.php?t=1044425
+  - move tests to appropriate functions only, so that "show_config" always
+    works.
 
   - check if the recent changes by cader are still present. Default blocklist!?
 
@@ -15,7 +18,7 @@ blockcontrol (1.3-1~pre2) sid lenny; urgency=low
   - Note in blockcontrol.conf for all variables that only work for one daemon.
   - add support for moblock -z NFQUEUE length from patch 41_Patch_2589_All
     ow__nfq_set_queue_maxlen__to_be_increased_from_default.dpatch
-  - show_config: read possible variables from .defaults (grep = | sed "s|^(.*)=|\1|")
+  - show_config: read possible variables from .defaults (grep = | sed "s|^(.*)=.*$|\1|")
   - Improve makefile, check.
   - test: Format of "echo ... >> syslog"
 
@@ -44,7 +47,7 @@ blockcontrol (1.3-1~pre2) sid lenny; urgency=low
     - new start options
     - test: use syslog as TEST_LOG, instead of DAEMON_LOG as for MoBlock.
     - Upstream NFBlockD is now NFBlock, adjusted dependencies and all files.
-
+  * use /usr/bin/moblock as default for the block daemon
   * stop: verify if daemon was really stopped, wait up to 20 secs.
     Otherwise restarting nfblock failed, because it was restarted too early.
   * restart: removed 1 sec sleep between stop and start, this is handled better

@@ -139,6 +139,9 @@ test_VERBOSITY () {
 test_DAEMON () {
 	[ -x "$DAEMON" ] || { 
 			log_failure_msg "Error $E_XBIN: $DAEMON not installed."
+			log_failure_msg "Could not detect an IPBlocker daemon. moblock and nfblockd are supported."
+			log_failure_msg "Neither of them was found in PATH: $PATH."
+			log_failure_msg "$0 Error $E_CONFIG: You may set NAME, DAEMON and DESC manually in $CONTROL_CONF."
 			exit $E_XBIN
 	}
 }
