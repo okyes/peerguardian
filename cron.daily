@@ -67,7 +67,7 @@ case "$CRON" in
 To: $CRON_MAILTO
 Subject: Results of $CONTROL_NAME blocklist update
 
-"$($CONTROL_SCRIPT update)"
+"$($CONTROL_SCRIPT update ; if [ "$?" -ne 0 ] ; then echo "$0 exited with $?.")"
 
 EOF
 		else
