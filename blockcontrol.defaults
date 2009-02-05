@@ -180,12 +180,8 @@ fi
 
 # Load LSB init-functions shell library
 # Debian: Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
-# Some LSB init.functions (depending on your distribution) overwrite the logging functions from blockcontrol.lib.
+# In blockcontrol.lib there's a modified copy of the Debian init-functions, as a
+# fallback, which will be overwritten by the following functions.
 if [ -f "$LSB" ] ; then
 	. $LSB || { echo "Error: Failed to source $LSB."; exit 1; }	# Don't use log_failure_msg!
-else
-	echo "Error $E_XEXTERNAL: You need the LSB (3.1) init functions in $LSB."	# Don't use log_failure_msg!
-	echo "If your distribution doesn't provide this file you can use init.functions"
-	echo "from blockcontrol from moblock-deb.sourceforge.net."
-	exit $E_XEXTERNAL
 fi
