@@ -41,7 +41,7 @@ fi
 # and debian/postinst.
 ################################################################################
 
-if [ "$WHITE_LOCAL" -eq 1 ] && [ "$IPTABLES_SETTINGS" -eq 1 ] && daemon_status exitifstrange ; then
+if [ "$WHITE_LOCAL" -eq 1 ] && [ "$IPTABLES_SETTINGS" -eq 1 ] && status_of_proc $DAEMON $NAME > /dev/null 2>&1 ; then
 	test_external iptables
 
 	# Get IPs (only the first triplets) of interfaces that are up

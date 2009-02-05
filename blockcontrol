@@ -151,16 +151,16 @@ case "$1" in
 		echo
 		echo "Please check if the above printed iptables rules are correct!"
 		echo
-		daemon_status
+		status_of_proc $DAEMON $NAME
 		;;
 	'stats')
-		daemon_status
+		status_of_proc $DAEMON $NAME > /dev/null 2>&1
 		if [ "$?" -eq 0 ] ; then
 			dump_stats
 		fi
 		;;
 	'reset_stats')
-		daemon_status
+		status_of_proc $DAEMON $NAME > /dev/null 2>&1
 		if [ "$?" -eq 0 ] ; then
 			reset_stats
 		fi

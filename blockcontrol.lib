@@ -83,7 +83,7 @@ start_daemon () {
 
     exec="$1"; shift
 
-	# blockcontrol first checks the daemon status with pidofproc,
+	# blockcontrol first checks the daemon status,
 	# so it's safe to just start with "$DAEMON $DAEMON_OPTS"
 	eval $exec $@
 }
@@ -749,9 +749,6 @@ test_IPTABLES_VARS () {
 }
 
 # Test if user is root
-# Note: pidofproc (in test and status) needs root privileges (up to Debian LSB init-functions 3.2-13),
-# otherwise it won't receive an answer from moblock
-# So we always need root privileges.
 test_root () {
 	case "$(id -ru)" in
 		'0')
@@ -793,40 +790,6 @@ test_net () {
 		log_failure_msg "Error $E_NETWORK_DOWN: No connection to $TESTHOST. Aborting!"
 		exit $E_NETWORK_DOWN
 	fi
-}
-
-# TODO: Use the new status_of_proc of Debian LSB instead, and hardcode it as
-# backup function for distributions that lack it, in the backup lsb initfunction
-# part above. This implies changes in several scripts.
-# This function accepts either no or one argument (only valid value: start).
-# With "exitifstrange" the function exits if the resulting RETVAL is not 0 or 3.
-daemon_status () {
-	PID="$(pidofproc $DAEMON)"
-	RETVAL=$?
-	case "$RETVAL" in
-		'0')
-			[ "$1" = exitifstrange ] || log_success_msg "$NAME is running, pid is $PID."
-			;;
-		'1')
-			log_failure_msg "$NAME is dead, but /var/run/ pid file exists."
-			log_failure_msg "Try \"$(basename $0) stop\". Otherwise delete $PIDFILE"
-			log_failure_msg "and all iptables rules related to $DESC."
-			[ "$1" = exitifstrange ] && { log_end_msg $RETVAL ; exit $RETVAL ; }
-			;;
-		'3')
-			[ "$1" = exitifstrange ] || log_success_msg "$NAME is not running."
-			;;
-		'4')
-			log_failure_msg "$NAME is unknown. You need to install it to $DAEMON"
-			log_failure_msg "and make it executable."
-			[ "$1" = exitifstrange ] && { log_end_msg $RETVAL ; exit $RETVAL ; }
-			;;
-		*)
-			log_failure_msg "Status of $NAME: $RETVAL, PID: $PID. This line should never be shown. Bug."
-			exit 1	# It's not nice that this is the same exit code like in process dead but pid exists.
-			;;
-	esac
-	return $RETVAL
 }
 
 test_BLOCKLIST () {
@@ -1135,8 +1098,7 @@ delete_iptables () {
 # Function that starts daemon
 do_start () {
 	# Check if daemon is already running
-	# With the argument "exitifstrange" the function exits if the resulting RETVAL is not 0 or 3
-	daemon_status exitifstrange
+	status_of_proc $DAEMON $NAME > /dev/null 2>&1
 	case "$?" in
 		0)	# Daemon is running
 			log_success_msg "$DESC is already running, doing nothing."
@@ -1280,6 +1242,11 @@ do_start () {
 			RETVAL=$?
 			log_end_msg $RETVAL
 			;;
+		# Problematic daemon status. Be verbose and exit!
+		*)
+			status_of_proc $DAEMON $NAME
+			exit $?
+			;;
 	esac
 }
 
@@ -1299,7 +1266,7 @@ do_stop () {
 	COUNT=0
 	# Wait up to 20 seconds
 	while [ "$COUNT" -lt 20 ] ; do
-		daemon_status > /dev/null 2>&1
+		status_of_proc $DAEMON $NAME > /dev/null 2>&1
 		# If old process is not running (3), remember success and break.
 		[ "$?" -eq 3 ] && RETVAL=0 && break
 		RETVAL=1
@@ -1319,8 +1286,7 @@ do_restart () {
 # Function that rebuilds master blocklist and reloads daemon
 do_reload () {
 	# Check if daemon is running
-	# With the argument "exitifstrange" the function exits if the resulting RETVAL is not 0 or 3
-	daemon_status exitifstrange
+	status_of_proc $DAEMON $NAME > /dev/null 2>&1
 	case "$?" in
 		0)	# Daemon is running
 			build_blocklist
@@ -1333,6 +1299,11 @@ do_reload () {
 		3)	# Daemon is not running
 			log_success_msg "$DESC is not running, doing nothing."
 			RETVAL=0
+			;;
+		# Problematic daemon status. Output the functions output and exit!
+		*)
+			status_of_proc $DAEMON $NAME
+			exit $?
 			;;
 	esac
 }
@@ -1892,14 +1863,14 @@ test_ipblocking () {
 	test_BLOCKLIST
 	# Check if daemon is running
 	# With the argument "exitifstrange" the function exits if the resulting RETVAL is not 0 or 3
-	daemon_status exitifstrange
+	status_of_proc $DAEMON $NAME > /dev/null 2>&1
 	case "$?" in
 		0)	# Daemon is running
 			true
 			;;
-		3)	# Daemon is not running
-			log_failure_msg "$DESC is not running."
-			exit $RETVAL
+		*)	# Daemon is not running
+			status_of_proc $DAEMON $NAME
+			exit $?
 			;;
 	esac
 
