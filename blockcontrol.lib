@@ -1099,10 +1099,10 @@ delete_iptables () {
 do_start () {
 	# Check if daemon is already running
 	status_of_proc $DAEMON $NAME > /dev/null 2>&1
-	case "$?" in
+	RETVAL=$?
+	case "$RETVAL" in
 		0)	# Daemon is running
 			log_success_msg "$DESC is already running, doing nothing."
-			RETVAL=$?
 			;;
  		3)	# Daemon is not running.
 			# Build blocklist if necessary to make sure blockcontrol's settings are taken.

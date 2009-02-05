@@ -288,6 +288,7 @@ Requirements:
    - start_daemon
    - killproc
    - pidofproc
+   - status_of_proc
    - log_failure_msg
    - log_warning_msg
    - log_success_msg
