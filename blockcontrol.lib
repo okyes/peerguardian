@@ -1102,6 +1102,7 @@ do_start () {
 	case "$?" in
 		0)	# Daemon is running
 			log_success_msg "$DESC is already running, doing nothing."
+			RETVAL=$?
 			;;
  		3)	# Daemon is not running.
 			# Build blocklist if necessary to make sure blockcontrol's settings are taken.
