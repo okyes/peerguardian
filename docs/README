@@ -184,10 +184,6 @@ Files:
   one from: http://moblock-deb.svn.sourceforge.net/viewvc/moblock-deb/moblock/mo
   block-0.9~rc2/moblock-0.9~rc2/debian/logrotate
 
-- init-functions (required if your distribution lacks the LSB init-functions)
-  blockcontrol depends on the LSB init-functions. This is a modified version
-  based on the Debian one.
-
 - docs/
   Some documentatation. blockcontrol.1 is a man page.
 
@@ -264,13 +260,6 @@ under every Linux distribution.
 
 Requirements:
 
-- functions provided by /lib/lsb/init-functions (version 3.1):
-   - start_daemon (with LSB=1) or start-stop-daemon (with LSB=0)
-   - killproc
-   - pidofproc
-   - log_failure_msg
-   - log_warning_msg
-   - log_success_msg
 - iptables
 - wget (optional, needed for blocklists update)
 - /usr/bin/printf (optional, needed during "update" for archive type detection)
@@ -293,5 +282,14 @@ Requirements:
   xt_NFQUEUE              6656  3 
   xt_state                7168  3 
   xt_tcpudp               8064  2 
+- [ optional, because as fallback there's a modified copy of the Debian
+  init-functions in blockcontrol.]
+  Used functions, provided by /lib/lsb/init-functions (version >= 3.1):
+   - start_daemon
+   - killproc
+   - pidofproc
+   - log_failure_msg
+   - log_warning_msg
+   - log_success_msg
 
 ================================================================================

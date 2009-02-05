@@ -26,14 +26,12 @@ On Debian systems, the complete text of the GNU General
 Public License can be found in `/usr/share/common-licenses/GPL'.
 
 
-init-functions (partly used in blockcontrol.lib and provided separately in a
-modified version):
+init-functions (modified version in blockcontrol.lib):
 Copyright (c) 2002-08 Chris Lawrence
 All rights reserved.
 
 modified for use with blockcontrol by jre
 <jre-phoenix@users.sourceforge.net>
-see init-functions.diff for the modifications
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
