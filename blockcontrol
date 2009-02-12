@@ -43,31 +43,6 @@ fi
 # and debian/postinst.
 ################################################################################
 
-# Test (nearly) all variables and paths if option is not stop:
-if [ "$1" != stop ] ; then
-	test_VERBOSITY
-	# Test correct BLOCKLIST_FORMAT setting.
-	# Set the blocklist name depending on the type of the blocklist (configuration setting).
-	test_set_BLOCKLIST
-	test_DAEMON
-	test_CONF_DIR
-	test_MASTER_BLOCKLIST_DIR
-	test_LOG_TIMESTAMP
-	test_LOG_SYSLOG
-	test_IPTABLES_TARGET
-	test_REJECT
-	test_ACCEPT
-	test_LSB_MODE
-	test_BLOCKLISTS_DIR
-	test_BLOCKLISTS_LIST
-	test_LOG_DIR
-fi
-
-# Test variables that are also needed on "stop"
-test_PIDFILE
-test_IPTABLES_VARS
-test_root
-
 # And now, make this script usable:
 case "$1" in
 	'start')

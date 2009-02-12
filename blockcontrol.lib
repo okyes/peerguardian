@@ -451,7 +451,7 @@ test_VERBOSITY () {
 }
 
 test_DAEMON () {
-	[ "$NAME" = moblock ] || [ "$NAME" = nfblock ] || [ "$NAME" = nfblockd ] {
+	[ "$NAME" = moblock ] || [ "$NAME" = nfblock ] || [ "$NAME" = nfblockd ] || {
 			log_failure_msg "Error $E_CONFIG: $NAME not supported."
 			log_failure_msg "Could not detect an IPBlocker daemon. moblock and nfblock are supported."
 			log_failure_msg "Neither of them was found in PATH ($PATH)."
@@ -1036,8 +1036,8 @@ insert_iptables () {
 
 # Function that deletes the iptables rules
 delete_iptables () {
-	test_IPTABLES_VARS
 	test_root
+	test_IPTABLES_VARS
 	case "$IPTABLES_SETTINGS" in
 	'0')
 		test_VERBOSITY

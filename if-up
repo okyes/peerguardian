@@ -41,6 +41,11 @@ fi
 # and debian/postinst.
 ################################################################################
 
+test_root
+test_DAEMON
+test_CONTROL_SCRIPT
+test_IPTABLES_VARS
+
 if [ "$WHITE_LOCAL" -eq 1 ] && [ "$IPTABLES_SETTINGS" -eq 1 ] && status_of_proc $DAEMON $NAME > /dev/null 2>&1 ; then
 	test_external iptables
 
