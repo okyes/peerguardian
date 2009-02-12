@@ -1,6 +1,7 @@
 blockcontrol (1.3-1~pre2) sid lenny; urgency=low
 
   TODO:
+  - check in svn if +10 for TESTLINE is still there.
   - NEWS
   - transition script for custom iptables rules
   - debian/postinst transition, extra package?
@@ -9,8 +10,6 @@ blockcontrol (1.3-1~pre2) sid lenny; urgency=low
   - documentation
   - add previously moblock-control hints in copyright, etc.
   - http://ubuntuforums.org/showthread.php?t=1044425
-  - move tests to appropriate functions only, so that "show_config" always
-    works.
 
   - Choose a lighter default blocklist setup!?
 
@@ -19,9 +18,6 @@ blockcontrol (1.3-1~pre2) sid lenny; urgency=low
   - add support for moblock -z NFQUEUE length from patch 41_Patch_2589_All
     ow__nfq_set_queue_maxlen__to_be_increased_from_default.dpatch
   - Improve makefile, check.
-  - test: Format of "echo ... >> syslog"
-
-
 
   DONE:
   * New name: moblock-control is now blockcontrol. If names relate to this
@@ -51,23 +47,27 @@ blockcontrol (1.3-1~pre2) sid lenny; urgency=low
     - new start options
     - test: use syslog as TEST_LOG, instead of DAEMON_LOG as for MoBlock.
     - Upstream NFBlockD is now NFBlock, adjusted dependencies and all files.
-  * use /usr/bin/moblock as default for the block daemon
+  * use /usr/bin/moblock as default for the block daemon.
   * stop: verify if daemon was really stopped, wait up to 20 secs.
     Otherwise restarting nfblock failed, because it was restarted too early.
   * restart: removed 1 sec sleep between stop and start, this is handled better
     with stop now.
   * Removed last traces of quickstart (MOBLOCK_INIT="2=") which was only present
     in an development version.
+  * moved tests to appropriate functions only.
   * Added exit if iptables is not found.
   * status: check for ipv6 module before running ip6tables (cader)
   * Email the results of the update rather than let cron email the output (cader)
     This makes for a nicer email message. The recipient may be set in
     CRON_MAILTO.
-  * test: pick a random IP (in the first 100+10 lines) from the blocklist (cader)
-  * show_config: read possible variables from blockcontrol.defaults
+  * test:
+    - pick a random IP (in the first 100+10 lines) from the blocklist (cader)
+    - removed adding a line to the daemon logfile that a IP will now be pinged
+  * show_config:
+    - read possible variables from blockcontrol.defaults
   * Removed special handling of Ubuntu hardy packages. This is solved indirectly
     by the new check in stop now.
-  * Move most common code to blockcontrol.defaults
+  * Moved most common code between the executable files to blockcontrol.defaults
 
  -- jre <jre-phoenix@users.sourceforge.net>  Wed, 14 Jan 2009 20:35:31 +0100
 

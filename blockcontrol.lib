@@ -435,7 +435,6 @@ test_CRON () {
 	esac
 }
 
-
 test_VERBOSITY () {
 	case "$VERBOSITY" in
 		'0'|'1'|'2')
@@ -452,11 +451,19 @@ test_VERBOSITY () {
 }
 
 test_DAEMON () {
-	[ -x "$DAEMON" ] || { 
+	[ "$NAME" = moblock ] || [ "$NAME" = nfblock ] || [ "$NAME" = nfblockd ] {
+			log_failure_msg "Error $E_CONFIG: $NAME not supported."
+			log_failure_msg "Could not detect an IPBlocker daemon. moblock and nfblock are supported."
+			log_failure_msg "Neither of them was found in PATH ($PATH)."
+			log_failure_msg "$0 Error $E_CONFIG: You may set NAME, DAEMON and DESC manually in $CONTROL_CONF."
+			exit $E_XBIN
+	}
+	[ -x "$DAEMON" ] || {
 			log_failure_msg "Error $E_XBIN: $DAEMON not installed."
 			log_failure_msg "Could not detect an IPBlocker daemon. moblock and nfblockd are supported."
-			log_failure_msg "Neither of them was found in PATH: $PATH."
-			log_failure_msg "$0 Error $E_CONFIG: You may set NAME, DAEMON and DESC manually in $CONTROL_CONF."
+			log_failure_msg "Neither of them was found in PATH ($PATH)."
+			log_failure_msg "or was specified in $CONTROL_CONF"
+			log_failure_msg "$0 Error $E_XBIN: You may set NAME, DAEMON and DESC manually in $CONTROL_CONF."
 			exit $E_XBIN
 	}
 }
@@ -768,7 +775,6 @@ test_root () {
 # Usage: test_external basename_of_the_application
 # NOTE: "which" should not be used, because it is not available on all systems,
 # e.g. routers.
-# TODO: remove TESTEXTERNAL, instead simply check return code.
 test_external () {
 	local EXTERNAL TESTEXTERNAL=0
 	EXTERNAL=$1
@@ -801,14 +807,20 @@ test_BLOCKLIST () {
 
 # Function that inserts the iptables rules
 insert_iptables () {
+	test_root
+	test_IPTABLES_VARS
 	case "$IPTABLES_SETTINGS" in
 	'0')
+		test_VERBOSITY
 		if [ "$VERBOSITY" -eq 1 ] ; then
 			log_warning_msg "$DESC is configured not to insert iptables rules."
 		fi
 		;;
 	# Place MoBlock's iptables rules in separate iptables chains (blockcontrol_in, blockcontrol_out and blockcontrol_fw).
 	'1')
+		test_IPTABLES_TARGET
+		test_REJECT
+		test_ACCEPT
 		echo -n "Inserting iptables ..."
 		test_external iptables || exit $?
 
@@ -1024,8 +1036,11 @@ insert_iptables () {
 
 # Function that deletes the iptables rules
 delete_iptables () {
+	test_IPTABLES_VARS
+	test_root
 	case "$IPTABLES_SETTINGS" in
 	'0')
+		test_VERBOSITY
 		if [ "$VERBOSITY" -eq 1 ] ; then
 			log_warning_msg "$DESC configured not to delete iptables rules."
 		fi
@@ -1097,6 +1112,8 @@ delete_iptables () {
 
 # Function that starts daemon
 do_start () {
+	test_root
+	test_DAEMON
 	# Check if daemon is already running
 	status_of_proc $DAEMON $NAME > /dev/null 2>&1
 	RETVAL=$?
@@ -1105,6 +1122,7 @@ do_start () {
 			log_success_msg "$DESC is already running, doing nothing."
 			;;
  		3)	# Daemon is not running.
+			test_set_BLOCKLIST
 			# Build blocklist if necessary to make sure blockcontrol's settings are taken.
 			[ -e "$MD5SUM_FILE" ] && {
 				SUM="$(echo $BLOCKLIST_FORMAT $IP_REMOVE ; md5sum /etc/blockcontrol/blocklists.list)"
@@ -1112,6 +1130,15 @@ do_start () {
 				[ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ]
 				} || build_blocklist
 			test_BLOCKLIST
+			test_IPTABLES_TARGET
+			test_REJECT
+			test_ACCEPT
+			test_IPTABLES_VARS
+			test_LOG_SYSLOG
+			test_LOG_TIMESTAMP
+			test_LOG_DIR
+			test_PIDFILE
+			test_LSB_MODE
 			# Load kernel modules after checking with grep if they were compiled in the kernel directly.
 			# Note: I have not seen documentation how this works. E.g. loading (modprobe) a module does
 			# not give the specified entries in /proc/net. But once MoBlock was started they are there.
@@ -1253,6 +1280,9 @@ do_start () {
 
 # Function that stops daemon
 do_stop () {
+	test_root
+	test_LSB_MODE
+	# As per LSB  don't test if daemon is installed on stop!
 	delete_iptables
 	echo -n "Stopping $DESC ..."
 	if [ "$LSB_MODE" -eq 0 ] || [ "$LSB_MODE" -eq 1 ] ; then
@@ -1286,10 +1316,13 @@ do_restart () {
 
 # Function that rebuilds master blocklist and reloads daemon
 do_reload () {
+	test_root
+	test_DAEMON
 	# Check if daemon is running
 	status_of_proc $DAEMON $NAME > /dev/null 2>&1
 	case "$?" in
 		0)	# Daemon is running
+			test_set_BLOCKLIST
 			build_blocklist
 			test_BLOCKLIST
 			echo -n "Reloading $DESC... "
@@ -1312,6 +1345,7 @@ do_reload () {
 # Read the non-comment|not-empty lines from BLOCKLISTS_LIST.
 # Ignore all entries after # (comments).
 set_LISTS_URL () {
+	test_BLOCKLISTS_LIST
 	LISTS_URL="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $BLOCKLISTS_LIST | sed "s|#.*$||g")"
 	[ $? -eq 0 ] || { log_failure_msg "Error: set_LISTS_URL exited with $?" ; exit 1 ; }
 	# (Re-)set LOCALLIST for further use.
@@ -1742,7 +1776,9 @@ get_blocklist () {
 
 # Function that updates blocklists and reloads daemon
 update_blocklists () {
+	test_root
 	test_net
+	test_BLOCKLISTS_DIR
 	echo "Updating blocklists ..."
 
 	# Remove the old MD5SUM file now, so that if anything goes wrong it's clear we have to rebuild the blocklist:
@@ -1766,6 +1802,8 @@ update_blocklists () {
 
 # Function that builds the blocklist
 build_blocklist () {
+	test_root
+	test_BLOCKLISTS_DIR
 	echo -n "Building blocklist... "
 
 	BLOCKLISTSCAT=""
@@ -1859,9 +1897,12 @@ build_blocklist () {
 
 # Function that tests if MoBlock is blocking
 test_ipblocking () {
-	echo "Testing $DESC:"
-
+	test_root
+	test_DAEMON
+	test_set_BLOCKLIST
 	test_BLOCKLIST
+	test_REJECT
+	echo "Testing $DESC:"
 	# Check if daemon is running
 	# With the argument "exitifstrange" the function exits if the resulting RETVAL is not 0 or 3
 	status_of_proc $DAEMON $NAME > /dev/null 2>&1
@@ -1927,7 +1968,6 @@ test_ipblocking () {
 	echo ""
 
 	echo "Trying to ping $TEST_IP from $BLOCKLIST ..."
-	echo "$(basename $0): trying to ping $TEST_IP from $BLOCKLIST ..." >> $TEST_LOG
 	LOG_LENGTH="$(wc -l ${TEST_LOG} | awk '{ print $1 }')"	# remember log length before test
 	ping -c1 -W2 $TEST_IP > /dev/null 2>&1
 	RETVAL_PING=$? # the ping exit code
@@ -1992,7 +2032,6 @@ test_ipblocking () {
 		RETVAL=2
 	fi
 }
-
 
 dump_stats () {
 	kill -s USR2 "$(pidofproc $DAEMON)"
