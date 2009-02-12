@@ -1995,7 +1995,6 @@ test_ipblocking () {
 
 
 dump_stats () {
-	CURLINE="$(wc -l $STATFILE | awk '{print$1}')"
 	kill -s USR2 "$(pidofproc $DAEMON)"
 }
 
