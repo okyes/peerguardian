@@ -1,7 +1,6 @@
 blockcontrol (1.3-1~pre2) sid lenny; urgency=low
 
   TODO:
-  - check in svn if +10 for TESTLINE is still there.
   - NEWS
   - transition script for custom iptables rules
   - debian/postinst transition, extra package?
