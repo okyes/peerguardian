@@ -1136,8 +1136,10 @@ if [ "$INIT" -ne 0 ] && [ -x "/etc/init.d/blockcontrol" ] ; then
 	echo "follow the process, then do in another terminal a"
 	echo " tail -f /var/log/blockcontrol.log"
 	echo "The lists are saved to $BLOCKLISTS_DIR/."
-	echo "If starting $DESC fails, then your installation will fail, too. To turn the"
-	echo "automatic starting of $DESC off, set in $CONTROL_DEFAULT:"
+	echo "The installation of $CONTROL_NAME will fail, if starting $DESC fails. This"
+	echo "happens most often if downloading the blocklists fails temporarily. To"
+	echo "workaround this, you can turn the automatic starting of $DESC off by setting"
+	echo "in $CONTROL_DEFAULT:"
 	echo " INIT=\"0\""
 fi
 
