@@ -145,7 +145,7 @@ case "$1" in
 	'show_config')
 		echo "$(basename $0) current settings:"
 		# Read all variables that are defined in CONTROL_DEFAULTS
-		VARIABLES="$(grep -Ev "^[[:space:]]*#" $CONTROL_DEFAULTS | grep "=" | sed "s|=.*||")"
+		VARIABLES="$(grep -Ev "^[[:space:]]*#" $CONTROL_DEFAULTS | grep "=" | sed "s|=.*||" | sort -u)"
 		for VAR in $VARIABLES ; do
 			eval VALUE=\$$VAR
 			echo ${VAR}=\"$VALUE\"
