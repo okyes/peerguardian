@@ -160,6 +160,11 @@ case "$1" in
 	'test')
 		test_ipblocking
 		;;
+	'search')
+		[ "$#" -eq 2 ] || { echo "Usage: $(basename $0) search SEARCHPATTERN" ; exit $E_BADARGS ; }
+		SEARCHPATTERN="$2"
+		search
+		;;
 	*)
 		echo "Usage: $(basename $0) OPTION"
 		echo "Options:"
@@ -173,6 +178,7 @@ case "$1" in
 		echo "        stats"
 		echo "        reset_stats"
 		echo "        show_config"
+		echo "        search"
 		exit $E_BADARGS
 		;;
 esac

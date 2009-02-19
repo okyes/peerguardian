@@ -1125,7 +1125,7 @@ do_start () {
 			test_set_BLOCKLIST
 			# Build blocklist if necessary to make sure blockcontrol's settings are taken.
 			[ -e "$MD5SUM_FILE" ] && {
-				SUM="$(echo $BLOCKLIST_FORMAT $IP_REMOVE ; md5sum /etc/blockcontrol/blocklists.list)"
+				SUM="$(echo $BLOCKLIST_FORMAT $IP_REMOVE ; md5sum $BLOCKLISTS_LIST)"
 				MD5SUM="$(echo $SUM | md5sum | cut -c -32)"
 				[ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ]
 				} || build_blocklist
@@ -1890,7 +1890,7 @@ build_blocklist () {
 			}
 	fi
 	# Save configuration settings on which this blocklist bases:
-	SUM="$(echo $BLOCKLIST_FORMAT $IP_REMOVE ; md5sum /etc/blockcontrol/blocklists.list)"
+	SUM="$(echo $BLOCKLIST_FORMAT $IP_REMOVE ; md5sum $BLOCKLISTS_LIST)"
 	MD5SUM="$(echo $SUM | md5sum | cut -c -32)"
 	echo "$MD5SUM" > "$MD5SUM_FILE"
 }
@@ -2041,4 +2041,39 @@ reset_stats () {
 	CURLINE="$(wc -l $STATFILE | awk '{print$1}')"
 	kill -s USR1 "$(pidofproc $DAEMON)"
 	tail -n+$CURLINE $STATFILE
+}
+
+search () {
+	test_BLOCKLISTS_LIST
+	test_BLOCKLISTS_DIR
+	# Read the non-comment|not-empty lines from BLOCKLISTS_LIST.
+	# Ignore all entries after # (comments).
+	set_LISTS_URL
+	echo "Checking your currently used blocklists for \"$SEARCHPATTERN\" (case-insensitive):"
+	for LIST in $LISTS_URL ; do
+		# This function depends on LIST:
+		LIST_URL2LIST_NAME
+		# LIST_URL is empty, if LIST is notimestamp or locallist - so we can return to the for loop to the next LIST.
+		[ -z "$LIST_URL" ] && return
+		BLOCKLIST="$BLOCKLISTS_DIR/$LIST_NAME_FIX/used/$LIST_NAME"
+		# Exit immediately with zero status if any match is found
+		grep -qEi "$SEARCHPATTERN" "$BLOCKLIST" && {
+			echo
+			echo "$LIST_NAME ($LIST)"
+			grep -Ei "$SEARCHPATTERN" "$BLOCKLIST"
+			# Remember that current list contains SEARCHPATTERN
+			HITLIST="$HITLIST $LIST"
+			}
+	done
+	echo
+	echo "\"$SEARCHPATTERN\" was found in these lists:"
+	for LIST in $HITLIST ; do
+		# This function depends on LIST:
+		LIST_URL2LIST_NAME
+		echo "$LIST_NAME ($LIST)"
+	done
+	echo
+	echo "If you don't want to block these, you may add \"$SEARCHPATTERN\""
+	echo "to IP_REMOVE in $CONTROL_DEFAULT or remove the lists from"
+	echo "$BLOCKLISTS_LIST."
 }

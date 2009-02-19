@@ -35,7 +35,7 @@ E_NETWORK_DOWN="171"	# Testhost not reachable
 # 200-254	reserved
 
 # PATH has to be set here, nowhere else, for the automatic NAME detection.
-PATH="/usr/bin:/bin:/sbin:/usr/sbin"
+PATH="/usr/bin:/bin:/sbin:/usr/sbin:/usr/local/bin"
 
 CONTROL_NAME="blockcontrol"
 CONTROL_SCRIPT="/usr/bin/$CONTROL_NAME"
