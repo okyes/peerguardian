@@ -81,7 +81,7 @@ binary-arch: build install
 #	dh_installmime
 	dh_installinit
 	dh_installcron
-#	dh_installifupdown (Does not exist in etch)
+	dh_installifupdown
 #	dh_installinfo
 	dh_installman
 #	dh_link
