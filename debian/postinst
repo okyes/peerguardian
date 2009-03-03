@@ -68,7 +68,7 @@ esac
 CONTROL_DEFAULTS="/usr/lib/blockcontrol/blockcontrol.defaults"
 
 # Set sane configuration defaults, including the NAME of the installed daemon.
-# Then load the configured values fromCONTROL_CONF and CONTROL_DEFAULT, source
+# Then load the configured values from CONTROL_CONF and CONTROL_DEFAULT, source
 # the blockcontrol.lib AND the LSB init.functions.
 if [ -f "$CONTROL_DEFAULTS" ] ; then
 	. $CONTROL_DEFAULTS || { echo "$0 Error: Failed to source $CONTROL_DEFAULTS although this file exists."; exit 1; }
@@ -114,8 +114,6 @@ LISTS_P2B=""
 
 # Known lists in .p2p format.
 # Make sure LIST_NAME is also in debian/templates and LIST_NAME2LIST_URL
-# For moving the lists from the old places (v.1.1) postinst also needs them to
-# be in LIST_NAME2LIST_URL_ALT.
 LISTS_P2P="
 	Bluetack_level1
 	Bluetack_level2
@@ -146,12 +144,26 @@ if grep -Eq "^[[:space:]]*(notimestamp)?[[:space:]]*(http://)?www.bluetack.co.uk
 	echo "done."
 fi
 
+db_input high blockcontrol/transition_moblock-control || true
+db_go
+
+db_get blockcontrol/transition_moblock-control
+if [ "$RET" = 'true' ] ; then
+	# Also load configuration from old moblock-control package (overwrites current configuration)
+	[ -f /etc/moblock/moblock.conf ] && echo "Loading /etc/moblock/moblock.conf" && \
+		. /etc/moblock/moblock.conf
+	[ -f /etc/default/moblock ] && echo "Loading /etc/default/moblock" && \
+		. /etc/default/moblock
+	[ -z "$MOBLOCK_CRON" ] || CRON="$MOBLOCK_CRON"
+	[ -z "$MOBLOCK_INIT" ] || CRON="$MOBLOCK_INIT"
+fi
+
 # Store values from configuration files into debconf db.
 for VAR in $VARIABLES ; do
 	# value will only be set if the variable is known (This makes sure
 	# that on the introduction of new variables the default is used and
 	# not an empty value):
-	# Note that the values were already loaded above, the following is 
+	# Note that the values were already loaded above, the following is
 	# just the test IF the variables are set in the config files.
 	if ( [ -e $CONTROL_CONF ] && grep -Eq "^[[:space:]]*$VAR=" $CONTROL_CONF ) || \
 	( [ -e $CONTROL_CONF ] && grep -Eq "^[[:space:]]*$VAR=" $CONTROL_DEFAULT ) ; then
@@ -984,150 +996,18 @@ db_stop
 # Set the blocklist name depending on the type of the blocklist (configuration setting).
 test_set_BLOCKLIST
 
-# For updates from versions prior to moblock-control 1.3 (moblock-control blockcontrol renaming):
-if [ -n "$2" ] && dpkg --compare-versions "$2" lt "1.3" ; then
-	[ -d /etc/moblock ] && mv /etc/moblock "$CONF_DIR"
-	[ -d /var/lib/moblock-control ] && mv /var/lib/moblock-control "$MASTER_BLOCKLIST_DIR"
-	[ -d /var/spool/moblock ] && mv /var/spool/moblock "$BLOCKLISTS_DIR"
+# Move blocklists from old moblock-control places. The update path is only clean from 1.3. Lists downloaded for 1.2
+# will stay at their places and a new download for blockcontrol is necessary.
+[ -f /var/lib/moblock-control/* ] && mv /var/lib/moblock-control/* /var/lib/blockcontrol/
+[ -d /var/spool/moblock/* ] && mv /var/spool/moblock/* /var/spool/blockcontrol
 
-	# For updates from versions prior to moblock-control 1.2 (change of the blocklist file places):
-	if [ -n "$2" ] && dpkg --compare-versions "$2" lt "1.2" ; then
-	
-		#
-		# Move old master blocklists to new places.
-		#
-		if [ "$MASTER_BLOCKLIST_DIR" = /var/lib/blockcontrol ] && [ -d /var/lib/blockcontrol ] ; then
-			LISTS="guarding.p2p guarding.p2p.backup guarding.p2b guarding.p2b.backup ipfilter.dat ipfilter.dat.backup"
-			for LIST in $LISTS ; do
-				[ -f /etc/blockcontrol/$LIST ] && [ ! -f /var/lib/blockcontrol/$LIST ] && {
-					echo -n "Moving /etc/blockcontrol/$LIST to /var/lib/moblock/"
-					mv /etc/blockcontrol/$LIST /var/lib/moblock/ && echo "."
-					}
-			done
-		fi
-	
-		#
-		# Move old downloaded lists to new places.
-		#
-		for LIST_NAME in $LISTS_P2P ; do
-			LIST_NAME2LIST_URL_ALT
-			LIST_NAME_FIX="$(echo $LIST_NAME | sed "s|.*://|_|" | sed "s|/|_|g" | sed "s/?/_/g" | sed "s/ /_/g")"
-			FILE_NAME="$(basename $LIST_URL_ALT)"
-			# Set blocklist directory name.
-			BLOCKLIST_DIR="$BLOCKLISTS_DIR/$LIST_NAME_FIX"
-			[ -f "$BLOCKLISTS_DIR/used/$FILE_NAME" ] && {
-				echo -n "Moving $LIST_NAME ..."
-				[ -f "$BLOCKLISTS_DIR/$FILE_NAME" ] && rm "$BLOCKLISTS_DIR/$FILE_NAME"
-				# Gives the name of successfully downloaded file.
-				BLOCKLIST_DOWNLOADED="$BLOCKLIST_DIR/downloaded/$LIST_NAME_FIX"
-				# BLOCKLIST_DOWNLOADED is extracted to this file.
-				BLOCKLIST_EXTRACTED="$BLOCKLIST_DIR/extracted/$LIST_NAME_FIX"
-				[ -d "$BLOCKLISTS_DIR" ] || mkdir "$BLOCKLISTS_DIR" || { log_failure_msg "Error: mkdir exited with $?" ; exit 1 ; }
-				[ -d "$BLOCKLIST_DIR" ] || mkdir "$BLOCKLIST_DIR" || { log_failure_msg "Error: mkdir exited with $?" ; exit 1 ; }
-				[ -d "$BLOCKLIST_DIR/download" ] || mkdir "$BLOCKLIST_DIR/download" || { log_failure_msg "Error: mkdir exited with $?" ; exit 1 ; }
-				[ -d "$(dirname $BLOCKLIST_DOWNLOADED)" ] || mkdir "$(dirname $BLOCKLIST_DOWNLOADED)" || { log_failure_msg "Error: mkdir exited with $?" ; exit 1 ; }
-				[ -e "$BLOCKLIST_DIR/download/$FILE_NAME" ] || cp "$BLOCKLISTS_DIR/used/$FILE_NAME" "$BLOCKLIST_DIR/download/" || { log_failure_msg "Error: cp exited with $?" ; exit 1 ; }
-				[ -e "$BLOCKLIST_DOWNLOADED" ] || mv "$BLOCKLISTS_DIR/used/$FILE_NAME" "$BLOCKLIST_DOWNLOADED" || { log_failure_msg "Error: cp exited with $?" ; exit 1 ; }
-				echo "Done."
-	
-				# Unpack the lists
-				echo -n "Extracting $LIST_NAME ..."
-				# Create necessary directories if missing:
-				[ -d "$(dirname $BLOCKLIST_EXTRACTED)" ] || mkdir "$(dirname $BLOCKLIST_EXTRACTED)" || { log_failure_msg " Error: mkdir exited with $?" ; exit 1 ; }
-	
-				# Read the first six (length of the 7z header) bytes of the packed
-				# blocklist:
-				case "$(head -c 6 $BLOCKLIST_DOWNLOADED)" in
-					# 7z packed file
-					"$(/usr/bin/printf '\x37\x7A\xBC\xAF\x27\x1C')")
-						echo -n ", detected 7z"
-						# TODO: 7z, 7zr, ...
-						test_external p7zip || exit $E_XEXTERNAL
-						p7zip -d < "$BLOCKLIST_DOWNLOADED" > "$BLOCKLIST_EXTRACTED.tmp" || {
-							log_failure_msg " Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
-							log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
-							log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
-							rm "$BLOCKLIST_DOWNLOADED" || { log_failure_msg "Error: rm exited with $?" ; exit 1 ; }
-							exit $E_BLOCKLIST
-						}
-						mv -f "$BLOCKLIST_EXTRACTED.tmp" "$BLOCKLIST_EXTRACTED" || { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
-						echo "... done."
-						;;
-					# gz packed file
-					"$(/usr/bin/printf '\x1F\x8B\x08')"*)
-						echo -n ", detected gz"
-						zcat "$BLOCKLIST_DOWNLOADED" > "$BLOCKLIST_EXTRACTED.tmp" || {
-							log_failure_msg " Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
-							log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
-							log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
-							rm "$BLOCKLIST_DOWNLOADED" || { log_failure_msg "Error: rm exited with $?" ; exit 1 ; }
-							exit $E_BLOCKLIST
-						}
-						mv -f "$BLOCKLIST_EXTRACTED.tmp" "$BLOCKLIST_EXTRACTED" || { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
-						echo "... done."
-						;;
-					# zip packed file
-					"$(/usr/bin/printf '\x50\x4B\x03\x04')"*)
-						echo -n ", detected zip"
-						test_external unzip || exit $E_XEXTERNAL
-						unzip -p "$BLOCKLIST_DOWNLOADED" > "$BLOCKLIST_EXTRACTED.tmp" || {
-							log_failure_msg " Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
-							log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
-							log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
-							rm "$BLOCKLIST_DOWNLOADED" || { log_failure_msg "Error: rm exited with $?" ; exit 1 ; }
-							exit $E_BLOCKLIST
-						}
-						mv -f $BLOCKLIST_EXTRACTED.tmp $BLOCKLIST_EXTRACTED || { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
-						echo "... done."
-						;;
-					# Assuming non-packed otherwise:
-					*)
-						echo -n ", not packed"
-						ln -fs $BLOCKLIST_DOWNLOADED $BLOCKLIST_EXTRACTED || { log_failure_msg " Error: ln exited with $?"; exit 1; }
-						echo "... done."
-						;;
-				esac
-			}
-		done
-	
-		# Remove obsolete directory if it is empty:
-		[ -d "$BLOCKLISTS_DIR/used" ] && rmdir "$BLOCKLISTS_DIR/used" 2>/dev/null || true
-	
-		# Remove the old -nfq and -ipq "configuration" files
-		if [ -f /etc/init.d/moblock-ipq ] ; then
-			echo -n "Removing old /etc/init.d/moblock-ipq and links"
-			rm /etc/init.d/moblock-ipq
-			update-rc.d moblock-ipq remove
-			echo "."
-		fi
-		if [ -f /etc/init.d/moblock-nfq ] ; then
-			echo -n "Removing old /etc/init.d/moblock-nfq and links"
-			rm /etc/init.d/moblock-nfq
-			update-rc.d moblock-nfq remove
-			echo "."
-		fi
-		if [ -f /etc/cron.daily/moblock-ipq ] ; then
-			echo -n "Removing old /etc/cron.daily/moblock-ipq"
-			rm /etc/cron.daily/moblock-ipq
-			echo "."
-		fi
-		if [ -f /etc/cron.daily/moblock-nfq ] ; then
-			echo -n "Removing old /etc/cron.daily/moblock-nfq"
-			rm /etc/cron.daily/moblock-nfq
-			echo "."
-		fi
-		if [ -f /etc/logrotate.d/moblock-ipq ] ; then
-			echo -n "Removing old /etc/logrotate.d/moblock-ipq"
-			rm /etc/logrotate.d/moblock-ipq
-			echo "."
-		fi
-		if [ -f /etc/logrotate.d/moblock-nfq ] ; then
-			echo -n "Removing old /etc/logrotate.d/moblock-nfq"
-			rm /etc/logrotate.d/moblock-nfq
-			echo "."
-		fi
+# Remove old init files to prevent conflict with blockcontrol by several identical services.
+for i in moblock moblock-nfq moblock-ipq ; do
+	if [ -x "/etc/init.d/$i" ] ; then
+		update-rc.d $i remove >/dev/null || exit $?
+		rm /etc/init.d/$i || exit $?
 	fi
-fi
+done
 
 if [ "$INIT" -ne 0 ] && [ -x "/etc/init.d/blockcontrol" ] ; then
 	# dh_installdeb inserts code to execute init "start".
