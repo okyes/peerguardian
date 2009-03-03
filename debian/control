@@ -3,7 +3,7 @@ Section: net
 Priority: optional
 Maintainer: jre <jre-phoenix@users.sourceforge.net>
 Bugs: mailto:jre-phoenix@users.sourceforge.net
-Build-Depends: debhelper (>= 5), dpatch, po-debconf
+Build-Depends: debhelper (>= 5.0.44), dpatch, po-debconf
 Standards-Version: 3.8.0
 Homepage: http://moblock-deb.sourceforge.net/
 Vcs-Browser: http://moblock-deb.svn.sourceforge.net/viewvc/moblock-deb/blockcontrol/
@@ -14,11 +14,11 @@ Architecture: any
 Depends: ${misc:Depends}, iptables, lsb-base (>= 3.0-6), moblock (>0.9~rc2-19) | nfblock
 Recommends: wget, unzip, p7zip | p7zip-full
 Suggests: mobloquer
-Conflicts: moblock-ipq, moblock-nfq (<= 0.9~rc2-16), iplist, moblock (<0.9~rc2-19), moblock-control
+Conflicts: moblock-ipq, moblock-nfq (<= 0.9~rc2-16), iplist, moblock (<0.9~rc2-19), moblock-control (<=1.2-1)
 Replaces: moblock-ipq, moblock-nfq, moblock (<0.9~rc2-19), moblock-control
 Description: Manage IP blockers
- blockcontrol provides easy ways to interact with IP block daemons (MoBlock or NFGuard) and do all common
- related tasks.
+ blockcontrol provides easy ways to interact with IP block daemons (MoBlock or
+ NFGuard) and do all common related tasks.
  .
  Features:
   - Start and stop IP block daemons. Or let init do this automatically.

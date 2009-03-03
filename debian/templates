@@ -31,9 +31,9 @@ _Description: WARNING: Users with firewall (iptables rules)
   - The IP block daemon is started after other firewalls. If other
     firewalls are started/reloaded later, then you
     need to restart the IP block daemon again. You will be fine, if the
-    iptables rules which send traffic to our iptables
-    chains (blockcontrol_in, blockcontrol_out and blockcontrol_fw) stand
-    before all other iptables rules which ACCEPT traffic.
+    iptables rules which send traffic to the iptables chains (blockcontrol_in,
+    blockcontrol_out and blockcontrol_fw) stand  before all other iptables rules
+    which ACCEPT traffic.
  .
  You can check your iptables rules with
   iptables -L -nv
