@@ -2,22 +2,18 @@
 ## 50_debianize.dpatch by jre <jre-phoenix@users.sourceforge.net>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: - Change defaults and blockcontrol.conf to default to full
-## DP:   Debian compatibility.
+## DP: - Change blockcontrol.conf to default to full Debian compatibility.
 
 @DPATCH@
-diff -urNad blockcontrol~/blockcontrol.conf blockcontrol/blockcontrol.conf
---- blockcontrol~/blockcontrol.conf	2009-01-17 17:13:17.000000000 +0100
-+++ blockcontrol/blockcontrol.conf	2009-01-17 19:09:36.000000000 +0100
-@@ -122,12 +122,12 @@
- # you can download one based on the Debian version from
- # moblock-deb.sourceforge.net.
- # 0 - Debian compatible system (uses start-stop-daemon instead of start_daemon)
--# 1 - LSB 3.1 compatible system
- #     (default)
-+# 1 - LSB 3.1 compatible system
+diff -urNad blockcontrol~/blockcontrol.defaults blockcontrol/blockcontrol.defaults
+--- blockcontrol~/blockcontrol.defaults	2009-03-07 17:17:40.000000000 +0100
++++ blockcontrol/blockcontrol.defaults	2009-03-07 18:03:44.000000000 +0100
+@@ -116,7 +116,7 @@
  # 2 - system with broken LSB 3.1 implementation, which doesn't understand the
  #     specification of the pidfile. Use this for Fedora Core 9 (and other redhat
  #     variants).
 -LSB_MODE="1"
 +LSB_MODE="0"
+ 
+ ################## Settings for the iptables firewall rules ###################
+ 

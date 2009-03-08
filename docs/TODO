@@ -39,6 +39,22 @@ Requests for upstream:
   use the upstream URL and the iblocklist.com URL, and avoid the second download
   with wget's timestamp option.
 
+
 packaging:
+
+- Improve makefile:
+  - add (something like) configure to configure paths
+  - read installation paths from blockcontrol.defaults and blockcontrol.conf,
+    special handling of blockcontrol.main and blockcontrol.defaults needed,
+    because they are not in the previous files.
+
+- make rpms
+  http://forums.phoenixlabs.org/showthread.php?p=123060
+
+- make ARCH packages:
+  http://forums.phoenixlabs.org/showpost.php?p=123175&postcount=8
+
+- Slackware hints:
+  http://forums.phoenixlabs.org/showthread.php?p=123198
 
 - add debtags

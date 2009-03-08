@@ -60,26 +60,23 @@ esac
 ################################################################################
 # The following code is common between blockcontrol, cron.daily, if-up, init,
 # and debian/postinst.
-# It sets/loads the variables and functions
+# It sets the variables and loads functions
 
-# This variable has to be set correctly in all just mentioned files.
-# CONTROL_CONF has to be set in CONTROL_DEFAULTS.
-# Everything else can then be done in blockcontrol.conf.
-CONTROL_DEFAULTS="/usr/lib/blockcontrol/blockcontrol.defaults"
+# CONTROL_MAIN has to be set correctly in all just mentioned files.
+CONTROL_MAIN="/usr/lib/blockcontrol/blockcontrol.main"
 
-# Set sane configuration defaults, including the NAME of the installed daemon.
-# Then load the configured values from CONTROL_CONF and CONTROL_DEFAULT, source
-# the blockcontrol.lib AND the LSB init.functions.
-if [ -f "$CONTROL_DEFAULTS" ] ; then
-	. $CONTROL_DEFAULTS || { echo "$0 Error: Failed to source $CONTROL_DEFAULTS although this file exists."; exit 1; }
+# Configure blockcontrol and load functions.
+if [ -f "$CONTROL_MAIN" ] ; then
+	. $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
 else
-	echo "$0 Error 7: Missing file $CONTROL_DEFAULTS."
+	echo "$0 Error 7: Missing file $CONTROL_MAIN."
 	exit 7
 fi
 
 # End of the common code between blockcontrol, cron.daily, if-up, init,
 # and debian/postinst.
 ################################################################################
+
 
 VARIABLES="
 	BLOCKLIST_FORMAT
@@ -144,178 +141,180 @@ if grep -Eq "^[[:space:]]*(notimestamp)?[[:space:]]*(http://)?www.bluetack.co.uk
 	echo "done."
 fi
 
-db_input high blockcontrol/transition_moblock-control || true
-db_go
+# Transition from moblock-control 1.2 to blockcontrol 1.3:
+# Load configuration from old moblock-control package (overwrites current configuration)
+[ ! -f /etc/moblock/moblock.conf ] || ( \
+	echo "Loading and backuping /etc/moblock/moblock.conf"
+	. /etc/moblock/moblock.conf && \
+	mv /etc/moblock/moblock.conf /etc/moblock/moblock.conf.transitioned2blockcontrol && \
+	echo "."
+	)
+[ -f /etc/default/moblock ] && ( \
+	echo "Loading and backuping /etc/default/moblock"
+	. /etc/default/moblock && \
+	mv /etc/default/moblock /etc/default/moblock.transitioned2blockcontrol && \
+	echo "."
+	)
+[ -z "$MOBLOCK_CRON" ] || CRON="$MOBLOCK_CRON"
+[ -z "$MOBLOCK_INIT" ] || INIT="$MOBLOCK_INIT"
+# Set back to blockcontrol values again (these variables are used later in this script):
+CONTROL_CONF="/etc/blockcontrol/blockcontrol.conf"
+CONTROL_DEFAULTS="/usr/lib/blockcontrol/blockcontrol.defaults"
 
-db_get blockcontrol/transition_moblock-control
-if [ "$RET" = 'true' ] ; then
-	# Also load configuration from old moblock-control package (overwrites current configuration)
-	[ -f /etc/moblock/moblock.conf ] && echo "Loading /etc/moblock/moblock.conf" && \
-		. /etc/moblock/moblock.conf
-	[ -f /etc/default/moblock ] && echo "Loading /etc/default/moblock" && \
-		. /etc/default/moblock
-	[ -z "$MOBLOCK_CRON" ] || CRON="$MOBLOCK_CRON"
-	[ -z "$MOBLOCK_INIT" ] || CRON="$MOBLOCK_INIT"
-fi
 
 # Store values from configuration files into debconf db.
 for VAR in $VARIABLES ; do
-	# value will only be set if the variable is known (This makes sure
-	# that on the introduction of new variables the default is used and
-	# not an empty value):
-	# Note that the values were already loaded above, the following is
-	# just the test IF the variables are set in the config files.
-	if ( [ -e $CONTROL_CONF ] && grep -Eq "^[[:space:]]*$VAR=" $CONTROL_CONF ) || \
-	( [ -e $CONTROL_CONF ] && grep -Eq "^[[:space:]]*$VAR=" $CONTROL_DEFAULT ) ; then
-		eval VALUE=\$$VAR
-		case "$VAR" in
+	# We don't need to check if the variable is set, because we also source 
+	# blockcontrol.defaults, where all variables are set.
+	# TODO: This has to be changed if the debconf part is moved to config again (then it can run,
+	# before any variable is set).
+	eval VALUE=\$$VAR
+	case "$VAR" in
 
-			'BLOCKLIST_FORMAT')
+		'BLOCKLIST_FORMAT')
+			case "$VALUE" in
+				'd')
+					db_set blockcontrol/$VAR 'eMule ipfilter.dat format'
+					LISTS_POSSIBLE="$LISTS_DAT"
+					;;
+				'n')
+					db_set blockcontrol/$VAR 'PeerGuardian .p2b v2 binary format'
+					LISTS_POSSIBLE=""
+					;;
+				'p')
+					db_set blockcontrol/$VAR 'PeerGuardian .p2p text format'
+					LISTS_POSSIBLE="$LISTS_P2P"
+					;;
+			esac
+
+			# Set the blocklists to be used.
+			[ -f "$BLOCKLISTS_LIST" ] && {
+				# Gives possible lists separated with |:
+				LISTS_POSSIBLE_PIPE="$(echo $LISTS_POSSIBLE | sed 's/\ /|/g')"
+				# Read the non-comment|not-empty lines from BLOCKLISTS_LIST:
+				set_LISTS_URL
+				for LIST in $LISTS_URL ; do
+					# This function depends on LIST:
+					LIST_URL2LIST_NAME
+					# LIST_URL is empty, if LIST is notimestamp or locallist - so we can continue with the next LIST.
+					[ -z "$LIST_URL" ] && continue
+					# Gives currently selected (=configured in blocklists.list and known by debconf) lists:
+					LISTS_SET="$LISTS_SET $(echo $LIST_NAME | grep -Eo "$LISTS_POSSIBLE_PIPE" || true)"
+				done
+				# Gives currently selected lists separated with ", " for debconf:
+				LISTS_SET_COMMA="$(echo $LISTS_SET | sed 's/\ /,\ /g')"
 				case "$VALUE" in
 					'd')
-						db_set blockcontrol/$VAR 'eMule ipfilter.dat format'
-						LISTS_POSSIBLE="$LISTS_DAT"
-						;;
-					'n')
-						db_set blockcontrol/$VAR 'PeerGuardian .p2b v2 binary format'
-						LISTS_POSSIBLE=""
+						db_set blockcontrol/blocklists_dat "$LISTS_SET_COMMA"
 						;;
 					'p')
-						db_set blockcontrol/$VAR 'PeerGuardian .p2p text format'
-						LISTS_POSSIBLE="$LISTS_P2P"
+						db_set blockcontrol/blocklists_p2p "$LISTS_SET_COMMA"
 						;;
 				esac
+			} || true
+			;;
 
-				# Set the blocklists to be used.
-				[ -f "$BLOCKLISTS_LIST" ] && {
-					# Gives possible lists separated with |:
-					LISTS_POSSIBLE_PIPE="$(echo $LISTS_POSSIBLE | sed 's/\ /|/g')"
-					# Read the non-comment|not-empty lines from BLOCKLISTS_LIST:
-					set_LISTS_URL
-					for LIST in $LISTS_URL ; do
-						# This function depends on LIST:
-						LIST_URL2LIST_NAME
-						# LIST_URL is empty, if LIST is notimestamp or locallist - so we can continue with the next LIST.
-						[ -z "$LIST_URL" ] && continue
-						# Gives currently selected (=configured in blocklists.list and known by debconf) lists:
-						LISTS_SET="$LISTS_SET $(echo $LIST_NAME | grep -Eo "$LISTS_POSSIBLE_PIPE" || true)"
-					done
-					# Gives currently selected lists separated with ", " for debconf:
-					LISTS_SET_COMMA="$(echo $LISTS_SET | sed 's/\ /,\ /g')"
-					case "$VALUE" in
-						'd')
-							db_set blockcontrol/blocklists_dat "$LISTS_SET_COMMA"
-							;;
-						'p')
-							db_set blockcontrol/blocklists_p2p "$LISTS_SET_COMMA"
-							;;
-					esac
-				} || true
-				;;
+		'LOG_IPTABLES')
+			case "$VALUE" in
+				'')
+					db_set blockcontrol/$VAR 'Do not log blocked packets to syslog.'
+					;;
+				'LOG --log-level info')
+					db_set blockcontrol/$VAR 'Log blocked packets to syslog.'
+					;;
+				*)
+					db_set blockcontrol/$VAR 'Do not touch my settings. Use the current custom value instead.'
+					;;
+			esac
+			;;
 
-			'LOG_IPTABLES')
-				case "$VALUE" in
-					'')
-						db_set blockcontrol/$VAR 'Do not log blocked packets to syslog.'
-						;;
-					'LOG --log-level info')
-						db_set blockcontrol/$VAR 'Log blocked packets to syslog.'
-						;;
-					*)
-						db_set blockcontrol/$VAR 'Do not touch my settings. Use the current custom value instead.'
-						;;
-				esac
-				;;
+		'VERBOSITY')
+			case "$VALUE" in
+				'0')
+					db_set blockcontrol/$VAR 'Output to STDOUT is off (only errors will be reported).'
+					;;
+				'1')
+					db_set blockcontrol/$VAR 'Output to STDOUT is on.'
+					;;
+				'2')
+					db_set blockcontrol/$VAR 'Output to STDOUT is on but no warning will be shown if an operation is configured not to be executed.'
+					;;
+			esac
+			;;
 
-			'VERBOSITY')
-				case "$VALUE" in
-					'0')
-						db_set blockcontrol/$VAR 'Output to STDOUT is off (only errors will be reported).'
-						;;
-					'1')
-						db_set blockcontrol/$VAR 'Output to STDOUT is on.'
-						;;
-					'2')
-						db_set blockcontrol/$VAR 'Output to STDOUT is on but no warning will be shown if an operation is configured not to be executed.'
-						;;
-				esac
-				;;
+		'IPTABLES_SETTINGS')
+			case "$VALUE" in
+				'0')
+					db_set blockcontrol/$VAR 'Do not set any iptables rules. You or another script/firewall has to do this!'
+					;;
+				'1')
+					db_set blockcontrol/$VAR 'Use separate iptables chains.'
+					;;
+				'2')
+					db_set blockcontrol/$VAR 'Only set custom iptables rules.'
+					;;
+			esac
+			;;
 
-			'IPTABLES_SETTINGS')
-				case "$VALUE" in
-					'0')
-						db_set blockcontrol/$VAR 'Do not set any iptables rules. You or another script/firewall has to do this!'
-						;;
-					'1')
-						db_set blockcontrol/$VAR 'Use separate iptables chains.'
-						;;
-					'2')
-						db_set blockcontrol/$VAR 'Only set custom iptables rules.'
-						;;
-				esac
-				;;
+		'IPTABLES_ACTIVATION')
+			case "$VALUE" in
+				'0')
+					db_set blockcontrol/$VAR 'Do nothing. You or another script/firewall has to do this!'
+					;;
+				'1')
+					db_set blockcontrol/$VAR 'Send all NEW traffic to the iptables chains of MoBlock.'
+					;;
+				'2')
+					db_set blockcontrol/$VAR 'Send all traffic to the iptables chains of MoBlock.'
+					;;
+			esac
+			;;
 
-			'IPTABLES_ACTIVATION')
-				case "$VALUE" in
-					'0')
-						db_set blockcontrol/$VAR 'Do nothing. You or another script/firewall has to do this!'
-						;;
-					'1')
-						db_set blockcontrol/$VAR 'Send all NEW traffic to the iptables chains of MoBlock.'
-						;;
-					'2')
-						db_set blockcontrol/$VAR 'Send all traffic to the iptables chains of MoBlock.'
-						;;
-				esac
-				;;
+		'REJECT_IN'|'REJECT_OUT'|'REJECT_FW')
+			case "$VALUE" in
+				'DROP'|'REJECT')
+					db_set blockcontrol/$VAR "$VALUE"
+					;;
+				*)
+					db_set blockcontrol/$VAR 'Do not touch my settings. Use the current custom value instead.'
+					;;
+			esac
+			;;
 
-			'REJECT_IN'|'REJECT_OUT'|'REJECT_FW')
-				case "$VALUE" in
-					'DROP'|'REJECT')
-						db_set blockcontrol/$VAR "$VALUE"
-						;;
-					*)
-						db_set blockcontrol/$VAR 'Do not touch my settings. Use the current custom value instead.'
-						;;
-				esac
-				;;
+		'WHITE_LOCAL')
+			case "$VALUE" in
+				'0')
+					db_set blockcontrol/$VAR 'Do nothing.'
+					;;
+				'1')
+					db_set blockcontrol/$VAR 'Automatically whitelist LAN traffic and traffic on the loopback device.'
+					;;
+				'2')
+					db_set blockcontrol/$VAR 'Whitelist the loopback device.'
+					;;
+			esac
+			;;
 
-			'WHITE_LOCAL')
-				case "$VALUE" in
-					'0')
-						db_set blockcontrol/$VAR 'Do nothing.'
-						;;
-					'1')
-						db_set blockcontrol/$VAR 'Automatically whitelist LAN traffic and traffic on the loopback device.'
-						;;
-					'2')
-						db_set blockcontrol/$VAR 'Whitelist the loopback device.'
-						;;
-				esac
-				;;
+		# For boolean variables:
+		'LOG_SYSLOG'|'LOG_TIMESTAMP'|'INIT'|'CRON'|'REJECT'|'ACCEPT')
+			case "$VALUE" in
+				'0')
+					db_set blockcontrol/$VAR false
+					;;
+				'1')
+					db_set blockcontrol/$VAR true
+					;;
+				*)
+					echo "WARNING: unknown value (\"$VALUE\") for $VAR. Ignoring."
+					;;
+			esac
+			;;
 
-			# For boolean variables:
-			'LOG_SYSLOG'|'LOG_TIMESTAMP'|'INIT'|'CRON'|'REJECT'|'ACCEPT')
-				case "$VALUE" in
-					'0')
-						db_set blockcontrol/$VAR false
-						;;
-					'1')
-						db_set blockcontrol/$VAR true
-						;;
-					*)
-						echo "WARNING: unknown value (\"$VALUE\") for $VAR. Ignoring."
-						;;
-				esac
-				;;
-
-			# For all other variables:
-			*)
-				db_set blockcontrol/$VAR $VALUE
-				;;
-
-		esac
-	fi
+		# For all other variables:
+		*)
+			db_set blockcontrol/$VAR $VALUE
+			;;
+	esac
 done
 # Set "Add line to allowlist" to empty value because adding the same
 # line several times does not make much sense.
@@ -326,6 +325,11 @@ db_set blockcontrol/allowlist
 
 
 # Ask debconf's questions.
+
+# Transition from moblock-control 1.2 to blockcontrol 1.3:
+[ ! -e /etc/moblock/iptables-custom-insert.sh ] || \
+	db_input critical blockcontrol/transition_moblock-control || true
+
 STATE=1
 DONTSET=0	# Used for variables that do their own db_go
 while true ; do
@@ -470,7 +474,6 @@ done
 # variable set in debconf. The name of the package is already set within this
 # function.
 # Check if $RET contains invalid signs.
-# Readd variable to CONTROL_CONF if it is missing, so sed will work in any case later.
 my_db_get () {
 	# Test if exactly $1 was specified.
 	[ "$#" = 1 ] || { echo "Internal script error. Aborting."; exit 1; }
@@ -482,19 +485,11 @@ my_db_get () {
 			echo "Therefore not changing this variable."
 			;;
 		*)
-			# If the value is set in default then set it there:
-			if [ -f "$CONTROL_DEFAULT" ] && grep -Eq "^[[:space:]]*$1=" $CONTROL_DEFAULT ; then
-				FILE_TO_CHANGE=$CONTROL_DEFAULT
+			# If the value is set in blockcontrol.conf, then set it there:
+			if [ -f "$CONTROL_CONF" ] && grep -Eq "^[[:space:]]*$1=" $CONTROL_CONF ; then
+				CONFFILE=$CONTROL_CONF
 			else
-				FILE_TO_CHANGE=$CONTROL_CONF
-				# If the admin deleted or commented some variables
-				# then (re-)add them to blockcontrol.conf.
-				grep -Eq "^[[:space:]]*$1=" $CONTROL_CONF || {
-					echo "" >> $CONTROL_CONF
-					echo "# Variable (re-)added by debconf:" >> $CONTROL_CONF
-					echo "$1=" >> $CONTROL_CONF
-					echo "" >> $CONTROL_CONF
-					}
+				CONFFILE=$CONTROL_DEFAULTS
 			fi
 			;;
 	esac
@@ -514,10 +509,10 @@ my_db_get BLOCKLIST_FORMAT
 case "$RET" in
 	'eMule ipfilter.dat format')
 		# Set blocklist format
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*BLOCKLIST_FORMAT=.*|BLOCKLIST_FORMAT=\"d\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*BLOCKLIST_FORMAT=.*|BLOCKLIST_FORMAT=\"d\"|" $CONTROL_CONF
 		else
-			echo "BLOCKLIST_FORMAT=\"d\"" >> $CONTROL_DEFAULT
+			echo "BLOCKLIST_FORMAT=\"d\"" >> $CONTROL_CONF
 		fi
 		# Define available lists for this format:
 		LISTS_POSSIBLE="$LISTS_DAT"
@@ -529,10 +524,10 @@ case "$RET" in
 		;;
 	'PeerGuardian .p2b v2 binary format')
 		# Set blocklist format
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*BLOCKLIST_FORMAT=.*|BLOCKLIST_FORMAT=\"n\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*BLOCKLIST_FORMAT=.*|BLOCKLIST_FORMAT=\"n\"|" $CONTROL_CONF
 		else
-			echo "BLOCKLIST_FORMAT=\"n\"" >> $CONTROL_DEFAULT
+			echo "BLOCKLIST_FORMAT=\"n\"" >> $CONTROL_CONF
 		fi
 		# Define available lists for this format:
 		LISTS_POSSIBLE="$LISTS_P2B"
@@ -543,7 +538,9 @@ case "$RET" in
 		;;
 	'PeerGuardian .p2p text format')	# Default
 		# Set blocklist format
-		sed -i -r "s|^[[:space:]]*BLOCKLIST_FORMAT=.*|BLOCKLIST_FORMAT=\"p\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*BLOCKLIST_FORMAT=.*|BLOCKLIST_FORMAT=\"p\"|" $CONTROL_CONF
+		fi
 		# Define available lists for this format:
 		LISTS_POSSIBLE="$LISTS_P2P"
 		# Define lists that are incompatible with this format:
@@ -627,27 +624,31 @@ fi
 my_db_get LOG_TIMESTAMP
 case "$RET" in
 	'false')
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*LOG_TIMESTAMP=.*|LOG_TIMESTAMP=\"0\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*LOG_TIMESTAMP=.*|LOG_TIMESTAMP=\"0\"|" $CONTROL_CONF
 		else
-			echo "LOG_TIMESTAMP=\"0\"" >> "$CONTROL_DEFAULT"
+			echo "LOG_TIMESTAMP=\"0\"" >> $CONTROL_CONF
 		fi
 		;;
 	'true')	# Default
-		sed -i -r "s|^[[:space:]]*LOG_TIMESTAMP=.*|LOG_TIMESTAMP=\"1\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*LOG_TIMESTAMP=.*|LOG_TIMESTAMP=\"1\"|" $CONTROL_CONF
+		fi
 		;;
 esac
 
 my_db_get LOG_SYSLOG
 case "$RET" in
 	'false')	# Default
-		sed -i -r "s|^[[:space:]]*LOG_SYSLOG=.*|LOG_SYSLOG=\"0\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*LOG_SYSLOG=.*|LOG_SYSLOG=\"0\"|" $CONTROL_CONF
+		fi
 		;;
 	'true')
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*LOG_SYSLOG=.*|LOG_SYSLOG=\"1\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*LOG_SYSLOG=.*|LOG_SYSLOG=\"1\"|" $CONTROL_CONF
 		else
-			echo "LOG_SYSLOG=\"1\"" >> "$CONTROL_DEFAULT"
+			echo "LOG_SYSLOG=\"1\"" >> $CONTROL_CONF
 		fi
 		;;
 esac
@@ -655,13 +656,15 @@ esac
 my_db_get LOG_IPTABLES
 case "$RET" in
 	'Do not log blocked packets to syslog.')	# Default
-		sed -i -r "s|^[[:space:]]*LOG_IPTABLES=.*|LOG_IPTABLES=\"\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*LOG_IPTABLES=.*|LOG_IPTABLES=\"\"|" $CONTROL_CONF
+		fi
 		;;
 	'Log blocked packets to syslog.')
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*LOG_IPTABLES=.*|LOG_IPTABLES=\"LOG --log-level info\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*LOG_IPTABLES=.*|LOG_IPTABLES=\"LOG --log-level info\"|" $CONTROL_CONF
 		else
-			echo "LOG_IPTABLES=\"LOG --log-level info\"" >> "$CONTROL_DEFAULT"
+			echo "LOG_IPTABLES=\"LOG --log-level info\"" >> $CONTROL_CONF
 		fi
 		;;
 	'Do not touch my settings. Use the current custom value instead.')
@@ -672,20 +675,22 @@ esac
 my_db_get VERBOSITY
 case "$RET" in
 	'Output to STDOUT is off (only errors will be reported).')
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*VERBOSITY=.*|VERBOSITY=\"0\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*VERBOSITY=.*|VERBOSITY=\"0\"|" $CONTROL_CONF
 		else
-			echo "VERBOSITY=\"0\"" >> "$CONTROL_DEFAULT"
+			echo "VERBOSITY=\"0\"" >> $CONTROL_CONF
 		fi
 		;;
 	'Output to STDOUT is on.')	# Default
-		sed -i -r "s|^[[:space:]]*VERBOSITY=.*|VERBOSITY=\"1\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*VERBOSITY=.*|VERBOSITY=\"1\"|" $CONTROL_CONF
+		fi
 		;;
 	'Output to STDOUT is on but no warning will be shown if an operation is configured not to be executed.')
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*VERBOSITY=.*|VERBOSITY=\"2\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*VERBOSITY=.*|VERBOSITY=\"2\"|" $CONTROL_CONF
 		else
-			echo "VERBOSITY=\"2\"" >> "$CONTROL_DEFAULT"
+			echo "VERBOSITY=\"2\"" >> $CONTROL_CONF
 		fi
 		;;
 esac
@@ -693,59 +698,67 @@ esac
 my_db_get INIT
 case "$RET" in
 	'false')
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*INIT=.*|INIT=\"0\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*INIT=.*|INIT=\"0\"|" $CONTROL_CONF
 		else
-			echo "INIT=\"0\"" >> "$CONTROL_DEFAULT"
+			echo "INIT=\"0\"" >> $CONTROL_CONF
 		fi
 		;;
 	'true')	# Default
-		sed -i -r "s|^[[:space:]]*INIT=.*|INIT=\"1\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*INIT=.*|INIT=\"1\"|" $CONTROL_CONF
+		fi
 		;;
 esac
 
 my_db_get CRON
 case "$RET" in
 	'false')
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*CRON=.*|CRON=\"0\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*CRON=.*|CRON=\"0\"|" $CONTROL_CONF
 		else
-			echo "CRON=\"0\"" >> "$CONTROL_DEFAULT"
+			echo "CRON=\"0\"" >> $CONTROL_CONF
 		fi
 		;;
 	'true')	# Default
-		sed -i -r "s|^[[:space:]]*CRON=.*|CRON=\"1\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*CRON=.*|CRON=\"1\"|" $CONTROL_CONF
+		fi
 		;;
 esac
 
 my_db_get NFQUEUE_NUMBER
 if [ "$RET" = 92 ] ; then	# Default
-	sed -i -r "s|^[[:space:]]*NFQUEUE_NUMBER=.*|NFQUEUE_NUMBER=\"$RET\"|" $FILE_TO_CHANGE
+	if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+		sed -i -r "s|^[[:space:]]*NFQUEUE_NUMBER=.*|NFQUEUE_NUMBER=\"$RET\"|" $CONTROL_CONF
+	fi
 else
-	if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-		sed -i -r "s|^[[:space:]]*NFQUEUE_NUMBER=.*|NFQUEUE_NUMBER=\"$RET\"|" $FILE_TO_CHANGE
+	if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+		sed -i -r "s|^[[:space:]]*NFQUEUE_NUMBER=.*|NFQUEUE_NUMBER=\"$RET\"|" $CONTROL_CONF
 	else
-		echo "NFQUEUE_NUMBER=\"$RET\"" >> "$CONTROL_DEFAULT"
+		echo "NFQUEUE_NUMBER=\"$RET\"" >> $CONTROL_CONF
 	fi
 fi
 
 my_db_get IPTABLES_SETTINGS
 case "$RET" in
 	'Do not set any iptables rules. You or another script/firewall has to do this!')
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*IPTABLES_SETTINGS=.*|IPTABLES_SETTINGS=\"0\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*IPTABLES_SETTINGS=.*|IPTABLES_SETTINGS=\"0\"|" $CONTROL_CONF
 		else
-			echo "IPTABLES_SETTINGS=\"0\"" >> "$CONTROL_DEFAULT"
+			echo "IPTABLES_SETTINGS=\"0\"" >> $CONTROL_CONF
 		fi
 		;;
 	'Use separate iptables chains.')	# Default
-		sed -i -r "s|^[[:space:]]*IPTABLES_SETTINGS=.*|IPTABLES_SETTINGS=\"1\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*IPTABLES_SETTINGS=.*|IPTABLES_SETTINGS=\"1\"|" $CONTROL_CONF
+		fi
 		;;
 	'Only set custom iptables rules.')
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*IPTABLES_SETTINGS=.*|IPTABLES_SETTINGS=\"2\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*IPTABLES_SETTINGS=.*|IPTABLES_SETTINGS=\"2\"|" $CONTROL_CONF
 		else
-			echo "IPTABLES_SETTINGS=\"2\"" >> "$CONTROL_DEFAULT"
+			echo "IPTABLES_SETTINGS=\"2\"" >> $CONTROL_CONF
 		fi
 		;;
 esac
@@ -753,20 +766,22 @@ esac
 my_db_get IPTABLES_ACTIVATION
 case "$RET" in
 	'Do nothing. You or another script/firewall has to do this!')
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*IPTABLES_ACTIVATION=.*|IPTABLES_ACTIVATION=\"0\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*IPTABLES_ACTIVATION=.*|IPTABLES_ACTIVATION=\"0\"|" $CONTROL_CONF
 		else
-			echo "IPTABLES_ACTIVATION=\"0\"" >> "$CONTROL_DEFAULT"
+			echo "IPTABLES_ACTIVATION=\"0\"" >> $CONTROL_CONF
 		fi
 		;;
 	'Send all NEW traffic to the iptables chains of MoBlock.')	# Default
-		sed -i -r "s|^[[:space:]]*IPTABLES_ACTIVATION=.*|IPTABLES_ACTIVATION=\"1\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*IPTABLES_ACTIVATION=.*|IPTABLES_ACTIVATION=\"1\"|" $CONTROL_CONF
+		fi
 		;;
 	'Send all traffic to the iptables chains of MoBlock.')
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*IPTABLES_ACTIVATION=.*|IPTABLES_ACTIVATION=\"2\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*IPTABLES_ACTIVATION=.*|IPTABLES_ACTIVATION=\"2\"|" $CONTROL_CONF
 		else
-			echo "IPTABLES_ACTIVATION=\"2\"" >> "$CONTROL_DEFAULT"
+			echo "IPTABLES_ACTIVATION=\"2\"" >> $CONTROL_CONF
 		fi
 		;;
 esac
@@ -774,27 +789,31 @@ esac
 my_db_get REJECT
 case "$RET" in
 	'false')
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*REJECT=.*|REJECT=\"0\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*REJECT=.*|REJECT=\"0\"|" $CONTROL_CONF
 		else
-			echo "REJECT=\"0\"" >> "$CONTROL_DEFAULT"
+			echo "REJECT=\"0\"" >> $CONTROL_CONF
 		fi
 		;;
 	'true')	# Default
-		sed -i -r "s|^[[:space:]]*REJECT=.*|REJECT=\"1\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*REJECT=.*|REJECT=\"1\"|" $CONTROL_CONF
+		fi
 		;;
 esac
 
 my_db_get REJECT_IN
 case "$RET" in
 	'DROP')	# Default
-		sed -i -r "s|^[[:space:]]*REJECT_IN=.*|REJECT_IN=\"$RET\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*REJECT_IN=.*|REJECT_IN=\"$RET\"|" $CONTROL_CONF
+		fi
 		;;
 	'REJECT')
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*REJECT_IN=.*|REJECT_IN=\"$RET\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*REJECT_IN=.*|REJECT_IN=\"$RET\"|" $CONTROL_CONF
 		else
-			echo "REJECT_IN=\"$RET\"" >> "$CONTROL_DEFAULT"
+			echo "REJECT_IN=\"$RET\"" >> $CONTROL_CONF
 		fi
 		;;
 	'Do not touch my settings. Use the current custom value instead.')
@@ -805,14 +824,16 @@ esac
 my_db_get REJECT_OUT
 case "$RET" in
 	'DROP')
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*REJECT_OUT=.*|REJECT_OUT=\"$RET\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*REJECT_OUT=.*|REJECT_OUT=\"$RET\"|" $CONTROL_CONF
 		else
-			echo "REJECT_OUT=\"$RET\"" >> "$CONTROL_DEFAULT"
+			echo "REJECT_OUT=\"$RET\"" >> $CONTROL_CONF
 		fi
 		;;
 	'REJECT')	# Default
-		sed -i -r "s|^[[:space:]]*REJECT_OUT=.*|REJECT_OUT=\"$RET\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*REJECT_OUT=.*|REJECT_OUT=\"$RET\"|" $CONTROL_CONF
+		fi
 		;;
 	'Do not touch my settings. Use the current custom value instead.')
 		true
@@ -822,13 +843,15 @@ esac
 my_db_get REJECT_FW
 case "$RET" in
 	'DROP')	# Default
-		sed -i -r "s|^[[:space:]]*REJECT_FW=.*|REJECT_FW=\"$RET\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*REJECT_FW=.*|REJECT_FW=\"$RET\"|" $CONTROL_CONF
+		fi
 		;;
 	'REJECT')
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*REJECT_FW=.*|REJECT_FW=\"$RET\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*REJECT_FW=.*|REJECT_FW=\"$RET\"|" $CONTROL_CONF
 		else
-			echo "REJECT_FW=\"$RET\"" >> "$CONTROL_DEFAULT"
+			echo "REJECT_FW=\"$RET\"" >> $CONTROL_CONF
 		fi
 		;;
 	'Do not touch my settings. Use the current custom value instead.')
@@ -839,129 +862,141 @@ esac
 my_db_get ACCEPT
 case "$RET" in
 	'false')
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*ACCEPT=.*|ACCEPT=\"0\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*ACCEPT=.*|ACCEPT=\"0\"|" $CONTROL_CONF
 		else
-			echo "ACCEPT=\"0\"" >> "$CONTROL_DEFAULT"
+			echo "ACCEPT=\"0\"" >> $CONTROL_CONF
 		fi
 		;;
 	'true')	# Default
-		sed -i -r "s|^[[:space:]]*ACCEPT=.*|ACCEPT=\"1\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*ACCEPT=.*|ACCEPT=\"1\"|" $CONTROL_CONF
+		fi
 		;;
 esac
 
 my_db_get WHITE_TCP_OUT
-if [ "$RET" = "80 443" ] ; then
-	# Default, but change port numbers to associated service names because of mobloquer (0.5) bug.
-	# blockcontrol.conf now ships with "http https"
-	sed -i -r "s|^[[:space:]]*WHITE_TCP_OUT=.*|WHITE_TCP_OUT=\"http https\"|" $FILE_TO_CHANGE
-elif [ "$RET" = "http https" ] ; then	# Default
-	sed -i -r "s|^[[:space:]]*WHITE_TCP_OUT=.*|WHITE_TCP_OUT=\"$RET\"|" $FILE_TO_CHANGE
+if [ -z "$RET" ] ; then	# Default
+	if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+		sed -i -r "s|^[[:space:]]*WHITE_TCP_OUT=.*|WHITE_TCP_OUT=\"\"|" $CONTROL_CONF
+	fi
 else
-	if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-		# change port numbers to associated service name because of mobloquer (0.5) bug.
-		RET_FIXED="$(echo $RET | sed "s|^80 443|http https|")"
-		sed -i -r "s|^[[:space:]]*WHITE_TCP_OUT=.*|WHITE_TCP_OUT=\"$RET_FIXED\"|" $FILE_TO_CHANGE
+	# change port numbers to associated service name because of mobloquer (0.5) bug.
+	RET_FIXED="$(echo $RET | sed "s|^80 443|http https|")"
+	if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+		sed -i -r "s|^[[:space:]]*WHITE_TCP_OUT=.*|WHITE_TCP_OUT=\"$RET_FIXED\"|" $CONTROL_CONF
 	else
-		echo "WHITE_TCP_OUT=\"$RET\"" >> "$CONTROL_DEFAULT"
+		echo "WHITE_TCP_OUT=\"$RET_FIXED\"" >> $CONTROL_CONF
 	fi
 fi
 
 my_db_get WHITE_UDP_OUT
 if [ -n "$RET" ] ; then
-	if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-		sed -i -r "s|^[[:space:]]*WHITE_UDP_OUT=.*|WHITE_UDP_OUT=\"$RET\"|" $FILE_TO_CHANGE
+	if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+		sed -i -r "s|^[[:space:]]*WHITE_UDP_OUT=.*|WHITE_UDP_OUT=\"$RET\"|" $CONTROL_CONF
 	else
-		echo "WHITE_UDP_OUT=\"$RET\"" >> "$CONTROL_DEFAULT"
+		echo "WHITE_UDP_OUT=\"$RET\"" >> $CONTROL_CONF
 	fi
 else	# Default
-		sed -i -r "s|^[[:space:]]*WHITE_UDP_OUT=.*|WHITE_UDP_OUT=\"$RET\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*WHITE_UDP_OUT=.*|WHITE_UDP_OUT=\"$RET\"|" $CONTROL_CONF
+		fi
 fi
 
 my_db_get WHITE_TCP_IN
 if [ -n "$RET" ] ; then
-	if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-		sed -i -r "s|^[[:space:]]*WHITE_TCP_IN=.*|WHITE_TCP_IN=\"$RET\"|" $FILE_TO_CHANGE
+	if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+		sed -i -r "s|^[[:space:]]*WHITE_TCP_IN=.*|WHITE_TCP_IN=\"$RET\"|" $CONTROL_CONF
 	else
-		echo "WHITE_TCP_IN=\"$RET\"" >> "$CONTROL_DEFAULT"
+		echo "WHITE_TCP_IN=\"$RET\"" >> $CONTROL_CONF
 	fi
 else	# Default
-		sed -i -r "s|^[[:space:]]*WHITE_TCP_IN=.*|WHITE_TCP_IN=\"$RET\"|" $FILE_TO_CHANGE
+	if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+		sed -i -r "s|^[[:space:]]*WHITE_TCP_IN=.*|WHITE_TCP_IN=\"$RET\"|" $CONTROL_CONF
+	fi
 fi
 
 my_db_get WHITE_UDP_IN
 if [ -n "$RET" ] ; then
-	if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-		sed -i -r "s|^[[:space:]]*WHITE_UDP_IN=.*|WHITE_UDP_IN=\"$RET\"|" $FILE_TO_CHANGE
+	if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+		sed -i -r "s|^[[:space:]]*WHITE_UDP_IN=.*|WHITE_UDP_IN=\"$RET\"|" $CONTROL_CONF
 	else
-		echo "WHITE_UDP_IN=\"$RET\"" >> "$CONTROL_DEFAULT"
+		echo "WHITE_UDP_IN=\"$RET\"" >> $CONTROL_CONF
 	fi
 else	# Default
-		sed -i -r "s|^[[:space:]]*WHITE_UDP_IN=.*|WHITE_UDP_IN=\"$RET\"|" $FILE_TO_CHANGE
+	if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+		sed -i -r "s|^[[:space:]]*WHITE_UDP_IN=.*|WHITE_UDP_IN=\"$RET\"|" $CONTROL_CONF
+	fi
 fi
 
 my_db_get WHITE_TCP_FORWARD
 if [ -n "$RET" ] ; then
-	if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-		sed -i -r "s|^[[:space:]]*WHITE_TCP_FORWARD=.*|WHITE_TCP_FORWARD=\"$RET\"|" $FILE_TO_CHANGE
+	if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+		sed -i -r "s|^[[:space:]]*WHITE_TCP_FORWARD=.*|WHITE_TCP_FORWARD=\"$RET\"|" $CONTROL_CONF
 	else
-		echo "WHITE_TCP_FORWARD=\"$RET\"" >> "$CONTROL_DEFAULT"
+		echo "WHITE_TCP_FORWARD=\"$RET\"" >> $CONTROL_CONF
 	fi
 else	# Default
-		sed -i -r "s|^[[:space:]]*WHITE_TCP_FORWARD=.*|WHITE_TCP_FORWARD=\"$RET\"|" $FILE_TO_CHANGE
+	if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+		sed -i -r "s|^[[:space:]]*WHITE_TCP_FORWARD=.*|WHITE_TCP_FORWARD=\"$RET\"|" $CONTROL_CONF
+	fi
 fi
 
 my_db_get WHITE_UDP_FORWARD
 if [ -n "$RET" ] ; then
-	if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-		sed -i -r "s|^[[:space:]]*WHITE_UDP_FORWARD=.*|WHITE_UDP_FORWARD=\"$RET\"|" $FILE_TO_CHANGE
+	if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+		sed -i -r "s|^[[:space:]]*WHITE_UDP_FORWARD=.*|WHITE_UDP_FORWARD=\"$RET\"|" $CONTROL_CONF
 	else
-		echo "WHITE_UDP_FORWARD=\"$RET\"" >> "$CONTROL_DEFAULT"
+		echo "WHITE_UDP_FORWARD=\"$RET\"" >> $CONTROL_CONF
 	fi
 else	# Default
-		sed -i -r "s|^[[:space:]]*WHITE_UDP_FORWARD=.*|WHITE_UDP_FORWARD=\"$RET\"|" $FILE_TO_CHANGE
+	if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+		sed -i -r "s|^[[:space:]]*WHITE_UDP_FORWARD=.*|WHITE_UDP_FORWARD=\"$RET\"|" $CONTROL_CONF
+	fi
 fi
 
 my_db_get WHITE_LOCAL
 case "$RET" in
 	'Do nothing.')
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*WHITE_LOCAL=.*|WHITE_LOCAL=\"0\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*WHITE_LOCAL=.*|WHITE_LOCAL=\"0\"|" $CONTROL_CONF
 		else
-			echo "WHITE_LOCAL=\"0\"" >> "$CONTROL_DEFAULT"
+			echo "WHITE_LOCAL=\"0\"" >> $CONTROL_CONF
 		fi
 		;;
 	'Automatically whitelist LAN traffic and traffic on the loopback device.')	# Default
-		sed -i -r "s|^[[:space:]]*WHITE_LOCAL=.*|WHITE_LOCAL=\"1\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*WHITE_LOCAL=.*|WHITE_LOCAL=\"1\"|" $CONTROL_CONF
+		fi
 		;;
 	'Whitelist the loopback device.')
-		if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-			sed -i -r "s|^[[:space:]]*WHITE_LOCAL=.*|WHITE_LOCAL=\"2\"|" $FILE_TO_CHANGE
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*WHITE_LOCAL=.*|WHITE_LOCAL=\"2\"|" $CONTROL_CONF
 		else
-			echo "WHITE_LOCAL=\"2\"" >> "$CONTROL_DEFAULT"
+			echo "WHITE_LOCAL=\"2\"" >> $CONTROL_CONF
 		fi
 		;;
 esac
 
 my_db_get IP_REMOVE
 if [ -n "$RET" ] ; then
-	if [ "$FILE_TO_CHANGE" = "$CONTROL_DEFAULT" ] ; then
-		sed -i -r "s|^[[:space:]]*IP_REMOVE=.*|IP_REMOVE=\"$RET\"|" $FILE_TO_CHANGE
+	if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+		sed -i -r "s|^[[:space:]]*IP_REMOVE=.*|IP_REMOVE=\"$RET\"|" $CONTROL_CONF
 	else
-		echo "IP_REMOVE=\"$RET\"" >> "$CONTROL_DEFAULT"
+		echo "IP_REMOVE=\"$RET\"" >> $CONTROL_CONF
 	fi
 else	# Default
-		sed -i -r "s|^[[:space:]]*IP_REMOVE=.*|IP_REMOVE=\"$RET\"|" $FILE_TO_CHANGE
+	if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+		sed -i -r "s|^[[:space:]]*IP_REMOVE=.*|IP_REMOVE=\"$RET\"|" $CONTROL_CONF
+	fi
 fi
 
-# Load configuration. This overwrites the above values.
+# Load new configuration. (CONTROL_DEFAULTS has to be loaded again, because we loaded the moblock-control settings before!)
+if [ -f "$CONTROL_DEFAULTS" ] ; then
+	. $CONTROL_DEFAULTS || { echo "Error: Failed to source $CONTROL_DEFAULTS although this file exists."; exit 1; }
+fi
 if [ -f "$CONTROL_CONF" ] ; then
 	. $CONTROL_CONF || { echo "Error: Failed to source $CONTROL_CONF although this file exists."; exit 1; }
-fi
-
-# Load default configuration. This overwrites the above values
-if [ -f "$CONTROL_DEFAULT" ] ; then
-	. $CONTROL_DEFAULT || { echo "Error: Failed to source $CONTROL_DEFAULT although this file exists."; exit 1; }
 fi
 
 # Add a line to the allow list.
@@ -1011,16 +1046,19 @@ done
 
 if [ "$INIT" -ne 0 ] && [ -x "/etc/init.d/blockcontrol" ] ; then
 	# dh_installdeb inserts code to execute init "start".
-	echo "Starting $DESC. If any blocklist is missing, it will be downloaded now. This"
-	echo "may take several minutes. Please be patient and don't abort. If you want to"
-	echo "follow the process, then do in another terminal a"
-	echo " tail -f /var/log/blockcontrol.log"
+	echo
+	echo "$DESC will soon be started ..."
+	echo "If any blocklists are missing, they will be downloaded. This may take several"
+	echo "minutes. Please be patient and don't abort. If you want to follow the update"
+	echo "process, then do in another terminal a"
+	echo " tail -f $CONTROL_LOG"
 	echo "The lists are saved to $BLOCKLISTS_DIR/."
-	echo "The installation of $CONTROL_NAME will fail, if starting $DESC fails. This"
-	echo "happens most often if downloading the blocklists fails temporarily. To"
+	echo "The installation of $CONTROL_NAME will fail, if starting $DESC fails. If this"
+	echo "happens, then in most cases downloading the blocklists failed temporarily. To"
 	echo "workaround this, you can turn the automatic starting of $DESC off by setting"
-	echo "in $CONTROL_DEFAULT:"
+	echo "in $CONTROL_CONF:"
 	echo " INIT=\"0\""
+	echo
 fi
 
 # dh_installdeb will replace this with shell code automatically

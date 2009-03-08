@@ -20,7 +20,7 @@ Description:
 
 blockcontrol provides easy ways to interact with MoBlock and do all common
 related tasks. Remember this is only a addon for MoBlock, so you still need
-MoBlock installed. Alternatively to MoBlockk you may use NFBlock.
+MoBlock installed. Alternatively to MoBlock you may use NFBlock.
 MoBlock and NFBlock check internet traffic based on large lists of IP address
 ranges in order to protect your privacy. You can get them at
 http://moblock.berlios.de and
@@ -109,24 +109,25 @@ test	simple test to check if MoBlock is working
 stats	reports MoBlock's statistics
 reset_stats resets MoBlock's statistics
 show_config shows the complete configuration
+search
 
 ================================================================================
 
 Configuration:
 
-Blocklists are configured in blocklists.list (/etc/blockcontrol/blocklists.list). The
-allow list is allow.p2p (/etc/blockcontrol/allow.p2p). Per default, the allowlist is
-used for incoming and outgoing connections. If desired different allow lists for
-incoming, outgoing and forward connections may be used.
+Blocklists are configured in blocklists.list
+(/etc/blockcontrol/blocklists.list).
 
-The rest is done in "blockcontrol.conf".
+The allow list for IP ranges is allow.p2p (/etc/blockcontrol/allow.p2p). Per
+default, the allowlist is used for incoming and outgoing connections. If desired
+different allow lists for incoming, outgoing and forward connections may be
+used.
 
-blockcontrol first reads its defaults from
-defaults (/usr/lib/blockcontrol/blockcontrol.defaults),
-then the configuration file blockcontrol.conf (/etc/blockcontrol/blockcontrol.conf) and last
-default (/etc/default/blockcontrol). The latter overwrites the previous
-values. It is recommended to make all user changes in default to ease
-updates.
+The rest is done in "default" (/etc/default/blockcontrol). blockcontrol first
+reads its standard configuration from blockcontrol.conf
+(/usr/lib/blockcontrol/blockcontrol.conf) and then the user default
+configuration "default" (/etc/default/blockcontrol). Settings in the latter
+take precedence over the previous.
 
 ================================================================================
 
@@ -219,6 +220,14 @@ Debian, configurable in blockcontrol.conf):
   /var/lib/moblock/ipfilter.dat + backup
   The master blocklist used by moblock depending on the used format.
 
+
+    The scripts blockcontrol, cron.daily, if-up, init,
+    and debian/postinst source blockcontrol.main (/usr/lib/blockcontrol/blockcontrol.main),
+    which first loads blockcontrol.conf (/usr/lib/blockcontrol/blockcontrol.conf),
+    then detects the installed daemon,
+    then loads "default" (/etc/default/blockcontrol) if it exists,
+    then blockcontrol.lib (/usr/lib/blockcontrol/blockcontrol.lib),
+    then the LSB init-functions (/lib/lsb/init-functions) if they exist.
 ================================================================================
 
 Installation:
@@ -231,24 +240,25 @@ under Debian. This should be the same as defined by the File Hierarchy Standard
 
 If you choose other file places, you have to adjust:
 
-- the path to blockcontrol.defaults (CONTROL_DEFAULTS) in blockcontrol, if-up,
+- the path to blockcontrol.main (CONTROL_MAIN) in blockcontrol, if-up,
   cron.daily and init.
-- the path to blockcontrol.conf (CONTROL_CONF) in blockcontrol.defaults
-- PATH in blockcontrol.defaults. Either moblock or nfblock have to be installed
+- the path to blockcontrol.conf (CONTROL_CONF) in blockcontrol.main
+- PATH in blockcontrol.conf. Either moblock or nfblock have to be installed
   in PATH.
-- all other paths in blockcontrol.conf (packagers might also change them in
-  blockcontrol.defaults, but this is optional)
+- all other paths in blockcontrol.conf
 - the Makefile
 
-If your system doesn't have the LSB init-funtions (/lib/lsb/init-functions) you
-may use those provided in this package.
+If your system doesn't have the LSB init-funtions (/lib/lsb/init-functions)
+hardcoded fallback functions will be used.
 
 Note for Fedora 7 and CentOS 5 users (broken LSB init-functions):
 http://forums.phoenixlabs.org/showpost.php?p=107810&postcount=22
 
 
-blockcontrol will detect if you have installed moblock or nfblock (in PATH as specified in blockcontrol.defaults)
-automatically. Otherwise you can specify this in blockcontrol.conf.
+blockcontrol will detect if you have installed moblock or nfblock (in PATH as
+specified in blockcontrol.main) automatically. Otherwise you can specify this in
+"default" (/etc/default/blockcontrol).
+
 ================================================================================
 
 Supported systems:

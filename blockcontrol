@@ -22,20 +22,16 @@
 ################################################################################
 # The following code is common between blockcontrol, cron.daily, if-up, init,
 # and debian/postinst.
-# It sets/loads the variables and functions
+# It sets the variables and loads functions
 
-# This variable has to be set correctly in all just mentioned files.
-# CONTROL_CONF has to be set in CONTROL_DEFAULTS.
-# Everything else can then be done in blockcontrol.conf.
-CONTROL_DEFAULTS="/usr/lib/blockcontrol/blockcontrol.defaults"
+# CONTROL_MAIN has to be set correctly in all just mentioned files.
+CONTROL_MAIN="/usr/lib/blockcontrol/blockcontrol.main"
 
-# Set sane configuration defaults, including the NAME of the installed daemon.
-# Then load the configured values fromCONTROL_CONF and CONTROL_DEFAULT, source
-# the blockcontrol.lib AND the LSB init.functions.
-if [ -f "$CONTROL_DEFAULTS" ] ; then
-	. $CONTROL_DEFAULTS || { echo "$0 Error: Failed to source $CONTROL_DEFAULTS although this file exists."; exit 1; }
+# Configure blockcontrol and load functions.
+if [ -f "$CONTROL_MAIN" ] ; then
+	. $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
 else
-	echo "$0 Error 7: Missing file $CONTROL_DEFAULTS."
+	echo "$0 Error 7: Missing file $CONTROL_MAIN."
 	exit 7
 fi
 
@@ -46,6 +42,7 @@ fi
 # And now, make this script usable:
 case "$1" in
 	'start')
+		test_CONTROL_LOG
 		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Starting $DESC" "$NAME"
 		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
 		do_start >> $CONTROL_LOG 2>&1
@@ -53,6 +50,7 @@ case "$1" in
 		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
 		;;
 	'stop')
+		test_CONTROL_LOG
 		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Stopping $DESC" "$NAME"
 		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
 		do_stop >> $CONTROL_LOG 2>&1
@@ -60,6 +58,7 @@ case "$1" in
 		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
 		;;
 	'restart')
+		test_CONTROL_LOG
 		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Restarting $DESC" "$NAME"
 		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
 		do_restart >> $CONTROL_LOG 2>&1
@@ -67,6 +66,7 @@ case "$1" in
 		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
 		;;
 	'reload'|'force-reload')
+		test_CONTROL_LOG
 		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Reloading $DESC" "$NAME"
 		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
 		do_reload >> $CONTROL_LOG 2>&1
@@ -74,13 +74,14 @@ case "$1" in
 		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
 		;;
 	'update')
+		test_CONTROL_LOG
 		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Updating blocklists and reloading $DESC" "$NAME"
 		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
 		update_blocklists >> $CONTROL_LOG 2>&1
 		do_reload >> $CONTROL_LOG 2>&1
 		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
-		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
 		if [ "$VERBOSITY" -gt 0 ] ; then
+			log_end_msg $RETVAL
 			IFS=";"
 			if [ -n "$UPDATE_FAIL" ] ; then
 				echo ""

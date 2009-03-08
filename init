@@ -39,20 +39,16 @@
 ################################################################################
 # The following code is common between blockcontrol, cron.daily, if-up, init,
 # and debian/postinst.
-# It sets/loads the variables and functions
+# It sets the variables and loads functions
 
-# This variable has to be set correctly in all just mentioned files.
-# CONTROL_CONF has to be set in CONTROL_DEFAULTS.
-# Everything else can then be done in blockcontrol.conf.
-CONTROL_DEFAULTS="/usr/lib/blockcontrol/blockcontrol.defaults"
+# CONTROL_MAIN has to be set correctly in all just mentioned files.
+CONTROL_MAIN="/usr/lib/blockcontrol/blockcontrol.main"
 
-# Set sane configuration defaults, including the NAME of the installed daemon.
-# Then load the configured values fromCONTROL_CONF and CONTROL_DEFAULT, source
-# the blockcontrol.lib AND the LSB init.functions.
-if [ -f "$CONTROL_DEFAULTS" ] ; then
-	. $CONTROL_DEFAULTS || { echo "$0 Error: Failed to source $CONTROL_DEFAULTS although this file exists."; exit 1; }
+# Configure blockcontrol and load functions.
+if [ -f "$CONTROL_MAIN" ] ; then
+	. $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
 else
-	echo "$0 Error 7: Missing file $CONTROL_DEFAULTS."
+	echo "$0 Error 7: Missing file $CONTROL_MAIN."
 	exit 7
 fi
 
@@ -71,9 +67,7 @@ case "$1" in
 			0)
 				if [ "$VERBOSITY" -eq 1 ] ; then
 					log_warning_msg "$DESC is configured not to start automatically at boot time."
-					grep -Eq "^[:blank:]*INIT=" $CONTROL_DEFAULT && \
-						log_warning_msg "To change this edit the INIT entry in $CONTROL_DEFAULT." || \
-						log_warning_msg "To change this edit the INIT entry in $CONTROL_CONF."
+					log_warning_msg "To change this edit the INIT entry in $CONTROL_CONF."
 					log_warning_msg "If you don't want to see this message set VERBOSITY=\"2\" there."
 				fi
 				exit 0

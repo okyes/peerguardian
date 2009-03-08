@@ -1,10 +1,8 @@
-blockcontrol (1.3-1~pre4) sid; urgency=low
+blockcontrol (1.3-1~pre5) sid; urgency=low
 
   TODO:
   - NEWS
   - transition script for custom iptables rules
-  - extra transition package "moblock-control" with backwards compatibility
-    links and all debian/postinst stuff.
   - test and fix update from moblock-control
   - formatting
   - documentation
@@ -17,8 +15,24 @@ blockcontrol (1.3-1~pre4) sid; urgency=low
   - Note in blockcontrol.conf for all variables that only work for one daemon.
   - add support for moblock -z NFQUEUE length from patch 41_Patch_2589_All
     ow__nfq_set_queue_maxlen__to_be_increased_from_default.dpatch
-  - Improve makefile (use .conf and .default), check.
   - document "search"
+
+  WIP:
+  * Reorganised configuration:
+    - The only file for user configuration is the nearly empty blockcontrol.conf
+      (CONTROL_CONF, /etc/blockcontrol/blockcontrol.conf).
+    - Configuration defaults and comments are in blockcontrol.defaults
+      (CONTROL_DEFAULTS, /usr/lib/blockcontrol/blockcontrol.defaults).
+    - default (CONTROL_DEFAULT, /etc/default/blockcontrol) does not exist any
+      more.
+    - WHITE_TCP_OUT is now empty per default again, but preconfigured as
+      "http https" in blockcontrol.conf.
+    - debian/postinst only changes blockcontrol.conf, because
+      blockcontrol.defaults now always contains the default settings.
+    - Removed variable CONF_DIR and LOG_DIR
+    TODO:
+    - mobloquer now also only uses blockcontrol.conf
+    - documentation
 
   DONE:
   * New name: moblock-control is now blockcontrol. If names relate to this
@@ -31,56 +45,62 @@ blockcontrol (1.3-1~pre4) sid; urgency=low
       - MOBLOCK_INIT > INIT
       - MOBLOCK_CRON > CRON
       - SCRIPT_LIB > CONTROL_LIB
-      - SCRIPT_DEFAULTS > CONTROL_DEFAULTS
+      - SCRIPT_DEFAULTS > CONTROL_MAIN
     - debian/postinst: updates are only handled cleanly from moblock-control
       1.2. All prior versions are not regarded. Debconf question to choose
       between migration of all settings (
-      TODO: - configuration file settings
-            - blocklists
+      TODO: - configuration file settings (handled by debconf)
+            - blocklists (old blocklists.list is moved before installation to
+              new place)
             - transition script for custom iptables rules
       ) and default vanilla installation.
 
+  user visible changes:
+  * new option "search", which finds a SEARCHPATTERN in the single blocklists.
+    This might be useful for specifying IP_REMOVE and give hints on (un)useful
+    blocklists.
+  * status: check for ipv6 module before running ip6tables (cader)
+  * Email the results of the update rather than let cron email the output. This
+    makes for a nicer email message. The recipient may be set in CRON_MAILTO.
+    (cader).
 
-  * init-functions: moved the complete code from init-functions to
-    blockcontrol.lib. If /lib/lsb/init-functions exists, then the functions in
-    this file will overwrite those in blockcontrol.lib.
-
-  * debconf:
-    - init and cron are now priority high (instead of medium)
-    - previously critical whitelisting questions are now high
-    - added a hint how to confirm the first debconf question.
-
-  * use LSB function status_of_proc instead of daemon_status
-  * added option "search" to find which single blocklist contains a
-    SEARCHPATTERN. This might be useful for specifying IP_REMOVE and make
-    better guesses about the (un)usefulness of certain blocklists.
   * NFBlock:
-    - new start options
+    - new daemon options
     - test: use syslog as TEST_LOG, instead of DAEMON_LOG as for MoBlock.
-    - Upstream NFBlockD is now NFBlock, adjusted dependencies and all files.
+    - upstream NFBlockD is now NFBlock, adjusted dependencies and all files.
+
+  porter relevant:
+  * init-functions: removed init-functions, but moved the complete code to
+    blockcontrol.lib as hardcoded fallback.
+
+  internal code changes:
+  * test:
+    - pick a random IP (in the first 100+10 lines) from the blocklist (cader)
+    - removed adding a line to the daemon logfile that a IP will now be pinged
+  * use LSB function status_of_proc instead of daemon_status
   * use /usr/bin/moblock as default for the block daemon.
   * stop: verify if daemon was really stopped, wait up to 20 secs.
     Otherwise restarting nfblock failed, because it was restarted too early.
   * restart: removed 1 sec sleep between stop and start, this is handled better
     with stop now.
-  * Removed last traces of quickstart (MOBLOCK_INIT="2=") which was only present
+  * Removed last traces of quickstart (MOBLOCK_INIT="2") which was only present
     in an development version.
-  * moved tests to appropriate functions only.
+  * use tests only in the appropriate functions.
   * Added exit if iptables is not found.
-  * status: check for ipv6 module before running ip6tables (cader)
-  * Email the results of the update rather than let cron email the output. This
-    makes for a nicer email message. The recipient may be set in CRON_MAILTO.
-    (cader).
-  * test:
-    - pick a random IP (in the first 100+10 lines) from the blocklist (cader)
-    - removed adding a line to the daemon logfile that a IP will now be pinged
   * show_config:
     - read possible variables from blockcontrol.defaults
   * Removed special handling of Ubuntu hardy packages. This is solved indirectly
     by the new check in stop now.
   * Moved most common code between the executable files to blockcontrol.defaults
-  * added /usr/local/bin to PATH
+  * added /usr/local/[s]bin to PATH
   * use $BLOCKLISTS_LIST instead of hardcoded path for md5sum
+
+
+  Debian packaging:
+  * debconf:
+    - init and cron are now priority high (instead of medium)
+    - previously critical whitelisting questions are now high
+    - added a hint how to confirm the first debconf question.
   * packaging:
     - dropped etch, added squeeze and jaunty
     - use dh_installifupdown (was not present in etch)

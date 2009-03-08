@@ -1,15 +1,10 @@
 Template: blockcontrol/transition_moblock-control
-Type: boolean
+Type: note
 Default: true
-_Description: Move old moblock-control configuration?
- moblock-control has been renamed to blockcontrol. There are still old
- configuration files on your system. If you choose yes, your old settings will
- be applied to blockcontrol, and afterwards the old configuration files will be
- deleted.
- This question relates to /etc/moblock/moblock.conf and /etc/default/moblock,
- but not to your blocklist selections (/etc/moblock/blocklists.list) and your
- custom iptables rules (/etc/moblock/iptables-custom-insert.sh and
- iptables-custom-remove.sh)
+_Description: Fix your configuration!
+ You need to fix your custom iptables rules
+ (/etc/moblock/iptables-custom-insert.sh and iptables-custom-remove.sh)
+ manually.
 
 Template: blockcontrol/warning_block
 Type: note
@@ -132,7 +127,7 @@ _Description: Turn on daemon logging to syslog?
  .
  If you want to turn off the daemon's logging to the logfile, you can set
   DAEMON_LOG=""
- in /etc/default/blockcontrol. Please note that "test" will not work then.
+ in /etc/blockcontrol/blockcontrol.conf. Please note that "test" will not work then.
 
 
 Template: blockcontrol/LOG_IPTABLES

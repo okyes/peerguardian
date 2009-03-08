@@ -397,9 +397,6 @@ test_set_BLOCKLIST () {
 			;;
 		*)
 			log_failure_msg "Error $E_CONFIG: Check the BLOCKLIST_FORMAT setting."
-			grep -Eq "^[[:space:]]*BLOCKLIST_FORMAT=" $CONTROL_DEFAULT && \
-				log_failure_msg "BLOCKLIST_FORMAT is set in $CONTROL_DEFAULT." || \
-				log_failure_msg "BLOCKLIST_FORMAT is set in $CONTROL_CONF."
 			exit $E_CONFIG
 			;;
 	esac
@@ -412,9 +409,6 @@ test_INIT () {
 			;;
 		*)
 			log_failure_msg "Error $E_CONFIG: Check the INIT setting."
-			grep -Eq "^[[:space:]]*INIT=" $CONTROL_DEFAULT && \
-				log_failure_msg "INIT is set in $CONTROL_DEFAULT." || \
-				log_failure_msg "INIT is set in $CONTROL_CONF."
 			exit $E_CONFIG
 			;;
 	esac
@@ -427,9 +421,6 @@ test_CRON () {
 			;;
 		*)
 			log_failure_msg "Error $E_CONFIG: Check the CRON setting."
-			grep -Eq "^[[:space:]]*CRON=" $CONTROL_DEFAULT && \
-				log_failure_msg "CRON is set in $CONTROL_DEFAULT." || \
-				log_failure_msg "CRON is set in $CONTROL_CONF."
 			exit $E_CONFIG
 			;;
 	esac
@@ -442,9 +433,6 @@ test_VERBOSITY () {
 			;;
 		*)
 			log_failure_msg "Error $E_CONFIG: Check the VERBOSITY setting."
-			grep -Eq "^[[:space:]]*VERBOSITY=" $CONTROL_DEFAULT && \
-				log_failure_msg "VERBOSITY is set in $CONTROL_DEFAULT." || \
-				log_failure_msg "VERBOSITY is set in $CONTROL_CONF."
 			exit $E_CONFIG
 			;;
 	esac
@@ -475,20 +463,6 @@ test_CONTROL_SCRIPT () {
 	}
 }
 
-test_CONF_DIR () {
-	[ -d "$CONF_DIR" ] || {
-		echo -n "Creating missing directory $CONF_DIR ..."
-		mkdir $CONF_DIR && echo "."
-	} || {
-		log_failure_msg "Error $E_XCD: Missing directory $CONF_DIR."
-		log_failure_msg "Check the CONF_DIR setting."
-		grep -Eq "^[[:space:]]*CONF_DIR=" $CONTROL_DEFAULT && \
-			log_failure_msg "CONF_DIR is set in $CONTROL_DEFAULT." || \
-			log_failure_msg "CONF_DIR is set in $CONTROL_CONF."
-		exit $E_XCD
-	}
-}
-
 test_MASTER_BLOCKLIST_DIR () {
 	[ -d "$MASTER_BLOCKLIST_DIR" ] || {
 		echo -n "Creating missing directory $MASTER_BLOCKLIST_DIR ..."
@@ -496,9 +470,6 @@ test_MASTER_BLOCKLIST_DIR () {
 	} || {
 		log_failure_msg "Error $E_XCD: Missing directory $MASTER_BLOCKLIST_DIR."
 		log_failure_msg "Check the MASTER_BLOCKLIST_DIR setting."
-		grep -Eq "^[[:space:]]*MASTER_BLOCKLIST_DIR=" $CONTROL_DEFAULT && \
-			log_failure_msg "MASTER_BLOCKLIST_DIR is set in $CONTROL_DEFAULT." || \
-			log_failure_msg "MASTER_BLOCKLIST_DIR is set in $CONTROL_CONF."
 		exit $E_XCD
 	}
 }
@@ -510,9 +481,6 @@ test_LOG_TIMESTAMP () {
 			;;
 		*)
 			log_failure_msg "Error $E_CONFIG: Check the LOG_TIMESTAMP setting."
-		grep -Eq "^[[:space:]]*LOG_TIMESTAMP=" $CONTROL_DEFAULT && \
-			log_failure_msg "LOG_TIMESTAMP is set in $CONTROL_DEFAULT." || \
-			log_failure_msg "LOG_TIMESTAMP is set in $CONTROL_CONF."
 			exit $E_CONFIG
 			;;
 	esac
@@ -525,9 +493,6 @@ test_LOG_SYSLOG () {
 			;;
 		*)
 			log_failure_msg "Error $E_CONFIG: Check the LOG_SYSLOG setting."
-		grep -Eq "^[[:space:]]*LOG_SYSLOG=" $CONTROL_DEFAULT && \
-			log_failure_msg "LOG_SYSLOG is set in $CONTROL_DEFAULT." || \
-			log_failure_msg "LOG_SYSLOG is set in $CONTROL_CONF."
 			exit $E_CONFIG
 			;;
 	esac
@@ -538,9 +503,6 @@ test_IPTABLES_TARGET () {
 		'NFQUEUE')
 			[ "$NFQUEUE_NUMBER" -ge 0 ] && [ "$NFQUEUE_NUMBER" -le 65535 ] || {
 				log_failure_msg "Error $E_CONFIG: Check the NFQUEUE_NUMBER setting."
-				grep -Eq "^[[:space:]]*NFQUEUE_NUMBER=" $CONTROL_DEFAULT && \
-					log_failure_msg "NFQUEUE_NUMBER is set in $CONTROL_DEFAULT." || \
-					log_failure_msg "NFQUEUE_NUMBER is set in $CONTROL_CONF."
 				exit $E_CONFIG
 				}
 			;;
@@ -550,9 +512,6 @@ test_IPTABLES_TARGET () {
 			;;
 		*)
 			log_failure_msg "Error $E_CONFIG: Check the IPTABLES_TARGET setting."
-			grep -Eq "^[[:space:]]*IPTABLES_TARGET=" $CONTROL_DEFAULT && \
-				log_failure_msg "IPTABLES_TARGET is set in $CONTROL_DEFAULT." || \
-				log_failure_msg "IPTABLES_TARGET is set in $CONTROL_CONF."
 			exit $E_CONFIG
 			;;
 	esac
@@ -572,9 +531,6 @@ test_REJECT () {
 			;;
 		*)
 			log_failure_msg "Error $E_CONFIG: Check the REJECT setting."
-			grep -Eq "^[[:space:]]*REJECT=" $CONTROL_DEFAULT && \
-				log_failure_msg "REJECT is set in $CONTROL_DEFAULT." || \
-				log_failure_msg "REJECT is set in $CONTROL_CONF."
 			exit $E_CONFIG
 			;;
 	esac
@@ -591,9 +547,6 @@ test_ACCEPT () {
 			;;
 		*)
 			log_failure_msg "Error $E_CONFIG: Check the ACCEPT setting."
-			grep -Eq "^[[:space:]]*ACCEPT=" $CONTROL_DEFAULT && \
-				log_failure_msg "ACCEPT is set in $CONTROL_DEFAULT." || \
-				log_failure_msg "ACCEPT is set in $CONTROL_CONF."
 			exit $E_CONFIG
 			;;
 	esac
@@ -606,9 +559,6 @@ test_LSB_MODE () {
 			;;
 		*)
 			log_failure_msg "Error $E_CONFIG: Check the LSB_MODE setting."
-			grep -Eq "^[[:space:]]*LSB_MODE=" $CONTROL_DEFAULT && \
-				log_failure_msg "LSB_MODE is set in $CONTROL_DEFAULT." || \
-				log_failure_msg "LSB_MODE is set in $CONTROL_CONF."
 			exit $E_CONFIG
 			;;
 	esac
@@ -621,9 +571,6 @@ test_BLOCKLISTS_DIR () {
 	} || {
 		log_failure_msg "Error $E_XCD: Missing directory $BLOCKLISTS_DIR."
 		log_failure_msg "Check the BLOCKLISTS_DIR setting."
-		grep -Eq "^[[:space:]]*BLOCKLISTS_DIR=" $CONTROL_DEFAULT && \
-			log_failure_msg "BLOCKLISTS_DIR is set in $CONTROL_DEFAULT." || \
-			log_failure_msg "BLOCKLISTS_DIR is set in $CONTROL_CONF."
 		exit $E_XCD
 	}
 }
@@ -632,23 +579,28 @@ test_BLOCKLISTS_LIST () {
 	[ -f "$BLOCKLISTS_LIST" ] || {
 		log_failure_msg "Error $E_XFILE: Missing file $BLOCKLISTS_LIST."
 		log_failure_msg "Check the BLOCKLISTS_LIST setting."
-		grep -Eq "^[[:space:]]*BLOCKLISTS_LIST=" $CONTROL_DEFAULT && \
-			log_failure_msg "BLOCKLISTS_LIST is set in $CONTROL_DEFAULT." || \
-			log_failure_msg "BLOCKLISTS_LIST is set in $CONTROL_CONF."
 		exit $E_XFILE
 	}
 }
 
-test_LOG_DIR () {
-	[ -d "$LOG_DIR" ] || {
-		echo -n "Creating missing directory $LOG_DIR ..."
-		mkdir $LOG_DIR && echo "."
+test_DAEMON_LOG () {
+	[ -d "$(dirname $DAEMON_LOG)" ] || {
+		echo -n "Creating missing directory $(dirname $DAEMON_LOG) ..."
+		mkdir "$(dirname $DAEMON_LOG)" && echo "."
 	} || {
-		log_failure_msg "Error $E_XCD: Missing directory $LOG_DIR."
-		log_failure_msg "Check the LOG_DIR setting."
-		grep -Eq "^[[:space:]]*LOG_DIR=" $CONTROL_DEFAULT && \
-			log_failure_msg "LOG_DIR is set in $CONTROL_DEFAULT." || \
-			log_failure_msg "LOG_DIR is set in $CONTROL_CONF."
+		log_failure_msg "Error $E_XCD: Missing directory $(dirname $DAEMON_LOG)."
+		log_failure_msg "Check the DAEMON_LOG setting."
+		exit $E_XCD
+	}
+}
+
+test_CONTROL_LOG () {
+	[ -d "$(dirname $CONTROL_LOG)" ] || {
+		echo -n "Creating missing directory $(dirname $CONTROL_LOG) ..."
+		mkdir "$(dirname $CONTROL_LOG)" && echo "."
+	} || {
+		log_failure_msg "Error $E_XCD: Missing directory $(dirname $CONTROL_LOG)."
+		log_failure_msg "Check the CONTROL_LOG setting."
 		exit $E_XCD
 	}
 }
@@ -658,9 +610,6 @@ test_PIDFILE () {
 		log_failure_msg "Error $E_XCD: Missing directory "$(dirname $PIDFILE)"."
 		log_failure_msg "$DESC needs a directory to write its pidfile to!"
 		log_failure_msg "Check the PIDFILE setting."
-		grep -Eq "^[[:space:]]*PIDFILE=" $CONTROL_DEFAULT && \
-			log_failure_msg "PIDFILE is set in $CONTROL_DEFAULT." || \
-			log_failure_msg "PIDFILE is set in $CONTROL_CONF."
 		exit $E_XCD
 	}
 }
@@ -677,9 +626,6 @@ test_IPTABLES_VARS () {
 					;;
 				*)
 					log_failure_msg "Error $E_CONFIG: Check the IPTABLES_ACTIVATION setting."
-					grep -Eq "^[[:space:]]*IPTABLES_ACTIVATION=" $CONTROL_DEFAULT && \
-						log_failure_msg "IPTABLES_ACTIVATION is set in $CONTROL_DEFAULT." || \
-						log_failure_msg "IPTABLES_ACTIVATION is set in $CONTROL_CONF."
 					exit $E_CONFIG
 					;;
 			esac
@@ -691,18 +637,12 @@ test_IPTABLES_VARS () {
 			|| [ -n "$IP_TCP_FORWARD" ] \
 			|| [ -n "$IP_UDP_FORWARD" ] ; then
 				log_failure_msg "Error $E_CONFIG: You're using the obsolete variables IP_[TCP|UDP]_[IN|OUT|FORWARD]."
-				grep -Eq "^[[:space:]]*IP_.*=" $CONTROL_DEFAULT && \
-					log_failure_msg "They are set in $CONTROL_DEFAULT." || \
-					log_failure_msg "They are set in $CONTROL_CONF."
 				log_failure_msg "Since they are no more used this would result in an unwanted behaviour."
 				log_failure_msg "Therefore not starting $DESC."
 				exit $E_CONFIG
 			fi
 			if [ -n "$LOOPBACK" ] ; then
 				log_warning_msg "The variable LOOPBACK is no more used. Use WHITE_LOCAL instead."
-				grep -Eq "^[[:space:]]*LOOPBACK=" $CONTROL_DEFAULT && \
-					log_warning_msg "LOOPBACK is set in $CONTROL_DEFAULT." || \
-					log_warning_msg "LOOPBACK is set in $CONTROL_CONF."
 			fi
 			case "$WHITE_LOCAL" in
 				'0'|'1'|'2')
@@ -710,9 +650,6 @@ test_IPTABLES_VARS () {
 					;;
 				*)
 					log_failure_msg "Error $E_CONFIG: Check the WHITE_LOCAL setting."
-					grep -Eq "^[[:space:]]*WHITE_LOCAL=" $CONTROL_DEFAULT && \
-						log_failure_msg "WHITE_LOCAL is set in $CONTROL_DEFAULT." || \
-						log_failure_msg "WHITE_LOCAL is set in $CONTROL_CONF."
 					exit $E_CONFIG
 					;;
 			esac
@@ -731,25 +668,16 @@ test_IPTABLES_VARS () {
 			[ -f "$IPTABLES_CUSTOM_INSERT" ] || {
 				log_failure_msg "Error $E_XFILE: Could not find $IPTABLES_CUSTOM_INSERT."
 				log_failure_msg "Check the IPTABLES_CUSTOM_INSERT setting."
-				grep -Eq "^[[:space:]]*IPTABLES_CUSTOM_INSERT=" $CONTROL_DEFAULT && \
-					log_failure_msg "IPTABLES_CUSTOM_INSERT is set in $CONTROL_DEFAULT." || \
-					log_failure_msg "IPTABLES_CUSTOM_INSERT is set in $CONTROL_CONF."
 				exit $E_XFILE
 			}
 			[ -f "$IPTABLES_CUSTOM_DELETE" ] || {
 				log_failure_msg "Error $E_XFILE: Could not find $IPTABLES_CUSTOM_DELETE."
 				log_failure_msg "Check the IPTABLES_CUSTOM_DELETE setting."
-				grep -Eq "^[[:space:]]*IPTABLES_CUSTOM_DELETE=" $CONTROL_DEFAULT && \
-					log_failure_msg "IPTABLES_CUSTOM_DELETE is set in $CONTROL_DEFAULT." || \
-					log_failure_msg "IPTABLES_CUSTOM_DELETE is set in $CONTROL_CONF."
 				exit $E_XFILE
 			}
 			;;
 		*)
 			log_failure_msg "Error $E_CONFIG: Check the IPTABLES_SETTINGS setting."
-			grep -Eq "^[[:space:]]*IPTABLES_SETTINGS=" $CONTROL_DEFAULT && \
-				log_failure_msg "IPTABLES_SETTINGS is set in $CONTROL_DEFAULT." || \
-				log_failure_msg "IPTABLES_SETTINGS is set in $CONTROL_CONF."
 			exit $E_CONFIG
 			;;
 	esac
@@ -1136,7 +1064,7 @@ do_start () {
 			test_IPTABLES_VARS
 			test_LOG_SYSLOG
 			test_LOG_TIMESTAMP
-			test_LOG_DIR
+			[ "$NAME" = moblock ] && test_DAEMON_LOG
 			test_PIDFILE
 			test_LSB_MODE
 			# Load kernel modules after checking with grep if they were compiled in the kernel directly.
@@ -1927,8 +1855,7 @@ test_ipblocking () {
 	[ -f "$TEST_LOG" ] || {
 		log_failure_msg "Error $E_XFILE: Missing file $TEST_LOG."
 		log_failure_msg "Was $DESC ever running?"
-		log_failure_msg "Check the DAEMON_LOG settings in $CONTROL_CONF."
-		[ -f "$CONTROL_DEFAULT" ] && log_failure_msg "Also check $CONTROL_DEFAULT."
+		log_failure_msg "Check the DAEMON_LOG setting."
 		exit $E_XFILE
 	}
 
@@ -1953,7 +1880,7 @@ test_ipblocking () {
 	echo ""
 	echo "CAUTION: This is just a simple test to check if $DESC blocks outgoing"
 	echo "connections. For this, an IP from the blocklist will be pinged. Then the test"
-	echo "checks if this IP appears in the logfile $DAEMON_LOG."
+	echo "checks if this IP appears in the logfile $TEST_LOG."
 	if [ "$REJECT" -eq 1 ] ; then
 		echo ""
 		echo "$DESC marks packets to be blocked. This means you have to make sure that the"
@@ -2076,6 +2003,6 @@ search () {
 	done
 	echo
 	echo "If you don't want to block the above shown ranges, then you may add"
-	echo "\"$SEARCHPATTERN\" to IP_REMOVE in $CONTROL_DEFAULT."
+	echo "\"$SEARCHPATTERN\" to IP_REMOVE in $CONTROL_CONF."
 	echo "Or you may remove some of these lists from $BLOCKLISTS_LIST."
 }

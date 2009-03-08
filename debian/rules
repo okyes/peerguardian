@@ -24,7 +24,6 @@ build-stamp: configure-stamp
 	# Link some files to debian/ directory until debhelper can handle such
 	# cases better. See http://bugs.debian.org/499486
 	ln init debian/init
-	ln default debian/default
 	ln cron.daily debian/cron.daily
 	ln if-up debian/if-up
 	ln logrotate debian/logrotate
@@ -47,7 +46,7 @@ clean-patched:
 	# Add here commands to clean up after the build process.
 	$(MAKE) clean
 	# Remove the hardlinks from debian/ directory again. See above.
-	find debian -maxdepth 0 -regextype posix-extended -regex "(.*init)|(.*default)|(.*cron.daily)|(.*if-up)|(.*logrotate)" -print0 | xargs -0r rm
+	find debian -maxdepth 0 -regextype posix-extended -regex "(.*init)|(.*cron.daily)|(.*if-up)|(.*logrotate)" -print0 | xargs -0r rm
 	dh_clean
 
 install: build
