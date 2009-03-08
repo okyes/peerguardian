@@ -3,10 +3,14 @@
 # blockcontrol
 
 # This script will be executed on every "blockcontrol start" for 2 settings:
-# If IPTABLES_SETTINGS="1" is set in blockcontrol.conf (/etc/blockcontrol/blockcontrol.conf) or
-# default (/etc/default/blockcontrol), then first blockcontrol will insert
-# its iptables chains and rules, and afterwards this script gets executed.
-# If IPTABLES_SETTINGS="2" is set, then only this script will be executed.
+
+# Default setup (IPTABLES_SETTINGS="1"):
+# blockcontrol will first insert its iptables setup and afterwards this script
+# gets executed.
+
+# IPTABLES_SETTINGS="2" is set in blockcontrol.conf
+# (/etc/blockcontrol/blockcontrol.conf):
+# Only this script will be executed.
 
 # The block daemon checks traffic that is sent to the iptables target NFQUEUE
 # (default queue number is 92).
@@ -45,8 +49,8 @@
 # Your mail reader fails to get Mails because MoBlock did block it.
 # "tail -f /var/log/moblock.log" shows that the blocked IPs are 72.14.192.73
 # and 72.14.192.75. To find out the destination port set
-# LOG_IPTABLES="LOG --log-level info" in /etc/default/blockcontrol and do a
-# "blockcontrol restart". "sudo tail -f /var/log/syslog" shows that the
+# LOG_IPTABLES="LOG --log-level info" in /etc/blockcontrol/blockcontrol.conf and
+# do a "blockcontrol restart". "sudo tail -f /var/log/syslog" shows that the
 # blocked packets had the destination port 993. "whois 72.14.192.73" shows that
 # the range 72.14.192.0 - 72.14.255.255 is assigned to the same entity. You feel
 # safe to accept all outgoing TCP traffic on port 993 to this range so you do:

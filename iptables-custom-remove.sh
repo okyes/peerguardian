@@ -2,19 +2,17 @@
 # iptables-custom-remove.sh - custom iptables deletion script used by
 # blockcontrol
 
-# This script will be executed on every "blockcontrol stop" if
-# IPTABLES_SETTINGS="2" is set in blockcontrol.conf
-# (/etc/blockcontrol/blockcontrol.conf) or default
-# (/etc/default/blockcontrol).
 # This script will be executed on every "blockcontrol stop" for 2 settings:
-# If IPTABLES_SETTINGS="1" is set in blockcontrol.conf
-# (/etc/blockcontrol/blockcontrol.conf) or default
-# (/etc/default/blockcontrol) then first blockcontrol will remove
-# its iptables setup and afterwards this script gets executed. Note that you
-# don't need to remove custom iptables rules inserted to the chains blockcontrol_in,
-# blockcontrol_out and blockcontrol_fw since these chains already get flushed by
-# blockcontrol.
-# If IPTABLES_SETTINGS="2" is set, then only this script will be executed.
+
+# Default setup (IPTABLES_SETTINGS="1"):
+# blockcontrol will first remove its iptables setup and afterwards this script
+# gets executed. Note that you don't need to remove custom iptables rules
+# inserted to the chains blockcontrol_in, blockcontrol_out and blockcontrol_fw
+# since these chains already get flushed by blockcontrol.
+
+# IPTABLES_SETTINGS="2" is set in blockcontrol.conf
+# (/etc/blockcontrol/blockcontrol.conf):
+# Only this script will be executed.
 
 # MoBlock (nfq) checks traffic that is sent to the iptables target NFQUEUE.
 # (default queue number is 92).

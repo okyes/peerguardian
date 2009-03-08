@@ -1,42 +1,18 @@
-blockcontrol (1.3-1~pre5) sid; urgency=low
+blockcontrol (1.3-1~pre6) sid; urgency=low
 
   TODO:
-  - NEWS
-  - transition script for custom iptables rules
+  - NEWS, Homepage
   - test and fix update from moblock-control
-  - formatting
-  - documentation
-  - add previously moblock-control hints in copyright, etc.
-  - http://ubuntuforums.org/showthread.php?t=1044425
-
   - Choose a lighter default blocklist setup!?
-
   - Check how NFBlock works with marking on/off.
-  - Note in blockcontrol.conf for all variables that only work for one daemon.
   - add support for moblock -z NFQUEUE length from patch 41_Patch_2589_All
     ow__nfq_set_queue_maxlen__to_be_increased_from_default.dpatch
-  - document "search"
-
-  WIP:
-  * Reorganised configuration:
-    - The only file for user configuration is the nearly empty blockcontrol.conf
-      (CONTROL_CONF, /etc/blockcontrol/blockcontrol.conf).
-    - Configuration defaults and comments are in blockcontrol.defaults
-      (CONTROL_DEFAULTS, /usr/lib/blockcontrol/blockcontrol.defaults).
-    - default (CONTROL_DEFAULT, /etc/default/blockcontrol) does not exist any
-      more.
-    - WHITE_TCP_OUT is now empty per default again, but preconfigured as
-      "http https" in blockcontrol.conf.
-    - debian/postinst only changes blockcontrol.conf, because
-      blockcontrol.defaults now always contains the default settings.
-    - Removed variable CONF_DIR and LOG_DIR
-    TODO:
-    - mobloquer now also only uses blockcontrol.conf
-    - documentation
+  - fix mobloquer to also only use blockcontrol.conf
 
   DONE:
-  * New name: moblock-control is now blockcontrol. If names relate to this
-    software, then blockcontrol is used; If they relate directly to the IP block
+  * New name:
+    moblock-control is now blockcontrol. If names relate to this software,
+    then blockcontrol is used. If they relate directly to the IP block
     daemon (MoBlock or NFBlock), then $NAME (moblock or nfblock) is used.
     Changed:
     - directory names: moblock > blockcontrol
@@ -46,14 +22,25 @@ blockcontrol (1.3-1~pre5) sid; urgency=low
       - MOBLOCK_CRON > CRON
       - SCRIPT_LIB > CONTROL_LIB
       - SCRIPT_DEFAULTS > CONTROL_MAIN
-    - debian/postinst: updates are only handled cleanly from moblock-control
-      1.2. All prior versions are not regarded. Debconf question to choose
-      between migration of all settings (
-      TODO: - configuration file settings (handled by debconf)
-            - blocklists (old blocklists.list is moved before installation to
-              new place)
-            - transition script for custom iptables rules
-      ) and default vanilla installation.
+    - updates (in Debian) are only handled cleanly from moblock-control 1.2. All
+      prior versions are not regarded. Configuration file settings are handled
+      by debconf and the old blocklists.list is moved to the new place before
+      installation. Debconf warns the user to transition the custom iptables
+      rules scripts manually.
+  * Reorganised configuration:
+    - The only file for user configuration is the nearly empty blockcontrol.conf
+      (CONTROL_CONF, /etc/blockcontrol/blockcontrol.conf).
+    - Configuration defaults and comments are in blockcontrol.defaults
+      (CONTROL_DEFAULTS, /usr/lib/blockcontrol/blockcontrol.defaults).
+    - The old blockcontrol.defaults has been splitted in blockcontrol.defaults
+      and blockcontrol.main.
+    - default (CONTROL_DEFAULT, /etc/default/...) does not exist any
+      more.
+    - WHITE_TCP_OUT is now empty per default again, but preconfigured as
+      "http https" in blockcontrol.conf.
+    - debian/postinst only changes blockcontrol.conf, because
+      blockcontrol.defaults now always contains the default settings.
+    - Removed variable CONF_DIR and LOG_DIR
 
   user visible changes:
   * new option "search", which finds a SEARCHPATTERN in the single blocklists.
@@ -105,7 +92,7 @@ blockcontrol (1.3-1~pre5) sid; urgency=low
     - dropped etch, added squeeze and jaunty
     - use dh_installifupdown (was not present in etch)
 
- -- jre <jre-phoenix@users.sourceforge.net>  Tue, 03 Mar 2009 22:41:51 +0100
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 08 Mar 2009 18:55:24 +0100
 
 moblock-control (1.2-1) sid lenny; urgency=low
 

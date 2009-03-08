@@ -24,7 +24,7 @@ moblock-control (0.8-16)
 
 moblock-control (0.8-15jre4)
 
-  * renamed /etc/default/moblock-control (default) to /etc/moblock-control/moblock-control.conf
+  * renamed /etc/default/moblock-control (default) to /etc/moblock/moblock.conf
   * build new master blocklist after update if no master blocklist is installed
     even if no blocklist was updated.
   * reload only if moblock is really running

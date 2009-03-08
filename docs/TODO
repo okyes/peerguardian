@@ -10,16 +10,10 @@ blockcontrol:
 
 - [DISCUSS] Block IPv6 completely because currently only IPv4 is checked?
 
-- [DISCUSS] /usr/sbin/blockcontrol instead of /usr/bin/blockcontrol?
-
 - add blocklist conversion to UTF8 (code already implemented, but not used. Use
   better checks). Wait for blocklist converter by João instead.
 
 - expand test to also use traceroute (with a timeout)
-
-- new manual test to find out in which list and with which entry a blocked IP
-  appears. [see also -i option of peerguardnf!]
-  Partly solved by patch 90_log.dpatch by cader!
 
 - build_blocklist: disable concatenating blocklists in .p2b (binary) format.
   Abort (?) if several binary lists are used, MoBlock can't cope with this. What

@@ -1,10 +1,11 @@
 Template: blockcontrol/transition_moblock-control
 Type: note
 Default: true
-_Description: Fix your configuration!
+_Description: Fix your custom configuration!
  You need to fix your custom iptables rules
  (/etc/moblock/iptables-custom-insert.sh and iptables-custom-remove.sh)
- manually.
+ manually. The iptables chains are now called blockcontrol_in, blockcontrol_out
+ and blockcontrol_fw.
 
 Template: blockcontrol/warning_block
 Type: note
@@ -32,16 +33,14 @@ Type: note
 _Description: WARNING: Users with firewall (iptables rules)
  If you use other firewalls or iptables rules, you have to take special care to
  avoid severe conflicts. Make sure the following three conditions hold:
-  - The IP block daemon marks non-matched packets (IP is
-    not in the blocklist). (The marking feature is on per
-    default. It will be explained and asked for later.)
+  - The IP block daemon marks non-matched (IP is not in the blocklist) packets.
+    (The marking feature is on per default.)
   - Other firewalls do not mark packets.
-  - The IP block daemon is started after other firewalls. If other
-    firewalls are started/reloaded later, then you
-    need to restart the IP block daemon again. You will be fine, if the
-    iptables rules which send traffic to the iptables chains (blockcontrol_in,
-    blockcontrol_out and blockcontrol_fw) stand  before all other iptables rules
-    which ACCEPT traffic.
+  - blockcontrol is started after other firewalls. If other firewalls are
+    started/reloaded after blockcontrol, then you need to restart blockcontrol
+    again. You will be fine, if the iptables rules which send traffic to the
+    iptables chains (blockcontrol_in, blockcontrol_out and blockcontrol_fw)
+    stand before all other iptables rules which ACCEPT traffic.
  .
  You can check your iptables rules with
   iptables -L -nv

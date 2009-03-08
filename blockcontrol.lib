@@ -728,8 +728,8 @@ test_net () {
 
 test_BLOCKLIST () {
 	[ -f "$BLOCKLIST" ] || build_blocklist || {
-		log_failure_msg "Error $E_XFILE: Missing file $BLOCKLIST."
-		exit $E_XFILE
+		log_failure_msg "Error $E_BLOCKLIST: Missing file $BLOCKLIST."
+		exit $E_BLOCKLIST
 	}
 }
 
@@ -1738,7 +1738,7 @@ build_blocklist () {
 
 	BLOCKLISTSCAT=""
 
-	# Remove the old MD5SUM file now, so that if anything goes wrong it's clear we have to rebuild the blocklist:
+	# Remove the old MD5SUM file now, so that if anything goes wrong, it's clear we have to rebuild the blocklist:
 	[ -e "$MD5SUM_FILE" ] && { rm "$MD5SUM_FILE" || { log_failure_msg " Error: rm exited with $?" ; exit 1; } ; }
 
 	# Read the non-comment|not-empty lines from BLOCKLISTS_LIST.
@@ -1963,13 +1963,15 @@ test_ipblocking () {
 }
 
 dump_stats () {
-	kill -s USR2 "$(pidofproc $DAEMON)"
+	[ "$NAME" = moblock ] && kill -s USR2 "$(pidofproc $DAEMON)"
 }
 
 reset_stats () {
-	CURLINE="$(wc -l $STATFILE | awk '{print$1}')"
-	kill -s USR1 "$(pidofproc $DAEMON)"
-	tail -n+$CURLINE $STATFILE
+	if [ "$NAME" = moblock ] ; then
+		CURLINE="$(wc -l $STATFILE | awk '{print$1}')"
+		kill -s USR1 "$(pidofproc $DAEMON)"
+		tail -n+$CURLINE $STATFILE
+	fi
 }
 
 search () {
