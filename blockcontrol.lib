@@ -1294,6 +1294,8 @@ do_stop () {
 
 	# Verify that the daemon is really not running. This may take some
 	# time (e.g. nfblock 0.6.1), even after the killproc ended successfully.
+	# Otherwise restarting nfblock fails, because it was restarted too early.
+	# This also fixes broken lsb init-functions, that give the wrong return code.
 	COUNT=0
 	# Wait up to 20 seconds
 	while [ "$COUNT" -lt 20 ] ; do
@@ -2073,7 +2075,7 @@ search () {
 		echo "$LIST_NAME ($LIST)"
 	done
 	echo
-	echo "If you don't want to block these, you may add \"$SEARCHPATTERN\""
-	echo "to IP_REMOVE in $CONTROL_DEFAULT or remove the lists from"
-	echo "$BLOCKLISTS_LIST."
+	echo "If you don't want to block the above shown ranges, then you may add"
+	echo "\"$SEARCHPATTERN\" to IP_REMOVE in $CONTROL_DEFAULT."
+	echo "Or you may remove some of these lists from $BLOCKLISTS_LIST."
 }
