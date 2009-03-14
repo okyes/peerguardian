@@ -7,7 +7,8 @@ blockcontrol (1.3-1~pre6) sid; urgency=low
   - Check how NFBlock works with marking on/off.
   - add support for moblock -z NFQUEUE length from patch 41_Patch_2589_All
     ow__nfq_set_queue_maxlen__to_be_increased_from_default.dpatch
-  - fix mobloquer to also only use blockcontrol.conf
+  - whitelist DNS server automatically
+   [ -f /etc/resolv.conf ] && "$(grep nameserver /etc/resolv.conf | grep -o IP)"
 
   DONE:
   * New name:
@@ -27,12 +28,14 @@ blockcontrol (1.3-1~pre6) sid; urgency=low
       by debconf and the old blocklists.list is moved to the new place before
       installation. Debconf warns the user to transition the custom iptables
       rules scripts manually.
+    - added Conflicts: moblock-control (<1.3) and Replaces: moblock-control
+
   * Reorganised configuration:
-    - The only file for user configuration is the nearly empty blockcontrol.conf
-      (CONTROL_CONF, /etc/blockcontrol/blockcontrol.conf).
+    - The only file for user configuration is blockcontrol.conf, which is nearly
+      on a pure install. (CONTROL_CONF, /etc/blockcontrol/blockcontrol.conf).
     - Configuration defaults and comments are in blockcontrol.defaults
       (CONTROL_DEFAULTS, /usr/lib/blockcontrol/blockcontrol.defaults).
-    - The old blockcontrol.defaults has been splitted in blockcontrol.defaults
+    - The old blockcontrol.defaults has been split in blockcontrol.defaults
       and blockcontrol.main.
     - default (CONTROL_DEFAULT, /etc/default/...) does not exist any
       more.

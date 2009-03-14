@@ -2,6 +2,8 @@ BUGS of blockcontrol and moblock-deb packages:
 
 ################################## Open bugs: ##################################
 
+- http://forums.phoenixlabs.org/showpost.php?p=122861
+
 - blockcontrol can't verify if MoBlock is really started, since MoBlock is
   started in the background.
   A successful start is reported before this is really the case. If MoBlock
