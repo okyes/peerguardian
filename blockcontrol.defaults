@@ -41,17 +41,17 @@ CONTROL_LOG="/var/log/blockcontrol.log"
 # The path to the blockcontrol library
 CONTROL_LIB="/usr/lib/blockcontrol/blockcontrol.lib"
 
-# The path of the master blocklist directory
-MASTER_BLOCKLIST_DIR="/var/lib/blockcontrol"
-
-# The path of the directory where the blocklists are downloaded and manipulated
-BLOCKLISTS_DIR="/var/spool/blockcontrol"
-
 # The path to the user configuration
 CONTROL_CONF="/etc/blockcontrol/blockcontrol.conf"
 
 # The path of blocklists.list
 BLOCKLISTS_LIST="/etc/blockcontrol/blocklists.list"
+
+# The path of the master blocklist directory
+MASTER_BLOCKLIST_DIR="/var/lib/blockcontrol"
+
+# The path of the directory where the blocklists are downloaded and manipulated
+BLOCKLISTS_DIR="/var/spool/blockcontrol"
 
 # The path to the allow lists
 # Note that per default the same allow list is used for all input and output
@@ -253,8 +253,8 @@ WHITE_UDP_FORWARD=""
 
 # Possibility 1:
 # You can specify IP ranges that shall not be checked by MoBlock in a separate
-# file. Per default this is /etc/blockcontrol/allow.p2p. See the
-# ALLOW_[IN|OUT|FW] settings below if you want to use different allowlists for
+# file. Per default this is /etc/blockcontrol/allow.p2p. Change the
+# ALLOW_[IN|OUT|FW] variables if you want to use different allow lists for
 # incoming, outgoing and forwarded traffic.
 
 # Possibility 2:
