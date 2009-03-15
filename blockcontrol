@@ -1,5 +1,7 @@
 #!/bin/sh
+#
 # blockcontrol - script to manage IP block daemons (MoBlock and NFBlock)
+#
 # Copyright (C) 2005 - 2009 jre <jre-phoenix@users.sourceforge.net>
 # Parts and ideas from JFM, /meth/usr, lestlest (clessing), Morpheus and
 # perhaps others. More Info: http://forums.phoenixlabs.org
@@ -148,6 +150,7 @@ case "$1" in
 		VARIABLES="$(grep -Ev "^[[:space:]]*#" $CONTROL_DEFAULTS | grep "=" | sed "s|=.*||" | sort -u)"
 		for VAR in $VARIABLES ; do
 			eval VALUE=\$$VAR
+			# This gives the actually used value of the variable (not necessarily that which is set in CONTROL_DEFAULTS).
 			echo ${VAR}=\"$VALUE\"
 		done
 		echo

@@ -26,7 +26,7 @@ PIDFILE="/var/run/moblock.pid"
 # Please note that "blockcontrol test" will not work then.
 DAEMON_LOG="/var/log/moblock.log"
 
-# MoBlock's stat file (NFBlock doesn't have one)
+# MoBlock's stat file (NFBlock doesn't have one).
 STATFILE="/var/log/MoBlock.stats"
 
 # The name of this software

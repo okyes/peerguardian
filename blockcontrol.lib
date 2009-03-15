@@ -1,4 +1,4 @@
-# blockcontrol.library - shell functions for blockcontrol
+# blockcontrol.lib - shell functions for blockcontrol
 #
 # Copyright (C) 2005 - 2009 jre <jre-phoenix@users.sourceforge.net>
 # Parts and ideas from JFM, /meth/usr, lestlest (clessing), Morpheus and
@@ -1200,6 +1200,7 @@ do_start () {
 			;;
 		# Problematic daemon status. Be verbose and exit!
 		*)
+			echo "Problematic daemon status: $RETVAL"
 			status_of_proc $DAEMON $NAME
 			exit $?
 			;;
@@ -1250,7 +1251,8 @@ do_reload () {
 	test_DAEMON
 	# Check if daemon is running
 	status_of_proc $DAEMON $NAME > /dev/null 2>&1
-	case "$?" in
+	RETVAL=$?
+	case "$RETVAL" in
 		0)	# Daemon is running
 			test_set_BLOCKLIST
 			build_blocklist
@@ -1264,8 +1266,9 @@ do_reload () {
 			log_success_msg "$DESC is not running, doing nothing."
 			RETVAL=0
 			;;
-		# Problematic daemon status. Output the functions output and exit!
+		# Problematic daemon status. Be verbose and exit!
 		*)
+			echo "Problematic daemon status: $RETVAL"
 			status_of_proc $DAEMON $NAME
 			exit $?
 			;;
@@ -1834,13 +1837,18 @@ test_ipblocking () {
 	test_REJECT
 	echo "Testing $DESC:"
 	# Check if daemon is running
-	# With the argument "exitifstrange" the function exits if the resulting RETVAL is not 0 or 3
 	status_of_proc $DAEMON $NAME > /dev/null 2>&1
-	case "$?" in
+	RETVAL=$?
+	case "$RETVAL" in
 		0)	# Daemon is running
 			true
 			;;
-		*)	# Daemon is not running
+		3)	# Daemon is not running
+			status_of_proc $DAEMON $NAME
+			exit $?
+			;;
+		*)	# Problematic daemon status. Be verbose and exit!
+			echo "Problematic daemon status: $RETVAL"
 			status_of_proc $DAEMON $NAME
 			exit $?
 			;;
@@ -1963,7 +1971,11 @@ test_ipblocking () {
 }
 
 dump_stats () {
-	[ "$NAME" = moblock ] && kill -s USR2 "$(pidofproc $DAEMON)"
+	if [ "$NAME" = moblock ] ; then
+		CURLINE="$(wc -l $STATFILE | awk '{print$1}')"
+		kill -s USR2 "$(pidofproc $DAEMON)"
+		tail -n+$CURLINE $STATFILE
+	fi
 }
 
 reset_stats () {
