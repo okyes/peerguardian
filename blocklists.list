@@ -8,7 +8,7 @@
 
 # For local blocklists start the line with "locallist".
 
-# Have a look at /usr/share/doc/moblock/README.blocklists.gz for detailed
+# Have a look at /usr/share/doc/blockcontrol/README.blocklists.gz for detailed
 # information about some available blocklists.
 
 # Do a "blockcontrol reload" (or "restart" or "update") when you have edited

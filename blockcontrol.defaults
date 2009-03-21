@@ -216,10 +216,10 @@ ACCEPT_MARK="20"
 #         firewalls.
 IPTABLES_TARGET_WHITELISTING="RETURN"
 
-# Whitelist local traffic
-# 0 - Do nothing.
-# 1 - Automatically whitelist LAN traffic and traffic on the loopback device.
-# 2 - Whitelist traffic on the loopback device.
+# Automatically whitelist traffic
+# 0 - No automatic whitelisting.
+# 1 - Automatic whitelisting of LAN and DNS server and loopback device.
+# 2 - Automatic whitelisting of DNS server and loopback device.
 WHITE_LOCAL="1"
 
 ############################### Whitelist ports ###############################

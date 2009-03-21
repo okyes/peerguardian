@@ -1,31 +1,32 @@
 Template: blockcontrol/transition_moblock-control
 Type: note
 Default: true
-_Description: Fix your custom configuration!
- You need to fix your custom iptables rules
- (/etc/moblock/iptables-custom-insert.sh and iptables-custom-remove.sh)
- manually. The iptables chains are now called blockcontrol_in, blockcontrol_out
- and blockcontrol_fw.
+_Description: New name blockcontrol. Fix your custom iptables scripts!
+ moblock-control has been renamed to blockcontrol. Your configuration has been
+ preserved. But if you use custom iptables rules
+ (/etc/moblock/iptables-custom-insert.sh and iptables-custom-remove.sh), then
+ you have to fix them, and move them to /etc/blockcontrol.
+ .
+ The iptables chains are now called blockcontrol_in, blockcontrol_out and
+ blockcontrol_fw.
 
 Template: blockcontrol/warning_block
 Type: note
 _Description: WARNING: IP blockers may block your complete network/internet access!
  Blockcontrol starts an IP block daemon (MoBlock or NFBlock) automatically at
  system boot per default. Some preconfigured blocklists are updated once a day.
- Be warned, that most blocklists block more than what you want. In most cases
+ Be warned, that blocklists may block more than what you want. In most cases
  this will result in a limited  network availability. This includes your own LAN
  and router, many webpages, services like eMail, instant messaging or the
  "weather applet" and your machine's accessibility from the internet.
  .
- There are many configuration options to prevent this. Per default traffic to
- your own LAN will always be allowed (whitelisted). This feature is still
- experimental. If you are on a public LAN, you probably want to disable this
- feature.
+ Therefore the default is to automatically whitelist LAN, DNS server and
+ loopback device. If you are on a public LAN, you probably want to disable
+ this feature.
  .
  You can now tweak your settings. They can later be changed with
   sudo dpkg-reconfigure blockcontrol
- .
- For those people, who cannot leave this screen: Press the TAB key select OK and
+ For those, who cannot leave this screen: Press the TAB key to select OK and
  press enter.
 
 Template: blockcontrol/warning_firewall
@@ -41,7 +42,6 @@ _Description: WARNING: Users with firewall (iptables rules)
     again. You will be fine, if the iptables rules which send traffic to the
     iptables chains (blockcontrol_in, blockcontrol_out and blockcontrol_fw)
     stand before all other iptables rules which ACCEPT traffic.
- .
  You can check your iptables rules with
   iptables -L -nv
  or
@@ -74,9 +74,8 @@ Template: blockcontrol/blocklists_dat
 Type: multiselect
 Choices: tbg.iblocklist.com/Lists/ipfilter.dat.gz
 Default: tbg.iblocklist.com/Lists/ipfilter.dat.gz
-_Description: What blocklists shall MoBlock use?
- This selects the blocklist that MoBlock should use. They are all in the eMule
- ipfilter.dat format.
+_Description: What blocklists shall be used?
+ This selects the blocklists. They are all in the eMule ipfilter.dat format.
  .
  /usr/share/doc/blockcontrol/README.blocklists.gz provides more information
  about these blocklists. Online information sources are
@@ -92,9 +91,8 @@ Template: blockcontrol/blocklists_p2p
 Type: multiselect
 Choices: TBG_Primary_Threats, TBG_General_Corporate_Ranges, TBG_Business_ISPs, TBG_Educational_Institutions, TBG_Search_Engines, TBG_Hijacked, TBG_Bogon, Bluetack_level1, Bluetack_level2, Bluetack_level3, Bluetack_edu, Bluetack_ads, Bluetack_bogon, Bluetack_spyware, Bluetack_spider, Bluetack_Microsoft, Bluetack_proxy, Bluetack_hijacked, Bluetack_badpeers, Bluetack_rangetest, Bluetack_dshield
 Default: TBG_Primary_Threats, TBG_General_Corporate_Ranges, TBG_Business_ISPs, TBG_Search_Engines, TBG_Hijacked, TBG_Bogon, Bluetack_proxy, Bluetack_dshield
-_Description: What blocklists shall MoBlock use?
- This selects the blocklists that MoBlock should use. They are all in the
- PeerGuardian .p2p text format.
+_Description: What blocklists shall be used?
+ This selects the blocklists. They are all in the PeerGuardian .p2p text format.
  .
  These lists were created by Bluetack (http://www.bluetack.co.uk) and TBG
  (http://tbg.iblocklist.com) and are provided by iblocklist.com.
@@ -144,6 +142,8 @@ _Description: Turn on iptables logging of blocked packets to syslog?
  This will only work if you mark matched (IP is in the blocklist) packets. (The
  marking feature is on per default. It will be explained and asked for later.)
  .
+ This is one way to figure out the port of the blocked packets.
+ 
  The default is not to log blocked packets to syslog.
 
 Template: blockcontrol/VERBOSITY
@@ -232,12 +232,12 @@ _Description: Do you want to mark matched (IP is in the blocklist) packets?
  .
  Set what happens to matched (IP is in the blocklist) packets.
  .
- No, DROP them directly (as in MoBlock 0.8).
+ If you MARK matched packets, then further iptables rules that match this MARK
+ decide what happens to the packets. E.g. this allows to REJECT packets to avoid
+ the long timeout which occurs when packets are DROPped, see below. This setting
+ is also necessary for iptables logging to syslog, see above. (default)
  .
- Yes, MARK them. Further iptables rules that match this MARK decide what happens
- to them. E.g. this allows to REJECT packets to avoid the long timeout which
- occurs when packets are DROPped, see below. This setting is also necessary for
- iptables logging to syslog, see above. (default)
+ If you do not MARK matched packets, they will be DROPped directly.
 
 Template: blockcontrol/REJECT_IN
 Type: select
@@ -286,10 +286,11 @@ _Description: Do you want to mark non-matched (IP is not in the blocklist) packe
  .
  Set what happens to non-matched (IP is not in the blocklist) packets.
  .
- No, ACCEPT them directly (as in MoBlock 0.8).
+ If you MARK non-matched packets, then they will be just ignored by
+ blockcontrol. This allows integration with other firewalls. (default)
  .
- Yes, MARK them. MoBlock will then ignore them. This allows integration with
- other firewalls. (default)
+ If you do not MARK non-matched (IP is not in the blocklist) packets, they will
+ be ACCEPTed directly.
 
 Template: blockcontrol/info_whitelisting
 Type: note
@@ -297,7 +298,7 @@ _Description: Whitelisting
  The following questions help you define which traffic will NOT be checked by
  MoBlock. This is called "whitelisting".
  .
- Do a "dpkg-reconfigure moblock" to get the full set of questions (many have
+ Do a "dpkg-reconfigure blockcontrol" to get the full set of questions (many have
  only low priority and will not be asked per default).
  .
  Traffic is categorized as:
@@ -395,17 +396,16 @@ _Description: Whitelist forwarded UDP ports:
 
 Template: blockcontrol/WHITE_LOCAL
 Type: select
-Choices: Do nothing., Automatically whitelist LAN traffic and traffic on the loopback device., Whitelist the loopback device.
-Default: Automatically whitelist LAN traffic and traffic on the loopback device.
-_Description: Set your whitelisting options for local traffic:
+Choices: No automatic whitelisting., Automatic whitelisting of LAN and DNS server and loopback device., Automatic whitelisting of DNS server and loopback device.
+Default: Automatic whitelisting of LAN and DNS server and loopback device.
+_Description: Set the automatic whitelisting options:
  Configuration variable: WHITE_LOCAL
  .
- The default is to automatically whitelist LAN traffic and traffic on the
- loopback device. This feature is still experimental. If you are on a public
- LAN, you probably want to only whitelist the loopback device instead.
+ The default is to automatically whitelist LAN, DNS server and loopback device.
+ This is the recommended setting if you are at home.
  .
- "Whitelist the loopback device" is the same as the obsolete setting
- LOOPBACK="1".
+ If you are on a public LAN, you probably want it checked by the IPblocker. So
+ choose to only whitelist the DNS server and the loopback device then.
 
 Template: blockcontrol/allowlist
 Type: string

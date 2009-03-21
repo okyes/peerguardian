@@ -12,7 +12,7 @@
 # (/etc/blockcontrol/blockcontrol.conf):
 # Only this script will be executed.
 
-# The block daemon checks traffic that is sent to the iptables target NFQUEUE
+# The IP block daemon checks traffic that is sent to the iptables target NFQUEUE
 # (default queue number is 92).
 
 # Examples for IPTABLES_SETTINGS="1". This is advanced stuff, have a look at
@@ -20,9 +20,6 @@
 # complimentary user-space module for these things to work. With other words,
 # both netfilter (iptables) and the kernel must support what you want - so it
 # depends on your distribution if this will be the case.
-# The chains blockcontrol_in, blockcontrol_out and blockcontrol_fw get flushed on
-# "blockcontrol stop". So you don't have to care about the removal of rules
-# that you add to these chains here.
 
 # Whitelist outgoing TCP traffic to port 80 for the application firefox-bin:
 # My system doesn't support this, feedback welcome ;-)
@@ -45,10 +42,10 @@
 
 # Whitelist outgoing TCP traffic on port [port] to the destination iprange [x.x.x.x-y.y.y.y].
 # Be careful with the syntax: there must be no spaces in the iprange!
-# Real life example:
-# Your mail reader fails to get Mails because MoBlock did block it.
+#
+# Example: Your mail reader fails to get Mails because MoBlock did block it.
 # "tail -f /var/log/moblock.log" shows that the blocked IPs are 72.14.192.73
-# and 72.14.192.75. To find out the destination port set
+# and 72.14.192.75. To find out the destination port, set
 # LOG_IPTABLES="LOG --log-level info" in /etc/blockcontrol/blockcontrol.conf and
 # do a "blockcontrol restart". "sudo tail -f /var/log/syslog" shows that the
 # blocked packets had the destination port 993. "whois 72.14.192.73" shows that
@@ -63,10 +60,3 @@
 #ip6tables -I OUTPUT -j REJECT
 #ip6tables -I INPUT -j DROP
 #ip6tables -I FORWARD -j DROP
-
-# Example for IPTABLES_SETTINGS="2".
-# Check all traffic. This is the most basic way to check all traffic.
-# Remember to remove these rules after usage in iptables-custom-remove.sh
-#iptables -I INPUT -j NFQUEUE --queue-num 92
-#iptables -I OUTPUT -j NFQUEUE --queue-num 92
-#iptables -I FORWARD -j NFQUEUE --queue-num 92

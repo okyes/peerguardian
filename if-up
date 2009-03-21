@@ -18,8 +18,11 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ################################################################################
-# The following code is common between blockcontrol, cron.daily, if-up, init,
-# and debian/postinst.
+# The following code is similar to code in blockcontrol, cron.daily, init and
+# debian/postinst. But in if-up it exits successfully if CONTROL_MAIN is not
+# there, yet. This can happen in early boot stages before local file systems are
+#  mounted.
+
 # It sets the variables and loads functions
 
 # CONTROL_MAIN has to be set correctly in all just mentioned files.
@@ -29,8 +32,7 @@ CONTROL_MAIN="/usr/lib/blockcontrol/blockcontrol.main"
 if [ -f "$CONTROL_MAIN" ] ; then
 	. $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
 else
-	echo "$0 Error 7: Missing file $CONTROL_MAIN."
-	exit 7
+	exit 0
 fi
 
 # End of the common code between blockcontrol, cron.daily, if-up, init,
@@ -38,38 +40,66 @@ fi
 ################################################################################
 
 test_root
+# If the daemon is not running, just exit gracefully:
+status_of_proc $DAEMON $NAME > /dev/null 2>&1 || exit 0
+test_IPTABLES_VARS
+# Exit if user doesn't want automatic whitelisting:
+[ "$IPTABLES_SETTINGS" -eq 0 ] && exit 0
+[ "$WHITE_LOCAL" -eq 0 ] && exit 0
 test_DAEMON
 test_CONTROL_SCRIPT
-test_IPTABLES_VARS
+test_external iptables
 
-if [ "$WHITE_LOCAL" -eq 1 ] && [ "$IPTABLES_SETTINGS" -eq 1 ] && status_of_proc $DAEMON $NAME > /dev/null 2>&1 ; then
-	test_external iptables
-
-	# Get IPs (only the first triplets) of interfaces that are up
-	LOCAL_IPS=$(ifconfig | grep -o "inet addr:[[:space:]]*[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\." | sed s/inet\ addr:[[:space:]]*//)
+if [ "$WHITE_LOCAL" -eq 1 ] ; then
+	# Get IPs of interfaces that are up
+	LOCAL_IPS="$(ifconfig | grep -Eo "inet addr:[[:space:]]*[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" )"
 	for IP in $LOCAL_IPS ; do
 		case $IP in
 			127.*)	# IP is the loopback IP: If loopback device is not already whitelisted then insert whitelisting rules for whole loopback interface
-				iptables -nv -L ${CONTROL_NAME}_in |  grep "${IPTABLES_TARGET_WHITELISTING}[[:space:]]*all[[:space:]]*--[[:space:]]*lo" > /dev/null 2>&1 || { \
-				iptables -I ${CONTROL_NAME}_in -i lo -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -nv -L blockcontrol_in |  grep "${IPTABLES_TARGET_WHITELISTING}[[:space:]]*all[[:space:]]*--[[:space:]]*lo" > /dev/null 2>&1 || { \
+					iptables -I blockcontrol_in -i lo -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 					}
-				iptables -nv -L ${CONTROL_NAME}_out |  grep "${IPTABLES_TARGET_WHITELISTING}[[:space:]]*all[[:space:]]*--[[:space:]]*\*[[:space:]]*lo" > /dev/null 2>&1 || { \
-					iptables -I ${CONTROL_NAME}_out -o lo -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -nv -L blockcontrol_out |  grep "${IPTABLES_TARGET_WHITELISTING}[[:space:]]*all[[:space:]]*--[[:space:]]*\*[[:space:]]*lo" > /dev/null 2>&1 || { \
+					iptables -I blockcontrol_out -o lo -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 					}
 				;;
-			*)	# If the LAN is not already whitelisted then insert whitelisting rules for LAN (IP with subnetmask /24)
-				iptables -nv -L ${CONTROL_NAME}_in | grep ${IP}0/24  > /dev/null 2>&1 || { \
-					iptables -I ${CONTROL_NAME}_in --source ${IP}0/24 -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
-					}
-				iptables -nv -L ${CONTROL_NAME}_out | grep ${IP}0/24  > /dev/null 2>&1 || { \
-					iptables -I ${CONTROL_NAME}_out --destination ${IP}0/24 -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
-					}
-				iptables -nv -L ${CONTROL_NAME}_fw | grep ${IP}0/24  > /dev/null 2>&1 || { \
-					iptables -I ${CONTROL_NAME}_fw --source ${IP}0/24 -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
-					iptables -I ${CONTROL_NAME}_fw --destination ${IP}0/24 -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
-					}
+			*)	# If the LAN is not already whitelisted then insert whitelisting rules for LAN with SUBNETMASK
+				SUBNETMASK="$(ifconfig | grep "$IP" | grep -Eo "Mask:[[:space:]]*[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" )"
+				if [ "$SUBNETMASK" = 255.255.255.0 ] ; then
+					SCOPE="$( echo $IP | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\." )0/24"
+				elif [ "$SUBNETMASK" = 255.255.0.0 ] ; then
+					SCOPE="$( echo $IP | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\." )0.0/16"
+				else
+					# TODO: Find a way to check for the real IP/SUBNETMASK pattern.
+					# With an empty SCOPE the last grep command will just fail, so
+					# additional whitlisting rules for the LAN will be inserted.
+					# If the network is brought up several times there will be multiple identical rules.
+					SCOPE=""
+				fi
+ 				iptables -nv -L blockcontrol_in | grep $IPTABLES_TARGET_WHITELISTING | grep $SCOPE > /dev/null 2>&1 || { \
+					iptables -I blockcontrol_in --source ${IP}/${SUBNETMASK} -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+ 					}
+ 				iptables -nv -L blockcontrol_out | grep $IPTABLES_TARGET_WHITELISTING | grep $SCOPE > /dev/null 2>&1 || { \
+					iptables -I blockcontrol_out --destination ${IP}/${SUBNETMASK} -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+ 					}
+ 				iptables -nv -L blockcontrol_fw | grep $IPTABLES_TARGET_WHITELISTING | grep $SCOPE > /dev/null 2>&1 || { \
+					iptables -I blockcontrol_fw --source ${IP}/${SUBNETMASK} --destination ${IP}/${SUBNETMASK} -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+ 					}
 				;;
 		esac
+	done
+fi
+
+# If the DNS server is not already whitelisted then insert whitelisting rules for it
+if [ "$WHITE_LOCAL" -ne 0 ] && [ -f /etc/resolv.conf ] ; then
+	DNS_IPS="$( grep nameserver /etc/resolv.conf | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" )"
+	for IP in $DNS_IPS ; do
+		iptables -nv -L blockcontrol_out | grep $IP | grep $IPTABLES_TARGET_WHITELISTING > /dev/null 2>&1 || { \
+			iptables -I blockcontrol_out --destination $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+			}
+		iptables -nv -L blockcontrol_fw | grep $IP | grep $IPTABLES_TARGET_WHITELISTING > /dev/null 2>&1 || { \
+			iptables -I blockcontrol_fw --destination $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+			}
 	done
 fi
 

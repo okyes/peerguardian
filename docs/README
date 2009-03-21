@@ -61,7 +61,9 @@ Up to MoBlock 0.8 packets that do not match the blocklist are ACCEPTed and
 packets that match the blocklist are DROPped.
 MoBlock (since 0.9) and NFBlock can also MARK packets, so that iptables rules
 that match this mark decide what happens with these packets. Per default
-marking is on.
+marking is on: allowed packets (IP is not in the blocklist) get the mark "20"
+(shown as 0x14 by iptables) and blocked packets (IP is in the blocklist) get the
+mark "10" (0xa).
 Marked packets repeat the hook function (NF_REPEAT). So they are sent back to
 the head of the iptables chain again. A packet may only bear one mark, so there
 mustn't be any other applications / iptables rules that mark packets. Otherwise

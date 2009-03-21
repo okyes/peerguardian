@@ -10,7 +10,7 @@ Vcs-Browser: http://moblock-deb.svn.sourceforge.net/viewvc/moblock-deb/blockcont
 Vcs-Svn: https://moblock-deb.svn.sourceforge.net/svnroot/moblock-deb/blockcontrol/
 
 Package: blockcontrol
-Architecture: any
+Architecture: all
 Depends: ${misc:Depends}, iptables, lsb-base (>= 3.0-6), moblock (>0.9~rc2-19) | nfblock
 Recommends: wget, unzip, p7zip | p7zip-full
 Suggests: mobloquer
@@ -28,8 +28,8 @@ Description: Manage IP blockers
   - Handle your iptables rules: use a default setup, easily allow all traffic on
     specific ports and use an allow list, or add your own sophisticated iptables
     rules.
-  - Allow all LAN traffic automatically. This feature is still experimental. If
-    you are on a public LAN, you probably want to disable this feature.
+  - Automatically make sure the LAN and the DNS server aren't blocked. If you
+    are on a public LAN, you probably want to disable this feature.
   - Check the status and test MoBlock.
   - Detects if kernel modules are needed and loads them if necessary.
   - Set verbosity and logging options.

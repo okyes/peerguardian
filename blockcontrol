@@ -21,8 +21,12 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ################################################################################
-# The following code is common between blockcontrol, cron.daily, if-up, init,
-# and debian/postinst.
+# The following code is common between blockcontrol, cron.daily, init and
+# debian/postinst.
+
+# if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
+# This can happen in early boot stages before local file systems are mounted.
+
 # It sets the variables and loads functions
 
 # CONTROL_MAIN has to be set correctly in all just mentioned files.

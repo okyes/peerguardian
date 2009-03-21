@@ -2,9 +2,18 @@ TODO for blockcontrol and MoBlock debian packaging
 
 blockcontrol:
 
+- add support for moblock -z NFQUEUE length from patch 41_Patch_2589_All
+  ow__nfq_set_queue_maxlen__to_be_increased_from_default.dpatch
+
 - send error messages to console and logfile. [João]
 
 - implement options of NFBlock (no-dbus)
+
+- improve makefile:
+  - add (something like) "configure" to configure paths.
+  - read installation paths from blockcontrol.defaults and blockcontrol.conf,
+    special handling of blockcontrol.main and blockcontrol.defaults needed,
+    because they are not in the previous files.
 
 - fix debconf to use debian/config again.
 
@@ -34,13 +43,7 @@ Requests for upstream:
   with wget's timestamp option.
 
 
-packaging:
-
-- Improve makefile:
-  - add (something like) configure to configure paths
-  - read installation paths from blockcontrol.defaults and blockcontrol.conf,
-    special handling of blockcontrol.main and blockcontrol.defaults needed,
-    because they are not in the previous files.
+Debian packaging:
 
 - make rpms
   http://forums.phoenixlabs.org/showthread.php?p=123060

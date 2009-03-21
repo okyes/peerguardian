@@ -42,8 +42,8 @@ for PATH_I in $PATH ; do
 	elif [ -x "$PATH_I/nfblockd" ] ; then
 		NAME="nfblockd"
 		DAEMON="$PATH_I/nfblockd"
-		DESC="NFblock"
-		PIDFILE="/var/run/nfblock.pid"
+		DESC="NFBlock"
+		PIDFILE="/var/run/nfblockd.pid"
 		break
 	fi
 done
