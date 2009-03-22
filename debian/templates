@@ -3,7 +3,7 @@ Type: note
 Default: true
 _Description: New name blockcontrol. Fix your custom iptables scripts!
  moblock-control has been renamed to blockcontrol. Your configuration has been
- preserved. But if you use custom iptables rules
+ adapted. But if you use custom iptables rules
  (/etc/moblock/iptables-custom-insert.sh and iptables-custom-remove.sh), then
  you have to fix them, and move them to /etc/blockcontrol.
  .
@@ -20,12 +20,13 @@ _Description: WARNING: IP blockers may block your complete network/internet acce
  and router, many webpages, services like eMail, instant messaging or the
  "weather applet" and your machine's accessibility from the internet.
  .
- Therefore the default is to automatically whitelist LAN, DNS server and
- loopback device. If you are on a public LAN, you probably want to disable
- this feature.
+ There are many configuration options to prevent this. E.g. the default is to
+ always allow (whitelist) LAN traffic, DNS server and loopback device. If you
+ are on a public LAN, you probably want to disable this feature.
  .
  You can now tweak your settings. They can later be changed with
   sudo dpkg-reconfigure blockcontrol
+ .
  For those, who cannot leave this screen: Press the TAB key to select OK and
  press enter.
 
@@ -95,7 +96,7 @@ _Description: What blocklists shall be used?
  This selects the blocklists. They are all in the PeerGuardian .p2p text format.
  .
  These lists were created by Bluetack (http://www.bluetack.co.uk) and TBG
- (http://tbg.iblocklist.com) and are provided by iblocklist.com.
+ (http://tbg.iblocklist.com). They are provided by iblocklist.com.
  .
  You can get more information  about these blocklists in
   /usr/share/doc/blockcontrol/README.blocklists.gz and online at
@@ -154,7 +155,7 @@ _Description: Set the verbosity of blockcontrol:
  Configuration variable: VERBOSITY
  .
  This only affects the output to STDOUT by blockcontrol, cron and init.
- This does not affect logging or the output of the MoBlock daemon.
+ This does not affect logging or the output of the IP block daemon.
  .
   0 - Output to STDOUT is off (only errors will be reported).
   1 - Output to STDOUT is on. (default)
@@ -167,8 +168,8 @@ Default: true
 _Description: Turn on automatic start?
  Configuration variable: INIT
  .
- "No" prevents the MoBlock init script from starting on "start". Therefore
- MoBlock will not be started at system boot. The same behaviour can be achieved
+ "No" prevents the init script from starting on "start". Therefore the IP block
+ daemon will not be started at system boot. The same behaviour can be achieved
  by removing/tweaking the init file and the links pointing to it. You can do
  this manually or by using an application such as rcconf.
 
@@ -178,7 +179,7 @@ Default: true
 _Description: Turn on automatic blocklist update?
  Configuration variable: CRON
  .
- This sets if the daily MoBlock cron job updates the blocklists.
+ This sets if the daily cron job updates the blocklists.
 
 Template: blockcontrol/NFQUEUE_NUMBER
 Type: string
@@ -195,34 +196,35 @@ Template: blockcontrol/IPTABLES_SETTINGS
 Type: select
 Choices: Do not set any iptables rules. You or another script/firewall has to do this!, Use separate iptables chains., Only set custom iptables rules.
 Default: Use separate iptables chains.
-_Description: Set how traffic is sent to MoBlock:
+_Description: Set how traffic is sent to the IP block daemon:
  Configuration variable: IPTABLES_SETTINGS
  .
  The default is to place MoBlock's iptables rules in separate iptables chains
  (blockcontrol_in, blockcontrol_out and blockcontrol_fw).
  .
- You can set custom iptables rules in /etc/blockcontrol/iptables-custom-insert.sh
- and iptables-custom-remove.sh. These scripts are executed either additionally
- to the default iptables rules insertion/removal or exclusively.
+ You can set custom iptables rules in
+ /etc/blockcontrol/iptables-custom-insert.sh and iptables-custom-remove.sh.
+ These scripts are executed either additionally to the default iptables rules
+ insertion/removal or exclusively.
 
 Template: blockcontrol/IPTABLES_ACTIVATION
 Type: select
-Choices: Do nothing. You or another script/firewall has to do this!, Send all NEW traffic to the iptables chains of MoBlock., Send all traffic to the iptables chains of MoBlock.
-Default: Send all NEW traffic to the iptables chains of MoBlock.
-_Description: Activate MoBlock's iptables chains?
+Choices: Do nothing. You or another script/firewall has to do this!, Send all NEW traffic to the iptables chains., Send all traffic to the iptables chains.
+Default: Send all NEW traffic to the iptables chains.
+_Description: Activate the iptables chains?
  Configuration variable: IPTABLES_ACTIVATION
  .
- Decide what traffic shall be checked by MoBlock. If you previously decided to
- use MoBlock's separate iptables chains, then it is a good idea to send all NEW
+ Decide what traffic shall be checked by the IP block daemon. If you previously
+ decided to use separate iptables chains, then it is a good idea to send all NEW
  traffic there. It is absolutely safe to only check NEW traffic.
  .
- Checking all (not only NEW) traffic might cause problems because MoBlock has to
- check much more traffic then. Further whitelisting gets more complicated, since
- you have to think of both directions, incoming and outgoing. Only do this, if
- you are sure that you want to.
+ Checking all (not only NEW) traffic might cause problems, because the IP block
+ daemon has to check much more traffic then. Further whitelisting gets more
+ complicated, since you have to think of both directions, incoming and outgoing.
+ Only do this, if you are sure that you want to.
  .
- The iptables rules that activate the iptables chains of MoBlock are inserted at
- the head of the chains INPUT, OUTPUT and FORWARD.
+ The iptables rules that activate the iptables chains are inserted at the head
+ of the chains INPUT, OUTPUT and FORWARD.
 
 Template: blockcontrol/REJECT
 Type: boolean
@@ -296,7 +298,7 @@ Template: blockcontrol/info_whitelisting
 Type: note
 _Description: Whitelisting
  The following questions help you define which traffic will NOT be checked by
- MoBlock. This is called "whitelisting".
+ the IP block daemon. This is called "whitelisting".
  .
  Do a "dpkg-reconfigure blockcontrol" to get the full set of questions (many have
  only low priority and will not be asked per default).

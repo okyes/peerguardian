@@ -1,7 +1,8 @@
 blockcontrol (1.3)
 
-  - New name blockcontrol and new file places. On Debian systems the transition
-    is handled automatically (except for the custom iptables scripts)
+  - New name blockcontrol and new file places. On Debian systems most of the
+    transition is handled automatically (except for the custom iptables
+    scripts).
   - All user configuration is now done in /etc/blockcontrol/blockcontrol.conf.
     Not any more in /etc/default/...
   - New option "search": Examine your selected blocklists by searching the

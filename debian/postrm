@@ -27,6 +27,9 @@ case "$1" in
 		for LIST in $LISTS ; do
 			[ ! -f /var/lib/blockcontrol/$LIST ] || { echo -n "Removing /var/lib/blockcontrol/$LIST" ; rm /var/lib/blockcontrol/$LIST && echo "." ; }
 		done
+		# User/mobloquer might have changed frequency from daily:
+		[ ! -e /etc/cron.*/blockcontrol ] || \
+			rm /etc/cron.*/blockcontrol
 		;;
 	remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
 		;;

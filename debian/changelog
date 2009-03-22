@@ -1,101 +1,76 @@
-blockcontrol (1.3-1~pre7) sid; urgency=low
+blockcontrol (1.3-1) unstable; urgency=low
 
-  TODO:
-  - NEWS, Homepage
-  - test and fix update from moblock-control
-  - Choose a lighter default blocklist setup!?
-  - Check how NFBlock works with marking on/off.
-  - add support for moblock -z NFQUEUE length from patch 41_Patch_2589_All
-    ow__nfq_set_queue_maxlen__to_be_increased_from_default.dpatch
-  - whitelist DNS server automatically
-   [ -f /etc/resolv.conf ] && "$(grep nameserver /etc/resolv.conf | grep -o IP)"
-
-  DONE:
-  * New name:
-    moblock-control is now blockcontrol. If names relate to this software,
-    then blockcontrol is used. If they relate directly to the IP block
-    daemon (MoBlock or NFBlock), then $NAME (moblock or nfblock) is used.
-    Changed:
-    - directory names: moblock > blockcontrol
-    - filenames
-    - variable names:
-      - MOBLOCK_INIT > INIT
-      - MOBLOCK_CRON > CRON
-      - SCRIPT_LIB > CONTROL_LIB
-      - SCRIPT_DEFAULTS > CONTROL_MAIN
-    - updates (in Debian) are only handled cleanly from moblock-control 1.2. All
-      prior versions are not regarded. Configuration file settings are handled
-      by debconf and the old blocklists.list is moved to the new place before
-      installation. Debconf warns the user to transition the custom iptables
-      rules scripts manually.
-    - added Conflicts: moblock-control (<1.3) and Replaces: moblock-control
-
-  * Reorganised configuration:
-    - The only file for user configuration is blockcontrol.conf, which is nearly
-      on a pure install. (CONTROL_CONF, /etc/blockcontrol/blockcontrol.conf).
-    - Configuration defaults and comments are in blockcontrol.defaults
-      (CONTROL_DEFAULTS, /usr/lib/blockcontrol/blockcontrol.defaults).
-    - The old blockcontrol.defaults has been split in blockcontrol.defaults
-      and blockcontrol.main.
-    - default (CONTROL_DEFAULT, /etc/default/...) does not exist any
-      more.
-    - WHITE_TCP_OUT is now empty per default again, but preconfigured as
-      "http https" in blockcontrol.conf.
-    - debian/postinst only changes blockcontrol.conf, because
-      blockcontrol.defaults now always contains the default settings.
+  * New name, see README!
+    - moblock-control is now blockcontrol.
+    - in Debian most configuration is transitioned automatically.
+  * Reorganised configuration, see README!
+    - removed default (/etc/default/...), use blockcontrol.conf instead
+    - the complete set of possible configuration variables with comments is in
+      blockcontrol.defaults
+    - WHITE_TCP_OUT is now empty in blockcontrol.defaults again, but
+      preconfigured as "http https" in blockcontrol.conf.
     - Removed variable CONF_DIR and LOG_DIR
-
-  user visible changes:
-  * new option "search", which finds a SEARCHPATTERN in the single blocklists.
-    This might be useful for specifying IP_REMOVE and give hints on (un)useful
-    blocklists.
-  * status: check for ipv6 module before running ip6tables (cader)
-  * Email the results of the update rather than let cron email the output. This
-    makes for a nicer email message. The recipient may be set in CRON_MAILTO.
-    (cader).
-
+  * User visible changes:
+    - new option "search", which finds a SEARCHPATTERN in the single blocklists.
+      This might be useful for specifying IP_REMOVE and give hints on (un)useful
+      blocklists.
+    - Email the results of the update rather than let cron email the output.
+      This makes for a nicer email message. The recipient may be set in
+      CRON_MAILTO. (cader).
+    - whitelist DNS server automatically for WHITE_LOCAL not 0.
   * NFBlock:
     - new daemon options
     - test: use syslog as TEST_LOG, instead of DAEMON_LOG as for MoBlock.
     - upstream NFBlockD is now NFBlock, adjusted dependencies and all files.
-
-  porter relevant:
-  * init-functions: removed init-functions, but moved the complete code to
-    blockcontrol.lib as hardcoded fallback.
-
-  internal code changes:
-  * test:
-    - pick a random IP (in the first 100+10 lines) from the blocklist (cader)
-    - removed adding a line to the daemon logfile that a IP will now be pinged
-  * use LSB function status_of_proc instead of daemon_status
-  * use /usr/bin/moblock as default for the block daemon.
-  * stop: verify if daemon was really stopped, wait up to 20 secs.
-    Otherwise restarting nfblock failed, because it was restarted too early.
-  * restart: removed 1 sec sleep between stop and start, this is handled better
-    with stop now.
-  * Removed last traces of quickstart (MOBLOCK_INIT="2") which was only present
-    in an development version.
-  * use tests only in the appropriate functions.
-  * Added exit if iptables is not found.
-  * show_config:
-    - read possible variables from blockcontrol.defaults
-  * Removed special handling of Ubuntu hardy packages. This is solved indirectly
-    by the new check in stop now.
-  * Moved most common code between the executable files to blockcontrol.defaults
-  * added /usr/local/[s]bin to PATH
-  * use $BLOCKLISTS_LIST instead of hardcoded path for md5sum
-
-
-  Debian packaging:
-  * debconf:
-    - init and cron are now priority high (instead of medium)
-    - previously critical whitelisting questions are now high
-    - added a hint how to confirm the first debconf question.
-  * packaging:
+  * Porter relevant:
+    - init-functions: removed init-functions, but moved the complete code to
+      blockcontrol.lib as hardcoded fallback.
+    - added /usr/local/[s]bin to PATH
+  * Internal code changes:
+    - status: check for ipv6 module before running ip6tables (cader)
+    - moved the position of the MoBlock daemon option "timestamp" back again, so
+      that mobloquer is able to determine the number of blocked ranges.
+    - if-up:
+      - exit successfully if blockcontrol.main is not available (this can happen
+        in early boot stages before local file systems are mounted.)
+      - improved IP REGEX (as in blockcontrol.lib)
+      - detect subnetmask for automatic LAN whitelisting (as in
+        blockcontrol.lib).
+      - BUG: check for already whitelisted LAN does not work for all subnetmasks
+        (see BUGS)
+    - test:
+      - pick a random IP (in the first 100+10 lines) from the blocklist (cader)
+      - removed adding a line to the daemon logfile that a IP will now be pinged
+    - use LSB function status_of_proc instead of own daemon_status
+    - use /usr/bin/moblock as default for the block daemon.
+    - stop:
+      - verify if daemon was really stopped, wait up to 20 secs. Otherwise
+        restarting nfblock failed, because it was restarted too early.
+    - restart:
+      - removed 1 sec sleep between stop and start, this is handled better with
+        stop now.
+    - removed last traces of quickstart (MOBLOCK_INIT="2") which was only
+      present in an development version.
+    - use sane-variable-tests only in the appropriate functions.
+    - added exit if iptables is not found (cader)
+    - show_config:
+      - read possible variables from blockcontrol.defaults
+    - moved most common code between the executable files to blockcontrol.main
+    - use $BLOCKLISTS_LIST instead of hardcoded path for md5sum
+    - improved the removal of malformed lines in allow.p2p
+  * Debian packaging:
+    - debconf:
+      - changed some question's priorities
+      - added a hint how to confirm the first debconf question.
+    - only build one package for architecture all for all distributions.
     - dropped etch, added squeeze and jaunty
     - use dh_installifupdown (was not present in etch)
+    - removed special handling of Ubuntu hardy packages. This is solved by the
+      new check in stop now.
+    - on purge remove blockcontrol from /etc/cron.*
+    - bumped Debian version to 3.8.1.0
 
- -- jre <jre-phoenix@users.sourceforge.net>  Sun, 08 Mar 2009 18:55:24 +0100
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 22 Mar 2009 16:47:22 +0100
 
 moblock-control (1.2-1) sid lenny; urgency=low
 

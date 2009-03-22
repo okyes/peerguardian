@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: jre <jre-phoenix@users.sourceforge.net>
 Bugs: mailto:jre-phoenix@users.sourceforge.net
 Build-Depends: debhelper (>= 5.0.44), dpatch, po-debconf
-Standards-Version: 3.8.0
+Standards-Version: 3.8.1.0
 Homepage: http://moblock-deb.sourceforge.net/
 Vcs-Browser: http://moblock-deb.svn.sourceforge.net/viewvc/moblock-deb/blockcontrol/
 Vcs-Svn: https://moblock-deb.svn.sourceforge.net/svnroot/moblock-deb/blockcontrol/

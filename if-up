@@ -72,7 +72,7 @@ if [ "$WHITE_LOCAL" -eq 1 ] ; then
 				else
 					# TODO: Find a way to check for the real IP/SUBNETMASK pattern.
 					# With an empty SCOPE the last grep command will just fail, so
-					# additional whitlisting rules for the LAN will be inserted.
+					# multiple identical whitelisting rules for the LAN may be inserted.
 					# If the network is brought up several times there will be multiple identical rules.
 					SCOPE=""
 				fi
