@@ -1094,17 +1094,17 @@ test_set_BLOCKLIST
 # Move blocklists from old moblock-control places. The update path is only clean from 1.2. Lists downloaded earlier
 # will stay at their places and a new download for blockcontrol is necessary.
 for i in ipfilter.dat guarding.p2b guarding.p2p ipfilter.dat.backup guarding.p2b.backup guarding.p2p.backup ; do
-	[ -f /var/lib/moblock/$i ] && mv /var/lib/moblock/$i /var/lib/blockcontrol/
+	[ ! -f /var/lib/moblock/$i ] || mv /var/lib/moblock/$i /var/lib/blockcontrol/
 done
-[ "$( ls /var/spool/moblock/ | wc -l )" -eq 0 ] || mv /var/spool/moblock/* /var/spool/blockcontrol/
+[ ! -d /var/spool/moblock/ ] || { [ "$( ls /var/spool/moblock/ | wc -l )" -eq 0 ] } || mv /var/spool/moblock/* /var/spool/blockcontrol/ ; }
 
 # Transition from moblock-control. mobloquer allows to change update frequency
 # to weekly or monthly.
-if /etc/cron.weekly/moblock ; then
+if [ -e /etc/cron.weekly/moblock ] ; then
 	echo -n "Setting weekly update frequency and deleting old cron file ..." && \
 	mv /etc/cron.daily/blockcontrol /etc/cron.weekly/ && \
 	rm /etc/cron.weekly/moblock && echo "."
-elif /etc/cron.monthly/moblock ; then
+elif [ -e /etc/cron.monthly/moblock ] ; then
 	echo -n "Setting monthly update frequency and deleting old cron file ..." && \
 	mv /etc/cron.daily/blockcontrol cron.monthly && \
 	rm /etc/cron.monthly/moblock && echo "."

@@ -132,7 +132,7 @@ test
   logfile and if it answered).
 
 search
-  Outputs the occurences of a keyword and the names of the single blocklists.
+  outputs the occurences of a keyword and the names of the single blocklists.
 
 stats
   reports MoBlock's statistics.
