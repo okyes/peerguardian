@@ -1,3 +1,9 @@
+blockcontrol (1.3-3) unstable; urgency=low
+
+  * fixed fix
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 23 Mar 2009 21:26:50 +0100
+
 blockcontrol (1.3-2) unstable; urgency=low
 
   * fixed postinst file checks

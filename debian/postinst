@@ -1096,7 +1096,7 @@ test_set_BLOCKLIST
 for i in ipfilter.dat guarding.p2b guarding.p2p ipfilter.dat.backup guarding.p2b.backup guarding.p2p.backup ; do
 	[ ! -f /var/lib/moblock/$i ] || mv /var/lib/moblock/$i /var/lib/blockcontrol/
 done
-[ ! -d /var/spool/moblock/ ] || { [ "$( ls /var/spool/moblock/ | wc -l )" -eq 0 ] } || mv /var/spool/moblock/* /var/spool/blockcontrol/ ; }
+[ ! -d /var/spool/moblock/ ] || { [ "$( ls /var/spool/moblock/ | wc -l )" -eq 0 ] || mv /var/spool/moblock/* /var/spool/blockcontrol/ ; }
 
 # Transition from moblock-control. mobloquer allows to change update frequency
 # to weekly or monthly.
