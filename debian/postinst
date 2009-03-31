@@ -1093,10 +1093,16 @@ test_set_BLOCKLIST
 
 # Move blocklists from old moblock-control places. The update path is only clean from 1.2. Lists downloaded earlier
 # will stay at their places and a new download for blockcontrol is necessary.
-for i in ipfilter.dat guarding.p2b guarding.p2p ipfilter.dat.backup guarding.p2b.backup guarding.p2p.backup ; do
-	[ ! -f /var/lib/moblock/$i ] || mv /var/lib/moblock/$i /var/lib/blockcontrol/
-done
-[ ! -d /var/spool/moblock/ ] || { [ "$( ls /var/spool/moblock/ | wc -l )" -eq 0 ] || mv /var/spool/moblock/* /var/spool/blockcontrol/ ; }
+if [ -d /var/lib/moblock/ ] && [ -d /var/lib/blockcontrol/ ] ; then
+	for i in ipfilter.dat guarding.p2b guarding.p2p ipfilter.dat.backup guarding.p2b.backup guarding.p2p.backup ; do
+		[ ! -f /var/lib/moblock/$i ] || mv /var/lib/moblock/$i /var/lib/blockcontrol/
+	done
+fi
+if [ -d /var/spool/moblock/ ] && [ -d /var/spool/blockcontrol/ ] ; then
+	if [ "$( ls /var/spool/moblock/ | wc -l )" -ne 0 ] && [ "$( ls /var/spool/blockcontrol/ | wc -l )" -eq 0 ] ; then
+		mv /var/spool/moblock/* /var/spool/blockcontrol/
+	fi
+fi
 
 # Transition from moblock-control. mobloquer allows to change update frequency
 # to weekly or monthly.
