@@ -2,6 +2,12 @@ TODO for blockcontrol and MoBlock debian packaging
 
 blockcontrol:
 
+- add option to temp allow (blockcontrol allow IP and blockcontrol allow-MM IP),
+  which inserts the appropriate iptables rules directly.
+
+- add configuration possibility to shut off checking for specific chains
+  (FORWARD).
+
 - check how NFBlock works with marking on/off.
 
 - explicitly stop/start moblock and nfblock in their own packages.
