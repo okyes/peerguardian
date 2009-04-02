@@ -1937,7 +1937,8 @@ test_ipblocking () {
 	if [ "$RETVAL" -eq 0 ] ; then	# IP in logfile
 		if [ "$RETVAL_PING" -eq 1 ] ; then	# No reply to ping
 			if [ "$REJECT" -eq 1 ] ; then
-				log_success_msg "$DESC marked the IP to be blocked and the IP did not answer. Test succeeded."
+				log_success_msg "$DESC marked the IP to be blocked and the IP did not answer."
+				log_success_msg "Test succeeded."
 			else
 				log_success_msg "$DESC blocked the IP. Test succeeded."
 			fi
