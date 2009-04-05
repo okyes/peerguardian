@@ -1,8 +1,8 @@
 #!/bin/sh
-# iptables-custom-remove.sh - custom iptables deletion script used by
-# blockcontrol
+# iptables-custom-remove.sh - example custom iptables deletion script
 
-# This script will be executed on every "blockcontrol stop" for 2 settings:
+# Every file in the IPTABLES_CUSTOM_DIR directory (/etc/blockcontrol), that ends
+# in ...remove.sh will be executed on every "blockcontrol stop" for 2 settings:
 
 # Default setup (IPTABLES_SETTINGS="1"):
 # blockcontrol will first remove its iptables setup, afterwards this script gets
@@ -18,6 +18,6 @@
 # (default queue number is 92).
 
 # Remove the rules for complete blocking of IPv6:
-#ip6tables -D OUTPUT -j REJECT
-#ip6tables -D INPUT -j DROP
-#ip6tables -D FORWARD -j DROP
+ip6tables -D OUTPUT -j REJECT
+ip6tables -D INPUT -j DROP
+ip6tables -D FORWARD -j DROP
