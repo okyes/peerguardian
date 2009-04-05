@@ -665,15 +665,10 @@ test_IPTABLES_VARS () {
 			# No test for IP_REMOVE. Valid: all regular expressions for grep
 			;;
 		'2')
-			[ -f "$IPTABLES_CUSTOM_INSERT" ] || {
-				log_failure_msg "Error $E_XFILE: Could not find $IPTABLES_CUSTOM_INSERT."
-				log_failure_msg "Check the IPTABLES_CUSTOM_INSERT setting."
-				exit $E_XFILE
-			}
-			[ -f "$IPTABLES_CUSTOM_DELETE" ] || {
-				log_failure_msg "Error $E_XFILE: Could not find $IPTABLES_CUSTOM_DELETE."
-				log_failure_msg "Check the IPTABLES_CUSTOM_DELETE setting."
-				exit $E_XFILE
+			[ -d "$IPTABLES_CUSTOM_DIR" ] || {
+				log_failure_msg "Error $E_XCD: Could not find $IPTABLES_CUSTOM_DIR."
+				log_failure_msg "Check the IPTABLES_CUSTOM_DIR setting."
+				exit $E_XCD
 			}
 			;;
 		*)
@@ -960,16 +955,20 @@ insert_iptables () {
 
 		log_end_msg 0	# Complete iptables insertion went well.
 
-		# If custom iptables insertion script exists execute it:
-		[ -f "$IPTABLES_CUSTOM_INSERT" ] && {
-			echo -n "Executing $IPTABLES_CUSTOM_INSERT ..."
-			sh $IPTABLES_CUSTOM_INSERT
+		# If custom iptables insertion scripts exist, execute them:
+		for FILE in "$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*insert.sh" -print0 | xargs -0r)" ; do
+			echo -n "Executing $FILE ..."
+			sh $FILE
 			log_end_msg "$?"
-			}
+		done
 		;;
 	'2')
-		echo -n "Executing $IPTABLES_CUSTOM_INSERT ..."
-		sh $IPTABLES_CUSTOM_INSERT && log_end_msg $? || { log_end_msg $? ; exit $E_IPTABLES ; }
+		echo -n "Executing custom iptables insertion script(s) ..."
+		for FILE in "$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*insert.sh" -print0 | xargs -0r)" ; do
+			echo -n "Executing $FILE ..."
+			sh $FILE && log_end_msg $? || { log_end_msg $? ; exit $E_IPTABLES ; }
+		done
+		echo "$?"
 		;;
 	esac
 }
@@ -1035,17 +1034,20 @@ delete_iptables () {
 			log_warning_msg "A \"$(basename $0) restart\" will then fix the situation."
 		fi
 
-		# If custom iptables deletion script exists execute it:
-		[ -f "$IPTABLES_CUSTOM_DELETE" ] && {
-			echo -n "Executing $IPTABLES_CUSTOM_DELETE ..."
-			sh $IPTABLES_CUSTOM_DELETE
-			log_end_msg $?
-			}
-
+		# If custom iptables removal scripts exist, execute them:
+		for FILE in "$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*remove.sh" -print0 | xargs -0r)" ; do
+			echo -n "Executing $FILE ..."
+			sh $FILE
+			log_end_msg "$?"
+		done
 		;;
 	'2')
-		echo -n "Executing $IPTABLES_CUSTOM_DELETE ..."
-		sh $IPTABLES_CUSTOM_DELETE && log_end_msg $? || { log_end_msg $? ; exit $E_IPTABLES ; }
+		echo -n "Executing custom iptables removal script(s) ..."
+		for FILE in "$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*remove.sh" -print0 | xargs -0r)" ; do
+			echo -n "Executing $FILE ..."
+			sh $FILE && log_end_msg $? || { log_end_msg $? ; exit $E_IPTABLES ; }
+		done
+		echo "$?"
 		;;
 	esac
 }

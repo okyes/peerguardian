@@ -14,8 +14,6 @@ install:
 	install -D -m 644 allow.p2p $(DESTDIR)/etc/blockcontrol/allow.p2p
 	install -D -m 644 blockcontrol.conf $(DESTDIR)/etc/blockcontrol/blockcontrol.conf
 	install -D -m 644 blocklists.list $(DESTDIR)/etc/blockcontrol/blocklists.list
-	install -D -m 755 iptables-custom-insert.sh $(DESTDIR)/etc/blockcontrol/iptables-custom-insert.sh
-	install -D -m 755 iptables-custom-remove.sh $(DESTDIR)/etc/blockcontrol/iptables-custom-remove.sh
 	install -D -m 755 if-up $(DESTDIR)/etc/network/if-up.d/blockcontrol
 	install -D -m 755 cron.daily $(DESTDIR)/etc/cron.daily/blockcontrol
 	install -D -m 755 init $(DESTDIR)/etc/init.d/blockcontrol

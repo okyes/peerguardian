@@ -64,11 +64,10 @@ ALLOW_OUT="/etc/blockcontrol/allow.p2p"
 # Don't add your own IP / LAN there or MoBlock will not work at all for FORWARD.
 ALLOW_FW=""
 
-# The path of iptables-custom-insert.sh
-IPTABLES_CUSTOM_INSERT="/etc/blockcontrol/iptables-custom-insert.sh"
-
-# The path of iptables-custom-remove.sh
-IPTABLES_CUSTOM_DELETE="/etc/blockcontrol/iptables-custom-remove.sh"
+# The directory of the custom iptables scripts.
+# All files in this directory, that end in insert.sh/remove.sh will be executed
+# on "blockcontrol start/stop", if IPTABLES_SETTINGS is 1 or 2.
+IPTABLES_CUSTOM_DIR="/etc/blockcontrol"
 
 # The path of the file with the md5sum of all blocklist configurations
 MD5SUM_FILE="$BLOCKLISTS_DIR/MD5SUM"
@@ -152,7 +151,7 @@ NFQUEUE_NUMBER="92"
 #     You or another script/firewall has to do this!
 # 1 - Place the iptables rules in separate iptables chains (blockcontrol_in,
 #     blockcontrol_out and blockcontrol_fw). Afterwards the custom iptables
-#     scripts will be executed (per default they are empty ).
+#     scripts will be executed (if they exist).
 # 2 - Only set custom iptables rules
 #     (/etc/blockcontrol/iptables-custom-insert.sh and
 #     /etc/blockcontrol/iptables-custom-remove.sh)
