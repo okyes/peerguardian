@@ -439,9 +439,9 @@ test_VERBOSITY () {
 }
 
 test_DAEMON () {
-	[ "$NAME" = moblock ] || [ "$NAME" = nfblock ] || [ "$NAME" = nfblockd ] || {
+	[ "$NAME" = moblock ] || [ "$NAME" = nfblockd ] || {
 			log_failure_msg "Error $E_CONFIG: $NAME not supported."
-			log_failure_msg "Could not detect an IPBlocker daemon. moblock and nfblock are supported."
+			log_failure_msg "Could not detect an IPBlocker daemon. moblock and nfblockd are supported."
 			log_failure_msg "Neither of them was found in PATH ($PATH)."
 			log_failure_msg "$0 Error $E_CONFIG: You may set NAME, DAEMON and DESC manually in $CONTROL_CONF."
 			exit $E_XBIN
@@ -1150,7 +1150,6 @@ do_start () {
 				else
 					LOG_SYSLOG_OPT="--no-syslog"
 				fi
-				LOG_SYSLOG_OPT=""
 			fi
 			# Set the timestamping option
 			if [ "$LOG_TIMESTAMP" -eq 1 ] ; then
@@ -1209,6 +1208,8 @@ do_start () {
 					start_daemon $DAEMON $DAEMON_OPTS
 				fi
 			fi
+			sleep 1
+			status_of_proc $DAEMON $NAME > /dev/null 2>&1
 			RETVAL=$?
 			log_end_msg $RETVAL
 			;;
