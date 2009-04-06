@@ -1208,8 +1208,8 @@ do_start () {
 					start_daemon $DAEMON $DAEMON_OPTS
 				fi
 			fi
-			sleep 1
-			status_of_proc $DAEMON $NAME > /dev/null 2>&1
+# 			sleep 1
+# 			status_of_proc $DAEMON $NAME > /dev/null 2>&1
 			RETVAL=$?
 			log_end_msg $RETVAL
 			;;
