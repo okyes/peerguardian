@@ -60,8 +60,8 @@ esac
 
 
 ################################################################################
-# The following code is common between blockcontrol, cron.daily, init and
-# debian/postinst.
+# The following code is common between blockcontrol, blockcontrol.watchdog,
+# cron.daily, init and debian/postinst.
 
 # if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
 # This can happen in early boot stages before local file systems are mounted.
@@ -79,8 +79,8 @@ else
 	exit 7
 fi
 
-# End of the common code between blockcontrol, cron.daily, if-up, init,
-# and debian/postinst.
+# End of the common code between blockcontrol, blockcontrol.watchdog,
+# cron.daily, (if-up), init and debian/postinst.
 ################################################################################
 
 
@@ -1123,15 +1123,15 @@ fi
 if [ "$INIT" -ne 0 ] && [ -x "/etc/init.d/blockcontrol" ] ; then
 	# dh_installdeb inserts code to execute init "start".
 	echo
-	echo "$DESC will soon be started ..."
+	echo "$NAME will soon be started ..."
 	echo "If any blocklists are missing, they will be downloaded. This may take several"
 	echo "minutes. Please be patient and don't abort. If you want to follow the update"
 	echo "process, then do in another terminal a"
 	echo " tail -f $CONTROL_LOG"
 	echo "The lists are saved to $BLOCKLISTS_DIR/."
-	echo "The installation of $CONTROL_NAME will fail, if starting $DESC fails. If this"
+	echo "The installation of $CONTROL_NAME will fail, if starting $NAME fails. If this"
 	echo "happens, then in most cases downloading the blocklists failed temporarily. To"
-	echo "workaround this, you can turn the automatic starting of $DESC off by setting"
+	echo "workaround this, you can turn the automatic starting of $NAME off by setting"
 	echo "in $CONTROL_CONF:"
 	echo " INIT=\"0\""
 	echo

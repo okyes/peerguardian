@@ -36,13 +36,11 @@ for PATH_I in $PATH ; do
 	if [ -x "$PATH_I/moblock" ] ; then
 		NAME="moblock"
 		DAEMON="$PATH_I/moblock"
-		DESC="MoBlock"
 		PIDFILE="/var/run/moblock.pid"
 		break
 	elif [ -x "$PATH_I/nfblockd" ] ; then
 		NAME="nfblockd"
 		DAEMON="$PATH_I/nfblockd"
-		DESC="NFBlock"
 		PIDFILE="/var/run/nfblockd.pid"
 		break
 	fi

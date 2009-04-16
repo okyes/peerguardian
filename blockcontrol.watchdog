@@ -1,0 +1,60 @@
+#!/bin/sh
+#
+# blockcontrol.watchdog
+
+set -e
+
+################################################################################
+# The following code is common between blockcontrol, blockcontrol.watchdog,
+# cron.daily, init and debian/postinst.
+
+# if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
+# This can happen in early boot stages before local file systems are mounted.
+
+# It sets the variables and loads functions
+
+# CONTROL_MAIN has to be set correctly in all just mentioned files.
+CONTROL_MAIN="/usr/lib/blockcontrol/blockcontrol.main"
+
+# Configure blockcontrol and load functions.
+if [ -f "$CONTROL_MAIN" ] ; then
+	. $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
+else
+	echo "$0 Error 7: Missing file $CONTROL_MAIN."
+	exit 7
+fi
+
+# End of the common code between blockcontrol, blockcontrol.watchdog,
+# cron.daily, (if-up), init and debian/postinst.
+################################################################################
+
+while true ; do
+	sleep $WATCHDOG_SLEEP
+	{
+		# First check if the daemon is running.
+		status_of_proc $DAEMON $NAME > /dev/null 2>&1 &&
+		# Then check if traffic "might" be sent to the daemon.
+		iptables -L INPUT -n | grep "blockcontrol_in" > /dev/null 2>&1 &&
+		iptables -L OUTPUT -n | grep "blockcontrol_out" > /dev/null 2>&1 &&
+		iptables -L blockcontrol_in -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1 &&
+		iptables -L blockcontrol_out -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1
+		# Not using test, see .lib for the reasons
+		# &&
+		# # Then do a real "test". If this fails, wait another minute, in case the daemon is currently reloading.
+		# {
+		# 	blockcontrol test > /dev/null 2>&1 || { sleep 60 ; blockcontrol test > /dev/null 2>&1 ; }
+		# }
+	} || {
+		echo "$0: $NAME does not block!"
+		echo "In most cases another firewall application did mess up our iptables rules."
+		echo "Remember to make a \"blockcontrol restart\" whenever you start, stop or change"
+		echo "the configuration of your other firewall applications."
+		echo "To disable the watchdog set WATCHDOG_SLEEP=\"\" in $CONTROL_CONF."
+		echo "Now restarting blockcontrol ..."
+		blockcontrol restart || { log_failure_msg "Stopping blockcontrol.watchdog now!" ; exit 1 ; }
+
+	}
+done
+
+echo "Stopping blockcontrol.watchdog now - why???"
+exit 0

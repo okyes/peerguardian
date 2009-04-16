@@ -12,14 +12,15 @@
 # PATH has to be set here, nowhere else, for the automatic NAME detection.
 PATH="/usr/bin:/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
 
-# The name of the IP block daemon (moblock or nfblockd), its path and pidfile
-# and its description. This is set automatically later, so you should not need
-# to set them here.
-# If you experience problems, you may set *all 4 of them* in blockcontrol.conf.
+# The name of the IP block daemon (moblock or nfblockd), its path and pidfile.
+# This is set automatically later, so you should not need to set them here.
+# If you experience problems, you may set *all 3 of them* in blockcontrol.conf.
 NAME="moblock"
 DAEMON="/usr/bin/moblock"
-DESC="MoBlock"
 PIDFILE="/var/run/moblock.pid"
+
+# The daemon description.
+DESC="IP block daemon"
 
 # MoBlock's daemon log (NFBlock always uses syslog)
 # You can turn off MoBlock's logging by setting DAEMON_LOG=""
@@ -34,6 +35,9 @@ CONTROL_NAME="blockcontrol"
 
 # The path of the blockcontrol script
 CONTROL_SCRIPT="/usr/bin/blockcontrol"
+
+# The path of the blockcontrol.watchdog script
+WATCHDOG_PATH="/usr/bin/blockcontrol.watchdog"
 
 # blockcontrol's log file
 CONTROL_LOG="/var/log/blockcontrol.log"
@@ -105,6 +109,15 @@ INIT="1"
 # 1 - Update the blocklists automatically
 CRON="1"
 
+# Turn on/off blockcontrol.watchdog.
+# 0 - Don't use watchdog
+# 1 - Start watchdog
+WATCHDOG="1"
+
+# Set the interval in seconds in which blockcontrol.watchdog checks if the
+# blocking works.
+WATCHDOG_SLEEP="300"
+
 # You may specify additional options for wget for the blocklist download here.
 # Note: In this variable the download application (wget) must be contained! Some
 # options are hardcoded in blockcontrol.lib and so are not changeable here.
@@ -118,16 +131,20 @@ WGET_OPTS="wget -q -t 5 -T 120 -w 5"
 TESTHOST="iblocklist.com"
 
 # Full LSB compatibility
-# blockcontrol was created to run with every LSB 3.1 compatible system. You
-# need a file /lib/lsb/init-functions. If your distribution misses this file
-# you can download one based on the Debian version from
-# moblock-deb.sourceforge.net.
+# blockcontrol was written to run under every LSB 3.1 compatible system. In
+# older versions you needed a file /lib/lsb/init-functions. If your distribution
+# misses this file, then built-in fallback functions will be used.
 # 0 - Debian compatible system (uses start-stop-daemon instead of start_daemon)
 # 1 - LSB 3.1 compatible system
 # 2 - system with broken LSB 3.1 implementation, which doesn't understand the
-#     specification of the pidfile. Use this for Fedora Core 9 (and other redhat
-#     variants).
+#     specification of the pidfile. Use this e.g. for Fedora Core 9 (and other
+#     redhat variants).
 LSB_MODE="1"
+
+# Set your own options to start the daemon.
+# Warning: Do not change this, unless you know what you are doing.
+# Have a look at the code in blockcontrol.lib to understand how it is used.
+CUSTOM_DAEMON_OPTS=""
 
 ################## Settings for the iptables firewall rules ###################
 

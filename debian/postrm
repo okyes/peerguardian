@@ -30,6 +30,10 @@ case "$1" in
 		# User/mobloquer might have changed frequency from daily:
 		[ ! -e /etc/cron.*/blockcontrol ] || \
 			rm /etc/cron.*/blockcontrol
+		# The _back files are created by mobloquer.
+		for FILE in blockcontrol.conf_back blocklists.list_back iptables-custom-insert.sh iptables-custom-remove.sh ; do
+			[ ! -f /etc/blockcontrol/$FILE ] || { echo -n "Removing /etc/blockcontrol/$FILE" ; rm /etc/blockcontrol/$FILE && echo "." ; }
+		done
 		;;
 	remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
 		;;

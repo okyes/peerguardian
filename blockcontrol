@@ -21,8 +21,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ################################################################################
-# The following code is common between blockcontrol, cron.daily, init and
-# debian/postinst.
+# The following code is common between blockcontrol, blockcontrol.watchdog,
+# cron.daily, init and debian/postinst.
 
 # if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
 # This can happen in early boot stages before local file systems are mounted.
@@ -40,8 +40,8 @@ else
 	exit 7
 fi
 
-# End of the common code between blockcontrol, cron.daily, if-up, init,
-# and debian/postinst.
+# End of the common code between blockcontrol, blockcontrol.watchdog,
+# cron.daily, (if-up), init and debian/postinst.
 ################################################################################
 
 # And now, make this script usable:
