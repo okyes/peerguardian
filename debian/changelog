@@ -1,3 +1,15 @@
+blockcontrol (1.4.4-1) unstable; urgency=low
+
+  * blocklist management:
+    - check if extracted blocklist has not zero size. Otherwise keep old used
+      blocklist. This offers a backup list and fixes problems with IP_REMOVE, if
+      a blocklist is offered with zero size on the download server accidentally.
+      Drawback: If the blocklist is offered on purpose with zero size, then the
+      last version with content is still used.
+    - fixed removal of old download list, if downloading with wget fails.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 06 May 2009 19:17:24 +0200
+
 blockcontrol (1.4.3-1) unstable; urgency=low
 
   * whitelist LAN/DNS server automatically:
