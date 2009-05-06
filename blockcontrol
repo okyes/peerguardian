@@ -1,5 +1,4 @@
 #!/bin/sh
-#
 # blockcontrol - script to manage IP block daemons (MoBlock and NFBlock)
 #
 # Copyright (C) 2005 - 2009 jre <jre-phoenix@users.sourceforge.net>

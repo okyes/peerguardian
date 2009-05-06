@@ -2,10 +2,15 @@ TODO for blockcontrol and MoBlock debian packaging
 
 blockcontrol:
 
+- send error messages to console and logfile. [João]
+  Completely rework the logging part, and check if all messages go where they
+  should.
+  Then also log if external or internal LSB init functions are used.
+
 - add option to temp allow (blockcontrol allow IP and blockcontrol allow-MM IP),
   which inserts the appropriate iptables rules directly.
 
-- add configuration possibility to shut off checking for specific chains
+- add configuration possibility to shut off checking in specific chains
   (FORWARD).
 
 - check how NFBlock works with marking on/off.
@@ -19,8 +24,6 @@ blockcontrol:
 
 - add support for moblock -z NFQUEUE length from patch 41_Patch_2589_All
   ow__nfq_set_queue_maxlen__to_be_increased_from_default.dpatch
-
-- send error messages to console and logfile. [João]
 
 - implement options of NFBlock (no-dbus)
 

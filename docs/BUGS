@@ -5,7 +5,7 @@ BUGS of blockcontrol and moblock-deb packages:
 - Can't switch from moblock to nfblock (and vice versa!?) without rebooting,
   because else nfblock can't bind to NFQUEUE.
   (nfblockd: Error during nfq_bind_pf(): Illegal seek).
-  See TODO
+  See TODO and nfblock patch.
 
 - blockcontrol (1.3) if-up:
   check for already whitelisted LAN does not work for all subnetmasks
@@ -24,7 +24,7 @@ BUGS of blockcontrol and moblock-deb packages:
   NFBlock is started as a daemon. But still a successful start is reported
   before NFBlock binds to nfq. (bug upstream)
 
-  A check in the logfile for a success message for X seconds would solve this.
+  blockcontrol.watchdog partly solves this (2009-05-03).
   --
   2008-04-05, jre <jre-phoenix@users.sourceforge.net>
 

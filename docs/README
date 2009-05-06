@@ -1,4 +1,5 @@
-README for blockcontrol                          Sun Mar 22 16:30:07 CET 2009
+README for blockcontrol                          Sun May  3 18:33:35 CEST 2009
+
 
 ================================================================================
 
@@ -25,6 +26,7 @@ ranges in order to protect your privacy. You can get them at
 http://moblock.berlios.de and
 http://sites.google.com/site/makovick/nfblockd-daemon
 
+
 WARNING: IP blockers may block your complete network/internet access!
 
 Blockcontrol starts automatically at system boot per default. Some preconfigured
@@ -37,6 +39,7 @@ machine's accessibility from the internet.
 There are many configuration options to prevent this. E.g. the default is to
 always allow (whitelist) LAN traffic, DNS server and loopback device. If you
 are on a public LAN, you probably want to disable this feature.
+
 
 WARNING: Users with firewall (iptables rules)
 
@@ -51,6 +54,9 @@ severe conflicts. Make sure the following three conditions hold:
     again. You will be fine, if the iptables rules which send traffic to the
     iptables chains (blockcontrol_in, blockcontrol_out and blockcontrol_fw)
     stand before all other iptables rules which ACCEPT traffic.
+    To help you achieve this, blockcontrol.watchdog restarts blockcontrol if it
+    detects any problems. But it's still recommended, to restart blockcontrol
+    manually, whenever another application changed the iptables setup.
 
 
 Technical note:
@@ -69,9 +75,10 @@ Marked packets repeat the hook function (NF_REPEAT). So they are sent back to
 the head of the iptables chain again. A packet may only bear one mark, so there
 mustn't be any other applications / iptables rules that mark packets. Otherwise
 the setup will not work and packets will loop forever.
-"Marked block" outgoing packets will be REJECTED, "Marked block" incoming and 
-forwarded packets will be DROPped. "Marked accept" packets will be ignored, so
-other iptables rules decide what happens to them.
+There are iptables rules to REJECT "marked block" outgoing packets and DROP
+"marked block" incoming and forwarded packets. "Marked allowed" packets are
+ignored by blockcontrol's iptables setup, so other iptables rules decide what
+happens to them.
 
 ================================================================================
 
@@ -89,6 +96,8 @@ Features:
 - Allow all LAN traffic and the DNS server automatically. If you are on a public
   LAN, you probably want to disable this feature.
 - Check the status and test the IP block daemon.
+- A watchdog monitors the IP block daemon and restarts blockcontrol if
+  necessary.
 - Detects if kernel modules are needed and loads them if necessary.
 - Set verbosity and logging options.
 - Provides LSB 3.1 compatible init script.
@@ -107,7 +116,7 @@ Options:
 
 start
   inserts iptables rules and starts the IP block daemon. If the blocklist
-  configuration changed rebuild the master blocklist.
+  configuration changed, rebuild the master blocklist.
 
 stop
   deletes iptables rules and stops the IP block daemon.
@@ -156,14 +165,17 @@ Configuration:
 Blocklists are configured in blocklists.list
 (/etc/blockcontrol/blocklists.list).
 
+Most things are done in blockcontrol.conf (/etc/blockcontrol/blockcontrol.conf).
+Refer to blockcontrol.defaults (/usr/lib/blockcontrol/blockcontrol.defaults) for
+the complete set of possible configuration variables with comments.
+
 The allow list for IP ranges is allow.p2p (/etc/blockcontrol/allow.p2p). Per
 default, the allowlist is used for incoming and outgoing connections. If desired
 different allow lists for incoming, outgoing and forward connections may be
 used.
 
-The rest is done in blockcontrol.conf (/etc/blockcontrol/blockcontrol.conf).
-Refer to blockcontrol.defaults (/usr/lib/blockcontrol/blockcontrol.defaults) for
-the complete set of possible configuration variables with comments.
+
+
 
 ================================================================================
 
@@ -187,6 +199,9 @@ Files:
   Lists all blocklists that are used (and downloaded) by blockcontrol for
   use by the IP block daemon.
 
+- blockcontrol.watchdog (recommended)
+  Monitors the IP block daemon and restarts blockcontrol if necessary.
+
 - blockcontrol.conf
   The user configuration file for blockcontrol.
 
@@ -198,12 +213,17 @@ Files:
   the automatic whitelisting of traffic in the LAN does work. Must be
   executable.
 
-- iptables-custom-insert.sh (optional)
-  Script to insert custom iptables rules. This script will be executed on every
-  "blockcontrol start", if IPTABLES_SETTINGS="1" or "2" is configured.
+- iptables-custom-insert.sh (example)
+  Script to insert custom iptables rules. Any script in /etc/blockcontrol/ (the
+  directory is defined in IPTABLES_CUSTOM_DIR) that ends in insert.sh will be
+  executed on every "blockcontrol start", if IPTABLES_SETTINGS="1" or "2" is
+  configured.
 
-- iptables-custom-remove.sh (optional)
-  Script to delete custom iptables rules. See above.
+- iptables-custom-remove.sh (example)
+  Script to delete custom iptables rules. Any script in /etc/blockcontrol/ (the
+  directory is defined in IPTABLES_CUSTOM_DIR) that ends in remove.sh will be
+  executed on every "blockcontrol stop", if IPTABLES_SETTINGS="1" or "2" is
+  configured.
 
 - init (optional)
   Init file for starting the IP block daemon automatically on every bootup. Must
@@ -250,16 +270,16 @@ Debian, configurable in blockcontrol.conf):
 
 Installation:
 
-There's a simple Makefile, which will install blockcontrol in fileplaces as
-under Debian. This should be the same as defined by the File Hierarchy Standard
+There's a simple Makefile, which will install blockcontrol in fileplaces as in
+Debian. This should be the same as defined by the File Hierarchy Standard
 (FHS). If this fits for you, simply type
 
   make install
 
 If you choose other file places, you have to adjust:
 
-- the path to blockcontrol.main (CONTROL_MAIN) in blockcontrol, if-up,
-  cron.daily and init.
+- the path to blockcontrol.main (CONTROL_MAIN) in blockcontrol,
+  blockcontrol.watchdog, if-up, cron.daily and init.
 - the path to blockcontrol.defaults (CONTROL_DEFAULTS) in blockcontrol.main
 - PATH in blockcontrol.defaults. Either moblock or nfblock have to be installed
   in PATH.
@@ -287,7 +307,6 @@ If names relate to this software, then "blockcontrol" is used. If they relate
 directly to the IP block daemon (MoBlock or NFBlock), then "moblock" or
 "nfblock" is used.
 
-
 Changed directories:
 /etc/moblock > /etc/blockcontrol
 /var/spool/moblock > /var/spool/blockcontrol
@@ -299,15 +318,15 @@ Changed filenames:
 /etc/logrotate.d/moblock-control > /etc/logrotate.d/blockcontrol
 /etc/network/if-up.d/moblock > /etc/network/if-up.d/blockcontrol
 
-default (/etc/default/moblock):
+Configuration in default (/etc/default/moblock):
   - REMOVED
   - use /etc/blockcontrol/blockcontrol.conf instead.
   - the complete set of possible configuration variables with comments is in
-    blockcontrol.defaults.
+    blockcontrol.defaults (/usr/lib/blockcontrol/blockcontrol.defaults).
 
 NEW:
-blockcontrol.main (/usr/lib/blockcontrol/blockcontrol.main): contains most
-of the common code between the executable scripts
+blockcontrol.main (/usr/lib/blockcontrol/blockcontrol.main):
+contains most of the common code between the executable scripts.
 
 Changed variable names:
 MOBLOCK_INIT > INIT
@@ -326,7 +345,7 @@ to be transitioned manually.
 
 Supported systems:
 
-blockcontrol was written and tested under Debian Lenny. However it should run
+blockcontrol was written and tested under Debian Squeeze. However it should run
 under every Linux distribution or other POSIX compliant systems.
 
 ================================================================================
@@ -359,8 +378,8 @@ Requirements:
     xt_state                6656  3 
     xt_tcpudp               7680  4 
 
-- [ optional, because as fallback there's a modified copy of the Debian
-  init-functions in blockcontrol.]
+- /lib/lsb/init-functions (optional, because as fallback there's a modified copy
+  of the Debian init-functions in blockcontrol]
   Used functions, provided by /lib/lsb/init-functions (version >= 3.1):
    - start_daemon
    - killproc

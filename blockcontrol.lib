@@ -20,19 +20,11 @@
 
 
 
-# Define functions which may only be present in the Debian LSB
-# /lib/lsb/init-functions file. They will be overwritten by the system's
-# init-functions, if they are provided there.
+# Following is a modified version of /lib/lsb/init-functions (Debian 3.2-22). If
+# that file exists on your system, then the functions in that file will
+# overwrite the following functions.
 ################################################################################
-# Following is a modified version of the Debian /lib/lsb/init-functions. If that
-# file exists on your system, then the functions in that file will overwrite the
-# following functions.
-
-
 # /lib/lsb/init-functions for Debian -*- shell-script -*-
-#
-# modified version 3.2-20 for use with blockcontrol by jre
-# <jre-phoenix@users.sourceforge.net>
 #
 #Copyright (c) 2002-08 Chris Lawrence
 #All rights reserved.
@@ -62,7 +54,7 @@
 #EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 start_daemon () {
-    local force nice pidfile exec i
+    local force nice pidfile exec i args
     force=0
     nice=0
     pidfile=/dev/null
@@ -128,6 +120,9 @@ pidofproc () {
         fi
         return 0
     fi
+    if [ "$specified" ]; then
+        return 3 # program does not appear to be running after trying PID file
+    fi
     return 4 # program or service is unknown
 }
 
@@ -154,11 +149,6 @@ killproc () {
 	if [ -f "$pidfile" ] ; then
 		kill "$(pidofproc -p $pidfile $base)"
 	fi
-	# Return the LSB status
-	pidofproc $base >/dev/null 2>&1
-	RETVAL=$?
-	[ "$RETVAL" -eq 3 ] && RETVAL=0
-	return $RETVAL
 }
 
 # Return LSB status
@@ -377,7 +367,6 @@ log_action_end_msg_post () { :; }
 
 FANCYTTY=
 [ -e /etc/lsb-base-logging.sh ] && . /etc/lsb-base-logging.sh || true
-
 
 # End of parts of the Debian /lib/lsb/init-functions.
 ################################################################################
@@ -734,7 +723,7 @@ white_lan () {
 
 	# Get IPs of interfaces that are up
 	LOCAL_IPS="$(ifconfig | \
-		grep -Eo "inet addr:[[:space:]]*[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | \
+		grep -Eo "inet addr:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | \
 		grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" )"
 	for IP in $LOCAL_IPS ; do
 		case $IP in
@@ -744,8 +733,9 @@ white_lan () {
 				;;
 			*)	# For all other IPs
 				# Get the corresponding subnetmask
-				SUBNETMASK="$(ifconfig | grep "$IP" | \
-					grep -Eo "Mask:[[:space:]]*[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | \
+				# Use grep -F followed by a blank to match exactly a specific IP!
+				SUBNETMASK="$(ifconfig | grep -F "inet addr:${IP} " | \
+					grep -Eo "Mask:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | \
 					grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" )"
 				# Set the scope (IP/subnetmask) as it will be shown by iptables
 				if [ "$SUBNETMASK" = 255.255.255.0 ] ; then
@@ -763,14 +753,15 @@ white_lan () {
 					SCOPE=""
 				fi
 				# Insert whitelisting rules for LAN with SUBNETMASK, if we do an
-				# inital start/restart (quick test) or if the LAN is not already
-				# whitelisted (time-consuming test).
+				# inital start/restart (quick test of option)
+				# or if the LAN is not already
+				# whitelisted (time-consuming test if iptables rules exist).
 				# With other words:
 				# blockcontrol start/restart: always whitelist LAN
 				# if-up: first check if LAN is already whitelisted.
 				echo -n "Allowing inbound LAN traffic for $IP with subnetmask $SUBNETMASK"
 				if [ "$1" = start ] || [ "$1" = restart ] || \
-				! iptables -nv -L blockcontrol_in | grep $IPTABLES_TARGET_WHITELISTING | grep $SCOPE > /dev/null 2>&1 ; then
+				! iptables -nv -L blockcontrol_in | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
 					iptables -I blockcontrol_in --source ${IP}/${SUBNETMASK} -j $IPTABLES_TARGET_WHITELISTING
 					RETVAL=$?
 					log_end_msg $RETVAL
@@ -780,7 +771,7 @@ white_lan () {
 				fi
 				echo -n "Allowing outbound LAN traffic for $IP with subnetmask $SUBNETMASK"
 				if [ "$1" = start ] || [ "$1" = restart ] || \
-				! iptables -nv -L blockcontrol_out | grep $IPTABLES_TARGET_WHITELISTING | grep $SCOPE > /dev/null 2>&1 ; then
+				! iptables -nv -L blockcontrol_out | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
 					iptables -I blockcontrol_out --destination ${IP}/${SUBNETMASK} -j $IPTABLES_TARGET_WHITELISTING
 					RETVAL=$?
 					log_end_msg $RETVAL
@@ -790,7 +781,7 @@ white_lan () {
 				fi
 				echo -n "Allowing forwarded LAN traffic for $IP with subnetmask $SUBNETMASK"
 				if [ "$1" = start ] || [ "$1" = restart ] || \
-				! iptables -nv -L blockcontrol_fw | grep $IPTABLES_TARGET_WHITELISTING | grep $SCOPE > /dev/null 2>&1 ; then
+				! iptables -nv -L blockcontrol_fw | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
 					iptables -I blockcontrol_fw --source ${IP}/${SUBNETMASK} --destination ${IP}/${SUBNETMASK} -j $IPTABLES_TARGET_WHITELISTING
 					RETVAL=$?
 					log_end_msg $RETVAL
@@ -810,14 +801,14 @@ white_dns () {
 	#Get the DNS server's IP
 	DNS_IPS="$( grep nameserver /etc/resolv.conf | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" )"
 	for IP in $DNS_IPS ; do
-	# Whitelist the DNS server, if we do an inital start/restart (quick test)
-	# or if the DNS server is not already whitelisted (time-consuming test).
+	# Whitelist the DNS server, if we do an inital start/restart (quick test of option)
+	# or if the DNS server is not already whitelisted (time-consuming test if iptables rules exist).
 	# With other words:
 	# blockcontrol start/restart: always whitelist DNS server
 	# if-up: first check if DNS server is already whitelisted.
 		echo -n "Allowing outbound traffic to DNS server $IP"
 		if [ "$1" = start ] || [ "$1" = restart ] || \
-		! iptables -nv -L blockcontrol_out | grep $IP | grep $IPTABLES_TARGET_WHITELISTING > /dev/null 2>&1 ; then
+		! iptables -nv -L blockcontrol_out | grep -F "$IP " | grep $IPTABLES_TARGET_WHITELISTING > /dev/null 2>&1 ; then
 			iptables -I blockcontrol_out --destination $IP -j $IPTABLES_TARGET_WHITELISTING
 			RETVAL=$?
 			log_end_msg $RETVAL
@@ -827,7 +818,7 @@ white_dns () {
 		fi
 		echo -n "Allowing forwarded traffic to DNS server $IP"
 		if [ "$1" = start ] || [ "$1" = restart ] || \
-		! iptables -nv -L blockcontrol_fw | grep $IP | grep $IPTABLES_TARGET_WHITELISTING > /dev/null 2>&1 ; then
+		! iptables -nv -L blockcontrol_fw | grep -F $IP | grep $IPTABLES_TARGET_WHITELISTING > /dev/null 2>&1 ; then
 			iptables -I blockcontrol_fw --destination $IP -j $IPTABLES_TARGET_WHITELISTING
 			RETVAL=$?
 			log_end_msg $RETVAL
@@ -1037,20 +1028,26 @@ insert_iptables () {
 			log_end_msg 0	# Complete iptables insertion went well.
 	
 			# If custom iptables insertion scripts exist, execute them:
-			for FILE in "$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*insert.sh" -print0 | xargs -0r)" ; do
-				echo -n "Executing $FILE ..."
-				sh $FILE
-				log_end_msg "$?"
-			done
+			CUSTOM_INSERT_SCRIPTS="$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*insert.sh" -print0 | xargs -0r)"
+			[ -z "$CUSTOM_INSERT_SCRIPTS" ] || {
+				for FILE in $CUSTOM_INSERT_SCRIPTS ; do
+					echo -n "Executing $FILE ..."
+					sh $FILE
+					log_end_msg "$?"
+				done
+				}
 			;;
 
 		'2')
-			echo -n "Executing custom iptables insertion script(s) ..."
-			for FILE in "$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*insert.sh" -print0 | xargs -0r)" ; do
-				echo -n "Executing $FILE ..."
-				sh $FILE && log_end_msg $? || { log_end_msg $? ; exit $E_IPTABLES ; }
-			done
-			echo "$?"
+			CUSTOM_INSERT_SCRIPTS="$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*insert.sh" -print0 | xargs -0r)"
+			[ -z "$CUSTOM_INSERT_SCRIPTS" ] || {
+				echo -n "Executing custom iptables insertion script(s) ..."
+				for FILE in $CUSTOM_INSERT_SCRIPTS ; do
+					echo -n "Executing $FILE ..."
+					sh $FILE && log_end_msg $? || { log_end_msg $? ; exit $E_IPTABLES ; }
+				done
+				echo "$?"
+				}
 			;;
 	esac
 }
@@ -1117,19 +1114,25 @@ delete_iptables () {
 		fi
 
 		# If custom iptables removal scripts exist, execute them:
-		for FILE in "$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*remove.sh" -print0 | xargs -0r)" ; do
-			echo -n "Executing $FILE ..."
-			sh $FILE
-			log_end_msg "$?"
-		done
+		CUSTOM_REMOVE_SCRIPTS="$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*remove.sh" -print0 | xargs -0r)"
+		[ -z "$CUSTOM_REMOVE_SCRIPTS" ] || {
+			for FILE in $CUSTOM_REMOVE_SCRIPTS ; do
+				echo -n "Executing $FILE ..."
+				sh $FILE
+				log_end_msg "$?"
+			done
+			}
 		;;
 	'2')
-		echo -n "Executing custom iptables removal script(s) ..."
-		for FILE in "$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*remove.sh" -print0 | xargs -0r)" ; do
-			echo -n "Executing $FILE ..."
-			sh $FILE && log_end_msg $? || { log_end_msg $? ; exit $E_IPTABLES ; }
-		done
-		echo "$?"
+		CUSTOM_REMOVE_SCRIPTS="$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*remove.sh" -print0 | xargs -0r)"
+		[ -z "$CUSTOM_REMOVE_SCRIPTS" ] || {
+			echo -n "Executing custom iptables removal script(s) ..."
+			for FILE in $CUSTOM_REMOVE_SCRIPTS ; do
+				echo -n "Executing $FILE ..."
+				sh $FILE && log_end_msg $? || { log_end_msg $? ; exit $E_IPTABLES ; }
+			done
+			echo "$?"
+			}
 		;;
 	esac
 }
@@ -1355,7 +1358,8 @@ do_stop () {
 	# Verify that the daemon is really not running. This may take some
 	# time (e.g. nfblock 0.6.1), even after the killproc ended successfully.
 	# Otherwise restarting nfblock fails, because it was restarted too early.
-	# This also fixes broken lsb init-functions, that give the wrong return code.
+	# This also fixes broken lsb init-functions (e.g. Ubuntu hardy), that give
+	# the wrong return code.
 	COUNT=0
 	# Wait up to 20 seconds
 	while [ "$COUNT" -lt 20 ] ; do
@@ -1976,7 +1980,7 @@ test_ipblocking () {
 		TEST_LOG="$DAEMON_LOG"
 	elif [ "$NAME" = nfblockd ] ; then
 		# --no-syslog mustn't be specified for NFBlock
-		echo "$DAEMON_OPTS" | grep "no-syslog" > /dev/null 2>&1 || {
+		echo "$DAEMON_OPTS" | grep "no-syslog" > /dev/null 2>&1 && {
 			echo "Error: $NAME has to be started without the \"--no-syslog\" option for \"test\"."
 			exit $E_CONFIG
 			}

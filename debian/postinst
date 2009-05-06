@@ -92,6 +92,7 @@ VARIABLES="
 	VERBOSITY
 	INIT
 	CRON
+	WATCHDOG
 	NFQUEUE_NUMBER
 	IPTABLES_SETTINGS
 	IPTABLES_ACTIVATION
@@ -319,7 +320,7 @@ for VAR in $VARIABLES ; do
 			;;
 
 		# For boolean variables:
-		'LOG_SYSLOG'|'LOG_TIMESTAMP'|'INIT'|'CRON'|'REJECT'|'ACCEPT')
+		'LOG_SYSLOG'|'LOG_TIMESTAMP'|'INIT'|'CRON'|'WATCHDOG'|'REJECT'|'ACCEPT')
 			case "$VALUE" in
 				'0')
 					db_set blockcontrol/$VAR false
@@ -388,6 +389,7 @@ while true ; do
 	'6')
 		db_input critical blockcontrol/INIT || true
 		db_input medium blockcontrol/CRON || true
+		db_input medium blockcontrol/WATCHDOG || true
 		;;
 	'7')	# This part contains the db_go here instead of at the end of the function.
 		db_input low blockcontrol/NFQUEUE_NUMBER && RETVAL=$? || { RETVAL=$? ; true ; }
@@ -751,6 +753,22 @@ case "$RET" in
 	'true')	# Default
 		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
 			sed -i -r "s|^[[:space:]]*CRON=.*|CRON=\"1\"|" $CONTROL_CONF
+		fi
+		;;
+esac
+
+my_db_get WATCHDOG
+case "$RET" in
+	'false')
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*WATCHDOG=.*|WATCHDOG=\"0\"|" $CONTROL_CONF
+		else
+			echo "WATCHDOG=\"0\"" >> $CONTROL_CONF
+		fi
+		;;
+	'true')	# Default
+		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
+			sed -i -r "s|^[[:space:]]*WATCHDOG=.*|WATCHDOG=\"1\"|" $CONTROL_CONF
 		fi
 		;;
 esac

@@ -1,0 +1,50 @@
+
+.\" Sun May  3 11:24:22 CEST 2009: jre <jre-phoenix@users.sourceforge.net>
+.\"
+.\"   This documentation is free software; you can redistribute it and/or modify
+.\"   it under the terms of the GNU General Public License as published by
+.\"   the Free Software Foundation; either version 2 of the License, or
+.\"   (at your option) any later version.
+.\" 
+.\"   This documentation is distributed in the hope that it will be useful,
+.\"   but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\"   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\"   GNU General Public License for more details.
+.\"
+.\"   You should have received a copy of the GNU General Public License with
+.\"   the Debian GNU/Linux distribution in file /usr/share/common-licenses/GPL;
+.\"   if not, write to the Free Software Foundation, Inc., 59 Temple Place,
+.\"   Suite 330, Boston, MA  02111-1307  USA
+.TH BLOCKCONTROL 1 "2009-05-03" "Version 1.4" "blockcontrol Manual"
+
+.SH NAME
+blockcontrol.watchdog \- monitor IP blockers.
+
+.SH SYNOPSIS
+.B blockcontrol.watchdog
+.P
+NOTE: blockcontrol.watchdog is started and stopped automatically with
+blockcontrol. So there should be no need to do this manually.
+
+.SH DESCRIPTION
+.B blockcontrol.watchdog 
+checks in regular intervals (per default 5 minutes) if some of the necessary
+iptables rules exist and if the daemon is responsive. If one of these tests
+fails, it restarts blockcontrol.
+
+This is especially useful, if you have other firewall applications running,
+because they often mess up the iptables rules, which can be fixed by restarting
+blockcontrol. Unfortunately this manual action is often forgotten.
+
+.SH CONFIGURATION
+Configure the watchdog in \fIblockcontrol.conf\fR 
+(/etc/blockcontrol/blockcontrol.conf). Refer to blockcontrol.defaults
+(/usr/lib/blockcontrol/blockcontrol.defaults) for the complete set of possible
+configuration variables with comments. You can turn it on/off, specify the check
+interval in seconds and specify its path.
+
+.SH FILES
+.IP /usr/bin/blockcontrol.watchdog
+
+.SH SEE ALSO
+.BR "blockcontrol" "(1)"

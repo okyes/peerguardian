@@ -32,7 +32,7 @@ _Description: WARNING: IP blockers may block your complete network/internet acce
 
 Template: blockcontrol/warning_firewall
 Type: note
-_Description: WARNING: Users with firewall (iptables rules)
+_Description: WARNING: Users with other firewall (iptables rules)
  If you use other firewalls or iptables rules, you have to take special care to
  avoid severe conflicts. Make sure the following three conditions hold:
   - The IP block daemon marks non-matched (IP is not in the blocklist) packets.
@@ -43,6 +43,12 @@ _Description: WARNING: Users with firewall (iptables rules)
     again. You will be fine, if the iptables rules which send traffic to the
     iptables chains (blockcontrol_in, blockcontrol_out and blockcontrol_fw)
     stand before all other iptables rules which ACCEPT traffic.
+ .
+ In most cases it is advisable to do a
+  blockcontrol restart
+ whenever you have started, stopped or changed the configuration of your other
+ firewall application.
+ .
  You can check your iptables rules with
   iptables -L -nv
  or
@@ -181,6 +187,20 @@ _Description: Turn on automatic blocklist update?
  .
  This sets if the daily cron job updates the blocklists.
 
+Template: blockcontrol/WATCHDOG
+Type: boolean
+Default: true
+_Description: Do you want a watchdog to monitor your IP blocker?
+ Configuration variable: WATCHDOG
+ .
+ The watchdog checks in regular intervals (per default 5 minutes) if some of
+ the necessary iptables rules exist and if the daemon is responsive. If one of
+ these tests fails, it restarts blockcontrol.
+ .
+ This is especially useful, if you have other firewall applications running,
+ because they often mess up the iptables rules, which can be fixed by restarting
+ blockcontrol. Unfortunately this manual action is often forgotten.
+
 Template: blockcontrol/NFQUEUE_NUMBER
 Type: string
 Default: 92
@@ -310,7 +330,7 @@ _Description: Whitelisting
   you want to access someone on the internet, e.g. websurfing
   forward:
   traffic passes your machine, e.g. because it is a router
-  or an emulator such as Virtualbox XP
+  or an emulator such as Virtualbox.
 
 Template: blockcontrol/WHITE_TCP_OUT
 Type: string

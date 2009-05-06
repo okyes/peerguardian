@@ -1,6 +1,20 @@
 #!/bin/sh
-#
 # blockcontrol.watchdog
+# Copyright (C) 2009 jre <jre-phoenix@users.sourceforge.net>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 set -e
 
@@ -49,10 +63,9 @@ while true ; do
 		echo "In most cases another firewall application did mess up our iptables rules."
 		echo "Remember to make a \"blockcontrol restart\" whenever you start, stop or change"
 		echo "the configuration of your other firewall applications."
-		echo "To disable the watchdog set WATCHDOG_SLEEP=\"\" in $CONTROL_CONF."
+		echo "To disable the watchdog set WATCHDOG=\"0\" in $CONTROL_CONF."
 		echo "Now restarting blockcontrol ..."
-		blockcontrol restart || { log_failure_msg "Stopping blockcontrol.watchdog now!" ; exit 1 ; }
-
+		blockcontrol restart || { log_failure_msg "Failed! Stopping blockcontrol.watchdog now!" ; exit 1 ; }
 	}
 done
 

@@ -1,27 +1,64 @@
-blockcontrol (1.4-1~pre1) unstable; urgency=low
+blockcontrol (1.4.3-1) unstable; urgency=low
 
-  * added watchdog which restarts blockcontrol if it is not blocking:
-    new blockcontrol.watchdog and variables WATCHDOG_SLEEP and WATCHDOG_PATH.
-    watchdog gets started if iptables setup is done by blockcontrol and
-    WATCHDOG_SLEEP is a positive integer. It checks if the daemon is running
-    and some parts of the iptables setup (it can't really guarantee that they
-    are ok). Otherwise it restarts blockcontrol.
-    TODO: man page, documentation, debconf
-  * added CUSTOM_DAEMON_OPTS variable to allow use of deamon opts that are not
+  * whitelist LAN/DNS server automatically:
+    - use grep -F followed by a blank to match exactly a specific IP, fixes
+      bug found by João.
+    - don't look for "any" space in ifconfig output. I think it's safe to
+      assume that there is never space between "inet addr:" or "Mask:" and the
+      IP.
+  * "test": fixed test that checks if nfblock is started without the no-syslog
+    option.
+  * updated documentation, added man page for blockcontrol.watchdog
+  * LSB init-functions:
+    - updated internal LSB init-functions (modified Debian 3.2-22)
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 04 May 2009 20:09:01 +0200
+
+blockcontrol (1.4.2-1) unstable; urgency=low
+
+  * TODO: init-functions bug?
+    http://forums.phoenixlabs.org/showthread.php?p=123976#post123976
+  * TODO: watchdog man page, documentation
+  * TODO: custom iptables scripts documentation
+
+  * updated 1.4.1-1 changelog entries
+  * debian/prerm:
+    - fixed to start/stop daemon on updates again
+    - moved the "touch" code to be only executed on failed-updates from
+      1.4-1~pre5~jaunty
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 28 Apr 2009 18:54:56 +0200
+
+blockcontrol (1.4.1-1) unstable; urgency=low
+
+  * this version was originally 1.4-1 and released only in jaunty. To fix a bug,
+    I simply increased the version number and
+    - fix custom iptables scripts execution, to be omitted if none exists
+      (otherwise it just hung on start and stop forever)
+    - added debian/prerm to touch /etc/blockcontrol/iptables-custom-remove.sh.
+
+  * added watchdog which restarts blockcontrol, if some tests fail:
+    - new script blockcontrol.watchdog and new variables WATCHDOG,
+      WATCHDOG_SLEEP and WATCHDOG_PATH.
+    - debconf question
+    watchdog gets started if it's configured (WATCHDOG=1 and WATCHDOG_SLEEP is a
+    positive integer) and if the iptables setup is done by blockcontrol. It
+    checks if (some of) the necessary iptables rules exist and if the daemon is
+    responsive. If one of these tests fails, it restarts blockcontrol.
+  * added CUSTOM_DAEMON_OPTS variable to allow use of daemon opts that are not
     yet implemented in blockcontrol. Don't use unless you know what you are
     doing!
-  * Be verbose on automatic iptables whitelisting. Some code changes.
+  * automatic whitelisting:
+    - fixed automatic LAN whitelisting to get the correct subnetmask (and not an
+      additional from another interface).
+    - be verbose on automatic whitelisting.
+    - minor code changes.
   * init:
     - added ufw to Should-Start|Stop
     - Start later: S60, K20 (Makefile, rules)
   * test:
     - improved the tests
     - return the exit status from the test function
-  * changed DESC to "IP block daemon" and reduced use of this variable.
-  * debian/postrm:
-    remove more config files on purge (blockcontrol.conf_back,
-    blocklists.list_back, iptables-custom-insert.sh, iptables-custom-remove.sh).
-
   * Allow for multiple custom iptables files:
     - All files in IPTABLES_CUSTOM_DIR directory, that end in ...insert.sh/
       ...remove.sh will be executed on "blockcontrol start/stop", if
@@ -30,11 +67,15 @@ blockcontrol (1.4-1~pre1) unstable; urgency=low
     - removed IPTABLES_CUSTOM_[INSERT|REMOVE] variables
     - moved iptables-custom-[insert|remove].sh to
       /usr/share/docs/blockcontrol/examples
-    TODO: document
+  * changed DESC to "IP block daemon" and reduced use of this variable.
   * don't accept nfblock as NAME (only nfblockd)
+
   * debian/control:
     - removed Suggest: mobloquer, because this does not make sense if you
       install nfblock. Note that moblock suggests mobloquer.
+  * debian/postrm:
+    remove more config files on purge (blockcontrol.conf_back,
+    blocklists.list_back, iptables-custom-insert.sh, iptables-custom-remove.sh).
 
  -- jre <jre-phoenix@users.sourceforge.net>  Sun, 05 Apr 2009 15:29:17 +0200
 
