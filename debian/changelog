@@ -1,3 +1,18 @@
+blockcontrol (1.5-1~pre1) unstable; urgency=low
+
+  * TODO: use "nice" to start/reload moblock
+    DONE: nice -5 reload
+  * TODO: use blockconv if python 3 is present.
+
+  * debian/templates: updated, Thx kcolbom.
+  * documentation updates: added sloter's mail
+  * copyright:
+    - added blockconv GPL-3 by João Valverde
+    - moved earlier contributors to THANKS. This does not mean that I disrespect
+      their work or deny their authorship.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Fri, 08 May 2009 16:21:29 +0200
+
 blockcontrol (1.4.4-1) unstable; urgency=low
 
   * blocklist management:

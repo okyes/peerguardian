@@ -3,8 +3,7 @@ It's available at http://moblock-deb.sourceforge.net.
 
 Author: jre <jre-phoenix@users.sourceforge.net>
 
-Parts and ideas from JFM, /meth/usr, lestlest (clessing), Morpheus and
-perhaps others. More Info: http://forums.phoenixlabs.org
+===============================================================================
 
 Copyright moblock-control: 2005 - 2009 jre
 Copyright blockcontrol: 2009 jre
@@ -26,6 +25,28 @@ Copyright blockcontrol: 2009 jre
 On Debian systems, the complete text of the GNU General
 Public License can be found in `/usr/share/common-licenses/GPL-2'.
 
+===============================================================================
+
+Copyright blockconv: 2009 João Valverde (jpv950@gmail.com)
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+   GNU Library General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor Boston, MA 02110-1301, USA
+
+On Debian systems, the complete text of the GNU General
+Public License can be found in `/usr/share/common-licenses/GPL-3'.
+
+===============================================================================
 
 init-functions (modified version in blockcontrol.lib):
 Copyright (c) 2002-08 Chris Lawrence
@@ -57,3 +78,5 @@ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
 OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGE.
+
+===============================================================================

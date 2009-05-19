@@ -330,7 +330,7 @@ _Description: Whitelisting
   you want to access someone on the internet, e.g. websurfing
   forward:
   traffic passes your machine, e.g. because it is a router
-  or an emulator such as Virtualbox.
+  or runs virtual machine software such as VirtualBox.
 
 Template: blockcontrol/WHITE_TCP_OUT
 Type: string
