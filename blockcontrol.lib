@@ -1274,23 +1274,25 @@ do_start () {
 					# Use Debian specific starting. This seems to fix the "MoBlock fails to start
 					# the first time after installing/updating with aptitude" bug.
 					# Start MoBlock in the background with "-b"
-					start-stop-daemon -b -p $PIDFILE --exec $DAEMON --start -- $DAEMON_OPTS
+					start-stop-daemon -b -N 5 -p $PIDFILE --exec $DAEMON --start -- $DAEMON_OPTS
 				elif [ "$LSB_MODE" -eq 1 ] ; then
-					# Start MoBlock in the background with "&"
-					start_daemon -p $PIDFILE $DAEMON $DAEMON_OPTS &
+					# LSB, start MoBlock in the background with "&"
+					start_daemon -n 5 -p $PIDFILE $DAEMON $DAEMON_OPTS &
 				else
-					# Start MoBlock in the background with "&", don't specify pidfile.
-					start_daemon $DAEMON $DAEMON_OPTS &
+					# LSB , start MoBlock in the background with "&", don't specify pidfile.
+					start_daemon -n 5 $DAEMON $DAEMON_OPTS &
 				fi
 			elif [ "$NAME" = nfblockd ] ; then
 				if [ "$LSB_MODE" -eq 0 ] ; then
 					# Use Debian specific starting.
-					start-stop-daemon -p $PIDFILE --exec $DAEMON --start -- $DAEMON_OPTS
+					# Note: use -N for nice level, not -n as per LSB
+					start-stop-daemon -N 5 -p $PIDFILE --exec $DAEMON --start -- $DAEMON_OPTS
 				elif [ "$LSB_MODE" -eq 1 ] ; then
-					start_daemon -p $PIDFILE $DAEMON $DAEMON_OPTS
+					# LSB
+					start_daemon -n 5 -p $PIDFILE $DAEMON $DAEMON_OPTS
 				else
-					# Don't specify pidfile.
-					start_daemon $DAEMON $DAEMON_OPTS
+					# LSB, don't specify pidfile.
+					start_daemon -n 5 $DAEMON $DAEMON_OPTS
 				fi
 			fi
 			RETVAL=$?
