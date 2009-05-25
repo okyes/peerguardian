@@ -1268,31 +1268,38 @@ do_start () {
 				DAEMON_OPTS="-d -f $BLOCKLIST -p $PIDFILE $NFQUEUE_NUMBER_OPT $REJECT_OPT $ACCEPT_OPT $LOG_SYSLOG_OPT"
 			fi
 
+			# Test NICE_LEVEL setting.
+			[ "$NICE_LEVEL" -ge -20 ] && [ "$NICE_LEVEL" -le 19 ] || {
+				log_failure_msg "Error $E_CONFIG: Check the NICE_LEVEL setting."
+				exit $E_CONFIG
+				}
+
 			# Start daemon depending on the LSB_MODE settings
 			if [ "$NAME" = moblock ] ; then
 				if [ "$LSB_MODE" -eq 0 ] ; then
 					# Use Debian specific starting. This seems to fix the "MoBlock fails to start
 					# the first time after installing/updating with aptitude" bug.
 					# Start MoBlock in the background with "-b"
-					start-stop-daemon -b -N 5 -p $PIDFILE --exec $DAEMON --start -- $DAEMON_OPTS
+					# Note: use -N for nice level, not -n as per LSB
+					start-stop-daemon -b -N $NICE_LEVEL -p $PIDFILE --exec $DAEMON --start -- $DAEMON_OPTS
 				elif [ "$LSB_MODE" -eq 1 ] ; then
 					# LSB, start MoBlock in the background with "&"
-					start_daemon -n 5 -p $PIDFILE $DAEMON $DAEMON_OPTS &
+					start_daemon -n $NICE_LEVEL -p $PIDFILE $DAEMON $DAEMON_OPTS &
 				else
 					# LSB , start MoBlock in the background with "&", don't specify pidfile.
-					start_daemon -n 5 $DAEMON $DAEMON_OPTS &
+					start_daemon -n $NICE_LEVEL $DAEMON $DAEMON_OPTS &
 				fi
 			elif [ "$NAME" = nfblockd ] ; then
 				if [ "$LSB_MODE" -eq 0 ] ; then
 					# Use Debian specific starting.
 					# Note: use -N for nice level, not -n as per LSB
-					start-stop-daemon -N 5 -p $PIDFILE --exec $DAEMON --start -- $DAEMON_OPTS
+					start-stop-daemon -N $NICE_LEVEL -p $PIDFILE --exec $DAEMON --start -- $DAEMON_OPTS
 				elif [ "$LSB_MODE" -eq 1 ] ; then
 					# LSB
-					start_daemon -n 5 -p $PIDFILE $DAEMON $DAEMON_OPTS
+					start_daemon -n $NICE_LEVEL -p $PIDFILE $DAEMON $DAEMON_OPTS
 				else
 					# LSB, don't specify pidfile.
-					start_daemon -n 5 $DAEMON $DAEMON_OPTS
+					start_daemon -n $NICE_LEVEL $DAEMON $DAEMON_OPTS
 				fi
 			fi
 			RETVAL=$?

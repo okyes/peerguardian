@@ -118,6 +118,11 @@ WATCHDOG="1"
 # blocking works.
 WATCHDOG_SLEEP="300"
 
+# Set the nice level the daemon is started with. Valid values are between -20
+# and 19. Higher values make the daemon more friendly to other applications, but
+# might have drawbacks on its own functionality. See nice(1).
+NICE_LEVEL="5"
+
 # You may specify additional options for wget for the blocklist download here.
 # Note: In this variable the download application (wget) must be contained! Some
 # options are hardcoded in blockcontrol.lib and so are not changeable here.
