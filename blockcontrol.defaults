@@ -19,6 +19,7 @@ NAME="moblock"
 DAEMON="/usr/bin/moblock"
 PIDFILE="/var/run/moblock.pid"
 
+
 # The daemon description.
 DESC="IP block daemon"
 
@@ -34,36 +35,37 @@ STATFILE="/var/log/MoBlock.stats"
 CONTROL_NAME="blockcontrol"
 
 # The path of the blockcontrol script
-CONTROL_SCRIPT="/usr/bin/blockcontrol"
+CONTROL_SCRIPT="/usr/bin/$CONTROL_NAME"
 
 # The path of the blockcontrol.watchdog script
-WATCHDOG_PATH="/usr/bin/blockcontrol.watchdog"
+WATCHDOG_PATH="/usr/bin/$CONTROL_NAME.watchdog"
+WDPIDFILE="/var/run/$(basename $WATCHDOG_PATH).pid"
 
 # blockcontrol's log file
-CONTROL_LOG="/var/log/blockcontrol.log"
+CONTROL_LOG="/var/log/$CONTROL_NAME.log"
 
 # The path to the blockcontrol library
-CONTROL_LIB="/usr/lib/blockcontrol/blockcontrol.lib"
+CONTROL_LIB="/usr/lib/$CONTROL_NAME/$CONTROL_NAME.lib"
 
 # The path to the user configuration
-CONTROL_CONF="/etc/blockcontrol/blockcontrol.conf"
+CONTROL_CONF="/etc/$CONTROL_NAME/$CONTROL_NAME.conf"
 
 # The path of blocklists.list
-BLOCKLISTS_LIST="/etc/blockcontrol/blocklists.list"
+BLOCKLISTS_LIST="/etc/$CONTROL_NAME/blocklists.list"
 
 # The path of the master blocklist directory
-MASTER_BLOCKLIST_DIR="/var/lib/blockcontrol"
+MASTER_BLOCKLIST_DIR="/var/lib/$CONTROL_NAME"
 
 # The path of the directory where the blocklists are downloaded and manipulated
-BLOCKLISTS_DIR="/var/spool/blockcontrol"
+BLOCKLISTS_DIR="/var/spool/$CONTROL_NAME"
 
 # The path to the allow lists
 # Note that per default the same allow list is used for all input and output
 # connections, and is disabled for forward.
 # The path to the allow list for incoming connections
-ALLOW_IN="/etc/blockcontrol/allow.p2p"
+ALLOW_IN="/etc/$CONTROL_NAME/allow.p2p"
 # The path to the allow list for outgoing connections
-ALLOW_OUT="/etc/blockcontrol/allow.p2p"
+ALLOW_OUT="/etc/$CONTROL_NAME/allow.p2p"
 # The path to the allow list for forwarded connections.
 # Don't add your own IP / LAN there or MoBlock will not work at all for FORWARD.
 ALLOW_FW=""
@@ -71,7 +73,7 @@ ALLOW_FW=""
 # The directory of the custom iptables scripts.
 # All files in this directory, that end in insert.sh/remove.sh will be executed
 # on "blockcontrol start/stop", if IPTABLES_SETTINGS is 1 or 2.
-IPTABLES_CUSTOM_DIR="/etc/blockcontrol"
+IPTABLES_CUSTOM_DIR="/etc/$CONTROL_NAME"
 
 # The path of the file with the md5sum of all blocklist configurations
 MD5SUM_FILE="$BLOCKLISTS_DIR/MD5SUM"
@@ -353,7 +355,7 @@ CRON_MAILTO="root"
 # In case of an error while processing any init-script action except for
 # status, the init script shall print an error message and exit with a
 # non-zero status code:
-# 
+#
 # 1	generic or unspecified error (current practice)
 # 2	invalid or excess argument(s)
 # 3	unimplemented feature (for example, "reload")

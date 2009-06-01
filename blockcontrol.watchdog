@@ -41,17 +41,17 @@ fi
 # End of the common code between blockcontrol, blockcontrol.watchdog,
 # cron.daily, (if-up), init and debian/postinst.
 ################################################################################
-
+echo $$ > $WDPIDFILE
 while true ; do
 	sleep $WATCHDOG_SLEEP
 	{
 		# First check if the daemon is running.
 		status_of_proc $DAEMON $NAME > /dev/null 2>&1 &&
 		# Then check if traffic "might" be sent to the daemon.
-		iptables -L INPUT -n | grep "blockcontrol_in" > /dev/null 2>&1 &&
-		iptables -L OUTPUT -n | grep "blockcontrol_out" > /dev/null 2>&1 &&
-		iptables -L blockcontrol_in -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1 &&
-		iptables -L blockcontrol_out -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1
+		iptables -L INPUT -n | grep "${CONTROL_NAME}_in" > /dev/null 2>&1 &&
+		iptables -L OUTPUT -n | grep "${CONTROL_NAME}_out" > /dev/null 2>&1 &&
+		iptables -L ${CONTROL_NAME}_in -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1 &&
+		iptables -L ${CONTROL_NAME}_out -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1
 		# Not using test, see .lib for the reasons
 		# &&
 		# # Then do a real "test". If this fails, wait another minute, in case the daemon is currently reloading.
@@ -61,13 +61,13 @@ while true ; do
 	} || {
 		echo "$0: $NAME does not block!"
 		echo "In most cases another firewall application did mess up our iptables rules."
-		echo "Remember to make a \"blockcontrol restart\" whenever you start, stop or change"
+		echo "Remember to make a \"${CONTROL_NAME} restart\" whenever you start, stop or change"
 		echo "the configuration of your other firewall applications."
 		echo "To disable the watchdog set WATCHDOG=\"0\" in $CONTROL_CONF."
-		echo "Now restarting blockcontrol ..."
-		blockcontrol restart || { log_failure_msg "Failed! Stopping blockcontrol.watchdog now!" ; exit 1 ; }
+		echo "Now restarting ${CONTROL_NAME} ..."
+		${CONTROL_NAME} restart || { log_failure_msg "Failed! Stopping $(basename $WATCHDOG_PATH) now!" ; exit 1 ; }
 	}
 done
 
-echo "Stopping blockcontrol.watchdog now - why???"
+echo "Stopping $(basename $WATCHDOG_PATH) now - why???"
 exit 0
