@@ -62,7 +62,7 @@ case "$CRON" in
 			SENDMAIL="/usr/lib/sendmail"
 		fi
 		if [ $CRON_MAILTO ] && [ $SENDMAIL ] ; then
-			cat<<EOF | /usr/lib/sendmail -t
+			cat<<EOF | $SENDMAIL -t
 To: $CRON_MAILTO
 Subject: Results of $CONTROL_NAME blocklist update
 
