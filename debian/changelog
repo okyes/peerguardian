@@ -1,15 +1,15 @@
 blockcontrol (1.5-1~pre2) unstable; urgency=low
 
   * TODO: use blockconv if python 3 is present.
-  
+
   * TODO:
   start  inserts iptables rules and starts the IP block  daemon.  If  the
   blocklist configuration changed rebuilds the master blocklist.
   --> if /etc/blockcontrol/blocklists.list or the variables BLOCKLIST_FORMAT or
    IP_REMOVE changed. But not if you manually changed your single blocklists.
 
-  
-  
+
+
   * set a nice level when starting the daemon (default 5). Configurable with
     new variable NICE_LEVEL.
   * debian/templates: updated, Thx kcolbom.
@@ -18,6 +18,7 @@ blockcontrol (1.5-1~pre2) unstable; urgency=low
     - added blockconv GPL-3 by João Valverde
     - moved earlier contributors to THANKS. This does not mean that I disrespect
       their work or deny their authorship.
+  * added "force-update" to wax everything in /var/spool/blockcontrol so you can start over fresh when you corrupt your lists - cader
 
  -- jre <jre-phoenix@users.sourceforge.net>  Fri, 08 May 2009 16:21:29 +0200
 
@@ -226,7 +227,7 @@ moblock-control (1.2-1) sid lenny; urgency=low
       moblock-control.defaults.lib and source these files instead.
     - Use the same initialization code in these files. If moblock.conf
       and moblock-control.defaults.lib are not installed at the default places,
-      CONTROL_CONF and DEFAULTS_LIB have to be adjusted in all these files, 
+      CONTROL_CONF and DEFAULTS_LIB have to be adjusted in all these files,
     - Improved handling of missing configuration files.
     - improved/fixed regular expressions for sed and grep
   * New handling of blocklists:
@@ -350,7 +351,7 @@ moblock-control (1.1-1) sid lenny; urgency=low
       many versions. Implemented backwards compatibility code.
     - Check all traffic (not only NEW) for IPTABLES_ACTIVATION="2". Adjusted
       moblock.conf, debian/templates, debian/postinst.
-    - Only check for netfilter STATE support and load the kernel module, if 
+    - Only check for netfilter STATE support and load the kernel module, if
       IPTABLES_ACTIVATION="1" is set.
     - Added IPv6 to "status" output.
     - improved logging messages
@@ -561,7 +562,7 @@ moblock (0.9~rc2-12) sid lenny; urgency=low
       iptables target here because marked unmatched packets are just not send to
       the moblock_* chains again.
     - added configuration variable LOG_IPTABLES to log matched packets to
-      syslog. This allows to find out e.g. the port. Thanks cader 
+      syslog. This allows to find out e.g. the port. Thanks cader
       <cade.robinson@gmail.com>
   * moblock-control, moblock.conf, debian/postinst:
     - added new variable MASTER_BLOCKLIST_DIR, so that it is possible to have
@@ -922,7 +923,7 @@ moblock (0.9~rc1-5) sid; urgency=low
 
   * moblock-control test: considers if packets get marked
   * moblock-control:
-    - if "marking accept" send only new AND marked packets to the moblock 
+    - if "marking accept" send only new AND marked packets to the moblock
       chains. Therefore no more RETURN of the marked packets in the chains
       necessary.
     - moved loopback traffic fix to the moblock_in and moblock_out chains with
@@ -1275,7 +1276,7 @@ moblock (0.8-16~pre1) unstable; urgency=low
     - added IANA lists
   * currently only adapted for nfq version - so ipq version is broken.
   * reverted MoBlock-ipq.sh + MoBlock-nfq.sh to upstream settings (without
-    whitelisting) because they are no more used (moblock-control has 
+    whitelisting) because they are no more used (moblock-control has
     whitelisting for http and https on in the default setting)
   * debian/control:
     - depend on lsb-base (>= 3.0-6) instead of lsb-base (>= 3.0-3)
@@ -1332,7 +1333,7 @@ moblock (0.8-9) unstable; urgency=low
 
   * fixed dependencies according to
   * http://lists.alioth.debian.org/pipermail/pkg-lighttpd-maintainers/2005-December/000019.html
-  
+
  -- clessing <clessing@users.sourceforge.net>  Thu,  1 Jun 2006 15:04:47 +0200
 
 moblock (0.8-8) unstable; urgency=low
@@ -1385,8 +1386,8 @@ moblock (0.8-1) unstable; urgency=low
 
 moblock (0.7cvs20060313-9) unstable; urgency=low
 
-  * create missing directory /var/spool/moblock 
- 
+  * create missing directory /var/spool/moblock
+
   * using wget to test internet connection while updating blocklists
 
  -- clessing <clessing@users.sourceforge.net>  Mon, 27 Mar 2006 00:25:40 +0200
@@ -1408,7 +1409,7 @@ moblock (0.7cvs20060313-6) unstable; urgency=low
 
   * heavy modification of the startup script due to a misunderstanding of
     how the QUEUE target works. Now it creates  three chains that you can
-    use in your own firewall. (MOBLOCK_IN, MOBLOCK_OUT, MOBLOCK_FW). 
+    use in your own firewall. (MOBLOCK_IN, MOBLOCK_OUT, MOBLOCK_FW).
 
  -- clessing <clessing@users.sourceforge.net>  Fri, 17 Mar 2006 11:25:31 +0100
 
@@ -1423,7 +1424,7 @@ moblock (0.7cvs20060313-5) unstable; urgency=low
 moblock (0.7cvs20060313-4) unstable; urgency=low
 
   * fixed MoBlock.sh: proper checking for pidfile, generic handling of
-    QUEUE/NFQUEUE, allowing http and https traffic, 
+    QUEUE/NFQUEUE, allowing http and https traffic,
   * modified MoBlock.c to remove pidfile on SIGTERM before exiting
 
  -- clessing <clessing@users.sourceforge.net>  Fri, 17 Mar 2006 08:48:25 +0100
@@ -1445,7 +1446,7 @@ moblock (0.7cvs20060313-2) unstable; urgency=low
 moblock (0.7cvs20060313-1) unstable; urgency=low
 
   * massive package restructuring to create both the ipq and nfq version
-    building results in _two_ binary packages 
+    building results in _two_ binary packages
 
  -- clessing <clessing@users.sourceforge.net>  Thu, 16 Mar 2006 18:50:15 +0100
 

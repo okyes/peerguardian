@@ -95,10 +95,15 @@ case "$1" in
 		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
 		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
 		;;
-	'update')
+	'update'|'force-update')
 		test_CONTROL_LOG
 		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Updating blocklists and reloading $DESC" "$NAME"
 		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+          if [ "$1" = "force-update" ]
+          then
+               echo "Forcing update of all lists.  Removing $BLOCKLISTS_DIR" >> $CONTROL_LOG
+               rm -rf $BLOCKLISTS_DIR >> $CONTROL_LOG 2>&1
+          fi
 		update_blocklists >> $CONTROL_LOG 2>&1
 		do_reload >> $CONTROL_LOG 2>&1
 		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
@@ -208,7 +213,9 @@ case "$1" in
           echo "        stop_watchdog"
 		echo "        restart"
 		echo "        reload"
+          echo "        force-reload"
 		echo "        update"
+          echo "        force-update"
 		echo "        status"
 		echo "        test"
 		echo "        stats"
