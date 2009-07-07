@@ -19,7 +19,6 @@ NAME="moblock"
 DAEMON="/usr/bin/moblock"
 PIDFILE="/var/run/moblock.pid"
 
-
 # The daemon description.
 DESC="IP block daemon"
 
@@ -37,7 +36,7 @@ CONTROL_NAME="blockcontrol"
 # The path of the blockcontrol script
 CONTROL_SCRIPT="/usr/bin/$CONTROL_NAME"
 
-# The path of the blockcontrol.watchdog script
+# The path and pidfile of the blockcontrol.watchdog script
 WATCHDOG_PATH="/usr/bin/$CONTROL_NAME.watchdog"
 WDPIDFILE="/var/run/$(basename $WATCHDOG_PATH).pid"
 
