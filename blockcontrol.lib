@@ -1137,11 +1137,18 @@ delete_iptables () {
 	esac
 }
 do_stop_watchdog () {
-     # Stop blockcontrol.watchdog
-     echo "Stopping $(basename $WATCHDOG_PATH)."
-     #killall "$(basename $WATCHDOG_PATH)"
-     kill $(cat $WDPIDFILE) > /dev/null 2>&1
-     rm -f $WDPIDFILE
+	test_root
+	test_LSB_MODE
+	# Stop blockcontrol.watchdog
+	echo -n "Stopping $(basename $WATCHDOG_PATH)"
+	if [ "$LSB_MODE" -eq 0 ] || [ "$LSB_MODE" -eq 1 ] ; then
+		killproc -p $WDPIDFILE $WATCHDOG_PATH
+	else
+		# Don't specify pidfile
+		killproc $WATCHDOG_PATH
+	fi
+	rm -f $WDPIDFILE || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
+	echo "."
 }
 
 do_start_watchdog () {
@@ -1373,7 +1380,7 @@ do_start () {
 do_stop () {
 	test_root
 	test_LSB_MODE
-     do_stop_watchdog
+	do_stop_watchdog
 	# Remove iptables rules/chains
 	delete_iptables
 	# As per LSB  don't test if daemon is installed on stop!

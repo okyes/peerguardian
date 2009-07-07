@@ -61,24 +61,24 @@ case "$1" in
 		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
 		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
 		;;
-     'start_watchdog')
-          test_CONTROL_LOG
-          [ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Starting $CONTROL_NAME watchdog" "$CONTROL_NAME.watchdog"
-          date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
-          do_start_watchdog >> $CONTROL_LOG 2>&1
-          date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
-          [ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
-          echo ""
-          ;;
-     'stop_watchdog')
-          test_CONTROL_LOG
-          [ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Stopping $CONTROL_NAME watchdog" "$CONTROL_NAME.watchdog"
-          date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
-          do_stop_watchdog >> $CONTROL_LOG 2>&1
-          date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
-          [ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
-          echo ""
-          ;;
+	'start_watchdog')
+		test_CONTROL_LOG
+		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Starting $CONTROL_NAME watchdog" "$CONTROL_NAME.watchdog"
+		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		do_start_watchdog >> $CONTROL_LOG 2>&1
+		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
+		echo ""
+		;;
+	'stop_watchdog')
+		test_CONTROL_LOG
+		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Stopping $CONTROL_NAME watchdog" "$CONTROL_NAME.watchdog"
+		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		do_stop_watchdog >> $CONTROL_LOG 2>&1
+		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
+		echo ""
+		;;
 	'restart')
 		test_CONTROL_LOG
 		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Restarting $DESC" "$NAME"
@@ -99,11 +99,12 @@ case "$1" in
 		test_CONTROL_LOG
 		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Updating blocklists and reloading $DESC" "$NAME"
 		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
-          if [ "$1" = "force-update" ]
-          then
-               echo "Forcing update of all lists.  Removing $BLOCKLISTS_DIR" >> $CONTROL_LOG
-               rm -rf $BLOCKLISTS_DIR >> $CONTROL_LOG 2>&1
-          fi
+		if [ "$1" = "force-update" ] ; then
+			echo -n "Forcing update of all lists. Removing $BLOCKLISTS_DIR" >> $CONTROL_LOG
+			rm -rf $BLOCKLISTS_DIR >> $CONTROL_LOG 2>&1 \
+				|| { log_failure_msg " Error: rm exited with $?" >> $CONTROL_LOG ; exit 1; }
+			echo "." >> $CONTROL_LOG
+		fi
 		update_blocklists >> $CONTROL_LOG 2>&1
 		do_reload >> $CONTROL_LOG 2>&1
 		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
@@ -155,16 +156,16 @@ case "$1" in
 		echo "Please check if the above printed iptables rules are correct!"
 		echo
 		status_of_proc $DAEMON $NAME
-          if [ "$?" -eq 0 ] ; then
-               echo "PID: $(cat $PIDFILE)    CMD: $(ps -o cmd -p $(cat $PIDFILE) | tail -1)"
-               echo
-          fi
+		if [ "$?" -eq 0 ] ; then
+			echo "PID: $(cat $PIDFILE)    CMD: $(ps -o cmd -p $(cat $PIDFILE) | tail -1)"
+			echo
+		fi
 
-          status_of_proc $WATCHDOG_PATH $(basename $WATCHDOG_PATH)
-          if [ "$?" -eq 0 ] ; then
-               echo "PID: $(cat $WDPIDFILE)    CMD: $(ps -o cmd -p $(cat $WDPIDFILE) | tail -1)"
-               echo
-          fi
+		status_of_proc $WATCHDOG_PATH $(basename $WATCHDOG_PATH)
+		if [ "$?" -eq 0 ] ; then
+			echo "PID: $(cat $WDPIDFILE)    CMD: $(ps -o cmd -p $(cat $WDPIDFILE) | tail -1)"
+			echo
+		fi
 		;;
 	'stats')
 		status_of_proc $DAEMON $NAME > /dev/null 2>&1
@@ -209,13 +210,12 @@ case "$1" in
 		echo "Options:"
 		echo "        start"
 		echo "        stop"
-          echo "        start_watchdog"
-          echo "        stop_watchdog"
+		echo "        start_watchdog"
+		echo "        stop_watchdog"
 		echo "        restart"
 		echo "        reload"
-          echo "        force-reload"
 		echo "        update"
-          echo "        force-update"
+		echo "        force-update"
 		echo "        status"
 		echo "        test"
 		echo "        stats"
