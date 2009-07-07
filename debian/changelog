@@ -1,26 +1,17 @@
-blockcontrol (1.5-1~pre2) unstable; urgency=low
-
-  * TODO: use blockconv if python 3 is present.
-
-  * TODO:
-  start  inserts iptables rules and starts the IP block  daemon.  If  the
-  blocklist configuration changed rebuilds the master blocklist.
-  --> if /etc/blockcontrol/blocklists.list or the variables BLOCKLIST_FORMAT or
-   IP_REMOVE changed. But not if you manually changed your single blocklists.
-
-
+blockcontrol (1.5-1~pre3) unstable; urgency=low
 
   * set a nice level when starting the daemon (default 5). Configurable with
     new variable NICE_LEVEL.
   * debian/templates: updated, Thx kcolbom.
   * documentation updates: added sloter's mail
   * copyright:
-    - added blockconv GPL-3 by João Valverde
     - moved earlier contributors to THANKS. This does not mean that I disrespect
-      their work or deny their authorship.
-  * added "force-update" to wax everything in /var/spool/blockcontrol so you can start over fresh when you corrupt your lists - cader
+      their work or deny their authorship. Legal experts may tell me how to
+      handle such cases correctly.
+  * added "force-update" to wax everything in /var/spool/blockcontrol so you can
+    start over fresh when you corrupt your lists - cader
 
- -- jre <jre-phoenix@users.sourceforge.net>  Fri, 08 May 2009 16:21:29 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 07 Jul 2009 09:45:23 +0200
 
 blockcontrol (1.4.4-1) unstable; urgency=low
 

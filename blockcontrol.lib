@@ -1967,13 +1967,6 @@ build_blocklist () {
 			cp -f $BLOCKLIST_EXTRACTED $BLOCKLIST_USED || { log_failure_msg "Error: cp exited with $?" ; exit 1 ; }
 		fi
 
-		# # convert lists from ISO8859-1 to default locale, remove return (so CR+LF gets LF):
-		# cat "$BLOCKLIST_USED" | \
-		# 	iconv -c -f ISO8859-1 | \
-		# 	tr -d '\r' | \
-		# 	> "$BLOCKLIST_USED.tmp"
-		# mv $BLOCKLIST_USED.tmp $BLOCKLIST_USED
-
 		[ -f "$BLOCKLIST_USED" ] || { \
 			log_failure_msg " Error: $BLOCKLIST_USED doesn't exist! Strange, aborting!" ; exit 1 ; }
 
