@@ -163,7 +163,7 @@ case "$1" in
 
 		status_of_proc $WATCHDOG_PATH $(basename $WATCHDOG_PATH)
 		if [ "$?" -eq 0 ] ; then
-			echo "PID: $(cat $WDPIDFILE)    CMD: $(ps -o cmd -p $(cat $WDPIDFILE) | tail -1)"
+			echo "PID: $(cat $WATCHDOG_PIDFILE)    CMD: $(ps -o cmd -p $(cat $WATCHDOG_PIDFILE) | tail -1)"
 			echo
 		fi
 		;;

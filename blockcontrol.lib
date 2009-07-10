@@ -75,9 +75,16 @@ start_daemon () {
 
     exec="$1"; shift
 
-	# blockcontrol first checks the daemon status,
-	# so it's safe to just start with "$DAEMON $DAEMON_OPTS"
-	eval $exec $@
+    args="--start --nicelevel $nice --quiet --oknodo"
+	if [ $force = 1 ]; then
+		eval $exec "$@"
+	elif [ $pidfile ]; then
+		[ ! -f "pidfile" ] || return 0
+		eval $exec "$@"
+	else
+		eval $exec "$@"
+	fi
+
 }
 
 pidofproc () {
@@ -596,9 +603,18 @@ test_CONTROL_LOG () {
 
 test_PIDFILE () {
 	[ -d "$(dirname $PIDFILE)" ] || {
-		log_failure_msg "Error $E_XCD: Missing directory "$(dirname $PIDFILE)"."
+		log_failure_msg "Error $E_XCD: Missing directory $(dirname $PIDFILE)."
 		log_failure_msg "$NAME needs a directory to write its pidfile to!"
 		log_failure_msg "Check the PIDFILE setting."
+		exit $E_XCD
+	}
+}
+
+test_WATCHDOG_PIDFILE () {
+	[ -d "$(dirname $WATCHDOG_PIDFILE)" ] || {
+		log_failure_msg "Error $E_XCD: Missing directory $(dirname $WATCHDOG_PIDFILE)."
+		log_failure_msg "$(basename $WATCHDOG_PATH) needs a directory to write its pidfile to!"
+		log_failure_msg "Check the WATCHDOG_PIDFILE setting."
 		exit $E_XCD
 	}
 }
@@ -1136,65 +1152,63 @@ delete_iptables () {
 		;;
 	esac
 }
+
 do_stop_watchdog () {
 	test_root
 	test_LSB_MODE
 	# Stop blockcontrol.watchdog
 	echo -n "Stopping $(basename $WATCHDOG_PATH)"
 	if [ "$LSB_MODE" -eq 0 ] || [ "$LSB_MODE" -eq 1 ] ; then
-		killproc -p $WDPIDFILE $WATCHDOG_PATH
+		killproc -p $WATCHDOG_PIDFILE $WATCHDOG_PATH
 	else
 		# Don't specify pidfile
 		killproc $WATCHDOG_PATH
 	fi
-	rm -f $WDPIDFILE || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
+	rm -f $WATCHDOG_PIDFILE || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
 	echo "."
 }
 
 do_start_watchdog () {
-     # Start blockcontrol.watchdog.
-     if [ "$WATCHDOG" = 1 ] ; then
-          # First check for necessary preconditions:
-          # - the iptables setup has to be done completely by blockcontrol
-          # otherwise disable blockcontrol.watchdog by setting WATCHDOG_SLEEP="".
-          [ "$IPTABLES_SETTINGS" -gt 0 ] || WATCHDOG_SLEEP=""
-          [ "$IPTABLES_ACTIVATION" -gt 0 ] || WATCHDOG_SLEEP=""
-          # Not using "test" currently, because ping fails if network is down,
-          # other iptables rules might block the test packet before it reaches
-          # blockcontrol or the test packet might be whitelisted.
-          # - "blockcontrol test" must work, see the tests there. Most of them
-          #   have already been done on "start", so they can be omitted here.
-          #if [ "$NAME" = moblock ] ; then
-          #    # Daemon logfile has to be specified for MoBlock
-          #    [ -n "$DAEMON_LOG" ] || WATCHDOG_SLEEP=""
-          #elif [ "$NAME" = nfblockd ] ; then
-          #    echo "$DAEMON_OPTS" | grep "no-syslog" > /dev/null 2>&1 || WATCHDOG_SLEEP=""
-          #fi
-          # Start blockcontrol.watchdog if WATCHDOG_SLEEP is a positive integer.
-          if [ -n "$WATCHDOG_SLEEP" ] && [ "$WATCHDOG_SLEEP" -gt 0 ] && [ -x "$WATCHDOG_PATH" ]; then
-               echo -n "Starting $(basename $WATCHDOG_PATH)"
-               # Start blockcontrol.watchdog in the background. Therefore no real check possible if this succeeded.
-               if [ "$LSB_MODE" -eq 0 ] ; then
-                    # Use Debian specific starting. This seems to fix the "MoBlock fails to start
-                    # the first time after installing/updating with aptitude" bug.
-                    # Start MoBlock in the background with "-b"
-                    # Note: use -N for nice level, not -n as per LSB
-                    start-stop-daemon -b -N $NICE_LEVEL -p $WDPIDFILE --exec $WATCHDOG_PATH --start --
-               elif [ "$LSB_MODE" -eq 1 ] ; then
-                    # LSB, start MoBlock in the background with "&"
-                    start_daemon -n $NICE_LEVEL -p $WDPIDFILE $WATCHDOG_PATH  &
-               else
-                    # LSB , start MoBlock in the background with "&"
-                    start_daemon -n $NICE_LEVEL $WATCHDOG_PATH  &
-               fi
-                log_end_msg "$?"
-          else
-               echo "Not starting $(basename $WATCHDOG_PATH)."
-               echo "Check your configuration in $CONTROL_CONF:"
-               echo "IPTABLES_SETTINGS, IPTABLES_ACTIVATION and WATCHDOG_SLEEP need to be greater 0."
-               echo "WATCHDOG_PATH has to match the executable."
-          fi
-     fi
+	test_WATCHDOG_PIDFILE
+	# Test WATCHDOG_NICE_LEVEL setting.
+	[ "$WATCHDOG_NICE_LEVEL" -ge -20 ] && [ "$WATCHDOG_NICE_LEVEL" -le 19 ] || {
+		log_failure_msg "Error $E_CONFIG: Check the WATCHDOG_NICE_LEVEL setting."
+		exit $E_CONFIG
+		}
+
+	# Check for necessary preconditions:
+	# - the iptables setup has to be done completely by blockcontrol
+	#   otherwise disable blockcontrol.watchdog by setting WATCHDOG_SLEEP="".
+	[ "$IPTABLES_SETTINGS" -gt 0 ] || WATCHDOG_SLEEP=""
+	[ "$IPTABLES_ACTIVATION" -gt 0 ] || WATCHDOG_SLEEP=""
+	# - not using "test" here, because ping fails if network is down,
+	#   other iptables rules might block the test packet before it reaches
+	#   blockcontrol or the test packet might be whitelisted.
+
+	# Start blockcontrol.watchdog if WATCHDOG_SLEEP is a positive integer.
+	if [ -n "$WATCHDOG_SLEEP" ] && [ "$WATCHDOG_SLEEP" -gt 0 ] && [ -x "$WATCHDOG_PATH" ]; then
+		  echo -n "Starting $(basename $WATCHDOG_PATH)"
+		  # Start blockcontrol.watchdog in the background. Therefore no real check possible if this succeeded.
+		  if [ "$LSB_MODE" -eq 0 ] ; then
+			  # Use Debian specific starting. This seems to fix the "MoBlock fails to start
+			  # the first time after installing/updating with aptitude" bug.
+			  # Start MoBlock in the background with "-b"
+			  # Note: use -N for nice level, not -n as per LSB
+			  start-stop-daemon -b -N $WATCHDOG_NICE_LEVEL -p $WATCHDOG_PIDFILE --exec $WATCHDOG_PATH --start --
+		  elif [ "$LSB_MODE" -eq 1 ] ; then
+			  # LSB, start MoBlock in the background with "&"
+			  start_daemon -n $WATCHDOG_NICE_LEVEL -p $WATCHDOG_PIDFILE $WATCHDOG_PATH &
+		  else
+			  # LSB , start MoBlock in the background with "&"
+			  start_daemon -n $WATCHDOG_NICE_LEVEL $WATCHDOG_PATH &
+		  fi
+		  log_end_msg "$?"
+	else
+		  echo "Not starting $(basename $WATCHDOG_PATH)."
+		  echo "Check your configuration in $CONTROL_CONF:"
+		  echo "IPTABLES_SETTINGS, IPTABLES_ACTIVATION and WATCHDOG_SLEEP need to be greater 0."
+		  echo "WATCHDOG_PATH has to match the executable."
+	fi
 }
 
 # Function that starts daemon
@@ -1365,7 +1379,10 @@ do_start () {
 			RETVAL=$?
 			log_end_msg $RETVAL
 
+			# Start blockcontrol.watchdog.
+			if [ "$WATCHDOG" = 1 ] ; then
                do_start_watchdog
+			fi
 			;;
 		# Problematic daemon status. Be verbose and exit!
 		*)

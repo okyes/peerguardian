@@ -38,7 +38,7 @@ CONTROL_SCRIPT="/usr/bin/$CONTROL_NAME"
 
 # The path and pidfile of the blockcontrol.watchdog script
 WATCHDOG_PATH="/usr/bin/$CONTROL_NAME.watchdog"
-WDPIDFILE="/var/run/$(basename $WATCHDOG_PATH).pid"
+WATCHDOG_PIDFILE="/var/run/$(basename $WATCHDOG_PATH).pid"
 
 # blockcontrol's log file
 CONTROL_LOG="/var/log/$CONTROL_NAME.log"
@@ -77,7 +77,9 @@ IPTABLES_CUSTOM_DIR="/etc/$CONTROL_NAME"
 # The path of the file with the md5sum of all blocklist configurations
 MD5SUM_FILE="$BLOCKLISTS_DIR/MD5SUM"
 
-# The path of the lsb init functions
+# The path of the lsb init functions.
+# If you want to use only blockcontrol´s builtin LSB functions, you have to set
+# this to an empty value.
 LSB="/lib/lsb/init-functions"
 
 # Remember standard IFS (Internal Field Seperator)
@@ -119,6 +121,11 @@ WATCHDOG="1"
 # blocking works.
 WATCHDOG_SLEEP="300"
 
+# Set the nice level the watchdog is started with. Valid values are between -20
+# and 19. Higher values make the watchdog more friendly to other applications.
+# See nice(1).
+WATCHDOG_NICE_LEVEL="19"
+
 # Set the nice level the daemon is started with. Valid values are between -20
 # and 19. Higher values make the daemon more friendly to other applications, but
 # might have drawbacks on its own functionality. See nice(1).
@@ -140,6 +147,8 @@ TESTHOST="iblocklist.com"
 # blockcontrol was written to run under every LSB 3.1 compatible system. In
 # older versions you needed a file /lib/lsb/init-functions. If your distribution
 # misses this file, then built-in fallback functions will be used.
+# If you want to use only blockcontrol´s builtin LSB functions, you have to set
+# LSB (the path of the lsb init functions) to an empty value.
 # 0 - Debian compatible system (uses start-stop-daemon instead of start_daemon)
 # 1 - LSB 3.1 compatible system
 # 2 - system with broken LSB 3.1 implementation, which doesn't understand the

@@ -1,17 +1,22 @@
-blockcontrol (1.5-1~pre3) unstable; urgency=low
+blockcontrol (1.5-1~pre4) unstable; urgency=low
 
-  * set a nice level when starting the daemon (default 5). Configurable with
-    new variable NICE_LEVEL.
-  * debian/templates: updated, Thx kcolbom.
-  * documentation updates: added sloter's mail
-  * copyright:
-    - moved earlier contributors to THANKS. This does not mean that I disrespect
-      their work or deny their authorship. Legal experts may tell me how to
-      handle such cases correctly.
+  * set a nice level when starting the daemon (default 5) and watchdog
+    (default 19). New variables NICE_LEVEL and WATCHDOG_NICE_LEVEL.
+  * watchdog:
+    - allow to execute separately with "start_watchdog"/"stop_watchdog" - cader
+    - make sure only one instance of watchdog runs
+  * status: output pid and full command - cader
   * added "force-update" to wax everything in /var/spool/blockcontrol so you can
     start over fresh when you corrupt your lists - cader
+  * documentation:
+    - debian/templates: updated, Thx kcolbom.
+    - documentation updates: added sloter's mail address
+    - copyright:
+      moved earlier contributors to THANKS. This does not mean that I disrespect
+      their work or deny their authorship. Legal experts may tell me how to
+      handle such cases correctly.
 
- -- jre <jre-phoenix@users.sourceforge.net>  Tue, 07 Jul 2009 09:45:23 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Fri, 10 Jul 2009 13:23:08 +0200
 
 blockcontrol (1.4.4-1) unstable; urgency=low
 

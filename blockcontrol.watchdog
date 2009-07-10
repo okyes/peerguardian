@@ -41,7 +41,11 @@ fi
 # End of the common code between blockcontrol, blockcontrol.watchdog,
 # cron.daily, (if-up), init and debian/postinst.
 ################################################################################
-echo $$ > $WDPIDFILE
+
+# Assume that watchdog is already running, if its pidfile exist (as per LSB). Return success.
+[ ! -f "$WATCHDOG_PIDFILE" ] || { log_success_msg "$WATCHDOG_PIDFILE exists, doing nothing." ; exit 0 ; }
+
+echo $$ > $WATCHDOG_PIDFILE
 while true ; do
 	sleep $WATCHDOG_SLEEP
 	{
@@ -52,12 +56,9 @@ while true ; do
 		iptables -L OUTPUT -n | grep "${CONTROL_NAME}_out" > /dev/null 2>&1 &&
 		iptables -L ${CONTROL_NAME}_in -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1 &&
 		iptables -L ${CONTROL_NAME}_out -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1
-		# Not using test, see .lib for the reasons
-		# &&
-		# # Then do a real "test". If this fails, wait another minute, in case the daemon is currently reloading.
-		# {
-		# 	blockcontrol test > /dev/null 2>&1 || { sleep 60 ; blockcontrol test > /dev/null 2>&1 ; }
-		# }
+		# Not using "test" here, because ping fails if network is down,
+		# other iptables rules might block the test packet before it reaches
+		# blockcontrol or the test packet might be whitelisted.
 	} || {
 		echo "$0: $NAME does not block!"
 		echo "In most cases another firewall application did mess up our iptables rules."
@@ -65,9 +66,16 @@ while true ; do
 		echo "the configuration of your other firewall applications."
 		echo "To disable the watchdog set WATCHDOG=\"0\" in $CONTROL_CONF."
 		echo "Now restarting ${CONTROL_NAME} ..."
-		${CONTROL_NAME} restart || { log_failure_msg "Failed! Stopping $(basename $WATCHDOG_PATH) now!" ; exit 1 ; }
+		${CONTROL_NAME} restart
+	} || {
+		# We only end up here, if restart fails before it terminates the watchdog!
+		log_failure_msg "Failed! Stopping $(basename $WATCHDOG_PATH) now!"
+		rm -f $WATCHDOG_PIDFILE || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
+		exit 1
 	}
 done
 
+# We should never end here!
 echo "Stopping $(basename $WATCHDOG_PATH) now - why???"
-exit 0
+rm -f $WATCHDOG_PIDFILE || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
+exit 1
