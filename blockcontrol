@@ -191,7 +191,7 @@ case "$1" in
 			echo ${VAR}=\"$VALUE\"
 		done
 		echo
-		[ -f "$LSB" ] && echo "Using $LSB."
+		[ ! -f "$LSB" ] || echo "Using $LSB."
 		echo
 		echo "The following blocklists are configured to be used:"
 		set_LISTS_URL

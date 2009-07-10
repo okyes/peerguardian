@@ -8,6 +8,7 @@ blockcontrol (1.5-1~pre4) unstable; urgency=low
   * status: output pid and full command - cader
   * added "force-update" to wax everything in /var/spool/blockcontrol so you can
     start over fresh when you corrupt your lists - cader
+  * show_config: report if $LSB exists
   * documentation:
     - debian/templates: updated, Thx kcolbom.
     - documentation updates: added sloter's mail address
