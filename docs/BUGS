@@ -24,9 +24,19 @@ BUGS of blockcontrol and moblock-deb packages:
   NFBlock is started as a daemon. But still a successful start is reported
   before NFBlock binds to nfq. (bug upstream)
 
-  blockcontrol.watchdog partly solves this (2009-05-03).
+  blockcontrol.wd partly solves this (2009-05-03).
   --
   2008-04-05, jre <jre-phoenix@users.sourceforge.net>
+
+- Output to console that should not be there:
+  Related to status_of_proc in Jaunty init-functions!? Or redirecting double-
+  backgrounded /dev/null traffic to TTY!?
+  http://ubuntuforums.org/showpost.php?p=7754828&postcount=334
+  Jerriy, 2009-08-09
+  
+  http://ubuntuforums.org/showthread.php?t=1235735
+  trench.me, 2009-08-12
+
 
 ############################# (Major) closed bugs: #############################
 

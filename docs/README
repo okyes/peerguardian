@@ -54,7 +54,7 @@ severe conflicts. Make sure the following three conditions hold:
     again. You will be fine, if the iptables rules which send traffic to the
     iptables chains (blockcontrol_in, blockcontrol_out and blockcontrol_fw)
     stand before all other iptables rules which ACCEPT traffic.
-    To help you achieve this, blockcontrol.watchdog restarts blockcontrol if it
+    To help you achieve this, blockcontrol.wd restarts blockcontrol if it
     detects any problems. But it's still recommended, to restart blockcontrol
     manually, whenever another application changed the iptables setup.
 
@@ -115,11 +115,17 @@ blockcontrol search PATTERN
 Options:
 
 start
-  inserts iptables rules and starts the IP block daemon. If the blocklist
-  configuration changed, rebuild the master blocklist.
+  inserts iptables rules, starts the IP block daemon and the watchdog. If the
+  blocklist configuration changed, rebuilds the master blocklist.
 
 stop
   deletes iptables rules and stops the IP block daemon.
+
+start_wd
+  starts the watchdog.
+
+stop_wd
+  stops the watchdog.
 
 restart
   restarts the IP block daemon.
@@ -357,7 +363,7 @@ Requirements:
 - /usr/bin/printf (optional, needed during "update" for archive type detection)
 - p7zip (optional, needed for blocklists packed as .7z)
 - unzip (optional, needed for blocklists packed as .zip)
-- awk, sed, grep, basename, dirname, cat, cd, mv, cp, zcat, md5sum
+- awk, sed, grep, basename, dirname, cat, cd, mv, cp, zcat, md5sum, renice, pidof
   (those should really be on every system)
 - netfilter kernel support (either as modules or directly built in the kernel)
   These are the modules that are loaded here (The list was compiled with

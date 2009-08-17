@@ -20,7 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ################################################################################
-# The following code is common between blockcontrol, blockcontrol.watchdog,
+# The following code is common between blockcontrol, blockcontrol.wd,
 # cron.daily, init and debian/postinst.
 
 # if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
@@ -39,9 +39,28 @@ else
 	exit 7
 fi
 
-# End of the common code between blockcontrol, blockcontrol.watchdog,
+# End of the common code between blockcontrol, blockcontrol.wd,
 # cron.daily, (if-up), init and debian/postinst.
 ################################################################################
+
+RETVAL=0
+
+# Set a trap on exit for commands with log_end_msg.
+# Then on exit do log_end_msg. Fixes output for failed commands.
+case "$1" in
+	'start'|'stop'|'start_wd'|'stop_wd'|'restart'|'reload'|'force-reload'|'update'|'force-update')
+		test_root
+		# Define an exit function for trapped signals
+		onexit () {
+			RETVAL="$?"
+			[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
+			exit $RETVAL
+		}
+
+		trap onexit EXIT
+		;;
+esac
+
 
 # And now, make this script usable:
 case "$1" in
@@ -61,23 +80,21 @@ case "$1" in
 		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
 		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
 		;;
-	'start_watchdog')
+	'start_wd')
 		test_CONTROL_LOG
-		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Starting $CONTROL_NAME watchdog" "$CONTROL_NAME.watchdog"
+		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Starting $CONTROL_NAME watchdog" "$(basename $WD_PATHNAME)"
 		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
-		do_start_watchdog >> $CONTROL_LOG 2>&1
+		do_start_wd >> $CONTROL_LOG 2>&1
 		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
 		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
-		echo ""
 		;;
-	'stop_watchdog')
+	'stop_wd')
 		test_CONTROL_LOG
-		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Stopping $CONTROL_NAME watchdog" "$CONTROL_NAME.watchdog"
+		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Stopping $CONTROL_NAME watchdog" "$(basename $WD_PATHNAME)"
 		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
-		do_stop_watchdog >> $CONTROL_LOG 2>&1
+		do_stop_wd >> $CONTROL_LOG 2>&1
 		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
 		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
-		echo ""
 		;;
 	'restart')
 		test_CONTROL_LOG
@@ -125,6 +142,13 @@ case "$1" in
 					echo "$i"
 				done
 			fi
+			if [ -n "$UPDATE_403" ] ; then
+				echo ""
+				echo "The access for the following lists was denied, but they have old usable versions:"
+				for i in $UPDATE_403 ; do
+					echo "$i"
+				done
+			fi
 			if [ -n "$UPDATE_SUCCESS_NA" ] ; then
 				echo ""
 				echo "For the following lists there was no update available:"
@@ -143,6 +167,7 @@ case "$1" in
 		fi
 		;;
 	'status')
+		test_root
 		echo "Current IPv4 iptables rules (this may take a while):"
 		echo
 		iptables -L -nv
@@ -156,14 +181,15 @@ case "$1" in
 		echo "Please check if the above printed iptables rules are correct!"
 		echo
 		status_of_proc $DAEMON $NAME
-		if [ "$?" -eq 0 ] ; then
+		RETVAL="$?"
+		if [ "$RETVAL" -eq 0 ] ; then
 			echo "PID: $(cat $PIDFILE)    CMD: $(ps -o cmd -p $(cat $PIDFILE) | tail -1)"
 			echo
 		fi
 
-		status_of_proc $WATCHDOG_PATH $(basename $WATCHDOG_PATH)
+		status_of_proc $WD_PATHNAME $(basename $WD_PATHNAME)
 		if [ "$?" -eq 0 ] ; then
-			echo "PID: $(cat $WATCHDOG_PIDFILE)    CMD: $(ps -o cmd -p $(cat $WATCHDOG_PIDFILE) | tail -1)"
+			echo "PID: $(cat $WD_PID)    CMD: $(ps -o cmd -p $(cat $WD_PID) | tail -1)"
 			echo
 		fi
 		;;
@@ -187,11 +213,25 @@ case "$1" in
 		VARIABLES="$(grep -Ev "^[[:space:]]*#" $CONTROL_DEFAULTS | grep "=" | sed "s|=.*||" | sort -u)"
 		for VAR in $VARIABLES ; do
 			eval VALUE=\$$VAR
-			# This gives the actually used value of the variable (not necessarily that which is set in CONTROL_DEFAULTS).
+			# This gives the actually used value of the variable
+			# (not necessarily that which is set in CONTROL_DEFAULTS).
 			echo ${VAR}=\"$VALUE\"
 		done
 		echo
-		[ ! -f "$LSB" ] || echo "Using $LSB."
+		if [ -f "$LSB" ] ; then
+			if head -n 1 "$LSB" | grep -q Debian > /dev/null 2>&1 ; then
+				echo "Using Debian LSB init-functions: $LSB."
+			else
+				echo "Using LSB init-functions: $LSB."
+			fi
+		else
+			echo "Using internal LSB init-functions."
+		fi
+        if test_external start-stop-daemon > /dev/null 2>&1 ; then
+            echo "Using start-stop-daemon."
+        else
+            echo "Not using start-stop-daemon."
+        fi
 		echo
 		echo "The following blocklists are configured to be used:"
 		set_LISTS_URL
@@ -201,19 +241,24 @@ case "$1" in
 		;;
 	'test')
 		test_ipblocking
+		RETVAL=$?
 		;;
 	'search')
-		[ "$#" -eq 2 ] || { echo "Usage: $(basename $0) search SEARCHPATTERN" ; exit $E_BADARGS ; }
+		[ "$#" -eq 2 ] || {
+			echo "Usage: $(basename $0) search SEARCHPATTERN"
+			exit $E_BADARGS
+			}
 		SEARCHPATTERN="$2"
 		search
+		RETVAL=$?
 		;;
 	*)
 		echo "Usage: $(basename $0) OPTION"
 		echo "Options:"
 		echo "        start"
 		echo "        stop"
-		echo "        start_watchdog"
-		echo "        stop_watchdog"
+		echo "        start_wd"
+		echo "        stop_wd"
 		echo "        restart"
 		echo "        reload"
 		echo "        update"
@@ -227,4 +272,7 @@ case "$1" in
 		exit $E_BADARGS
 		;;
 esac
+
+# Reset the trap on exit
+trap - EXIT
 exit $RETVAL

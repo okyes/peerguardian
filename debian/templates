@@ -27,7 +27,7 @@ _Description: WARNING: IP blockers may block your complete network/internet acce
  You can now tweak your settings. They can later be changed with
   sudo dpkg-reconfigure blockcontrol
  .
- For those, who cannot leave this screen: Press the TAB key to select OK and
+ For those who are stuck on this screen: Press the TAB key to select OK and
  press enter.
 
 Template: blockcontrol/warning_firewall
@@ -36,17 +36,18 @@ _Description: WARNING: Users with other firewall (iptables rules)
  If you use other firewalls or iptables rules, you have to take special care to
  avoid severe conflicts. Make sure the following three conditions hold:
   - The IP block daemon marks non-matched (IP is not in the blocklist) packets.
-    (The marking feature is on per default.)
+    (The marking feature is on per default, so don't worry about that.)
   - Other firewalls do not mark packets.
   - blockcontrol is started after other firewalls. If other firewalls are
     started/reloaded after blockcontrol, then you need to restart blockcontrol
-    again. You will be fine, if the iptables rules which send traffic to the
-    iptables chains (blockcontrol_in, blockcontrol_out and blockcontrol_fw)
-    stand before all other iptables rules which ACCEPT traffic.
+    again, if the other firewall messed up blockcontrol's iptables setup.
+    Generally you will be fine, if the iptables rules (blockcontrol_in,
+    blockcontrol_out and blockcontrol_fw) in the iptables chains (INPUT, OUTPUT
+    and FORWARD) stand before all other iptables rules which ACCEPT traffic.
  .
- In most cases it is advisable to do a
+ So avoid severe misconfigurations by always doing a
   blockcontrol restart
- whenever you have started, stopped or changed the configuration of your other
+ whenever you have started or stopped or changed the configuration of your other
  firewall application.
  .
  You can check your iptables rules with
@@ -187,11 +188,11 @@ _Description: Turn on automatic blocklist update?
  .
  This sets if the daily cron job updates the blocklists.
 
-Template: blockcontrol/WATCHDOG
+Template: blockcontrol/WD
 Type: boolean
 Default: true
-_Description: Do you want a watchdog to monitor your IP blocker?
- Configuration variable: WATCHDOG
+_Description: Enable watchdog to monitor your IP blocker?
+ Configuration variable: WD
  .
  The watchdog checks in regular intervals (per default 5 minutes) if some of
  the necessary iptables rules exist and if the daemon is responsive. If one of

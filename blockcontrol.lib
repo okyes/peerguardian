@@ -18,13 +18,276 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
-
-
-# Following is a part of /lib/lsb/init-functions (Debian 3.2-23), see below for
-# the rest. If that file exists on your system, then the functions in that file 
-# will overwrite the following functions.
+# Following is a modified version of /lib/lsb/init-functions (Debian 3.2-23). If
+# that file exists on your system, then the functions in that file will
+# overwrite the following functions.
 ################################################################################
+# /lib/lsb/init-functions for Debian -*- shell-script -*-
+#
+#Copyright (c) 2002-08 Chris Lawrence
+#All rights reserved.
+#
+#Redistribution and use in source and binary forms, with or without
+#modification, are permitted provided that the following conditions
+#are met:
+#1. Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#2. Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+#3. Neither the name of the author nor the names of other contributors
+#   may be used to endorse or promote products derived from this software
+#   without specific prior written permission.
+#
+#THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+#IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE
+#LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+#BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+#OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+#EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# start_daemon [-f] [-n nicelevel] [-p pidfile] pathname [args...]
+#     runs the specified program as a daemon. The start_daemon function shall
+# check if the program is already running using the algorithm given above. If
+# so, it shall not start another copy of the daemon unless the -f option is
+# given. The -n option specifies a nice level. See nice. start_daemon shall
+# return the LSB defined exit status codes. It shall return 0 if the program has
+# been successfully started or is running and not 0 otherwise.
+
+start_daemon () {
+    local force nice pidfile exec i specified
+    force=0
+    nice=0
+    pidfile=/dev/null
+    specified=0
+
+    OPTIND=1
+    while getopts fn:p: opt ; do
+        case "$opt" in
+            f)  force=1;;
+            n)  nice="$OPTARG";;
+			# Prevent overwriting "-p pidfile" with "-p guarding.p2p"
+            p)  [ ! "$specified" = 1 ] && pidfile="$OPTARG" && specified=1;;
+        esac
+    done
+
+    shift $(($OPTIND - 1))
+    if [ "$1" = '--' ]; then
+        shift
+    fi
+    exec="$1"; shift
+
+    if [ $force = 1 ]; then
+		exec $exec $@ &
+		# If renice fails somehow just ignore it.
+		if test_external renice ; then
+			PID="$(pidofproc $PID_OPT $exec)" || {
+				sleep 1
+				PID="$(pidofproc $exec)"
+			} && \
+			renice -n "$nice" -p "$PID" >/dev/null 2>&1
+		fi
+	elif [ $pidfile ]; then
+		# If daemon is already running, return 0.
+		pidofproc -p $pidfile $exec >/dev/null 2>&1 && return 0
+		exec $exec $@ &
+		# If renice fails somehow just ignore it.
+		if test_external renice ; then
+			PID="$(pidofproc -p $pidfile $exec)" || {
+				sleep 1
+				PID="$(pidofproc -p $pidfile $exec)"
+			} && \
+			renice -n "$nice" -p "$PID" >/dev/null 2>&1
+		fi
+	else
+		# If daemon is already running, return 0.
+		pidofproc $exec >/dev/null 2>&1 && return 0
+		exec $exec $@ &
+		# If renice fails somehow just ignore it.
+		if test_external renice ; then
+			PID="$(pidofproc $exec)" || {
+				sleep 1
+				PID="$(pidofproc $exec)"
+			} && \
+			renice -n "$nice" -p "$PID" >/dev/null 2>&1
+		fi
+	fi
+}
+
+# pidofproc [-p pidfile] pathname
+#     The pidofproc function shall return one or more process identifiers for a
+# particular daemon using the algorithm given above. Only process identifiers of
+# running processes should be returned. Multiple process identifiers shall be
+# separated by a single space.
+#     Note: A process may exit between pidofproc discovering its identity
+# and the caller of pidofproc being able to act on that identity. As a result,
+# no test assertion can be made that the process identifiers returned by
+# pidofproc shall be running processes.
+#     The pidofproc function shall return the LSB defined exit status codes for
+# "status". It shall return 0 if the program is running and not 0 otherwise.
+pidofproc () {
+    local pidfile line i pids= status specified pid
+    pidfile=
+    specified=
+    
+    OPTIND=1
+    while getopts p: opt ; do
+        case "$opt" in
+            p)  pidfile="$OPTARG"; specified=1;;
+        esac
+    done
+    shift $(($OPTIND - 1))
+
+    base="$(basename $1)"
+    if [ ! "$specified" ]; then
+        pidfile="/var/run/$base.pid"
+    fi
+
+    if [ -n "${pidfile:-}" ] && [ -r "$pidfile" ]; then
+        read pid < "$pidfile"
+        if [ -n "${pid:-}" ]; then
+            if $(kill -0 "${pid:-}" 2> /dev/null); then
+                echo "$pid"
+                return 0
+            elif ps "${pid:-}" >/dev/null 2>&1; then
+                echo "$pid"
+                return 0 # program is running, but not owned by this user
+            else
+                return 1 # program is dead and /var/run pid file exists
+            fi
+        fi
+    fi
+    if test_external pidof && [ ! "$specified" ]; then
+        status="0"
+        pidof -o %PPID -x $1 || status="$?"
+        if [ "$status" = 1 ]; then
+            return 3 # program is not running
+        fi
+        return 0
+    fi
+    if [ "$specified" ]; then
+        return 3 # program does not appear to be running after trying PID file
+    fi
+
+# 	# TODO: add this!?
+# 	if [ -x "$1" ] ; then
+# 		return 3	# daemon is installed, so it is known. But the pidfile
+# 					# (/var/run/$base.pid) is not existing/empty. So assume 
+# 					# daemon is not running.
+# 	fi
+
+    return 4 # Unable to determine status
+}
+
+# killproc [-p pidfile] pathname [signal]
+#     The killproc function shall stop the specified program. The program is
+# found using the algorith?m given above. If a signal is specified, using the
+# -signal_name or -signal_number syntaxes as specified by the kill command, the
+# program is sent that signal. Otherwise, a SIGTERM followed by a SIGKILL after
+# an unspecified number of seconds shall be sent. If a program has been
+# terminated, the pidfile should be removed if the terminated process has not
+# already done so. The killproc function shall return the LSB defined exit
+# status codes. If called without a signal, it shall return 0 if the program has
+# been stopped or is not running and not 0 otherwise. If a signal is given, it
+# shall return 0 only if the program is running. 
+
+killproc () {
+    local pidfile sig status base i name_param is_term_sig
+    pidfile=
+    name_param=
+    is_term_sig=no
+
+    OPTIND=1
+    while getopts p: opt ; do
+        case "$opt" in
+            p)  pidfile="$OPTARG";;
+        esac
+    done
+    shift $(($OPTIND - 1))
+
+    base="$(basename $1)"
+    if [ ! $pidfile ]; then
+        pidfile="/var/run/$base.pid"
+    fi
+
+    # Remove leading - and SIG from the sig. If none is given ($2), sig stays empty. (probably!?)
+    sig=$(echo ${2:-} | sed -e 's/^-\(.*\)/\1/')
+    sig=$(echo $sig | sed -e 's/^SIG\(.*\)/\1/')
+    if [ -z "$sig" ] || [ "$sig" = 15 ] || [ "$sig" = TERM ]; then
+        is_term_sig=yes
+    fi
+    status=0
+    if [ ! "$is_term_sig" = yes ]; then
+        if [ -n "$sig" ]; then
+            #/sbin/start-stop-daemon --stop --signal "$sig" --quiet $name_param || status="$?"
+            PID="$(pidofproc $1)" && \
+            kill -s $sig $PID || \
+			status="$?"
+        else
+            # TODO: unnecessary, "if [ -n "$sig" ]" is always true above, because
+            # if -z "$sig" then is_term_sig=yes
+            #/sbin/start-stop-daemon --stop --quiet $name_param || status="$?"
+            PID="$(pidofproc $1)" && \
+            kill $PID || \
+			status="$?"
+        fi
+    else
+        #/sbin/start-stop-daemon --stop --quiet --oknodo $name_param || status="$?"
+        # send TERM signal
+		PID="$(pidofproc $1)" && \
+		kill $PID || \
+		status="$?"
+    fi
+    if [ ! "$is_term_sig" = yes ] && [ ! "$status" = 0 ]; then
+        return $status
+    fi
+
+    if [ "$status" = 0 ] && [ "$is_term_sig" = yes ] && [ "$pidfile" ]; then
+		# Bug, if the pidofproc succeeds, then process is still running. Then
+		# don't return 0!
+        pidofproc -p "$pidfile" "$1" >/dev/null || rm -f "$pidfile"
+    fi
+    return 0
+}
+
+# Return LSB status
+status_of_proc () {
+    local pidfile daemon name status
+
+    pidfile=
+    OPTIND=1
+    while getopts p: opt ; do
+        case "$opt" in
+            p)  pidfile="$OPTARG";;
+        esac
+    done
+    shift $(($OPTIND - 1))
+
+    if [ -n "$pidfile" ]; then
+        pidfile="-p $pidfile"
+    fi
+    daemon="$1"
+    name="$2"
+
+    status="0"
+    pidofproc $pidfile $daemon >/dev/null || status="$?"
+    if [ "$status" = 0 ]; then
+        log_success_msg "$name is running."
+        return 0
+    elif [ "$status" = 4 ]; then
+        log_failure_msg "could not access PID file for $name."
+        return $status
+    else
+        log_failure_msg "$name is not running."
+        return $status
+    fi
+}
+
 log_success_msg () {
     if [ -n "${1:-}" ]; then
         log_begin_msg $@
@@ -138,8 +401,6 @@ log_end_msg () {
 # End of modified Debian /lib/lsb/init-functions.
 ################################################################################
 
-
-
 # Function to test if an external application exists.
 # Usage: test_external basename_of_the_application
 # Returns 0 if base is installed and executable in PATH
@@ -149,254 +410,12 @@ log_end_msg () {
 test_external () {
 	IFS=":"
 	for PATH_I in $PATH ; do
-		[ -x "$PATH_I"/"$1" ] && return 0
+		[ -x "$PATH_I"/"$1" ] && IFS=$STDIFS && return 0
 	done
 	IFS=$STDIFS
 	log_failure_msg "Error $E_XEXTERNAL: $1 not installed."
 	return $E_XEXTERNAL
 }
-
-
-
-# Following is a modified version of /lib/lsb/init-functions (Debian 3.2-23). If
-# that file exists on your system, then the functions in that file will
-# overwrite the following functions.
-################################################################################
-# /lib/lsb/init-functions for Debian -*- shell-script -*-
-#
-#Copyright (c) 2002-08 Chris Lawrence
-#All rights reserved.
-#
-#Redistribution and use in source and binary forms, with or without
-#modification, are permitted provided that the following conditions
-#are met:
-#1. Redistributions of source code must retain the above copyright
-#   notice, this list of conditions and the following disclaimer.
-#2. Redistributions in binary form must reproduce the above copyright
-#   notice, this list of conditions and the following disclaimer in the
-#   documentation and/or other materials provided with the distribution.
-#3. Neither the name of the author nor the names of other contributors
-#   may be used to endorse or promote products derived from this software
-#   without specific prior written permission.
-#
-#THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
-#IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-#WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-#ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE
-#LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-#CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-#SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-#BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-#WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-#OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-#EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-pidofproc () {
-    local pidfile line i pids= status specified pid
-    pidfile=
-    specified=
-    
-    OPTIND=1
-    while getopts p: opt ; do
-        case "$opt" in
-            p)  pidfile="$OPTARG"; specified=1;;
-        esac
-    done
-    shift $(($OPTIND - 1))
-
-    base="$(basename $1)"
-    if [ ! "$specified" ]; then
-        pidfile="/var/run/$base.pid"
-    fi
-
-    if [ -n "${pidfile:-}" ] && [ -r "$pidfile" ]; then
-        read pid < "$pidfile"
-        if [ -n "${pid:-}" ]; then
-            if $(kill -0 "${pid:-}" 2> /dev/null); then
-                echo "$pid"
-                return 0
-            elif ps "${pid:-}" >/dev/null 2>&1; then
-                echo "$pid"
-                return 0 # program is running, but not owned by this user
-            else
-                return 1 # program is dead and /var/run pid file exists
-            fi
-        fi
-    fi
-    if test_external pidof && [ ! "$specified" ]; then
-        status="0"
-        pidof -o %PPID -x $1 || status="$?"
-        if [ "$status" = 1 ]; then
-            return 3 # program is not running
-        fi
-        return 0
-    fi
-    if [ "$specified" ]; then
-        return 3 # program does not appear to be running after trying PID file
-    fi
-
-	# TODO: should this really be added!?
-	if [ -x "$1" ] ; then
-		return 3	# daemon is installed, so it is known. But the pidfile
-					# (/var/run/$base.pid) is not existing. So assume daemon is
-					# not running.
-	fi
-
-    return 4 # Unable to determine status
-}
-
-start_daemon () {
-    local force nice pidfile exec i
-    force=0
-    nice=0
-    pidfile=/dev/null
-
-    OPTIND=1
-    while getopts fn:p: opt ; do
-        case "$opt" in
-            f)  force=1;;
-            n)  nice="$OPTARG";;
-            p)  pidfile="$OPTARG";;
-        esac
-    done
-
-    shift $(($OPTIND - 1))
-    if [ "$1" = '--' ]; then
-        shift
-    fi
-
-    exec="$1"; shift
-
-    if [ $force = 1 ]; then
-		exec "$exec" "$@" &
-		# If renice fails somehow just ignore it.
-		if test_external renice ; then
-			PID="$(pidofproc $exec)" || {
-				sleep 1
-				PID="$(pidofproc $exec)"
-			} && \
-			renice -n "$nice" -p "$PID" >/dev/null 2>&1
-		fi
-	elif [ $pidfile ]; then
-		# Assume daemon is already running, if pidfile exists and return 0.
-		[ ! -f "$pidfile" ] || return 0
-		exec "$exec" "$@" &
-		# If renice fails somehow just ignore it.
-		if test_external renice ; then
-			PID="$(pidofproc -p $pidfile $exec)" || {
-				sleep 1
-				PID="$(pidofproc -p $pidfile $exec)"
-			} && \
-			renice -n "$nice" -p "$PID" >/dev/null 2>&1
-		fi
-	else
-		exec "$exec" "$@" &
-		# If renice fails somehow just ignore it.
-		if test_external renice ; then
-			PID="$(pidofproc $exec)" || {
-				sleep 1
-				PID="$(pidofproc $exec)"
-			} && \
-			renice -n "$nice" -p "$PID" >/dev/null 2>&1
-		fi
-	fi
-}
-
-killproc () {
-    local pidfile sig status base i name_param is_term_sig
-    pidfile=
-    name_param=
-    is_term_sig=no
-
-    OPTIND=1
-    while getopts p: opt ; do
-        case "$opt" in
-            p)  pidfile="$OPTARG";;
-        esac
-    done
-    shift $(($OPTIND - 1))
-
-    base="$(basename $1)"
-    if [ ! $pidfile ]; then
-        pidfile="/var/run/$base.pid"
-    fi
-
-    # Remove leading - and SIG from the sig. If none is given ($2), sig stays empty. (probably!?)
-    sig=$(echo ${2:-} | sed -e 's/^-\(.*\)/\1/')
-    sig=$(echo $sig | sed -e 's/^SIG\(.*\)/\1/')
-    if [ -z "$sig" ] || [ "$sig" = 15 ] || [ "$sig" = TERM ]; then
-        is_term_sig=yes
-    fi
-    status=0
-    if [ ! "$is_term_sig" = yes ]; then
-        if [ -n "$sig" ]; then
-            #/sbin/start-stop-daemon --stop --signal "$sig" --quiet $name_param || status="$?"
-            kill -s $sig "$(pidofproc -p $pidfile $1)" || status="$?"
-        else
-            # TODO: unnecessary, "if [ -n "$sig" ]" is always true here, because
-            # if -z "$sig" then is_term_sig=yes
-            #/sbin/start-stop-daemon --stop --quiet $name_param || status="$?"
-            kill "$(pidofproc -p $pidfile $1)" || status="$?"
-        fi
-    else
-        #/sbin/start-stop-daemon --stop --quiet --oknodo $name_param || status="$?"
-        # send TERM signal
-        if pidofproc -p $pidfile $1 >/dev/null ; then
-			kill "$(pidofproc -p $pidfile $1)" || status="$?"
-			# TODO: wait and send KILL signal if necessary.
-		fi
-    fi
-    if [ ! "$is_term_sig" = yes ] && [ "$status" = 1 ]; then	# not termsig
-        # If --oknodo was not specified and nothing was done, 1 is returned.
-        if [ -n "$sig" ]; then
-            return 0
-        fi
-        return 3 # program is not running
-    fi
-
-    if [ "$status" = 0 ] && [ "$is_term_sig" = yes ] && [ "$pidfile" ]; then
-		# Bug, if the pidofproc succeeds, then process is still running. Then
-		# don't return 0!
-        pidofproc -p "$pidfile" "$1" >/dev/null || rm -f "$pidfile"
-    fi
-    return 0
-}
-
-# Return LSB status
-status_of_proc () {
-    local pidfile daemon name status
-
-    pidfile=
-    OPTIND=1
-    while getopts p: opt ; do
-        case "$opt" in
-            p)  pidfile="$OPTARG";;
-        esac
-    done
-    shift $(($OPTIND - 1))
-
-    if [ -n "$pidfile" ]; then
-        pidfile="-p $pidfile"
-    fi
-    daemon="$1"
-    name="$2"
-
-    status="0"
-    pidofproc $pidfile $daemon >/dev/null || status="$?"
-    if [ "$status" = 0 ]; then
-        log_success_msg "$name is running."
-        return 0
-    elif [ "$status" = 4 ]; then
-        log_failure_msg "could not access PID file for $name."
-        return $status
-    else
-        log_failure_msg "$name is not running."
-        return $status
-    fi
-}
-
-# End of modified Debian /lib/lsb/init-functions.
-################################################################################
 
 # Test correct BLOCKLIST_FORMAT setting.
 # Set the blocklist name depending on the type of the blocklist (configuration setting).
@@ -1150,35 +1169,10 @@ delete_iptables () {
 	esac
 }
 
-do_stop_wd () {
-	# Stop blockcontrol.wd
-	echo -n "Stopping $(basename $WD_PATHNAME)"
-	# Watchdog does not react to the TERM signal, while he´s sleeping.
-	# Therefore send a KILL. The pidfile has to be removed manually then, see below!
-	# TODO: Find a way to not output "Killed"
-	# TODO: > /dev/null 2>&1 does not help
-
-	PID_OPT=""
-	[ -z "$WD_PID" ] || PID_OPT="-p $WD_PID"
-	killproc "$PID_OPT" "$WD_PATHNAME" -KILL
-
-	# Verify that the watchdog is really not running.
-	kill -0 "$(pidofproc $WD_PATHNAME)" > /dev/null 2>&1
-	# If old process is not running (3), remember success and break.
-	if [ "$?" -eq 0 ] ; then
-		# Process is still running
-		RETVAL=1
-	else
-		rm -f $WD_PID
-		RETVAL=0
-	fi
-
-	log_end_msg $RETVAL
-}
-
+# Function that starts the watchdog
 do_start_wd () {
 	# Start blockcontrol.wd.
-	echo -n "Starting $(basename $WD_PATHNAME)"
+	echo -n "Starting $(basename $WD_PATHNAME) ..."
 	test_WD_PATHNAME
 	test_WD_PID
 	
@@ -1189,8 +1183,8 @@ do_start_wd () {
 		}
 
 	# Start blockcontrol.wd in the background. Therefore no real check possible if this succeeded.
-	if [ -f "$LSB" ] && head -n 1 "$LSB" | grep -q Debian > /dev/null 2>&1 ; then
-		# Use Debian specific starting.
+	if test_external start-stop-daemon > /dev/null 2>&1 ; then
+        # Use start-stop-daemon
 		# Start watchdog in the background with "-b"
 		# Note: use -N for nice level, not -n as per LSB
 		start-stop-daemon -b -N $WD_NICE -p $WD_PID --exec $WD_PATHNAME --start --
@@ -1201,6 +1195,33 @@ do_start_wd () {
 	# TODO: kill -0 "$(pidofproc $WD_PATHNAME)" > /dev/null 2>&1
 	RETVAL=$?
 	log_end_msg $RETVAL
+}
+
+# Function that stops the watchdog
+do_stop_wd () {
+    # Stop blockcontrol.wd
+    echo -n "Stopping $(basename $WD_PATHNAME)"
+    # Watchdog does not react to the TERM signal, while he´s sleeping.
+    # Therefore send a KILL. The pidfile has to be removed manually then, see below!
+    # TODO: Find a way to not output "Killed"
+    # TODO: > /dev/null 2>&1 does not help
+
+    PID_OPT=""
+    [ -z "$WD_PID" ] || PID_OPT="-p $WD_PID"
+    killproc "$PID_OPT" "$WD_PATHNAME" -KILL
+
+    # Verify that the watchdog is really not running.
+    kill -0 "$(pidofproc $WD_PATHNAME)" > /dev/null 2>&1
+    # If old process is not running (3), remember success and break.
+    if [ "$?" -eq 0 ] ; then
+        # Process is still running
+        RETVAL=1
+    else
+        rm -f $WD_PID
+        RETVAL=0
+    fi
+
+    log_end_msg $RETVAL
 }
 
 # Function that starts daemon
@@ -1340,17 +1361,18 @@ do_start () {
 
 			# Start daemon
 			if [ "$NAME" = moblock ] ; then
-				if [ -f "$LSB" ] && head -n 1 "$LSB" | grep -q Debian > /dev/null 2>&1 ; then
-					# Use Debian specific starting. This seems to fix the "MoBlock fails to start
-					# the first time after installing/updating with aptitude" bug.
+                if test_external start-stop-daemon > /dev/null 2>&1 ; then
+                    # Use start-stop-daemon
+					# This seems to fix the "MoBlock fails to start the first time
+                    # after installing/updating with aptitude" bug and
+                    # works with mobloquer.
 					# Start MoBlock in the background with "-b"
 					# Note: use -N for nice level, not -n as per LSB
 					start-stop-daemon -b -N $NICE_LEVEL -p $PIDFILE --exec $DAEMON --start -- $DAEMON_OPTS
 				else
 					# LSB, start MoBlock in the background with "&"
-					# TODO:  > /dev/null 2>&1 because of moblock´s stdout sometimes appearing in some logfiles.
-					# But I don't want to loose start_daemon error messages!
-					start_daemon -n $NICE_LEVEL -p $PIDFILE $DAEMON $DAEMON_OPTS > /dev/null 2>&1 &
+					# > /dev/null because of moblock´s stdout sometimes appearing in some logfiles.
+					start_daemon -n $NICE_LEVEL -p $PIDFILE $DAEMON $DAEMON_OPTS & > /dev/null
 				fi
 			elif [ "$NAME" = nfblockd ] ; then
 				start_daemon -n $NICE_LEVEL -p $PIDFILE $DAEMON $DAEMON_OPTS
@@ -1407,7 +1429,7 @@ do_stop () {
 	# Wait up to 20 seconds
 	while [ "$COUNT" -lt 20 ] ; do
 		status_of_proc $DAEMON $NAME > /dev/null 2>&1
-		# If we fail to get an answer, remember success, remove pidfile 
+		# If status is 3 (not running), remember success, remove pidfile 
 		# (this should have been removed already!) and break.
 		[ "$?" -eq 3 ] && RETVAL=0 && rm -f $PIDFILE && break
 		RETVAL=1
@@ -2135,48 +2157,48 @@ test_ipblocking () {
 	if [ "$RETVAL" -eq 0 ] ; then	# IP in logfile
 		if [ "$RETVAL_PING" -eq 1 ] ; then	# No reply to ping
 			if [ "$REJECT" -eq 1 ] ; then
-				log_success_msg "$NAME marked the IP to be blocked and the IP did not answer."
-				log_success_msg "Test succeeded."
+				echo "$NAME marked the IP to be blocked and the IP did not answer."
+				echo "Test succeeded."
 			else
-				log_success_msg "$NAME blocked the IP. Test succeeded."
+				echo "$NAME blocked the IP. Test succeeded."
 			fi
 		elif [ "$RETVAL_PING" -eq 0 ] ; then	# Reply to ping
 			if [ "$REJECT" -eq 1 ] ; then
-				log_failure_msg "$NAME blocked the IP, but ping got an answer or failed."
-				log_failure_msg "Check the iptables settings and make sure that \"marked block\" packets really"
- 				log_failure_msg "get blocked."
+				echo "$NAME blocked the IP, but ping got an answer or failed."
+				echo "Check the iptables settings and make sure that \"marked block\" packets really"
+ 				echo "get blocked."
 				RETVAL=2
 			else	# REJECT is 0
-				log_failure_msg "$NAME blocked the IP, but ping got an answer or failed - strange."
+				echo "$NAME blocked the IP, but ping got an answer or failed - strange."
 				RETVAL=2
 			fi
 		else
-			log_failure_msg "Some error occured with ping, no test result."
+			echo "Some error occured with ping, no test result."
 			RETVAL=2
 		fi
 	elif [ "$RETVAL" -eq 1 ] ; then	# IP not in logfile
 		if [ "$REJECT" -eq 1 ] ; then
-			log_failure_msg "$NAME did not mark the IP to be blocked."
+			echo "$NAME did not mark the IP to be blocked."
 		else	# REJECT is 0
-			log_failure_msg "$NAME did not block the IP."
+			echo "$NAME did not block the IP."
 		fi
-		log_failure_msg "Was $NAME already loaded completely? Wait some minutes and try again."
-		log_failure_msg ""
+		echo "Was $NAME already loaded completely? Wait some minutes and try again."
+		echo ""
 		if [ "$RETVAL_PING" -eq 0 ] ; then	# Reply to ping
-			log_failure_msg "$TEST_IP answered. Test failed."
+			echo "$TEST_IP answered. Test failed."
 		elif [ "$RETVAL_PING" -eq 1 ] ; then	# No reply to ping
-			log_failure_msg "$TEST_IP did not answer."
-			log_failure_msg ""
-			log_failure_msg "Maybe $TEST_IP is down/doesn't answer to pings"
-			log_failure_msg "(this would still mean that $NAME is not working)"
-			log_failure_msg "or your firewall filtered the ping before $NAME could check it"
-			log_failure_msg "(then $NAME may be working as desired, check your iptables rules)."
+			echo "$TEST_IP did not answer."
+			echo ""
+			echo "Maybe $TEST_IP is down/doesn't answer to pings"
+			echo "(this would still mean that $NAME is not working)"
+			echo "or your firewall filtered the ping before $NAME could check it"
+			echo "(then $NAME may be working as desired, check your iptables rules)."
 		else
-			log_failure_msg "Some error occured with ping, no test result."
+			echo "Some error occured with ping, no test result."
 			RETVAL=2
 		fi
 	else	# grep error
-		log_failure_msg "Some error occured with grep, no test result."
+		echo "Some error occured with grep, no test result."
 		RETVAL=2
 	fi
 	return $RETVAL

@@ -1,14 +1,52 @@
-blockcontrol (1.5-1~pre4) unstable; urgency=low
+blockcontrol (1.5-1~pre7) unstable; urgency=low
 
   * set a nice level when starting the daemon (default 5) and watchdog
-    (default 19). New variables NICE_LEVEL and WATCHDOG_NICE_LEVEL.
+    (default 19). New variables NICE_LEVEL and WD_NICE.
   * watchdog:
-    - allow to execute separately with "start_watchdog"/"stop_watchdog" - cader
-    - make sure only one instance of watchdog runs
-  * status: output pid and full command - cader
-  * added "force-update" to wax everything in /var/spool/blockcontrol so you can
-    start over fresh when you corrupt your lists - cader
-  * show_config: report if $LSB exists
+    - renamed variables and files from ...watchdog to ...wd. Added special
+      debconf transition code for this.
+    - allow to execute separately with "start_wd"/"stop_wd" - cader
+    - make sure only one instance of watchdog runs (pidfile) - cader
+    - trap some signals so that the watchdog can remove its own pidfile.
+    - improved tests of preconditional blockcontrol settings
+  * blockcontrol
+    * Fixed output to STDOUT:
+      - Set a trap on exit for commands with log_end_msg. Then on exit do
+        log_end_msg. Fixes output for failed commands.
+      - moved test_root calls from within the functions to the head of the
+        commands. So test_root is before writing to the logfile.
+      - added use of RETVAL to some commands
+    * status:
+      - output pid and full command - cader
+      - make sure the return code is of the daemon (not of the watchdog).
+    * show_config:
+      - tell whether internal or system wide init-functions are used.
+      - tell whether start-stop-daemon is used.
+    * internal init-functions:
+      - rewritten based on Debian lsb-base 3.2-23
+      - use test_external for pidof. Use pidof without path. Fixes problems
+        e.g. on Slackware
+      - getopts: prevent overwriting "-p pidfile" with "-p guarding.p2p"
+      - don´t start daemon, if pidofproc fails
+    * update:
+      - handle wget "access denied (403)" separately.
+    * force-update:
+      - added to wax everything in /var/spool/blockcontrol so you can start over
+        fresh when you corrupt your lists - cader
+    * get_blocklist:
+      - remote blocklists: test if wget is available
+  * removed LSB_MODE setting
+    - removed variable and tests
+    - start(_wd): use start-stop-daemon if available, otherwise LSB
+      start_daemon, replaces Debian specific starting (LSB_MODE=0).
+    - for broken init-functions force to use the builtin init-functions by
+      setting LSB=""
+  * start(_wd): use start-stop-daemon if available, otherwise LSB start_daemon,
+    replaces Debian specific starting (LSB.
+
+  * patch system:
+    - removed debian/patches, because now obsolete
+    - removed build-depends on dpatch
   * documentation:
     - debian/templates: updated, Thx kcolbom.
     - documentation updates: added sloter's mail address
@@ -17,7 +55,7 @@ blockcontrol (1.5-1~pre4) unstable; urgency=low
       their work or deny their authorship. Legal experts may tell me how to
       handle such cases correctly.
 
- -- jre <jre-phoenix@users.sourceforge.net>  Fri, 10 Jul 2009 13:23:08 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 17 Aug 2009 19:39:24 +0200
 
 blockcontrol (1.4.4-1) unstable; urgency=low
 

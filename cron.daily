@@ -17,7 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ################################################################################
-# The following code is common between blockcontrol, blockcontrol.watchdog,
+# The following code is common between blockcontrol, blockcontrol.wd,
 # cron.daily, init and debian/postinst.
 
 # if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
@@ -36,10 +36,9 @@ else
 	exit 7
 fi
 
-# End of the common code between blockcontrol, blockcontrol.watchdog,
+# End of the common code between blockcontrol, blockcontrol.wd,
 # cron.daily, (if-up), init and debian/postinst.
 ################################################################################
-
 
 test_CRON
 test_VERBOSITY

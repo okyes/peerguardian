@@ -2,6 +2,9 @@ TODO for blockcontrol and MoBlock debian packaging
 
 blockcontrol:
 
+- update: if any blocklist is unavailable, don´t exit, but continue but return
+  an error.
+
 - send error messages to console and logfile. [João]
   Completely rework the logging part, and check if all messages go where they
   should.
@@ -22,9 +25,6 @@ blockcontrol:
   (nfblockd: Error during nfq_bind_pf(): Illegal seek).
   See BUGS
 
-- add support for moblock -z NFQUEUE length from patch 41_Patch_2589_All
-  ow__nfq_set_queue_maxlen__to_be_increased_from_default.dpatch
-
 - implement options of NFBlock (no-dbus)
 
 - improve makefile:
@@ -37,10 +37,7 @@ blockcontrol:
 
 - [DISCUSS] Block IPv6 completely because currently only IPv4 is checked?
 
-- add blocklist conversion to UTF8 (code already implemented, but not used. Use
-  better checks). Wait for blocklist converter by João instead.
-
-- expand test to also use traceroute (with a timeout)
+- expand test to use traceroute (with a timeout)
 
 - build_blocklist: disable concatenating blocklists in .p2b (binary) format.
   Abort (?) if several binary lists are used, MoBlock can't cope with this. What
@@ -51,10 +48,7 @@ blockcontrol:
 
 Requests for upstream:
 
-- [moblock]:  check if blocklists are in the correct format. Or better:
-  automatic detection of format + possibility to use several blocklists at once.
-
-- [moblock]: use a real allowlist (instead of the iptables whitelisting)
+- [nfblock]: use a real allowlist (instead of the iptables whitelisting)
 
 - [iblocklist.com]: This site renames some filenames. So it is not possible to
   use the upstream URL and the iblocklist.com URL, and avoid the second download

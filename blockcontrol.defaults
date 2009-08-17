@@ -36,9 +36,9 @@ CONTROL_NAME="blockcontrol"
 # The path of the blockcontrol script
 CONTROL_SCRIPT="/usr/bin/$CONTROL_NAME"
 
-# The path and pidfile of the blockcontrol.watchdog script
-WATCHDOG_PATH="/usr/bin/$CONTROL_NAME.watchdog"
-WATCHDOG_PIDFILE="/var/run/$(basename $WATCHDOG_PATH).pid"
+# The path and pidfile of the blockcontrol.wd script
+WD_PATHNAME="/usr/bin/$CONTROL_NAME.wd"
+WD_PID="/var/run/$(basename $WD_PATHNAME).pid"
 
 # blockcontrol's log file
 CONTROL_LOG="/var/log/$CONTROL_NAME.log"
@@ -112,19 +112,19 @@ INIT="1"
 # 1 - Update the blocklists automatically
 CRON="1"
 
-# Turn on/off blockcontrol.watchdog.
+# Turn on/off blockcontrol.wd.
 # 0 - Don't use watchdog
 # 1 - Start watchdog
-WATCHDOG="1"
+WD="1"
 
-# Set the interval in seconds in which blockcontrol.watchdog checks if the
+# Set the interval in seconds in which blockcontrol.wd checks if the
 # blocking works.
-WATCHDOG_SLEEP="300"
+WD_SLEEP="300"
 
 # Set the nice level the watchdog is started with. Valid values are between -20
 # and 19. Higher values make the watchdog more friendly to other applications.
 # See nice(1).
-WATCHDOG_NICE_LEVEL="19"
+WD_NICE="19"
 
 # Set the nice level the daemon is started with. Valid values are between -20
 # and 19. Higher values make the daemon more friendly to other applications, but
@@ -142,19 +142,6 @@ WGET_OPTS="wget -q -t 5 -T 120 -w 5"
 
 # Before updating the blocklists check if this host is reachable
 TESTHOST="iblocklist.com"
-
-# Full LSB compatibility
-# blockcontrol was written to run under every LSB 3.1 compatible system. In
-# older versions you needed a file /lib/lsb/init-functions. If your distribution
-# misses this file, then built-in fallback functions will be used.
-# If you want to use only blockcontrol´s builtin LSB functions, you have to set
-# LSB (the path of the lsb init functions) to an empty value.
-# 0 - Debian compatible system (uses start-stop-daemon instead of start_daemon)
-# 1 - LSB 3.1 compatible system
-# 2 - system with broken LSB 3.1 implementation, which doesn't understand the
-#     specification of the pidfile. Use this e.g. for Fedora Core 9 (and other
-#     redhat variants).
-LSB_MODE="1"
 
 # Set your own options to start the daemon.
 # Warning: Do not change this, unless you know what you are doing.

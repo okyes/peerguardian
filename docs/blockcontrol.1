@@ -65,11 +65,17 @@ Daily rotation of the logfiles.
 .SH OPTIONS
 .TP
 .B start
-inserts iptables rules and starts the IP block daemon. If the blocklist
-configuration changed rebuilds the master blocklist.
+inserts iptables rules, starts the IP block daemon and the watchdog. If the
+blocklist configuration changed, rebuilds the master blocklist.
 .TP
 .B stop
 deletes iptables rules and stops the IP block daemon.
+.TP
+.B start_wd
+starts the watchdog.
+.TP
+.B stop_wd
+stops the watchdog.
 .TP
 .B restart
 restarts the IP block daemon.
@@ -248,7 +254,7 @@ will be fine, if the iptables rules which send traffic to the iptables chains
 (blockcontrol_in, blockcontrol_out and blockcontrol_fw) stand before all other
 iptables rules which ACCEPT traffic.
 .P
-.BR "blockcontrol.watchdog" "(1)" 
+.BR "blockcontrol.wd" "(1)" 
 restarts blockcontrol if it detects any problems.
 But the manual restart is still recommended.
 

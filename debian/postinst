@@ -60,7 +60,7 @@ esac
 
 
 ################################################################################
-# The following code is common between blockcontrol, blockcontrol.watchdog,
+# The following code is common between blockcontrol, blockcontrol.wd,
 # cron.daily, init and debian/postinst.
 
 # if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
@@ -79,7 +79,7 @@ else
 	exit 7
 fi
 
-# End of the common code between blockcontrol, blockcontrol.watchdog,
+# End of the common code between blockcontrol, blockcontrol.wd,
 # cron.daily, (if-up), init and debian/postinst.
 ################################################################################
 
@@ -92,7 +92,7 @@ VARIABLES="
 	VERBOSITY
 	INIT
 	CRON
-	WATCHDOG
+	WD
 	NFQUEUE_NUMBER
 	IPTABLES_SETTINGS
 	IPTABLES_ACTIVATION
@@ -177,7 +177,8 @@ CONTROL_CONF="/etc/blockcontrol/blockcontrol.conf"
 CONTROL_DEFAULTS="/usr/lib/blockcontrol/blockcontrol.defaults"
 BLOCKLISTS_LIST="/etc/blockcontrol/blocklists.list"
 
-
+# Transition in blockcontrol 1.5: WATCHDOG > WD renaming
+[ -z "$WATCHDOG" ] || WD="$WATCHDOG"
 
 
 ###############################################################################
@@ -320,7 +321,7 @@ for VAR in $VARIABLES ; do
 			;;
 
 		# For boolean variables:
-		'LOG_SYSLOG'|'LOG_TIMESTAMP'|'INIT'|'CRON'|'WATCHDOG'|'REJECT'|'ACCEPT')
+		'LOG_SYSLOG'|'LOG_TIMESTAMP'|'INIT'|'CRON'|'WD'|'REJECT'|'ACCEPT')
 			case "$VALUE" in
 				'0')
 					db_set blockcontrol/$VAR false
@@ -389,7 +390,7 @@ while true ; do
 	'6')
 		db_input critical blockcontrol/INIT || true
 		db_input medium blockcontrol/CRON || true
-		db_input medium blockcontrol/WATCHDOG || true
+		db_input medium blockcontrol/WD || true
 		;;
 	'7')	# This part contains the db_go here instead of at the end of the function.
 		db_input low blockcontrol/NFQUEUE_NUMBER && RETVAL=$? || { RETVAL=$? ; true ; }
@@ -757,18 +758,18 @@ case "$RET" in
 		;;
 esac
 
-my_db_get WATCHDOG
+my_db_get WD
 case "$RET" in
 	'false')
 		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
-			sed -i -r "s|^[[:space:]]*WATCHDOG=.*|WATCHDOG=\"0\"|" $CONTROL_CONF
+			sed -i -r "s|^[[:space:]]*WD=.*|WD=\"0\"|" $CONTROL_CONF
 		else
-			echo "WATCHDOG=\"0\"" >> $CONTROL_CONF
+			echo "WD=\"0\"" >> $CONTROL_CONF
 		fi
 		;;
 	'true')	# Default
 		if [ "$CONFFILE" = "$CONTROL_CONF" ] ; then
-			sed -i -r "s|^[[:space:]]*WATCHDOG=.*|WATCHDOG=\"1\"|" $CONTROL_CONF
+			sed -i -r "s|^[[:space:]]*WD=.*|WD=\"1\"|" $CONTROL_CONF
 		fi
 		;;
 esac
@@ -1109,7 +1110,8 @@ db_stop
 # Set the blocklist name depending on the type of the blocklist (configuration setting).
 test_set_BLOCKLIST
 
-# Move blocklists from old moblock-control places. The update path is only clean from 1.2. Lists downloaded earlier
+# Transition from moblock-control, move blocklists from old places.
+# The update path is only clean from 1.2. Lists downloaded earlier
 # will stay at their places and a new download for blockcontrol is necessary.
 if [ -d /var/lib/moblock/ ] && [ -d /var/lib/blockcontrol/ ] ; then
 	for i in ipfilter.dat guarding.p2b guarding.p2p ipfilter.dat.backup guarding.p2b.backup guarding.p2p.backup ; do
@@ -1147,12 +1149,12 @@ if [ "$INIT" -ne 0 ] && [ -x "/etc/init.d/blockcontrol" ] ; then
 	echo "process, then do in another terminal a"
 	echo " tail -f $CONTROL_LOG"
 	echo "The lists are saved to $BLOCKLISTS_DIR/."
-	echo "The installation of $CONTROL_NAME will fail, if starting $NAME fails. If this"
-	echo "happens, then in most cases downloading the blocklists failed temporarily. To"
-	echo "workaround this, you can turn the automatic starting of $NAME off by setting"
+	echo "The installation of $CONTROL_NAME will fail, if starting $NAME fails. So if"
+	echo "downloading the blocklists fails temporarily, the installation will fail."
+	echo "To workaround this, you can turn the automatic starting of $NAME off by setting"
 	echo "in $CONTROL_CONF:"
 	echo " INIT=\"0\""
-	echo
+	echo "Please be patient ..."
 fi
 
 # dh_installdeb will replace this with shell code automatically

@@ -18,7 +18,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ################################################################################
-# The following code is similar to code in blockcontrol, blockcontrol.watchdog,
+# The following code is similar to code in blockcontrol, blockcontrol.wd,
 # cron.daily, init and debian/postinst.
 # But in if-up it exits successfully if CONTROL_MAIN is not there, yet. This can
 # happen in early boot stages before local file systems are mounted.
@@ -35,7 +35,7 @@ else
 	exit 0
 fi
 
-# End of the common code between blockcontrol, blockcontrol.watchdog,
+# End of the common code between blockcontrol, blockcontrol.wd,
 # cron.daily, (if-up), init and debian/postinst.
 ################################################################################
 
@@ -48,7 +48,7 @@ test_IPTABLES_VARS
 [ "$WHITE_LOCAL" -eq 0 ] && exit 0
 test_DAEMON
 test_CONTROL_SCRIPT
-test_external iptables
+test_external iptables || exit $?
 
 [ "$WHITE_LOCAL" -eq 1 ] && white_lan >> $CONTROL_LOG 2>&1
 [ "$WHITE_LOCAL" -ne 0 ] && [ -f /etc/resolv.conf ] && white_dns >> $CONTROL_LOG 2>&1
