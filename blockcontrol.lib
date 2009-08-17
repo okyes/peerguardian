@@ -20,188 +20,11 @@
 
 
 
-# Following is a modified version of /lib/lsb/init-functions (Debian 3.2-22). If
-# that file exists on your system, then the functions in that file will
-# overwrite the following functions.
+
+# Following is a part of /lib/lsb/init-functions (Debian 3.2-23), see below for
+# the rest. If that file exists on your system, then the functions in that file 
+# will overwrite the following functions.
 ################################################################################
-# /lib/lsb/init-functions for Debian -*- shell-script -*-
-#
-#Copyright (c) 2002-08 Chris Lawrence
-#All rights reserved.
-#
-#Redistribution and use in source and binary forms, with or without
-#modification, are permitted provided that the following conditions
-#are met:
-#1. Redistributions of source code must retain the above copyright
-#   notice, this list of conditions and the following disclaimer.
-#2. Redistributions in binary form must reproduce the above copyright
-#   notice, this list of conditions and the following disclaimer in the
-#   documentation and/or other materials provided with the distribution.
-#3. Neither the name of the author nor the names of other contributors
-#   may be used to endorse or promote products derived from this software
-#   without specific prior written permission.
-#
-#THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
-#IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-#WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-#ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE
-#LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-#CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-#SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-#BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-#WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-#OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-#EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-start_daemon () {
-    local force nice pidfile exec i args
-    force=0
-    nice=0
-    pidfile=/dev/null
-
-    OPTIND=1
-    while getopts fn:p: opt ; do
-        case "$opt" in
-            f)  force=1;;
-            n)  nice="$OPTARG";;
-            p)  pidfile="$OPTARG";;
-        esac
-    done
-
-    shift $(($OPTIND - 1))
-    if [ "$1" = '--' ]; then
-        shift
-    fi
-
-    exec="$1"; shift
-
-    args="--start --nicelevel $nice --quiet --oknodo"
-	if [ $force = 1 ]; then
-		eval $exec "$@"
-	elif [ $pidfile ]; then
-		[ ! -f "pidfile" ] || return 0
-		eval $exec "$@"
-	else
-		eval $exec "$@"
-	fi
-
-}
-
-pidofproc () {
-    local pidfile line i pids= status specified pid
-    pidfile=
-    specified=
-
-    OPTIND=1
-    while getopts p: opt ; do
-        case "$opt" in
-            p)  pidfile="$OPTARG"; specified=1;;
-        esac
-    done
-    shift $(($OPTIND - 1))
-
-    base=${1##*/}
-    if [ ! "$specified" ]; then
-        pidfile="/var/run/$base.pid"
-    fi
-
-    if [ -n "${pidfile:-}" -a -e "$pidfile" ]; then
-        read pid < "$pidfile"
-        if [ -n "${pid:-}" ]; then
-            if $(kill -0 "${pid:-}" 2> /dev/null); then
-                echo "$pid"
-                return 0
-            elif ps "${pid:-}" >/dev/null 2>&1; then
-                echo "$pid"
-                return 0 # program is running, but not owned by this user
-            else
-                return 1 # program is dead and /var/run pid file exists
-            fi
-        fi
-    fi
-    if [ -x /bin/pidof -a ! "$specified" ]; then
-        status="0"
-        /bin/pidof -o %PPID -x $1 || status="$?"
-        if [ "$status" = 1 ]; then
-            return 3 # program is not running
-        fi
-        return 0
-    fi
-    if [ "$specified" ]; then
-        return 3 # program does not appear to be running after trying PID file
-    fi
-    return 4 # program or service is unknown
-}
-
-killproc () {
-    local pidfile sig status base i name_param is_term_sig
-    pidfile=
-    name_param=
-    is_term_sig=no
-
-    OPTIND=1
-    while getopts p: opt ; do
-        case "$opt" in
-            p)  pidfile="$OPTARG";;
-        esac
-    done
-    shift $(($OPTIND - 1))
-
-    base=${1##*/}
-    if [ ! $pidfile ]; then
-        pidfile="/var/run/$base.pid"
-    fi
-
-	# Assume "process is not running" if no pidfile exists.
-	if [ -f "$pidfile" ] ; then
-		kill "$(pidofproc -p $pidfile $base)"
-	fi
-}
-
-# Return LSB status
-status_of_proc () {
-    local pidfile daemon name status
-
-    pidfile=
-    OPTIND=1
-    while getopts p: opt ; do
-        case "$opt" in
-            p)  pidfile="$OPTARG";;
-        esac
-    done
-    shift $(($OPTIND - 1))
-
-    if [ -n "$pidfile" ]; then
-        pidfile="-p $pidfile"
-    fi
-    daemon="$1"
-    name="$2"
-
-    status="0"
-    pidofproc $pidfile $daemon >/dev/null || status="$?"
-    if [ "$status" = 0 ]; then
-        log_success_msg "$name is running."
-        return 0
-    else
-        log_failure_msg "$name is not running"
-        return $status
-    fi
-}
-
-log_use_fancy_output () {
-    TPUT=/usr/bin/tput
-    EXPR=/usr/bin/expr
-    if [ -t 1 ] && [ "x$TERM" != "" ] && [ "x$TERM" != "xdumb" ] && [ -x $TPUT ] && [ -x $EXPR ] && $TPUT hpa 60 >/dev/null 2>&1 && $TPUT setaf 1 >/dev/null 2>&1; then
-        [ -z $FANCYTTY ] && FANCYTTY=1 || true
-    else
-        FANCYTTY=0
-    fi
-    case "$FANCYTTY" in
-        1|Y|yes|true)   true;;
-        *)              false;;
-    esac
-}
-
 log_success_msg () {
     if [ -n "${1:-}" ]; then
         log_begin_msg $@
@@ -211,14 +34,14 @@ log_success_msg () {
 
 log_failure_msg () {
     if [ -n "${1:-}" ]; then
-        log_begin_msg $@
+        log_begin_msg $@ "..."
     fi
     log_end_msg 1 || true
 }
 
 log_warning_msg () {
     if [ -n "${1:-}" ]; then
-        log_begin_msg $@
+        log_begin_msg $@ "..."
     fi
     log_end_msg 255 || true
 }
@@ -262,15 +85,13 @@ log_daemon_msg () {
     if [ -z "${1:-}" ]; then
         return 1
     fi
-    log_daemon_msg_pre "$@"
 
     if [ -z "${2:-}" ]; then
         echo -n "$1:"
         return
     fi
-
+    
     echo -n "$1: $2"
-    log_daemon_msg_post "$@"
 }
 
 # #319739
@@ -295,7 +116,6 @@ log_progress_msg () {
     echo -n " $@"
 }
 
-
 # int log_end_message (int exitstatus)
 log_end_msg () {
     # If no arguments were passed, return
@@ -305,77 +125,277 @@ log_end_msg () {
 
     retval=$1
 
-    log_end_msg_pre "$@"
-
-    # Only do the fancy stuff if we have an appropriate terminal
-    # and if /usr is already mounted
-    if log_use_fancy_output; then
-        RED=`$TPUT setaf 1`
-        YELLOW=`$TPUT setaf 3`
-        NORMAL=`$TPUT op`
-    else
-        RED=''
-        YELLOW=''
-        NORMAL=''
-    fi
-
     if [ $1 -eq 0 ]; then
         echo "."
     elif [ $1 -eq 255 ]; then
-        /bin/echo -e " ${YELLOW}(warning).${NORMAL}"
+        echo " (warning)."
     else
-        /bin/echo -e " ${RED}failed!${NORMAL}"
+        echo " failed!"
     fi
-    log_end_msg_post "$@"
     return $retval
 }
 
-log_action_msg () {
-    echo "$@."
+# End of modified Debian /lib/lsb/init-functions.
+################################################################################
+
+
+
+# Function to test if an external application exists.
+# Usage: test_external basename_of_the_application
+# Returns 0 if base is installed and executable in PATH
+# Otherwise returns E_XEXTERNAL
+# NOTE: "which" should not be used, because it is not available on all systems,
+# e.g. routers.
+test_external () {
+	IFS=":"
+	for PATH_I in $PATH ; do
+		[ -x "$PATH_I"/"$1" ] && return 0
+	done
+	IFS=$STDIFS
+	log_failure_msg "Error $E_XEXTERNAL: $1 not installed."
+	return $E_XEXTERNAL
 }
 
-log_action_begin_msg () {
-    echo -n "$@..."
-}
 
-log_action_cont_msg () {
-    echo -n "$@..."
-}
 
-log_action_end_msg () {
-    log_action_end_msg_pre "$@"
-    if [ -z "${2:-}" ]; then
-        end="."
-    else
-        end=" ($2)."
+# Following is a modified version of /lib/lsb/init-functions (Debian 3.2-23). If
+# that file exists on your system, then the functions in that file will
+# overwrite the following functions.
+################################################################################
+# /lib/lsb/init-functions for Debian -*- shell-script -*-
+#
+#Copyright (c) 2002-08 Chris Lawrence
+#All rights reserved.
+#
+#Redistribution and use in source and binary forms, with or without
+#modification, are permitted provided that the following conditions
+#are met:
+#1. Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#2. Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+#3. Neither the name of the author nor the names of other contributors
+#   may be used to endorse or promote products derived from this software
+#   without specific prior written permission.
+#
+#THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+#IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE
+#LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+#BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+#OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+#EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+pidofproc () {
+    local pidfile line i pids= status specified pid
+    pidfile=
+    specified=
+    
+    OPTIND=1
+    while getopts p: opt ; do
+        case "$opt" in
+            p)  pidfile="$OPTARG"; specified=1;;
+        esac
+    done
+    shift $(($OPTIND - 1))
+
+    base="$(basename $1)"
+    if [ ! "$specified" ]; then
+        pidfile="/var/run/$base.pid"
     fi
 
-    if [ $1 -eq 0 ]; then
-        echo "done${end}"
-    else
-        if log_use_fancy_output; then
-            RED=`$TPUT setaf 1`
-            NORMAL=`$TPUT op`
-            /bin/echo -e "${RED}failed${end}${NORMAL}"
-        else
-            echo "failed${end}"
+    if [ -n "${pidfile:-}" ] && [ -r "$pidfile" ]; then
+        read pid < "$pidfile"
+        if [ -n "${pid:-}" ]; then
+            if $(kill -0 "${pid:-}" 2> /dev/null); then
+                echo "$pid"
+                return 0
+            elif ps "${pid:-}" >/dev/null 2>&1; then
+                echo "$pid"
+                return 0 # program is running, but not owned by this user
+            else
+                return 1 # program is dead and /var/run pid file exists
+            fi
         fi
     fi
-    log_action_end_msg_post "$@"
+    if test_external pidof && [ ! "$specified" ]; then
+        status="0"
+        pidof -o %PPID -x $1 || status="$?"
+        if [ "$status" = 1 ]; then
+            return 3 # program is not running
+        fi
+        return 0
+    fi
+    if [ "$specified" ]; then
+        return 3 # program does not appear to be running after trying PID file
+    fi
+
+	# TODO: should this really be added!?
+	if [ -x "$1" ] ; then
+		return 3	# daemon is installed, so it is known. But the pidfile
+					# (/var/run/$base.pid) is not existing. So assume daemon is
+					# not running.
+	fi
+
+    return 4 # Unable to determine status
 }
 
-# Hooks for /etc/lsb-base-logging.sh
-log_daemon_msg_pre () { :; }
-log_daemon_msg_post () { :; }
-log_end_msg_pre () { :; }
-log_end_msg_post () { :; }
-log_action_end_msg_pre () { :; }
-log_action_end_msg_post () { :; }
+start_daemon () {
+    local force nice pidfile exec i
+    force=0
+    nice=0
+    pidfile=/dev/null
 
-FANCYTTY=
-[ -e /etc/lsb-base-logging.sh ] && . /etc/lsb-base-logging.sh || true
+    OPTIND=1
+    while getopts fn:p: opt ; do
+        case "$opt" in
+            f)  force=1;;
+            n)  nice="$OPTARG";;
+            p)  pidfile="$OPTARG";;
+        esac
+    done
 
-# End of parts of the Debian /lib/lsb/init-functions.
+    shift $(($OPTIND - 1))
+    if [ "$1" = '--' ]; then
+        shift
+    fi
+
+    exec="$1"; shift
+
+    if [ $force = 1 ]; then
+		exec "$exec" "$@" &
+		# If renice fails somehow just ignore it.
+		if test_external renice ; then
+			PID="$(pidofproc $exec)" || {
+				sleep 1
+				PID="$(pidofproc $exec)"
+			} && \
+			renice -n "$nice" -p "$PID" >/dev/null 2>&1
+		fi
+	elif [ $pidfile ]; then
+		# Assume daemon is already running, if pidfile exists and return 0.
+		[ ! -f "$pidfile" ] || return 0
+		exec "$exec" "$@" &
+		# If renice fails somehow just ignore it.
+		if test_external renice ; then
+			PID="$(pidofproc -p $pidfile $exec)" || {
+				sleep 1
+				PID="$(pidofproc -p $pidfile $exec)"
+			} && \
+			renice -n "$nice" -p "$PID" >/dev/null 2>&1
+		fi
+	else
+		exec "$exec" "$@" &
+		# If renice fails somehow just ignore it.
+		if test_external renice ; then
+			PID="$(pidofproc $exec)" || {
+				sleep 1
+				PID="$(pidofproc $exec)"
+			} && \
+			renice -n "$nice" -p "$PID" >/dev/null 2>&1
+		fi
+	fi
+}
+
+killproc () {
+    local pidfile sig status base i name_param is_term_sig
+    pidfile=
+    name_param=
+    is_term_sig=no
+
+    OPTIND=1
+    while getopts p: opt ; do
+        case "$opt" in
+            p)  pidfile="$OPTARG";;
+        esac
+    done
+    shift $(($OPTIND - 1))
+
+    base="$(basename $1)"
+    if [ ! $pidfile ]; then
+        pidfile="/var/run/$base.pid"
+    fi
+
+    # Remove leading - and SIG from the sig. If none is given ($2), sig stays empty. (probably!?)
+    sig=$(echo ${2:-} | sed -e 's/^-\(.*\)/\1/')
+    sig=$(echo $sig | sed -e 's/^SIG\(.*\)/\1/')
+    if [ -z "$sig" ] || [ "$sig" = 15 ] || [ "$sig" = TERM ]; then
+        is_term_sig=yes
+    fi
+    status=0
+    if [ ! "$is_term_sig" = yes ]; then
+        if [ -n "$sig" ]; then
+            #/sbin/start-stop-daemon --stop --signal "$sig" --quiet $name_param || status="$?"
+            kill -s $sig "$(pidofproc -p $pidfile $1)" || status="$?"
+        else
+            # TODO: unnecessary, "if [ -n "$sig" ]" is always true here, because
+            # if -z "$sig" then is_term_sig=yes
+            #/sbin/start-stop-daemon --stop --quiet $name_param || status="$?"
+            kill "$(pidofproc -p $pidfile $1)" || status="$?"
+        fi
+    else
+        #/sbin/start-stop-daemon --stop --quiet --oknodo $name_param || status="$?"
+        # send TERM signal
+        if pidofproc -p $pidfile $1 >/dev/null ; then
+			kill "$(pidofproc -p $pidfile $1)" || status="$?"
+			# TODO: wait and send KILL signal if necessary.
+		fi
+    fi
+    if [ ! "$is_term_sig" = yes ] && [ "$status" = 1 ]; then	# not termsig
+        # If --oknodo was not specified and nothing was done, 1 is returned.
+        if [ -n "$sig" ]; then
+            return 0
+        fi
+        return 3 # program is not running
+    fi
+
+    if [ "$status" = 0 ] && [ "$is_term_sig" = yes ] && [ "$pidfile" ]; then
+		# Bug, if the pidofproc succeeds, then process is still running. Then
+		# don't return 0!
+        pidofproc -p "$pidfile" "$1" >/dev/null || rm -f "$pidfile"
+    fi
+    return 0
+}
+
+# Return LSB status
+status_of_proc () {
+    local pidfile daemon name status
+
+    pidfile=
+    OPTIND=1
+    while getopts p: opt ; do
+        case "$opt" in
+            p)  pidfile="$OPTARG";;
+        esac
+    done
+    shift $(($OPTIND - 1))
+
+    if [ -n "$pidfile" ]; then
+        pidfile="-p $pidfile"
+    fi
+    daemon="$1"
+    name="$2"
+
+    status="0"
+    pidofproc $pidfile $daemon >/dev/null || status="$?"
+    if [ "$status" = 0 ]; then
+        log_success_msg "$name is running."
+        return 0
+    elif [ "$status" = 4 ]; then
+        log_failure_msg "could not access PID file for $name."
+        return $status
+    else
+        log_failure_msg "$name is not running."
+        return $status
+    fi
+}
+
+# End of modified Debian /lib/lsb/init-functions.
 ################################################################################
 
 # Test correct BLOCKLIST_FORMAT setting.
@@ -462,7 +482,7 @@ test_CONTROL_SCRIPT () {
 test_MASTER_BLOCKLIST_DIR () {
 	[ -d "$MASTER_BLOCKLIST_DIR" ] || {
 		echo -n "Creating missing directory $MASTER_BLOCKLIST_DIR ..."
-		mkdir $MASTER_BLOCKLIST_DIR && echo "."
+		mkdir -p $MASTER_BLOCKLIST_DIR && echo "."
 	} || {
 		log_failure_msg "Error $E_XCD: Missing directory $MASTER_BLOCKLIST_DIR."
 		log_failure_msg "Check the MASTER_BLOCKLIST_DIR setting."
@@ -548,22 +568,10 @@ test_ACCEPT () {
 	esac
 }
 
-test_LSB_MODE () {
-	case "$LSB_MODE" in
-		'0'|'1'|'2')
-			true
-			;;
-		*)
-			log_failure_msg "Error $E_CONFIG: Check the LSB_MODE setting."
-			exit $E_CONFIG
-			;;
-	esac
-}
-
 test_BLOCKLISTS_DIR () {
 	[ -d "$BLOCKLISTS_DIR" ] || {
 		echo -n "Creating missing directory $BLOCKLISTS_DIR ..."
-		mkdir $BLOCKLISTS_DIR && echo "."
+		mkdir -p $BLOCKLISTS_DIR && echo "."
 	} || {
 		log_failure_msg "Error $E_XCD: Missing directory $BLOCKLISTS_DIR."
 		log_failure_msg "Check the BLOCKLISTS_DIR setting."
@@ -582,7 +590,7 @@ test_BLOCKLISTS_LIST () {
 test_DAEMON_LOG () {
 	[ -d "$(dirname $DAEMON_LOG)" ] || {
 		echo -n "Creating missing directory $(dirname $DAEMON_LOG) ..."
-		mkdir "$(dirname $DAEMON_LOG)" && echo "."
+		mkdir -p "$(dirname $DAEMON_LOG)" && echo "."
 	} || {
 		log_failure_msg "Error $E_XCD: Missing directory $(dirname $DAEMON_LOG)."
 		log_failure_msg "Check the DAEMON_LOG setting."
@@ -593,7 +601,7 @@ test_DAEMON_LOG () {
 test_CONTROL_LOG () {
 	[ -d "$(dirname $CONTROL_LOG)" ] || {
 		echo -n "Creating missing directory $(dirname $CONTROL_LOG) ..."
-		mkdir "$(dirname $CONTROL_LOG)" && echo "."
+		mkdir -p "$(dirname $CONTROL_LOG)" && echo "."
 	} || {
 		log_failure_msg "Error $E_XCD: Missing directory $(dirname $CONTROL_LOG)."
 		log_failure_msg "Check the CONTROL_LOG setting."
@@ -610,13 +618,21 @@ test_PIDFILE () {
 	}
 }
 
-test_WATCHDOG_PIDFILE () {
-	[ -d "$(dirname $WATCHDOG_PIDFILE)" ] || {
-		log_failure_msg "Error $E_XCD: Missing directory $(dirname $WATCHDOG_PIDFILE)."
-		log_failure_msg "$(basename $WATCHDOG_PATH) needs a directory to write its pidfile to!"
-		log_failure_msg "Check the WATCHDOG_PIDFILE setting."
+test_WD_PID () {
+	[ -d "$(dirname $WD_PID)" ] || {
+		log_failure_msg "Error $E_XCD: Missing directory $(dirname $WD_PID)."
+		log_failure_msg "$(basename $WD_PATHNAME) needs a directory to write its pidfile to!"
+		log_failure_msg "Check the WD_PID setting."
 		exit $E_XCD
 	}
+}
+
+test_WD_PATHNAME () {
+	[ -x "$WD_PATHNAME" ] || {
+		log_failure_msg "Error $E_CONFIG: Check the WD_PATHNAME setting."
+		log_failure_msg "Not starting $(basename $WD_PATHNAME)."
+		exit $E_CONFIG
+		}
 }
 
 test_IPTABLES_VARS () {
@@ -698,23 +714,6 @@ test_root () {
 
 ################################################################################
 # Functions
-
-# Function to test if an external application exists.
-# Usage: test_external basename_of_the_application
-# NOTE: "which" should not be used, because it is not available on all systems,
-# e.g. routers.
-test_external () {
-	local EXTERNAL TESTEXTERNAL=0
-	EXTERNAL=$1
-	IFS=":"
-	for PATH_I in $PATH ; do
-		[ -x "$PATH_I"/"$EXTERNAL" ] && TESTEXTERNAL=1 && break
-	done
-	IFS=$STDIFS
-	if [ "$TESTEXTERNAL" -ne 1 ] ; then
-		{ log_failure_msg "Error $E_XEXTERNAL: $EXTERNAL not installed." ; return $E_XEXTERNAL ; }
-	fi
-}
 
 # Function to test if there is an internet connection (currently: if testhost is reachable)
 test_net () {
@@ -847,7 +846,6 @@ white_dns () {
 
 # Function that inserts the iptables rules
 insert_iptables () {
-	test_root
 	test_IPTABLES_VARS
 	case "$IPTABLES_SETTINGS" in
 		'0')
@@ -1070,7 +1068,6 @@ insert_iptables () {
 
 # Function that deletes the iptables rules
 delete_iptables () {
-	test_root
 	test_IPTABLES_VARS
 	case "$IPTABLES_SETTINGS" in
 	'0')
@@ -1121,9 +1118,9 @@ delete_iptables () {
 		log_end_msg $IPTABLES_DELETE
 
 		if [ "$IPTABLES_DELETE" = 1 ] ; then
-			log_warning_msg "There occured some errors during the deletion of the iptables rules."
-			log_warning_msg "The most common reason for this is that they did not exist, because $NAME"
-			log_warning_msg "was not running. In this case you don't have to worry."
+			log_warning_msg "Don't worry! There occured some errors during the deletion of the iptables "
+			log_warning_msg "rules. The most common reason for this is that they did not exist, because"
+			log_warning_msg "$NAME was not running."
 			log_warning_msg "But if $NAME was running there is some problem. Most probably you have"
 			log_warning_msg "installed another firewall application that did delete the iptables rules."
 			log_warning_msg "A \"$(basename $0) restart\" will then fix the situation."
@@ -1153,67 +1150,61 @@ delete_iptables () {
 	esac
 }
 
-do_stop_watchdog () {
-	test_root
-	test_LSB_MODE
-	# Stop blockcontrol.watchdog
-	echo -n "Stopping $(basename $WATCHDOG_PATH)"
-	if [ "$LSB_MODE" -eq 0 ] || [ "$LSB_MODE" -eq 1 ] ; then
-		killproc -p $WATCHDOG_PIDFILE $WATCHDOG_PATH
+do_stop_wd () {
+	# Stop blockcontrol.wd
+	echo -n "Stopping $(basename $WD_PATHNAME)"
+	# Watchdog does not react to the TERM signal, while he´s sleeping.
+	# Therefore send a KILL. The pidfile has to be removed manually then, see below!
+	# TODO: Find a way to not output "Killed"
+	# TODO: > /dev/null 2>&1 does not help
+
+	PID_OPT=""
+	[ -z "$WD_PID" ] || PID_OPT="-p $WD_PID"
+	killproc "$PID_OPT" "$WD_PATHNAME" -KILL
+
+	# Verify that the watchdog is really not running.
+	kill -0 "$(pidofproc $WD_PATHNAME)" > /dev/null 2>&1
+	# If old process is not running (3), remember success and break.
+	if [ "$?" -eq 0 ] ; then
+		# Process is still running
+		RETVAL=1
 	else
-		# Don't specify pidfile
-		killproc $WATCHDOG_PATH
+		rm -f $WD_PID
+		RETVAL=0
 	fi
-	rm -f $WATCHDOG_PIDFILE || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
-	echo "."
+
+	log_end_msg $RETVAL
 }
 
-do_start_watchdog () {
-	test_WATCHDOG_PIDFILE
-	# Test WATCHDOG_NICE_LEVEL setting.
-	[ "$WATCHDOG_NICE_LEVEL" -ge -20 ] && [ "$WATCHDOG_NICE_LEVEL" -le 19 ] || {
-		log_failure_msg "Error $E_CONFIG: Check the WATCHDOG_NICE_LEVEL setting."
+do_start_wd () {
+	# Start blockcontrol.wd.
+	echo -n "Starting $(basename $WD_PATHNAME)"
+	test_WD_PATHNAME
+	test_WD_PID
+	
+	# Test WD_NICE setting.
+	[ "$WD_NICE" -ge -20 ] && [ "$WD_NICE" -le 19 ] || {
+		log_failure_msg "Error $E_CONFIG: Check the WD_NICE setting."
 		exit $E_CONFIG
 		}
 
-	# Check for necessary preconditions:
-	# - the iptables setup has to be done completely by blockcontrol
-	#   otherwise disable blockcontrol.watchdog by setting WATCHDOG_SLEEP="".
-	[ "$IPTABLES_SETTINGS" -gt 0 ] || WATCHDOG_SLEEP=""
-	[ "$IPTABLES_ACTIVATION" -gt 0 ] || WATCHDOG_SLEEP=""
-	# - not using "test" here, because ping fails if network is down,
-	#   other iptables rules might block the test packet before it reaches
-	#   blockcontrol or the test packet might be whitelisted.
-
-	# Start blockcontrol.watchdog if WATCHDOG_SLEEP is a positive integer.
-	if [ -n "$WATCHDOG_SLEEP" ] && [ "$WATCHDOG_SLEEP" -gt 0 ] && [ -x "$WATCHDOG_PATH" ]; then
-		  echo -n "Starting $(basename $WATCHDOG_PATH)"
-		  # Start blockcontrol.watchdog in the background. Therefore no real check possible if this succeeded.
-		  if [ "$LSB_MODE" -eq 0 ] ; then
-			  # Use Debian specific starting. This seems to fix the "MoBlock fails to start
-			  # the first time after installing/updating with aptitude" bug.
-			  # Start MoBlock in the background with "-b"
-			  # Note: use -N for nice level, not -n as per LSB
-			  start-stop-daemon -b -N $WATCHDOG_NICE_LEVEL -p $WATCHDOG_PIDFILE --exec $WATCHDOG_PATH --start --
-		  elif [ "$LSB_MODE" -eq 1 ] ; then
-			  # LSB, start MoBlock in the background with "&"
-			  start_daemon -n $WATCHDOG_NICE_LEVEL -p $WATCHDOG_PIDFILE $WATCHDOG_PATH &
-		  else
-			  # LSB , start MoBlock in the background with "&"
-			  start_daemon -n $WATCHDOG_NICE_LEVEL $WATCHDOG_PATH &
-		  fi
-		  log_end_msg "$?"
+	# Start blockcontrol.wd in the background. Therefore no real check possible if this succeeded.
+	if [ -f "$LSB" ] && head -n 1 "$LSB" | grep -q Debian > /dev/null 2>&1 ; then
+		# Use Debian specific starting.
+		# Start watchdog in the background with "-b"
+		# Note: use -N for nice level, not -n as per LSB
+		start-stop-daemon -b -N $WD_NICE -p $WD_PID --exec $WD_PATHNAME --start --
 	else
-		  echo "Not starting $(basename $WATCHDOG_PATH)."
-		  echo "Check your configuration in $CONTROL_CONF:"
-		  echo "IPTABLES_SETTINGS, IPTABLES_ACTIVATION and WATCHDOG_SLEEP need to be greater 0."
-		  echo "WATCHDOG_PATH has to match the executable."
+		# LSB, start blockcontrol.wd in the background with "&".
+		start_daemon -n $WD_NICE -p $WD_PID $WD_PATHNAME &
 	fi
+	# TODO: kill -0 "$(pidofproc $WD_PATHNAME)" > /dev/null 2>&1
+	RETVAL=$?
+	log_end_msg $RETVAL
 }
 
 # Function that starts daemon
 do_start () {
-	test_root
 	test_DAEMON
 	# Check if daemon is already running
 	status_of_proc $DAEMON $NAME > /dev/null 2>&1
@@ -1239,7 +1230,6 @@ do_start () {
 			test_LOG_TIMESTAMP
 			[ "$NAME" = moblock ] && test_DAEMON_LOG
 			test_PIDFILE
-			test_LSB_MODE
 			# Load kernel modules after checking with grep if they were compiled in the kernel directly.
 			# Note: I have not seen documentation how this works. E.g. loading (modprobe) a module does
 			# not give the specified entries in /proc/net. But once MoBlock was started they are there.
@@ -1348,40 +1338,43 @@ do_start () {
 				exit $E_CONFIG
 				}
 
-			# Start daemon depending on the LSB_MODE settings
+			# Start daemon
 			if [ "$NAME" = moblock ] ; then
-				if [ "$LSB_MODE" -eq 0 ] ; then
+				if [ -f "$LSB" ] && head -n 1 "$LSB" | grep -q Debian > /dev/null 2>&1 ; then
 					# Use Debian specific starting. This seems to fix the "MoBlock fails to start
 					# the first time after installing/updating with aptitude" bug.
 					# Start MoBlock in the background with "-b"
 					# Note: use -N for nice level, not -n as per LSB
 					start-stop-daemon -b -N $NICE_LEVEL -p $PIDFILE --exec $DAEMON --start -- $DAEMON_OPTS
-				elif [ "$LSB_MODE" -eq 1 ] ; then
-					# LSB, start MoBlock in the background with "&"
-					start_daemon -n $NICE_LEVEL -p $PIDFILE $DAEMON $DAEMON_OPTS &
 				else
-					# LSB , start MoBlock in the background with "&", don't specify pidfile.
-					start_daemon -n $NICE_LEVEL $DAEMON $DAEMON_OPTS &
+					# LSB, start MoBlock in the background with "&"
+					# TODO:  > /dev/null 2>&1 because of moblock´s stdout sometimes appearing in some logfiles.
+					# But I don't want to loose start_daemon error messages!
+					start_daemon -n $NICE_LEVEL -p $PIDFILE $DAEMON $DAEMON_OPTS > /dev/null 2>&1 &
 				fi
 			elif [ "$NAME" = nfblockd ] ; then
-				if [ "$LSB_MODE" -eq 0 ] ; then
-					# Use Debian specific starting.
-					# Note: use -N for nice level, not -n as per LSB
-					start-stop-daemon -N $NICE_LEVEL -p $PIDFILE --exec $DAEMON --start -- $DAEMON_OPTS
-				elif [ "$LSB_MODE" -eq 1 ] ; then
-					# LSB
-					start_daemon -n $NICE_LEVEL -p $PIDFILE $DAEMON $DAEMON_OPTS
-				else
-					# LSB, don't specify pidfile.
-					start_daemon -n $NICE_LEVEL $DAEMON $DAEMON_OPTS
-				fi
+				start_daemon -n $NICE_LEVEL -p $PIDFILE $DAEMON $DAEMON_OPTS
 			fi
 			RETVAL=$?
+
+# 			# Verify that the daemon is running
+# 			# TODO:
+# 			COUNT=0
+# 			# Wait up to 20 seconds
+# 			while [ "$COUNT" -lt 20 ] ; do
+# 				kill -0 "$(pidofproc $DAEMON)" > /dev/null 2>&1
+# 				# If daemon is running remember success and break.
+# 				[ "$?" -eq 0 ] && RETVAL=0 && break
+# 				RETVAL=1
+# 				sleep 1
+# 				COUNT=$(($COUNT+1))
+# 			done
+
 			log_end_msg $RETVAL
 
-			# Start blockcontrol.watchdog.
-			if [ "$WATCHDOG" = 1 ] ; then
-               do_start_watchdog
+			# Start blockcontrol.wd.
+			if [ "$WD" = 1 ] && [ "$RETVAL" = 0 ] ; then
+               do_start_wd
 			fi
 			;;
 		# Problematic daemon status. Be verbose and exit!
@@ -1395,22 +1388,18 @@ do_start () {
 
 # Function that stops daemon
 do_stop () {
-	test_root
-	test_LSB_MODE
-	do_stop_watchdog
+	do_stop_wd
 	# Remove iptables rules/chains
 	delete_iptables
-	# As per LSB  don't test if daemon is installed on stop!
+	# As per LSB don't test if daemon is installed on stop!
 	echo -n "Stopping $NAME ..."
-	if [ "$LSB_MODE" -eq 0 ] || [ "$LSB_MODE" -eq 1 ] ; then
-		killproc -p $PIDFILE $DAEMON
-	else
-		# Don't specify pidfile
-		killproc $DAEMON
-	fi
+	PID_OPT=""
+	[ -z "$PIDFILE" ] || PID_OPT="-p $PIDFILE"
+	killproc "$PID_OPT" "$DAEMON"
 
 	# Verify that the daemon is really not running. This may take some
 	# time (e.g. nfblock 0.6.1), even after the killproc ended successfully.
+	# Normally killproc should take care of this.
 	# Otherwise restarting nfblock fails, because it was restarted too early.
 	# This also fixes broken lsb init-functions (e.g. Ubuntu hardy), that give
 	# the wrong return code.
@@ -1418,8 +1407,9 @@ do_stop () {
 	# Wait up to 20 seconds
 	while [ "$COUNT" -lt 20 ] ; do
 		status_of_proc $DAEMON $NAME > /dev/null 2>&1
-		# If old process is not running (3), remember success and break.
-		[ "$?" -eq 3 ] && RETVAL=0 && break
+		# If we fail to get an answer, remember success, remove pidfile 
+		# (this should have been removed already!) and break.
+		[ "$?" -eq 3 ] && RETVAL=0 && rm -f $PIDFILE && break
 		RETVAL=1
 		sleep 1
 		COUNT=$(($COUNT+1))
@@ -1436,7 +1426,6 @@ do_restart () {
 
 # Function that rebuilds master blocklist and reloads daemon
 do_reload () {
-	test_root
 	test_DAEMON
 	# Check if daemon is running
 	status_of_proc $DAEMON $NAME > /dev/null 2>&1
@@ -1748,8 +1737,7 @@ get_blocklist () {
 	echo -n "Updating $LIST_NAME... "
 
 	# Create necessary (for local and remote lists) directories if missing:
-	[ -d "$BLOCKLIST_DIR" ] || mkdir "$BLOCKLIST_DIR" || { log_failure_msg "Error: mkdir exited with $?" ; exit 1 ; }
-	[ -d "$(dirname $BLOCKLIST_DOWNLOADED)" ] || mkdir "$(dirname $BLOCKLIST_DOWNLOADED)" || { log_failure_msg "Error: mkdir exited with $?" ; exit 1 ; }
+	[ -d "$(dirname $BLOCKLIST_DOWNLOADED)" ] || mkdir -p "$(dirname $BLOCKLIST_DOWNLOADED)" || { log_failure_msg "Error: mkdir -p exited with $?" ; exit 1 ; }
 
 	# Get lists
 	if [ "$LOCALLIST" = 1 ] ; then
@@ -1769,19 +1757,31 @@ get_blocklist () {
 	else
 		# Assuming remote blocklists for the rest:
 		# Create necessary directories if missing:
-		[ -d "$BLOCKLIST_DIR/download" ] || mkdir "$BLOCKLIST_DIR/download" || { log_failure_msg " Error: mkdir exited with $?" ; exit 1 ; }
+		[ -d "$BLOCKLIST_DIR/download" ] || mkdir -p "$BLOCKLIST_DIR/download" || { log_failure_msg " Error: mkdir -p exited with $?" ; exit 1 ; }
 
 		cd "$BLOCKLIST_DIR/download"|| { log_failure_msg " Error: cd exited with $?" ; exit 1 ; }
 		# Download blocklists with timestamping. If this fails remove
 		# the old blocklist (which might be a corrupted file)
 		# and try again without timestamping:
-		$WGET_OPTS -N "$LIST_URL" || {
-			echo -n "... failed!"
-			rm -Rf $BLOCKLIST_DIR/download/* || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
-			echo -n " Trying without timestamping ..."
-			$WGET_OPTS "$LIST_URL"
-			}
+		test_external wget || exit $E_XEXTERNAL
+		$WGET_OPTS -N "$LIST_URL"
 		WGET_RET=$?
+		case "$WGET_RET" in
+			0)
+				;;
+			403)
+				echo -n "... Access denied!"
+				rm -Rf $BLOCKLIST_DIR/download/* || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
+				;;
+			*)
+				echo -n "... failed!"
+				rm -Rf $BLOCKLIST_DIR/download/* || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
+				echo -n " Trying without timestamping ..."
+				$WGET_OPTS "$LIST_URL"
+				WGET_RET=$?
+				;;
+		esac
+
 
 		# Get the name of the downloaded blocklist: BLOCKLIST_DOWNLOAD
 		# Take the newest file, in case there are several files in the folder.
@@ -1791,7 +1791,17 @@ get_blocklist () {
 			BLOCKLIST_DOWNLOAD="$BLOCKLIST_DIR/download/$(ls -1t $BLOCKLIST_DIR/download/ | head -n 1)"
 
 		# Download was not successful:
-		if [ "$WGET_RET" -ne 0 ] ; then
+		if [ "$WGET_RET" -eq 403 ] ; then
+			if [ -f "$BLOCKLIST_DOWNLOADED" ] ; then
+				echo " Using old blocklist."
+				UPDATE_403="$UPDATE_403 $UPDATE_403 (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));"
+			else
+				log_failure_msg " Error $E_BLOCKLIST: $LIST_NAME not available. Aborting!"
+				log_failure_msg "Check your entry $LIST_URL in $BLOCKLISTS_LIST."
+				log_failure_msg "To fix this manually download $LIST_URL and save it as $BLOCKLIST_DOWNLOADED"
+				exit $E_BLOCKLIST
+			fi
+		elif [ "$WGET_RET" -ne 0 ] ; then
 			if [ -f "$BLOCKLIST_DOWNLOADED" ] ; then
 				echo " failed! Using old blocklist."
 				UPDATE_FAIL="$UPDATE_FAIL $LIST_NAME (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));"
@@ -1800,7 +1810,7 @@ get_blocklist () {
 				log_failure_msg "To fix this manually download $LIST_URL and save it as $BLOCKLIST_DOWNLOADED"
 				exit $E_BLOCKLIST
 			fi
-		# Download was successful:
+		# Download was successful ($WGET_RET = 0):
 		# This should not happen, just for debugging:
 		elif [ -z "$BLOCKLIST_DOWNLOAD" ] ; then
 			log_failure_msg " Error: $LIST_URL was downloaded successfully but BLOCKLIST_DOWNLOAD is empty! Strange, aborting!"
@@ -1828,7 +1838,7 @@ get_blocklist () {
 	# Unpack the lists
 	echo -n "Extracting $LIST_NAME, "
 	# Create necessary directories if missing:
-	[ -d "$(dirname $BLOCKLIST_EXTRACTED)" ] || mkdir "$(dirname $BLOCKLIST_EXTRACTED)" || { log_failure_msg " Error: mkdir exited with $?" ; exit 1 ; }
+	[ -d "$(dirname $BLOCKLIST_EXTRACTED)" ] || mkdir -p "$(dirname $BLOCKLIST_EXTRACTED)" || { log_failure_msg " Error: mkdir -p exited with $?" ; exit 1 ; }
 
 	# This should not happen, just for debugging:
 	[ -f "$BLOCKLIST_DOWNLOADED" ] || { \
@@ -1899,7 +1909,6 @@ get_blocklist () {
 
 # Function that updates blocklists and reloads daemon
 update_blocklists () {
-	test_root
 	test_net
 	test_BLOCKLISTS_DIR
 	echo "Updating blocklists ..."
@@ -1925,7 +1934,6 @@ update_blocklists () {
 
 # Function that builds the blocklist
 build_blocklist () {
-	test_root
 	test_BLOCKLISTS_DIR
 	echo -n "Building blocklist... "
 
@@ -1965,8 +1973,8 @@ build_blocklist () {
 
 		# Create necessary directories if missing:
 		[ -d "$(dirname $BLOCKLIST_USED)" ] || \
-			mkdir "$(dirname $BLOCKLIST_USED)" || \
-			{ log_failure_msg "Error: mkdir exited with $?" ; exit 1 ; }
+			mkdir -p "$(dirname $BLOCKLIST_USED)" || \
+			{ log_failure_msg "Error: mkdir -p exited with $?" ; exit 1 ; }
 		# Count the lines in the list
 		LIST_LINES="$( wc -l $BLOCKLIST_EXTRACTED | sed "s|$BLOCKLIST_EXTRACTED||")"
 		# Remove lines from the blocklist (if configured and if the list is not empty, otherwise just copy) and save in .../used/
@@ -2026,7 +2034,6 @@ build_blocklist () {
 # Function that tests if MoBlock is blocking
 test_ipblocking () {
 	# First check some preconditions for the test:
-	test_root
 	test_DAEMON
 	test_set_BLOCKLIST
 	test_BLOCKLIST
