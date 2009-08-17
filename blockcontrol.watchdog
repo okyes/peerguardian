@@ -1,5 +1,5 @@
 #!/bin/sh
-# blockcontrol.watchdog
+# blockcontrol.wd
 # Copyright (C) 2009 jre <jre-phoenix@users.sourceforge.net>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -17,9 +17,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 set -e
-
 ################################################################################
-# The following code is common between blockcontrol, blockcontrol.watchdog,
+# The following code is common between blockcontrol, blockcontrol.wd,
 # cron.daily, init and debian/postinst.
 
 # if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
@@ -38,23 +37,61 @@ else
 	exit 7
 fi
 
-# End of the common code between blockcontrol, blockcontrol.watchdog,
+# End of the common code between blockcontrol, blockcontrol.wd,
 # cron.daily, (if-up), init and debian/postinst.
 ################################################################################
 
-# Assume that watchdog is already running, if its pidfile exist (as per LSB). Return success.
-[ ! -f "$WATCHDOG_PIDFILE" ] || { log_success_msg "$WATCHDOG_PIDFILE exists, doing nothing." ; exit 0 ; }
+# Don´t run this script directly, some tests have to be done in the control script
+# and I don´t want to repeat them here.
 
-echo $$ > $WATCHDOG_PIDFILE
+test_root
+
+# Check if watchdog is already running.
+[ ! -f "$WD_PID" ] || { log_success_msg "$WD_PID exists, doing nothing." ; exit 0 ; }
+
+RETVAL=0
+
+# The iptables setup has to be done completely by blockcontrol
+[ "$IPTABLES_SETTINGS" -gt 0 ] || {
+	log_failure_msg "Error $E_CONFIG: IPTABLES_SETTINGS has to be greater 0."
+	exit $E_CONFIG
+	}
+
+[ "$IPTABLES_ACTIVATION" -gt 0 ] || {
+	log_failure_msg "Error $E_CONFIG: IPTABLES_ACTIVATION has to be greater 0."
+	exit $E_CONFIG
+	}
+
+[ "$WD_SLEEP" -gt 0 ] || {
+	log_failure_msg "Error $E_CONFIG: WD_SLEEP has to be greater 0."
+	log_failure_msg "Not starting $(basename $WD_PATHNAME)."
+	exit $E_CONFIG
+	}
+
+# Define an exit function for trapped signals
+onexit () {
+        RETVAL="$?"
+        rm -f "$WD_PID"
+        exit $RETVAL
+}
+
+# Trap specified signals, and remove pidfile & exit on them.
+# Not sure which signals to specify. "KILL" can´t be trapped!
+# Not HUP.
+trap onexit INT SEGV QUIT TERM EXIT
+
+# Create pidfile.
+echo $$ > $WD_PID
+
 while true ; do
-	sleep $WATCHDOG_SLEEP
+	sleep $WD_SLEEP
 	{
 		# First check if the daemon is running.
-		status_of_proc $DAEMON $NAME > /dev/null 2>&1 &&
+		status_of_proc $DAEMON $NAME > /dev/null 2>&1 && \
 		# Then check if traffic "might" be sent to the daemon.
-		iptables -L INPUT -n | grep "${CONTROL_NAME}_in" > /dev/null 2>&1 &&
-		iptables -L OUTPUT -n | grep "${CONTROL_NAME}_out" > /dev/null 2>&1 &&
-		iptables -L ${CONTROL_NAME}_in -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1 &&
+		iptables -L INPUT -n | grep "${CONTROL_NAME}_in" > /dev/null 2>&1 && \
+		iptables -L OUTPUT -n | grep "${CONTROL_NAME}_out" > /dev/null 2>&1 && \
+		iptables -L ${CONTROL_NAME}_in -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1 && \
 		iptables -L ${CONTROL_NAME}_out -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1
 		# Not using "test" here, because ping fails if network is down,
 		# other iptables rules might block the test packet before it reaches
@@ -69,13 +106,9 @@ while true ; do
 		${CONTROL_NAME} restart
 	} || {
 		# We only end up here, if restart fails before it terminates the watchdog!
-		log_failure_msg "Failed! Stopping $(basename $WATCHDOG_PATH) now!"
-		rm -f $WATCHDOG_PIDFILE || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
+		log_failure_msg "Failed! Stopping $(basename $WD_PATHNAME) now!"
+		rm -f $WD_PID || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
 		exit 1
 	}
 done
-
 # We should never end here!
-echo "Stopping $(basename $WATCHDOG_PATH) now - why???"
-rm -f $WATCHDOG_PIDFILE || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
-exit 1
