@@ -18,16 +18,17 @@
 .TH BLOCKCONTROL 1 "2009-05-03" "Version 1.4" "blockcontrol Manual"
 
 .SH NAME
-blockcontrol.watchdog \- monitor IP blockers.
+blockcontrol.wd \- monitor IP blockers.
 
 .SH SYNOPSIS
-.B blockcontrol.watchdog
+.B blockcontrol.wd
 .P
-NOTE: blockcontrol.watchdog is started and stopped automatically with
-blockcontrol. So there should be no need to do this manually.
+NOTE: blockcontrol.wd is started and stopped automatically with
+blockcontrol. It can also be started manually with blockcontrol. Don´t start it
+directly.
 
 .SH DESCRIPTION
-.B blockcontrol.watchdog 
+.B blockcontrol.wd 
 checks in regular intervals (per default 5 minutes) if some of the necessary
 iptables rules exist and if the daemon is responsive. If one of these tests
 fails, it restarts blockcontrol.
@@ -44,7 +45,7 @@ configuration variables with comments. You can turn it on/off, specify the check
 interval in seconds and specify its path.
 
 .SH FILES
-.IP /usr/bin/blockcontrol.watchdog
+.IP /usr/bin/blockcontrol.wd
 
 .SH SEE ALSO
 .BR "blockcontrol" "(1)"
