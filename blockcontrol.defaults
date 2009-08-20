@@ -33,6 +33,9 @@ STATFILE="/var/log/MoBlock.stats"
 # The name of this software
 CONTROL_NAME="blockcontrol"
 
+# The blockcontrol version. This is set automatically by the maintainer scripts.
+VERSION=
+
 # The path of the blockcontrol script
 CONTROL_SCRIPT="/usr/bin/$CONTROL_NAME"
 
@@ -137,8 +140,8 @@ NICE_LEVEL="5"
 # The default options make sure that blockcontrol plays nice with the list
 # servers.
 # For example you may specify a proxy:
-# WGET_OPTS="http_proxy=URL wget -q -t 5 -T 120 -w 5"
-WGET_OPTS="wget -q -t 5 -T 120 -w 5"
+# WGET_OPTS="http_proxy=URL wget -q -t 5 -T 120 -w 5 --user-agent=${CONTROL_NAME}/${VERSION}"
+WGET_OPTS="wget -q -t 5 -T 120 -w 5 --user-agent=${CONTROL_NAME}/${VERSION}"
 
 # Before updating the blocklists check if this host is reachable
 TESTHOST="iblocklist.com"

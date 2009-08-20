@@ -1786,6 +1786,9 @@ get_blocklist () {
 		# the old blocklist (which might be a corrupted file)
 		# and try again without timestamping:
 		test_external wget || exit $E_XEXTERNAL
+        # If 7z is not available, change user agent to blockcontrol_x7z, so that iblocklist.com knows we are not capable of 7z.
+        test_external p7zip > /dev/null 2>&1 || \
+            WGET_OPTS="$(echo $WGET_OPTS | sed "s|--user-agent=${CONTROL_NAME}/${VERSION}|--user-agent=${CONTROL_NAME}_x7z/${VERSION}|")"
 		$WGET_OPTS -N "$LIST_URL"
 		WGET_RET=$?
 		case "$WGET_RET" in
