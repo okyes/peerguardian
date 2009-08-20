@@ -41,9 +41,6 @@ _Description: WARNING: Users with other firewall (iptables rules)
   - blockcontrol is started after other firewalls. If other firewalls are
     started/reloaded after blockcontrol, then you need to restart blockcontrol
     again, if the other firewall messed up blockcontrol's iptables setup.
-    Generally you will be fine, if the iptables rules (blockcontrol_in,
-    blockcontrol_out and blockcontrol_fw) in the iptables chains (INPUT, OUTPUT
-    and FORWARD) stand before all other iptables rules which ACCEPT traffic.
  .
  So avoid severe misconfigurations by always doing a
   blockcontrol restart

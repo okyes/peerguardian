@@ -363,6 +363,7 @@ Requirements:
 - /usr/bin/printf (optional, needed during "update" for archive type detection)
 - p7zip (optional, needed for blocklists packed as .7z)
 - unzip (optional, needed for blocklists packed as .zip)
+- start-stop-daemon (optional)
 - awk, sed, grep, basename, dirname, cat, cd, mv, cp, zcat, md5sum, renice, pidof
   (those should really be on every system)
 - netfilter kernel support (either as modules or directly built in the kernel)

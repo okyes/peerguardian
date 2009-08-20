@@ -1,4 +1,4 @@
-blockcontrol (1.5-1~pre7) unstable; urgency=low
+blockcontrol (1.5-1) unstable; urgency=low
 
   * set a nice level when starting the daemon (default 5) and watchdog
     (default 19). New variables NICE_LEVEL and WD_NICE.
@@ -9,6 +9,8 @@ blockcontrol (1.5-1~pre7) unstable; urgency=low
     - make sure only one instance of watchdog runs (pidfile) - cader
     - trap some signals so that the watchdog can remove its own pidfile.
     - improved tests of preconditional blockcontrol settings
+    - send KILL signal to stop watchdog instead of TERM. Fixes problems when
+      watchdog was not really stopped.
   * blockcontrol
     * Fixed output to STDOUT:
       - Set a trap on exit for commands with log_end_msg. Then on exit do
@@ -54,8 +56,9 @@ blockcontrol (1.5-1~pre7) unstable; urgency=low
       moved earlier contributors to THANKS. This does not mean that I disrespect
       their work or deny their authorship. Legal experts may tell me how to
       handle such cases correctly.
+  * bumped Debian Standards version to 3.8.3.0. No changes needed.
 
- -- jre <jre-phoenix@users.sourceforge.net>  Mon, 17 Aug 2009 19:39:24 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 19 Aug 2009 21:45:32 +0200
 
 blockcontrol (1.4.4-1) unstable; urgency=low
 

@@ -78,7 +78,7 @@ binary-indep: build install
 	dh_installifupdown
 #	dh_installinfo
 	dh_installman
-#	dh_link
+	dh_link usr/share/man/man1/blockcontrol.1 usr/share/man/man1/blockcontrol.wd.1
 	dh_strip
 	dh_compress
 	dh_fixperms
