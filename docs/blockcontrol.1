@@ -17,7 +17,7 @@
 .\"   the Debian GNU/Linux distribution in file /usr/share/common-licenses/GPL;
 .\"   if not, write to the Free Software Foundation, Inc., 59 Temple Place,
 .\"   Suite 330, Boston, MA  02111-1307  USA
-.TH BLOCKCONTROL 1 "2009-05-03" "Version 1.4" "blockcontrol Manual"
+.TH BLOCKCONTROL 1 "2009-08-21" "Version 1.6" "blockcontrol Manual"
 
 .SH NAME
 blockcontrol \- handling IP blockers.
@@ -72,7 +72,14 @@ blocklist configuration changed, rebuilds the master blocklist.
 deletes iptables rules and stops the IP block daemon.
 .TP
 .B start_wd
-starts the watchdog.
+starts the watchdog. Don´t start blockcontrol.wd directly. Remember that per
+default the watchdog gets started automatically on start. The watchdog checks in
+regular intervals (per default 5 minutes) if some of the necessary iptables
+rules exist and if the daemon is responsive. If one of these tests fails, it
+restarts blockcontrol. This is especially useful, if you have other firewall
+applications running, because they often mess up the iptables rules, which can
+be fixed by restarting blockcontrol. Unfortunately this manual action is often
+forgotten.
 .TP
 .B stop_wd
 stops the watchdog.

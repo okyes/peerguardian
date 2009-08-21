@@ -2,13 +2,9 @@ TODO for blockcontrol and MoBlock debian packaging
 
 blockcontrol:
 
-- update: if any blocklist is unavailable, don´t exit, but continue but return
-  an error.
-
 - send error messages to console and logfile. [João]
   Completely rework the logging part, and check if all messages go where they
   should.
-  Then also log if external or internal LSB init functions are used.
 
 - add option to temp allow (blockcontrol allow IP and blockcontrol allow-MM IP),
   which inserts the appropriate iptables rules directly.
@@ -35,8 +31,6 @@ blockcontrol:
 
 - fix debconf to use debian/config again.
 
-- [DISCUSS] Block IPv6 completely because currently only IPv4 is checked?
-
 - expand test to use traceroute (with a timeout)
 
 - build_blocklist: disable concatenating blocklists in .p2b (binary) format.
@@ -44,6 +38,13 @@ blockcontrol:
   about nfblock?
 
 - adapt test function for peerguardian .p2b v2 binary format blocklist formats.
+
+- [DISCUSS]: if any blocklist is unavailable, should blockcontrol exit (as it does
+  currently, in order to give no false security), or continue but return an
+  error (if one list is missing, it´s still better to use at least the other
+  blocklists).
+
+- [DISCUSS] Block IPv6 completely because currently only IPv4 is checked?
 
 
 Requests for upstream:

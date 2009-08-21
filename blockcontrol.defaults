@@ -33,8 +33,9 @@ STATFILE="/var/log/MoBlock.stats"
 # The name of this software
 CONTROL_NAME="blockcontrol"
 
-# The blockcontrol version. This is set automatically by the maintainer scripts.
-VERSION=
+# The blockcontrol version. This is set to a numerical value automatically by
+# the maintainer scripts.
+VERSION=svn
 
 # The path of the blockcontrol script
 CONTROL_SCRIPT="/usr/bin/$CONTROL_NAME"

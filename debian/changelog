@@ -1,8 +1,9 @@
-blockcontrol (1.6-1~pre1) unstable; urgency=low
+blockcontrol (1.6-1) unstable; urgency=low
 
   * set current VERSION in blockcontrol.defaults
   * get_blocklist: identify with blockcontrol/VERSION. If 7z is not available
     identify with blockcontrol_x7z/VERSION.
+  * manpage: link blockcontrol.wd to blockcontrol (since last version). Updated.
 
  -- jre <jre-phoenix@users.sourceforge.net>  Thu, 20 Aug 2009 22:02:48 +0200
 
