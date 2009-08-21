@@ -5,7 +5,7 @@ blockcontrol (1.6-1) unstable; urgency=low
     identify with blockcontrol_x7z/VERSION.
   * manpage: link blockcontrol.wd to blockcontrol (since last version). Updated.
 
- -- jre <jre-phoenix@users.sourceforge.net>  Thu, 20 Aug 2009 22:02:48 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Fri, 21 Aug 2009 16:10:36 +0200
 
 blockcontrol (1.5-1) unstable; urgency=low
 
