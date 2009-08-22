@@ -1,3 +1,10 @@
+blockcontrol (1.6.4-1) unstable; urgency=low
+
+  * changed packaging for Ubuntu hardy: Use internal LSB init-functions.
+  * Therefore added Debian patches again.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sat, 22 Aug 2009 11:39:06 +0200
+
 blockcontrol (1.6-1) unstable; urgency=low
 
   * set current VERSION in blockcontrol.defaults
