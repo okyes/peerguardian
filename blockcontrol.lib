@@ -1203,16 +1203,13 @@ do_stop_wd () {
     echo -n "Stopping $(basename $WD_PATHNAME)"
     # Watchdog does not react to the TERM signal, while he´s sleeping.
     # Therefore send a KILL. The pidfile has to be removed manually then, see below!
-    # TODO: Find a way to not output "Killed"
-    # TODO: > /dev/null 2>&1 does not help
-
     PID_OPT=""
     [ -z "$WD_PID" ] || PID_OPT="-p $WD_PID"
     killproc "$PID_OPT" "$WD_PATHNAME" -KILL
 
     # Verify that the watchdog is really not running.
-    kill -0 "$(pidofproc $WD_PATHNAME)" > /dev/null 2>&1
-    # If old process is not running (3), remember success and break.
+    kill -0 "$(pidof $WD_PATHNAME)" > /dev/null 2>&1
+    # If old process is not running, remember success and break.
     if [ "$?" -eq 0 ] ; then
         # Process is still running
         RETVAL=1
@@ -1428,13 +1425,19 @@ do_stop () {
 	COUNT=0
 	# Wait up to 20 seconds
 	while [ "$COUNT" -lt 20 ] ; do
-		status_of_proc $DAEMON $NAME > /dev/null 2>&1
-		# If status is 3 (not running), remember success, remove pidfile 
-		# (this should have been removed already!) and break.
-		[ "$?" -eq 3 ] && RETVAL=0 && rm -f $PIDFILE && break
-		RETVAL=1
-		sleep 1
-		COUNT=$(($COUNT+1))
+        # Verify that the daemon is really not running.
+        kill -0 "$(pidof $DAEMON)" > /dev/null 2>&1
+        # If old process is not running, remember success and break.
+        if [ "$?" -eq 0 ] ; then
+            # Process is still running
+            RETVAL=1
+            sleep 1
+            COUNT=$(($COUNT+1))
+        else
+            rm -f $PIDFILE
+            RETVAL=0
+            break
+        fi
 	done
 
 	log_end_msg $RETVAL

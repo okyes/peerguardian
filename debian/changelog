@@ -1,3 +1,22 @@
+blockcontrol (1.6.7-1~pre1) unstable; urgency=low
+
+  * fixed "stop", if daemon crashed, but pidfile still exists:
+    - changed verification of stopped daemon and watchdog. Use pidof, and only
+      fail if process is still running.
+    - debian/prerm: if the upgrade fails because of this, remove pidfile, so
+      that the upgrade can continue.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sat, 29 Aug 2009 16:31:27 +0200
+
+blockcontrol (1.6.6-1) unstable; urgency=low
+
+  * use 30_ubuntu_hardy.dpatch also for Ubuntu intrepid:
+    - use internal LSB init-functions because of the broken system wide ones.
+    - debian/prerm: if the upgrade fails, change old installation to use
+      internal init-functions, so that the upgrade can continue.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 24 Aug 2009 17:22:24 +0200
+
 blockcontrol (1.6.4-1) unstable; urgency=low
 
   * changed packaging for Ubuntu hardy: Use internal LSB init-functions.
