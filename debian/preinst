@@ -5,54 +5,54 @@
 set -e
 
 # summary of how this script can be called:
-#		* <new-preinst> `install'
-#		* <new-preinst> `install' <old-version>
-#		* <new-preinst> `upgrade' <old-version>
-#		* <old-preinst> `abort-upgrade' <new-version>
+#        * <new-preinst> `install'
+#        * <new-preinst> `install' <old-version>
+#        * <new-preinst> `upgrade' <old-version>
+#        * <old-preinst> `abort-upgrade' <new-version>
 #
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
 
 case "$1" in
-	install|upgrade)
-		# Move old moblock-control blocklists.list to new place (if old exists and new not yet).
-		if [ ! -f /etc/blockcontrol/blocklists.list ] && [ -f /etc/moblock/blocklists.list ] ; then
-			[ -d /etc/blockcontrol ] || ( \
-				echo -n "Creating directory /etc/blockcontrol" && \
-				mkdir /etc/blockcontrol && echo "."
-				)
-			echo -n "Adapting blocklists.list" && \
-			cat /etc/moblock/blocklists.list | \
-				sed "s|moblock-control|blockcontrol|" | \
-				sed "s|moblock.conf|blockcontrol.conf|" | \
-				sed "s|moblock|blockcontrol|" > /etc/blockcontrol/blocklists.list && \
-				rm /etc/moblock/blocklists.list && echo "."
-			echo -n "Adapting allow.p2p" && \
-			cat /etc/moblock/allow.p2p | \
-				sed "s| by Moblock||" | \
-				sed "s|MoBlock|blockcontrol|" | \
-				sed "s|moblock-control|blockcontrol|" > /etc/blockcontrol/allow.p2p && \
-				rm /etc/moblock/allow.p2p && echo "."
-		fi
-		# Remove old init files to prevent conflict with blockcontrol by several identical services.
-		for i in moblock moblock-nfq moblock-ipq ; do
-			if [ -x "/etc/init.d/$i" ] ; then
-				rm /etc/init.d/$i || exit $?
-				update-rc.d $i remove >/dev/null || exit $?
-			fi
-		done
-		# Remove old system files.
-		[ ! -f /etc/logrotate.d/moblock-control ] || rm /etc/logrotate.d/moblock-control
-		[ ! -f /etc/network/if-up.d/moblock ] || rm /etc/network/if-up.d/moblock
-		[ ! -f /etc/cron.daily/moblock ] || rm /etc/cron.daily/moblock
-		;;
-	abort-upgrade)
-		;;
-	*)
-		echo "preinst called with unknown argument \`$1'" >&2
-		exit 1
-		;;
+    install|upgrade)
+        # Move old moblock-control blocklists.list to new place (if old exists and new not yet).
+        if [ ! -f /etc/blockcontrol/blocklists.list ] && [ -f /etc/moblock/blocklists.list ] ; then
+            [ -d /etc/blockcontrol ] || ( \
+                echo -n "Creating directory /etc/blockcontrol" && \
+                mkdir /etc/blockcontrol && echo "."
+                )
+            echo -n "Adapting blocklists.list" && \
+            cat /etc/moblock/blocklists.list | \
+                sed "s|moblock-control|blockcontrol|" | \
+                sed "s|moblock.conf|blockcontrol.conf|" | \
+                sed "s|moblock|blockcontrol|" > /etc/blockcontrol/blocklists.list && \
+                rm /etc/moblock/blocklists.list && echo "."
+            echo -n "Adapting allow.p2p" && \
+            cat /etc/moblock/allow.p2p | \
+                sed "s| by Moblock||" | \
+                sed "s|MoBlock|blockcontrol|" | \
+                sed "s|moblock-control|blockcontrol|" > /etc/blockcontrol/allow.p2p && \
+                rm /etc/moblock/allow.p2p && echo "."
+        fi
+        # Remove old init files to prevent conflict with blockcontrol by several identical services.
+        for i in moblock moblock-nfq moblock-ipq ; do
+            if [ -x "/etc/init.d/$i" ] ; then
+                rm /etc/init.d/$i || exit $?
+                update-rc.d $i remove >/dev/null || exit $?
+            fi
+        done
+        # Remove old system files.
+        [ ! -f /etc/logrotate.d/moblock-control ] || rm /etc/logrotate.d/moblock-control
+        [ ! -f /etc/network/if-up.d/moblock ] || rm /etc/network/if-up.d/moblock
+        [ ! -f /etc/cron.daily/moblock ] || rm /etc/cron.daily/moblock
+        ;;
+    abort-upgrade)
+        ;;
+    *)
+        echo "preinst called with unknown argument \`$1'" >&2
+        exit 1
+        ;;
 esac
 
 # dh_installdeb will replace this with shell code automatically

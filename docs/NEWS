@@ -71,7 +71,7 @@ moblock (0.9~rc2-12) sid; urgency=low
   - You can find out the port a blocked packet was send on. Cader
     <cade.robinson@gmail.com> hinted me to this
     (http://forums.phoenixlabs.org/showthread.php?p=116645):
-    You just have to use an iptables log-to-syslog rule for marked matched 
+    You just have to use an iptables log-to-syslog rule for marked matched
     packets. You can then look for the IP in the syslog and read its header.
     The necessary iptables rules will be inserted with the new setting
     LOG_IPTABLES="LOG --log-level info". To allow this also for incoming
@@ -119,7 +119,7 @@ moblock (0.8-33) sid; urgency=low
   because of bug 1818886 (https://sourceforge.net/tracker/index.php?func=detail
   &aid=1818886&group_id=162910&atid=825649). So the configured blocklist format
   has changed to ipfilter.dat (-d) instead of peerguardian .p2p text (-p)
-  format! 
+  format!
 
  -- jre <jre-phoenix@users.sourceforge.net>  Sun, 09 Dec 2007 16:26:59 +0100
 
@@ -131,7 +131,7 @@ moblock (0.8-30) sid; urgency=low
 
 moblock (0.8-26) sid; urgency=low
 
-  Users with kernel 2.6.23 should have a look at 
+  Users with kernel 2.6.23 should have a look at
   https://developer.berlios.de/bugs/?func=detailbug&bug_id=12156&group
   _id=2509. The patch from there is already applied.
 
