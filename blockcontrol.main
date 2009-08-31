@@ -23,40 +23,40 @@ CONTROL_DEFAULTS="/usr/lib/blockcontrol/blockcontrol.defaults"
 
 # Load default configuration.
 if [ -f "$CONTROL_DEFAULTS" ] ; then
-    . $CONTROL_DEFAULTS || { echo "$0 Error: Failed to source $CONTROL_DEFAULTS although this file exists."; exit 1; }
+	. $CONTROL_DEFAULTS || { echo "$0 Error: Failed to source $CONTROL_DEFAULTS although this file exists."; exit 1; }
 else
-    echo "$0: Missing file $CONTROL_DEFAULTS (Error 7)."
-    exit 7
+	echo "$0: Missing file $CONTROL_DEFAULTS (Error 7)."
+	exit 7
 fi
 
 # Check what daemon is installed in PATH and set variables accordingly.
 IFS=":"
 for PATH_I in $PATH ; do
-    if [ -x "$PATH_I/moblock" ] ; then
-        NAME="moblock"
-        DAEMON="$PATH_I/moblock"
-        PIDFILE="/var/run/moblock.pid"
-        break
-    elif [ -x "$PATH_I/nfblockd" ] ; then
-        NAME="nfblockd"
-        DAEMON="$PATH_I/nfblockd"
-        PIDFILE="/var/run/nfblockd.pid"
-        break
-    fi
+	if [ -x "$PATH_I/moblock" ] ; then
+		NAME="moblock"
+		DAEMON="$PATH_I/moblock"
+		PIDFILE="/var/run/moblock.pid"
+		break
+	elif [ -x "$PATH_I/nfblockd" ] ; then
+		NAME="nfblockd"
+		DAEMON="$PATH_I/nfblockd"
+		PIDFILE="/var/run/nfblockd.pid"
+		break
+	fi
 done
 IFS=$STDIFS
 
 # Load user configuration. This overwrites the above values.
 if [ -f "$CONTROL_CONF" ] ; then
-    . $CONTROL_CONF || echo "$0 Warning: Failed to source $CONTROL_CONF although this file exists."
+	. $CONTROL_CONF || echo "$0 Warning: Failed to source $CONTROL_CONF although this file exists."
 fi
 
 # Load blockcontrol library.
 if [ -f "$CONTROL_LIB" ] ; then
-    . $CONTROL_LIB || { echo "$0 Error: Failed to source $CONTROL_LIB although this file exists."; exit 1; }
+	. $CONTROL_LIB || { echo "$0 Error: Failed to source $CONTROL_LIB although this file exists."; exit 1; }
 else
-    echo "$0: Missing file $CONTROL_LIB (Error $E_XFILE)."
-    exit $E_XFILE
+	echo "$0: Missing file $CONTROL_LIB (Error $E_XFILE)."
+	exit $E_XFILE
 fi
 
 # Load LSB init-functions shell library
@@ -64,5 +64,5 @@ fi
 # In blockcontrol.lib there's a modified copy of the Debian init-functions, as a
 # fallback, which will be overwritten by the following functions.
 if [ -f "$LSB" ] ; then
-    . $LSB || echo "$0 Warning: Failed to source $LSB although this file exists."
+	. $LSB || echo "$0 Warning: Failed to source $LSB although this file exists."
 fi

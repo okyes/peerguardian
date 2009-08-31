@@ -30,7 +30,7 @@ moblock-control (0.8-15jre4)
   * reload only if moblock is really running
   * some minor changes
 
- -- jre <jre-phoenix@users.sourceforge.net>
+ -- jre <jre-phoenix@users.sourceforge.net> 
 
 
 moblock-control (0.8-15jre3)
@@ -145,7 +145,7 @@ peerguardnf (1.5-cvs20060228-10jre) unstable; urgency=low
 
   * Updated README.jre
 
- -- jre <contact me at forums.phoenixlabs.org>  Sat, 01 Apr 2006 16:50:00 +0200
+ -- jre <contact me at forums.phoenixlabs.org>  Sat, 01 Apr 2006 16:50:00 +0200 
 
 
 peerguardian (cvs20060228-5-20060321 aka cougar)

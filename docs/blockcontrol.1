@@ -7,7 +7,7 @@
 .\"   it under the terms of the GNU General Public License as published by
 .\"   the Free Software Foundation; either version 2 of the License, or
 .\"   (at your option) any later version.
-.\"
+.\" 
 .\"   This documentation is distributed in the hope that it will be useful,
 .\"   but WITHOUT ANY WARRANTY; without even the implied warranty of
 .\"   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -30,7 +30,7 @@ OPTION
 search PATTERN
 
 .SH DESCRIPTION
-.B blockcontrol
+.B blockcontrol 
 is designed to do all tasks related to IP blockers (MoBlock or NFBlock):
 .IP \(em 3
 Start and stop IP block daemon. Or let init do this automatically.
@@ -161,7 +161,7 @@ test failed
 not testable
 .PP
 
-.SH EXIT STATUS
+.SH EXIT STATUS 
 .IP
 .B 2
 The IP block daemon was started with bad arguments
@@ -261,7 +261,7 @@ will be fine, if the iptables rules which send traffic to the iptables chains
 (blockcontrol_in, blockcontrol_out and blockcontrol_fw) stand before all other
 iptables rules which ACCEPT traffic.
 .P
-.BR "blockcontrol.wd" "(1)"
+.BR "blockcontrol.wd" "(1)" 
 restarts blockcontrol if it detects any problems.
 But the manual restart is still recommended.
 
@@ -284,7 +284,7 @@ Marked packets repeat the hook function (NF_REPEAT). So they are sent back to
 the head of the iptables chain again. A packet may only bear one mark, so there
 mustn't be any other applications / iptables rules that mark packets. Otherwise
 the setup will not work and packets will loop forever.
-"Marked block" outgoing packets will be REJECTED, "Marked block" incoming and
+"Marked block" outgoing packets will be REJECTED, "Marked block" incoming and 
 forwarded packets will be DROPped. "Marked accept" packets will be ignored, so
 other iptables rules decide what happens to them.
 

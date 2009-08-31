@@ -30,10 +30,10 @@ CONTROL_MAIN="/usr/lib/blockcontrol/blockcontrol.main"
 
 # Configure blockcontrol and load functions.
 if [ -f "$CONTROL_MAIN" ] ; then
-    . $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
+	. $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
 else
-    echo "$0 Error 7: Missing file $CONTROL_MAIN."
-    exit 7
+	echo "$0 Error 7: Missing file $CONTROL_MAIN."
+	exit 7
 fi
 
 # End of the common code between blockcontrol, blockcontrol.wd,
@@ -45,33 +45,33 @@ test_VERBOSITY
 test_CONTROL_SCRIPT
 
 case "$CRON" in
-    # Automatic update is off:
-    0)
-        if [ "$VERBOSITY" -eq 1 ] ; then
-            log_warning_msg "$(basename $0) is configured not to update the blocklists automatically."
-            log_warning_msg "To change this edit the CRON entry in $CONTROL_CONF."
-            log_warning_msg "If you don't want to see this message set VERBOSITY=\"2\" there."
-        fi
-        ;;
-    # Automatic update is on:
-    1)
-        if [ -x /usr/sbin/sendmail ] ; then
-            SENDMAIL="/usr/sbin/sendmail"
-        elif [ -x /usr/lib/sendmail ] ; then
-            SENDMAIL="/usr/lib/sendmail"
-        fi
-        if [ $CRON_MAILTO ] && [ $SENDMAIL ] ; then
-            cat<<EOF | $SENDMAIL -t
+	# Automatic update is off:
+	0)
+		if [ "$VERBOSITY" -eq 1 ] ; then
+			log_warning_msg "$(basename $0) is configured not to update the blocklists automatically."
+			log_warning_msg "To change this edit the CRON entry in $CONTROL_CONF."
+			log_warning_msg "If you don't want to see this message set VERBOSITY=\"2\" there."
+		fi
+		;;
+	# Automatic update is on:
+	1)
+		if [ -x /usr/sbin/sendmail ] ; then
+			SENDMAIL="/usr/sbin/sendmail"
+		elif [ -x /usr/lib/sendmail ] ; then
+			SENDMAIL="/usr/lib/sendmail"
+		fi
+		if [ $CRON_MAILTO ] && [ $SENDMAIL ] ; then
+			cat<<EOF | $SENDMAIL -t
 To: $CRON_MAILTO
 Subject: Results of $CONTROL_NAME blocklist update
 
 "$($CONTROL_SCRIPT update || echo "$0 exited with return code $?.")"
 
 EOF
-        else
-            $CONTROL_SCRIPT update
-        fi
-        ;;
+		else
+			$CONTROL_SCRIPT update
+		fi
+		;;
 esac
 
 exit $?
