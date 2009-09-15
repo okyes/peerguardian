@@ -1,4 +1,19 @@
-blockcontrol (1.6.7-1) unstable; urgency=low
+blockcontrol (1.6.9-1) unstable; urgency=low
+
+  * export the LC_ALL environment variable set to the value C, to achieve a
+    consistent grep behaviour. Closes moblock-deb.sf.net bug 2855214, thx
+    anonymous.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 14 Sep 2009 19:16:52 +0200
+ 
+blockcontrol (1.6.8-1) unstable; urgency=low
+
+  * no changes
+  * reupload for hardy and intrepid to launchpad
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 31 Aug 2009 20:31:51 +0200
+
+blockcontrol (1.6.7-2) unstable; urgency=low
 
   * fixed "stop", if daemon crashed, but pidfile still exists:
     - changed verification of stopped daemon and watchdog. Use pidof, and only

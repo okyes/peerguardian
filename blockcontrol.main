@@ -21,6 +21,9 @@
 
 CONTROL_DEFAULTS="/usr/lib/blockcontrol/blockcontrol.defaults"
 
+# Set LC_ALL environment variable to the value C, to achieve a consistent grep behaviour.
+export LC_ALL=C
+
 # Load default configuration.
 if [ -f "$CONTROL_DEFAULTS" ] ; then
 	. $CONTROL_DEFAULTS || { echo "$0 Error: Failed to source $CONTROL_DEFAULTS although this file exists."; exit 1; }
