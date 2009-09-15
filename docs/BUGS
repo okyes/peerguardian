@@ -2,6 +2,12 @@ BUGS of blockcontrol and moblock-deb packages:
 
 ################################## Open bugs: ##################################
 
+- update doesn´t work with OpenDNS
+  see e.g. here:
+  http://forums.phoenixlabs.org/showpost.php?p=127410&postcount=7
+  http://forums.phoenixlabs.org/showthread.php?t=18045
+  http://ubuntuforums.org/showthread.php?t=1189320
+
 - Can't switch from moblock to nfblock (and vice versa!?) without rebooting,
   because else nfblock can't bind to NFQUEUE.
   (nfblockd: Error during nfq_bind_pf(): Illegal seek).
