@@ -1,4 +1,4 @@
-blockcontrol (1.6.7-1~pre1) unstable; urgency=low
+blockcontrol (1.6.7-1) unstable; urgency=low
 
   * fixed "stop", if daemon crashed, but pidfile still exists:
     - changed verification of stopped daemon and watchdog. Use pidof, and only
