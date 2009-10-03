@@ -1,0 +1,399 @@
+README for blockcontrol                          Sun May  3 18:33:35 CEST 2009
+
+
+================================================================================
+
+Table of Contents:
+
+Description
+Features
+Usage
+Options
+Configuration
+Files
+Installation
+Transition from moblock-control (1.2) to blockcontrol (1.3)
+Supported systems
+Requirements
+
+================================================================================
+
+Description:
+
+blockcontrol is designed to do all tasks related to IP block daemons (MoBlock
+or NFBlock). They check internet traffic based on large lists of IP address
+ranges in order to protect your privacy. You can get them at
+http://moblock.berlios.de and
+http://sites.google.com/site/makovick/nfblockd-daemon
+
+
+WARNING: IP blockers may block your complete network/internet access!
+
+Blockcontrol starts automatically at system boot per default. Some preconfigured
+blocklists are updated once a day. Be warned: this will not only block many
+unwanted IPs, but in most cases this will result in a limited network
+availability. This includes your own LAN and router, many webpages, services
+like eMail, instant messaging or the "weather applet" and your
+machine's accessibility from the internet.
+
+There are many configuration options to prevent this. E.g. the default is to
+always allow (whitelist) LAN traffic, DNS server and loopback device. If you
+are on a public LAN, you probably want to disable this feature.
+
+
+WARNING: Users with firewall (iptables rules)
+
+MoBlock (since version 0.9) and NFBlock do not conflict with other firewalls
+(iptables rules). But if you use them, you have to take special care to  avoid
+severe conflicts. Make sure the following three conditions hold:
+  - The IP block daemon marks non-matched (IP is not in the blocklist) packets.
+    (The marking feature is on per default.)
+  - Other firewalls do not mark packets.
+  - blockcontrol is started after other firewalls. If other firewalls are
+    started/reloaded after blockcontrol, then you need to restart blockcontrol
+    again. You will be fine, if the iptables rules which send traffic to the
+    iptables chains (blockcontrol_in, blockcontrol_out and blockcontrol_fw)
+    stand before all other iptables rules which ACCEPT traffic.
+    To help you achieve this, blockcontrol.wd restarts blockcontrol if it
+    detects any problems. But it's still recommended, to restart blockcontrol
+    manually, whenever another application changed the iptables setup.
+
+
+Technical note:
+
+The IP block daemons check traffic (packets) that is sent to the iptables
+NFQUEUE (or the deprecated QUEUE) target. If the necessary support is not built
+in the kernel directly, blockcontrol will load the necessary kernel modules.
+Up to MoBlock 0.8 packets that do not match the blocklist are ACCEPTed and
+packets that match the blocklist are DROPped.
+MoBlock (since 0.9) and NFBlock can also MARK packets, so that iptables rules
+that match this mark decide what happens with these packets. Per default
+marking is on: allowed packets (IP is not in the blocklist) get the mark "20"
+(shown as 0x14 by iptables) and blocked packets (IP is in the blocklist) get the
+mark "10" (0xa).
+Marked packets repeat the hook function (NF_REPEAT). So they are sent back to
+the head of the iptables chain again. A packet may only bear one mark, so there
+mustn't be any other applications / iptables rules that mark packets. Otherwise
+the setup will not work and packets will loop forever.
+There are iptables rules to REJECT "marked block" outgoing packets and DROP
+"marked block" incoming and forwarded packets. "Marked allowed" packets are
+ignored by blockcontrol's iptables setup, so other iptables rules decide what
+happens to them.
+
+================================================================================
+
+Features:
+
+- Start and stop IP block daemon. Or let init do this automatically.
+- Update your blocklist from online sources and local blocklists. Or let cron do
+  this automatically on a regular basis. Use backups if anything goes wrong.
+- Examine your selected blocklists by searching the single blocklists for
+  keywords.
+- Remove lines by keyword from the blocklists.
+- Handle your iptables rules: use a default setup, easily allow all traffic on
+  specific ports and use an allow list, or add your own sophisticated iptables
+  rules.
+- Allow all LAN traffic and the DNS server automatically. If you are on a public
+  LAN, you probably want to disable this feature.
+- Check the status and test the IP block daemon.
+- A watchdog monitors the IP block daemon and restarts blockcontrol if
+  necessary.
+- Detects if kernel modules are needed and loads them if necessary.
+- Set verbosity and logging options.
+- Provides LSB 3.1 compatible init script.
+- Daily rotation of the logfiles.
+
+================================================================================
+
+Usage:
+
+blockcontrol OPTION
+blockcontrol search PATTERN
+
+================================================================================
+
+Options:
+
+start
+  inserts iptables rules, starts the IP block daemon and the watchdog. If the
+  blocklist configuration changed, rebuilds the master blocklist.
+
+stop
+  deletes iptables rules and stops the IP block daemon.
+
+start_wd
+  starts the watchdog.
+
+stop_wd
+  stops the watchdog.
+
+restart
+  restarts the IP block daemon.
+
+reload
+  rebuilds the master blocklist and reloads the IP block daemon if it is
+  running.
+
+update
+  updates the blocklists, rebuilds the master blocklist and reloads the IP block
+  daemon.
+
+status
+  gives the iptables settings and the status of the IP block daemon.
+
+test
+  does a simple test to check if the IP block daemon is working (pings a random
+  IP in the blocklist and checks if this IP was logged in the block daemons
+  logfile and if it answered).
+
+search
+  outputs the occurences of a keyword and the names of the single blocklists.
+
+stats
+  reports MoBlock's statistics.
+
+reset_stats
+  resets MoBlock's statistics.
+
+show_config
+  shows the current configuration settings.
+
+Note for blocklist operations: When the master blocklist is built, missing
+single blocklists are downloaded. If any blocklist fails to download, and if
+there is no old version available, the operation aborts. If a downloaded
+blocklist fails to extract, it is deleted and the operation aborts.
+
+
+================================================================================
+
+Configuration:
+
+Blocklists are configured in blocklists.list
+(/etc/blockcontrol/blocklists.list).
+
+Most things are done in blockcontrol.conf (/etc/blockcontrol/blockcontrol.conf).
+Refer to blockcontrol.defaults (/usr/lib/blockcontrol/blockcontrol.defaults) for
+the complete set of possible configuration variables with comments.
+
+The allow list for IP ranges is allow.p2p (/etc/blockcontrol/allow.p2p). Per
+default, the allowlist is used for incoming and outgoing connections. If desired
+different allow lists for incoming, outgoing and forward connections may be
+used.
+
+
+
+
+================================================================================
+
+Files:
+
+- blockcontrol (required)
+  The shell script blockcontrol. Must be executable.
+
+- blockcontrol.main (required)
+  The core of all executable scripts. Must be executable.
+  Referenced as CONTROL_MAIN in blockcontrol, init, cron.daily and if.up.
+
+- blockcontrol.defaults (required)
+  Default settings for all variables and pathnames.
+  Referenced as CONTROL_DEFAULTS in blockcontrol.main.
+
+- blockcontrol.lib (required)
+  Library for blockcontrol.main.
+
+- blocklists.list (required)
+  Lists all blocklists that are used (and downloaded) by blockcontrol for
+  use by the IP block daemon.
+
+- blockcontrol.watchdog (recommended)
+  Monitors the IP block daemon and restarts blockcontrol if necessary.
+
+- blockcontrol.conf
+  The user configuration file for blockcontrol.
+
+- allow.p2p
+  Allow list which contains IP ranges that shall be whitelisted.
+
+- if-up
+  Execute this, whenever a network interface is brought up, to make sure that
+  the automatic whitelisting of traffic in the LAN does work. Must be
+  executable.
+
+- iptables-custom-insert.sh (example)
+  Script to insert custom iptables rules. Any script in /etc/blockcontrol/ (the
+  directory is defined in IPTABLES_CUSTOM_DIR) that ends in insert.sh will be
+  executed on every "blockcontrol start", if IPTABLES_SETTINGS="1" or "2" is
+  configured.
+
+- iptables-custom-remove.sh (example)
+  Script to delete custom iptables rules. Any script in /etc/blockcontrol/ (the
+  directory is defined in IPTABLES_CUSTOM_DIR) that ends in remove.sh will be
+  executed on every "blockcontrol stop", if IPTABLES_SETTINGS="1" or "2" is
+  configured.
+
+- init (optional)
+  Init file for starting the IP block daemon automatically on every bootup. Must
+  be executable.
+
+- cron.daily (optional)
+  Cron file for updating the blocklists automatically with cron. Must be
+  executable.
+
+- logrotate (optional, configuration file for logrotate)
+  Debian place: /etc/logrotate.d/blockcontrol
+  Assumes logfile in /var/log/blockcontrol.log
+  Note: You should add another logrotate for MoBlock, too! Download
+  one from: http://moblock-deb.svn.sourceforge.net/viewvc/moblock-deb/moblock/mo
+  block-0.9~rc2/moblock-0.9~rc2/debian/logrotate
+
+- docs/
+  Some documentatation. blockcontrol.1 is a man page.
+
+- debian/
+  You don't need this, this is only needed for the Debian packages.
+
+The following directories/files will be created on usage (path examples for
+Debian, configurable in blockcontrol.conf):
+
+- /var/spool/blockcontrol
+  The single blocklists are downloaded and manipulated in subfolders of this
+  folder.
+
+- /var/log/blockcontrol.log + rotated logs
+  The logfile of the blockcontrol script. This file contains amongst other
+  things about starting/stopping the IP block daemon and updating the
+  blocklists.
+
+- /var/log/moblock.log + rotated logs
+  The logfile of the MoBlock daemon. NFBlock uses /var/log/syslog.
+
+- /var/lib/blockcontrol/guarding.p2p + backup or
+  /var/lib/blockcontrol/guarding.p2b + backup or
+  /var/lib/blockcontrol/ipfilter.dat + backup
+  The master blocklist used by the IP block daemon depending on the used format.
+
+================================================================================
+
+Installation:
+
+There's a simple Makefile, which will install blockcontrol in fileplaces as in
+Debian. This should be the same as defined by the File Hierarchy Standard
+(FHS). If this fits for you, simply type
+
+  make install
+
+If you choose other file places, you have to adjust:
+
+- the path to blockcontrol.main (CONTROL_MAIN) in blockcontrol,
+  blockcontrol.watchdog, if-up, cron.daily and init.
+- the path to blockcontrol.defaults (CONTROL_DEFAULTS) in blockcontrol.main
+- PATH in blockcontrol.defaults. Either moblock or nfblock have to be installed
+  in PATH.
+- all other paths in blockcontrol.defaults
+- the Makefile
+
+If your system doesn't have the LSB init-funtions (/lib/lsb/init-functions),
+then hardcoded fallback functions will be used. (new since blockcontrol 1.3)
+
+Note for Fedora 7 and CentOS 5 users (broken LSB init-functions):
+http://forums.phoenixlabs.org/showpost.php?p=107810&postcount=22
+
+blockcontrol will detect if you have installed moblock or nfblockd (in PATH as
+specified in blockcontrol.defaults) automatically. Otherwise you can specify
+this in blockcontrol.conf (/etc/blockcontrol/blockcontrol.conf).
+
+================================================================================
+
+Transition from moblock-control (1.2) to blockcontrol (1.3)
+
+Generally use "blockcontrol" instead of "moblock-control". This is obvious,
+isn't it!?
+
+If names relate to this software, then "blockcontrol" is used. If they relate
+directly to the IP block daemon (MoBlock or NFBlock), then "moblock" or
+"nfblock" is used.
+
+Changed directories:
+/etc/moblock > /etc/blockcontrol
+/var/spool/moblock > /var/spool/blockcontrol
+/var/lib/moblock > /var/lib/blockcontrol
+
+Changed filenames:
+/etc/cron.daily/moblock > /etc/cron.daily/blockcontrol
+/etc/init.d/moblock > /etc/init.d/blockcontrol
+/etc/logrotate.d/moblock-control > /etc/logrotate.d/blockcontrol
+/etc/network/if-up.d/moblock > /etc/network/if-up.d/blockcontrol
+
+Configuration in default (/etc/default/moblock):
+  - REMOVED
+  - use /etc/blockcontrol/blockcontrol.conf instead.
+  - the complete set of possible configuration variables with comments is in
+    blockcontrol.defaults (/usr/lib/blockcontrol/blockcontrol.defaults).
+
+NEW:
+blockcontrol.main (/usr/lib/blockcontrol/blockcontrol.main):
+contains most of the common code between the executable scripts.
+
+Changed variable names:
+MOBLOCK_INIT > INIT
+MOBLOCK_CRON > CRON
+SCRIPT_LIB > CONTROL_LIB
+SCRIPT_DEFAULTS > CONTROL_MAIN
+
+Updates in Debian are only handled cleanly from moblock-control 1.2. All prior
+versions are not regarded. Most configuration file settings are transitioned by
+debconf/postinst. The old blocklists.list and allow.p2p are backuped, adapted
+and moved to the new place.
+Only the custom iptables rules scripts and uncommon configuration settings have
+to be transitioned manually.
+
+================================================================================
+
+Supported systems:
+
+blockcontrol was written and tested under Debian Squeeze. However it should run
+under every Linux distribution or other POSIX compliant systems.
+
+================================================================================
+
+Requirements:
+
+- iptables
+- wget (optional, needed for blocklists update)
+- /usr/bin/printf (optional, needed during "update" for archive type detection)
+- p7zip (optional, needed for blocklists packed as .7z)
+- unzip (optional, needed for blocklists packed as .zip)
+- start-stop-daemon (optional)
+- awk, sed, grep, basename, dirname, cat, cd, mv, cp, zcat, md5sum, renice, pidof
+  (those should really be on every system)
+- netfilter kernel support (either as modules or directly built in the kernel)
+  These are the modules that are loaded here (The list was compiled with
+   lsmod | grep -E "x_|xt_|ip" | grep -Ev "cipher|^ip6|^ipv6" | sort
+  . Note that xt_ may be named ip_ or ipt_ on older systems.):
+    iptable_filter          7424  1 
+    ip_tables              21520  1 iptable_filter
+    ipt_REJECT              7552  1 
+    nf_conntrack           71440  2 nf_conntrack_ipv4,xt_state
+    nf_conntrack_ipv4      19352  3 
+    x_tables               25224  10 ip6t_REJECT,ip6_tables,xt_multiport,ipt_REJ
+                                     ECT,xt_tcpudp,ip_tables,xt_iprange,xt_state
+                                     ,xt_mark,xt_NFQUEUE
+    xt_iprange              6912  11 
+    xt_mark                 6912  6 
+    xt_multiport            7424  6 
+    xt_NFQUEUE              6400  3 
+    xt_state                6656  3 
+    xt_tcpudp               7680  4 
+
+- /lib/lsb/init-functions (optional, because as fallback there's a modified copy
+  of the Debian init-functions in blockcontrol]
+  Used functions, provided by /lib/lsb/init-functions (version >= 3.1):
+   - start_daemon
+   - killproc
+   - pidofproc
+   - status_of_proc
+   - log_failure_msg
+   - log_warning_msg
+   - log_success_msg
+
+================================================================================

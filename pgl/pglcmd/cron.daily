@@ -1,0 +1,75 @@
+#!/bin/sh
+# cron - update the blocklists with blockcontrol
+# Copyright (C) 2005 - 2009 jre <jre-phoenix@users.sourceforge.net>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+################################################################################
+# The following code is common between blockcontrol, blockcontrol.wd,
+# cron.daily, init and debian/postinst.
+
+# if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
+# This can happen in early boot stages before local file systems are mounted.
+
+# CONTROL_MAIN has to be set correctly in all just mentioned files.
+CONTROL_MAIN="/usr/lib/blockcontrol/blockcontrol.main"
+
+# Configure blockcontrol and load functions.
+if [ -f "$CONTROL_MAIN" ] ; then
+	. $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
+else
+	echo "$0 Error 7: Missing file $CONTROL_MAIN."
+	exit 7
+fi
+
+# End of the common code between blockcontrol, blockcontrol.wd,
+# cron.daily, (if-up), init and debian/postinst.
+################################################################################
+
+test_CRON
+test_VERBOSITY
+test_CONTROL_SCRIPT
+
+case "$CRON" in
+	# Automatic update is off:
+	0)
+		if [ "$VERBOSITY" -eq 1 ] ; then
+			log_warning_msg "$(basename $0) is configured not to update the blocklists automatically."
+			log_warning_msg "To change this edit the CRON entry in $CONTROL_CONF."
+			log_warning_msg "If you don't want to see this message set VERBOSITY=\"2\" there."
+		fi
+		;;
+	# Automatic update is on:
+	1)
+		if [ -x /usr/sbin/sendmail ] ; then
+			SENDMAIL="/usr/sbin/sendmail"
+		elif [ -x /usr/lib/sendmail ] ; then
+			SENDMAIL="/usr/lib/sendmail"
+		fi
+		if [ $CRON_MAILTO ] && [ $SENDMAIL ] ; then
+			cat<<EOF | $SENDMAIL -t
+To: $CRON_MAILTO
+Subject: Results of $CONTROL_NAME blocklist update
+
+"$($CONTROL_SCRIPT update || echo "$0 exited with return code $?.")"
+
+EOF
+		else
+			$CONTROL_SCRIPT update
+		fi
+		;;
+esac
+
+exit $?

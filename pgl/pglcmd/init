@@ -1,0 +1,90 @@
+#!/bin/sh
+# init - LSB 3.1 compatible service control script for IP block
+# daemons (MoBlock and NFBlock) using blockcontrol.
+# Copyright (C) 2005 - 2009 jre <jre-phoenix@users.sourceforge.net>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+### BEGIN INIT INFO
+# Provides:          moblock
+# Required-Start:    $local_fs $remote_fs $syslog
+# Required-Stop:     $local_fs $remote_fs $syslog
+# Should-Start:      firehol firestarter ufw
+# Should-Stop:       firehol firestarter ufw
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: IP block daemon initscript
+# Description:       An IP blocker for Linux
+#	MoBlock blocks connections from/to hosts listed in a very large blocklist.
+#	The blocklist can be in one of the following formats: eMule "ipfilter.dat",
+#	"peerguardian .p2p text" or "peerguardian .p2b v2 binary".
+#	This package uses the xt_NFQUEUE kernel module (available since kernel
+#	>=2.6.13).
+### END INIT INFO
+
+################################################################################
+# The following code is common between blockcontrol, blockcontrol.wd,
+# cron.daily, init and debian/postinst.
+
+# if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
+# This can happen in early boot stages before local file systems are mounted.
+
+# CONTROL_MAIN has to be set correctly in all just mentioned files.
+CONTROL_MAIN="/usr/lib/blockcontrol/blockcontrol.main"
+
+# Configure blockcontrol and load functions.
+if [ -f "$CONTROL_MAIN" ] ; then
+	. $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
+else
+	echo "$0 Error 7: Missing file $CONTROL_MAIN."
+	exit 7
+fi
+
+# End of the common code between blockcontrol, blockcontrol.wd,
+# cron.daily, (if-up), init and debian/postinst.
+################################################################################
+
+test_INIT
+test_VERBOSITY
+test_CONTROL_SCRIPT
+
+case "$1" in
+	start)
+		case "$INIT" in
+			# Automatic boot is off:
+			0)
+				if [ "$VERBOSITY" -eq 1 ] ; then
+					log_warning_msg "$(basename $0) is configured not to start automatically at boot time."
+					log_warning_msg "To change this edit the INIT entry in $CONTROL_CONF."
+					log_warning_msg "If you don't want to see this message set VERBOSITY=\"2\" there."
+				fi
+				exit 0
+				;;
+			# Automatic boot is on:
+			1)
+				$CONTROL_SCRIPT $1
+				;;
+		esac
+		;;
+	stop|restart|reload|force-reload|update|status)
+		$CONTROL_SCRIPT $1
+		;;
+	*)
+		log_warning_msg "Usage: $0 {start|stop|restart|reload|update|status}"
+		exit $E_BADARGS
+		;;
+esac
+
+exit $?

@@ -1,0 +1,895 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: blockcontrol@packages.debian.org\n"
+"POT-Creation-Date: 2009-04-16 19:05+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: note
+#. Description
+#: ../templates:1001
+msgid "New name blockcontrol. Fix your custom iptables scripts!"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:1001
+msgid ""
+"moblock-control has been renamed to blockcontrol. Your configuration has "
+"been adapted. But if you use custom iptables rules (/etc/moblock/iptables-"
+"custom-insert.sh and iptables-custom-remove.sh), then you have to fix them, "
+"and move them to /etc/blockcontrol."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:1001
+msgid ""
+"The iptables chains are now called blockcontrol_in, blockcontrol_out and "
+"blockcontrol_fw."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:2001
+msgid "WARNING: IP blockers may block your complete network/internet access!"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:2001
+msgid ""
+"Blockcontrol starts an IP block daemon (MoBlock or NFBlock) automatically at "
+"system boot per default. Some preconfigured blocklists are updated once a "
+"day. Be warned, that blocklists may block more than what you want. In most "
+"cases this will result in a limited  network availability. This includes "
+"your own LAN and router, many webpages, services like eMail, instant "
+"messaging or the \"weather applet\" and your machine's accessibility from "
+"the internet."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:2001
+msgid ""
+"There are many configuration options to prevent this. E.g. the default is to "
+"always allow (whitelist) LAN traffic, DNS server and loopback device. If you "
+"are on a public LAN, you probably want to disable this feature."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:2001
+msgid ""
+"You can now tweak your settings. They can later be changed with\n"
+" sudo dpkg-reconfigure blockcontrol"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:2001
+msgid ""
+"For those, who cannot leave this screen: Press the TAB key to select OK and "
+"press enter."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:3001
+msgid "WARNING: Users with other firewall (iptables rules)"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:3001
+msgid ""
+"If you use other firewalls or iptables rules, you have to take special care "
+"to avoid severe conflicts. Make sure the following three conditions hold:\n"
+" - The IP block daemon marks non-matched (IP is not in the blocklist) "
+"packets.\n"
+"   (The marking feature is on per default.)\n"
+" - Other firewalls do not mark packets.\n"
+" - blockcontrol is started after other firewalls. If other firewalls are\n"
+"   started/reloaded after blockcontrol, then you need to restart "
+"blockcontrol\n"
+"   again. You will be fine, if the iptables rules which send traffic to the\n"
+"   iptables chains (blockcontrol_in, blockcontrol_out and blockcontrol_fw)\n"
+"   stand before all other iptables rules which ACCEPT traffic."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:3001
+msgid ""
+"In most cases it is advisable to do a\n"
+" blockcontrol restart\n"
+"whenever you have started, stopped or changed the configuration of your "
+"other firewall application."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:3001
+msgid ""
+"You can check your iptables rules with\n"
+" iptables -L -nv\n"
+"or\n"
+" blockcontrol status."
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:4001
+msgid "Set the blocklist format:"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:4001
+msgid "Configuration variable: BLOCKLIST_FORMAT"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:4001
+msgid ""
+"Set the format of the blocklists that you use. All your blocklists have to "
+"be in this format."
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:4001
+msgid ""
+" eMule ipfilter.dat format:\n"
+"  MoBlock option: -d\n"
+"  Example line:\n"
+"  001.000.000.000 , 001.000.000.255 , 100 , Some organization"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:4001
+msgid ""
+" PeerGuardian .p2b v2 binary format:\n"
+"  MoBlock option: -n"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:4001
+msgid ""
+" PeerGuardian .p2p text format (default)\n"
+"  MoBlock option: -p\n"
+"  Example line:\n"
+"  Some organization:1.0.0.0-1.000.000.255"
+msgstr ""
+
+#. Type: multiselect
+#. Description
+#. Type: multiselect
+#. Description
+#: ../templates:5001 ../templates:6001
+msgid "What blocklists shall be used?"
+msgstr ""
+
+#. Type: multiselect
+#. Description
+#: ../templates:5001
+msgid ""
+"This selects the blocklists. They are all in the eMule ipfilter.dat format."
+msgstr ""
+
+#. Type: multiselect
+#. Description
+#: ../templates:5001
+msgid ""
+"/usr/share/doc/blockcontrol/README.blocklists.gz provides more information "
+"about these blocklists. Online information sources are\n"
+" http://tbg.iblocklist.com/pages/faq.html and\n"
+" http://www.bluetack.co.uk/forums/index.php?autocom=faq&CODE=02&qid=17 and "
+"of\n"
+"course http://phoenixlabs.org."
+msgstr ""
+
+#. Type: multiselect
+#. Description
+#: ../templates:5001
+msgid ""
+"If you have specified additional blocklists in /etc/blockcontrol/blocklists."
+"list they will be kept as well. Known blocklists in an incompatible "
+"blocklist format will be commented out."
+msgstr ""
+
+#. Type: multiselect
+#. Description
+#: ../templates:6001
+msgid ""
+"This selects the blocklists. They are all in the PeerGuardian .p2p text "
+"format."
+msgstr ""
+
+#. Type: multiselect
+#. Description
+#: ../templates:6001
+msgid ""
+"These lists were created by Bluetack (http://www.bluetack.co.uk) and TBG "
+"(http://tbg.iblocklist.com). They are provided by iblocklist.com."
+msgstr ""
+
+#. Type: multiselect
+#. Description
+#: ../templates:6001
+msgid ""
+"You can get more information  about these blocklists in\n"
+" /usr/share/doc/blockcontrol/README.blocklists.gz and online at\n"
+" http://www.bluetack.co.uk/forums/index.php?autocom=faq&CODE=02&qid=17 and\n"
+" http://tbg.iblocklist.com/pages/faq.html"
+msgstr ""
+
+#. Type: multiselect
+#. Description
+#: ../templates:6001
+msgid ""
+"If you have specified additional blocklists in /etc/blockcontrol/blocklists."
+"list, they will be kept as well. Known blocklists in an incompatible "
+"blocklist format will be commented out."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:7001
+msgid "Turn on timestamping in the logfile?"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:7001
+msgid "Configuration variable: LOG_TIMESTAMP"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:7001
+msgid "This lets the MoBlock daemon add timestamps to the logging."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:8001
+msgid "Turn on daemon logging to syslog?"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:8001
+msgid "Configuration variable: LOG_SYSLOG"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:8001
+msgid "This lets the MoBlock daemon also log to syslog."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:8001
+msgid ""
+"If you want to turn off the daemon's logging to the logfile, you can set\n"
+" DAEMON_LOG=\"\"\n"
+"in /etc/blockcontrol/blockcontrol.conf. Please note that \"test\" will not "
+"work then."
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:9001
+msgid "Turn on iptables logging of blocked packets to syslog?"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:9001
+msgid "Configuration variable: LOG_IPTABLES"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:9001
+msgid ""
+"If you choose to log blocked packets to syslog, an iptables rule with the "
+"target \"LOG --log-level info\" for \"marked block\" packets will be "
+"inserted directly before the iptables rule which decides what happens to "
+"\"marked block\" packets."
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:9001
+msgid ""
+"This will only work if you mark matched (IP is in the blocklist) packets. "
+"(The marking feature is on per default. It will be explained and asked for "
+"later.)"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:9001
+msgid ""
+"This is one way to figure out the port of the blocked packets.  The default "
+"is not to log blocked packets to syslog."
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:10001
+msgid "Set the verbosity of blockcontrol:"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:10001
+msgid "Configuration variable: VERBOSITY"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:10001
+msgid ""
+"This only affects the output to STDOUT by blockcontrol, cron and init. This "
+"does not affect logging or the output of the IP block daemon."
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:10001
+msgid ""
+" 0 - Output to STDOUT is off (only errors will be reported).\n"
+" 1 - Output to STDOUT is on. (default)\n"
+" 2 - Output to STDOUT is on but no warning will be shown\n"
+"     if an operation is configured not to be executed."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:11001
+msgid "Turn on automatic start?"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:11001
+msgid "Configuration variable: INIT"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:11001
+msgid ""
+"\"No\" prevents the init script from starting on \"start\". Therefore the IP "
+"block daemon will not be started at system boot. The same behaviour can be "
+"achieved by removing/tweaking the init file and the links pointing to it. "
+"You can do this manually or by using an application such as rcconf."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:12001
+msgid "Turn on automatic blocklist update?"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:12001
+msgid "Configuration variable: CRON"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:12001
+msgid "This sets if the daily cron job updates the blocklists."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:13001
+msgid "Set the NFQUEUE queue number:"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:13001
+msgid "Configuration variable: NFQUEUE_NUMBER"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:13001
+msgid "Valid queue numbers are 0 to 65535. The default value is 92."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:13001
+msgid ""
+"Insert the plain number as you would give it in an iptables command after "
+"\"--queue-num\". Do not use surrounding \"quotes\"."
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:14001
+msgid "Set how traffic is sent to the IP block daemon:"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:14001
+msgid "Configuration variable: IPTABLES_SETTINGS"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:14001
+msgid ""
+"The default is to place MoBlock's iptables rules in separate iptables chains "
+"(blockcontrol_in, blockcontrol_out and blockcontrol_fw)."
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:14001
+msgid ""
+"You can set custom iptables rules in /etc/blockcontrol/iptables-custom-"
+"insert.sh and iptables-custom-remove.sh. These scripts are executed either "
+"additionally to the default iptables rules insertion/removal or exclusively."
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:15001
+msgid "Activate the iptables chains?"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:15001
+msgid "Configuration variable: IPTABLES_ACTIVATION"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:15001
+msgid ""
+"Decide what traffic shall be checked by the IP block daemon. If you "
+"previously decided to use separate iptables chains, then it is a good idea "
+"to send all NEW traffic there. It is absolutely safe to only check NEW "
+"traffic."
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:15001
+msgid ""
+"Checking all (not only NEW) traffic might cause problems, because the IP "
+"block daemon has to check much more traffic then. Further whitelisting gets "
+"more complicated, since you have to think of both directions, incoming and "
+"outgoing. Only do this, if you are sure that you want to."
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:15001
+msgid ""
+"The iptables rules that activate the iptables chains are inserted at the "
+"head of the chains INPUT, OUTPUT and FORWARD."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:16001
+msgid "Do you want to mark matched (IP is in the blocklist) packets?"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:16001
+msgid "Configuration variable: REJECT"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:16001
+msgid "Set what happens to matched (IP is in the blocklist) packets."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:16001
+msgid ""
+"If you MARK matched packets, then further iptables rules that match this "
+"MARK decide what happens to the packets. E.g. this allows to REJECT packets "
+"to avoid the long timeout which occurs when packets are DROPped, see below. "
+"This setting is also necessary for iptables logging to syslog, see above. "
+"(default)"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:16001
+msgid "If you do not MARK matched packets, they will be DROPped directly."
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:17001
+msgid "Set the iptables target for \"marked block\" incoming packets:"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:17001
+msgid "Configuration variable: REJECT_IN"
+msgstr ""
+
+#. Type: select
+#. Description
+#. Type: select
+#. Description
+#. Type: select
+#. Description
+#: ../templates:17001 ../templates:18001 ../templates:19001
+msgid ""
+"REJECT: The sender of the packet is notified that the packet was blocked."
+msgstr ""
+
+#. Type: select
+#. Description
+#. Type: select
+#. Description
+#. Type: select
+#. Description
+#: ../templates:17001 ../templates:18001 ../templates:19001
+msgid ""
+"DROP: The sender of the packet is not notified that the packet was blocked."
+msgstr ""
+
+#. Type: select
+#. Description
+#. Type: select
+#. Description
+#. Type: select
+#. Description
+#: ../templates:17001 ../templates:18001 ../templates:19001
+msgid "Be careful: senseless values are also accepted."
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:18001
+msgid "Set the iptables target for \"marked block\" outgoing packets:"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:18001
+msgid "Configuration variable: REJECT_OUT"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:19001
+msgid "Set the iptables target for \"marked block\" forwarded packets:"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:19001
+msgid "Configuration variable: REJECT_FW"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:20001
+msgid "Do you want to mark non-matched (IP is not in the blocklist) packets?"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:20001
+msgid "Configuration variable: ACCEPT"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:20001
+msgid "Set what happens to non-matched (IP is not in the blocklist) packets."
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:20001
+msgid ""
+"If you MARK non-matched packets, then they will be just ignored by "
+"blockcontrol. This allows integration with other firewalls. (default)"
+msgstr ""
+
+#. Type: boolean
+#. Description
+#: ../templates:20001
+msgid ""
+"If you do not MARK non-matched (IP is not in the blocklist) packets, they "
+"will be ACCEPTed directly."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:21001
+msgid "Whitelisting"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:21001
+msgid ""
+"The following questions help you define which traffic will NOT be checked by "
+"the IP block daemon. This is called \"whitelisting\"."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:21001
+msgid ""
+"Do a \"dpkg-reconfigure blockcontrol\" to get the full set of questions "
+"(many have only low priority and will not be asked per default)."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../templates:21001
+msgid ""
+"Traffic is categorized as:\n"
+" incoming:\n"
+" someone from the internet wants to access your machine\n"
+" outgoing:\n"
+" you want to access someone on the internet, e.g. websurfing\n"
+" forward:\n"
+" traffic passes your machine, e.g. because it is a router\n"
+" or an emulator such as Virtualbox."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:22001
+msgid "Whitelist outgoing TCP ports:"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:22001
+msgid "Configuration variable: WHITE_TCP_OUT"
+msgstr ""
+
+#. Type: string
+#. Description
+#. Type: string
+#. Description
+#. Type: string
+#. Description
+#. Type: string
+#. Description
+#. Type: string
+#. Description
+#. Type: string
+#. Description
+#: ../templates:22001 ../templates:23001 ../templates:24001 ../templates:25001
+#: ../templates:26001 ../templates:27001
+msgid ""
+"Whitelist ports by port number or with the associated service name. Port "
+"ranges are specified in the format \"port:port\". Up to 15 ports can be "
+"specified. A port range (port:port) counts as two ports."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:22001
+msgid ""
+"Common ports:\n"
+"  80 - http\n"
+" 443 - https\n"
+"  22 - ssh\n"
+" 993 - SSL IMAP"
+msgstr ""
+
+#. Type: string
+#. Description
+#. Type: string
+#. Description
+#. Type: string
+#. Description
+#. Type: string
+#. Description
+#. Type: string
+#. Description
+#. Type: string
+#. Description
+#: ../templates:22001 ../templates:23001 ../templates:24001 ../templates:25001
+#: ../templates:26001 ../templates:27001
+msgid ""
+"Seperate multiple entries with whitespace (\" \"). Do not use surrounding "
+"\"quotes\". Be careful: senseless values are also accepted."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:23001
+msgid "Whitelist outgoing UDP ports:"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:23001
+msgid "Configuration variable: WHITE_UDP_OUT"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:24001
+msgid "Whitelist incoming TCP ports:"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:24001
+msgid "Configuration variable: WHITE_TCP_IN"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:25001
+msgid "Whitelist incoming UDP ports:"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:25001
+msgid "Configuration variable: WHITE_UDP_IN"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:26001
+msgid "Whitelist forwarded TCP ports:"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:26001
+msgid "Configuration variable: WHITE_TCP_FORWARD"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:27001
+msgid "Whitelist forwarded UDP ports:"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:27001
+msgid "Configuration variable: WHITE_UDP_FORWARD"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:28001
+msgid "Set the automatic whitelisting options:"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:28001
+msgid "Configuration variable: WHITE_LOCAL"
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:28001
+msgid ""
+"The default is to automatically whitelist LAN, DNS server and loopback "
+"device. This is the recommended setting if you are at home."
+msgstr ""
+
+#. Type: select
+#. Description
+#: ../templates:28001
+msgid ""
+"If you are on a public LAN, you probably want it checked by the IPblocker. "
+"So choose to only whitelist the DNS server and the loopback device then."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:29001
+msgid "Add a line to the allowlist:"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:29001
+msgid ""
+"Any value given here will be added to the allow list (per default this is /"
+"etc/blockcontrol/allow.p2p). Lines in the allow list must be in the "
+"PeerGuardian .p2p text format:\n"
+"  Some organization:1.0.0.0-1.255.255.255"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:29001
+msgid "This is also true if your blocklists are in another format."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:29001
+msgid ""
+"You can whitelist more IP ranges by adding them to /etc/blockcontrol/allow."
+"p2p."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:30001
+msgid "Remove lines from the blocklist:"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:30001
+msgid "Configuration variable: IP_REMOVE"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:30001
+msgid ""
+"Remove lines from the blocklist matching the specified pattern (the search "
+"pattern is case-insensitive)."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:30001
+msgid ""
+"Seperate patterns with a semicolon \";\". Do not use surrounding \"quotes\". "
+"Be careful: senseless values are also accepted."
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:30001
+msgid ""
+"Example:\n"
+" google;yahoo;altavista;debian;sourceforge"
+msgstr ""
+
+#. Type: string
+#. Description
+#: ../templates:30001
+msgid ""
+"Warning for beginners: If you want to whitelist a special IP then use the "
+"allowlist. If you specify an IP here you will most likely fail."
+msgstr ""

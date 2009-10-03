@@ -1,0 +1,71 @@
+#!/bin/sh
+# blockcontrol.main: blockcontrol configuration script
+#
+# Copyright (C) 2005 - 2009 jre <jre-phoenix@users.sourceforge.net>
+# Parts and ideas from JFM, /meth/usr, lestlest (clessing), Morpheus and
+# perhaps others. More Info: http://forums.phoenixlabs.org
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+CONTROL_DEFAULTS="/usr/lib/blockcontrol/blockcontrol.defaults"
+
+# Set LC_ALL environment variable to the value C, to achieve a consistent grep behaviour.
+export LC_ALL=C
+
+# Load default configuration.
+if [ -f "$CONTROL_DEFAULTS" ] ; then
+	. $CONTROL_DEFAULTS || { echo "$0 Error: Failed to source $CONTROL_DEFAULTS although this file exists."; exit 1; }
+else
+	echo "$0: Missing file $CONTROL_DEFAULTS (Error 7)."
+	exit 7
+fi
+
+# Check what daemon is installed in PATH and set variables accordingly.
+IFS=":"
+for PATH_I in $PATH ; do
+	if [ -x "$PATH_I/moblock" ] ; then
+		NAME="moblock"
+		DAEMON="$PATH_I/moblock"
+		PIDFILE="/var/run/moblock.pid"
+		break
+	elif [ -x "$PATH_I/nfblockd" ] ; then
+		NAME="nfblockd"
+		DAEMON="$PATH_I/nfblockd"
+		PIDFILE="/var/run/nfblockd.pid"
+		break
+	fi
+done
+IFS=$STDIFS
+
+# Load user configuration. This overwrites the above values.
+if [ -f "$CONTROL_CONF" ] ; then
+	. $CONTROL_CONF || echo "$0 Warning: Failed to source $CONTROL_CONF although this file exists."
+fi
+
+# Load blockcontrol library.
+if [ -f "$CONTROL_LIB" ] ; then
+	. $CONTROL_LIB || { echo "$0 Error: Failed to source $CONTROL_LIB although this file exists."; exit 1; }
+else
+	echo "$0: Missing file $CONTROL_LIB (Error $E_XFILE)."
+	exit $E_XFILE
+fi
+
+# Load LSB init-functions shell library
+# Debian: Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
+# In blockcontrol.lib there's a modified copy of the Debian init-functions, as a
+# fallback, which will be overwritten by the following functions.
+if [ -f "$LSB" ] ; then
+	. $LSB || echo "$0 Warning: Failed to source $LSB although this file exists."
+fi

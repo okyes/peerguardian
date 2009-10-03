@@ -1,0 +1,450 @@
+README.blocklists              Mon Jan  5 02:07:24 CET 2009
+
+============================================================
+
+Table of contents:
+
+Introduction
+Note about different blocklist formats
+Lists from bluetack.co.uk
+Lists from The Blocklist Group
+Lists from nexus23.org
+Lists from IBlocklist.com
+Lists from blocklist.org
+Lists from peerguardian.sourceforge.net
+Local (custom) blocklists
+
+============================================================
+
+Introduction:
+
+This text shall help you to decide what blocklists you use. Just add the URLs of
+the blocklists that you want to use to "/etc/blockcontrol/blocklists.list".
+Afterwards do a "blockcontrol reload" to add the new blocklists to your master
+blocklist.
+It is your decision what blocklists you want to use. There might be other (good
+or even better) blocklists that I don't know. The blocklist descriptions in here
+are by the blocklist authors, not me.
+Only use the blocklists that you need. More is not always better! You may also
+use "blockcontrol search PATTERN" to examine the single blocklists.
+
+============================================================
+
+Note about different blocklist formats:
+
+MoBlock supports several blocklist formats. YOU CAN´T USE DIFFERENT BLOCKLIST
+FORMATS AT THE SAME TIME. You need to tell MoBlock in
+/etc/blockcontrol/blockcontrol.conf in which format the lists are.
+
+The following formats are supported:
+- eMule ipfilter.dat
+- peerguardian .p2p text format (guarding.p2p)
+- peerguardian .p2b v2 binary format (guarding.p2b)
+
+eMule ipfilter.dat example:
+001.000.000.000 , 001.255.255.255 , 100 , Some organization
+008.000.000.000 , 008.255.255.255 , 100 , Another organization
+
+peerguardian .p2p text format (guarding.p2p):
+Some organization:1.0.0.0-1.255.255.255
+Another organization:8.0.0.0-8.255.255.255
+
+============================================================
+
+Lists from The Blocklist Group
+
+For up to date information see here:
+http://tbg.iblocklist.com/pages/faq.html
+
+Lists are in here:
+http://tbg.iblocklist.com/Lists/
+
+Per default, blockcontrol uses mirrored blocklists from iblocklist.com,
+instead of the original ones from tbg.iblocklists.com. Don't use both!
+
+Lists from The Blocklist Group in peerguardian ’.p2p’ text format (guarding.p2p)
+
+
+Primary Threats List
+--
+http://tbg.iblocklist.com/Lists/PrimaryThreats.zip
+--
+Companies or organizations who are clearly involved with trying to stop
+filesharing (e.g. Baytsp, MediaDefender, MediaSentry).
+Companies which anti-p2p activity has been seen from.
+Companies that produce or have a strong financial interest in copyrighted
+material(e.g. music, movie and software industries).
+Government ranges or companies that have a strong financial interest in doing
+work for governments.
+Legal industry ranges.
+IPs addresses or ranges of ISPs from which anti-p2p activity has been observed.
+--
+The contents of this list will be similar to what we included on the Level 1
+list in our time at Bluetack.
+Notable differences are things such as the inclusion of Microsoft on this list
+as well as America Online Corporate ranges.
+We feel that companies such as Microsoft and Time Warner are far too dangerous
+to p2p users to consider the blocking of their ranges to be optional during p2p,
+even at the expense of user convenience of their services.
+Protection is, and always will be, our only concern when it comes to the content
+of our lists.
+
+
+General Corporate Ranges List
+--
+http://tbg.iblocklist.com/Lists/GeneralCorporateRanges.zip
+--
+Ranges for any company or organization which does not meet the requirements for
+the Primary Threats List.
+Ranges used by labs or researchers.
+Proxies.
+--
+The contents of this list will be similar to what we included on the Level 2
+list in our time at Bluetack.
+We decided to also include the contents of the Ad Trackers, Spyware Lists to
+this list to simplify matters.
+
+
+Business ISP List
+--
+http://tbg.iblocklist.com/Lists/BusinessISPs.zip
+--
+Ranges for ISPs which serve corporate and governmental customers.
+Ranges for residential users where anti-p2p activity has been observed.
+--
+The contents of this list will be similar to what was included on the Range
+Testing and Level 3 lists in our time at Bluetack.
+We intend to be much more aggressive in adding business ISPs to this list than
+we were in adding things to testing and L3.
+Additionally, we are no longer going to include certain types of ranges which we
+had previously to the Level 3 list, such as America Online users, Sony
+residential users and the residential users from municipal ISPs.
+
+
+Search Engines List
+--
+http://tbg.iblocklist.com/Lists/SearchEngines.zip
+--
+Ranges for search engine companies and various other spiders which roam the net.
+--
+The contents of this list will be similar to what we included on the Spiders
+list in our time at Bluetack.
+
+
+Educational Institutions List
+--
+http://tbg.iblocklist.com/Lists/Educational-Institutions.zip
+--
+Ranges for Colleges, schools K-12, etc
+--
+One difference on how we intend on handling certain EDU Ranges differently, is
+that we want to have ranges used only by bureaucrats, and not by students, on
+the Primary Threats List and treat them like ranges used by any other government
+employees.
+
+
+Bogon List
+--
+http://tbg.iblocklist.com/Lists/Bogon.zip
+--
+This list contains ranges from which no traffic should be appearing on the
+internet.
+These ranges are either for internal use of some sort or are address space not
+currently in use.
+Be aware that If you have a router, you will need to make exclusions for it and
+any other addresses on your LAN.
+--
+Our Bogon list differs from that of the one we offered at Bluetack in that the
+ranges from the various IANA lists and the Non-Lan list are all included on a
+single list.
+
+
+Hijacked List
+--
+http://tbg.iblocklist.com/Lists/Hijacked.zip
+--
+The ranges on this list have been hijacked by people who are spammers, generally
+up to no good, and who may be involved with other activities which are a threat.
+
+
+Filter (sum of other lists, don't use this additionally to the other lists)
+--
+http://tbg.iblocklist.com/Lists/safepeer.zip
+--
+What goes on the filters?
+    * Primary Threats List
+    * General Corporate Ranges List
+    * Business ISP List
+    * Search Engines List
+    * Bogon List
+    * Hijacked List
+    * Bluetack's Proxy List
+    * Bluetack's Dshield List
+--
+We have decided to offer only one version of each filter. We have also decided
+to exclude the Educational Institutions list in order to encourage the use of a
+filter which blocks business ISPs, which we all feel is very important to do. We
+expect that many more people will be willing to use a filter which blocks hard
+in that area if it excludes the blocking of students, such as Bluetack's
+Paranoid filter does.
+
+
+============================================================
+
+
+Lists from The Blocklist Group in eMule ’ipfilter.dat’ format:
+
+Filter (sum of other lists, don't use this additionally to the other lists)
+--
+http://tbg.iblocklist.com/Lists/ipfilter.dat.gz
+--
+What goes on the filters?
+    * Primary Threats List
+    * General Corporate Ranges List
+    * Business ISP List
+    * Search Engines List
+    * Bogon List
+    * Hijacked List
+    * Bluetack's Proxy List
+    * Bluetack's Dshield List
+--
+We have decided to offer only one version of each filter. We have also decided
+to exclude the Educational Institutions list in order to encourage the use of a
+filter which blocks business ISPs, which we all feel is very important to do. We
+expect that many more people will be willing to use a filter which blocks hard
+in that area if it excludes the blocking of students, such as Bluetack's
+Paranoid filter does.
+
+============================================================
+
+
+Lists from bluetack.co.uk
+
+For up to date information see here:
+http://www.bluetack.co.uk/forums/index.php?autocom=faq&CODE=02&qid=17
+
+Per default, blockcontrol uses mirrored blocklists from iblocklist.com,
+instead of the original ones from bluetack.co.uk. Don't use both!
+
+
+Lists in peerguardian ’.p2p’ text format (guarding.p2p)
+
+http://www.bluetack.co.uk/config/level1.gz
+Companies or organizations who are clearly involved with trying to stop
+filesharing (e.g. Baytsp, MediaDefender, Mediasentry a.o.).
+Companies which anti-p2p activity has been seen from.
+Companies that produce or have a strong financial interest in copyrighted
+material (e.g. music, movie, software industries a.o.).
+Government ranges or companies that have a strong financial interest in doing
+work for governments.
+Legal industry ranges.
+IPs or ranges of ISPs from which anti-p2p activity has been observed. Basically
+this list will block all kinds of internet connections that most people would
+rather not have during their internet travels.
+For more information on this list check the Anti-P2P & Fake Files Research
+Section on the forum.
+PLEASE NOTE: The Level1 list is recommended for general P2P users, but it all
+comes down to your personal choice.
+
+
+http://www.bluetack.co.uk/config/level2.gz
+General corporate ranges.
+Ranges used by labs or researchers.
+Proxies.
+
+
+http://www.bluetack.co.uk/config/level3.gz
+Many portal-type websites.
+ISP ranges that may be dodgy for some reason.
+Ranges that belong to an individual, but which have not been determined to be
+used by a particular company.
+Ranges for things that are unusual in some way. The L3 list is aka the
+paranoid list.
+
+
+http://www.bluetack.co.uk/config/spyware.gz
+This list is a compilation of known malicious SPYWARE and ADWARE IP Address
+ranges.
+It is compiled from various sources, including other available Spyware
+Blacklists, HOSTS files, from research found at many of the top Anti-Spyware
+forums, logs of Spyware victims and also from the Malware Research Section
+here at Bluetack.
+For more information on this list check our Malware IP Research Section on the
+forum.
+
+
+http://www.bluetack.co.uk/config/dshield.gz
+This list contains known Hackers and such people in it.
+More information can be found at the DShield Website 
+
+
+http://www.bluetack.co.uk/config/Microsoft.gz
+This list covers the known Microsoft Corp ranges that are not on Level1, as
+well as their known associated IP ranges from around the world.
+
+
+http://www.bluetack.co.uk/config/ads-trackers-and-bad-pr0n.gz
+This list is constructed to block connections from advertising - marketing
+research data tracking sites, bad pop-ups...
+For more information check out the General IP Research Section on our forum.
+
+
+http://www.bluetack.co.uk/config/edu.gz
+This list contains known Educational Institutions - University IP ranges -
+Educational Networks - School Districts a.o..
+
+
+http://www.bluetack.co.uk/config/proxy.gz
+This list has been compiled from a list of Tor servers and various other proxy
+servers.
+
+
+http://www.bluetack.co.uk/config/spider.gz
+Automated software programs also known as spiders or bots, survey the Web and
+build their databases for search engines and some are used to track people down
+to automatically serve them with copyright violation notices. This list is
+intended to be used by webmasters to block hostile spiders from their web
+sites.
+For more information on this list check out the Webspiders and Bots Sticky
+PLEASE NOTE: Google and other search engines are blocked by this list.
+
+
+http://www.bluetack.co.uk/config/rangetest.gz
+This list contains addresses of suspicious IP's that are under investigation.
+If you see hits that looks suspicious, please report it to the Range Testing
+Report Section of the forum please.
+
+
+http://www.bluetack.co.uk/config/iana-multicast.gz
+http://www.bluetack.co.uk/config/iana-private.gz
+http://www.bluetack.co.uk/config/iana-reserved.gz
+These are the Internet Assigned Numbers Authority lists. They are for reserved
+listings and IP addresses that are supposedly not in use as of yet. This list
+(IANA Private) and possibly the other IANA lists contain IP Ranges that will
+conflict with your connection if you are one a home network or a company
+network. You should add the IPs or Ranges that belong to your network to your
+Exclusions list in the Blocklist Manager.
+More information on IANA can be found in the Bluetack IANA FAQ
+Another important post for additional information about common IP ranges you
+may have trouble with and need to unblock to prevent internet connection issues
+is our IANA Sticky 
+
+
+http://www.bluetack.co.uk/config/bogon.gz
+Contains known Bogon IP-Blocks.
+What is a bogon and why should it be blocked?
+Note: We do not use the completeWhois bogons list any longer we have switched
+to: http://www.cidr-report.org/bogons/freespace-prefix.txt
+From CompleteWhois:
+Bogons is the name used to describe IP blocks not allocated by IANA and RIRs to
+ISPs and organizations plus all other IP blocks that are reserved for private
+or special use by RFCs (the actual term bogons comes from word bogus, as in
+bogus IP announcements). As these IP blocks are not allocated or specially
+reserved, such IP blocks should not be routable and used on the internet,
+however some of these IP blocks do appear on the net primarily used by those
+individuals and organizations that are often specifically trying to avoid being
+identified and are often involved in such activities as DoS attacks, email
+abuse, hacking and other security problems. These activities obviously pose
+great danger to everyone and ISPs should try to filter all these bad IP routes
+and we are trying to help in that by working to create complete detailed list
+of unassigned bogon ips based on whois data.
+In other words, if you get hit by an IP address from this range, then they have
+spoofed their IP address and they, most likely, are trying to do something
+untoward.
+
+
+http://www.bluetack.co.uk/config/hijacked.gz
+Contains hijacked IP-Blocks and known IP-Blocks that are used to deliver Spam.
+This list is a combination of lists with hijacked IP-Blocks
+What is a Hijacked IP Block and why would I want to block it?
+From CompleteWhois:
+Hijacked IP space are IP blocks that are being used without permission by
+organizations that have no relation to original organization (or its legal
+successor) that received the IP block. In essence it's stealing of somebody
+else's IP resources
+These ranges are being used illegally and are most likely being used for
+illegal activities. They should not be being used and should therefore be
+blocked.
+
+
+http://www.bluetack.co.uk/config/fornonlancomputers.gz
+This list blocks LAN [Local Area Network] IP ranges. It is only recommended for
+use by people that do not have home networks and want to block the IANA Private
+address ranges which should not be used on the internet.
+
+http://www.bluetack.co.uk/config/badpeers.gz
+(previously known as http://www.bluetack.co.uk/config/templist.gz)
+This is a list of people who have been reported for sending corrupt data on
+p2p, having files that contain viruses and many other things.
+
+
+============================================================
+
+
+Lists from bluetack.co.uk in eMule ’ipfilter.dat’ format:
+
+http://www.bluetack.co.uk/config/nipfilter.dat.gz
+http://www.bluetack.co.uk/config/pipfilter.dat.gz
+
+These lists are no more provided since December 2008.
+
+============================================================
+
+Lists from nexus23.org
+
+http://nexus23.org/warfare/programs/peerguardian/ipfilterX.p2p
+IpfilterX blocks Anti-P2P companies and the organizations that support them,
+Corporations, Military Ranges, Government Agencies, Law Firms, P2P spammers and
+many more.
+There's no need to block more than 1 billion of IPs to be protected, overloading
+further to a certain value will result in banning innocent IP ranges which means
+legitimate P2P sources, this paranoid setting will hog your machine. You won't
+run into risks using IpfilterX and won't run into more risks than using an
+overbloated ipfilter.
+
+
+============================================================
+
+Lists from IBlocklist.com
+
+I-Blocklist is a site dedicated to the creation and distribution of quality IP
+lists for use with IP blockers. It offers mirrors of all/most other blocklists,
+game allow lists, country lists and more.
+
+Per default, blockcontrol uses these mirrored blocklists from iblocklist.com,
+instead of the original ones from bluetack.co.uk and tbg.iblocklist.com. Don't
+use both.
+
+
+============================================================
+
+
+Lists from blocklist.org:
+
+Once there was a project by phoenixlabs.org to create their own blocklists.
+This project is currently dead and the domain blocklist.org is owned by someone
+else.
+
+
+============================================================
+
+
+Lists from peerguardian.sourceforge.net:
+
+Currently the lists at http://peerguardian.sourceforge.net/lists/ are php
+redirects to copies of some lists from bluetack.co.uk (This means they are 100%
+identical). Do not use both sources at the same time, because this will only
+cause unnecessary traffic.
+
+
+============================================================
+
+
+Local (custom) blocklists:
+
+Put a line starting with "locallist" and the pathname of your local blocklist
+to /etc/blockcontrol/blocklists.list.
+Of course your local blocklist has to be in the same format as your other
+blocklists and the corresponding option has to be given in blockcontrol.conf.
+
+============================================================

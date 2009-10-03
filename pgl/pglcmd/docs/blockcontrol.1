@@ -1,0 +1,313 @@
+.\" Last modified by jre <jre-phoenix@users.sourceforge.net>:
+.\" Sun May  3 11:36:42 CEST 2009
+.\" Sun Nov 18 00:14:09 CET 2007: jre <jre-phoenix@users.sourceforge.net>
+.\" based on the moblock man page started by sloter <laurent at sloter.org>
+.\"
+.\"   This documentation is free software; you can redistribute it and/or modify
+.\"   it under the terms of the GNU General Public License as published by
+.\"   the Free Software Foundation; either version 2 of the License, or
+.\"   (at your option) any later version.
+.\" 
+.\"   This documentation is distributed in the hope that it will be useful,
+.\"   but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\"   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\"   GNU General Public License for more details.
+.\"
+.\"   You should have received a copy of the GNU General Public License with
+.\"   the Debian GNU/Linux distribution in file /usr/share/common-licenses/GPL;
+.\"   if not, write to the Free Software Foundation, Inc., 59 Temple Place,
+.\"   Suite 330, Boston, MA  02111-1307  USA
+.TH BLOCKCONTROL 1 "2009-08-21" "Version 1.6" "blockcontrol Manual"
+
+.SH NAME
+blockcontrol \- handling IP blockers.
+
+.SH SYNOPSIS
+.B blockcontrol
+OPTION
+.PP
+.B blockcontrol
+search PATTERN
+
+.SH DESCRIPTION
+.B blockcontrol 
+is designed to do all tasks related to IP blockers (MoBlock or NFBlock):
+.IP \(em 3
+Start and stop IP block daemon. Or let init do this automatically.
+.IP \(em 3
+Update your blocklist from online sources and local blocklists. Or let cron do
+this automatically on a regular basis. Use backups if anything goes wrong.
+.IP \(em 3
+Examine your selected blocklists by searching the single blocklists for
+keywords.
+.IP \(em 3
+Remove lines by keyword from the blocklists.
+.IP \(em 3
+Handle your iptables rules: use a default setup, easily allow all traffic on
+specific ports and use an allow list, or add your own sophisticated iptables
+rules.
+.IP \(em 3
+Allow all LAN traffic and the DNS server automatically. If you are on a public
+LAN, you probably want to disable this feature.
+.IP \(em 3
+Check the status and test the IP block daemon.
+.IP \(em 3
+A watchdog monitors the IP block daemon.
+.IP \(em 3
+Detects if kernel modules are needed and loads them if necessary.
+.IP \(em 3
+Set verbosity and logging options.
+.IP \(em 3
+Provides LSB 3.1 compatible init script.
+.IP \(em 3
+Daily rotation of the logfiles.
+
+.SH OPTIONS
+.TP
+.B start
+inserts iptables rules, starts the IP block daemon and the watchdog. If the
+blocklist configuration changed, rebuilds the master blocklist.
+.TP
+.B stop
+deletes iptables rules and stops the IP block daemon.
+.TP
+.B start_wd
+starts the watchdog. Don´t start blockcontrol.wd directly. Remember that per
+default the watchdog gets started automatically on start. The watchdog checks in
+regular intervals (per default 5 minutes) if some of the necessary iptables
+rules exist and if the daemon is responsive. If one of these tests fails, it
+restarts blockcontrol. This is especially useful, if you have other firewall
+applications running, because they often mess up the iptables rules, which can
+be fixed by restarting blockcontrol. Unfortunately this manual action is often
+forgotten.
+.TP
+.B stop_wd
+stops the watchdog.
+.TP
+.B restart
+restarts the IP block daemon.
+.TP
+.B reload
+rebuilds the master blocklist and reloads the IP block daemon if it is running.
+.TP
+.B update
+updates the blocklists, rebuilds the master blocklist and reloads the IP block
+daemon.
+.TP
+.B status
+gives the iptables settings and the status of the IP block daemon.
+.TP
+.B test
+does a simple test to check if the IP block daemon is working (pings a random
+IP in the blocklist and checks if this IP was logged in the block daemons
+logfile and if it answered).
+.TP
+.B search
+Outputs the occurences of a keyword and the names of the single blocklists.
+.TP
+.B stats
+reports MoBlock's statistics.
+.TP
+.B reset_stats
+resets MoBlock's statistics.
+.TP
+.B show_config
+shows the current configuration settings.
+.TP
+Note for blocklist operations: When the master blocklist is built, missing
+single blocklists are downloaded. If any blocklist fails to download, and if
+there is no old version available, the operation aborts. If a downloaded
+blocklist fails to extract, it is deleted and the operation aborts.
+
+.SH CONFIGURATION
+.P
+Blocklists are configured in \fIblocklists.list\fR
+(/etc/blockcontrol/blocklists.list).
+.P
+The allow list is \fIallow.p2p\fR (/etc/blockcontrol/allow.p2p). Per default,
+the allowlist is used for incoming and outgoing connections. If desired
+different allow lists for incoming, outgoing and forward connections may be
+used.
+.P
+The rest is done in \fIblockcontrol.conf\fR
+(/etc/blockcontrol/blockcontrol.conf). Refer to blockcontrol.defaults
+(/usr/lib/blockcontrol/blockcontrol.defaults) for the complete set of possible
+configuration variables with comments.
+
+.SH RETURN VALUES
+\fIblockcontrol status\fR gives you the following return values:
+.IP
+.B 0
+IP block daemon is running
+.br
+.B 1
+IP block daemon is dead and pidfile exists
+.br
+.B 3
+IP block daemon is not running
+.br
+.B 4
+IP block daemon is unknown
+.PP
+\fIblockcontrol test\fR gives you the following return values:
+.IP
+.B 0
+test succeeded
+.br
+.B 1
+test failed
+.br
+.B 2
+not testable
+.PP
+
+.SH EXIT STATUS 
+.IP
+.B 2
+The IP block daemon was started with bad arguments
+.br
+.B 4
+User is not root
+.br
+.B 5
+The IP block daemon is not installed
+.br
+.B 6
+blockcontrol is not configured correctly
+.br
+.B 7
+File is missing/has wrong mode
+.br
+.B 8
+iptables command failed
+.br
+.B 9
+blocklist is not available or blocklist archive is corrupted
+.br
+.B 66
+Directory is missing
+.br
+.B 170
+External binary or function is missing
+.br
+.B 171
+Testhost (serving the default blocklists) is not reachable
+
+.SH FILES
+.IP /usr/bin/blockcontrol
+The shell script \fBblockcontrol\fR.
+.IP /usr/lib/blockcontrol/blockcontrol.main
+The core of all executable scripts.
+.IP /usr/lib/blockcontrol/blockcontrol.defaults
+Default settings for all variables and pathnames.
+.IP /usr/lib/blockcontrol/blockcontrol.lib
+Library for blockcontrol.main.
+.IP /etc/blockcontrol/blocklists.list
+Lists all blocklists that are used (and downloaded) by \fBblockcontrol\fR
+for use by the IP block daemon.
+.IP /etc/blockcontrol/blockcontrol.conf
+The user configuration file for \fBblockcontrol\fR.
+.IP /etc/blockcontrol/allow.p2p
+The allow list in the peerguardian .p2p text format.
+.IP /etc/network/if-up.d/blockcontrol
+Gets executed whenever a network interface is brought up to make sure that the
+automatic whitelisting of LAN traffic and the DNS server does work.
+.IP /etc/blockcontrol/[NAME]insert.sh
+Script to insert custom iptables rules. Any script in /etc/blockcontrol/ (the
+directory is defined in IPTABLES_CUSTOM_DIR) that ends in insert.sh will be
+executed on every "blockcontrol start", if IPTABLES_SETTINGS="1" or "2" is
+configured.
+.IP /etc/blockcontrol/[NAME]remove.sh
+Script to delete custom iptables rules. Any script in /etc/blockcontrol/ (the
+directory is defined in IPTABLES_CUSTOM_DIR) that ends in remove.sh will be
+executed on every "blockcontrol stop", if IPTABLES_SETTINGS="1" or "2" is
+configured.
+.IP /etc/init.d/blockcontrol
+Starts the IP block daemon automatically on every bootup.
+.IP /etc/cron.daily/blockcontrol
+Updates the blocklists automatically.
+.IP /etc/logrotate.d/blockcontrol
+Rotates the logfiles daily.
+.IP /var/lib/blockcontrol/ipfilter.dat
+The master blocklist used by the IP block daemon if the blocklist is in eMule
+ipfilter.dat format.
+.IP /var/lib/blockcontrol/guarding.p2b
+The master blocklist used by the IP block daemon if the blocklist is in
+peerguardian .p2b v2 binary format.
+.IP /var/lib/blockcontrol/guarding.p2p
+The master blocklist used by the IP block daemon if the blocklist is in
+peerguardian .p2p text format.
+.IP /var/log/blockcontrol.log
+The log file of the \fBblockcontrol\fR script. This file contains amongst
+other things about starting/stopping the IP block daemon and updating the
+blocklists.
+.IP /var/spool/blockcontrol
+The single blocklists are downloaded and manipulated in subfolders of this
+folder.
+
+.SH WARNING: Users with firewall (iptables rules)
+\fBMoBlock\fR (since version 0.9) and NFBlock do not conflict with other
+firewalls. But if you use them, you have to take special care to  avoid
+severe conflicts. Make sure the following three conditions hold:
+.IP \(em 3
+The IP block daemon marks non-matched (IP is not in the blocklist) packets.
+(The marking feature is on per default.)
+.IP \(em 3
+Other firewalls do not mark packets.
+.IP \(em 3
+blockcontrol is started after other firewalls. If other firewalls are started/
+reloaded after blockcontrol, then you need to restart blockcontrol again. You
+will be fine, if the iptables rules which send traffic to the iptables chains
+(blockcontrol_in, blockcontrol_out and blockcontrol_fw) stand before all other
+iptables rules which ACCEPT traffic.
+.P
+.BR "blockcontrol.wd" "(1)" 
+restarts blockcontrol if it detects any problems.
+But the manual restart is still recommended.
+
+.SH NOTES
+.PP
+By default the IP block daemon will be started at every system boot up and the
+blocklists will be updated once a day.
+
+.SH TECHNICAL NOTE
+.PP
+The IP block daemons check traffic (packets) that is sent to the iptables
+NFQUEUE (or the deprecated QUEUE) target. If the necessary support is not built
+in the kernel directly, blockcontrol will load the necessary kernel modules.
+Up to MoBlock 0.8 packets that do not match the blocklist are ACCEPTed and
+packets that match the blocklist are DROPped.
+MoBlock (since 0.9) and NFBlock can also MARK packets, so that iptables rules
+that match this mark decide what happens with these packets. Per default
+marking is on.
+Marked packets repeat the hook function (NF_REPEAT). So they are sent back to
+the head of the iptables chain again. A packet may only bear one mark, so there
+mustn't be any other applications / iptables rules that mark packets. Otherwise
+the setup will not work and packets will loop forever.
+"Marked block" outgoing packets will be REJECTED, "Marked block" incoming and 
+forwarded packets will be DROPped. "Marked accept" packets will be ignored, so
+other iptables rules decide what happens to them.
+
+.SH HOMEPAGES
+.PP
+MoBlock - \fIhttp://moblock.berlios.de/\fR
+.PP
+NFBlock - \fIhttp://sites.google.com/site/makovick/nfblockd-daemon\fR
+.PP
+blockcontrol - \fIhttp://moblock-deb.sourceforge.net/\fR
+.PP
+PeerGuardian - \fIhttp://phoenixlabs.org/\fR
+
+.SH AUTHORS
+.PP
+blockcontrol was written by jre <jre-phoenix at users.sourceforge.net>.
+.PP
+This man page was written by sloter <laurent at sloter.org> and
+jre <jre-phoenix at users.sourceforge.net>
+.fi
+
+.SH SEE ALSO
+.BR "moblock" "(1), "
+.BR "/usr/share/doc/blockcontrol/README.blocklists" ", "
+.BR "mobloquer" "(1), "
+.BR "iptables" "(8)"
