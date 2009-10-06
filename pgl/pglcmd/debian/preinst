@@ -1,5 +1,5 @@
 #! /bin/sh
-# preinst script for blockcontrol
+# preinst script for pglcmd
 # see: dh_installdeb(1)
 
 set -e
@@ -16,36 +16,20 @@ set -e
 
 case "$1" in
 	install|upgrade)
-		# Move old moblock-control blocklists.list to new place (if old exists and new not yet).
-		if [ ! -f /etc/blockcontrol/blocklists.list ] && [ -f /etc/moblock/blocklists.list ] ; then
-			[ -d /etc/blockcontrol ] || ( \
-				echo -n "Creating directory /etc/blockcontrol" && \
-				mkdir /etc/blockcontrol && echo "."
-				)
-			echo -n "Adapting blocklists.list" && \
-			cat /etc/moblock/blocklists.list | \
-				sed "s|moblock-control|blockcontrol|" | \
-				sed "s|moblock.conf|blockcontrol.conf|" | \
-				sed "s|moblock|blockcontrol|" > /etc/blockcontrol/blocklists.list && \
-				rm /etc/moblock/blocklists.list && echo "."
-			echo -n "Adapting allow.p2p" && \
-			cat /etc/moblock/allow.p2p | \
-				sed "s| by Moblock||" | \
-				sed "s|MoBlock|blockcontrol|" | \
-				sed "s|moblock-control|blockcontrol|" > /etc/blockcontrol/allow.p2p && \
-				rm /etc/moblock/allow.p2p && echo "."
-		fi
-		# Remove old init files to prevent conflict with blockcontrol by several identical services.
-		for i in moblock moblock-nfq moblock-ipq ; do
+		# Remove other init files to prevent conflict with pglcmd by several identical services.
+		for i in blockcontrol moblock moblock-nfq moblock-ipq peerguardnf peerguardian ; do
 			if [ -x "/etc/init.d/$i" ] ; then
 				rm /etc/init.d/$i || exit $?
 				update-rc.d $i remove >/dev/null || exit $?
 			fi
 		done
 		# Remove old system files.
-		[ ! -f /etc/logrotate.d/moblock-control ] || rm /etc/logrotate.d/moblock-control
-		[ ! -f /etc/network/if-up.d/moblock ] || rm /etc/network/if-up.d/moblock
-		[ ! -f /etc/cron.daily/moblock ] || rm /etc/cron.daily/moblock
+        [ ! -f /etc/logrotate.d/moblock-control ] || rm /etc/logrotate.d/moblock-control
+        [ ! -f /etc/network/if-up.d/moblock ] || rm /etc/network/if-up.d/moblock
+        [ ! -f /etc/cron.daily/moblock ] || rm /etc/cron.daily/moblock
+        [ ! -f /etc/logrotate.d/blockcontrol ] || rm /etc/logrotate.d/blockcontrol
+        [ ! -f /etc/network/if-up.d/blockcontrol ] || rm /etc/network/if-up.d/blockcontrol
+        [ ! -f /etc/cron.daily/blockcontrol ] || rm /etc/cron.daily/blockcontrol
 		;;
 	abort-upgrade)
 		;;

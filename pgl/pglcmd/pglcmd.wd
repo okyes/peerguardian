@@ -1,5 +1,5 @@
 #!/bin/sh
-# blockcontrol.wd
+# pglcmd.wd
 # Copyright (C) 2009 jre <jre-phoenix@users.sourceforge.net>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -19,16 +19,16 @@
 set -e
 
 ################################################################################
-# The following code is common between blockcontrol, blockcontrol.wd,
+# The following code is common between pglcmd, pglcmd.wd,
 # cron.daily, init and debian/postinst.
 
 # if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
 # This can happen in early boot stages before local file systems are mounted.
 
 # CONTROL_MAIN has to be set correctly in all just mentioned files.
-CONTROL_MAIN="/usr/lib/blockcontrol/blockcontrol.main"
+CONTROL_MAIN="/usr/lib/pglcmd/pglcmd.main"
 
-# Configure blockcontrol and load functions.
+# Configure pglcmd and load functions.
 if [ -f "$CONTROL_MAIN" ] ; then
 	. $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
 else
@@ -36,7 +36,7 @@ else
 	exit 7
 fi
 
-# End of the common code between blockcontrol, blockcontrol.wd,
+# End of the common code between pglcmd, pglcmd.wd,
 # cron.daily, (if-up), init and debian/postinst.
 ################################################################################
 
@@ -50,7 +50,7 @@ test_root
 
 RETVAL=0
 
-# The iptables setup has to be done completely by blockcontrol
+# The iptables setup has to be done completely by pglcmd
 [ "$IPTABLES_SETTINGS" -gt 0 ] || {
 	log_failure_msg "Error $E_CONFIG: IPTABLES_SETTINGS has to be greater 0."
 	exit $E_CONFIG
@@ -88,21 +88,21 @@ while true ; do
 		# First check if the daemon is running.
 		status_of_proc $DAEMON $NAME > /dev/null 2>&1 && \
 		# Then check if traffic "might" be sent to the daemon.
-		iptables -L INPUT -n | grep "${CONTROL_NAME}_in" > /dev/null 2>&1 && \
-		iptables -L OUTPUT -n | grep "${CONTROL_NAME}_out" > /dev/null 2>&1 && \
-		iptables -L ${CONTROL_NAME}_in -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1 && \
-		iptables -L ${CONTROL_NAME}_out -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1
+		iptables -L INPUT -n | grep "${CMD_NAME}_in" > /dev/null 2>&1 && \
+		iptables -L OUTPUT -n | grep "${CMD_NAME}_out" > /dev/null 2>&1 && \
+		iptables -L ${CMD_NAME}_in -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1 && \
+		iptables -L ${CMD_NAME}_out -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1
 		# Not using "test" here, because ping fails if network is down,
 		# other iptables rules might block the test packet before it reaches
-		# blockcontrol or the test packet might be whitelisted.
+		# pglcmd or the test packet might be whitelisted.
 	} || {
 		echo "$0: $NAME does not block!"
 		echo "In most cases another firewall application did mess up our iptables rules."
-		echo "Remember to make a \"${CONTROL_NAME} restart\" whenever you start, stop or change"
+		echo "Remember to make a \"${CMD_NAME} restart\" whenever you start, stop or change"
 		echo "the configuration of your other firewall applications."
-		echo "To disable the watchdog set WATCHDOG=\"0\" in $CONTROL_CONF."
-		echo "Now restarting ${CONTROL_NAME} ..."
-		${CONTROL_NAME} restart
+		echo "To disable the watchdog set WATCHDOG=\"0\" in $CMD_CONF."
+		echo "Now restarting ${CMD_NAME} ..."
+		${CMD_NAME} restart
 	} || {
 		# We only end up here, if restart fails before it terminates the watchdog!
 		log_failure_msg "Failed! Stopping $(basename $WD_PATHNAME) now!"

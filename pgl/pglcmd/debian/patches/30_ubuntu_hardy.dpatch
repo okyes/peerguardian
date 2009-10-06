@@ -5,12 +5,12 @@
 ## DP: Fix for broken Ubuntu hardy and intrepid LSB init-functions
 
 @DPATCH@
-diff -urNad blockcontrol~/blockcontrol.defaults blockcontrol/blockcontrol.defaults
---- blockcontrol~/blockcontrol.defaults	2009-08-22 17:42:21.000000000 +0200
-+++ blockcontrol/blockcontrol.defaults	2009-08-24 17:54:16.000000000 +0200
+diff -urNad pglcmd~/pglcmd.defaults pglcmd/pglcmd.defaults
+--- pglcmd~/pglcmd.defaults	2009-08-22 17:42:21.000000000 +0200
++++ pglcmd/pglcmd.defaults	2009-08-24 17:54:16.000000000 +0200
 @@ -84,7 +84,8 @@
  # The path of the lsb init functions.
- # If you want to use only blockcontrol´s builtin LSB functions, you have to set
+ # If you want to use only pglcmd´s builtin LSB functions, you have to set
  # this to an empty value.
 -LSB="/lib/lsb/init-functions"
 +# Ubuntu Hardy's init-functions are broken, so just use the internal one's:

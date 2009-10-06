@@ -1,5 +1,5 @@
 #!/bin/sh
-# blockcontrol - script to manage IP block daemons (MoBlock and NFBlock)
+# pglcmd - script to manage IP block daemons (MoBlock and NFBlock)
 #
 # Copyright (C) 2005 - 2009 jre <jre-phoenix@users.sourceforge.net>
 # Parts and ideas from JFM, /meth/usr, lestlest (clessing), Morpheus and
@@ -20,16 +20,16 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ################################################################################
-# The following code is common between blockcontrol, blockcontrol.wd,
+# The following code is common between pglcmd, pglcmd.wd,
 # cron.daily, init and debian/postinst.
 
 # if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
 # This can happen in early boot stages before local file systems are mounted.
 
 # CONTROL_MAIN has to be set correctly in all just mentioned files.
-CONTROL_MAIN="/usr/lib/blockcontrol/blockcontrol.main"
+CONTROL_MAIN="/usr/lib/pglcmd/pglcmd.main"
 
-# Configure blockcontrol and load functions.
+# Configure pglcmd and load functions.
 if [ -f "$CONTROL_MAIN" ] ; then
 	. $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
 else
@@ -37,7 +37,7 @@ else
 	exit 7
 fi
 
-# End of the common code between blockcontrol, blockcontrol.wd,
+# End of the common code between pglcmd, pglcmd.wd,
 # cron.daily, (if-up), init and debian/postinst.
 ################################################################################
 
@@ -63,66 +63,66 @@ esac
 # And now, make this script usable:
 case "$1" in
 	'start')
-		test_CONTROL_LOG
+		test_CMD_LOG
 		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Starting $DESC" "$NAME"
-		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
-		do_start >> $CONTROL_LOG 2>&1
-		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
+		do_start >> $CMD_LOG 2>&1
+		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
 		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
 		;;
 	'stop')
-		test_CONTROL_LOG
+		test_CMD_LOG
 		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Stopping $DESC" "$NAME"
-		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
-		do_stop >> $CONTROL_LOG 2>&1
-		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
+		do_stop >> $CMD_LOG 2>&1
+		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
 		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
 		;;
 	'start_wd')
-		test_CONTROL_LOG
-		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Starting $CONTROL_NAME watchdog" "$(basename $WD_PATHNAME)"
-		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
-		do_start_wd >> $CONTROL_LOG 2>&1
-		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		test_CMD_LOG
+		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Starting $CMD_NAME watchdog" "$(basename $WD_PATHNAME)"
+		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
+		do_start_wd >> $CMD_LOG 2>&1
+		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
 		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
 		;;
 	'stop_wd')
-		test_CONTROL_LOG
-		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Stopping $CONTROL_NAME watchdog" "$(basename $WD_PATHNAME)"
-		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
-		do_stop_wd >> $CONTROL_LOG 2>&1
-		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		test_CMD_LOG
+		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Stopping $CMD_NAME watchdog" "$(basename $WD_PATHNAME)"
+		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
+		do_stop_wd >> $CMD_LOG 2>&1
+		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
 		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
 		;;
 	'restart')
-		test_CONTROL_LOG
+		test_CMD_LOG
 		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Restarting $DESC" "$NAME"
-		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
-		do_restart >> $CONTROL_LOG 2>&1
-		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
+		do_restart >> $CMD_LOG 2>&1
+		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
 		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
 		;;
 	'reload'|'force-reload')
-		test_CONTROL_LOG
+		test_CMD_LOG
 		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Reloading $DESC" "$NAME"
-		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
-		do_reload >> $CONTROL_LOG 2>&1
-		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
+		do_reload >> $CMD_LOG 2>&1
+		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
 		[ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
 		;;
 	'update'|'force-update')
-		test_CONTROL_LOG
+		test_CMD_LOG
 		[ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Updating blocklists and reloading $DESC" "$NAME"
-		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
 		if [ "$1" = "force-update" ] ; then
-			echo -n "Forcing update of all lists. Removing $BLOCKLISTS_DIR" >> $CONTROL_LOG
-			rm -rf $BLOCKLISTS_DIR >> $CONTROL_LOG 2>&1 \
-				|| { log_failure_msg " Error: rm exited with $?" >> $CONTROL_LOG ; exit 1; }
-			echo "." >> $CONTROL_LOG
+			echo -n "Forcing update of all lists. Removing $BLOCKLISTS_DIR" >> $CMD_LOG
+			rm -rf $BLOCKLISTS_DIR >> $CMD_LOG 2>&1 \
+				|| { log_failure_msg " Error: rm exited with $?" >> $CMD_LOG ; exit 1; }
+			echo "." >> $CMD_LOG
 		fi
-		update_blocklists >> $CONTROL_LOG 2>&1
-		do_reload >> $CONTROL_LOG 2>&1
-		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CONTROL_LOG 2>&1
+		update_blocklists >> $CMD_LOG 2>&1
+		do_reload >> $CMD_LOG 2>&1
+		date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
 		if [ "$VERBOSITY" -gt 0 ] ; then
 			log_end_msg $RETVAL
 			IFS=";"
@@ -207,12 +207,12 @@ case "$1" in
 		;;
 	'show_config')
 		echo "$(basename $0) current settings:"
-		# Read all variables that are defined in CONTROL_DEFAULTS
-		VARIABLES="$(grep -Ev "^[[:space:]]*#" $CONTROL_DEFAULTS | grep "=" | sed "s|=.*||" | sort -u)"
+		# Read all variables that are defined in CMD_DEFAULTS
+		VARIABLES="$(grep -Ev "^[[:space:]]*#" $CMD_DEFAULTS | grep "=" | sed "s|=.*||" | sort -u)"
 		for VAR in $VARIABLES ; do
 			eval VALUE=\$$VAR
 			# This gives the actually used value of the variable
-			# (not necessarily that which is set in CONTROL_DEFAULTS).
+			# (not necessarily that which is set in CMD_DEFAULTS).
 			echo ${VAR}=\"$VALUE\"
 		done
 		echo

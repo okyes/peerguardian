@@ -1,10 +1,10 @@
-# blockcontrol.defaults - default configuration file for blockcontrol
+# pglcmd.defaults - default configuration file for pglcmd
 
 # This file is sourced by a shell script. Any line which starts with a hash (#)
 # is a comment and is ignored.
 
-# This file sets sane defaults for blockcontrol, so do not modify it.
-# Write your changes to blockcontrol.conf (/etc/blockcontrol/blockcontrol.conf)
+# This file sets sane defaults for pglcmd, so do not modify it.
+# Write your changes to pglcmd.conf (/etc/pglcmd/pglcmd.conf)
 # instead.
 
 ################################ Paths and names ###############################
@@ -12,77 +12,69 @@
 # PATH has to be set here, nowhere else, for the automatic NAME detection.
 PATH="/usr/bin:/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
 
-# The name of the IP block daemon (moblock or nfblockd), its path and pidfile.
-# This is set automatically later, so you should not need to set them here.
-# If you experience problems, you may set *all 3 of them* in blockcontrol.conf.
-NAME="moblock"
-DAEMON="/usr/bin/moblock"
-PIDFILE="/var/run/moblock.pid"
-
 # The daemon description.
-DESC="IP block daemon"
+DESC="PeerGuardian Linux"
+# The daemon name.
+NAME="pgld"
+# The daemon path is set automatically later, so you should not need to set
+# it here. If you experience problems, you may set it in pglcmd.conf.
+DAEMON="/usr/bin/pgld"
+# The daemon pidfile path.
+PIDFILE="/var/run/pgld.pid"
 
-# MoBlock's daemon log (NFBlock always uses syslog)
-# You can turn off MoBlock's logging by setting DAEMON_LOG=""
-# Please note that "blockcontrol test" will not work then.
-DAEMON_LOG="/var/log/moblock.log"
+# The name of this software.
+CMD_NAME="pglcmd"
 
-# MoBlock's stat file (NFBlock doesn't have one).
-STATFILE="/var/log/MoBlock.stats"
+# The path of the pglcmd script.
+CMD_PATHNAME="/usr/bin/$CMD_NAME"
 
-# The name of this software
-CONTROL_NAME="blockcontrol"
-
-# The blockcontrol version. This is set to a numerical value automatically by
+# The pglcmd version. This is set to a numerical value automatically by
 # the maintainer scripts.
-VERSION=svn
+VERSION=git
 
-# The path of the blockcontrol script
-CONTROL_SCRIPT="/usr/bin/$CONTROL_NAME"
-
-# The path and pidfile of the blockcontrol.wd script
-WD_PATHNAME="/usr/bin/$CONTROL_NAME.wd"
+# The path and pidfile of the pglcmd.wd script
+WD_PATHNAME="/usr/bin/$CMD_NAME.wd"
 WD_PID="/var/run/$(basename $WD_PATHNAME).pid"
 
-# blockcontrol's log file
-CONTROL_LOG="/var/log/$CONTROL_NAME.log"
+# pglcmd's log file
+CMD_LOG="/var/log/$CMD_NAME.log"
 
-# The path to the blockcontrol library
-CONTROL_LIB="/usr/lib/$CONTROL_NAME/$CONTROL_NAME.lib"
+# The path to the pglcmd library
+CMD_LIB="/usr/lib/$CMD_NAME/$CMD_NAME.lib"
 
 # The path to the user configuration
-CONTROL_CONF="/etc/$CONTROL_NAME/$CONTROL_NAME.conf"
+CMD_CONF="/etc/$CMD_NAME/$CMD_NAME.conf"
 
 # The path of blocklists.list
-BLOCKLISTS_LIST="/etc/$CONTROL_NAME/blocklists.list"
+BLOCKLISTS_LIST="/etc/$CMD_NAME/blocklists.list"
 
 # The path of the master blocklist directory
-MASTER_BLOCKLIST_DIR="/var/lib/$CONTROL_NAME"
+MASTER_BLOCKLIST_DIR="/var/lib/$CMD_NAME"
 
 # The path of the directory where the blocklists are downloaded and manipulated
-BLOCKLISTS_DIR="/var/spool/$CONTROL_NAME"
+BLOCKLISTS_DIR="/var/spool/$CMD_NAME"
 
 # The path to the allow lists
 # Note that per default the same allow list is used for all input and output
 # connections, and is disabled for forward.
 # The path to the allow list for incoming connections
-ALLOW_IN="/etc/$CONTROL_NAME/allow.p2p"
+ALLOW_IN="/etc/$CMD_NAME/allow.p2p"
 # The path to the allow list for outgoing connections
-ALLOW_OUT="/etc/$CONTROL_NAME/allow.p2p"
+ALLOW_OUT="/etc/$CMD_NAME/allow.p2p"
 # The path to the allow list for forwarded connections.
-# Don't add your own IP / LAN there or MoBlock will not work at all for FORWARD.
+# Don't add your own IP / LAN there or pgl will not work at all for FORWARD.
 ALLOW_FW=""
 
 # The directory of the custom iptables scripts.
 # All files in this directory, that end in insert.sh/remove.sh will be executed
-# on "blockcontrol start/stop", if IPTABLES_SETTINGS is 1 or 2.
-IPTABLES_CUSTOM_DIR="/etc/$CONTROL_NAME"
+# on "pglcmd start/stop", if IPTABLES_SETTINGS is 1 or 2.
+IPTABLES_CUSTOM_DIR="/etc/$CMD_NAME"
 
 # The path of the file with the md5sum of all blocklist configurations
 MD5SUM_FILE="$BLOCKLISTS_DIR/MD5SUM"
 
 # The path of the lsb init functions.
-# If you want to use only blockcontrol´s builtin LSB functions, you have to set
+# If you want to use only pglcmd´s builtin LSB functions, you have to set
 # this to an empty value.
 LSB="/lib/lsb/init-functions"
 
@@ -116,12 +108,12 @@ INIT="1"
 # 1 - Update the blocklists automatically
 CRON="1"
 
-# Turn on/off blockcontrol.wd.
+# Turn on/off pglcmd.wd.
 # 0 - Don't use watchdog
 # 1 - Start watchdog
 WD="1"
 
-# Set the interval in seconds in which blockcontrol.wd checks if the
+# Set the interval in seconds in which pglcmd.wd checks if the
 # blocking works.
 WD_SLEEP="300"
 
@@ -137,19 +129,19 @@ NICE_LEVEL="5"
 
 # You may specify additional options for wget for the blocklist download here.
 # Note: In this variable the download application (wget) must be contained! Some
-# options are hardcoded in blockcontrol.lib and so are not changeable here.
-# The default options make sure that blockcontrol plays nice with the list
+# options are hardcoded in pglcmd.lib and so are not changeable here.
+# The default options make sure that pglcmd plays nice with the list
 # servers.
 # For example you may specify a proxy:
-# WGET_OPTS="http_proxy=URL wget -q -t 5 -T 120 -w 5 --user-agent=${CONTROL_NAME}/${VERSION}"
-WGET_OPTS="wget -q -t 5 -T 120 -w 5 --user-agent=${CONTROL_NAME}/${VERSION}"
+# WGET_OPTS="http_proxy=URL wget -q -t 5 -T 120 -w 5 --user-agent=${CMD_NAME}/${VERSION}"
+WGET_OPTS="wget -q -t 5 -T 120 -w 5 --user-agent=${CMD_NAME}/${VERSION}"
 
 # Before updating the blocklists check if this host is reachable
 TESTHOST="iblocklist.com"
 
 # Set your own options to start the daemon.
 # Warning: Do not change this, unless you know what you are doing.
-# Have a look at the code in blockcontrol.lib to understand how it is used.
+# Have a look at the code in pglcmd.lib to understand how it is used.
 CUSTOM_DAEMON_OPTS=""
 
 ################## Settings for the iptables firewall rules ###################
@@ -157,8 +149,8 @@ CUSTOM_DAEMON_OPTS=""
 # The IP block daemons check traffic in userspace. Iptables rules decide which
 # traffic gets there.
 
-# Do a "blockcontrol stop" before you change these iptables settings and a
-# "blockcontrol start" afterwards.
+# Do a "pglcmd stop" before you change these iptables settings and a
+# "pglcmd start" afterwards.
 
 # Set the iptables target for sending traffic to userspace.
 # NFQUEUE - available since kernel version 2.6.13
@@ -172,23 +164,23 @@ NFQUEUE_NUMBER="92"
 # Set how traffic is sent to the IP block daemon.
 # 0 - Don't set any iptables rules.
 #     You or another script/firewall has to do this!
-# 1 - Place the iptables rules in separate iptables chains (blockcontrol_in,
-#     blockcontrol_out and blockcontrol_fw). Afterwards the custom iptables
+# 1 - Place the iptables rules in separate iptables chains (pglcmd_in,
+#     pglcmd_out and pglcmd_fw). Afterwards the custom iptables
 #     scripts will be executed (if they exist).
 # 2 - Only set custom iptables rules
-#     (/etc/blockcontrol/iptables-custom-insert.sh and
-#     /etc/blockcontrol/iptables-custom-remove.sh)
+#     (/etc/pglcmd/iptables-custom-insert.sh and
+#     /etc/pglcmd/iptables-custom-remove.sh)
 IPTABLES_SETTINGS="1"
 
 # Activate the iptables chains?
 # This section works only for IPTABLES_SETTINGS="1"
 # 0 - Do nothing. You or another script/firewall has to do this!
-# 1 - Send all NEW traffic to the iptables chains (blockcontrol_in,
-#     blockcontrol_out and blockcontrol_fw). These iptables rules are inserted
+# 1 - Send all NEW traffic to the iptables chains (pglcmd_in,
+#     pglcmd_out and pglcmd_fw). These iptables rules are inserted
 #     at the head of the chains INPUT, OUTPUT and FORWARD. It is safe to only
 #     check NEW traffic.
-# 2 - Send all traffic to the iptables chains (blockcontrol_in, blockcontrol_out
-#     and blockcontrol_fw). These iptables rules are inserted at the head of the
+# 2 - Send all traffic to the iptables chains (pglcmd_in, pglcmd_out
+#     and pglcmd_fw). These iptables rules are inserted at the head of the
 #     chains INPUT, OUTPUT and FORWARD. Checking all (not only NEW) traffic
 #     might cause problems, because the IP block daemon has to check much more
 #     traffic then. Further, whitelisting gets more complicated, since you have
@@ -211,7 +203,7 @@ REJECT_MARK="10"
 # This section works only for IPTABLES_ACTIVATION="1"
 # REJECT_IN is useless for the unpatched MoBlock source (0.8 and 0.9RC2), since
 # there matched incoming packets are dropped directly. So the DROP rule in
-# the iptables chain blockcontrol_in will never be met.
+# the iptables chain pglcmd_in will never be met.
 # Valid values are all iptables targets. Be careful: senseless values are also
 # accepted.
 # REJECT: The sender of the packet is notified that the packet was blocked.
@@ -258,7 +250,7 @@ WHITE_LOCAL="1"
 #   22 - ssh
 #  993 - SSL IMAP
 # This section works only for IPTABLES_SETTINGS="1"
-# Do a "blockcontrol restart" when you have changed these settings.
+# Do a "pglcmd restart" when you have changed these settings.
 
 WHITE_TCP_IN=""
 WHITE_UDP_IN=""
@@ -275,7 +267,7 @@ WHITE_UDP_FORWARD=""
 
 # Possibility 1:
 # You can specify IP ranges that shall not be checked by MoBlock in a separate
-# file. Per default this is /etc/blockcontrol/allow.p2p. Change the
+# file. Per default this is /etc/pglcmd/allow.p2p. Change the
 # ALLOW_[IN|OUT|FW] variables if you want to use different allow lists for
 # incoming, outgoing and forwarded traffic.
 
@@ -289,7 +281,7 @@ WHITE_UDP_FORWARD=""
 # to 255.255.255.0.
 # Seperate several entries with whitespace (" ")
 # This section works only for IPTABLES_SETTINGS="1"
-# Do a "blockcontrol restart" when you have changed these settings.
+# Do a "pglcmd restart" when you have changed these settings.
 
 WHITE_IP_IN=""
 WHITE_IP_OUT=""
@@ -304,7 +296,7 @@ WHITE_IP_FORWARD=""
 # Warning for beginners: If you want to whitelist a special IP then use the
 # allowlist. If you specify an IP here you will most likely fail.
 #
-# Do a "blockcontrol reload" when you have changed these settings.
+# Do a "pglcmd reload" when you have changed these settings.
 
 IP_REMOVE=""
 # This is an example to remove all lines from the blocklist which contain one
@@ -314,15 +306,10 @@ IP_REMOVE=""
 
 ######################## Logging and verbosity settings ########################
 
-# Turn on/off timestamping in MoBlock's logfile
-# 0 - No timestamping
-# 1 - Timestamping
-LOG_TIMESTAMP="1"
-
-# Turn on/off the IP block daemon 's logging to syslog
+# Turn on/off the IP block daemon's logging to syslog
 # 0 - Don't log to syslog
 # 1 - Log to syslog
-LOG_SYSLOG="0"
+LOG_SYSLOG="1"
 
 # Iptables logging of blocked packets
 # Set an iptables target for blocked packets. This will only work if marking
@@ -336,9 +323,9 @@ LOG_SYSLOG="0"
 #     is really blocked and not just "marked block".
 LOG_IPTABLES=""
 
-# Set the verbosity of blockcontrol
-# This only affects the output to STDOUT by blockcontrol, cron and init.
-# This does not affect logging or the output of MoBlock.
+# Set the verbosity of pglcmd
+# This only affects the output to STDOUT by pglcmd, cron and init.
+# This does not affect logging or the output of the daemon.
 # 0 - Output to STDOUT is off (only errors will be reported)
 # 1 - Output to STDOUT is on
 # 2 - Output to STDOUT is on, but no warning will be shown if an operation is

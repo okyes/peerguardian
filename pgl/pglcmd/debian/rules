@@ -28,7 +28,7 @@ build-stamp: configure-stamp
 	ln if-up debian/if-up
 	ln logrotate debian/logrotate
 	$(MAKE)
-	#docbook-to-man debian/blockcontrol.sgml > blockcontrol.1
+	#docbook-to-man debian/pglcmd.sgml > pglcmd.1
 
 	touch $@
 
@@ -56,7 +56,7 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/$*.
-	$(MAKE) DESTDIR=$(CURDIR)/debian/blockcontrol install
+	$(MAKE) DESTDIR=$(CURDIR)/debian/pglcmd install
 
 
 # Build architecture-independent files here.
@@ -78,7 +78,7 @@ binary-indep: build install
 	dh_installifupdown
 #	dh_installinfo
 	dh_installman
-	dh_link usr/share/man/man1/blockcontrol.1 usr/share/man/man1/blockcontrol.wd.1
+	dh_link usr/share/man/man1/pglcmd.1 usr/share/man/man1/pglcmd.wd.1
 	dh_strip
 	dh_compress
 	dh_fixperms

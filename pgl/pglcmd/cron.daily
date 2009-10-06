@@ -1,5 +1,5 @@
 #!/bin/sh
-# cron - update the blocklists with blockcontrol
+# cron - update the blocklists with pglcmd
 # Copyright (C) 2005 - 2009 jre <jre-phoenix@users.sourceforge.net>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -17,16 +17,16 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ################################################################################
-# The following code is common between blockcontrol, blockcontrol.wd,
+# The following code is common between pglcmd, pglcmd.wd,
 # cron.daily, init and debian/postinst.
 
 # if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
 # This can happen in early boot stages before local file systems are mounted.
 
 # CONTROL_MAIN has to be set correctly in all just mentioned files.
-CONTROL_MAIN="/usr/lib/blockcontrol/blockcontrol.main"
+CONTROL_MAIN="/usr/lib/pglcmd/pglcmd.main"
 
-# Configure blockcontrol and load functions.
+# Configure pglcmd and load functions.
 if [ -f "$CONTROL_MAIN" ] ; then
 	. $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
 else
@@ -34,20 +34,20 @@ else
 	exit 7
 fi
 
-# End of the common code between blockcontrol, blockcontrol.wd,
+# End of the common code between pglcmd, pglcmd.wd,
 # cron.daily, (if-up), init and debian/postinst.
 ################################################################################
 
 test_CRON
 test_VERBOSITY
-test_CONTROL_SCRIPT
+test_CMD_PATHNAME
 
 case "$CRON" in
 	# Automatic update is off:
 	0)
 		if [ "$VERBOSITY" -eq 1 ] ; then
 			log_warning_msg "$(basename $0) is configured not to update the blocklists automatically."
-			log_warning_msg "To change this edit the CRON entry in $CONTROL_CONF."
+			log_warning_msg "To change this edit the CRON entry in $CMD_CONF."
 			log_warning_msg "If you don't want to see this message set VERBOSITY=\"2\" there."
 		fi
 		;;
@@ -61,13 +61,13 @@ case "$CRON" in
 		if [ $CRON_MAILTO ] && [ $SENDMAIL ] ; then
 			cat<<EOF | $SENDMAIL -t
 To: $CRON_MAILTO
-Subject: Results of $CONTROL_NAME blocklist update
+Subject: Results of $CMD_NAME blocklist update
 
-"$($CONTROL_SCRIPT update || echo "$0 exited with return code $?.")"
+"$($CMD_PATHNAME update || echo "$0 exited with return code $?.")"
 
 EOF
 		else
-			$CONTROL_SCRIPT update
+			$CMD_PATHNAME update
 		fi
 		;;
 esac

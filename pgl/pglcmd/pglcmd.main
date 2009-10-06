@@ -1,5 +1,5 @@
 #!/bin/sh
-# blockcontrol.main: blockcontrol configuration script
+# pglcmd.main: pglcmd configuration script
 #
 # Copyright (C) 2005 - 2009 jre <jre-phoenix@users.sourceforge.net>
 # Parts and ideas from JFM, /meth/usr, lestlest (clessing), Morpheus and
@@ -19,52 +19,45 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-CONTROL_DEFAULTS="/usr/lib/blockcontrol/blockcontrol.defaults"
+CMD_DEFAULTS="/usr/lib/pglcmd/pglcmd.defaults"
 
 # Set LC_ALL environment variable to the value C, to achieve a consistent grep behaviour.
 export LC_ALL=C
 
 # Load default configuration.
-if [ -f "$CONTROL_DEFAULTS" ] ; then
-	. $CONTROL_DEFAULTS || { echo "$0 Error: Failed to source $CONTROL_DEFAULTS although this file exists."; exit 1; }
+if [ -f "$CMD_DEFAULTS" ] ; then
+	. $CMD_DEFAULTS || { echo "$0 Error: Failed to source $CMD_DEFAULTS although this file exists."; exit 1; }
 else
-	echo "$0: Missing file $CONTROL_DEFAULTS (Error 7)."
+	echo "$0: Missing file $CMD_DEFAULTS (Error 7)."
 	exit 7
 fi
 
-# Check what daemon is installed in PATH and set variables accordingly.
+# Search path for pgld and set DAEMON. Otherwise this can still be done in pglcmd.conf
 IFS=":"
 for PATH_I in $PATH ; do
-	if [ -x "$PATH_I/moblock" ] ; then
-		NAME="moblock"
-		DAEMON="$PATH_I/moblock"
-		PIDFILE="/var/run/moblock.pid"
-		break
-	elif [ -x "$PATH_I/nfblockd" ] ; then
-		NAME="nfblockd"
-		DAEMON="$PATH_I/nfblockd"
-		PIDFILE="/var/run/nfblockd.pid"
+	if [ -x "$PATH_I/$NAME" ] ; then
+		DAEMON="$PATH_I/$NAME"
 		break
 	fi
 done
 IFS=$STDIFS
 
 # Load user configuration. This overwrites the above values.
-if [ -f "$CONTROL_CONF" ] ; then
-	. $CONTROL_CONF || echo "$0 Warning: Failed to source $CONTROL_CONF although this file exists."
+if [ -f "$CMD_CONF" ] ; then
+	. $CMD_CONF || echo "$0 Warning: Failed to source $CMD_CONF although this file exists."
 fi
 
-# Load blockcontrol library.
-if [ -f "$CONTROL_LIB" ] ; then
-	. $CONTROL_LIB || { echo "$0 Error: Failed to source $CONTROL_LIB although this file exists."; exit 1; }
+# Load pglcmd library.
+if [ -f "$CMD_LIB" ] ; then
+	. $CMD_LIB || { echo "$0 Error: Failed to source $CMD_LIB although this file exists."; exit 1; }
 else
-	echo "$0: Missing file $CONTROL_LIB (Error $E_XFILE)."
+	echo "$0: Missing file $CMD_LIB (Error $E_XFILE)."
 	exit $E_XFILE
 fi
 
 # Load LSB init-functions shell library
 # Debian: Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
-# In blockcontrol.lib there's a modified copy of the Debian init-functions, as a
+# In pglcmd.lib there's a modified copy of the Debian init-functions, as a
 # fallback, which will be overwritten by the following functions.
 if [ -f "$LSB" ] ; then
 	. $LSB || echo "$0 Warning: Failed to source $LSB although this file exists."

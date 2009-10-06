@@ -1,4 +1,4 @@
-README for blockcontrol                          Sun May  3 18:33:35 CEST 2009
+README for pglcmd                          Sun May  3 18:33:35 CEST 2009
 
 
 ================================================================================
@@ -12,7 +12,7 @@ Options
 Configuration
 Files
 Installation
-Transition from moblock-control (1.2) to blockcontrol (1.3)
+Transition from moblock-control (1.2) to pglcmd (1.3)
 Supported systems
 Requirements
 
@@ -20,7 +20,7 @@ Requirements
 
 Description:
 
-blockcontrol is designed to do all tasks related to IP block daemons (MoBlock
+pglcmd is designed to do all tasks related to IP block daemons (MoBlock
 or NFBlock). They check internet traffic based on large lists of IP address
 ranges in order to protect your privacy. You can get them at
 http://moblock.berlios.de and
@@ -49,13 +49,13 @@ severe conflicts. Make sure the following three conditions hold:
   - The IP block daemon marks non-matched (IP is not in the blocklist) packets.
     (The marking feature is on per default.)
   - Other firewalls do not mark packets.
-  - blockcontrol is started after other firewalls. If other firewalls are
-    started/reloaded after blockcontrol, then you need to restart blockcontrol
+  - pglcmd is started after other firewalls. If other firewalls are
+    started/reloaded after pglcmd, then you need to restart pglcmd
     again. You will be fine, if the iptables rules which send traffic to the
-    iptables chains (blockcontrol_in, blockcontrol_out and blockcontrol_fw)
+    iptables chains (pglcmd_in, pglcmd_out and pglcmd_fw)
     stand before all other iptables rules which ACCEPT traffic.
-    To help you achieve this, blockcontrol.wd restarts blockcontrol if it
-    detects any problems. But it's still recommended, to restart blockcontrol
+    To help you achieve this, pglcmd.wd restarts pglcmd if it
+    detects any problems. But it's still recommended, to restart pglcmd
     manually, whenever another application changed the iptables setup.
 
 
@@ -63,7 +63,7 @@ Technical note:
 
 The IP block daemons check traffic (packets) that is sent to the iptables
 NFQUEUE (or the deprecated QUEUE) target. If the necessary support is not built
-in the kernel directly, blockcontrol will load the necessary kernel modules.
+in the kernel directly, pglcmd will load the necessary kernel modules.
 Up to MoBlock 0.8 packets that do not match the blocklist are ACCEPTed and
 packets that match the blocklist are DROPped.
 MoBlock (since 0.9) and NFBlock can also MARK packets, so that iptables rules
@@ -77,7 +77,7 @@ mustn't be any other applications / iptables rules that mark packets. Otherwise
 the setup will not work and packets will loop forever.
 There are iptables rules to REJECT "marked block" outgoing packets and DROP
 "marked block" incoming and forwarded packets. "Marked allowed" packets are
-ignored by blockcontrol's iptables setup, so other iptables rules decide what
+ignored by pglcmd's iptables setup, so other iptables rules decide what
 happens to them.
 
 ================================================================================
@@ -96,7 +96,7 @@ Features:
 - Allow all LAN traffic and the DNS server automatically. If you are on a public
   LAN, you probably want to disable this feature.
 - Check the status and test the IP block daemon.
-- A watchdog monitors the IP block daemon and restarts blockcontrol if
+- A watchdog monitors the IP block daemon and restarts pglcmd if
   necessary.
 - Detects if kernel modules are needed and loads them if necessary.
 - Set verbosity and logging options.
@@ -107,8 +107,8 @@ Features:
 
 Usage:
 
-blockcontrol OPTION
-blockcontrol search PATTERN
+pglcmd OPTION
+pglcmd search PATTERN
 
 ================================================================================
 
@@ -169,13 +169,13 @@ blocklist fails to extract, it is deleted and the operation aborts.
 Configuration:
 
 Blocklists are configured in blocklists.list
-(/etc/blockcontrol/blocklists.list).
+(/etc/pglcmd/blocklists.list).
 
-Most things are done in blockcontrol.conf (/etc/blockcontrol/blockcontrol.conf).
-Refer to blockcontrol.defaults (/usr/lib/blockcontrol/blockcontrol.defaults) for
+Most things are done in pglcmd.conf (/etc/pglcmd/pglcmd.conf).
+Refer to pglcmd.defaults (/usr/lib/pglcmd/pglcmd.defaults) for
 the complete set of possible configuration variables with comments.
 
-The allow list for IP ranges is allow.p2p (/etc/blockcontrol/allow.p2p). Per
+The allow list for IP ranges is allow.p2p (/etc/pglcmd/allow.p2p). Per
 default, the allowlist is used for incoming and outgoing connections. If desired
 different allow lists for incoming, outgoing and forward connections may be
 used.
@@ -187,29 +187,29 @@ used.
 
 Files:
 
-- blockcontrol (required)
-  The shell script blockcontrol. Must be executable.
+- pglcmd (required)
+  The shell script pglcmd. Must be executable.
 
-- blockcontrol.main (required)
+- pglcmd.main (required)
   The core of all executable scripts. Must be executable.
-  Referenced as CONTROL_MAIN in blockcontrol, init, cron.daily and if.up.
+  Referenced as CONTROL_MAIN in pglcmd, init, cron.daily and if.up.
 
-- blockcontrol.defaults (required)
+- pglcmd.defaults (required)
   Default settings for all variables and pathnames.
-  Referenced as CONTROL_DEFAULTS in blockcontrol.main.
+  Referenced as CMD_DEFAULTS in pglcmd.main.
 
-- blockcontrol.lib (required)
-  Library for blockcontrol.main.
+- pglcmd.lib (required)
+  Library for pglcmd.main.
 
 - blocklists.list (required)
-  Lists all blocklists that are used (and downloaded) by blockcontrol for
+  Lists all blocklists that are used (and downloaded) by pglcmd for
   use by the IP block daemon.
 
-- blockcontrol.watchdog (recommended)
-  Monitors the IP block daemon and restarts blockcontrol if necessary.
+- pglcmd.watchdog (recommended)
+  Monitors the IP block daemon and restarts pglcmd if necessary.
 
-- blockcontrol.conf
-  The user configuration file for blockcontrol.
+- pglcmd.conf
+  The user configuration file for pglcmd.
 
 - allow.p2p
   Allow list which contains IP ranges that shall be whitelisted.
@@ -220,15 +220,15 @@ Files:
   executable.
 
 - iptables-custom-insert.sh (example)
-  Script to insert custom iptables rules. Any script in /etc/blockcontrol/ (the
+  Script to insert custom iptables rules. Any script in /etc/pglcmd/ (the
   directory is defined in IPTABLES_CUSTOM_DIR) that ends in insert.sh will be
-  executed on every "blockcontrol start", if IPTABLES_SETTINGS="1" or "2" is
+  executed on every "pglcmd start", if IPTABLES_SETTINGS="1" or "2" is
   configured.
 
 - iptables-custom-remove.sh (example)
-  Script to delete custom iptables rules. Any script in /etc/blockcontrol/ (the
+  Script to delete custom iptables rules. Any script in /etc/pglcmd/ (the
   directory is defined in IPTABLES_CUSTOM_DIR) that ends in remove.sh will be
-  executed on every "blockcontrol stop", if IPTABLES_SETTINGS="1" or "2" is
+  executed on every "pglcmd stop", if IPTABLES_SETTINGS="1" or "2" is
   configured.
 
 - init (optional)
@@ -240,43 +240,43 @@ Files:
   executable.
 
 - logrotate (optional, configuration file for logrotate)
-  Debian place: /etc/logrotate.d/blockcontrol
-  Assumes logfile in /var/log/blockcontrol.log
+  Debian place: /etc/logrotate.d/pglcmd
+  Assumes logfile in /var/log/pglcmd.log
   Note: You should add another logrotate for MoBlock, too! Download
   one from: http://moblock-deb.svn.sourceforge.net/viewvc/moblock-deb/moblock/mo
   block-0.9~rc2/moblock-0.9~rc2/debian/logrotate
 
 - docs/
-  Some documentatation. blockcontrol.1 is a man page.
+  Some documentatation. pglcmd.1 is a man page.
 
 - debian/
   You don't need this, this is only needed for the Debian packages.
 
 The following directories/files will be created on usage (path examples for
-Debian, configurable in blockcontrol.conf):
+Debian, configurable in pglcmd.conf):
 
-- /var/spool/blockcontrol
+- /var/spool/pglcmd
   The single blocklists are downloaded and manipulated in subfolders of this
   folder.
 
-- /var/log/blockcontrol.log + rotated logs
-  The logfile of the blockcontrol script. This file contains amongst other
+- /var/log/pglcmd.log + rotated logs
+  The logfile of the pglcmd script. This file contains amongst other
   things about starting/stopping the IP block daemon and updating the
   blocklists.
 
 - /var/log/moblock.log + rotated logs
   The logfile of the MoBlock daemon. NFBlock uses /var/log/syslog.
 
-- /var/lib/blockcontrol/guarding.p2p + backup or
-  /var/lib/blockcontrol/guarding.p2b + backup or
-  /var/lib/blockcontrol/ipfilter.dat + backup
+- /var/lib/pglcmd/guarding.p2p + backup or
+  /var/lib/pglcmd/guarding.p2b + backup or
+  /var/lib/pglcmd/ipfilter.dat + backup
   The master blocklist used by the IP block daemon depending on the used format.
 
 ================================================================================
 
 Installation:
 
-There's a simple Makefile, which will install blockcontrol in fileplaces as in
+There's a simple Makefile, which will install pglcmd in fileplaces as in
 Debian. This should be the same as defined by the File Hierarchy Standard
 (FHS). If this fits for you, simply type
 
@@ -284,60 +284,60 @@ Debian. This should be the same as defined by the File Hierarchy Standard
 
 If you choose other file places, you have to adjust:
 
-- the path to blockcontrol.main (CONTROL_MAIN) in blockcontrol,
-  blockcontrol.watchdog, if-up, cron.daily and init.
-- the path to blockcontrol.defaults (CONTROL_DEFAULTS) in blockcontrol.main
-- PATH in blockcontrol.defaults. Either moblock or nfblock have to be installed
+- the path to pglcmd.main (CONTROL_MAIN) in pglcmd,
+  pglcmd.watchdog, if-up, cron.daily and init.
+- the path to pglcmd.defaults (CMD_DEFAULTS) in pglcmd.main
+- PATH in pglcmd.defaults. Either moblock or nfblock have to be installed
   in PATH.
-- all other paths in blockcontrol.defaults
+- all other paths in pglcmd.defaults
 - the Makefile
 
 If your system doesn't have the LSB init-funtions (/lib/lsb/init-functions),
-then hardcoded fallback functions will be used. (new since blockcontrol 1.3)
+then hardcoded fallback functions will be used. (new since pglcmd 1.3)
 
 Note for Fedora 7 and CentOS 5 users (broken LSB init-functions):
 http://forums.phoenixlabs.org/showpost.php?p=107810&postcount=22
 
-blockcontrol will detect if you have installed moblock or nfblockd (in PATH as
-specified in blockcontrol.defaults) automatically. Otherwise you can specify
-this in blockcontrol.conf (/etc/blockcontrol/blockcontrol.conf).
+pglcmd will detect if you have installed moblock or nfblockd (in PATH as
+specified in pglcmd.defaults) automatically. Otherwise you can specify
+this in pglcmd.conf (/etc/pglcmd/pglcmd.conf).
 
 ================================================================================
 
-Transition from moblock-control (1.2) to blockcontrol (1.3)
+Transition from moblock-control (1.2) to pglcmd (1.3)
 
-Generally use "blockcontrol" instead of "moblock-control". This is obvious,
+Generally use "pglcmd" instead of "moblock-control". This is obvious,
 isn't it!?
 
-If names relate to this software, then "blockcontrol" is used. If they relate
+If names relate to this software, then "pglcmd" is used. If they relate
 directly to the IP block daemon (MoBlock or NFBlock), then "moblock" or
 "nfblock" is used.
 
 Changed directories:
-/etc/moblock > /etc/blockcontrol
-/var/spool/moblock > /var/spool/blockcontrol
-/var/lib/moblock > /var/lib/blockcontrol
+/etc/moblock > /etc/pglcmd
+/var/spool/moblock > /var/spool/pglcmd
+/var/lib/moblock > /var/lib/pglcmd
 
 Changed filenames:
-/etc/cron.daily/moblock > /etc/cron.daily/blockcontrol
-/etc/init.d/moblock > /etc/init.d/blockcontrol
-/etc/logrotate.d/moblock-control > /etc/logrotate.d/blockcontrol
-/etc/network/if-up.d/moblock > /etc/network/if-up.d/blockcontrol
+/etc/cron.daily/moblock > /etc/cron.daily/pglcmd
+/etc/init.d/moblock > /etc/init.d/pglcmd
+/etc/logrotate.d/moblock-control > /etc/logrotate.d/pglcmd
+/etc/network/if-up.d/moblock > /etc/network/if-up.d/pglcmd
 
 Configuration in default (/etc/default/moblock):
   - REMOVED
-  - use /etc/blockcontrol/blockcontrol.conf instead.
+  - use /etc/pglcmd/pglcmd.conf instead.
   - the complete set of possible configuration variables with comments is in
-    blockcontrol.defaults (/usr/lib/blockcontrol/blockcontrol.defaults).
+    pglcmd.defaults (/usr/lib/pglcmd/pglcmd.defaults).
 
 NEW:
-blockcontrol.main (/usr/lib/blockcontrol/blockcontrol.main):
+pglcmd.main (/usr/lib/pglcmd/pglcmd.main):
 contains most of the common code between the executable scripts.
 
 Changed variable names:
 MOBLOCK_INIT > INIT
 MOBLOCK_CRON > CRON
-SCRIPT_LIB > CONTROL_LIB
+SCRIPT_LIB > CMD_LIB
 SCRIPT_DEFAULTS > CONTROL_MAIN
 
 Updates in Debian are only handled cleanly from moblock-control 1.2. All prior
@@ -351,7 +351,7 @@ to be transitioned manually.
 
 Supported systems:
 
-blockcontrol was written and tested under Debian Squeeze. However it should run
+pglcmd was written and tested under Debian Squeeze. However it should run
 under every Linux distribution or other POSIX compliant systems.
 
 ================================================================================
@@ -386,7 +386,7 @@ Requirements:
     xt_tcpudp               7680  4 
 
 - /lib/lsb/init-functions (optional, because as fallback there's a modified copy
-  of the Debian init-functions in blockcontrol]
+  of the Debian init-functions in pglcmd]
   Used functions, provided by /lib/lsb/init-functions (version >= 3.1):
    - start_daemon
    - killproc

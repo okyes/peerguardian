@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: blockcontrol@packages.debian.org\n"
+"Report-Msgid-Bugs-To: pglcmd@packages.debian.org\n"
 "POT-Creation-Date: 2009-04-16 19:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
@@ -19,25 +19,25 @@ msgstr ""
 #. Type: note
 #. Description
 #: ../templates:1001
-msgid "New name blockcontrol. Fix your custom iptables scripts!"
+msgid "New name pglcmd. Fix your custom iptables scripts!"
 msgstr ""
 
 #. Type: note
 #. Description
 #: ../templates:1001
 msgid ""
-"moblock-control has been renamed to blockcontrol. Your configuration has "
+"moblock-control has been renamed to pglcmd. Your configuration has "
 "been adapted. But if you use custom iptables rules (/etc/moblock/iptables-"
 "custom-insert.sh and iptables-custom-remove.sh), then you have to fix them, "
-"and move them to /etc/blockcontrol."
+"and move them to /etc/pglcmd."
 msgstr ""
 
 #. Type: note
 #. Description
 #: ../templates:1001
 msgid ""
-"The iptables chains are now called blockcontrol_in, blockcontrol_out and "
-"blockcontrol_fw."
+"The iptables chains are now called pglcmd_in, pglcmd_out and "
+"pglcmd_fw."
 msgstr ""
 
 #. Type: note
@@ -73,7 +73,7 @@ msgstr ""
 #: ../templates:2001
 msgid ""
 "You can now tweak your settings. They can later be changed with\n"
-" sudo dpkg-reconfigure blockcontrol"
+" sudo dpkg-reconfigure pglcmd"
 msgstr ""
 
 #. Type: note
@@ -100,11 +100,11 @@ msgid ""
 "packets.\n"
 "   (The marking feature is on per default.)\n"
 " - Other firewalls do not mark packets.\n"
-" - blockcontrol is started after other firewalls. If other firewalls are\n"
-"   started/reloaded after blockcontrol, then you need to restart "
-"blockcontrol\n"
+" - pglcmd is started after other firewalls. If other firewalls are\n"
+"   started/reloaded after pglcmd, then you need to restart "
+"pglcmd\n"
 "   again. You will be fine, if the iptables rules which send traffic to the\n"
-"   iptables chains (blockcontrol_in, blockcontrol_out and blockcontrol_fw)\n"
+"   iptables chains (pglcmd_in, pglcmd_out and pglcmd_fw)\n"
 "   stand before all other iptables rules which ACCEPT traffic."
 msgstr ""
 
@@ -113,7 +113,7 @@ msgstr ""
 #: ../templates:3001
 msgid ""
 "In most cases it is advisable to do a\n"
-" blockcontrol restart\n"
+" pglcmd restart\n"
 "whenever you have started, stopped or changed the configuration of your "
 "other firewall application."
 msgstr ""
@@ -125,7 +125,7 @@ msgid ""
 "You can check your iptables rules with\n"
 " iptables -L -nv\n"
 "or\n"
-" blockcontrol status."
+" pglcmd status."
 msgstr ""
 
 #. Type: select
@@ -195,7 +195,7 @@ msgstr ""
 #. Description
 #: ../templates:5001
 msgid ""
-"/usr/share/doc/blockcontrol/README.blocklists.gz provides more information "
+"/usr/share/doc/pglcmd/README.blocklists.gz provides more information "
 "about these blocklists. Online information sources are\n"
 " http://tbg.iblocklist.com/pages/faq.html and\n"
 " http://www.bluetack.co.uk/forums/index.php?autocom=faq&CODE=02&qid=17 and "
@@ -207,7 +207,7 @@ msgstr ""
 #. Description
 #: ../templates:5001
 msgid ""
-"If you have specified additional blocklists in /etc/blockcontrol/blocklists."
+"If you have specified additional blocklists in /etc/pglcmd/blocklists."
 "list they will be kept as well. Known blocklists in an incompatible "
 "blocklist format will be commented out."
 msgstr ""
@@ -233,7 +233,7 @@ msgstr ""
 #: ../templates:6001
 msgid ""
 "You can get more information  about these blocklists in\n"
-" /usr/share/doc/blockcontrol/README.blocklists.gz and online at\n"
+" /usr/share/doc/pglcmd/README.blocklists.gz and online at\n"
 " http://www.bluetack.co.uk/forums/index.php?autocom=faq&CODE=02&qid=17 and\n"
 " http://tbg.iblocklist.com/pages/faq.html"
 msgstr ""
@@ -242,7 +242,7 @@ msgstr ""
 #. Description
 #: ../templates:6001
 msgid ""
-"If you have specified additional blocklists in /etc/blockcontrol/blocklists."
+"If you have specified additional blocklists in /etc/pglcmd/blocklists."
 "list, they will be kept as well. Known blocklists in an incompatible "
 "blocklist format will be commented out."
 msgstr ""
@@ -289,7 +289,7 @@ msgstr ""
 msgid ""
 "If you want to turn off the daemon's logging to the logfile, you can set\n"
 " DAEMON_LOG=\"\"\n"
-"in /etc/blockcontrol/blockcontrol.conf. Please note that \"test\" will not "
+"in /etc/pglcmd/pglcmd.conf. Please note that \"test\" will not "
 "work then."
 msgstr ""
 
@@ -335,7 +335,7 @@ msgstr ""
 #. Type: select
 #. Description
 #: ../templates:10001
-msgid "Set the verbosity of blockcontrol:"
+msgid "Set the verbosity of pglcmd:"
 msgstr ""
 
 #. Type: select
@@ -348,7 +348,7 @@ msgstr ""
 #. Description
 #: ../templates:10001
 msgid ""
-"This only affects the output to STDOUT by blockcontrol, cron and init. This "
+"This only affects the output to STDOUT by pglcmd, cron and init. This "
 "does not affect logging or the output of the IP block daemon."
 msgstr ""
 
@@ -445,14 +445,14 @@ msgstr ""
 #: ../templates:14001
 msgid ""
 "The default is to place MoBlock's iptables rules in separate iptables chains "
-"(blockcontrol_in, blockcontrol_out and blockcontrol_fw)."
+"(pglcmd_in, pglcmd_out and pglcmd_fw)."
 msgstr ""
 
 #. Type: select
 #. Description
 #: ../templates:14001
 msgid ""
-"You can set custom iptables rules in /etc/blockcontrol/iptables-custom-"
+"You can set custom iptables rules in /etc/pglcmd/iptables-custom-"
 "insert.sh and iptables-custom-remove.sh. These scripts are executed either "
 "additionally to the default iptables rules insertion/removal or exclusively."
 msgstr ""
@@ -623,7 +623,7 @@ msgstr ""
 #: ../templates:20001
 msgid ""
 "If you MARK non-matched packets, then they will be just ignored by "
-"blockcontrol. This allows integration with other firewalls. (default)"
+"pglcmd. This allows integration with other firewalls. (default)"
 msgstr ""
 
 #. Type: boolean
@@ -652,7 +652,7 @@ msgstr ""
 #. Description
 #: ../templates:21001
 msgid ""
-"Do a \"dpkg-reconfigure blockcontrol\" to get the full set of questions "
+"Do a \"dpkg-reconfigure pglcmd\" to get the full set of questions "
 "(many have only low priority and will not be asked per default)."
 msgstr ""
 
@@ -831,7 +831,7 @@ msgstr ""
 #: ../templates:29001
 msgid ""
 "Any value given here will be added to the allow list (per default this is /"
-"etc/blockcontrol/allow.p2p). Lines in the allow list must be in the "
+"etc/pglcmd/allow.p2p). Lines in the allow list must be in the "
 "PeerGuardian .p2p text format:\n"
 "  Some organization:1.0.0.0-1.255.255.255"
 msgstr ""
@@ -846,7 +846,7 @@ msgstr ""
 #. Description
 #: ../templates:29001
 msgid ""
-"You can whitelist more IP ranges by adding them to /etc/blockcontrol/allow."
+"You can whitelist more IP ranges by adding them to /etc/pglcmd/allow."
 "p2p."
 msgstr ""
 

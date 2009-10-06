@@ -1,26 +1,26 @@
-Source: blockcontrol
+Source: pglcmd
 Section: net
 Priority: optional
 Maintainer: jre <jre-phoenix@users.sourceforge.net>
 Bugs: mailto:jre-phoenix@users.sourceforge.net
 Build-Depends: debhelper (>= 5.0.44), dpatch, po-debconf
 Standards-Version: 3.8.3.0
-Homepage: http://moblock-deb.sourceforge.net/
-Vcs-Browser: http://moblock-deb.svn.sourceforge.net/viewvc/moblock-deb/blockcontrol/
-Vcs-Svn: https://moblock-deb.svn.sourceforge.net/svnroot/moblock-deb/blockcontrol/
+Homepage: http://peerguardian.sourceforge.net/
+Vcs-Browser: http://peerguardian.git.sourceforge.net/
+Vcs-Git: git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
 
-Package: blockcontrol
+Package: pglcmd
 Architecture: all
-Depends: ${misc:Depends}, iptables, lsb-base (>= 3.0-6), moblock (>0.9~rc2-19) | nfblock
+Depends: ${misc:Depends}, iptables, lsb-base (>= 3.0-6), pgld
 Recommends: wget, unzip, p7zip | p7zip-full
-Conflicts: moblock-ipq, moblock-nfq (<= 0.9~rc2-16), iplist, moblock (<0.9~rc2-19), moblock-control (<1.3)
-Replaces: moblock-ipq, moblock-nfq, moblock (<0.9~rc2-19), moblock-control
-Description: Manage IP blockers
- blockcontrol provides easy ways to interact with IP block daemons (MoBlock or
- NFGuard) and do all common related tasks.
+Conflicts: moblock-control, blockcontrol (<2)
+Replaces: blockcontrol
+Description: Manage pgl
+ pglcmd provides easy ways to interact with the pgl daemon and do all common
+ related tasks.
  .
  Features:
-  - Start and stop IP block daemons. Or let init do this automatically.
+  - Start and stop pgld. Or let init do this automatically.
   - Update your blocklist from online sources and local blocklists. Or let cron
     do this automatically on a regular basis.
   - Remove lines by keyword from the blocklists.

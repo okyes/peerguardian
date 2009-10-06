@@ -1,36 +1,24 @@
-Template: blockcontrol/transition_moblock-control
+Template: pglcmd/warning_block
 Type: note
-Default: true
-_Description: New name blockcontrol. Fix your custom iptables scripts!
- moblock-control has been renamed to blockcontrol. Your configuration has been
- adapted. But if you use custom iptables rules
- (/etc/moblock/iptables-custom-insert.sh and iptables-custom-remove.sh), then
- you have to fix them, and move them to /etc/blockcontrol.
- .
- The iptables chains are now called blockcontrol_in, blockcontrol_out and
- blockcontrol_fw.
-
-Template: blockcontrol/warning_block
-Type: note
-_Description: WARNING: IP blockers may block your complete network/internet access!
- Blockcontrol starts an IP block daemon (MoBlock or NFBlock) automatically at
- system boot per default. Some preconfigured blocklists are updated once a day.
- Be warned, that blocklists may block more than what you want. In most cases
- this will result in a limited  network availability. This includes your own LAN
- and router, many webpages, services like eMail, instant messaging or the
- "weather applet" and your machine's accessibility from the internet.
+_Description: WARNING: pgl may block your complete network/internet access!
+ pglcmd is started automatically at system boot per default. Some preconfigured
+ blocklists are updated once a day. Be warned, that blocklists may block more
+ than what you want. In most cases this will result in a limited  network
+ availability. This includes your own LAN and router, many webpages, services
+ like eMail, instant messaging or the "weather applet" and your machine's
+ accessibility from the internet.
  .
  There are many configuration options to prevent this. E.g. the default is to
  always allow (whitelist) LAN traffic, DNS server and loopback device. If you
  are on a public LAN, you probably want to disable this feature.
  .
  You can now tweak your settings. They can later be changed with
-  sudo dpkg-reconfigure blockcontrol
+  sudo dpkg-reconfigure pglcmd
  .
  For those who are stuck on this screen: Press the TAB key to select OK and
  press enter.
 
-Template: blockcontrol/warning_firewall
+Template: pglcmd/warning_firewall
 Type: note
 _Description: WARNING: Users with other firewall (iptables rules)
  If you use other firewalls or iptables rules, you have to take special care to
@@ -38,21 +26,21 @@ _Description: WARNING: Users with other firewall (iptables rules)
   - The IP block daemon marks non-matched (IP is not in the blocklist) packets.
     (The marking feature is on per default, so don't worry about that.)
   - Other firewalls do not mark packets.
-  - blockcontrol is started after other firewalls. If other firewalls are
-    started/reloaded after blockcontrol, then you need to restart blockcontrol
-    again, if the other firewall messed up blockcontrol's iptables setup.
+  - pglcmd is started after other firewalls. If other firewalls are
+    started/reloaded after pglcmd, then you need to restart pglcmd
+    again, if the other firewall messed up pglcmd's iptables setup.
  .
  So avoid severe misconfigurations by always doing a
-  blockcontrol restart
+  pglcmd restart
  whenever you have started or stopped or changed the configuration of your other
  firewall application.
  .
  You can check your iptables rules with
   iptables -L -nv
  or
-  blockcontrol status.
+  pglcmd status.
 
-Template: blockcontrol/BLOCKLIST_FORMAT
+Template: pglcmd/BLOCKLIST_FORMAT
 Type: select
 Choices: eMule ipfilter.dat format, PeerGuardian .p2b v2 binary format, PeerGuardian .p2p text format
 Default: PeerGuardian .p2p text format
@@ -75,24 +63,24 @@ _Description: Set the blocklist format:
    Example line:
    Some organization:1.0.0.0-1.000.000.255
 
-Template: blockcontrol/blocklists_dat
+Template: pglcmd/blocklists_dat
 Type: multiselect
 Choices: tbg.iblocklist.com/Lists/ipfilter.dat.gz
 Default: tbg.iblocklist.com/Lists/ipfilter.dat.gz
 _Description: What blocklists shall be used?
  This selects the blocklists. They are all in the eMule ipfilter.dat format.
  .
- /usr/share/doc/blockcontrol/README.blocklists.gz provides more information
+ /usr/share/doc/pglcmd/README.blocklists.gz provides more information
  about these blocklists. Online information sources are
   http://tbg.iblocklist.com/pages/faq.html and
   http://www.bluetack.co.uk/forums/index.php?autocom=faq&CODE=02&qid=17 and of
  course http://phoenixlabs.org.
  .
- If you have specified additional blocklists in /etc/blockcontrol/blocklists.list
+ If you have specified additional blocklists in /etc/pglcmd/blocklists.list
  they will be kept as well. Known blocklists in an incompatible blocklist format
  will be commented out.
 
-Template: blockcontrol/blocklists_p2p
+Template: pglcmd/blocklists_p2p
 Type: multiselect
 Choices: TBG_Primary_Threats, TBG_General_Corporate_Ranges, TBG_Business_ISPs, TBG_Educational_Institutions, TBG_Search_Engines, TBG_Hijacked, TBG_Bogon, Bluetack_level1, Bluetack_level2, Bluetack_level3, Bluetack_edu, Bluetack_ads, Bluetack_bogon, Bluetack_spyware, Bluetack_spider, Bluetack_Microsoft, Bluetack_proxy, Bluetack_hijacked, Bluetack_badpeers, Bluetack_rangetest, Bluetack_dshield
 Default: TBG_Primary_Threats, TBG_General_Corporate_Ranges, TBG_Business_ISPs, TBG_Search_Engines, TBG_Hijacked, TBG_Bogon, Bluetack_proxy, Bluetack_dshield
@@ -103,36 +91,24 @@ _Description: What blocklists shall be used?
  (http://tbg.iblocklist.com). They are provided by iblocklist.com.
  .
  You can get more information  about these blocklists in
-  /usr/share/doc/blockcontrol/README.blocklists.gz and online at
+  /usr/share/doc/pglcmd/README.blocklists.gz and online at
   http://www.bluetack.co.uk/forums/index.php?autocom=faq&CODE=02&qid=17 and
   http://tbg.iblocklist.com/pages/faq.html
  .
- If you have specified additional blocklists in /etc/blockcontrol/blocklists.list,
+ If you have specified additional blocklists in /etc/pglcmd/blocklists.list,
  they will be kept as well. Known blocklists in an incompatible blocklist
  format will be commented out.
 
-Template: blockcontrol/LOG_TIMESTAMP
+Template: pglcmd/LOG_SYSLOG
 Type: boolean
 Default: true
-_Description: Turn on timestamping in the logfile?
- Configuration variable: LOG_TIMESTAMP
- .
- This lets the MoBlock daemon add timestamps to the logging.
-
-Template: blockcontrol/LOG_SYSLOG
-Type: boolean
-Default: false
-_Description: Turn on daemon logging to syslog?
+_Description: Turn on hit logging to syslog?
  Configuration variable: LOG_SYSLOG
  .
- This lets the MoBlock daemon also log to syslog.
- .
- If you want to turn off the daemon's logging to the logfile, you can set
-  DAEMON_LOG=""
- in /etc/blockcontrol/blockcontrol.conf. Please note that "test" will not work then.
+ This enables hit logging to the system log.
+ If you disable it, "test" will not work.
 
-
-Template: blockcontrol/LOG_IPTABLES
+Template: pglcmd/LOG_IPTABLES
 Type: select
 Choices: Do not log blocked packets to syslog., Log blocked packets to syslog., Do not touch my settings. Use the current custom value instead.
 Default: Do not log blocked packets to syslog.
@@ -151,14 +127,14 @@ _Description: Turn on iptables logging of blocked packets to syslog?
  
  The default is not to log blocked packets to syslog.
 
-Template: blockcontrol/VERBOSITY
+Template: pglcmd/VERBOSITY
 Type: select
 Choices: Output to STDOUT is off (only errors will be reported)., Output to STDOUT is on., Output to STDOUT is on but no warning will be shown if an operation is configured not to be executed.
 Default: Output to STDOUT is on.
-_Description: Set the verbosity of blockcontrol:
+_Description: Set the verbosity of pglcmd:
  Configuration variable: VERBOSITY
  .
- This only affects the output to STDOUT by blockcontrol, cron and init.
+ This only affects the output to STDOUT by pglcmd, cron and init.
  This does not affect logging or the output of the IP block daemon.
  .
   0 - Output to STDOUT is off (only errors will be reported).
@@ -166,7 +142,7 @@ _Description: Set the verbosity of blockcontrol:
   2 - Output to STDOUT is on but no warning will be shown
       if an operation is configured not to be executed.
 
-Template: blockcontrol/INIT
+Template: pglcmd/INIT
 Type: boolean
 Default: true
 _Description: Turn on automatic start?
@@ -177,7 +153,7 @@ _Description: Turn on automatic start?
  by removing/tweaking the init file and the links pointing to it. You can do
  this manually or by using an application such as rcconf.
 
-Template: blockcontrol/CRON
+Template: pglcmd/CRON
 Type: boolean
 Default: true
 _Description: Turn on automatic blocklist update?
@@ -185,7 +161,7 @@ _Description: Turn on automatic blocklist update?
  .
  This sets if the daily cron job updates the blocklists.
 
-Template: blockcontrol/WD
+Template: pglcmd/WD
 Type: boolean
 Default: true
 _Description: Enable watchdog to monitor your IP blocker?
@@ -193,13 +169,13 @@ _Description: Enable watchdog to monitor your IP blocker?
  .
  The watchdog checks in regular intervals (per default 5 minutes) if some of
  the necessary iptables rules exist and if the daemon is responsive. If one of
- these tests fails, it restarts blockcontrol.
+ these tests fails, it restarts pglcmd.
  .
  This is especially useful, if you have other firewall applications running,
  because they often mess up the iptables rules, which can be fixed by restarting
- blockcontrol. Unfortunately this manual action is often forgotten.
+ pglcmd. Unfortunately this manual action is often forgotten.
 
-Template: blockcontrol/NFQUEUE_NUMBER
+Template: pglcmd/NFQUEUE_NUMBER
 Type: string
 Default: 92
 _Description: Set the NFQUEUE queue number:
@@ -210,22 +186,22 @@ _Description: Set the NFQUEUE queue number:
  Insert the plain number as you would give it in an iptables command after
  "--queue-num". Do not use surrounding "quotes".
 
-Template: blockcontrol/IPTABLES_SETTINGS
+Template: pglcmd/IPTABLES_SETTINGS
 Type: select
 Choices: Do not set any iptables rules. You or another script/firewall has to do this!, Use separate iptables chains., Only set custom iptables rules.
 Default: Use separate iptables chains.
 _Description: Set how traffic is sent to the IP block daemon:
  Configuration variable: IPTABLES_SETTINGS
  .
- The default is to place MoBlock's iptables rules in separate iptables chains
- (blockcontrol_in, blockcontrol_out and blockcontrol_fw).
+ The default is to place iptables rules in separate iptables chains
+ (pglcmd_in, pglcmd_out and pglcmd_fw).
  .
  You can set custom iptables rules in
- /etc/blockcontrol/iptables-custom-insert.sh and iptables-custom-remove.sh.
+ /etc/pglcmd/iptables-custom-insert.sh and iptables-custom-remove.sh.
  These scripts are executed either additionally to the default iptables rules
  insertion/removal or exclusively.
 
-Template: blockcontrol/IPTABLES_ACTIVATION
+Template: pglcmd/IPTABLES_ACTIVATION
 Type: select
 Choices: Do nothing. You or another script/firewall has to do this!, Send all NEW traffic to the iptables chains., Send all traffic to the iptables chains.
 Default: Send all NEW traffic to the iptables chains.
@@ -244,7 +220,7 @@ _Description: Activate the iptables chains?
  The iptables rules that activate the iptables chains are inserted at the head
  of the chains INPUT, OUTPUT and FORWARD.
 
-Template: blockcontrol/REJECT
+Template: pglcmd/REJECT
 Type: boolean
 Default: true
 _Description: Do you want to mark matched (IP is in the blocklist) packets?
@@ -259,7 +235,7 @@ _Description: Do you want to mark matched (IP is in the blocklist) packets?
  .
  If you do not MARK matched packets, they will be DROPped directly.
 
-Template: blockcontrol/REJECT_IN
+Template: pglcmd/REJECT_IN
 Type: select
 Choices: REJECT, DROP, Do not touch my settings. Use the current custom value instead.
 Default: DROP
@@ -272,7 +248,7 @@ _Description: Set the iptables target for "marked block" incoming packets:
  .
  Be careful: senseless values are also accepted.
 
-Template: blockcontrol/REJECT_OUT
+Template: pglcmd/REJECT_OUT
 Type: select
 Choices: REJECT, DROP, Do not touch my settings. Use the current custom value instead.
 Default: REJECT
@@ -285,7 +261,7 @@ _Description: Set the iptables target for "marked block" outgoing packets:
  .
  Be careful: senseless values are also accepted.
 
-Template: blockcontrol/REJECT_FW
+Template: pglcmd/REJECT_FW
 Type: select
 Choices: REJECT, DROP, Do not touch my settings. Use the current custom value instead.
 Default: DROP
@@ -298,7 +274,7 @@ _Description: Set the iptables target for "marked block" forwarded packets:
  .
  Be careful: senseless values are also accepted.
 
-Template: blockcontrol/ACCEPT
+Template: pglcmd/ACCEPT
 Type: boolean
 Default: true
 _Description: Do you want to mark non-matched (IP is not in the blocklist) packets?
@@ -307,18 +283,18 @@ _Description: Do you want to mark non-matched (IP is not in the blocklist) packe
  Set what happens to non-matched (IP is not in the blocklist) packets.
  .
  If you MARK non-matched packets, then they will be just ignored by
- blockcontrol. This allows integration with other firewalls. (default)
+ pglcmd. This allows integration with other firewalls. (default)
  .
  If you do not MARK non-matched (IP is not in the blocklist) packets, they will
  be ACCEPTed directly.
 
-Template: blockcontrol/info_whitelisting
+Template: pglcmd/info_whitelisting
 Type: note
 _Description: Whitelisting
  The following questions help you define which traffic will NOT be checked by
  the IP block daemon. This is called "whitelisting".
  .
- Do a "dpkg-reconfigure blockcontrol" to get the full set of questions (many have
+ Do a "dpkg-reconfigure pglcmd" to get the full set of questions (many have
  only low priority and will not be asked per default).
  .
  Traffic is categorized as:
@@ -330,7 +306,7 @@ _Description: Whitelisting
   traffic passes your machine, e.g. because it is a router
   or runs virtual machine software such as VirtualBox.
 
-Template: blockcontrol/WHITE_TCP_OUT
+Template: pglcmd/WHITE_TCP_OUT
 Type: string
 Default: http https
 _Description: Whitelist outgoing TCP ports:
@@ -349,7 +325,7 @@ _Description: Whitelist outgoing TCP ports:
  Seperate multiple entries with whitespace (" "). Do not use surrounding
  "quotes". Be careful: senseless values are also accepted.
 
-Template: blockcontrol/WHITE_UDP_OUT
+Template: pglcmd/WHITE_UDP_OUT
 Type: string
 Default: 
 _Description: Whitelist outgoing UDP ports:
@@ -362,7 +338,7 @@ _Description: Whitelist outgoing UDP ports:
  Seperate multiple entries with whitespace (" "). Do not use surrounding
  "quotes". Be careful: senseless values are also accepted.
 
-Template: blockcontrol/WHITE_TCP_IN
+Template: pglcmd/WHITE_TCP_IN
 Type: string
 Default: 
 _Description: Whitelist incoming TCP ports:
@@ -375,7 +351,7 @@ _Description: Whitelist incoming TCP ports:
  Seperate multiple entries with whitespace (" "). Do not use surrounding
  "quotes". Be careful: senseless values are also accepted.
 
-Template: blockcontrol/WHITE_UDP_IN
+Template: pglcmd/WHITE_UDP_IN
 Type: string
 Default: 
 _Description: Whitelist incoming UDP ports:
@@ -388,7 +364,7 @@ _Description: Whitelist incoming UDP ports:
  Seperate multiple entries with whitespace (" "). Do not use surrounding
  "quotes". Be careful: senseless values are also accepted.
 
-Template: blockcontrol/WHITE_TCP_FORWARD
+Template: pglcmd/WHITE_TCP_FORWARD
 Type: string
 Default: 
 _Description: Whitelist forwarded TCP ports:
@@ -401,7 +377,7 @@ _Description: Whitelist forwarded TCP ports:
  Seperate multiple entries with whitespace (" "). Do not use surrounding
  "quotes". Be careful: senseless values are also accepted.
 
-Template: blockcontrol/WHITE_UDP_FORWARD
+Template: pglcmd/WHITE_UDP_FORWARD
 Type: string
 Default: 
 _Description: Whitelist forwarded UDP ports:
@@ -414,7 +390,7 @@ _Description: Whitelist forwarded UDP ports:
  Seperate multiple entries with whitespace (" "). Do not use surrounding
  "quotes". Be careful: senseless values are also accepted.
 
-Template: blockcontrol/WHITE_LOCAL
+Template: pglcmd/WHITE_LOCAL
 Type: select
 Choices: No automatic whitelisting., Automatic whitelisting of LAN and DNS server and loopback device., Automatic whitelisting of DNS server and loopback device.
 Default: Automatic whitelisting of LAN and DNS server and loopback device.
@@ -427,20 +403,20 @@ _Description: Set the automatic whitelisting options:
  If you are on a public LAN, you probably want it checked by the IPblocker. So
  choose to only whitelist the DNS server and the loopback device then.
 
-Template: blockcontrol/allowlist
+Template: pglcmd/allowlist
 Type: string
 Default: 
 _Description: Add a line to the allowlist:
  Any value given here will be added to the allow list (per default this is
- /etc/blockcontrol/allow.p2p). Lines in the allow list must be in the PeerGuardian
+ /etc/pglcmd/allow.p2p). Lines in the allow list must be in the PeerGuardian
  .p2p text format:
    Some organization:1.0.0.0-1.255.255.255
  .
  This is also true if your blocklists are in another format.
  .
- You can whitelist more IP ranges by adding them to /etc/blockcontrol/allow.p2p.
+ You can whitelist more IP ranges by adding them to /etc/pglcmd/allow.p2p.
 
-Template: blockcontrol/IP_REMOVE
+Template: pglcmd/IP_REMOVE
 Type: string
 Default: 
 _Description: Remove lines from the blocklist:
