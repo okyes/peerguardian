@@ -1,4 +1,4 @@
-PKGNAME = nfblock
+PKGNAME = pgl
 VERSION = 0.6.2
 
 # Set DBUS to yes if you want to be able to use DBUS.
@@ -24,9 +24,9 @@ ZLIB ?= yes
 prefix ?= /usr/local
 SBINDIR ?= $(prefix)/sbin
 DBUSCONFDIR ?= /etc/dbus-1/system.d
-PLUGINDIR ?= $(prefix)/lib/nfblock
+PLUGINDIR ?= $(prefix)/lib/pgl
 
-OBJS=src/nfblockd.o src/stream.o src/blocklist.o src/parser.o
+OBJS=src/pgld.o src/stream.o src/blocklist.o src/parser.o
 OPTFLAGS=-Os
 CFLAGS=-Wall -DVERSION=\"$(VERSION)\" -DPLUGINDIR=\"$(PLUGINDIR)\"
 LIBS=-lnetfilter_queue -lnfnetlink
@@ -63,45 +63,45 @@ DISTDIR = $(PKGNAME)-$(VERSION)
 
 DISTFILES = \
 	Makefile \
-	src/nfblockd.c src/nfblockd.h \
+	src/pgld.c src/pgld.h \
 	src/blocklist.c src/blocklist.h \
 	src/parser.c src/parser.h \
 	src/stream.c src/stream.h \
 	src/dbus.c src/dbus.h \
 	src/dl-blocklistpro.pl \
-	dbus-nfblockd.conf ChangeLog README \
+	dbus-pgld.conf ChangeLog README \
 	debian/changelog debian/control debian/copyright \
 	debian/cron.daily debian/cron.weekly \
 	debian/default debian/init.d \
 	debian/postinst debian/postrm debian/rules \
 
 ifeq ($(DBUS),yes)
-all: src/nfblockd src/dbus.so
+all: src/pgld src/dbus.so
 else
-all: src/nfblockd
+all: src/pgld
 endif
 
 .c.o:
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-src/nfblockd: $(OBJS)
+src/pgld: $(OBJS)
 	gcc -o $@ $(LDFLAGS) $^ $(LIBS)
 
 src/dbus.so: src/dbus.o
 	$(CC) -shared -Wl `pkg-config dbus-1 --libs` -o $@ $^
 clean:
-	rm -f *~ src/*.o src/*~ src/nfblockd src/dbus.so
+	rm -f *~ src/*.o src/*~ src/pgld src/dbus.so
 
 install:
-	install -D -m 755 src/nfblockd $(DESTDIR)/$(SBINDIR)/nfblockd
+	install -D -m 755 src/pgld $(DESTDIR)/$(SBINDIR)/pgld
 	install -D -m 755 src/dl-blocklistpro.pl $(DESTDIR)/$(PLUGINDIR)/dl-blocklistpro.pl
 ifeq ($(DBUS),yes)
-	install -D -m 644 dbus-nfblockd.conf $(DESTDIR)/$(DBUSCONFDIR)/nfblockd.conf
+	install -D -m 644 dbus-pgld.conf $(DESTDIR)/$(DBUSCONFDIR)/pgld.conf
 	install -D -m 644 src/dbus.so $(DESTDIR)/$(PLUGINDIR)/dbus.so
 endif
 
 install-strip: install
-	strip $(DESTDIR)/$(SBINDIR)/nfblockd
+	strip $(DESTDIR)/$(SBINDIR)/pgld
 ifeq ($(DBUS),yes)
 	strip $(DESTDIR)/$(PLUGINDIR)/dbus.so
 endif

@@ -1,4 +1,4 @@
-nfblock
+pgl
 *.debhelper
 *.debhelper.log
 *.substvars

@@ -3,5 +3,5 @@
 #DEBHELPER#
 
 if test "$1" = "purge"; then
-    rm -rf /var/lib/nfblockd
+    rm -rf /var/lib/pgld
 fi

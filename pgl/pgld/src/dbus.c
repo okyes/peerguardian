@@ -2,18 +2,18 @@
 
   D-Bus messaging interface
 
-  (c) 2008 João Valverde (jpv950@gmail.com)
+  (c) 2008 jpv (jpv950@gmail.com)
 
   (c) 2008 Jindrich Makovicka (makovick@gmail.com)
 
-  This file is part of NFblock.
+  This file is part of pgl.
 
-  NFblock is free software; you can redistribute it and/or modify
+  pgl is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2, or (at your option)
   any later version.
 
-  NFblock is distributed in the hope that it will be useful,
+  pgl is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
@@ -30,7 +30,7 @@
 static DBusConnection *dbconn = NULL;
 
 int
-nfblock_dbus_init(log_func_t do_log)
+pgl_dbus_init(log_func_t do_log)
 {
     DBusError dberr;
     int req;
@@ -55,7 +55,7 @@ nfblock_dbus_init(log_func_t do_log)
         /* FIXME: replace the current name owner instead of giving up?
          * Need to request name with DBUS_NAME_FLAG_ALLOW_REPLACEMENT
          * in that case... */
-        do_log(LOG_WARNING, "nfblockd is already running. Exiting.");
+        do_log(LOG_WARNING, "pgld is already running. Exiting.");
         return -1;
     }
 
@@ -63,7 +63,7 @@ nfblock_dbus_init(log_func_t do_log)
 }
 
 dbus_bool_t
-nfblock_dbus_message_append_blocked(DBusMessage *dbmsg,
+pgl_dbus_message_append_blocked(DBusMessage *dbmsg,
                                     const char *addr,
                                     block_sub_entry_t **ranges,
                                     uint32_t hits,
@@ -96,7 +96,7 @@ nfblock_dbus_message_append_blocked(DBusMessage *dbmsg,
 }
 
 int
-nfblock_dbus_send_blocked(log_func_t do_log, time_t curtime,
+pgl_dbus_send_blocked(log_func_t do_log, time_t curtime,
                           dbus_log_message_t signal, bool dropped,
                           char *addr, block_sub_entry_t **ranges,
                           uint32_t hits)
@@ -107,19 +107,19 @@ nfblock_dbus_send_blocked(log_func_t do_log, time_t curtime,
     /* create dbus signal */
     switch (signal) {
     case LOG_NF_IN:
-        dbmsg = dbus_message_new_signal ("/org/netfilter/nfblock",
-                                         "org.netfilter.nfblock.Blocked",
+        dbmsg = dbus_message_new_signal ("/org/netfilter/pgl",
+                                         "org.netfilter.pgl.Blocked",
                                          "blocked_in");
         break;
     case LOG_NF_OUT:
-        dbmsg = dbus_message_new_signal ("/org/netfilter/nfblock",
-                                         "org.netfilter.nfblock.Blocked",
+        dbmsg = dbus_message_new_signal ("/org/netfilter/pgl",
+                                         "org.netfilter.pgl.Blocked",
                                          "blocked_out");
         break;
         /*
                  case LOG_NF_FWD:
-                 dbmsg = dbus_message_new_signal ("/org/netfilter/nfblock",
-                 "org.netfilter.nfblock.Blocked",
+                 dbmsg = dbus_message_new_signal ("/org/netfilter/pgl",
+                 "org.netfilter.pgl.Blocked",
                  "blocked_fwd");
                  assert(0);
                  break;
@@ -129,7 +129,7 @@ nfblock_dbus_send_blocked(log_func_t do_log, time_t curtime,
     if (!dbmsg)
         return -1;
 
-    dbb &= nfblock_dbus_message_append_blocked(dbmsg, addr, ranges,
+    dbb &= pgl_dbus_message_append_blocked(dbmsg, addr, ranges,
                                                hits, dropped, curtime);
 
     if (dbb && dbus_connection_get_is_connected(dbconn)) {

@@ -5,14 +5,14 @@
 
    Portions (c) 2004 Morpheus (ebutera@users.berlios.de)
 
-   This file is part of NFblock.
+   This file is part of pgl.
 
-   NFblock is free software; you can redistribute it and/or modify
+   pgl is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2, or (at your option)
    any later version.
 
-   NFblock is distributed in the hope that it will be useful,
+   pgl is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
@@ -51,7 +51,7 @@
 
 #include "blocklist.h"
 #include "parser.h"
-#include "nfblockd.h"
+#include "pgld.h"
 
 #define likely(x)       __builtin_expect((x),1)
 #define unlikely(x)     __builtin_expect((x),0)
@@ -76,7 +76,7 @@ static int opt_verbose = 0;
 static int queue_num = 0;
 static int use_syslog = 1;
 static uint32_t accept_mark = 0, reject_mark = 0;
-static const char *pidfile_name = "/var/run/nfblockd.pid";
+static const char *pidfile_name = "/var/run/pgld.pid";
 
 static const char *current_charset = 0;
 
@@ -118,8 +118,8 @@ noprint:
 static int use_dbus = 1;
 static void *dbus_lh = NULL;
 
-static nfblock_dbus_init_t nfblock_dbus_init = NULL;
-static nfblock_dbus_send_blocked_t nfblock_dbus_send_blocked = NULL;
+static pgl_dbus_init_t pgl_dbus_init = NULL;
+static pgl_dbus_send_blocked_t pgl_dbus_send_blocked = NULL;
 
 #define do_dlsym(symbol)                                                \
     do {                                                                \
@@ -143,8 +143,8 @@ open_dbus()
     }
     dlerror(); // clear the error flag
 
-    do_dlsym(nfblock_dbus_init);
-    do_dlsym(nfblock_dbus_send_blocked);
+    do_dlsym(pgl_dbus_init);
+    do_dlsym(pgl_dbus_send_blocked);
 
     return 0;
 
@@ -233,7 +233,7 @@ nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
                     ip2str(buf1, ip_src);
 #ifdef HAVE_DBUS
                     if (use_dbus) {
-                        nfblock_dbus_send_blocked(do_log, curtime, LOG_NF_IN,
+                        pgl_dbus_send_blocked(do_log, curtime, LOG_NF_IN,
                                                   reject_mark ? false : true,
                                                   buf1, sranges, src->hits);
                     }
@@ -274,7 +274,7 @@ nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
                     ip2str(buf1, ip_dst);
 #ifdef HAVE_DBUS
                     if (use_dbus) {
-                        nfblock_dbus_send_blocked(do_log, curtime, LOG_NF_OUT,
+                        pgl_dbus_send_blocked(do_log, curtime, LOG_NF_OUT,
                                                   reject_mark ? false : true,
                                                   buf1, dranges, dst->hits);
                     }
@@ -330,16 +330,16 @@ nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
 #ifdef HAVE_DBUS
                     if (use_dbus) {
                         if (src) {
-                            nfblock_dbus_send_blocked(do_log, curtime, LOG_NF_IN,
+                            pgl_dbus_send_blocked(do_log, curtime, LOG_NF_IN,
                                                       reject_mark ? false : true,
                                                       buf1, sranges, src->hits);
                         }
                         if (dst) {
-                            nfblock_dbus_send_blocked(do_log, curtime, LOG_NF_OUT, reject_mark ? false : true,
+                            pgl_dbus_send_blocked(do_log, curtime, LOG_NF_OUT, reject_mark ? false : true,
                                                       buf2, dranges, dst->hits);
                         }
 /*
-                        nfblock_dbus_send_signal_nfq(do_log, curtime, LOG_NF_FWD, reject_mark ? NFBP_ACTION_MARK : NFBP_ACTION_DROP,
+                        pgl_dbus_send_signal_nfq(do_log, curtime, LOG_NF_FWD, reject_mark ? NFBP_ACTION_MARK : NFBP_ACTION_DROP,
                                                      FMT_ADDR_RANGES_HITS, ip_src, src ? sranges : NULL, src ? src->hits : 0,
                                                      FMT_ADDR_RANGES_HITS, ip_dst, dst ? dranges : NULL, dst ? dst->hits : 0,
                                                      (char *)NULL);
@@ -627,8 +627,8 @@ do_benchmark()
 static void
 print_usage()
 {
-    fprintf(stderr, "nfblockd " VERSION " (c) 2008 Jindrich Makovicka\n");
-    fprintf(stderr, "Syntax: nfblockd -d [-a MARK] [-r MARK] [-q 0-65535] BLOCKLIST...\n\n");
+    fprintf(stderr, "pgld " VERSION " (c) 2008 Jindrich Makovicka\n");
+    fprintf(stderr, "Syntax: pgld -d [-a MARK] [-r MARK] [-q 0-65535] BLOCKLIST...\n\n");
     fprintf(stderr, "        -d            Run as daemon\n");
 #ifndef LOWMEM
     fprintf(stderr, "        -c            Blocklist file charset (for all following filenames)\n");
@@ -751,7 +751,7 @@ main(int argc, char *argv[])
 
     if (opt_daemon) {
         daemonize();
-        openlog("nfblockd", 0, LOG_DAEMON);
+        openlog("pgld", 0, LOG_DAEMON);
     }
 
 #ifdef HAVE_DBUS
@@ -763,7 +763,7 @@ main(int argc, char *argv[])
     }
 
     if (use_dbus) {
-        if (nfblock_dbus_init(do_log) < 0) {
+        if (pgl_dbus_init(do_log) < 0) {
             do_log(LOG_INFO, "Cannot initialize D-Bus");
             use_dbus = 0;
         }

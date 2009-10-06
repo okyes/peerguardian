@@ -2,18 +2,18 @@
 
    D-Bus messaging interface
 
-   (c) 2008 João Valverde (jpv950@gmail.com)
+   (c) 2008 jpv (jpv950@gmail.com)
 
    (c) 2008 Jindrich Makovicka (makovick@gmail.com)
 
-   This file is part of NFblockD.
+   This file is part of pgld.
 
-   NFblockD is free software; you can redistribute it and/or modify
+   pgld is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2, or (at your option)
    any later version.
 
-   NFblockD is distributed in the hope that it will be useful,
+   pgld is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
@@ -25,8 +25,8 @@
 */
 
 
-#ifndef NFBLOCKD_DBUS_H
-#define NFBLOCKD_DBUS_H
+#ifndef PGLD_DBUS_H
+#define PGLD_DBUS_H
 
 #include <stdbool.h>
 #include <inttypes.h>
@@ -34,9 +34,9 @@
 #include <dbus/dbus.h>
 
 #include "blocklist.h"
-#include "nfblockd.h"
+#include "pgld.h"
 
-#define NFB_DBUS_PUBLIC_NAME "org.netfilter.nfblock"
+#define NFB_DBUS_PUBLIC_NAME "org.netfilter.pgl"
 
 typedef enum {
     LOG_NF_IN,
@@ -44,9 +44,9 @@ typedef enum {
 /*    LOG_NF_FWD,*/
 } dbus_log_message_t;
 
-typedef int (*nfblock_dbus_init_t)(log_func_t do_log);
+typedef int (*pgl_dbus_init_t)(log_func_t do_log);
 
-typedef int (*nfblock_dbus_send_blocked_t)(log_func_t do_log, time_t curtime,
+typedef int (*pgl_dbus_send_blocked_t)(log_func_t do_log, time_t curtime,
                                            dbus_log_message_t signal,
                                            bool dropped, char *addr,
                                            block_sub_entry_t **ranges,

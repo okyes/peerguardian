@@ -1,4 +1,4 @@
-# do we start nfblockd ?
+# do we start pgld ?
 ENABLED=1
 # blocklist url
 BLOCKLIST_URL=

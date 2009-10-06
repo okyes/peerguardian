@@ -3,14 +3,14 @@
 
    (c) 2008 Jindrich Makovicka (makovick@gmail.com)
 
-   This file is part of NFblock.
+   This file is part of pgl.
 
-   NFblock is free software; you can redistribute it and/or modify
+   pgl is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2, or (at your option)
    any later version.
 
-   NFblockD is distributed in the hope that it will be useful,
+   pgld is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
@@ -22,7 +22,7 @@
 */
 
 #include "blocklist.h"
-#include "nfblockd.h"
+#include "pgld.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

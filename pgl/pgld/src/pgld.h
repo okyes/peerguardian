@@ -5,14 +5,14 @@
 
    Portions (c) 2004 Morpheus (ebutera@users.berlios.de)
 
-   This file is part of NFblock.
+   This file is part of pgl.
 
-   NFblock is free software; you can redistribute it and/or modify
+   pgl is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2, or (at your option)
    any later version.
 
-   NFblock is distributed in the hope that it will be useful,
+   pgl is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
@@ -23,8 +23,8 @@
    Boston, MA 02110-1301, USA.
 */
 
-#ifndef NFBLOCKD_H
-#define NFBLOCKD_H
+#ifndef PGLD_H
+#define PGLD_H
 
 #include <stdlib.h>
 #include <inttypes.h>

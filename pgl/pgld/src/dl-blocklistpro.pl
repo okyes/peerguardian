@@ -28,7 +28,7 @@ foreach my $arg (@ARGV) {
 
     my $url = $url_detail;
     $url =~ s/view-details/start-download/;
-    my $path = "/var/lib/nfblock";
+    my $path = "/var/lib/pgl";
     my $url2 = "";
     my $outfile;
 
