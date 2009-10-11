@@ -18,7 +18,7 @@ DESC="PeerGuardian Linux"
 NAME="pgld"
 # The daemon path is set automatically later, so you should not need to set
 # it here. If you experience problems, you may set it in pglcmd.conf.
-DAEMON="/usr/bin/pgld"
+DAEMON="/usr/sbin/pgld"
 # The daemon pidfile path.
 PIDFILE="/var/run/pgld.pid"
 

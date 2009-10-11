@@ -24,12 +24,13 @@
 # Should-Stop:       firehol firestarter ufw
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: PeerGuardian Linux initscript
+# Short-Description: PeerGuardian Linux - an IP Blocker
 # Description:       PeerGuardian Linux
 #   pgl blocks connections from and to hosts, that are listed in a very large
 #   blocklist. The blocklist can be in one of the following formats: eMule
 #   "ipfilter.dat", "peerguardian .p2p text" or "peerguardian .p2b v2 binary".
-#   pgl uses the xt_NFQUEUE kernel module (available since kernel 2.6.13).
+#   pgl uses the netfilter xt_NFQUEUE kernel module (available since kernel
+#   2.6.13).
 ### END INIT INFO
 
 ################################################################################

@@ -1,3 +1,10 @@
+pglcmd (2.0~pre1-1) unstable; urgency=low
+
+  * transition to pglcmd at peerguardian.sourceforge.net
+  * updated description
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 07 Oct 2009 22:24:03 +0200
+
 blockcontrol (1.6.9-1) unstable; urgency=low
 
   * export the LC_ALL environment variable set to the value C, to achieve a
