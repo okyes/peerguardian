@@ -1,3 +1,18 @@
+pgld (2.0~pre1-1) unstable; urgency=low
+
+  * transition to pgld at peerguardian.sourceforge.net
+  * removed debian/cron*, debian/init.d and debian/postrm. This is covered by
+    pglcmd.
+  * Debian packaging:
+    - depend on debhelper version 6, added debian/compat, removed DH_COMPAT from
+      rules
+    - bumped Standards-Version to 3.8.3.0
+    - postinst: do "set -e" separately
+    - rules: don´t ignore errors on "clean"
+    - updated description
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 07 Oct 2009 22:16:19 +0200
+
 nfblock (0.6.2-1) unstable; urgency=low
 
   * New upstream release

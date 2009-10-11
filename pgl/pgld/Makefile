@@ -1,5 +1,5 @@
-PKGNAME = pgl
-VERSION = 0.6.2
+PKGNAME = pgld
+VERSION = 2.0~pre1
 
 # Set DBUS to yes if you want to be able to use DBUS.
 
@@ -71,8 +71,7 @@ DISTFILES = \
 	src/dl-blocklistpro.pl \
 	dbus-pgld.conf ChangeLog README \
 	debian/changelog debian/control debian/copyright \
-	debian/cron.daily debian/cron.weekly \
-	debian/default debian/init.d \
+	debian/default \
 	debian/postinst debian/postrm debian/rules \
 
 ifeq ($(DBUS),yes)
