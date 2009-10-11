@@ -40,9 +40,6 @@ fi
 # cron.daily, (if-up), init and debian/postinst.
 ################################################################################
 
-# Don´t run this script directly, some tests have to be done in the control script
-# and I don´t want to repeat them here.
-
 test_root
 
 # Check if watchdog is already running.

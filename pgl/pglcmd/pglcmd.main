@@ -32,7 +32,7 @@ else
 	exit 7
 fi
 
-# Search path for pgld and set DAEMON. Otherwise this can still be done in pglcmd.conf
+# Search pgld pathname and set DAEMON. Otherwise this can still be done in pglcmd.conf
 IFS=":"
 for PATH_I in $PATH ; do
 	if [ -x "$PATH_I/$NAME" ] ; then
