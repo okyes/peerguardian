@@ -46,7 +46,7 @@ clean-patched:
 	# Add here commands to clean up after the build process.
 	$(MAKE) clean
 	# Remove the hardlinks from debian/ directory again. See above.
-	find debian -maxdepth 0 -regextype posix-extended -regex "(.*init)|(.*cron.daily)|(.*if-up)|(.*logrotate)" -print0 | xargs -0r rm
+	find debian -maxdepth 1 -regextype posix-extended -regex "(.*init)|(.*cron.daily)|(.*if-up)|(.*logrotate)" -print -exec rm {} \;
 	dh_clean
 
 install: build
