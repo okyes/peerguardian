@@ -72,7 +72,7 @@ static blocklist_t blocklist;
 
 static int opt_daemon = 0, daemonized = 0;
 static int benchmark = 0;
-static int opt_verbose = 0;
+int opt_verbose = 0;
 static int queue_num = 0;
 static int use_syslog = 1;
 static uint32_t accept_mark = 0, reject_mark = 0;
@@ -384,6 +384,12 @@ nfqueue_bind()
     nfqueue_h = nfq_open();
     if (!nfqueue_h) {
         do_log(LOG_ERR, "Error during nfq_open(): %s", strerror(errno));
+        return -1;
+    }
+
+    if (nfq_unbind_pf(nfqueue_h, AF_INET) < 0) {
+        do_log(LOG_ERR, "Error during nfq_unbind_pf(): %s", strerror(errno));
+        nfq_close(nfqueue_h);
         return -1;
     }
 

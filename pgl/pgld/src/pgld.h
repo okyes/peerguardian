@@ -36,6 +36,8 @@ typedef void (*log_func_t) (int priority, const char *format, ...);
 
 void ip2str(char *dst, uint32_t ip);
 
+extern int opt_verbose;
+
 #define CHECK_OOM(ptr)                                                  \
     do {                                                                \
         if (!ptr) {                                                     \
