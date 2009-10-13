@@ -184,7 +184,9 @@ blocklist_trim(blocklist_t *blocklist)
             }
             ip2str(buf1, blocklist->entries[i].ip_min);
             ip2str(buf2, ip_max);
-            do_log(LOG_DEBUG, "Merging ranges: %sinto %s-%s", tmp, buf1, buf2);
+            if (opt_verbose) {
+                do_log(LOG_DEBUG, "Merging ranges: %sinto %s-%s", tmp, buf1, buf2);
+            }
             free(tmp);
 
 #ifndef LOWMEM
