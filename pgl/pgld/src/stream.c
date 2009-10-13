@@ -98,7 +98,7 @@ stream_getline(char *buf, int max, stream_t *stream)
                                                   CHUNK, stream->f);
                     if (stream->strm.avail_in == 0) {
                         if (ferror(stream->f))
-                            do_log(LOG_INFO, "Error reading file");
+                            do_log(LOG_INFO, "Error reading file! Error %d", ferror(stream->f));
                         stream->eos = 1;
                         inflateEnd(&stream->strm);
                         break;
@@ -154,7 +154,9 @@ stream_getline(char *buf, int max, stream_t *stream)
         char *ret;
         ret = fgets(buf, max, stream->f);
         if (!ret)
-            do_log(LOG_INFO, "Error reading file");
+            if (ferror(stream->f)) {
+                do_log(LOG_INFO, "Error reading file! Error %d", ferror(stream->f));
+            }
         return ret;
     }
 }
@@ -167,8 +169,7 @@ stream_open(stream_t *stream, const char *filename)
     stream->f = fopen(filename, "r");
 
     if (!stream->f) {
-        do_log(LOG_INFO, "Cannot open file %s: %s",
-               filename, strerror(errno));
+        do_log(LOG_INFO, "Cannot open file %s: %s", filename, strerror(errno));
         return -1;
     }
 
@@ -192,7 +193,9 @@ stream_getline(char *buf, int max, stream_t *stream)
     char *ret;
     ret = fgets(buf, max, stream->f);
     if (!ret)
-        do_log(LOG_INFO, "Error reading file");
+        if (ferror(stream->f)) {
+            do_log(LOG_INFO, "Error reading file! Error %d", ferror(stream->f));
+        }
     return ret;
 }
 
