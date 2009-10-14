@@ -332,9 +332,30 @@ LOG_IPTABLES=""
 #     configured not to be executed.
 VERBOSITY="1"
 
+# Verbose pgld logging
+# This is the logging of the pgld daemon.
+# NOTE:  Verbose logging logs a lot to syslog - make sure you have room!
+# 0 - Not verbose (default)
+# 1 - Verbose
+DAEMON_VERBOSE_LOGGING=0
+
 # Specify the mail recipient of the result of the automatic blocklist update.
 # If empty, cron will decide what happens with the output.
 CRON_MAILTO="root"
+
+# Compress the guarding.*/ipfilter.dat file since pgld can read gzipped files
+# This doesn't do anything yet
+# 0 - Don't compress (default)
+# 1 - Compress
+COMPRESS=0
+
+# Enhanced logging
+# Log "chain: src_IP:port dest_IP:port proto | desc"
+# 0 - Old logging
+# 1 - New logging
+ENHLOG=0
+
+
 
 # Exit Status Codes
 # TODO: Rework exit status to LSB conformance:

@@ -73,6 +73,7 @@ static blocklist_t blocklist;
 static int opt_daemon = 0, daemonized = 0;
 static int benchmark = 0;
 int opt_verbose = 0;
+int enhlog = 0;
 static int queue_num = 0;
 static int use_syslog = 1;
 static uint32_t accept_mark = 0, reject_mark = 0;
@@ -642,6 +643,7 @@ print_usage()
     fprintf(stderr, "        -f            Blocklist file name\n");
     fprintf(stderr, "        -p NAME       Use a pidfile named NAME\n");
     fprintf(stderr, "        -v            Verbose output\n");
+    fprintf(stderr, "        -e            Use enhanced logging\n");
     fprintf(stderr, "        -b            Benchmark IP matches per second\n");
     fprintf(stderr, "        -q 0-65535    NFQUEUE number, as specified in --queue-num with iptables\n");
     fprintf(stderr, "        -a MARK       32-bit mark to place on ACCEPTED packets\n");
@@ -684,7 +686,7 @@ main(int argc, char *argv[])
 {
     int opt, i;
 
-    while ((opt = getopt_long(argc, argv, "q:a:r:dbp:f:v"
+    while ((opt = getopt_long(argc, argv, "q:a:r:dbp:f:ve"
 #ifndef LOWMEM
                               "c:"
 #endif
@@ -718,6 +720,9 @@ main(int argc, char *argv[])
             break;
         case 'v':
             opt_verbose++;
+            break;
+        case 'e':
+            enhlog++;
             break;
         case OPTION_NO_SYSLOG:
             use_syslog = 0;

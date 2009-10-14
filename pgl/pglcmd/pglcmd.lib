@@ -134,7 +134,7 @@ pidofproc () {
     local pidfile line i pids= status specified pid
     pidfile=
     specified=
-    
+
     OPTIND=1
     while getopts p: opt ; do
         case "$opt" in
@@ -177,7 +177,7 @@ pidofproc () {
 # 	# TODO: add this!?
 # 	if [ -x "$1" ] ; then
 # 		return 3	# daemon is installed, so it is known. But the pidfile
-# 					# (/var/run/$base.pid) is not existing/empty. So assume 
+# 					# (/var/run/$base.pid) is not existing/empty. So assume
 # 					# daemon is not running.
 # 	fi
 
@@ -194,7 +194,7 @@ pidofproc () {
 # already done so. The killproc function shall return the LSB defined exit
 # status codes. If called without a signal, it shall return 0 if the program has
 # been stopped or is not running and not 0 otherwise. If a signal is given, it
-# shall return 0 only if the program is running. 
+# shall return 0 only if the program is running.
 
 killproc () {
     local pidfile sig status base i name_param is_term_sig
@@ -353,7 +353,7 @@ log_daemon_msg () {
         echo -n "$1:"
         return
     fi
-    
+
     echo -n "$1: $2"
 }
 
@@ -1137,7 +1137,7 @@ do_start_wd () {
 	echo -n "Starting $(basename $WD_PATHNAME) ..."
 	test_WD_PATHNAME
 	test_WD_PID
-	
+
 	# Test WD_NICE setting.
 	[ "$WD_NICE" -ge -20 ] && [ "$WD_NICE" -le 19 ] || {
 		log_failure_msg "Error $E_CONFIG: Check the WD_NICE setting."
@@ -1291,6 +1291,21 @@ do_start () {
 					NFQUEUE_NUMBER_OPT=""
 					;;
 			esac
+            # Set pgld verbosity
+            if [ "$DAEMON_VERBOSE_LOGGING" -eq 1 ]
+            then
+                DAEMON_VERBOSE_LOGGING_OPT="-v"
+            else
+                DAEMON_VERBOSE_LOGGING_OPT=""
+            fi
+
+            # Set enhanced logging
+            if [ "$ENHLOG" -eq 1 ]
+            then
+                ENHLOG_OPT="-e"
+            else
+                ENHLOG_OPT=""
+            fi
 
 			# Set the daemon options
 			if [ -n "$CUSTOM_DAEMON_OPTS" ] ; then
@@ -1298,7 +1313,7 @@ do_start () {
 				DAEMON_OPTS="$CUSTOM_DAEMON_OPTS"
 			else
 				# The options the daemon is started with
-				DAEMON_OPTS="-d -f $BLOCKLIST -p $PIDFILE $NFQUEUE_NUMBER_OPT $REJECT_OPT $ACCEPT_OPT $LOG_SYSLOG_OPT"
+				DAEMON_OPTS="-d -f $BLOCKLIST -p $PIDFILE $NFQUEUE_NUMBER_OPT $REJECT_OPT $ACCEPT_OPT $LOG_SYSLOG_OPT $ENHLOG_OPT $DAEMON_VERBOSE_LOGGING_OPT"
 			fi
 
 			# Test NICE_LEVEL setting.
