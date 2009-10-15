@@ -2,6 +2,7 @@ pglcmd (2.0~pre1-1) unstable; urgency=low
 
   * transition to pglcmd at peerguardian.sourceforge.net
   * updated description
+  * init: added should-start after dbus
 
  -- jre <jre-phoenix@users.sourceforge.net>  Wed, 07 Oct 2009 22:24:03 +0200
 
