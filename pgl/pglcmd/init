@@ -21,7 +21,7 @@
 # Required-Start:    $local_fs $remote_fs $syslog
 # Required-Stop:     $local_fs $remote_fs $syslog
 # Should-Start:      dbus firehol firestarter ufw
-# Should-Stop:       firehol firestarter ufw
+# Should-Stop:       dbus firehol firestarter ufw
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: PeerGuardian Linux - an IP Blocker
