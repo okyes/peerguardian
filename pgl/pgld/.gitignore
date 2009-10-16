@@ -10,6 +10,7 @@
 # Normal rules
 #
 .*
+!.gitignore
 *.o
 *.a
 *.so
@@ -17,5 +18,3 @@
 *.tgz
 
 *.orig
-*~
-\#*#

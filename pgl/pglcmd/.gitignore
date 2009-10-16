@@ -7,13 +7,6 @@
 # command after changing this file, to see if there are
 # any tracked files which get ignored after the change.
 #
-# Normal rules
-#
-*.gz
-*.tgz
-*.changes
-*.deb
-*.dsc
-*.orig
-*~
-\#*#
+build-stamp
+configure-stamp
+patch
