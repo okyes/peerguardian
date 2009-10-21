@@ -78,4 +78,4 @@ http://list.iblocklist.com/?list=bt_proxy
 # Bluetack dshield
 http://list.iblocklist.com/?list=bt_dshield
 
-#locallist /etc/pglcmd/custom-blocklist.p2p
+#locallist /etc/pgl/custom-blocklist.p2p

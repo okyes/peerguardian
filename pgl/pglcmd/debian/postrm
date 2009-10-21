@@ -22,17 +22,17 @@ set -e
 
 case "$1" in
 	purge)
-		[ ! -d /var/spool/pglcmd ] || { echo -n "Removing /var/spool/pglcmd and its contents" ; rm -rf /var/spool/pglcmd ; echo "." ; }
+		[ ! -d /var/spool/pgl ] || { echo -n "Removing /var/spool/pgl and its contents" ; rm -rf /var/spool/pgl ; echo "." ; }
 		LISTS="guarding.p2p guarding.p2p.backup guarding.p2b guarding.p2b.backup ipfilter.dat ipfilter.dat.backup"
 		for LIST in $LISTS ; do
-			[ ! -f /var/lib/pglcmd/$LIST ] || { echo -n "Removing /var/lib/pglcmd/$LIST" ; rm /var/lib/pglcmd/$LIST && echo "." ; }
+			[ ! -f /var/lib/pgl/$LIST ] || { echo -n "Removing /var/lib/pgl/$LIST" ; rm /var/lib/pgl/$LIST && echo "." ; }
 		done
 		# User/mobloquer might have changed frequency from daily:
 		[ ! -e /etc/cron.*/pglcmd ] || \
 			rm /etc/cron.*/pglcmd
 		# The _back files are created by mobloquer.
 		for FILE in pglcmd.conf_back blocklists.list_back iptables-custom-insert.sh iptables-custom-remove.sh ; do
-			[ ! -f /etc/pglcmd/$FILE ] || { echo -n "Removing /etc/pglcmd/$FILE" ; rm /etc/pglcmd/$FILE && echo "." ; }
+			[ ! -f /etc/pgl/$FILE ] || { echo -n "Removing /etc/pgl/$FILE" ; rm /etc/pgl/$FILE && echo "." ; }
 		done
 		;;
 	remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)

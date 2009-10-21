@@ -122,16 +122,16 @@ blocklist fails to extract, it is deleted and the operation aborts.
 .SH CONFIGURATION
 .P
 Blocklists are configured in \fIblocklists.list\fR
-(/etc/pglcmd/blocklists.list).
+(/etc/pgl/blocklists.list).
 .P
-The allow list is \fIallow.p2p\fR (/etc/pglcmd/allow.p2p). Per default,
+The allow list is \fIallow.p2p\fR (/etc/pgl/allow.p2p). Per default,
 the allowlist is used for incoming and outgoing connections. If desired
 different allow lists for incoming, outgoing and forward connections may be
 used.
 .P
 The rest is done in \fIpglcmd.conf\fR
-(/etc/pglcmd/pglcmd.conf). Refer to pglcmd.defaults
-(/usr/lib/pglcmd/pglcmd.defaults) for the complete set of possible
+(/etc/pgl/pglcmd.conf). Refer to pglcmd.defaults
+(/usr/lib/pgl/pglcmd.defaults) for the complete set of possible
 configuration variables with comments.
 
 .SH RETURN VALUES
@@ -196,29 +196,29 @@ Testhost (serving the default blocklists) is not reachable
 .SH FILES
 .IP /usr/bin/pglcmd
 The shell script \fBpglcmd\fR.
-.IP /usr/lib/pglcmd/pglcmd.main
+.IP /usr/lib/pgl/pglcmd.main
 The core of all executable scripts.
-.IP /usr/lib/pglcmd/pglcmd.defaults
+.IP /usr/lib/pgl/pglcmd.defaults
 Default settings for all variables and pathnames.
-.IP /usr/lib/pglcmd/pglcmd.lib
+.IP /usr/lib/pgl/pglcmd.lib
 Library for pglcmd.main.
-.IP /etc/pglcmd/blocklists.list
+.IP /etc/pgl/blocklists.list
 Lists all blocklists that are used (and downloaded) by \fBpglcmd\fR
 for use by the IP block daemon.
-.IP /etc/pglcmd/pglcmd.conf
+.IP /etc/pgl/pglcmd.conf
 The user configuration file for \fBpglcmd\fR.
-.IP /etc/pglcmd/allow.p2p
+.IP /etc/pgl/allow.p2p
 The allow list in the peerguardian .p2p text format.
 .IP /etc/network/if-up.d/pglcmd
 Gets executed whenever a network interface is brought up to make sure that the
 automatic whitelisting of LAN traffic and the DNS server does work.
-.IP /etc/pglcmd/[NAME]insert.sh
-Script to insert custom iptables rules. Any script in /etc/pglcmd/ (the
+.IP /etc/pgl/[NAME]insert.sh
+Script to insert custom iptables rules. Any script in /etc/pgl/ (the
 directory is defined in IPTABLES_CUSTOM_DIR) that ends in insert.sh will be
 executed on every "pglcmd start", if IPTABLES_SETTINGS="1" or "2" is
 configured.
-.IP /etc/pglcmd/[NAME]remove.sh
-Script to delete custom iptables rules. Any script in /etc/pglcmd/ (the
+.IP /etc/pgl/[NAME]remove.sh
+Script to delete custom iptables rules. Any script in /etc/pgl/ (the
 directory is defined in IPTABLES_CUSTOM_DIR) that ends in remove.sh will be
 executed on every "pglcmd stop", if IPTABLES_SETTINGS="1" or "2" is
 configured.
@@ -228,20 +228,20 @@ Starts the IP block daemon automatically on every bootup.
 Updates the blocklists automatically.
 .IP /etc/logrotate.d/pglcmd
 Rotates the logfiles daily.
-.IP /var/lib/pglcmd/ipfilter.dat
+.IP /var/lib/pgl/ipfilter.dat
 The master blocklist used by the IP block daemon if the blocklist is in eMule
 ipfilter.dat format.
-.IP /var/lib/pglcmd/guarding.p2b
+.IP /var/lib/pgl/guarding.p2b
 The master blocklist used by the IP block daemon if the blocklist is in
 peerguardian .p2b v2 binary format.
-.IP /var/lib/pglcmd/guarding.p2p
+.IP /var/lib/pgl/guarding.p2p
 The master blocklist used by the IP block daemon if the blocklist is in
 peerguardian .p2p text format.
 .IP /var/log/pglcmd.log
 The log file of the \fBpglcmd\fR script. This file contains amongst
 other things about starting/stopping the IP block daemon and updating the
 blocklists.
-.IP /var/spool/pglcmd
+.IP /var/spool/pgl
 The single blocklists are downloaded and manipulated in subfolders of this
 folder.
 

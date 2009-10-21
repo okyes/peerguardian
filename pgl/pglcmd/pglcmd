@@ -27,7 +27,7 @@
 # This can happen in early boot stages before local file systems are mounted.
 
 # CONTROL_MAIN has to be set correctly in all just mentioned files.
-CONTROL_MAIN="/usr/lib/pglcmd/pglcmd.main"
+CONTROL_MAIN="/usr/lib/pgl/pglcmd.main"
 
 # Configure pglcmd and load functions.
 if [ -f "$CONTROL_MAIN" ] ; then

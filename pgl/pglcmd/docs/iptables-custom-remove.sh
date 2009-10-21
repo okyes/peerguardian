@@ -1,7 +1,7 @@
 #!/bin/sh
 # iptables-custom-remove.sh - example custom iptables deletion script
 
-# Every file in the IPTABLES_CUSTOM_DIR directory (/etc/pglcmd), that ends
+# Every file in the IPTABLES_CUSTOM_DIR directory (/etc/pgl), that ends
 # in ...remove.sh will be executed on every "pglcmd stop" for 2 settings:
 
 # Default setup (IPTABLES_SETTINGS="1"):
@@ -11,7 +11,7 @@
 # chains get flushed by pglcmd.
 
 # IPTABLES_SETTINGS="2" is set in pglcmd.conf
-# (/etc/pglcmd/pglcmd.conf):
+# (/etc/pgl/pglcmd.conf):
 # Only this script will be executed.
 
 # pgl checks traffic that is sent to the iptables target NFQUEUE.

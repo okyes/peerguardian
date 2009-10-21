@@ -169,13 +169,13 @@ blocklist fails to extract, it is deleted and the operation aborts.
 Configuration:
 
 Blocklists are configured in blocklists.list
-(/etc/pglcmd/blocklists.list).
+(/etc/pgl/blocklists.list).
 
-Most things are done in pglcmd.conf (/etc/pglcmd/pglcmd.conf).
-Refer to pglcmd.defaults (/usr/lib/pglcmd/pglcmd.defaults) for
+Most things are done in pglcmd.conf (/etc/pgl/pglcmd.conf).
+Refer to pglcmd.defaults (/usr/lib/pgl/pglcmd.defaults) for
 the complete set of possible configuration variables with comments.
 
-The allow list for IP ranges is allow.p2p (/etc/pglcmd/allow.p2p). Per
+The allow list for IP ranges is allow.p2p (/etc/pgl/allow.p2p). Per
 default, the allowlist is used for incoming and outgoing connections. If desired
 different allow lists for incoming, outgoing and forward connections may be
 used.
@@ -220,13 +220,13 @@ Files:
   executable.
 
 - iptables-custom-insert.sh (example)
-  Script to insert custom iptables rules. Any script in /etc/pglcmd/ (the
+  Script to insert custom iptables rules. Any script in /etc/pgl/ (the
   directory is defined in IPTABLES_CUSTOM_DIR) that ends in insert.sh will be
   executed on every "pglcmd start", if IPTABLES_SETTINGS="1" or "2" is
   configured.
 
 - iptables-custom-remove.sh (example)
-  Script to delete custom iptables rules. Any script in /etc/pglcmd/ (the
+  Script to delete custom iptables rules. Any script in /etc/pgl/ (the
   directory is defined in IPTABLES_CUSTOM_DIR) that ends in remove.sh will be
   executed on every "pglcmd stop", if IPTABLES_SETTINGS="1" or "2" is
   configured.
@@ -255,7 +255,7 @@ Files:
 The following directories/files will be created on usage (path examples for
 Debian, configurable in pglcmd.conf):
 
-- /var/spool/pglcmd
+- /var/spool/pgl
   The single blocklists are downloaded and manipulated in subfolders of this
   folder.
 
@@ -267,9 +267,9 @@ Debian, configurable in pglcmd.conf):
 - /var/log/moblock.log + rotated logs
   The logfile of the MoBlock daemon. NFBlock uses /var/log/syslog.
 
-- /var/lib/pglcmd/guarding.p2p + backup or
-  /var/lib/pglcmd/guarding.p2b + backup or
-  /var/lib/pglcmd/ipfilter.dat + backup
+- /var/lib/pgl/guarding.p2p + backup or
+  /var/lib/pgl/guarding.p2b + backup or
+  /var/lib/pgl/ipfilter.dat + backup
   The master blocklist used by the IP block daemon depending on the used format.
 
 ================================================================================
@@ -300,7 +300,7 @@ http://forums.phoenixlabs.org/showpost.php?p=107810&postcount=22
 
 pglcmd will detect if you have installed moblock or nfblockd (in PATH as
 specified in pglcmd.defaults) automatically. Otherwise you can specify
-this in pglcmd.conf (/etc/pglcmd/pglcmd.conf).
+this in pglcmd.conf (/etc/pgl/pglcmd.conf).
 
 ================================================================================
 
@@ -314,9 +314,9 @@ directly to the IP block daemon (MoBlock or NFBlock), then "moblock" or
 "nfblock" is used.
 
 Changed directories:
-/etc/moblock > /etc/pglcmd
-/var/spool/moblock > /var/spool/pglcmd
-/var/lib/moblock > /var/lib/pglcmd
+/etc/moblock > /etc/pgl
+/var/spool/moblock > /var/spool/pgl
+/var/lib/moblock > /var/lib/pgl
 
 Changed filenames:
 /etc/cron.daily/moblock > /etc/cron.daily/pglcmd
@@ -326,12 +326,12 @@ Changed filenames:
 
 Configuration in default (/etc/default/moblock):
   - REMOVED
-  - use /etc/pglcmd/pglcmd.conf instead.
+  - use /etc/pgl/pglcmd.conf instead.
   - the complete set of possible configuration variables with comments is in
-    pglcmd.defaults (/usr/lib/pglcmd/pglcmd.defaults).
+    pglcmd.defaults (/usr/lib/pgl/pglcmd.defaults).
 
 NEW:
-pglcmd.main (/usr/lib/pglcmd/pglcmd.main):
+pglcmd.main (/usr/lib/pgl/pglcmd.main):
 contains most of the common code between the executable scripts.
 
 Changed variable names:

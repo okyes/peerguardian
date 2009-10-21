@@ -76,7 +76,7 @@ _Description: What blocklists shall be used?
   http://www.bluetack.co.uk/forums/index.php?autocom=faq&CODE=02&qid=17 and of
  course http://phoenixlabs.org.
  .
- If you have specified additional blocklists in /etc/pglcmd/blocklists.list
+ If you have specified additional blocklists in /etc/pgl/blocklists.list
  they will be kept as well. Known blocklists in an incompatible blocklist format
  will be commented out.
 
@@ -95,7 +95,7 @@ _Description: What blocklists shall be used?
   http://www.bluetack.co.uk/forums/index.php?autocom=faq&CODE=02&qid=17 and
   http://tbg.iblocklist.com/pages/faq.html
  .
- If you have specified additional blocklists in /etc/pglcmd/blocklists.list,
+ If you have specified additional blocklists in /etc/pgl/blocklists.list,
  they will be kept as well. Known blocklists in an incompatible blocklist
  format will be commented out.
 
@@ -197,7 +197,7 @@ _Description: Set how traffic is sent to the IP block daemon:
  (pglcmd_in, pglcmd_out and pglcmd_fw).
  .
  You can set custom iptables rules in
- /etc/pglcmd/iptables-custom-insert.sh and iptables-custom-remove.sh.
+ /etc/pgl/iptables-custom-insert.sh and iptables-custom-remove.sh.
  These scripts are executed either additionally to the default iptables rules
  insertion/removal or exclusively.
 
@@ -408,13 +408,13 @@ Type: string
 Default: 
 _Description: Add a line to the allowlist:
  Any value given here will be added to the allow list (per default this is
- /etc/pglcmd/allow.p2p). Lines in the allow list must be in the PeerGuardian
+ /etc/pgl/allow.p2p). Lines in the allow list must be in the PeerGuardian
  .p2p text format:
    Some organization:1.0.0.0-1.255.255.255
  .
  This is also true if your blocklists are in another format.
  .
- You can whitelist more IP ranges by adding them to /etc/pglcmd/allow.p2p.
+ You can whitelist more IP ranges by adding them to /etc/pgl/allow.p2p.
 
 Template: pglcmd/IP_REMOVE
 Type: string

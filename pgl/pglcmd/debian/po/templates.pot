@@ -179,7 +179,7 @@ msgstr ""
 #. Description
 #: ../templates:4001
 msgid ""
-"If you have specified additional blocklists in /etc/pglcmd/blocklists.list "
+"If you have specified additional blocklists in /etc/pgl/blocklists.list "
 "they will be kept as well. Known blocklists in an incompatible blocklist "
 "format will be commented out."
 msgstr ""
@@ -214,7 +214,7 @@ msgstr ""
 #. Description
 #: ../templates:5001
 msgid ""
-"If you have specified additional blocklists in /etc/pglcmd/blocklists.list, "
+"If you have specified additional blocklists in /etc/pgl/blocklists.list, "
 "they will be kept as well. Known blocklists in an incompatible blocklist "
 "format will be commented out."
 msgstr ""
@@ -428,7 +428,7 @@ msgstr ""
 #. Description
 #: ../templates:13001
 msgid ""
-"You can set custom iptables rules in /etc/pglcmd/iptables-custom-insert.sh "
+"You can set custom iptables rules in /etc/pgl/iptables-custom-insert.sh "
 "and iptables-custom-remove.sh. These scripts are executed either "
 "additionally to the default iptables rules insertion/removal or exclusively."
 msgstr ""
@@ -807,7 +807,7 @@ msgstr ""
 #: ../templates:28001
 msgid ""
 "Any value given here will be added to the allow list (per default this is /"
-"etc/pglcmd/allow.p2p). Lines in the allow list must be in the PeerGuardian ."
+"etc/pgl/allow.p2p). Lines in the allow list must be in the PeerGuardian ."
 "p2p text format:\n"
 "  Some organization:1.0.0.0-1.255.255.255"
 msgstr ""
@@ -822,7 +822,7 @@ msgstr ""
 #. Description
 #: ../templates:28001
 msgid ""
-"You can whitelist more IP ranges by adding them to /etc/pglcmd/allow.p2p."
+"You can whitelist more IP ranges by adding them to /etc/pgl/allow.p2p."
 msgstr ""
 
 #. Type: string
