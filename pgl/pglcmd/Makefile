@@ -11,7 +11,7 @@ install:
 	install -D -m 755 pglcmd.main $(DESTDIR)/usr/lib/pgl/pglcmd.main
 	install -D -m 644 pglcmd.defaults $(DESTDIR)/usr/lib/pgl/pglcmd.defaults
 	install -D -m 644 pglcmd.lib $(DESTDIR)/usr/lib/pgl/pglcmd.lib
-	install -D -m 755 pglcmd.wd $(DESTDIR)/usr/bin/pglcmd.wd
+	install -D -m 755 pglcmd.wd $(DESTDIR)/usr/sbin/pglcmd.wd
 	install -D -m 644 allow.p2p $(DESTDIR)/etc/pgl/allow.p2p
 	install -D -m 644 pglcmd.conf $(DESTDIR)/etc/pgl/pglcmd.conf
 	install -D -m 644 blocklists.list $(DESTDIR)/etc/pgl/blocklists.list

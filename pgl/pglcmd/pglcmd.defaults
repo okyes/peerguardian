@@ -33,7 +33,7 @@ CMD_PATHNAME="/usr/bin/$CMD_NAME"
 VERSION=git
 
 # The path and pidfile of the pglcmd.wd script
-WD_PATHNAME="/usr/bin/$CMD_NAME.wd"
+WD_PATHNAME="/usr/sbin/$CMD_NAME.wd"
 WD_PID="/var/run/$(basename $WD_PATHNAME).pid"
 
 # pglcmd's log file
