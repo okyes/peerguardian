@@ -23,22 +23,22 @@
 
 # Whitelist outgoing TCP traffic to port 80 for the application firefox-bin:
 # My system doesn't support this, feedback welcome ;-)
-iptables -I pglcmd_out -p tcp --dport 80 -m owner --pid-owner [processid] -j RETURN
-iptables -I pglcmd_out -p tcp --dport 80 -m owner --pid-owner firefox-bin -j RETURN
+iptables -I pgl_out -p tcp --dport 80 -m owner --pid-owner [processid] -j RETURN
+iptables -I pgl_out -p tcp --dport 80 -m owner --pid-owner firefox-bin -j RETURN
 
 # Whitelist outgoing TCP traffic on port 80 if it does not belong to user
 # [username]. This may be used e.g. if there are normal desktop users (who are
 # allowed to surf the web without being controlled), while the
 # applications whose complete traffic shall be checked are run by the separate
 # user [username].
-iptables -I pglcmd_out -p tcp --dport 80 -m owner ! --uid-owner [username] -j RETURN
+iptables -I pgl_out -p tcp --dport 80 -m owner ! --uid-owner [username] -j RETURN
 
 # Whitelist outgoing TCP traffic on port 80 if it does belong to user
 # [username]. This may be used e.g. if there is a normal desktop user [username]
 # (who is allowed to surf the web without being controlled), while
 # the applications whose complete traffic shall be checked are run by separate
 # users.
-iptables -I pglcmd_out -p tcp --dport 80 -m owner --uid-owner [username] -j RETURN
+iptables -I pgl_out -p tcp --dport 80 -m owner --uid-owner [username] -j RETURN
 
 # Whitelist outgoing TCP traffic on port [port] to the destination iprange [x.x.x.x-y.y.y.y].
 # Be careful with the syntax: there must be no spaces in the iprange!
@@ -51,7 +51,7 @@ iptables -I pglcmd_out -p tcp --dport 80 -m owner --uid-owner [username] -j RETU
 # blocked packets had the destination port 993. "whois 72.14.192.73" shows that
 # the range 72.14.192.0 - 72.14.255.255 is assigned to the same entity. You feel
 # safe to accept all outgoing TCP traffic on port 993 to this range so you do:
-iptables -I pglcmd_out -p tcp --dport 993 -m iprange --dst-range 72.14.192.0-72.14.255.255 -j RETURN
+iptables -I pgl_out -p tcp --dport 993 -m iprange --dst-range 72.14.192.0-72.14.255.255 -j RETURN
 
 # You may also insert rules for IPv6. Please note that neither the block
 # daemons, nore any known blocklist supports IPv6 currently.

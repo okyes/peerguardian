@@ -52,7 +52,7 @@ severe conflicts. Make sure the following three conditions hold:
   - pglcmd is started after other firewalls. If other firewalls are
     started/reloaded after pglcmd, then you need to restart pglcmd
     again. You will be fine, if the iptables rules which send traffic to the
-    iptables chains (pglcmd_in, pglcmd_out and pglcmd_fw)
+    iptables chains (pgl_in, pgl_out and pgl_fwd)
     stand before all other iptables rules which ACCEPT traffic.
     To help you achieve this, pglcmd.wd restarts pglcmd if it
     detects any problems. But it's still recommended, to restart pglcmd

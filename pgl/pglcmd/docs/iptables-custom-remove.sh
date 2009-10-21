@@ -7,7 +7,7 @@
 # Default setup (IPTABLES_SETTINGS="1"):
 # pglcmd will first remove its iptables setup, afterwards this script gets
 # executed. Note that you don't need to remove custom iptables rules from the
-# chains pglcmd_in, pglcmd_out and pglcmd_fw, since these
+# chains pgl_in, pgl_out and pgl_fwd, since these
 # chains get flushed by pglcmd.
 
 # IPTABLES_SETTINGS="2" is set in pglcmd.conf

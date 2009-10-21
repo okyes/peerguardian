@@ -763,8 +763,8 @@ white_lan () {
 				# if-up: first check if LAN is already whitelisted.
 				echo -n "Allowing inbound LAN traffic for $IP with subnetmask $SUBNETMASK"
 				if [ "$1" = start ] || [ "$1" = restart ] || \
-				! iptables -nv -L ${CMD_NAME}_in | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
-					iptables -I ${CMD_NAME}_in --source ${IP}/${SUBNETMASK} -j $IPTABLES_TARGET_WHITELISTING
+				! iptables -nv -L ${IPTABLES_IN} | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
+					iptables -I ${IPTABLES_IN} --source ${IP}/${SUBNETMASK} -j $IPTABLES_TARGET_WHITELISTING
 					RETVAL=$?
 					log_end_msg $RETVAL
 					[ "$RETVAL" = 0 ] || exit $E_IPTABLES
@@ -773,8 +773,8 @@ white_lan () {
 				fi
 				echo -n "Allowing outbound LAN traffic for $IP with subnetmask $SUBNETMASK"
 				if [ "$1" = start ] || [ "$1" = restart ] || \
-				! iptables -nv -L ${CMD_NAME}_out | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
-					iptables -I ${CMD_NAME}_out --destination ${IP}/${SUBNETMASK} -j $IPTABLES_TARGET_WHITELISTING
+				! iptables -nv -L ${IPTABLES_OUT} | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
+					iptables -I ${IPTABLES_OUT} --destination ${IP}/${SUBNETMASK} -j $IPTABLES_TARGET_WHITELISTING
 					RETVAL=$?
 					log_end_msg $RETVAL
 					[ "$RETVAL" = 0 ] || exit $E_IPTABLES
@@ -783,8 +783,8 @@ white_lan () {
 				fi
 				echo -n "Allowing forwarded LAN traffic for $IP with subnetmask $SUBNETMASK"
 				if [ "$1" = start ] || [ "$1" = restart ] || \
-				! iptables -nv -L ${CMD_NAME}_fw | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
-					iptables -I ${CMD_NAME}_fw --source ${IP}/${SUBNETMASK} --destination ${IP}/${SUBNETMASK} -j $IPTABLES_TARGET_WHITELISTING
+				! iptables -nv -L ${IPTABLES_FWD} | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
+					iptables -I ${IPTABLES_FWD} --source ${IP}/${SUBNETMASK} --destination ${IP}/${SUBNETMASK} -j $IPTABLES_TARGET_WHITELISTING
 					RETVAL=$?
 					log_end_msg $RETVAL
 					[ "$RETVAL" = 0 ] || exit $E_IPTABLES
@@ -810,8 +810,8 @@ white_dns () {
 	# if-up: first check if DNS server is already whitelisted.
 		echo -n "Allowing outbound traffic to DNS server $IP"
 		if [ "$1" = start ] || [ "$1" = restart ] || \
-		! iptables -nv -L ${CMD_NAME}_out | grep -F "$IP " | grep $IPTABLES_TARGET_WHITELISTING > /dev/null 2>&1 ; then
-			iptables -I ${CMD_NAME}_out --destination $IP -j $IPTABLES_TARGET_WHITELISTING
+		! iptables -nv -L ${IPTABLES_OUT} | grep -F "$IP " | grep $IPTABLES_TARGET_WHITELISTING > /dev/null 2>&1 ; then
+			iptables -I ${IPTABLES_OUT} --destination $IP -j $IPTABLES_TARGET_WHITELISTING
 			RETVAL=$?
 			log_end_msg $RETVAL
 			[ "$RETVAL" = 0 ] || exit $E_IPTABLES
@@ -820,8 +820,8 @@ white_dns () {
 		fi
 		echo -n "Allowing forwarded traffic to DNS server $IP"
 		if [ "$1" = start ] || [ "$1" = restart ] || \
-		! iptables -nv -L ${CMD_NAME}_fw | grep -F $IP | grep $IPTABLES_TARGET_WHITELISTING > /dev/null 2>&1 ; then
-			iptables -I ${CMD_NAME}_fw --destination $IP -j $IPTABLES_TARGET_WHITELISTING
+		! iptables -nv -L ${IPTABLES_FWD} | grep -F $IP | grep $IPTABLES_TARGET_WHITELISTING > /dev/null 2>&1 ; then
+			iptables -I ${IPTABLES_FWD} --destination $IP -j $IPTABLES_TARGET_WHITELISTING
 			RETVAL=$?
 			log_end_msg $RETVAL
 			[ "$RETVAL" = 0 ] || exit $E_IPTABLES
@@ -841,7 +841,7 @@ insert_iptables () {
 				log_warning_msg "$(basename $0) is configured not to insert iptables rules."
 			fi
 			;;
-		# Place iptables rules in separate iptables chains (pglcmd_in, pglcmd_out and pglcmd_fw).
+		# Place iptables rules in separate iptables chains (pgl_in, pgl_out and pgl_fwd).
 		'1')
 			test_IPTABLES_TARGET
 			test_REJECT
@@ -858,48 +858,48 @@ insert_iptables () {
 					;;
 			esac
 
-			iptables -N ${CMD_NAME}_in || { log_end_msg $? ; exit $E_IPTABLES ; }
-			iptables -N ${CMD_NAME}_out || { log_end_msg $? ; exit $E_IPTABLES ; }
-			iptables -N ${CMD_NAME}_fw || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -N ${IPTABLES_IN} || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -N ${IPTABLES_OUT} || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -N ${IPTABLES_FWD} || { log_end_msg $? ; exit $E_IPTABLES ; }
 
-			iptables -I ${CMD_NAME}_in -j $IPTABLES_TARGET_BLOCK || { log_end_msg $? ; exit $E_IPTABLES ; }
-			iptables -I ${CMD_NAME}_out -j $IPTABLES_TARGET_BLOCK || { log_end_msg $? ; exit $E_IPTABLES ; }
-			iptables -I ${CMD_NAME}_fw -j $IPTABLES_TARGET_BLOCK || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I ${IPTABLES_IN} -j $IPTABLES_TARGET_BLOCK || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I ${IPTABLES_OUT} -j $IPTABLES_TARGET_BLOCK || { log_end_msg $? ; exit $E_IPTABLES ; }
+			iptables -I ${IPTABLES_FWD} -j $IPTABLES_TARGET_BLOCK || { log_end_msg $? ; exit $E_IPTABLES ; }
 
 			# Port Whitelisting
 			for PORT in $WHITE_TCP_IN ; do
-				iptables -I ${CMD_NAME}_in -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I ${IPTABLES_IN} -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 			done
 			for PORT in $WHITE_UDP_IN ; do
-				iptables -I ${CMD_NAME}_in -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I ${IPTABLES_IN} -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 			done
 
 			for PORT in $WHITE_TCP_OUT ; do
-				iptables -I ${CMD_NAME}_out -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I ${IPTABLES_OUT} -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 			done
 			for PORT in $WHITE_UDP_OUT ; do
-				iptables -I ${CMD_NAME}_out -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I ${IPTABLES_OUT} -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 			done
 
 			for PORT in $WHITE_TCP_FORWARD ; do
-				iptables -I ${CMD_NAME}_fw -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I ${IPTABLES_FWD} -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 			done
 			for PORT in $WHITE_UDP_FORWARD ; do
-				iptables -I ${CMD_NAME}_fw -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I ${IPTABLES_FWD} -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 			done
 
 			# IP Whitelisting
 			for IP in $WHITE_IP_IN ; do
-				iptables -I ${CMD_NAME}_in --source $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I ${IPTABLES_IN} --source $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 			done
 
 			for IP in $WHITE_IP_OUT ; do
-				iptables -I ${CMD_NAME}_out --destination $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I ${IPTABLES_OUT} --destination $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 			done
 
 			for IP in $WHITE_IP_FORWARD ; do
-				iptables -I ${CMD_NAME}_fw --source $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
-				iptables -I ${CMD_NAME}_fw --destination $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I ${IPTABLES_FWD} --source $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I ${IPTABLES_FWD} --destination $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
 			done
 
 			# IP ranges whitelisting
@@ -910,7 +910,7 @@ insert_iptables () {
 				for LINE in $ALLOW ; do
 					IPRANGE_BEGIN="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -n1)"
 					IPRANGE_END="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1)"
-					iptables -I ${CMD_NAME}_in -m iprange --src-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
+					iptables -I ${IPTABLES_IN} -m iprange --src-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
 						# If iptables insertion failed assume that the line is malformed.
 						# Comment this line out.
 						sed -i "s|^$LINE$|# Malformed line commented out by $(basename $0): &|" $ALLOW_IN
@@ -923,7 +923,7 @@ insert_iptables () {
 				for LINE in $ALLOW ; do
 					IPRANGE_BEGIN="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -n1)"
 					IPRANGE_END="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1)"
-					iptables -I ${CMD_NAME}_out -m iprange --dst-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
+					iptables -I ${IPTABLES_OUT} -m iprange --dst-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
 						# If iptables insertion failed assume that the line is malformed.
 						# Comment this line out.
 						sed -i "s|^$LINE$|# Malformed line commented out by $(basename $0): &|" $ALLOW_OUT
@@ -936,8 +936,8 @@ insert_iptables () {
 				for LINE in $ALLOW ; do
 					IPRANGE_BEGIN="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -n1)"
 					IPRANGE_END="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1)"
-					iptables -I ${CMD_NAME}_fw -m iprange --dst-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING && \
-					iptables -I ${CMD_NAME}_fw -m iprange --src-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
+					iptables -I ${IPTABLES_FWD} -m iprange --dst-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING && \
+					iptables -I ${IPTABLES_FWD} -m iprange --src-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
 						# If iptables insertion failed assume that the line is malformed.
 						# Comment this line out.
 						sed -i "s|^$LINE$|# Malformed line commented out by $(basename $0): &|" $ALLOW_FW
@@ -956,8 +956,8 @@ insert_iptables () {
 
 				# Insert whitelisting rules for whole loopback interface
 				echo -n "Allowing loopback traffic"
-				iptables -I ${CMD_NAME}_in -i lo -j $IPTABLES_TARGET_WHITELISTING && \
-				iptables -I ${CMD_NAME}_out -o lo -j $IPTABLES_TARGET_WHITELISTING
+				iptables -I ${IPTABLES_IN} -i lo -j $IPTABLES_TARGET_WHITELISTING && \
+				iptables -I ${IPTABLES_OUT} -o lo -j $IPTABLES_TARGET_WHITELISTING
 				RETVAL=$?
 				log_end_msg $RETVAL
 				[ "$RETVAL" = 0 ] || exit $E_IPTABLES
@@ -971,16 +971,16 @@ insert_iptables () {
 			# keep those chains cleaner. It has to be made sure that the MARK of the
 			# packets is not changed by other iptables rules.
 			if [ "$REJECT" -eq 1 ] ; then
-				iptables -I ${CMD_NAME}_in -m mark --mark $REJECT_MARK -j $REJECT_IN || { log_end_msg $? ; exit $E_IPTABLES ; }
-				iptables -I ${CMD_NAME}_out -m mark --mark $REJECT_MARK -j $REJECT_OUT || { log_end_msg $? ; exit $E_IPTABLES ; }
-				iptables -I ${CMD_NAME}_fw -m mark --mark $REJECT_MARK -j $REJECT_FW || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I ${IPTABLES_IN} -m mark --mark $REJECT_MARK -j $REJECT_IN || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I ${IPTABLES_OUT} -m mark --mark $REJECT_MARK -j $REJECT_OUT || { log_end_msg $? ; exit $E_IPTABLES ; }
+				iptables -I ${IPTABLES_FWD} -m mark --mark $REJECT_MARK -j $REJECT_FW || { log_end_msg $? ; exit $E_IPTABLES ; }
 				# Log "Marked block" packages: The log-iptables-rules should be
 				# placed directly before the block-iptables-rules (i.e. Insert them
 				# directly after them)
 				if [ -n "$LOG_IPTABLES" ] ; then	# string is not empty
-					iptables -I ${CMD_NAME}_in -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || { log_end_msg $? ; exit $E_IPTABLES ; }
-					iptables -I ${CMD_NAME}_out -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || { log_end_msg $? ; exit $E_IPTABLES ; }
-					iptables -I ${CMD_NAME}_fw -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || { log_end_msg $? ; exit $E_IPTABLES ; }
+					iptables -I ${IPTABLES_IN} -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || { log_end_msg $? ; exit $E_IPTABLES ; }
+					iptables -I ${IPTABLES_OUT} -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || { log_end_msg $? ; exit $E_IPTABLES ; }
+					iptables -I ${IPTABLES_FWD} -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || { log_end_msg $? ; exit $E_IPTABLES ; }
 				fi
 			fi
 
@@ -1013,9 +1013,9 @@ insert_iptables () {
 							IPTABLES_MARK_ACCEPT="-m mark ! --mark $ACCEPT_MARK"
 							;;
 					esac
-					iptables -I INPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${CMD_NAME}_in || { log_end_msg $? ; exit $E_IPTABLES ; }
-					iptables -I OUTPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${CMD_NAME}_out || { log_end_msg $? ; exit $E_IPTABLES ; }
-					iptables -I FORWARD $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${CMD_NAME}_fw || { log_end_msg $? ; exit $E_IPTABLES ; }
+					iptables -I INPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_IN} || { log_end_msg $? ; exit $E_IPTABLES ; }
+					iptables -I OUTPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_OUT} || { log_end_msg $? ; exit $E_IPTABLES ; }
+					iptables -I FORWARD $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_FWD} || { log_end_msg $? ; exit $E_IPTABLES ; }
 					;;
 			esac
 
@@ -1084,17 +1084,17 @@ delete_iptables () {
 					IPTABLES_MARK_ACCEPT="-m mark ! --mark $ACCEPT_MARK"
 					;;
 			esac
-			iptables -D INPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${CMD_NAME}_in || IPTABLES_DELETE="1"
-			iptables -D OUTPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${CMD_NAME}_out || IPTABLES_DELETE="1"
-			iptables -D FORWARD $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${CMD_NAME}_fw || IPTABLES_DELETE="1"
+			iptables -D INPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_IN} || IPTABLES_DELETE="1"
+			iptables -D OUTPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_OUT} || IPTABLES_DELETE="1"
+			iptables -D FORWARD $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_FWD} || IPTABLES_DELETE="1"
 		fi
 
-		iptables -F ${CMD_NAME}_in || IPTABLES_DELETE="1"
-		iptables -F ${CMD_NAME}_out || IPTABLES_DELETE="1"
-		iptables -F ${CMD_NAME}_fw || IPTABLES_DELETE="1"
-		iptables -X ${CMD_NAME}_in || IPTABLES_DELETE="1"
-		iptables -X ${CMD_NAME}_out || IPTABLES_DELETE="1"
-		iptables -X ${CMD_NAME}_fw || IPTABLES_DELETE="1"
+		iptables -F ${IPTABLES_IN} || IPTABLES_DELETE="1"
+		iptables -F ${IPTABLES_OUT} || IPTABLES_DELETE="1"
+		iptables -F ${IPTABLES_FWD} || IPTABLES_DELETE="1"
+		iptables -X ${IPTABLES_IN} || IPTABLES_DELETE="1"
+		iptables -X ${IPTABLES_OUT} || IPTABLES_DELETE="1"
+		iptables -X ${IPTABLES_FWD} || IPTABLES_DELETE="1"
 
 		log_end_msg $IPTABLES_DELETE
 

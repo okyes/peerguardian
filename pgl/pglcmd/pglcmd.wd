@@ -85,10 +85,10 @@ while true ; do
 		# First check if the daemon is running.
 		status_of_proc $DAEMON $NAME > /dev/null 2>&1 && \
 		# Then check if traffic "might" be sent to the daemon.
-		iptables -L INPUT -n | grep "${CMD_NAME}_in" > /dev/null 2>&1 && \
-		iptables -L OUTPUT -n | grep "${CMD_NAME}_out" > /dev/null 2>&1 && \
-		iptables -L ${CMD_NAME}_in -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1 && \
-		iptables -L ${CMD_NAME}_out -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1
+		iptables -L INPUT -n | grep "${IPTABLES_IN}" > /dev/null 2>&1 && \
+		iptables -L OUTPUT -n | grep "${IPTABLES_OUT}" > /dev/null 2>&1 && \
+		iptables -L ${IPTABLES_IN} -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1 && \
+		iptables -L ${IPTABLES_OUT} -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1
 		# Not using "test" here, because ping fails if network is down,
 		# other iptables rules might block the test packet before it reaches
 		# pglcmd or the test packet might be whitelisted.

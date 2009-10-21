@@ -421,7 +421,7 @@ msgstr ""
 #: ../templates:13001
 msgid ""
 "The default is to place iptables rules in separate iptables chains "
-"(pglcmd_in, pglcmd_out and pglcmd_fw)."
+"(pgl_in, pgl_out and pgl_fwd)."
 msgstr ""
 
 #. Type: select

@@ -194,7 +194,7 @@ _Description: Set how traffic is sent to the IP block daemon:
  Configuration variable: IPTABLES_SETTINGS
  .
  The default is to place iptables rules in separate iptables chains
- (pglcmd_in, pglcmd_out and pglcmd_fw).
+ (pgl_in, pgl_out and pgl_fwd).
  .
  You can set custom iptables rules in
  /etc/pgl/iptables-custom-insert.sh and iptables-custom-remove.sh.
