@@ -23,7 +23,7 @@ build-stamp: configure-stamp
 	# Add here commands to compile the package.
 	# Link some files to debian/ directory until debhelper can handle such
 	# cases better. See http://bugs.debian.org/499486
-	ln init debian/init
+	ln init debian/pgl.init
 	ln cron.daily debian/cron.daily
 	ln if-up debian/if-up
 	ln logrotate debian/logrotate
@@ -73,7 +73,7 @@ binary-indep: build install
 #	dh_installemacsen
 #	dh_installpam
 #	dh_installmime
-	dh_installinit -- start 60 2 3 4 5 . stop 20 0 1 6 .
+	dh_installinit --name=pgl -- start 60 2 3 4 5 . stop 20 0 1 6 .
 	dh_installcron
 	dh_installifupdown
 #	dh_installinfo

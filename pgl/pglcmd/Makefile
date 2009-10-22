@@ -17,7 +17,7 @@ install:
 	install -D -m 644 blocklists.list $(DESTDIR)/etc/pgl/blocklists.list
 	install -D -m 755 if-up $(DESTDIR)/etc/network/if-up.d/pglcmd
 	install -D -m 755 cron.daily $(DESTDIR)/etc/cron.daily/pglcmd
-	install -D -m 755 init $(DESTDIR)/etc/init.d/pglcmd
+	install -D -m 755 init $(DESTDIR)/etc/init.d/pgl
 # 	update-rc.d pglcmd start 60 2 3 4 5 . stop 20 0 1 6 .
 	install -D -m 644 logrotate $(DESTDIR)/etc/logrotate.d/pglcmd
 	install -d $(DESTDIR)/var/lib/pgl
