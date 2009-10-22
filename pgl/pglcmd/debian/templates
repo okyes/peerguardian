@@ -1,7 +1,7 @@
 Template: pglcmd/warning_block
 Type: note
 _Description: WARNING: pgl may block your complete network/internet access!
- pglcmd is started automatically at system boot per default. Some preconfigured
+ pgl is started automatically at system boot per default. Some preconfigured
  blocklists are updated once a day. Be warned, that blocklists may block more
  than what you want. In most cases this will result in a limited  network
  availability. This includes your own LAN and router, many webpages, services
@@ -21,14 +21,15 @@ _Description: WARNING: pgl may block your complete network/internet access!
 Template: pglcmd/warning_firewall
 Type: note
 _Description: WARNING: Users with other firewall (iptables rules)
- If you use other firewalls or iptables rules, you have to take special care to
- avoid severe conflicts. Make sure the following three conditions hold:
-  - The IP block daemon marks non-matched (IP is not in the blocklist) packets.
+ pgl does not conflict with other firewalls (iptables rules). But if you use
+ them, you have to take special care to avoid severe conflicts. Make sure the
+ following three conditions hold:
+  - pgl marks non-matched (IP is not in the blocklist) packets.
     (The marking feature is on per default, so don't worry about that.)
   - Other firewalls do not mark packets.
-  - pglcmd is started after other firewalls. If other firewalls are
-    started/reloaded after pglcmd, then you need to restart pglcmd
-    again, if the other firewall messed up pglcmd's iptables setup.
+  - pgl is started after other firewalls. If other firewalls are
+    started/reloaded after pgl, then you need to restart pglcmd
+    again, if the other firewall messed up pgl's iptables setup.
  .
  So avoid severe misconfigurations by always doing a
   pglcmd restart
@@ -134,8 +135,8 @@ Default: Output to STDOUT is on.
 _Description: Set the verbosity of pglcmd:
  Configuration variable: VERBOSITY
  .
- This only affects the output to STDOUT by pglcmd, cron and init.
- This does not affect logging or the output of the IP block daemon.
+ This only affects the output to STDOUT by pglcmd, cron and init. But it does
+ not affect logging or the output of pgld.
  .
   0 - Output to STDOUT is off (only errors will be reported).
   1 - Output to STDOUT is on. (default)
@@ -148,10 +149,10 @@ Default: true
 _Description: Turn on automatic start?
  Configuration variable: INIT
  .
- "No" prevents the init script from starting on "start". Therefore the IP block
- daemon will not be started at system boot. The same behaviour can be achieved
- by removing/tweaking the init file and the links pointing to it. You can do
- this manually or by using an application such as rcconf.
+ "No" prevents the init script from starting on "start". Therefore pgl will not
+ be started at system boot. The same behaviour can be achieved by
+ removing/tweaking the init file and the links pointing to it. You can do this
+ manually or by using an application such as rcconf.
 
 Template: pglcmd/CRON
 Type: boolean
@@ -164,16 +165,16 @@ _Description: Turn on automatic blocklist update?
 Template: pglcmd/WD
 Type: boolean
 Default: true
-_Description: Enable watchdog to monitor your IP blocker?
+_Description: Enable watchdog to monitor pgl?
  Configuration variable: WD
  .
- The watchdog checks in regular intervals (per default 5 minutes) if some of
+ The watchdog checks in regular intervals (per default 5 minutes), if some of
  the necessary iptables rules exist and if the daemon is responsive. If one of
- these tests fails, it restarts pglcmd.
+ these tests fails, it restarts pgl.
  .
  This is especially useful, if you have other firewall applications running,
  because they often mess up the iptables rules, which can be fixed by restarting
- pglcmd. Unfortunately this manual action is often forgotten.
+ pgl. Unfortunately this manual action is often forgotten.
 
 Template: pglcmd/NFQUEUE_NUMBER
 Type: string
@@ -190,16 +191,15 @@ Template: pglcmd/IPTABLES_SETTINGS
 Type: select
 Choices: Do not set any iptables rules. You or another script/firewall has to do this!, Use separate iptables chains., Only set custom iptables rules.
 Default: Use separate iptables chains.
-_Description: Set how traffic is sent to the IP block daemon:
+_Description: Set how traffic is sent to pgld:
  Configuration variable: IPTABLES_SETTINGS
  .
  The default is to place iptables rules in separate iptables chains
  (pgl_in, pgl_out and pgl_fwd).
  .
- You can set custom iptables rules in
- /etc/pgl/iptables-custom-insert.sh and iptables-custom-remove.sh.
- These scripts are executed either additionally to the default iptables rules
- insertion/removal or exclusively.
+ You can set custom iptables rules in any file named ...insert.sh or 
+ ...remove.sh in the folder /etc/pgl/. These custom scripts are executed either
+ additionally to the setting of separate iptables chains or exclusively.
 
 Template: pglcmd/IPTABLES_ACTIVATION
 Type: select
@@ -208,14 +208,14 @@ Default: Send all NEW traffic to the iptables chains.
 _Description: Activate the iptables chains?
  Configuration variable: IPTABLES_ACTIVATION
  .
- Decide what traffic shall be checked by the IP block daemon. If you previously
- decided to use separate iptables chains, then it is a good idea to send all NEW
- traffic there. It is absolutely safe to only check NEW traffic.
+ Decide what traffic shall be checked by pgl. If you previously decided to use
+ separate iptables chains, then it is a good idea to send all NEW traffic there.
+ It is absolutely safe to only check NEW traffic.
  .
- Checking all (not only NEW) traffic might cause problems, because the IP block
- daemon has to check much more traffic then. Further whitelisting gets more
- complicated, since you have to think of both directions, incoming and outgoing.
- Only do this, if you are sure that you want to.
+ Checking all (not only NEW) traffic might cause problems, because pgl has to
+ check much more traffic then. Further whitelisting gets more complicated, since
+ you have to think of both directions, incoming and outgoing. Only do this, if
+ you are sure that you want to.
  .
  The iptables rules that activate the iptables chains are inserted at the head
  of the chains INPUT, OUTPUT and FORWARD.
@@ -282,8 +282,8 @@ _Description: Do you want to mark non-matched (IP is not in the blocklist) packe
  .
  Set what happens to non-matched (IP is not in the blocklist) packets.
  .
- If you MARK non-matched packets, then they will be just ignored by
- pglcmd. This allows integration with other firewalls. (default)
+ If you MARK non-matched packets, then they will be just ignored by pgl. This
+ allows integration with other firewalls. (default)
  .
  If you do not MARK non-matched (IP is not in the blocklist) packets, they will
  be ACCEPTed directly.
@@ -292,7 +292,7 @@ Template: pglcmd/info_whitelisting
 Type: note
 _Description: Whitelisting
  The following questions help you define which traffic will NOT be checked by
- the IP block daemon. This is called "whitelisting".
+ pgl. This is called "whitelisting".
  .
  Do a "dpkg-reconfigure pglcmd" to get the full set of questions (many have
  only low priority and will not be asked per default).
@@ -400,8 +400,8 @@ _Description: Set the automatic whitelisting options:
  The default is to automatically whitelist LAN, DNS server and loopback device.
  This is the recommended setting if you are at home.
  .
- If you are on a public LAN, you probably want it checked by the IPblocker. So
- choose to only whitelist the DNS server and the loopback device then.
+ If you are on a public LAN, you probably want it checked by pgl. So choose to
+ only whitelist the DNS server and the loopback device then.
 
 Template: pglcmd/allowlist
 Type: string

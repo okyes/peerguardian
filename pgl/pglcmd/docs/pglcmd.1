@@ -1,5 +1,5 @@
 .\" Last modified by jre <jre-phoenix@users.sourceforge.net>:
-.\" Sun May  3 11:36:42 CEST 2009
+.\" Thu Oct 22 22:35:44 CEST 2009
 .\" Sun Nov 18 00:14:09 CET 2007: jre <jre-phoenix@users.sourceforge.net>
 .\" based on the moblock man page started by sloter <laurent at sloter.org>
 .\"
@@ -17,10 +17,10 @@
 .\"   the Debian GNU/Linux distribution in file /usr/share/common-licenses/GPL;
 .\"   if not, write to the Free Software Foundation, Inc., 59 Temple Place,
 .\"   Suite 330, Boston, MA  02111-1307  USA
-.TH BLOCKCONTROL 1 "2009-08-21" "Version 1.6" "pglcmd Manual"
+.TH PGLCMD 1 "2009-10-22" "Version 2.0" "pglcmd Manual"
 
 .SH NAME
-pglcmd \- handling IP blockers.
+pglcmd \- handling pgl.
 
 .SH SYNOPSIS
 .B pglcmd
@@ -50,9 +50,9 @@ rules.
 Allow all LAN traffic and the DNS server automatically. If you are on a public
 LAN, you probably want to disable this feature.
 .IP \(em 3
-Check the status and test the IP block daemon.
+Check the status and test pgl.
 .IP \(em 3
-A watchdog monitors the IP block daemon.
+A watchdog monitors pgl.
 .IP \(em 3
 Detects if kernel modules are needed and loads them if necessary.
 .IP \(em 3
@@ -65,42 +65,40 @@ Daily rotation of the logfiles.
 .SH OPTIONS
 .TP
 .B start
-inserts iptables rules, starts the IP block daemon and the watchdog. If the
-blocklist configuration changed, rebuilds the master blocklist.
+inserts iptables rules, starts pgld and the watchdog. If the blocklist
+configuration changed, rebuilds the master blocklist.
 .TP
 .B stop
-deletes iptables rules and stops the IP block daemon.
+deletes iptables rules and stops pgld.
 .TP
 .B start_wd
 starts the watchdog. Don´t start pglcmd.wd directly. Remember that per
 default the watchdog gets started automatically on start. The watchdog checks in
 regular intervals (per default 5 minutes) if some of the necessary iptables
 rules exist and if the daemon is responsive. If one of these tests fails, it
-restarts pglcmd. This is especially useful, if you have other firewall
-applications running, because they often mess up the iptables rules, which can
-be fixed by restarting pglcmd. Unfortunately this manual action is often
-forgotten.
+restarts pgl. This is especially useful, if you have other firewall applications
+running, because they often mess up the iptables rules, which can be fixed by
+restarting pgl. Unfortunately this manual action is often forgotten.
 .TP
 .B stop_wd
 stops the watchdog.
 .TP
 .B restart
-restarts the IP block daemon.
+restarts pgl.
 .TP
 .B reload
-rebuilds the master blocklist and reloads the IP block daemon if it is running.
+rebuilds the master blocklist and reloads pgld if it is running.
 .TP
 .B update
-updates the blocklists, rebuilds the master blocklist and reloads the IP block
-daemon.
+updates the blocklists, rebuilds the master blocklist and reloads pgld if it is
+running.
 .TP
 .B status
-gives the iptables settings and the status of the IP block daemon.
+gives the iptables settings and the status of pgld and the watchdog.
 .TP
 .B test
-does a simple test to check if the IP block daemon is working (pings a random
-IP in the blocklist and checks if this IP was logged in the block daemons
-logfile and if it answered).
+does a simple test to check if pgl is working (pings a random IP from the
+blocklist, checks if this IP was logged in the logfile, and if the IP answered).
 .TP
 .B search
 Outputs the occurences of a keyword and the names of the single blocklists.
@@ -138,16 +136,16 @@ configuration variables with comments.
 \fIpglcmd status\fR gives you the following return values:
 .IP
 .B 0
-IP block daemon is running
+pgld is running
 .br
 .B 1
-IP block daemon is dead and pidfile exists
+pgld is dead and pidfile exists
 .br
 .B 3
-IP block daemon is not running
+pgld is not running
 .br
 .B 4
-IP block daemon is unknown
+pgld is unknown
 .PP
 \fIpglcmd test\fR gives you the following return values:
 .IP
@@ -164,13 +162,13 @@ not testable
 .SH EXIT STATUS 
 .IP
 .B 2
-The IP block daemon was started with bad arguments
+pgl was started with bad arguments
 .br
 .B 4
 User is not root
 .br
 .B 5
-The IP block daemon is not installed
+pgld is not installed
 .br
 .B 6
 pglcmd is not configured correctly
@@ -203,8 +201,8 @@ Default settings for all variables and pathnames.
 .IP /usr/lib/pgl/pglcmd.lib
 Library for pglcmd.main.
 .IP /etc/pgl/blocklists.list
-Lists all blocklists that are used (and downloaded) by \fBpglcmd\fR
-for use by the IP block daemon.
+Lists all blocklists that are used (and downloaded) by \fBpglcmd\fR for use by
+pgld.
 .IP /etc/pgl/pglcmd.conf
 The user configuration file for \fBpglcmd\fR.
 .IP /etc/pgl/allow.p2p
@@ -222,25 +220,24 @@ Script to delete custom iptables rules. Any script in /etc/pgl/ (the
 directory is defined in IPTABLES_CUSTOM_DIR) that ends in remove.sh will be
 executed on every "pglcmd stop", if IPTABLES_SETTINGS="1" or "2" is
 configured.
-.IP /etc/init.d/pglcmd
-Starts the IP block daemon automatically on every bootup.
+.IP /etc/init.d/pgl
+Starts pgl automatically on every bootup.
 .IP /etc/cron.daily/pglcmd
 Updates the blocklists automatically.
 .IP /etc/logrotate.d/pglcmd
 Rotates the logfiles daily.
 .IP /var/lib/pgl/ipfilter.dat
-The master blocklist used by the IP block daemon if the blocklist is in eMule
-ipfilter.dat format.
+The master blocklist used by pgld if the blocklist is in eMule ipfilter.dat
+format.
 .IP /var/lib/pgl/guarding.p2b
-The master blocklist used by the IP block daemon if the blocklist is in
-peerguardian .p2b v2 binary format.
+The master blocklist used by pgld if the blocklist is in peerguardian .p2b v2
+binary format.
 .IP /var/lib/pgl/guarding.p2p
-The master blocklist used by the IP block daemon if the blocklist is in
-peerguardian .p2p text format.
+The master blocklist used by pgld if the blocklist is in peerguardian .p2p text
+format.
 .IP /var/log/pglcmd.log
-The log file of the \fBpglcmd\fR script. This file contains amongst
-other things about starting/stopping the IP block daemon and updating the
-blocklists.
+The log file of the \fBpglcmd\fR script. This file contains amongst other things
+about starting/stopping pgl and updating the blocklists.
 .IP /var/spool/pgl
 The single blocklists are downloaded and manipulated in subfolders of this
 folder.
@@ -256,47 +253,39 @@ is on per default.)
 Other firewalls do not mark packets.
 .IP \(em 3
 pglcmd is started after other firewalls. If other firewalls are started/
-reloaded after pglcmd, then you need to restart pglcmd again. You
-will be fine, if the iptables rules which send traffic to the iptables chains
-(pgl_in, pgl_out and pgl_fwd) stand before all other
-iptables rules which ACCEPT traffic.
+reloaded after pglcmd, then you need to restart pgl again. You will be fine, if
+the iptables rules which send traffic to the iptables chains (pgl_in, pgl_out
+and pgl_fwd) stand before all other iptables rules which ACCEPT traffic.
 .P
 .BR "pglcmd.wd" "(1)" 
-restarts pglcmd if it detects any problems.
+restarts pgl if it detects any problems.
 But the manual restart is still recommended.
 
 .SH NOTES
 .PP
-By default the IP block daemon will be started at every system boot up and the
-blocklists will be updated once a day.
+By default pgl will be started at every system boot up and the blocklists will
+be updated once a day.
 
 .SH TECHNICAL NOTE
 .PP
-pgld checks traffic (packets) that is sent to the iptables
-NFQUEUE (or the deprecated QUEUE) target. If the necessary support is not built
-in the kernel directly, pglcmd will load the necessary kernel modules.
+pgld checks traffic (packets) that is sent to the iptables NFQUEUE (or the
+deprecated QUEUE) target. If the necessary support is not built in the kernel
+directly, pglcmd will load the necessary kernel modules.
 Up to MoBlock 0.8 packets that do not match the blocklist are ACCEPTed and
 packets that match the blocklist are DROPped.
-MoBlock (since 0.9) and NFBlock can also MARK packets, so that iptables rules
-that match this mark decide what happens with these packets. Per default
-marking is on.
+pgld can also MARK packets, so that iptables rules that match this mark decide
+what happens with these packets. Per default marking is on.
 Marked packets repeat the hook function (NF_REPEAT). So they are sent back to
 the head of the iptables chain again. A packet may only bear one mark, so there
 mustn't be any other applications / iptables rules that mark packets. Otherwise
 the setup will not work and packets will loop forever.
-"Marked block" outgoing packets will be REJECTED, "Marked block" incoming and 
+"Marked block" outgoing packets will be REJECTED, "marked block" incoming and 
 forwarded packets will be DROPped. "Marked accept" packets will be ignored, so
 other iptables rules decide what happens to them.
 
 .SH HOMEPAGES
 .PP
-MoBlock - \fIhttp://moblock.berlios.de/\fR
-.PP
-NFBlock - \fIhttp://sites.google.com/site/makovick/nfblockd-daemon\fR
-.PP
-pglcmd - \fIhttp://moblock-deb.sourceforge.net/\fR
-.PP
-PeerGuardian - \fIhttp://phoenixlabs.org/\fR
+PeerGuardian Linux - \fIhttp://sourceforge.net/projects/peerguardian/\fR
 
 .SH AUTHORS
 .PP
@@ -307,7 +296,5 @@ jre <jre-phoenix at users.sourceforge.net>
 .fi
 
 .SH SEE ALSO
-.BR "moblock" "(1), "
 .BR "/usr/share/doc/pglcmd/README.blocklists" ", "
-.BR "mobloquer" "(1), "
 .BR "iptables" "(8)"

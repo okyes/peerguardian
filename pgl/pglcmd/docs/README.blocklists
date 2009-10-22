@@ -59,8 +59,8 @@ http://tbg.iblocklist.com/pages/faq.html
 Lists are in here:
 http://tbg.iblocklist.com/Lists/
 
-Per default, pglcmd uses mirrored blocklists from iblocklist.com,
-instead of the original ones from tbg.iblocklists.com. Don't use both!
+Per default, pgl uses mirrored blocklists from iblocklist.com, instead of the
+original ones from tbg.iblocklists.com. Don't use both!
 
 Lists from The Blocklist Group in peerguardian ’.p2p’ text format (guarding.p2p)
 
@@ -223,8 +223,8 @@ Lists from bluetack.co.uk
 For up to date information see here:
 http://www.bluetack.co.uk/forums/index.php?autocom=faq&CODE=02&qid=17
 
-Per default, pglcmd uses mirrored blocklists from iblocklist.com,
-instead of the original ones from bluetack.co.uk. Don't use both!
+Per default, pgl uses mirrored blocklists from iblocklist.com, instead of the
+original ones from bluetack.co.uk. Don't use both!
 
 
 Lists in peerguardian ’.p2p’ text format (guarding.p2p)
@@ -411,9 +411,8 @@ I-Blocklist is a site dedicated to the creation and distribution of quality IP
 lists for use with IP blockers. It offers mirrors of all/most other blocklists,
 game allow lists, country lists and more.
 
-Per default, pglcmd uses these mirrored blocklists from iblocklist.com,
-instead of the original ones from bluetack.co.uk and tbg.iblocklist.com. Don't
-use both.
+Per default, pgl uses these mirrored blocklists from iblocklist.com, instead of
+the original ones from bluetack.co.uk and tbg.iblocklist.com. Don't use both.
 
 
 ============================================================

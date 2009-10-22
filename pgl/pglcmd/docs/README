@@ -12,7 +12,6 @@ Options
 Configuration
 Files
 Installation
-Transition from moblock-control (1.2) to pglcmd (1.3)
 Supported systems
 Requirements
 
@@ -20,16 +19,13 @@ Requirements
 
 Description:
 
-pglcmd is designed to do all tasks related to IP block daemons (MoBlock
-or NFBlock). They check internet traffic based on large lists of IP address
-ranges in order to protect your privacy. You can get them at
-http://moblock.berlios.de and
-http://sites.google.com/site/makovick/nfblockd-daemon
+pglcmd is designed to do all tasks related to pgld. pgld checks internet traffic
+based on large lists of IP address ranges in order to protect your privacy. You
+can get it at http://sourceforge.net/projects/peerguardian/
 
+WARNING: pgl may block your complete network/internet access!
 
-WARNING: IP blockers may block your complete network/internet access!
-
-Blockcontrol starts automatically at system boot per default. Some preconfigured
+pgl starts automatically at system boot per default. Some preconfigured
 blocklists are updated once a day. Be warned: this will not only block many
 unwanted IPs, but in most cases this will result in a limited network
 availability. This includes your own LAN and router, many webpages, services
@@ -43,27 +39,27 @@ are on a public LAN, you probably want to disable this feature.
 
 WARNING: Users with firewall (iptables rules)
 
-MoBlock (since version 0.9) and NFBlock do not conflict with other firewalls
-(iptables rules). But if you use them, you have to take special care to  avoid
-severe conflicts. Make sure the following three conditions hold:
-  - The IP block daemon marks non-matched (IP is not in the blocklist) packets.
+pgl does not conflict with other firewalls (iptables rules). But if you use
+them, you have to take special care to avoid severe conflicts. Make sure the
+following three conditions hold:
+  - pgl marks non-matched (IP is not in the blocklist) packets.
     (The marking feature is on per default.)
   - Other firewalls do not mark packets.
-  - pglcmd is started after other firewalls. If other firewalls are
-    started/reloaded after pglcmd, then you need to restart pglcmd
+  - pgl is started after other firewalls. If other firewalls are
+    started/reloaded after pgl, then you need to restart pgl
     again. You will be fine, if the iptables rules which send traffic to the
     iptables chains (pgl_in, pgl_out and pgl_fwd)
     stand before all other iptables rules which ACCEPT traffic.
-    To help you achieve this, pglcmd.wd restarts pglcmd if it
-    detects any problems. But it's still recommended, to restart pglcmd
+    To help you achieve this, pglcmd.wd restarts pgl if it
+    detects any problems. But it's still recommended, to restart pgl
     manually, whenever another application changed the iptables setup.
 
 
 Technical note:
 
-The IP block daemons check traffic (packets) that is sent to the iptables
-NFQUEUE (or the deprecated QUEUE) target. If the necessary support is not built
-in the kernel directly, pglcmd will load the necessary kernel modules.
+pgld checks traffic (packets) that is sent to the iptables NFQUEUE (or the
+deprecated QUEUE) target. If the necessary support is not built in the kernel
+directly, pglcmd will load the necessary kernel modules.
 Up to MoBlock 0.8 packets that do not match the blocklist are ACCEPTed and
 packets that match the blocklist are DROPped.
 MoBlock (since 0.9) and NFBlock can also MARK packets, so that iptables rules
@@ -77,14 +73,14 @@ mustn't be any other applications / iptables rules that mark packets. Otherwise
 the setup will not work and packets will loop forever.
 There are iptables rules to REJECT "marked block" outgoing packets and DROP
 "marked block" incoming and forwarded packets. "Marked allowed" packets are
-ignored by pglcmd's iptables setup, so other iptables rules decide what
+ignored by pgl's iptables setup, so other iptables rules decide what
 happens to them.
 
 ================================================================================
 
 Features:
 
-- Start and stop IP block daemon. Or let init do this automatically.
+- Start and stop pgl. Or let init do this automatically.
 - Update your blocklist from online sources and local blocklists. Or let cron do
   this automatically on a regular basis. Use backups if anything goes wrong.
 - Examine your selected blocklists by searching the single blocklists for
@@ -96,8 +92,7 @@ Features:
 - Allow all LAN traffic and the DNS server automatically. If you are on a public
   LAN, you probably want to disable this feature.
 - Check the status and test the IP block daemon.
-- A watchdog monitors the IP block daemon and restarts pglcmd if
-  necessary.
+- A watchdog monitors pgl and restarts it if necessary.
 - Detects if kernel modules are needed and loads them if necessary.
 - Set verbosity and logging options.
 - Provides LSB 3.1 compatible init script.
@@ -115,11 +110,11 @@ pglcmd search PATTERN
 Options:
 
 start
-  inserts iptables rules, starts the IP block daemon and the watchdog. If the
-  blocklist configuration changed, rebuilds the master blocklist.
+  inserts iptables rules, starts pgld and the watchdog. If the blocklist
+  configuration changed, rebuilds the master blocklist.
 
 stop
-  deletes iptables rules and stops the IP block daemon.
+  deletes iptables rules and stops pgld.
 
 start_wd
   starts the watchdog.
@@ -128,23 +123,22 @@ stop_wd
   stops the watchdog.
 
 restart
-  restarts the IP block daemon.
+  restarts pgld.
 
 reload
-  rebuilds the master blocklist and reloads the IP block daemon if it is
-  running.
+  rebuilds the master blocklist and reloads pgld if it is running.
 
 update
-  updates the blocklists, rebuilds the master blocklist and reloads the IP block
-  daemon.
+  updates the blocklists, rebuilds the master blocklist and reloads pgld if it
+  is running.
 
 status
-  gives the iptables settings and the status of the IP block daemon.
+  gives the iptables settings and the status of pgld and the watchdog.
 
 test
-  does a simple test to check if the IP block daemon is working (pings a random
-  IP in the blocklist and checks if this IP was logged in the block daemons
-  logfile and if it answered).
+  does a simple test to check if pgl is working (pings a random IP from the
+  blocklist, checks if this IP was logged in the logfile, and if the IP
+  answered).
 
 search
   outputs the occurences of a keyword and the names of the single blocklists.
@@ -202,11 +196,10 @@ Files:
   Library for pglcmd.main.
 
 - blocklists.list (required)
-  Lists all blocklists that are used (and downloaded) by pglcmd for
-  use by the IP block daemon.
+  Lists all blocklists that are used (and downloaded) by pglcmd for use by pgld.
 
-- pglcmd.watchdog (recommended)
-  Monitors the IP block daemon and restarts pglcmd if necessary.
+- pglcmd.wd (recommended)
+  Monitors pgl and restarts it if necessary.
 
 - pglcmd.conf
   The user configuration file for pglcmd.
@@ -232,8 +225,7 @@ Files:
   configured.
 
 - init (optional)
-  Init file for starting the IP block daemon automatically on every bootup. Must
-  be executable.
+  Init file for starting pgld automatically on every bootup. Must be executable.
 
 - cron.daily (optional)
   Cron file for updating the blocklists automatically with cron. Must be
@@ -242,9 +234,6 @@ Files:
 - logrotate (optional, configuration file for logrotate)
   Debian place: /etc/logrotate.d/pglcmd
   Assumes logfile in /var/log/pglcmd.log
-  Note: You should add another logrotate for MoBlock, too! Download
-  one from: http://moblock-deb.svn.sourceforge.net/viewvc/moblock-deb/moblock/mo
-  block-0.9~rc2/moblock-0.9~rc2/debian/logrotate
 
 - docs/
   Some documentatation. pglcmd.1 is a man page.
@@ -261,16 +250,13 @@ Debian, configurable in pglcmd.conf):
 
 - /var/log/pglcmd.log + rotated logs
   The logfile of the pglcmd script. This file contains amongst other
-  things about starting/stopping the IP block daemon and updating the
-  blocklists.
-
-- /var/log/moblock.log + rotated logs
-  The logfile of the MoBlock daemon. NFBlock uses /var/log/syslog.
+  things about starting/stopping pgld and updating the blocklists.
+  pgld uses /var/log/syslog.
 
 - /var/lib/pgl/guarding.p2p + backup or
   /var/lib/pgl/guarding.p2b + backup or
   /var/lib/pgl/ipfilter.dat + backup
-  The master blocklist used by the IP block daemon depending on the used format.
+  The master blocklist used by pgld depending on the used format.
 
 ================================================================================
 
@@ -285,67 +271,17 @@ Debian. This should be the same as defined by the File Hierarchy Standard
 If you choose other file places, you have to adjust:
 
 - the path to pglcmd.main (CONTROL_MAIN) in pglcmd,
-  pglcmd.watchdog, if-up, cron.daily and init.
+  pglcmd.wd, if-up, cron.daily and init.
 - the path to pglcmd.defaults (CMD_DEFAULTS) in pglcmd.main
-- PATH in pglcmd.defaults. Either moblock or nfblock have to be installed
-  in PATH.
-- all other paths in pglcmd.defaults
+- PATH in pglcmd.defaults. pgld has to be installed in PATH.
+- all other pathnames in pglcmd.defaults
 - the Makefile
 
 If your system doesn't have the LSB init-funtions (/lib/lsb/init-functions),
-then hardcoded fallback functions will be used. (new since pglcmd 1.3)
-
-Note for Fedora 7 and CentOS 5 users (broken LSB init-functions):
-http://forums.phoenixlabs.org/showpost.php?p=107810&postcount=22
-
-pglcmd will detect if you have installed moblock or nfblockd (in PATH as
-specified in pglcmd.defaults) automatically. Otherwise you can specify
-this in pglcmd.conf (/etc/pgl/pglcmd.conf).
-
-================================================================================
-
-Transition from moblock-control (1.2) to pglcmd (1.3)
-
-Generally use "pglcmd" instead of "moblock-control". This is obvious,
-isn't it!?
-
-If names relate to this software, then "pglcmd" is used. If they relate
-directly to the IP block daemon (MoBlock or NFBlock), then "moblock" or
-"nfblock" is used.
-
-Changed directories:
-/etc/moblock > /etc/pgl
-/var/spool/moblock > /var/spool/pgl
-/var/lib/moblock > /var/lib/pgl
-
-Changed filenames:
-/etc/cron.daily/moblock > /etc/cron.daily/pglcmd
-/etc/init.d/moblock > /etc/init.d/pglcmd
-/etc/logrotate.d/moblock-control > /etc/logrotate.d/pglcmd
-/etc/network/if-up.d/moblock > /etc/network/if-up.d/pglcmd
-
-Configuration in default (/etc/default/moblock):
-  - REMOVED
-  - use /etc/pgl/pglcmd.conf instead.
-  - the complete set of possible configuration variables with comments is in
-    pglcmd.defaults (/usr/lib/pgl/pglcmd.defaults).
-
-NEW:
-pglcmd.main (/usr/lib/pgl/pglcmd.main):
-contains most of the common code between the executable scripts.
-
-Changed variable names:
-MOBLOCK_INIT > INIT
-MOBLOCK_CRON > CRON
-SCRIPT_LIB > CMD_LIB
-SCRIPT_DEFAULTS > CONTROL_MAIN
-
-Updates in Debian are only handled cleanly from moblock-control 1.2. All prior
-versions are not regarded. Most configuration file settings are transitioned by
-debconf/postinst. The old blocklists.list and allow.p2p are backuped, adapted
-and moved to the new place.
-Only the custom iptables rules scripts and uncommon configuration settings have
-to be transitioned manually.
+then hardcoded fallback functions will be used.
+Fedora 7, CentOS 5 and Ubuntu Hardy and Intrepid have broken LSB init-functions.
+On these distributions you should disable the system wide init-functions by
+setting LSB="".
 
 ================================================================================
 
@@ -384,9 +320,8 @@ Requirements:
     xt_NFQUEUE              6400  3 
     xt_state                6656  3 
     xt_tcpudp               7680  4 
-
 - /lib/lsb/init-functions (optional, because as fallback there's a modified copy
-  of the Debian init-functions in pglcmd]
+  of the Debian init-functions in pglcmd)
   Used functions, provided by /lib/lsb/init-functions (version >= 3.1):
    - start_daemon
    - killproc
