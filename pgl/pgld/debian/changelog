@@ -10,8 +10,10 @@ pgld (2.0~pre1-1) unstable; urgency=low
     - postinst: do "set -e" separately
     - rules: don´t ignore errors on "clean"
     - updated description
+    - control: added Uploaders (jre), Bugs (mailto jre), Homepage, Vcs-Browser
+      and Vcs-Git fields.
 
- -- jre <jre-phoenix@users.sourceforge.net>  Wed, 07 Oct 2009 22:16:19 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Thu, 22 Oct 2009 23:02:37 +0200
 
 nfblock (0.6.2-1) unstable; urgency=low
 

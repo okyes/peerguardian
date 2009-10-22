@@ -1,5 +1,4 @@
-This package was created by jre <jre-phoenix@users.sourceforge.net>.
-It's available at http://moblock-deb.sourceforge.net.
+This package was downloaded from https://sourceforge.net/projects/peerguardian/
 
 Author: jre <jre-phoenix@users.sourceforge.net>
 
@@ -8,6 +7,7 @@ Author: jre <jre-phoenix@users.sourceforge.net>
 Copyright moblock-control: 2005 - 2009 jre
 Copyright blockcontrol: 2009 jre
 Copyright pglcmd: 2009 jre
+Copyright pgl: 2009 Cade Robinson, Jindrich Makovicka, jre
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -32,8 +32,7 @@ init-functions (modified version in pglcmd.lib):
 Copyright (c) 2002-08 Chris Lawrence
 All rights reserved.
 
-modified for use with pglcmd by jre
-<jre-phoenix@users.sourceforge.net>
+modified for use with pglcmd by jre <jre-phoenix@users.sourceforge.net>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions

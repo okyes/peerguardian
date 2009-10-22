@@ -1,4 +1,10 @@
+This package was downloaded from https://sourceforge.net/projects/peerguardian/
+
 Upstream author: Jindrich Makovicka <makovick@gmail.com>
+
+Copyright nfblock: 2007-2009 Jindrich Makovicka
+Copyright pgld: 2009 Jindrich Makovicka
+Copyright pgl: 2009 Cade Robinson, Jindrich Makovicka, jre
 
 License:
 
@@ -16,5 +22,4 @@ License:
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 On Debian systems, the complete text of the GNU General
-Public License can be found in `/usr/share/common-licenses/GPL'.
-
+Public License can be found in `/usr/share/common-licenses/GPL-2'.

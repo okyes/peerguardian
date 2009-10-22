@@ -2,8 +2,13 @@ Source: pgld
 Section: net
 Priority: optional
 Maintainer: Jindrich Makovicka <makovick@gmail.com>
+Uploaders: jre <jre-phoenix@users.sourceforge.net>
+Bugs: mailto:jre-phoenix@users.sourceforge.net
 Build-Depends: debhelper (>= 6), zlib1g-dev, libnetfilter-queue-dev, libnfnetlink-dev, libdbus-1-dev
 Standards-Version: 3.8.3.0
+Homepage: http://peerguardian.sourceforge.net/
+Vcs-Browser: http://peerguardian.git.sourceforge.net/
+Vcs-Git: git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
 
 Package: pgld
 Architecture: any
