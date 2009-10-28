@@ -27,6 +27,7 @@
 
 #ifndef PGLD_DBUS_H
 #define PGLD_DBUS_H
+#define MSG_SIZE 256
 
 #include <stdbool.h>
 #include <inttypes.h>
@@ -38,18 +39,19 @@
 
 #define NFB_DBUS_PUBLIC_NAME "org.netfilter.pgl"
 
-typedef enum {
-    LOG_NF_IN,
-    LOG_NF_OUT,
-/*    LOG_NF_FWD,*/
-} dbus_log_message_t;
+// typedef enum {
+//     LOG_NF_IN,
+//     LOG_NF_OUT,
+// /*    LOG_NF_FWD,*/
+// } dbus_log_message_t;
 
-typedef int (*pgl_dbus_init_t)(log_func_t do_log);
-
-typedef int (*pgl_dbus_send_blocked_t)(log_func_t do_log, time_t curtime,
-                                           dbus_log_message_t signal,
-                                           bool dropped, char *addr,
-                                           block_sub_entry_t **ranges,
-                                           uint32_t hits);
+// typedef int (*pgl_dbus_init_t)(log_func_t do_log);
+int pgl_dbus_init();
+void pgl_dbus_send(const char *format, va_list ap);
+// typedef int (*pgl_dbus_send_blocked_t)(log_func_t do_log, time_t curtime,
+//                                            dbus_log_message_t signal,
+//                                            bool dropped, uint32_t addr,
+//                                            block_sub_entry_t **ranges,
+//                                            uint32_t hits);
 
 #endif

@@ -25,10 +25,11 @@ prefix ?= /usr/local
 SBINDIR ?= $(prefix)/sbin
 DBUSCONFDIR ?= /etc/dbus-1/system.d
 PLUGINDIR ?= $(prefix)/lib/pgl
+LOGDIR ?= /var/log/pgl
 
 OBJS=src/pgld.o src/stream.o src/blocklist.o src/parser.o
 OPTFLAGS=-Os
-CFLAGS=-Wall -DVERSION=\"$(VERSION)\" -DPLUGINDIR=\"$(PLUGINDIR)\"
+CFLAGS=-Wall -DVERSION=\"$(VERSION)\" -DPLUGINDIR=\"$(PLUGINDIR)\" -DPKGNAME=\"$(PKGNAME)\" -DLOGDIR=\"$(LOGDIR)\"
 LIBS=-lnetfilter_queue -lnfnetlink
 CC=gcc
 

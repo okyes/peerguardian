@@ -13,6 +13,10 @@ pgld (2.0~pre1-1) unstable; urgency=low
     - control: added Uploaders (jre), Bugs (mailto jre), Homepage, Vcs-Browser
       and Vcs-Git fields.
 
+  [Cade Robinson]
+  * fixed up logging
+  * change -d to be debug rather than daemon mode
+
  -- jre <jre-phoenix@users.sourceforge.net>  Thu, 22 Oct 2009 23:02:37 +0200
 
 nfblock (0.6.2-1) unstable; urgency=low

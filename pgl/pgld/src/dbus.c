@@ -25,12 +25,12 @@
 */
 
 #include <syslog.h>
+#include <stdio.h>
 #include "dbus.h"
 
 static DBusConnection *dbconn = NULL;
 
-int
-pgl_dbus_init(log_func_t do_log)
+int pgl_dbus_init()
 {
     DBusError dberr;
     int req;
@@ -38,17 +38,21 @@ pgl_dbus_init(log_func_t do_log)
     dbus_error_init (&dberr);
     dbconn = dbus_bus_get (DBUS_BUS_SYSTEM, &dberr);
     if (dbus_error_is_set (&dberr)) {
-        do_log(LOG_ERR, "Error connecting to dbus-daemon: %s", dberr.message);
-        return -1;
+        fprintf(stderr, "Connection Error (%s)\n", dberr.message);
+        dbus_error_free(&dberr);
+    }
+    if (dbconn == NULL) {
+      return -1;
     }
     do_log(LOG_INFO, "Connected to system bus.");
 
     /* need d-bus policy privileges for this to work */
-    dbus_error_init (&dberr);
+//     dbus_error_init (&dberr);
     req = dbus_bus_request_name (dbconn, NFB_DBUS_PUBLIC_NAME,
                                  DBUS_NAME_FLAG_DO_NOT_QUEUE, &dberr);
     if (dbus_error_is_set (&dberr)) {
         do_log(LOG_ERR, "Error requesting name: %s.", dberr.message);
+        dbus_error_free(&dberr);
         return -1;
     }
     if (req == DBUS_REQUEST_NAME_REPLY_EXISTS) {
@@ -62,84 +66,34 @@ pgl_dbus_init(log_func_t do_log)
     return 0;
 }
 
-dbus_bool_t
-pgl_dbus_message_append_blocked(DBusMessage *dbmsg,
-                                    const char *addr,
-                                    block_sub_entry_t **ranges,
-                                    uint32_t hits,
-                                    bool dropped,
-                                    time_t curtime)
+
+
+void pgl_dbus_send(const char *format, va_list ap)
 {
-    DBusMessageIter dbiter;
-    dbus_bool_t dbb = TRUE;
-    struct tm curtime_tm;
-    char tstamp[8 + 1] = "::"; /* "HH:MM:SS" */
-    char *s = NULL;
-
-    dbus_message_iter_init_append(dbmsg, &dbiter);
-
-    /* ipv4 address */
-    dbb &= dbus_message_iter_append_basic(&dbiter, DBUS_TYPE_STRING, &addr);
-    /* label */
-    dbb &= dbus_message_iter_append_basic(&dbiter, DBUS_TYPE_STRING,
-                                          &(ranges[0]->name));
-    /* timestamp */
-    strftime(tstamp, sizeof(tstamp), "%T", localtime_r(&curtime, &curtime_tm));
-    s = &tstamp[0];
-    dbb &= dbus_message_iter_append_basic(&dbiter, DBUS_TYPE_STRING, &s);
-    /* hits */
-    dbb &= dbus_message_iter_append_basic(&dbiter, DBUS_TYPE_UINT32, &hits);
-    /* dropped */
-    dbb &= dbus_message_iter_append_basic(&dbiter, DBUS_TYPE_BOOLEAN, &dropped);
-
-    return dbb;
-}
-
-int
-pgl_dbus_send_blocked(log_func_t do_log, time_t curtime,
-                          dbus_log_message_t signal, bool dropped,
-                          char *addr, block_sub_entry_t **ranges,
-                          uint32_t hits)
-{
+    dbus_uint32_t serial = 0; // unique number to associate replies with requests
     DBusMessage *dbmsg = NULL;
-    dbus_bool_t dbb = TRUE;
+    DBusMessageIter dbiter;
+    char msg[MSG_SIZE];
+    vsnprintf(msg, sizeof msg, format, ap);
 
     /* create dbus signal */
-    switch (signal) {
-    case LOG_NF_IN:
-        dbmsg = dbus_message_new_signal ("/org/netfilter/pgl",
-                                         "org.netfilter.pgl.Blocked",
-                                         "blocked_in");
-        break;
-    case LOG_NF_OUT:
-        dbmsg = dbus_message_new_signal ("/org/netfilter/pgl",
-                                         "org.netfilter.pgl.Blocked",
-                                         "blocked_out");
-        break;
-        /*
-                 case LOG_NF_FWD:
-                 dbmsg = dbus_message_new_signal ("/org/netfilter/pgl",
-                 "org.netfilter.pgl.Blocked",
-                 "blocked_fwd");
-                 assert(0);
-                 break;
-        */
+    dbmsg = dbus_message_new_signal ("/org/netfilter/pgl",
+                                         "org.netfilter.pgl",
+                                         "pgld_message");
+//     if (!dbmsg)
+//         return -1;
+
+    dbus_message_iter_init_append(dbmsg, &dbiter);
+    if (!dbus_message_iter_append_basic(&dbiter, DBUS_TYPE_STRING, &msg)) {
+      fprintf(stderr, "Out Of Memory!\n");
+//       return -1;
+   }
+    if (!dbus_connection_send (dbconn, dbmsg, &serial)) {
+        fprintf(stderr, "Out Of Memory!\n");
+//         return -1;
     }
-
-    if (!dbmsg)
-        return -1;
-
-    dbb &= pgl_dbus_message_append_blocked(dbmsg, addr, ranges,
-                                               hits, dropped, curtime);
-
-    if (dbb && dbus_connection_get_is_connected(dbconn)) {
-        dbus_connection_send (dbconn, dbmsg, NULL);
-    }
-
-    if (!dbb)
-        do_log(LOG_CRIT, "Cannot create D-Bus message (out of memory?).");
-
+    dbus_connection_flush(dbconn);
     dbus_message_unref(dbmsg);
 
-    return dbb ? 0 : -1;
+//     return 0;
 }

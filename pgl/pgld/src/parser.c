@@ -59,13 +59,13 @@ loadlist_dat(blocklist_t *blocklist, const char *filename, const char *charset)
     iconv_t ic;
 
     if (stream_open(&s, filename) < 0) {
-        do_log(LOG_INFO, "Error opening %s.", filename);
+        do_log(LOG_ERR, "Error opening %s.", filename);
         return -1;
     }
 
     ic = iconv_open("UTF-8", charset);
     if (ic < 0) {
-        do_log(LOG_INFO, "Cannot initialize charset conversion: %s", strerror(errno));
+        do_log(LOG_ERR, "Cannot initialize charset conversion: %s", strerror(errno));
         goto err;
     }
 
@@ -114,13 +114,13 @@ loadlist_p2p(blocklist_t *blocklist, const char *filename, const char *charset)
     iconv_t ic;
 
     if (stream_open(&s, filename) < 0) {
-        do_log(LOG_INFO, "Error opening %s.", filename);
+        do_log(LOG_ERR, "Error opening %s.", filename);
         return -1;
     }
 
     ic = iconv_open("UTF-8", charset);
     if (ic < 0) {
-        do_log(LOG_INFO, "Cannot initialize charset conversion: %s", strerror(errno));
+        do_log(LOG_ERR, "Cannot initialize charset conversion: %s", strerror(errno));
         goto err;
     }
 
@@ -190,7 +190,7 @@ loadlist_p2b(blocklist_t *blocklist, const char *filename)
 
     f = fopen(filename, "r");
     if (!f) {
-        do_log(LOG_INFO, "Error opening %s.", filename);
+        do_log(LOG_ERR, "Error opening %s.", filename);
         return -1;
     }
 
@@ -220,12 +220,12 @@ loadlist_p2b(blocklist_t *blocklist, const char *filename)
         ic = iconv_open("UTF-8", "UTF-8");
         break;
     default:
-        do_log(LOG_INFO, "Unknown P2B version: %d", version);
+        do_log(LOG_ERR, "Unknown P2B version: %d", version);
         goto err;
     }
 
     if (ic < 0) {
-        do_log(LOG_INFO, "Cannot initialize charset conversion: %s", strerror(errno));
+        do_log(LOG_ERR, "Cannot initialize charset conversion: %s", strerror(errno));
         goto err;
     }
 
@@ -332,21 +332,21 @@ load_list(blocklist_t *blocklist, const char *filename, const char *charset)
 
     prevcount = blocklist->count;
     if (loadlist_p2b(blocklist, filename) == 0) {
-        do_log(LOG_DEBUG, "PeerGuardian Binary: %d entries loaded", blocklist->count - prevcount);
+        do_log(LOG_INFO, "PeerGuardian Binary: %d entries loaded", blocklist->count - prevcount);
         return 0;
     }
     blocklist_clear(blocklist, prevcount);
 
     prevcount = blocklist->count;
     if (loadlist_dat(blocklist, filename, charset ? charset : "ISO8859-1") == 0) {
-        do_log(LOG_DEBUG, "IPFilter: %d entries loaded", blocklist->count - prevcount);
+        do_log(LOG_INFO, "IPFilter: %d entries loaded", blocklist->count - prevcount);
         return 0;
     }
     blocklist_clear(blocklist, prevcount);
 
     prevcount = blocklist->count;
     if (loadlist_p2p(blocklist, filename, charset ? charset : "ISO8859-1") == 0) {
-        do_log(LOG_DEBUG, "PeerGuardian Ascii: %d entries loaded", blocklist->count - prevcount);
+        do_log(LOG_INFO, "PeerGuardian Ascii: %d entries loaded", blocklist->count - prevcount);
         return 0;
     }
     blocklist_clear(blocklist, prevcount);

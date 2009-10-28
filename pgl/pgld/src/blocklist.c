@@ -80,7 +80,7 @@ blocklist_append(blocklist_t *blocklist,
     e->merged_idx = -1;
 #endif
     e->hits = 0;
-    e->lasttime = 0;
+//     e->lasttime = 0;
     blocklist->count++;
 }
 
@@ -170,24 +170,26 @@ blocklist_trim(blocklist_t *blocklist)
                 ip_max = blocklist->entries[j].ip_max;
         }
         if (j > i + 1) {
-            char buf1[IP_STRING_SIZE], buf2[IP_STRING_SIZE];
-            char *tmp = malloc(32 * (j - i + 1) + 1);
-            CHECK_OOM(tmp);
-            /* List the merged entries */
-            tmp[0] = 0;
-            for (k = i; k < j; k++) {
-                char tmp2[33];
-                ip2str(buf1, blocklist->entries[k].ip_min);
-                ip2str(buf2, blocklist->entries[k].ip_max);
-                sprintf(tmp2, "%s-%s ", buf1, buf2);
-                strcat(tmp, tmp2);
-            }
-            ip2str(buf1, blocklist->entries[i].ip_min);
-            ip2str(buf2, ip_max);
+//             char buf1[IP_STRING_SIZE], buf2[IP_STRING_SIZE];
             if (opt_verbose) {
-                do_log(LOG_DEBUG, "Merging ranges: %sinto %s-%s", tmp, buf1, buf2);
+                char *tmp = malloc(32 * (j - i + 1) + 1);
+                CHECK_OOM(tmp);
+                /* List the merged entries */
+                tmp[0] = 0;
+                for (k = i; k < j; k++) {
+                    char tmp2[33];
+    //                 ip2str(buf1, blocklist->entries[k].ip_min);
+    //                 ip2str(buf2, blocklist->entries[k].ip_max);
+                    sprintf(tmp2, "%u.%u.%u.%u-%u.%u.%u.%u ", NIPQUADREV(blocklist->entries[k].ip_min), NIPQUADREV(blocklist->entries[k].ip_max));
+                    strcat(tmp, tmp2);
+                }
+    //             ip2str(buf1, blocklist->entries[i].ip_min);
+    //             ip2str(buf2, ip_max);
+
+                do_log(LOG_DEBUG, "Merging ranges: %sinto %u.%u.%u.%u-%u.%u.%u.%u", tmp, NIPQUADREV(blocklist->entries[i].ip_min), NIPQUADREV(ip_max));
+
+                free(tmp);
             }
-            free(tmp);
 
 #ifndef LOWMEM
             /* Copy the sub-entries and mark the unneeded entries */
@@ -220,8 +222,10 @@ blocklist_trim(blocklist_t *blocklist)
                 j++;
             }
         }
-        blocklist->count -= merged;
-        do_log(LOG_DEBUG, "%d entries merged", merged);
+        if (opt_verbose) {
+            blocklist->count -= merged;
+            do_log(LOG_DEBUG, "%d entries merged", merged);
+        }
     }
 
 #ifndef LOWMEM
@@ -243,21 +247,20 @@ blocklist_trim(blocklist_t *blocklist)
 }
 
 void
-blocklist_stats(blocklist_t *blocklist)
+blocklist_stats(blocklist_t *blocklist, int clearhits)
 {
     int i, total = 0;
 
-    do_log(LOG_INFO, "Blocker hit statistic:");
+    do_log(LOG_INFO, "Blocked hit statistics:");
     for (i = 0; i < blocklist->count; i++) {
         block_entry_t *e = &blocklist->entries[i];
         if (e->hits >= 1) {
-            char buf1[IP_STRING_SIZE], buf2[IP_STRING_SIZE];
-            ip2str(buf1, e->ip_min);
-            ip2str(buf2, e->ip_max);
+//             char buf1[IP_STRING_SIZE], buf2[IP_STRING_SIZE];
+//             ip2str(buf1, e->ip_min);
+//             ip2str(buf2, e->ip_max);
 #ifndef LOWMEM
             if (e->name) {
-                do_log(LOG_INFO, "%s - %s-%s: %d", e->name,
-                       buf1, buf2, e->hits);
+                do_log(LOG_INFO, "%s - %u.%u.%u.%u-%u.%u.%u.%u: %d", e->name, NIPQUADREV(e->ip_min), NIPQUADREV(e->ip_max), e->hits);
             } else {
                 int j, cnt;
                 block_sub_entry_t *s;
@@ -269,13 +272,15 @@ blocklist_stats(blocklist_t *blocklist)
                     cnt++;
                 }
                 s = &blocklist->subentries[e->merged_idx];
-                do_log(LOG_INFO, "%s [+%d] - %s-%s: %d", s->name, cnt - 1,
-                       buf1, buf2, e->hits);
+                do_log(LOG_INFO, "%s [+%d] - %u.%u.%u.%u-%u.%u.%u.%u: %d", s->name, cnt - 1, NIPQUADREV(e->ip_min), NIPQUADREV(e->ip_max), e->hits);
             }
 #else
-            do_log(LOG_INFO, "%s-%s: %d", buf1, buf2, e->hits);
+            do_log(LOG_INFO, "%u.%u.%u.%u-%u.%u.%u.%u: %d", NIPQUADREV(e->ip_min), NIPQUADREV(e->ip_max), e->hits);
 #endif
             total += e->hits;
+            if (clearhits) {
+                e->hits=0;
+            }
         }
     }
     do_log(LOG_INFO, "%d hits total", total);
@@ -334,27 +339,27 @@ blocklist_dump(blocklist_t *blocklist)
     int i;
 
     for (i = 0; i < blocklist->count; i++) {
-        char buf1[IP_STRING_SIZE], buf2[IP_STRING_SIZE];
+//         char buf1[IP_STRING_SIZE], buf2[IP_STRING_SIZE];
         block_entry_t *e = &blocklist->entries[i];
 
-        ip2str(buf1, e->ip_min);
-        ip2str(buf2, e->ip_max);
+//         ip2str(buf1, e->ip_min);
+//         ip2str(buf2, e->ip_max);
 #ifndef LOWMEM
         if (e->name) {
-            printf("%d - %s-%s - %s\n", i, buf1, buf2, e->name);
+            printf("%d - %u.%u.%u.%u-%u.%u.%u.%u - %s\n", i, NIPQUADREV(e->ip_min), NIPQUADREV(e->ip_max), e->name);
         } else {
             int j;
-            printf("%d - %s-%s is a composite range:\n", i, buf1, buf2);
+            printf("%d - %u.%u.%u.%u-%u.%u.%u.%u is a composite range:\n", i, NIPQUADREV(e->ip_min), NIPQUADREV(e->ip_max));
             for (j = e->merged_idx; j < blocklist->subcount; j++) {
                 block_sub_entry_t *s = &blocklist->subentries[j];
                 if (s->ip_max > s->ip_max) break;
-                ip2str(buf1, s->ip_min);
-                ip2str(buf2, s->ip_max);
-                printf("  Sub-Range: %s-%s - %s\n", buf1, buf2, s->name);
+//                 ip2str(buf1, s->ip_min);
+//                 ip2str(buf2, s->ip_max);
+printf("  Sub-Range: %u.%u.%u.%u-%u.%u.%u.%u - %s\n", NIPQUADREV(s->ip_min), NIPQUADREV(s->ip_max), s->name);
             }
         }
 #else
-        printf("%d - %s-%s\n", i, buf1, buf2);
+printf("%d - %u.%u.%u.%u-%u.%u.%u.%u\n", i, NIPQUADREV(e->ip_min), NIPQUADREV(e->ip_max));
 #endif
     }
 }

@@ -4,7 +4,15 @@ pglcmd (2.0~pre1-1) unstable; urgency=low
   * updated description
   * init: added should-start after dbus
 
+  [Cade Robinson]
+  * added pglcmd options
+    - enable/disable dbus (DBUS)
+    - enable/disable compression of blocklist (COMPRESS)
+    - enable/disable logging verbosity of pgld (DAEMON_VERBOSE_LOGGING)
+    - enable/disable daemon debug mode (DAEMON_DEBUG)
+
  -- jre <jre-phoenix@users.sourceforge.net>  Wed, 07 Oct 2009 22:24:03 +0200
+
 
 blockcontrol (1.6.9-1) unstable; urgency=low
 
@@ -13,7 +21,7 @@ blockcontrol (1.6.9-1) unstable; urgency=low
     anonymous.
 
  -- jre <jre-phoenix@users.sourceforge.net>  Mon, 14 Sep 2009 19:16:52 +0200
- 
+
 blockcontrol (1.6.8-1) unstable; urgency=low
 
   * no changes

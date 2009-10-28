@@ -64,7 +64,7 @@ typedef struct
 #ifndef LOWMEM
     int merged_idx;
 #endif
-    time_t lasttime;
+//     time_t lasttime;
 } block_entry_t;
 
 typedef struct
@@ -85,7 +85,7 @@ void blocklist_append(blocklist_t *blocklist,
 void blocklist_clear(blocklist_t *blocklist, int start);
 void blocklist_sort(blocklist_t *blocklist);
 void blocklist_trim(blocklist_t *blocklist);
-void blocklist_stats(blocklist_t *blocklist);
+void blocklist_stats(blocklist_t *blocklist, int clearhits);
 #ifndef LOWMEM
 block_entry_t * blocklist_find(blocklist_t *blocklist, uint32_t ip,
                                block_sub_entry_t **sub, int max);
