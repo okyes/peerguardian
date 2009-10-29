@@ -2154,36 +2154,32 @@ test_ipblocking () {
 }
 
 dump_stats () {
-    if [ $LOG_LOGFILE ]
-    then
+    if [ "$LOG_LOGFILE" = 1 ] ; then
         CURLINE="$(wc -l $DAEMON_LOG | awk '{print$1}')"
         kill -s USR2 "$(pidofproc $DAEMON)"
         sleep 5
         tail -n+$(($CURLINE + 1)) $DAEMON_LOG
-    elif [ $LOG_SYSLOG ]
-    then
-        CURLINE=$(grep pgld: /var/log/daemon.log | wc -l | awk '{print$1}')
+    elif [ "$LOG_SYSLOG" = 1 ] ; then
+        CURLINE=$(grep pgld: /var/log/syslog | wc -l | awk '{print$1}')
         kill -s USR2 "$(pidofproc $DAEMON)"
         sleep 5
-        grep pgld: /var/log/daemon.log | tail -n+$(($CURLINE + 1))
+        grep pgld: /var/log/syslog | tail -n+$(($CURLINE + 1))
     else
-        echo "Logging to logfile or syslog must be enabled to dump stats"
+        echo "Logging to logfile or syslog must be enabled to dump stats."
     fi
 }
 
 reset_stats () {
-if [ $LOG_LOGFILE ]
-    then
+if [ "$LOG_LOGFILE" = 1 ] ; then
         CURLINE="$(wc -l $DAEMON_LOG | awk '{print$1}')"
         kill -s USR1 "$(pidofproc $DAEMON)"
         sleep 5
         tail -n+$(($CURLINE + 1)) $DAEMON_LOG
-    elif [ $LOG_SYSLOG ]
-    then
-        CURLINE="$(grep pgld: /var/log/daemon.log | wc -l | awk '{print$1}')"
+    elif [ "$LOG_SYSLOG" = 1 ] ; then
+        CURLINE="$(grep pgld: /var/log/syslog | wc -l | awk '{print$1}')"
         kill -s USR1 "$(pidofproc $DAEMON)"
         sleep 5
-        grep pgld: /var/log/daemon.log | tail -n+$(($CURLINE + 1))
+        grep pgld: /var/log/syslog | tail -n+$(($CURLINE + 1))
     else
         echo "Logging to logfile or syslog must be enabled to dump stats"
     fi
