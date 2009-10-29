@@ -26,33 +26,33 @@ export LC_ALL=C
 
 # Load default configuration.
 if [ -f "$CMD_DEFAULTS" ] ; then
-	. $CMD_DEFAULTS || { echo "$0 Error: Failed to source $CMD_DEFAULTS although this file exists."; exit 1; }
+    . $CMD_DEFAULTS || { echo "$0 Error: Failed to source $CMD_DEFAULTS although this file exists."; exit 1; }
 else
-	echo "$0: Missing file $CMD_DEFAULTS (Error 7)."
-	exit 7
+    echo "$0: Missing file $CMD_DEFAULTS (Error 7)."
+    exit 7
 fi
 
 # Search pgld pathname and set DAEMON. Otherwise this can still be done in pglcmd.conf
 IFS=":"
 for PATH_I in $PATH ; do
-	if [ -x "$PATH_I/$NAME" ] ; then
-		DAEMON="$PATH_I/$NAME"
-		break
-	fi
+    if [ -x "$PATH_I/$NAME" ] ; then
+        DAEMON="$PATH_I/$NAME"
+        break
+    fi
 done
 IFS=$STDIFS
 
 # Load user configuration. This overwrites the above values.
 if [ -f "$CMD_CONF" ] ; then
-	. $CMD_CONF || echo "$0 Warning: Failed to source $CMD_CONF although this file exists."
+    . $CMD_CONF || echo "$0 Warning: Failed to source $CMD_CONF although this file exists."
 fi
 
 # Load pglcmd library.
 if [ -f "$CMD_LIB" ] ; then
-	. $CMD_LIB || { echo "$0 Error: Failed to source $CMD_LIB although this file exists."; exit 1; }
+    . $CMD_LIB || { echo "$0 Error: Failed to source $CMD_LIB although this file exists."; exit 1; }
 else
-	echo "$0: Missing file $CMD_LIB (Error $E_XFILE)."
-	exit $E_XFILE
+    echo "$0: Missing file $CMD_LIB (Error $E_XFILE)."
+    exit $E_XFILE
 fi
 
 # Load LSB init-functions shell library
@@ -60,5 +60,5 @@ fi
 # In pglcmd.lib there's a modified copy of the Debian init-functions, as a
 # fallback, which will be overwritten by the following functions.
 if [ -f "$LSB" ] ; then
-	. $LSB || echo "$0 Warning: Failed to source $LSB although this file exists."
+    . $LSB || echo "$0 Warning: Failed to source $LSB although this file exists."
 fi

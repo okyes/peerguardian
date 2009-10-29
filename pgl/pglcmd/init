@@ -45,10 +45,10 @@ CONTROL_MAIN="/usr/lib/pgl/pglcmd.main"
 
 # Configure pglcmd and load functions.
 if [ -f "$CONTROL_MAIN" ] ; then
-	. $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
+    . $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
 else
-	echo "$0 Error 7: Missing file $CONTROL_MAIN."
-	exit 7
+    echo "$0 Error 7: Missing file $CONTROL_MAIN."
+    exit 7
 fi
 
 # End of the common code between pglcmd, pglcmd.wd,
@@ -60,30 +60,30 @@ test_VERBOSITY
 test_CMD_PATHNAME
 
 case "$1" in
-	start)
-		case "$INIT" in
-			# Automatic boot is off:
-			0)
-				if [ "$VERBOSITY" -eq 1 ] ; then
-					log_warning_msg "$(basename $0) is configured not to start automatically at boot time."
-					log_warning_msg "To change this edit the INIT entry in $CMD_CONF."
-					log_warning_msg "If you don't want to see this message set VERBOSITY=\"2\" there."
-				fi
-				exit 0
-				;;
-			# Automatic boot is on:
-			1)
-				$CMD_PATHNAME $1
-				;;
-		esac
-		;;
-	stop|restart|reload|force-reload|update|status)
-		$CMD_PATHNAME $1
-		;;
-	*)
-		log_warning_msg "Usage: $0 {start|stop|restart|reload|update|status}"
-		exit $E_BADARGS
-		;;
+    start)
+        case "$INIT" in
+            # Automatic boot is off:
+            0)
+                if [ "$VERBOSITY" -eq 1 ] ; then
+                    log_warning_msg "$(basename $0) is configured not to start automatically at boot time."
+                    log_warning_msg "To change this edit the INIT entry in $CMD_CONF."
+                    log_warning_msg "If you don't want to see this message set VERBOSITY=\"2\" there."
+                fi
+                exit 0
+                ;;
+            # Automatic boot is on:
+            1)
+                $CMD_PATHNAME $1
+                ;;
+        esac
+        ;;
+    stop|restart|reload|force-reload|update|status)
+        $CMD_PATHNAME $1
+        ;;
+    *)
+        log_warning_msg "Usage: $0 {start|stop|restart|reload|update|status}"
+        exit $E_BADARGS
+        ;;
 esac
 
 exit $?

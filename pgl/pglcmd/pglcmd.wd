@@ -30,10 +30,10 @@ CONTROL_MAIN="/usr/lib/pgl/pglcmd.main"
 
 # Configure pglcmd and load functions.
 if [ -f "$CONTROL_MAIN" ] ; then
-	. $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
+    . $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
 else
-	echo "$0 Error 7: Missing file $CONTROL_MAIN."
-	exit 7
+    echo "$0 Error 7: Missing file $CONTROL_MAIN."
+    exit 7
 fi
 
 # End of the common code between pglcmd, pglcmd.wd,
@@ -49,20 +49,20 @@ RETVAL=0
 
 # The iptables setup has to be done completely by pglcmd
 [ "$IPTABLES_SETTINGS" -gt 0 ] || {
-	log_failure_msg "Error $E_CONFIG: IPTABLES_SETTINGS has to be greater 0."
-	exit $E_CONFIG
-	}
+    log_failure_msg "Error $E_CONFIG: IPTABLES_SETTINGS has to be greater 0."
+    exit $E_CONFIG
+    }
 
 [ "$IPTABLES_ACTIVATION" -gt 0 ] || {
-	log_failure_msg "Error $E_CONFIG: IPTABLES_ACTIVATION has to be greater 0."
-	exit $E_CONFIG
-	}
+    log_failure_msg "Error $E_CONFIG: IPTABLES_ACTIVATION has to be greater 0."
+    exit $E_CONFIG
+    }
 
 [ "$WD_SLEEP" -gt 0 ] || {
-	log_failure_msg "Error $E_CONFIG: WD_SLEEP has to be greater 0."
-	log_failure_msg "Not starting $(basename $WD_PATHNAME)."
-	exit $E_CONFIG
-	}
+    log_failure_msg "Error $E_CONFIG: WD_SLEEP has to be greater 0."
+    log_failure_msg "Not starting $(basename $WD_PATHNAME)."
+    exit $E_CONFIG
+    }
 
 # Define an exit function for trapped signals
 onexit () {
@@ -80,31 +80,31 @@ trap onexit INT SEGV QUIT TERM EXIT
 echo $$ > $WD_PID
 
 while true ; do
-	sleep $WD_SLEEP
-	{
-		# First check if the daemon is running.
-		status_of_proc $DAEMON $NAME > /dev/null 2>&1 && \
-		# Then check if traffic "might" be sent to the daemon.
-		iptables -L INPUT -n | grep "${IPTABLES_IN}" > /dev/null 2>&1 && \
-		iptables -L OUTPUT -n | grep "${IPTABLES_OUT}" > /dev/null 2>&1 && \
-		iptables -L ${IPTABLES_IN} -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1 && \
-		iptables -L ${IPTABLES_OUT} -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1
-		# Not using "test" here, because ping fails if network is down,
-		# other iptables rules might block the test packet before it reaches
-		# pglcmd or the test packet might be whitelisted.
-	} || {
-		echo "$0: $NAME does not block!"
-		echo "In most cases another firewall application did mess up our iptables rules."
-		echo "Remember to make a \"${CMD_NAME} restart\" whenever you start, stop or change"
-		echo "the configuration of your other firewall applications."
-		echo "To disable the watchdog set WATCHDOG=\"0\" in $CMD_CONF."
-		echo "Now restarting ${CMD_NAME} ..."
-		${CMD_NAME} restart
-	} || {
-		# We only end up here, if restart fails before it terminates the watchdog!
-		log_failure_msg "Failed! Stopping $(basename $WD_PATHNAME) now!"
-		rm -f $WD_PID || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
-		exit 1
-	}
+    sleep $WD_SLEEP
+    {
+        # First check if the daemon is running.
+        status_of_proc $DAEMON $NAME > /dev/null 2>&1 && \
+        # Then check if traffic "might" be sent to the daemon.
+        iptables -L INPUT -n | grep "${IPTABLES_IN}" > /dev/null 2>&1 && \
+        iptables -L OUTPUT -n | grep "${IPTABLES_OUT}" > /dev/null 2>&1 && \
+        iptables -L ${IPTABLES_IN} -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1 && \
+        iptables -L ${IPTABLES_OUT} -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1
+        # Not using "test" here, because ping fails if network is down,
+        # other iptables rules might block the test packet before it reaches
+        # pglcmd or the test packet might be whitelisted.
+    } || {
+        echo "$0: $NAME does not block!"
+        echo "In most cases another firewall application did mess up our iptables rules."
+        echo "Remember to make a \"${CMD_NAME} restart\" whenever you start, stop or change"
+        echo "the configuration of your other firewall applications."
+        echo "To disable the watchdog set WATCHDOG=\"0\" in $CMD_CONF."
+        echo "Now restarting ${CMD_NAME} ..."
+        ${CMD_NAME} restart
+    } || {
+        # We only end up here, if restart fails before it terminates the watchdog!
+        log_failure_msg "Failed! Stopping $(basename $WD_PATHNAME) now!"
+        rm -f $WD_PID || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
+        exit 1
+    }
 done
 # We should never end here!
