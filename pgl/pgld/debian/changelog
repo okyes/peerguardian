@@ -8,14 +8,18 @@ pgld (2.0~pre1-1) unstable; urgency=low
       rules
     - bumped Standards-Version to 3.8.3.0
     - postinst: do "set -e" separately
-    - rules: donÂ´t ignore errors on "clean"
+    - rules: don´t ignore errors on "clean"
     - updated description
     - control: added Uploaders (jre), Bugs (mailto jre), Homepage, Vcs-Browser
       and Vcs-Git fields.
 
   [Cade Robinson]
   * fixed up logging
-  * change -d to be debug rather than daemon mode
+  * removed "--no-syslog" and rather use "-s" to enable syslogging
+  * removed "--no-dbus" and rather use -d to enable dbus
+  * added logging to log file
+  * moved closelog (for syslogging) to just before the program exit so we can log up to the end of running
+  * Changed hit lines to use "||" since descriptions in block file had "|" in them.
 
  -- jre <jre-phoenix@users.sourceforge.net>  Thu, 22 Oct 2009 23:02:37 +0200
 

@@ -225,7 +225,7 @@ nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
                 src->hits++;
                     GETIPINFO
 #ifndef LOWMEM
-                    do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s | %s",ip_src,ip_dst,proto,sranges[0]->name);
+                    do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s || %s",ip_src,ip_dst,proto,sranges[0]->name);
 #else
                     do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s",ip_src,ip_dst,proto);
 #endif
@@ -252,7 +252,7 @@ nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
                 dst->hits++;
                         GETIPINFO
 #ifndef LOWMEM
-                        do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4s | %s",ip_src,ip_dst,proto,dranges[0]->name);
+                        do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4s || %s",ip_src,ip_dst,proto,dranges[0]->name);
 #else
                         do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4su", ip_src,ip_dst,proto);
 #endif
@@ -284,7 +284,7 @@ nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
                 }
                         GETIPINFO
 #ifndef LOWMEM
-                        do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s | %s",ip_src,ip_dst,proto,src ? sranges[0]->name : dranges[0]->name);
+                        do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s || %s",ip_src,ip_dst,proto,src ? sranges[0]->name : dranges[0]->name);
 #else
                         do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s",ip_src,ip_dst,proto);
 #endif
@@ -428,7 +428,7 @@ sighandler(int sig, siginfo_t *info, void *context)
     case SIGINT:
         nfqueue_unbind();
         blocklist_stats(&blocklist, 0);
-        closelog();
+
 // #ifdef HAVE_DBUS
 //         if (use_dbus)
 //             close_dbus();
@@ -436,7 +436,7 @@ sighandler(int sig, siginfo_t *info, void *context)
         blocklist_clear(&blocklist, 0);
         free(blocklist_filenames);
         free(blocklist_charsets);
-
+        closelog();
         if (pidfile) {
             fclose(pidfile);
             unlink(pidfile_name);
@@ -692,7 +692,6 @@ main(int argc, char *argv[])
     do_log(LOG_INFO, "Blocklist has %d entries", blocklist.count);
     nfqueue_loop();
     blocklist_stats(&blocklist,0);
-    closelog();
 // #ifdef HAVE_DBUS
 //     if (use_dbus)
 //         close_dbus();
@@ -700,7 +699,7 @@ main(int argc, char *argv[])
     blocklist_clear(&blocklist, 0);
     free(blocklist_filenames);
     free(blocklist_charsets);
-
+    closelog();
     if (pidfile) {
         fclose(pidfile);
         unlink(pidfile_name);
