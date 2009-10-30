@@ -62,7 +62,6 @@
 
 static blocklist_t blocklist;
 
-static int opt_daemon = 1, daemonized = 0;
 int opt_verbose = 0;
 static int queue_num = 0;
 static int use_syslog = 0;
@@ -88,8 +87,7 @@ static FILE* pidfile = NULL;
 struct nfq_handle *nfqueue_h = 0;
 struct nfq_q_handle *nfqueue_qh = 0;
 
-void
-do_log(int priority, const char *format, ...)
+void do_log(int priority, const char *format, ...)
 {
     va_list ap;
     va_start(ap, format);
@@ -176,8 +174,7 @@ close_dbus()
 #endif*/
 
 
-static int
-load_all_lists()
+static int load_all_lists()
 {
     int i, ret = 0;
 
@@ -190,12 +187,11 @@ load_all_lists()
     }
     blocklist_sort(&blocklist);
     blocklist_trim(&blocklist);
+    do_log(LOG_INFO, "Blocklist has %d entries", blocklist.count);
     return ret;
 }
 
-static int
-nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
-           struct nfq_data *nfa, void *data)
+static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *nfa, void *data)
 {
     int id = 0, status = 0;
     struct nfqnl_msg_packet_hdr *ph;
@@ -308,8 +304,7 @@ nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg,
     return 0;
 }
 
-static int
-nfqueue_bind()
+static int nfqueue_bind()
 {
     nfqueue_h = nfq_open();
     if (!nfqueue_h) {
@@ -346,8 +341,7 @@ nfqueue_bind()
     return 0;
 }
 
-static void
-nfqueue_unbind()
+static void nfqueue_unbind()
 {
     if (!nfqueue_h)
         return;
@@ -355,59 +349,74 @@ nfqueue_unbind()
     do_log(LOG_INFO, "NFQUEUE: unbinding from queue 0");
     nfq_destroy_queue(nfqueue_qh);
     if (nfq_unbind_pf(nfqueue_h, AF_INET) < 0) {
-        do_log(LOG_ERR, "Error during nfq_unbind_pf(): %s", strerror(errno));
+        do_log(LOG_ERR, "ERROR during nfq_unbind_pf(): %s", strerror(errno));
     }
     nfq_close(nfqueue_h);
 }
 
-static int
-nfqueue_loop ()
+void nfqueue_loop ()
 {
     struct nfnl_handle *nh;
     int fd, rv;
     char buf[RECVBUFFSIZE];
-    struct pollfd fds[1];
+//     struct pollfd fds[1];
 
-    if (nfqueue_bind() < 0)
-        return -1;
+    if (nfqueue_bind() < 0) {
+        do_log(LOG_ERR, "ERROR binding to queue!");
+        exit(1);
+    }
+    daemonize();
 
     nh = nfq_nfnlh(nfqueue_h);
     fd = nfnl_fd(nh);
 
-    for (;;) {
-        fds[0].fd = fd;
-        fds[0].events = POLLIN;
-        fds[0].revents = 0;
-        rv = poll(fds, 1, 5000);
+//     for (;;) {
+//         fds[0].fd = fd;
+//         fds[0].events = POLLIN;
+//         fds[0].revents = 0;
+//         rv = poll(fds, 1, 5000);
+//
+// //         curtime = time(NULL);
+//
+//         if (rv < 0) {
+//             if (errno == EINTR)
+//                 continue;
+//             do_log(LOG_ERR, "ERROR waiting for socket: %s", strerror(errno));
+//             goto out;
+//         }
+//         if (rv > 0) {
+//             rv = recv(fd, buf, sizeof(buf), 0);
+//             if (rv < 0) {
+//                 if (errno == EINTR)
+//                     continue;
+//                 do_log(LOG_ERR, "ERROR reading from socket: %s", strerror(errno));
+//                 goto out;
+//             }
+//             if (rv >= 0)
+//                 nfq_handle_packet(nfqueue_h, buf, rv);
+//         }
+//
+//     }
+// out:
+//     nfqueue_unbind();
 
-//         curtime = time(NULL);
-
-        if (rv < 0) {
-            if (errno == EINTR)
-                continue;
-            do_log(LOG_ERR, "Error waiting for socket: %s", strerror(errno));
-            goto out;
-        }
-        if (rv > 0) {
-            rv = recv(fd, buf, sizeof(buf), 0);
-            if (rv < 0) {
-                if (errno == EINTR)
-                    continue;
-                do_log(LOG_ERR, "Error reading from socket: %s", strerror(errno));
-                goto out;
-            }
-            if (rv >= 0)
-                nfq_handle_packet(nfqueue_h, buf, rv);
-        }
-
+    while ((rv = recv(fd, buf, sizeof(buf), 0)) >= 0) {
+        nfq_handle_packet(nfqueue_h, buf, rv);
     }
-out:
-    nfqueue_unbind();
-    return 0;
+    int err=errno;
+    do_log(LOG_ERR, "NFQUEUE ERROR: unbinding from queue '%hd', recv returned %s", queue_num, strerror(err));
+    if ( err == ENOBUFS ) {
+        /* close and return, nfq_destroy_queue() won't work as we've no buffers */
+        nfq_close(nfqueue_h);
+        exit(1);
+
+    } else {
+        nfqueue_unbind();
+        exit(0);
+    }
 }
 
-static void
-sighandler(int sig, siginfo_t *info, void *context)
+static void sighandler(int sig, siginfo_t *info, void *context)
 {
     switch (sig) {
     case SIGUSR1:
@@ -452,8 +461,7 @@ sighandler(int sig, siginfo_t *info, void *context)
     }
 }
 
-static int
-install_sighandler()
+static int install_sighandler()
 {
     struct sigaction sa;
 
@@ -488,8 +496,7 @@ install_sighandler()
     return 0;
 }
 
-static FILE *
-create_pidfile(const char *name)
+static FILE * create_pidfile(const char *name)
 {
     FILE *f;
 
@@ -515,33 +522,27 @@ create_pidfile(const char *name)
 }
 
 
-static void
-daemonize() {
+static void daemonize() {
     /* Fork off and have parent exit. */
     switch (fork()) {
     case -1:
         perror("fork");
         exit(1);
-
     case 0:
         break;
-
     default:
         exit(0);
     }
 
     /* detach from the controlling terminal */
-
     setsid();
-
     close(fileno(stdin));
     close(fileno(stdout));
     close(fileno(stderr));
-    daemonized = 1;
+    do_log(LOG_INFO, "Started");
 }
 
-static void
-print_usage()
+static void print_usage()
 {
     fprintf(stderr, PKGNAME " " VERSION " (c) 2008 Jindrich Makovicka\n");
     fprintf(stderr, "Syntax: pgld [-d] [-s] [-v] [-a MARK] [-r MARK] [-q 0-65535] BLOCKLIST...\n\n");
@@ -564,8 +565,7 @@ print_usage()
     fprintf(stderr, "\n");
 }
 
-void
-add_blocklist(const char *name, const char *charset)
+void add_blocklist(const char *name, const char *charset)
 {
     blocklist_filenames = (const char**)realloc(blocklist_filenames, sizeof(const char*) * (blockfile_count + 1));
     CHECK_OOM(blocklist_filenames);
@@ -576,8 +576,7 @@ add_blocklist(const char *name, const char *charset)
     blockfile_count++;
 }
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     int opt, i;
 
@@ -639,13 +638,7 @@ main(int argc, char *argv[])
 //         strcat(logfile_name, PKGNAME);
 //         strcat(logfile_name, ".log");
 //     }
-    if (logfile_name != NULL) {
-        if ((logfile=fopen(logfile_name,"a")) == NULL) {
-            fprintf(stderr, "Unable to open logfile: %s", logfile_name);
-            perror(" ");
-            exit(-1);
-        }
-    }
+
 
     for (i = 0; i < argc - optind; i++)
         add_blocklist(argv[optind + i], current_charset);
@@ -655,16 +648,26 @@ main(int argc, char *argv[])
         exit(1);
     }
 
-    blocklist_init(&blocklist);
+    if (install_sighandler() != 0)
+        return -1;
 
+    pidfile = create_pidfile(pidfile_name);
+    if (!pidfile)
+        return -1;
+
+    if (logfile_name != NULL) {
+        if ((logfile=fopen(logfile_name,"a")) == NULL) {
+            fprintf(stderr, "Unable to open logfile: %s", logfile_name);
+            perror(" ");
+            exit(-1);
+        }
+    }
+    openlog("pgld", 0, LOG_DAEMON);
+
+    blocklist_init(&blocklist);
     if (load_all_lists() < 0) {
         do_log(LOG_ERR, "Cannot load the blocklist");
         return -1;
-    }
-
-    if (opt_daemon) {
-        daemonize();
-        openlog("pgld", 0, LOG_DAEMON);
     }
 
 // #ifdef HAVE_DBUS
@@ -681,15 +684,6 @@ main(int argc, char *argv[])
 //     }
 // #endif
 
-    if (install_sighandler() != 0)
-        return -1;
-
-    pidfile = create_pidfile(pidfile_name);
-    if (!pidfile)
-        return -1;
-
-    do_log(LOG_INFO, "Started");
-    do_log(LOG_INFO, "Blocklist has %d entries", blocklist.count);
     nfqueue_loop();
     blocklist_stats(&blocklist,0);
 // #ifdef HAVE_DBUS
