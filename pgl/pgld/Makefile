@@ -70,7 +70,7 @@ DISTFILES = \
 	src/stream.c src/stream.h \
 	src/dbus.c src/dbus.h \
 	src/dl-blocklistpro.pl \
-	dbus-pgld.conf ChangeLog README \
+	dbus-pgld.conf ChangeLog README logrotate\
 	debian/changelog debian/control debian/copyright \
 	debian/default \
 	debian/postinst debian/postrm debian/rules \

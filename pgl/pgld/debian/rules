@@ -16,16 +16,23 @@ CFLAGS += -O2
 endif
 
 
-build: 
+build: build-stamp
+
+build-stamp:
 	dh_testdir
+	ln logrotate debian/logrotate
 
 	# Add here commands to compile the package.
 	$(MAKE) prefix=/usr DBUSCONFDIR=/etc/dbus-1/system.d
+
+	touch build-stamp
 
 
 clean:
 	dh_testdir
 	dh_testroot
+	find debian -maxdepth 1 -regextype posix-extended -regex "(.*logrotate)" -print0 | xargs -0r rm
+	rm -f build-stamp
 
 	# Add here commands to clean up after the build process.
 	$(MAKE) clean
@@ -51,6 +58,7 @@ binary-arch: build install
 	dh_testdir
 	dh_testroot
 	dh_installdocs README
+	dh_installlogrotate
 # 	dh_installinit -- start 20 2 3 4 5 . start 39 S . stop 80 0 1 6 .
 # 	dh_installcron
 	dh_installchangelogs ChangeLog
