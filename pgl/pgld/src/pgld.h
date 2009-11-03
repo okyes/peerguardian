@@ -59,7 +59,8 @@
 #define unlikely(x)     __builtin_expect((x),0)
 
 void do_log(int priority, const char *format, ...);
-static void daemonize();
+void daemonize();
+int install_sighandler();
 // typedef void (*log_func_t) (int priority, const char *format, ...);
 extern int opt_verbose;
 

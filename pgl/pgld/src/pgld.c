@@ -173,6 +173,51 @@ close_dbus()
 
 #endif*/
 
+static FILE *create_pidfile(const char *name)
+{
+    FILE *f;
+
+    f = fopen(name, "w");
+    if (f == NULL){
+        fprintf(stderr, "Unable to create PID file %s: %s\n", name, strerror(errno));
+        return NULL;
+    }
+
+    /* this works even if pidfile is stale after daemon is sigkilled */
+    if (lockf(fileno(f), F_TLOCK, 0) == -1){
+        fprintf(stderr, "Unable to set exclusive lock for pidfile %s: %s\n", name, strerror(errno));
+        return NULL;
+    }
+
+    fprintf(f, "%d\n", getpid());
+    fflush(f);
+
+    /* leave fd open as long as daemon is running */
+    /* this is useful for example so that inotify can catch a file
+     * closed event even if daemon is killed */
+    return f;
+}
+
+void daemonize() {
+    /* Fork off and have parent exit. */
+    switch (fork()) {
+    case -1:
+        perror("fork");
+        exit(1);
+    case 0:
+        break;
+    default:
+        exit(0);
+    }
+
+    /* detach from the controlling terminal */
+    setsid();
+    close(fileno(stdin));
+    close(fileno(stdout));
+    close(fileno(stderr));
+    do_log(LOG_INFO, "Started");
+}
+
 
 static int load_all_lists()
 {
@@ -367,6 +412,17 @@ void nfqueue_loop ()
     }
     daemonize();
 
+    if (install_sighandler() != 0) {
+        do_log(LOG_ERR, "ERROR installing signal handlers");
+        exit(1);
+    }
+
+    pidfile = create_pidfile(pidfile_name);
+    if (!pidfile) {
+        do_log(LOG_ERR, "ERROR creating pidfile %s", pidfile_name);
+        exit(1);
+    }
+
     nh = nfq_nfnlh(nfqueue_h);
     fd = nfnl_fd(nh);
 
@@ -416,7 +472,7 @@ void nfqueue_loop ()
     }
 }
 
-static void sighandler(int sig, siginfo_t *info, void *context)
+void sighandler(int sig, siginfo_t *info, void *context)
 {
     switch (sig) {
     case SIGUSR1:
@@ -461,7 +517,7 @@ static void sighandler(int sig, siginfo_t *info, void *context)
     }
 }
 
-static int install_sighandler()
+int install_sighandler()
 {
     struct sigaction sa;
 
@@ -494,52 +550,6 @@ static int install_sighandler()
         return -1;
     }
     return 0;
-}
-
-static FILE * create_pidfile(const char *name)
-{
-    FILE *f;
-
-    f = fopen(name, "w");
-    if (f == NULL){
-        fprintf(stderr, "Unable to create PID file %s: %s\n", name, strerror(errno));
-        return NULL;
-    }
-
-    /* this works even if pidfile is stale after daemon is sigkilled */
-    if (lockf(fileno(f), F_TLOCK, 0) == -1){
-        fprintf(stderr, "Unable to set exclusive lock for pidfile %s: %s\n", name, strerror(errno));
-        return NULL;
-    }
-
-    fprintf(f, "%d\n", getpid());
-    fflush(f);
-
-    /* leave fd open as long as daemon is running */
-    /* this is useful for example so that inotify can catch a file
-     * closed event even if daemon is killed */
-    return f;
-}
-
-
-static void daemonize() {
-    /* Fork off and have parent exit. */
-    switch (fork()) {
-    case -1:
-        perror("fork");
-        exit(1);
-    case 0:
-        break;
-    default:
-        exit(0);
-    }
-
-    /* detach from the controlling terminal */
-    setsid();
-    close(fileno(stdin));
-    close(fileno(stdout));
-    close(fileno(stderr));
-    do_log(LOG_INFO, "Started");
 }
 
 static void print_usage()
@@ -647,13 +657,6 @@ int main(int argc, char *argv[])
         print_usage();
         exit(1);
     }
-
-    if (install_sighandler() != 0)
-        return -1;
-
-    pidfile = create_pidfile(pidfile_name);
-    if (!pidfile)
-        return -1;
 
     if (logfile_name != NULL) {
         if ((logfile=fopen(logfile_name,"a")) == NULL) {
