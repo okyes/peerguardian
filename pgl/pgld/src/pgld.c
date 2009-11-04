@@ -66,7 +66,7 @@ int opt_verbose = 0;
 static int queue_num = 0;
 static int use_syslog = 0;
 static uint32_t accept_mark = 0, reject_mark = 0;
-static const char *pidfile_name = "/var/run/pgld.pid";
+static char *pidfile_name = "/var/run/pgld.pid";
 static FILE *logfile;
 static char *logfile_name=NULL;
 
@@ -198,7 +198,7 @@ static FILE *create_pidfile(const char *name)
     return f;
 }
 
-void daemonize() {
+static void daemonize() {
     /* Fork off and have parent exit. */
     switch (fork()) {
     case -1:
@@ -234,6 +234,99 @@ static int load_all_lists()
     blocklist_trim(&blocklist);
     do_log(LOG_INFO, "Blocklist has %d entries", blocklist.count);
     return ret;
+}
+
+static void nfqueue_unbind()
+{
+    if (!nfqueue_h)
+        return;
+
+    do_log(LOG_INFO, "NFQUEUE: unbinding from queue 0");
+    nfq_destroy_queue(nfqueue_qh);
+    if (nfq_unbind_pf(nfqueue_h, AF_INET) < 0) {
+        do_log(LOG_ERR, "ERROR during nfq_unbind_pf(): %s", strerror(errno));
+    }
+    nfq_close(nfqueue_h);
+}
+
+static void sighandler(int sig, siginfo_t *info, void *context)
+{
+    switch (sig) {
+    case SIGUSR1:
+        // dump and reset stats
+        blocklist_stats(&blocklist, 1);
+        break;
+    case SIGUSR2:
+        // just dump stats
+        blocklist_stats(&blocklist, 0);
+        break;
+    case SIGHUP:
+        blocklist_stats(&blocklist, 1);
+        if (load_all_lists() < 0)
+            do_log(LOG_ERR, "Cannot load the blocklist");
+        do_log(LOG_INFO, "Blocklist reloaded");
+        break;
+    case SIGTERM:
+    case SIGINT:
+        nfqueue_unbind();
+        blocklist_stats(&blocklist, 0);
+
+// #ifdef HAVE_DBUS
+//         if (use_dbus)
+//             close_dbus();
+// #endif
+        blocklist_clear(&blocklist, 0);
+        free(blocklist_filenames);
+        free(blocklist_charsets);
+        closelog();
+        if (pidfile) {
+            fclose(pidfile);
+            unlink(pidfile_name);
+        }
+        exit(0);
+        break;
+    case SIGSEGV:
+        nfqueue_unbind();
+        abort();
+        break;
+    default:
+        break;
+    }
+}
+
+static int install_sighandler()
+{
+    struct sigaction sa;
+
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_sigaction = sighandler;
+    sa.sa_flags = SA_RESTART | SA_SIGINFO;
+
+    if (sigaction(SIGUSR1, &sa, NULL) < 0) {
+        perror("Error setting signal handler for SIGUSR1\n");
+        return -1;
+    }
+    if (sigaction(SIGUSR2, &sa, NULL) < 0) {
+        perror("Error setting signal handler for SIGUSR2\n");
+        return -1;
+    }
+    if (sigaction(SIGHUP, &sa, NULL) < 0) {
+        perror("Error setting signal handler for SIGHUP\n");
+        return -1;
+    }
+    if (sigaction(SIGTERM, &sa, NULL) < 0) {
+        perror("Error setting signal handler for SIGTERM\n");
+        return -1;
+    }
+    if (sigaction(SIGINT, &sa, NULL) < 0) {
+        perror("Error setting signal handler for SIGINT\n");
+        return -1;
+    }
+    if (sigaction(SIGSEGV, &sa, NULL) < 0) {
+        perror("Error setting signal handler for SIGABRT\n");
+        return -1;
+    }
+    return 0;
 }
 
 static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *nfa, void *data)
@@ -386,20 +479,7 @@ static int nfqueue_bind()
     return 0;
 }
 
-static void nfqueue_unbind()
-{
-    if (!nfqueue_h)
-        return;
-
-    do_log(LOG_INFO, "NFQUEUE: unbinding from queue 0");
-    nfq_destroy_queue(nfqueue_qh);
-    if (nfq_unbind_pf(nfqueue_h, AF_INET) < 0) {
-        do_log(LOG_ERR, "ERROR during nfq_unbind_pf(): %s", strerror(errno));
-    }
-    nfq_close(nfqueue_h);
-}
-
-void nfqueue_loop ()
+static void nfqueue_loop ()
 {
     struct nfnl_handle *nh;
     int fd, rv;
@@ -472,86 +552,6 @@ void nfqueue_loop ()
     }
 }
 
-void sighandler(int sig, siginfo_t *info, void *context)
-{
-    switch (sig) {
-    case SIGUSR1:
-        // dump and reset stats
-        blocklist_stats(&blocklist, 1);
-        break;
-    case SIGUSR2:
-        // just dump stats
-        blocklist_stats(&blocklist, 0);
-        break;
-    case SIGHUP:
-        blocklist_stats(&blocklist, 1);
-        if (load_all_lists() < 0)
-            do_log(LOG_ERR, "Cannot load the blocklist");
-        do_log(LOG_INFO, "Blocklist reloaded");
-        break;
-    case SIGTERM:
-    case SIGINT:
-        nfqueue_unbind();
-        blocklist_stats(&blocklist, 0);
-
-// #ifdef HAVE_DBUS
-//         if (use_dbus)
-//             close_dbus();
-// #endif
-        blocklist_clear(&blocklist, 0);
-        free(blocklist_filenames);
-        free(blocklist_charsets);
-        closelog();
-        if (pidfile) {
-            fclose(pidfile);
-            unlink(pidfile_name);
-        }
-        exit(0);
-        break;
-    case SIGSEGV:
-        nfqueue_unbind();
-        abort();
-        break;
-    default:
-        break;
-    }
-}
-
-int install_sighandler()
-{
-    struct sigaction sa;
-
-    memset(&sa, 0, sizeof(sa));
-    sa.sa_sigaction = sighandler;
-    sa.sa_flags = SA_RESTART | SA_SIGINFO;
-
-    if (sigaction(SIGUSR1, &sa, NULL) < 0) {
-        perror("Error setting signal handler for SIGUSR1\n");
-        return -1;
-    }
-    if (sigaction(SIGUSR2, &sa, NULL) < 0) {
-        perror("Error setting signal handler for SIGUSR2\n");
-        return -1;
-    }
-    if (sigaction(SIGHUP, &sa, NULL) < 0) {
-        perror("Error setting signal handler for SIGHUP\n");
-        return -1;
-    }
-    if (sigaction(SIGTERM, &sa, NULL) < 0) {
-        perror("Error setting signal handler for SIGTERM\n");
-        return -1;
-    }
-    if (sigaction(SIGINT, &sa, NULL) < 0) {
-        perror("Error setting signal handler for SIGINT\n");
-        return -1;
-    }
-    if (sigaction(SIGSEGV, &sa, NULL) < 0) {
-        perror("Error setting signal handler for SIGABRT\n");
-        return -1;
-    }
-    return 0;
-}
-
 static void print_usage()
 {
     fprintf(stderr, PKGNAME " " VERSION " (c) 2008 Jindrich Makovicka\n");
@@ -606,7 +606,9 @@ int main(int argc, char *argv[])
             accept_mark = htonl((uint32_t)atoi(optarg));
             break;
         case 'p':
-            pidfile_name = optarg;
+            pidfile_name=malloc(strlen(optarg)+1);
+            CHECK_OOM(pidfile_name);
+            strcpy(pidfile_name,optarg);
             break;
 #ifndef LOWMEM
         case 'c':
