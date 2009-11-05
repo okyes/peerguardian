@@ -78,4 +78,7 @@ http://list.iblocklist.com/?list=bt_proxy
 # Bluetack dshield
 http://list.iblocklist.com/?list=bt_dshield
 
+# ipfilter.dat url
+#http://downloads.sourceforge.net/project/emulepawcio/Ipfilter/Ipfilter/ipfilter.dat
+
 #locallist /etc/pgl/custom-blocklist.p2p

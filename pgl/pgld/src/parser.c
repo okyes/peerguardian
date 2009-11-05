@@ -30,8 +30,7 @@
 #include "parser.h"
 #include "stream.h"
 
-static void
-strip_crlf(char *str)
+static void strip_crlf(char *str)
 {
     while (*str) {
         if (*str == '\r' || *str == '\n') {
@@ -42,18 +41,71 @@ strip_crlf(char *str)
     }
 }
 
-static inline uint32_t
-assemble_ip(int i[4])
+static inline uint32_t assemble_ip(int i[4])
 {
     return (i[0] << 24) + (i[1] << 16) + (i[2] << 8) + i[3];
 }
 
-static int
-loadlist_dat(blocklist_t *blocklist, const char *filename, const char *charset)
+// static int loadlist_dat(blocklist_t *blocklist, const char *filename, const char *charset)
+// {
+//     stream_t s;
+//     char buf[MAX_LABEL_LENGTH], name[MAX_LABEL_LENGTH];
+//     int n, ip1[4], ip2[4], dummy;
+//     int total, ok;
+//     int ret = -1;
+//     iconv_t ic;
+//
+//     if (stream_open(&s, filename) < 0) {
+//         do_log(LOG_ERR, "Error opening %s.", filename);
+//         return -1;
+//     }
+//
+//     ic = iconv_open("UTF-8", charset);
+//     if (ic < 0) {
+//         do_log(LOG_ERR, "Cannot initialize charset conversion: %s", strerror(errno));
+//         goto err;
+//     }
+//
+//     total = ok = 0;
+//     while (stream_getline(buf, MAX_LABEL_LENGTH, &s)) {
+//         if (buf[0] == '#')
+//             continue;
+//
+//         strip_crlf(buf);
+//         total++;
+//         // try 100 lines if none worked ("ok" didn't increment) then it isn't ipfilter format
+//         if (ok == 0 && total > 100) {
+//             stream_close(&s);
+//             goto err;
+//         }
+//
+//         memset(name, 0, sizeof(name));
+//         if (sscanf(buf, "%d.%d.%d.%d - %d.%d.%d.%d , %d , %199c",
+//                    &ip1[0], &ip1[1], &ip1[2], &ip1[3],
+//                    &ip2[0], &ip2[1], &ip2[2], &ip2[3],
+//                    &dummy, name) == 10){
+//             blocklist_append(blocklist, assemble_ip(ip1), assemble_ip(ip2), name, ic);
+//             ok++;
+//         }
+//     }
+//     stream_close(&s);
+//
+//     if (ok == 0) goto err;
+//
+//     ret = 0;
+//
+// err:
+//     if (ic)
+//         iconv_close(ic);
+//
+//     return ret;
+// }
+
+static int loadlist_ascii(blocklist_t *blocklist, const char *filename, const char *charset)
 {
     stream_t s;
-    char buf[MAX_LABEL_LENGTH], name[MAX_LABEL_LENGTH];
-    int n, ip1[4], ip2[4], dummy;
+    char buf[MAX_LABEL_LENGTH + 1], name[MAX_LABEL_LENGTH];
+    int ip1[4], ip2[4], dummy;
     int total, ok;
     int ret = -1;
     iconv_t ic;
@@ -71,77 +123,31 @@ loadlist_dat(blocklist_t *blocklist, const char *filename, const char *charset)
 
     total = ok = 0;
     while (stream_getline(buf, MAX_LABEL_LENGTH, &s)) {
-        if (buf[0] == '#')
-            continue;
-
         strip_crlf(buf);
         total++;
+        // try 100 lines if none worked ("ok" didn't increment) then it isn't ascii
         if (ok == 0 && total > 100) {
             stream_close(&s);
             goto err;
         }
 
         memset(name, 0, sizeof(name));
-        n = sscanf(buf, "%d.%d.%d.%d - %d.%d.%d.%d , %d , %199c",
+        if (sscanf(buf, "%199[^:]:%d.%d.%d.%d-%d.%d.%d.%d",
+                        name, &ip1[0], &ip1[1], &ip1[2], &ip1[3],
+                        &ip2[0], &ip2[1], &ip2[2], &ip2[3]) == 9) {
+            blocklist_append(blocklist, assemble_ip(ip1), assemble_ip(ip2), name, ic);
+            ok++;
+        }
+        else if (sscanf(buf, "%d.%d.%d.%d - %d.%d.%d.%d , %d , %199c",
                    &ip1[0], &ip1[1], &ip1[2], &ip1[3],
                    &ip2[0], &ip2[1], &ip2[2], &ip2[3],
-                   &dummy, name);
-        if (n != 10) continue;
-        blocklist_append(blocklist, assemble_ip(ip1), assemble_ip(ip2), name, ic);
-        ok++;
-    }
-    stream_close(&s);
-
-    if (ok == 0) goto err;
-
-    ret = 0;
-
-err:
-    if (ic)
-        iconv_close(ic);
-
-    return ret;
-}
-
-static int
-loadlist_p2p(blocklist_t *blocklist, const char *filename, const char *charset)
-{
-    stream_t s;
-    char buf[MAX_LABEL_LENGTH], name[MAX_LABEL_LENGTH];
-    int n, ip1[4], ip2[4];
-    int total, ok;
-    int ret = -1;
-    iconv_t ic;
-
-    if (stream_open(&s, filename) < 0) {
-        do_log(LOG_ERR, "Error opening %s.", filename);
-        return -1;
-    }
-
-    ic = iconv_open("UTF-8", charset);
-    if (ic < 0) {
-        do_log(LOG_ERR, "Cannot initialize charset conversion: %s", strerror(errno));
-        goto err;
-    }
-
-    total = ok = 0;
-    while (stream_getline(buf, MAX_LABEL_LENGTH, &s)) {
-        strip_crlf(buf);
-        total++;
-        if (ok == 0 && total > 100) {
-            stream_close(&s);
-            goto err;
+                   &dummy, name) == 10){
+            blocklist_append(blocklist, assemble_ip(ip1), assemble_ip(ip2), name, ic);
+            ok++;
         }
-
-        memset(name, 0, sizeof(name));
-        n = sscanf(buf, "%199[^:]:%d.%d.%d.%d-%d.%d.%d.%d",
-                   name,
-                   &ip1[0], &ip1[1], &ip1[2], &ip1[3],
-                   &ip2[0], &ip2[1], &ip2[2], &ip2[3]);
-        if (n != 9) continue;
-
-        blocklist_append(blocklist, assemble_ip(ip1), assemble_ip(ip2), name, ic);
-        ok++;
+        else {
+            do_log(LOG_INFO, "Invalid ASCII line: %s", buf);
+        }
     }
     stream_close(&s);
 
@@ -156,8 +162,7 @@ err:
     return ret;
 }
 
-static int
-read_cstr(char *buf, int maxsize, FILE *f)
+static int read_cstr(char *buf, int maxsize, FILE *f)
 {
     int c, n = 0;
     for (;;) {
@@ -175,8 +180,7 @@ read_cstr(char *buf, int maxsize, FILE *f)
     return n;
 }
 
-static int
-loadlist_p2b(blocklist_t *blocklist, const char *filename)
+static int loadlist_binary(blocklist_t *blocklist, const char *filename)
 {
     FILE *f;
     uint8_t header[8];
@@ -195,9 +199,11 @@ loadlist_p2b(blocklist_t *blocklist, const char *filename)
     }
 
     n = fread(header, 1, 8, f);
+    // if n != 8 not a p2b file
     if (n != 8)
         goto err;
 
+    // another validity test
     if (header[0] != 0xff
         || header[1] != 0xff
         || header[2] != 0xff
@@ -325,31 +331,34 @@ err:
     return ret;
 }
 
-int
-load_list(blocklist_t *blocklist, const char *filename, const char *charset)
+int load_list(blocklist_t *blocklist, const char *filename, const char *charset)
 {
     int prevcount;
-
+    // Get current count and try to parse the file as ascii
     prevcount = blocklist->count;
-    if (loadlist_p2b(blocklist, filename) == 0) {
-        do_log(LOG_INFO, "PeerGuardian Binary: %d entries loaded", blocklist->count - prevcount);
+    if (loadlist_ascii(blocklist, filename, charset ? charset : "ISO8859-1") == 0) {
+        do_log(LOG_INFO, "Ascii: %d entries loaded", blocklist->count - prevcount);
         return 0;
     }
+    // it wasn't ascii so clear the blocklist starting were it was before and get new count
     blocklist_clear(blocklist, prevcount);
-
     prevcount = blocklist->count;
-    if (loadlist_dat(blocklist, filename, charset ? charset : "ISO8859-1") == 0) {
-        do_log(LOG_INFO, "IPFilter: %d entries loaded", blocklist->count - prevcount);
+
+    // Try ipfilter format
+//     if (loadlist_dat(blocklist, filename, charset ? charset : "ISO8859-1") == 0) {
+//         do_log(LOG_INFO, "IPFilter: %d entries loaded", blocklist->count - prevcount);
+//         return 0;
+//     }
+//     // it wasn't ipfilter format...
+//     blocklist_clear(blocklist, prevcount);
+//     prevcount = blocklist->count;
+
+    // Try binary
+    if (loadlist_binary(blocklist, filename) == 0) {
+        do_log(LOG_INFO, "Binary: %d entries loaded", blocklist->count - prevcount);
         return 0;
     }
+    // it wasn't binary either so return -1 since we don't know what it was.
     blocklist_clear(blocklist, prevcount);
-
-    prevcount = blocklist->count;
-    if (loadlist_p2p(blocklist, filename, charset ? charset : "ISO8859-1") == 0) {
-        do_log(LOG_INFO, "PeerGuardian Ascii: %d entries loaded", blocklist->count - prevcount);
-        return 0;
-    }
-    blocklist_clear(blocklist, prevcount);
-
     return -1;
 }
