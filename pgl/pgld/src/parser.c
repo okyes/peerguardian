@@ -46,61 +46,6 @@ static inline uint32_t assemble_ip(int i[4])
     return (i[0] << 24) + (i[1] << 16) + (i[2] << 8) + i[3];
 }
 
-// static int loadlist_dat(blocklist_t *blocklist, const char *filename, const char *charset)
-// {
-//     stream_t s;
-//     char buf[MAX_LABEL_LENGTH], name[MAX_LABEL_LENGTH];
-//     int n, ip1[4], ip2[4], dummy;
-//     int total, ok;
-//     int ret = -1;
-//     iconv_t ic;
-//
-//     if (stream_open(&s, filename) < 0) {
-//         do_log(LOG_ERR, "Error opening %s.", filename);
-//         return -1;
-//     }
-//
-//     ic = iconv_open("UTF-8", charset);
-//     if (ic < 0) {
-//         do_log(LOG_ERR, "Cannot initialize charset conversion: %s", strerror(errno));
-//         goto err;
-//     }
-//
-//     total = ok = 0;
-//     while (stream_getline(buf, MAX_LABEL_LENGTH, &s)) {
-//         if (buf[0] == '#')
-//             continue;
-//
-//         strip_crlf(buf);
-//         total++;
-//         // try 100 lines if none worked ("ok" didn't increment) then it isn't ipfilter format
-//         if (ok == 0 && total > 100) {
-//             stream_close(&s);
-//             goto err;
-//         }
-//
-//         memset(name, 0, sizeof(name));
-//         if (sscanf(buf, "%d.%d.%d.%d - %d.%d.%d.%d , %d , %199c",
-//                    &ip1[0], &ip1[1], &ip1[2], &ip1[3],
-//                    &ip2[0], &ip2[1], &ip2[2], &ip2[3],
-//                    &dummy, name) == 10){
-//             blocklist_append(blocklist, assemble_ip(ip1), assemble_ip(ip2), name, ic);
-//             ok++;
-//         }
-//     }
-//     stream_close(&s);
-//
-//     if (ok == 0) goto err;
-//
-//     ret = 0;
-//
-// err:
-//     if (ic)
-//         iconv_close(ic);
-//
-//     return ret;
-// }
-
 static int loadlist_ascii(blocklist_t *blocklist, const char *filename, const char *charset)
 {
     stream_t s;
@@ -132,12 +77,14 @@ static int loadlist_ascii(blocklist_t *blocklist, const char *filename, const ch
         }
 
         memset(name, 0, sizeof(name));
+        // try the line as a p2p line
         if (sscanf(buf, "%199[^:]:%d.%d.%d.%d-%d.%d.%d.%d",
                         name, &ip1[0], &ip1[1], &ip1[2], &ip1[3],
                         &ip2[0], &ip2[1], &ip2[2], &ip2[3]) == 9) {
             blocklist_append(blocklist, assemble_ip(ip1), assemble_ip(ip2), name, ic);
             ok++;
         }
+        // else try the line as a ipfilter.dat line
         else if (sscanf(buf, "%d.%d.%d.%d - %d.%d.%d.%d , %d , %199c",
                    &ip1[0], &ip1[1], &ip1[2], &ip1[3],
                    &ip2[0], &ip2[1], &ip2[2], &ip2[3],
@@ -145,6 +92,8 @@ static int loadlist_ascii(blocklist_t *blocklist, const char *filename, const ch
             blocklist_append(blocklist, assemble_ip(ip1), assemble_ip(ip2), name, ic);
             ok++;
         }
+        // could add more tests for other ASCII formats here.
+        // else the line is invalid
         else {
             do_log(LOG_INFO, "Invalid ASCII line: %s", buf);
         }
