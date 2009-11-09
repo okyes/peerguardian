@@ -1888,32 +1888,29 @@ get_blocklist () {
     esac
 }
 
-#Function to clean up block list file
-cleanup_blocklist () {
-test_set_BLOCKLIST
-    case "$BLOCKLIST_FORMAT" in
-        'd')    # blocklist file is in eMule ipfilter.dat format
-            echo -n "Cleaning up $BLOCKLIST in ipfilter.dat format..."
-            tr -cd '[:alnum:][:space:]\.,\n' < $BLOCKLIST | tr -s [:space:] | sort -u > $BLOCKLIST.cleaned
-            cp $BLOCKLIST.cleaned $BLOCKLIST && rm -f $BLOCKLIST.cleaned
-            echo "Done"
-            ;;
-        'n')    # blocklist file is in peerguardian .p2b v2 binary format
-            echo "Can't clean a p2b file"
-            ;;
-        'p')    # blocklist file is in peerguardian .p2p text format
-            echo -n "Cleaning up $BLOCKLIST in .p2p format..."
-            tr -cd '[:alnum:][:space:]:\.\-\n' < $BLOCKLIST | tr -s [:space:] | sed 's/^[ \t]*//' | sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | sort -u > $BLOCKLIST.cleaned
-            cp $BLOCKLIST.cleaned $BLOCKLIST && rm -f $BLOCKLIST.cleaned
-            echo "Done"
-            ;;
-        *)
-            log_failure_msg "Error $E_CONFIG: Check the BLOCKLIST_FORMAT setting."
-            exit $E_CONFIG
-            ;;
-    esac
+# Function that updates blocklists and reloads daemon
+update_blocklists () {
+    test_net
+    test_BLOCKLISTS_DIR
+    echo "Updating blocklists ..."
 
+    # Remove the old MD5SUM file now, so that if anything goes wrong it's clear we have to rebuild the blocklist:
+    [ -e "$MD5SUM_FILE" ] && { rm "$MD5SUM_FILE" || { log_failure_msg " Error: rm exited with $?" ; exit 1; } ; }
 
+    UPDATE_FAIL=""        # Lists failed blocklist updates
+    UPDATE_SUCCESS=""    # Lists successful blocklist updates
+    UPDATE_SUCCESS_NA=""    # Lists blocklist where no update was available
+    UPDATE_LOCAL=""        # Lists local blocklists
+
+    # Read the non-comment|not-empty lines from BLOCKLISTS_LIST.
+    # Ignore all entries after # (comments).
+    set_LISTS_URL
+
+    for LIST in $LISTS_URL ; do
+        get_blocklist
+    done
+
+    echo "Blocklists updated."
 }
 
 # Function that builds the blocklist
