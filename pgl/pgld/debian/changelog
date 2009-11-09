@@ -25,6 +25,7 @@ pgld (2.0~pre1-1) unstable; urgency=low
   * Change order of start up to make sure daemon starts correcly and returns if
     it started correctly
   * Changed to have just a ASCII parse and binary parse
+  * changed logrotate to reset stats and reload pgld to open new logfile
 
  -- jre <jre-phoenix@users.sourceforge.net>  Thu, 22 Oct 2009 23:02:37 +0200
 

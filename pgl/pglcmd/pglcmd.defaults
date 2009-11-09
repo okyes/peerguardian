@@ -343,6 +343,11 @@ VERBOSITY="1"
 # If empty, cron will decide what happens with the output.
 CRON_MAILTO="root"
 
+# Email daily stats
+# Default email to $CRON_MAILTO
+# If not set stats will not be emailed.
+STATS_MAILTO=$CRON_MAILTO
+
 # Compress the guarding.*/ipfilter.dat file since pgld can read gzipped files
 # This doesn't do anything yet
 # 0 - Don't compress (default)

@@ -2174,7 +2174,7 @@ dump_stats () {
 }
 
 reset_stats () {
-if [ "$LOG_LOGFILE" = 1 ] ; then
+    if [ "$LOG_LOGFILE" = 1 ] ; then
         CURLINE="$(wc -l $DAEMON_LOG | awk '{print$1}')"
         kill -s USR1 "$(pidofproc $DAEMON)"
         sleep 5
@@ -2186,6 +2186,24 @@ if [ "$LOG_LOGFILE" = 1 ] ; then
         grep pgld: /var/log/syslog | tail -n+$(($CURLINE + 1))
     else
         echo "Logging to logfile or syslog must be enabled to dump stats"
+    fi
+}
+
+email_stats () {
+    if [ -x /usr/sbin/sendmail ] ; then
+        SENDMAIL="/usr/sbin/sendmail"
+    elif [ -x /usr/lib/sendmail ] ; then
+        SENDMAIL="/usr/lib/sendmail"
+    fi
+    SUBJECT="$NAME hit statistics"
+    if [ $STATS_MAILTO ] && [ $SENDMAIL ] ; then
+            cat<<EOF | $SENDMAIL -t
+To: $STATS_MAILTO
+Subject: $SUBJECT
+
+$(reset_stats)
+
+EOF
     fi
 }
 
