@@ -261,7 +261,19 @@ static void sighandler(int sig, siginfo_t *info, void *context)
         blocklist_stats(&blocklist, 0);
         break;
     case SIGHUP:
-        blocklist_stats(&blocklist, 1);
+//         blocklist_stats(&blocklist, 1);
+        if (logfile_name != NULL) {
+            do_log(LOG_INFO, "Closing logfile: %s", logfile_name);
+            fclose(logfile);
+//             logfile=NULL;
+            if ((logfile=fopen(logfile_name,"a")) == NULL) {
+                do_log(LOG_ERR, "Unable to open logfile: %s", logfile_name);
+                perror(" ");
+                exit(-1);
+            } else {
+                do_log(LOG_INFO, "Reopened logfile: %s", logfile_name);
+            }
+        }
         if (load_all_lists() < 0)
             do_log(LOG_ERR, "Cannot load the blocklist");
         do_log(LOG_INFO, "Blocklist reloaded");
@@ -642,16 +654,6 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-//     if (logfile_name == NULL) {
-//         logfile_name=malloc(strlen(LOGDIR) + strlen(PKGNAME) + 6);
-//         CHECK_OOM(logfile_name);
-//         strcpy(logfile_name, LOGDIR);
-//         strcat(logfile_name, "/");
-//         strcat(logfile_name, PKGNAME);
-//         strcat(logfile_name, ".log");
-//     }
-
-
     for (i = 0; i < argc - optind; i++)
         add_blocklist(argv[optind + i], current_charset);
 
@@ -667,7 +669,11 @@ int main(int argc, char *argv[])
             exit(-1);
         }
     }
-    openlog("pgld", 0, LOG_DAEMON);
+
+    //open syslog
+    if (use_syslog) {
+        openlog("pgld", 0, LOG_DAEMON);
+    }
 
     blocklist_init(&blocklist);
     if (load_all_lists() < 0) {
@@ -698,7 +704,11 @@ int main(int argc, char *argv[])
     blocklist_clear(&blocklist, 0);
     free(blocklist_filenames);
     free(blocklist_charsets);
-    closelog();
+
+    // close syslog
+    if (use_syslog) {
+        closelog();
+    }
     if (pidfile) {
         fclose(pidfile);
         unlink(pidfile_name);

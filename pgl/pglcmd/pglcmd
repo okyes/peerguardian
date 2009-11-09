@@ -1,5 +1,5 @@
 #!/bin/sh
-# pglcmd - script to manage IP block daemons (MoBlock and NFBlock)
+# pglcmd - pgl command line interface
 #
 # Copyright (C) 2005 - 2009 jre <jre-phoenix@users.sourceforge.net>
 # Parts and ideas from JFM, /meth/usr, lestlest (clessing), Morpheus and
@@ -51,7 +51,6 @@ case "$1" in
         # Define an exit function for trapped signals
         onexit () {
             RETVAL="$?"
-# NOTE: why did i add the verbosity > 0 check??? Errors always get logged
             [ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
             exit $RETVAL
         }
@@ -197,6 +196,12 @@ case "$1" in
         if [ "$?" -eq 0 ] ; then
             echo "Dumping stats..."
             dump_stats
+        fi
+        ;;
+    'email_stats')
+        status_of_proc $DAEMON $NAME > /dev/null 2>&1
+        if [ "$?" -eq 0 ] ; then
+            email_stats
         fi
         ;;
     'reset_stats')

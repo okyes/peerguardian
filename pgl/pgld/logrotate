@@ -5,4 +5,10 @@
     delaycompress
     missingok
     notifempty
+    prerotate
+                test ! -e /var/run/pgld.pid || /usr/bin/pglcmd email_stats
+    endscript
+    postrotate
+                test ! -e /var/run/pgld.pid || /usr/bin/pglcmd reload
+    endscript
 }

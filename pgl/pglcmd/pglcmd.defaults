@@ -30,7 +30,7 @@ CMD_PATHNAME="/usr/bin/$CMD_NAME"
 
 # The pglcmd version. This is set to a numerical value automatically by
 # the maintainer scripts.
-VERSION=git
+VERSION="git"
 
 # The path and pidfile of the pglcmd.wd script
 WD_PATHNAME="/usr/sbin/$CMD_NAME.wd"
@@ -97,12 +97,12 @@ STDIFS=$IFS
 BLOCKLIST_FORMAT="p"
 
 # Turn on/off automatic start.
-# Note: this tells the init script not to start the IP block daemon on "start".
+# Note: this tells the init script not to start pgl on "start".
 # The same behaviour can be achieved by removing/tweaking the init file and the
 # links pointing to it. You can do this manually or by using an application such
 # as rcconf.
-# 0 - Don't start the IP block daemon at system boot
-# 1 - Start the IP block daemon at system boot
+# 0 - Don't start pgl at system boot
+# 1 - Start pgl at system boot
 INIT="1"
 
 # Turn on/off automatic blocklist update.
@@ -148,8 +148,8 @@ CUSTOM_DAEMON_OPTS=""
 
 ################## Settings for the iptables firewall rules ###################
 
-# The IP block daemons check traffic in userspace. Iptables rules decide which
-# traffic gets there.
+# pgld checks traffic in userspace.
+# Iptables rules decide which traffic gets there.
 
 # Do a "pglcmd stop" before you change these iptables settings and a
 # "pglcmd start" afterwards.
@@ -163,7 +163,7 @@ IPTABLES_TARGET="NFQUEUE"
 # Valid queue numbers are 0 to 65535.
 NFQUEUE_NUMBER="92"
 
-# Set how traffic is sent to the IP block daemon.
+# Set how traffic is sent to pgld.
 # 0 - Don't set any iptables rules.
 #     You or another script/firewall has to do this!
 # 1 - Place the iptables rules in separate iptables chains.
@@ -187,7 +187,7 @@ IPTABLES_FWD="pgl_fwd"
 # 2 - Send all traffic to the separate iptables chains.
 #     These activation iptables rules are inserted at the head of the chains
 #     INPUT, OUTPUT and FORWARD. Checking all (not only NEW) traffic might cause
-#     problems, because the IP block daemon has to check much more traffic then.
+#     problems, because pgld has to check much more traffic then.
 #     Further, whitelisting gets more complicated, since you have to think of
 #     both directions, incoming and outgoing. Only do this, if you are sure that
 #     you want to.
@@ -216,8 +216,8 @@ REJECT_FW="DROP"
 
 # Set what happens to non-matched packets (IP is not in the blocklist).
 # 0 - ACCEPT them directly (as in MoBlock 0.8)
-# 1 - MARK them. The IP block daemon will then ignore them. This allows an
-#     integration with other firewalls.
+# 1 - MARK them. pgl will then ignore them. This allows an integration with
+#     other firewalls.
 ACCEPT="1"
 
 # Set the corresponding MARK
@@ -308,12 +308,12 @@ IP_REMOVE=""
 
 ######################## Logging and verbosity settings ########################
 
-# Turn on/off the IP block daemon's logging to syslog
+# Turn on/off pgld's logging to syslog
 # 0 - Don't log to syslog
 # 1 - Log to syslog
 LOG_SYSLOG="0"
 
-# Turn on/off the IP block daemon's logging to syslog
+# Turn on/off pgld's logging to syslog
 # 0 - Don't log to log file
 # 1 - Log to logfile
 LOG_LOGFILE="0"
@@ -343,16 +343,21 @@ VERBOSITY="1"
 # If empty, cron will decide what happens with the output.
 CRON_MAILTO="root"
 
+# Email daily stats
+# Default email to $CRON_MAILTO
+# If not set stats will not be emailed.
+STATS_MAILTO=$CRON_MAILTO
+
 # Compress the guarding.*/ipfilter.dat file since pgld can read gzipped files
 # This doesn't do anything yet
 # 0 - Don't compress (default)
 # 1 - Compress
-COMPRESS=0
+COMPRESS="0"
 
 # Use D-Bus
 # 0 - Do NOT use D-Bus
 # 1 - Use D-Bus
-DBUS=1
+DBUS="1"
 
 # Exit Status Codes
 # TODO: Rework exit status to LSB conformance:

@@ -12,8 +12,6 @@ blockcontrol:
 - add configuration possibility to shut off checking in specific chains
   (FORWARD).
 
-- check how NFBlock works with marking on/off.
-
 - explicitly stop/start moblock and nfblock in their own packages.
   But there's still a bug:
   Can't switch from moblock to nfblock (and vice versa!?) without rebooting,
