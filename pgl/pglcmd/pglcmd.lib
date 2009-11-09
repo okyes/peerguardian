@@ -1995,7 +1995,7 @@ build_blocklist () {
     else
         [ -f "$BLOCKLIST" ] && mv $BLOCKLIST $BLOCKLIST.backup    # Backup old master blocklist
         # Build blocklist:
-        cat --squeeze-blank $BLOCKLISTSCAT | tr -cd '[:alnum:][:space:]:\.\-,\n' | sed 's/^[,: \t\.-]*//' | tr -s [:space:] | sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | sort -u > $BLOCKLIST && log_end_msg 0 || {
+        cat --squeeze-blank $BLOCKLISTSCAT | tr -cd '[:alnum:][:space:]:\\\*\.\-,\n' | sed 's/^[,: \t.-]*//' | tr -s [:space:] | sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | sort -u > $BLOCKLIST && log_end_msg 0 || {
             log_failure_msg "Error: cat exited with $?"
             if [ -f $BLOCKLIST.backup ] ; then
                 echo -n "Restoring $BLOCKLIST ..."
