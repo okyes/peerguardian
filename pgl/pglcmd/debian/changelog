@@ -1,5 +1,6 @@
 pglcmd (2.0~pre1-1) unstable; urgency=low
 
+  [jre]
   * transition to pglcmd at peerguardian.sourceforge.net
   * updated description
   * init: added should-start after dbus
@@ -8,14 +9,15 @@ pglcmd (2.0~pre1-1) unstable; urgency=low
   * added pglcmd options
     - enable/disable dbus (DBUS)
     - enable/disable compression of blocklist (COMPRESS)
-    - enable/disable logging verbosity of pgld (DAEMON_VERBOSE_LOGGING)
-    - enable/disable daemon debug mode (DAEMON_DEBUG)
-  * added cleanup in the "cat --squeeze-blank" to remove dupes, special chars, repeated whitespace, and other chars not needed.
-    - this also fixes up p2p lines with multiple colons that was messing up parsing in pgld
+    - enable/disable logging verbosity of pgld (...)
+    - enable/disable daemon debug mode (...)
+  * build_blocklist: added cleanup in the "cat --squeeze-blank" to remove dupes,
+    special chars, repeated whitespace, and other chars not needed.
+    - this also fixes up p2p lines with multiple colons that was messing up
+      parsing in pgld
   * added the ipfilter.dat URL to blocklists.list for reference.
 
  -- jre <jre-phoenix@users.sourceforge.net>  Wed, 07 Oct 2009 22:24:03 +0200
-
 
 blockcontrol (1.6.9-1) unstable; urgency=low
 
