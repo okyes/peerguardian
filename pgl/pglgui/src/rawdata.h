@@ -43,7 +43,7 @@ class RawData : public QObject {
         /**
          * Constructor.
          *
-         * As this is an abstract class, this does nothing.
+         * As this is an abstract class, this function does nothing.
          * @param parent The QObject parent of this object. 
          */
         RawData( QObject *parent = 0 );
@@ -58,21 +58,21 @@ class RawData : public QObject {
         /**
          * Checks if there are any data to give.
          * 
-         * @return True if there are new data, otherwise false.
+         * @return True if there are any data available, otherwise false.
          */
-        virtual bool HasNewData() const = 0;
+        virtual bool HasData() const = 0;
         /**
          * Gives the raw data to the caller.
          *
-         * @return A QString with the new data.
+         * @return A QString with the data.
          */
-        virtual const QString &GetDataS() const;
+        virtual const QString GetDataS() const;
         /**
         * Gives the raw data to the caller.
         *
-        * @return A QVector of QStrings with the new data.
+        * @return A QVector of QStrings with the data.
         */
-        virtual const QVector< QString > &GetDataV() const;
+        virtual const QVector< QString > GetDataV() const;
 
 
     public slots:
@@ -92,14 +92,6 @@ class RawData : public QObject {
         */
         virtual bool Close() = 0;
         /**
-        * Saves the data to the source.
-        *
-        * This is mainly intended for files.
-        * @return True if the data were sucessfully saved.
-        */
-        virtual bool Save();
-
-        /**
         * Emit the appropriate signal and send the data to the caller.
         */
         virtual void RequestData() = 0;       
@@ -109,34 +101,6 @@ class RawData : public QObject {
          * @see RequestData()
          */
         virtual void RequestNewData() = 0;
-        /**
-        * Send new data to the source.
-        *
-        * Pure virtual function.
-        * @param newD A QString containing the data.
-        */
-        virtual bool SaveData( const QString &newD ) = 0;
-        /**
-        * Send new data to the source.
-        *
-        * Pure virtual function.
-        * @param newD A QVector of QStrings containing the data.
-        */
-        virtual bool SaveData( const QVector< QString > &newD ) = 0;
-
-    signals:
-        /**
-         * Emited when new data arrive or when they are requested. Depends on the source.
-         * 
-         * @param newD A QString containing the data.
-         */
-        virtual void RawDataS( const QString &newD );
-        /**
-        * Emited when new data arrive or when they are requested. Depends on the source.
-        *
-        * @param newD A QVector of QStrings containing the data.
-        */
-        virtual void RawDataV( const QVector< QString > &newD );
 
 };
         

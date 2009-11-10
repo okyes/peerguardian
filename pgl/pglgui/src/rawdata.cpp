@@ -29,7 +29,7 @@
 #include "rawdata.h"
 
 
-RawData::RawData( const QObject *parent ) : QObject( parent ) {
+RawData::RawData( QObject *parent ) : QObject( parent ) {
 
 }
 
@@ -54,8 +54,3 @@ QVector< QString > &RawData::GetDataV() const {
 
 }
 
-bool RawData::Save() {
-
-    qWarning() << Q_FUNC_INFO << "This function shouldn't have been called!\nUse it only with objects which handle files.\nDoing nothing.";
-    
-}
