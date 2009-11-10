@@ -904,7 +904,7 @@ insert_iptables () {
 
             # IP ranges whitelisting
             IFS='
-    '    # Set IFS to newline only
+'    # Set IFS to newline only
             if [ -f "$ALLOW_IN" ] ; then
                 ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOW_IN)"    # Read the non-comment|not-empty lines from $ALLOW_IN
                 for LINE in $ALLOW ; do
