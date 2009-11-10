@@ -2020,11 +2020,20 @@ test_ipblocking () {
     test_set_BLOCKLIST
     test_BLOCKLIST
     test_REJECT
-    if [ "$LOG_SYSLOG" -eq 0 ] || echo "$CUSTOM_DAEMON_OPTS" | grep "no-syslog" > /dev/null 2>&1 ; then
-        echo "Error: $NAME has to be started without the \"--no-syslog\" option for \"test\"."
+    if [ "$LOG_SYSLOG" -eq 1 ] || echo "$CUSTOM_DAEMON_OPTS" | grep -- " -s " > /dev/null 2>&1 ; then
+        TEST_LOG="/var/log/syslog"
+    elif [ "$LOG_LOGFILE" -eq 1 ] || echo "$CUSTOM_DAEMON_OPTS" | grep -- " -l " > /dev/null 2>&1 ; then
+        if [ "$LOG_LOGFILE" -eq 1 ]
+        then
+            TEST_LOG="$DAEMON_LOG"
+        else
+            TEST_LOG=$(echo "$CUSTOM_DAEMON_OPTS" | awk 'match ($0, /-l.*-/) {print substr($0,RSTART,RLENGTH)}' | awk '{print$2}')
+        fi
+    else
+        echo "Error: $NAME has to be started with either LOG_SYSLOG=\"1\" or LOG_LOGFILE=\"1\" for \"test\" to work."
         exit $E_CONFIG
     fi
-    TEST_LOG="/var/log/syslog"
+
 
     # If logfile does not exist (for whatever reasons), just create a plain one.
     # If it is missing this does not necessarily mean that the daemon is not running.
@@ -2052,14 +2061,10 @@ test_ipblocking () {
     # Pick TEST_IP
     TESTLINE="$(expr $$ % 100 + 10)"
     case "$BLOCKLIST_FORMAT" in
-        'd')    # blocklist file is in eMule ipfilter.dat format
-            # Pick the last IP address from the 10th line in BLOCKLIST file (earlier IPs often result in problems with ping)
-            # Remove the leading zeros in the IPs of ipfilter.dat format.
+        'd'|'p')    # blocklist file is in eMule ipfilter.dat format or p2p
+            # Pick the last IP address from a random line in BLOCKLIST file (earlier IPs often result in problems with ping)
+            # Remove the leading zeros in the IPs.
             TEST_IP="$(head -n$TESTLINE $BLOCKLIST | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1 | sed -r "s/0{,2}([0-9]{1,2})/\1/g")"
-            ;;
-        'p')    # blocklist file is in peerguardian .p2p text format
-            # Pick the last IP address from the 10th line in BLOCKLIST file (earlier IPs often result in problems with ping)
-            TEST_IP="$(head -n$TESTLINE $BLOCKLIST | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1)"
             ;;
         'n')    # blocklist file is in peerguardian .p2b v2 binary format
             log_failure_msg "At the moment it's not possible to test blocklists in"
