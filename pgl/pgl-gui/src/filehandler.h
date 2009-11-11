@@ -46,10 +46,10 @@ class FileHandler : public RawData {
         /**
          * Alternative constructor. Creates a FileHandler object and loads the file requested.
          * 
-         * @param name The name of the file which will be opened.
+         * @param filename The name of the file which will be opened.
          * @param parent The parent of this object.
          */
-        FileHandler( const QString &name, RawData* parent = 0 );
+        FileHandler( const QString &filename, RawData* parent = 0 );
         /**
          * Destructor.
          * 
@@ -92,6 +92,7 @@ class FileHandler : public RawData {
         /**
          * Compare two FileHandler objects.
          * 
+         * Does NOT compare file names.
          * @param second The FileHandler which *this will be compared to.
          * @return True if the objects contain the same data, otherwise false.
          */
@@ -107,10 +108,10 @@ class FileHandler : public RawData {
         /**
         * Opens a File and loads its data.
         *
-        * @param name The name of the file.
+        * @param filename The name of the file.
         * @return True if the file was opened sucessfully, otherwise false.
         */
-        virtual bool Open( const QString &name );
+        virtual bool Open( const QString &filename );
         /**
         * Closes the data file being used, discarding its data.
         *
@@ -118,12 +119,12 @@ class FileHandler : public RawData {
         */
         virtual bool Close();
         /**
-        * Saves the data into the file.
+        * Saves the data into a file.
         *
-        * @param name The name of the file where the data will be saved. Leave this empty to save to the same file.
+        * @param filename The name of the file where the data will be saved. Leave this empty to save to the same file.
         * @return True if the data were sucessfully saved.
         */
-        virtual bool Save( const QString &name = QString() );
+        virtual bool Save( const QString &filename = QString() );
         
         /**
         * Emit a signal sending the file data as a QVector< QString >.
@@ -146,7 +147,12 @@ class FileHandler : public RawData {
 
 
     private:
-        QVector< QString > m_FileLines;
+        /**
+         * Trim the lines of the vector using QString::trimmed()
+         */
+        void TrimLines();
+        QString m_Filename;
+        QVector< QString > m_FileContents;
 
 };
 
