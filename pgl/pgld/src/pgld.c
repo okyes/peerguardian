@@ -66,7 +66,7 @@ int opt_verbose = 0;
 static int queue_num = 0;
 static int use_syslog = 0;
 static uint32_t accept_mark = 0, reject_mark = 0;
-static char *pidfile_name = "/var/run/pgld.pid";
+static char *pidfile_name = NULL;
 static FILE *logfile;
 static char *logfile_name=NULL;
 
@@ -231,7 +231,7 @@ static int load_all_lists()
         }
     }
     blocklist_sort(&blocklist);
-    blocklist_trim(&blocklist);
+//     blocklist_trim(&blocklist);
     do_log(LOG_INFO, "Blocklist has %d entries", blocklist.count);
     return ret;
 }
@@ -261,11 +261,10 @@ static void sighandler(int sig, siginfo_t *info, void *context)
         blocklist_stats(&blocklist, 0);
         break;
     case SIGHUP:
-//         blocklist_stats(&blocklist, 1);
         if (logfile_name != NULL) {
             do_log(LOG_INFO, "Closing logfile: %s", logfile_name);
             fclose(logfile);
-//             logfile=NULL;
+            logfile=NULL;
             if ((logfile=fopen(logfile_name,"a")) == NULL) {
                 do_log(LOG_ERR, "Unable to open logfile: %s", logfile_name);
                 perror(" ");
@@ -351,12 +350,12 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
     struct udphdr *udp;
     struct tcphdr *tcp;
     char *payload, proto[5], ip_src[23], ip_dst[23];
-#ifndef LOWMEM
-    block_sub_entry_t *sranges[MAX_RANGES + 1], *dranges[MAX_RANGES + 1];
-#else
+// #ifndef LOWMEM
+//     block_sub_entry_t *sranges[MAX_RANGES + 1], *dranges[MAX_RANGES + 1];
+// #else
     /* dummy variables */
-    static void *sranges = 0, *dranges = 0;
-#endif
+//     static void *sranges = 0, *dranges = 0;
+// #endif
 
     ph = nfq_get_msg_packet_hdr(nfa);
     if (ph) {
@@ -365,13 +364,13 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
         ip = (struct iphdr*) payload;
         switch (ph->hook) {
         case NF_IP_LOCAL_IN:
-            src = blocklist_find(&blocklist, ntohl(ip->saddr), sranges, MAX_RANGES);
+            src = blocklist_find(&blocklist, ntohl(ip->saddr));
             if (src) {
                 status = nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
                 src->hits++;
                     GETIPINFO
 #ifndef LOWMEM
-                    do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s || %s",ip_src,ip_dst,proto,sranges[0]->name);
+                    do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s || %s",ip_src,ip_dst,proto,src->name);
 #else
                     do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s",ip_src,ip_dst,proto);
 #endif
@@ -386,7 +385,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
             break;
         case NF_IP_LOCAL_OUT:
 
-            dst = blocklist_find(&blocklist, ntohl(ip->daddr), dranges, MAX_RANGES);
+            dst = blocklist_find(&blocklist, ntohl(ip->daddr));
             if (dst) {
                 if (likely(reject_mark)) {
                     // we set the user-defined reject_mark and set NF_REPEAT verdict
@@ -398,7 +397,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                 dst->hits++;
                         GETIPINFO
 #ifndef LOWMEM
-                        do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4s || %s",ip_src,ip_dst,proto,dranges[0]->name);
+                        do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4s || %s",ip_src,ip_dst,proto,dst->name);
 #else
                         do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4su", ip_src,ip_dst,proto);
 #endif
@@ -412,8 +411,8 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
             }
             break;
         case NF_IP_FORWARD:
-            src = blocklist_find(&blocklist, ntohl(ip->saddr), sranges, MAX_RANGES);
-            dst = blocklist_find(&blocklist, ntohl(ip->daddr), dranges, MAX_RANGES);
+            src = blocklist_find(&blocklist, ntohl(ip->saddr));
+            dst = blocklist_find(&blocklist, ntohl(ip->daddr));
             if (dst || src) {
                 if (likely(reject_mark)) {
                     // we set the user-defined reject_mark and set NF_REPEAT verdict
@@ -430,7 +429,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                 }
                         GETIPINFO
 #ifndef LOWMEM
-                        do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s || %s",ip_src,ip_dst,proto,src ? sranges[0]->name : dranges[0]->name);
+                        do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s || %s",ip_src,ip_dst,proto,src ? src->name : dst->name);
 #else
                         do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s",ip_src,ip_dst,proto);
 #endif
@@ -508,6 +507,11 @@ static void nfqueue_loop ()
         do_log(LOG_ERR, "ERROR installing signal handlers");
         exit(1);
     }
+    if (pidfile_name == NULL) {
+            pidfile_name=malloc(strlen("/var/run/pgld.pid")+1);
+            CHECK_OOM(pidfile_name);
+            strcpy(pidfile_name,"/var/run/pgld.pid");
+    }
 
     pidfile = create_pidfile(pidfile_name);
     if (!pidfile) {
@@ -517,36 +521,6 @@ static void nfqueue_loop ()
 
     nh = nfq_nfnlh(nfqueue_h);
     fd = nfnl_fd(nh);
-
-//     for (;;) {
-//         fds[0].fd = fd;
-//         fds[0].events = POLLIN;
-//         fds[0].revents = 0;
-//         rv = poll(fds, 1, 5000);
-//
-// //         curtime = time(NULL);
-//
-//         if (rv < 0) {
-//             if (errno == EINTR)
-//                 continue;
-//             do_log(LOG_ERR, "ERROR waiting for socket: %s", strerror(errno));
-//             goto out;
-//         }
-//         if (rv > 0) {
-//             rv = recv(fd, buf, sizeof(buf), 0);
-//             if (rv < 0) {
-//                 if (errno == EINTR)
-//                     continue;
-//                 do_log(LOG_ERR, "ERROR reading from socket: %s", strerror(errno));
-//                 goto out;
-//             }
-//             if (rv >= 0)
-//                 nfq_handle_packet(nfqueue_h, buf, rv);
-//         }
-//
-//     }
-// out:
-//     nfqueue_unbind();
 
     while ((rv = recv(fd, buf, sizeof(buf), 0)) >= 0) {
         nfq_handle_packet(nfqueue_h, buf, rv);
@@ -618,6 +592,7 @@ int main(int argc, char *argv[])
             accept_mark = htonl((uint32_t)atoi(optarg));
             break;
         case 'p':
+//             free (pidfile_name);
             pidfile_name=malloc(strlen(optarg)+1);
             CHECK_OOM(pidfile_name);
             strcpy(pidfile_name,optarg);
@@ -680,6 +655,8 @@ int main(int argc, char *argv[])
         do_log(LOG_ERR, "Cannot load the blocklist");
         return -1;
     }
+// blocklist_dump(&blocklist);
+// exit(0);
 
 // #ifdef HAVE_DBUS
 //     if (use_dbus) {
