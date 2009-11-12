@@ -74,7 +74,7 @@ class FileHandler : public RawData {
         *
         * @return A QVector of QStrings with the file data.
         */
-        virtual const QVector< QString > GetDataV() const;
+        virtual QVector< QString > GetDataV() const;
         /**
          * Set the file data to be the contets of the QVector< QString > given.
          * 

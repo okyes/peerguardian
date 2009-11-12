@@ -24,8 +24,8 @@
 
 #include <QObject>
 
-class QString;
-class QVector;
+#include <QVector>
+#include <QString>
 
 /**
  * @brief An Abstract class representing raw data which will be processed by the program.
@@ -66,13 +66,13 @@ class RawData : public QObject {
          *
          * @return A QString with the data.
          */
-        virtual const QString GetDataS() const;
+        virtual QString GetDataS() const;
         /**
         * Gives the raw data to the caller.
         *
         * @return A QVector of QStrings with the data.
         */
-        virtual const QVector< QString > GetDataV() const;
+        virtual QVector< QString > GetDataV() const;
 
 
     public slots:

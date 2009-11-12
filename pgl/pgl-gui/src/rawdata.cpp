@@ -21,8 +21,7 @@
 
 #include <QObject>
 
-#include <QVector>
-#include <QString>
+
 
 #include <QDebug>
 
@@ -37,7 +36,7 @@ RawData::~RawData() {
 
 }
 
-QString &RawData::GetDataS() const {
+QString RawData::GetDataS() const {
 
     qWarning() << Q_FUNC_INFO << "This function shouldn't have been called!\nReturning empty QString.";
     
@@ -45,7 +44,7 @@ QString &RawData::GetDataS() const {
 
 }
 
-QVector< QString > &RawData::GetDataV() const {
+QVector< QString > RawData::GetDataV() const {
 
 
     qWarning() << Q_FUNC_INFO << "This function shouldn't have been called!\nReturning empty QVector< QString >.";
@@ -53,4 +52,6 @@ QVector< QString > &RawData::GetDataV() const {
     return QVector < QString > ();
 
 }
+
+#include "rawdata.moc" //Required for CMake, do not remove.
 

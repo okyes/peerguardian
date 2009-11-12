@@ -25,6 +25,8 @@
 #include <QFile>
 #include <QTextStream>
 
+#include <QDebug>
+
 #include "filehandler.h"
 
 FileHandler::FileHandler( RawData *parent ) : RawData( parent ) {
@@ -68,7 +70,7 @@ void FileHandler::SetData( const QVector< QString > &newD ) {
 
 }
 
-void FileHandler::setData( const QString &newD ) {
+void FileHandler::SetData( const QString &newD ) {
 
     if ( newD.isEmpty() ) {
         qWarning() << Q_FUNC_INFO << "Trying to set data of FileHandler to NULL!";
@@ -101,7 +103,7 @@ void FileHandler::AppendData( const QString &newD ) {
 
 }
 
-bool FileHandler::operator==( const FileHandler &second ) {
+bool FileHandler::operator==( const FileHandler &second ) const {
 
     //If one file is empty
     if ( ! ( this->HasData() && second.HasData() ) ) {
@@ -131,7 +133,7 @@ bool FileHandler::Open( const QString &filename ) {
         qWarning() << Q_FUNC_INFO << "Could not read from file:" << filename;
         return false;
     }
-    filename = m_Filename;
+    m_Filename = filename;
     QTextStream in( &file );
     while ( !in.atEnd() ) {
         QString line = in.readLine();
@@ -194,3 +196,11 @@ void FileHandler::RequestNewData() {
     emit RawDataV( m_FileContents );
 
 }
+
+QVector< QString > FileHandler::GetDataV() const {
+
+    return m_FileContents;
+
+}
+
+#include "filehandler.moc" //Required for CMake, do not remove.
