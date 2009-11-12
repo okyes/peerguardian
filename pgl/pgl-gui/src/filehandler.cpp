@@ -57,6 +57,12 @@ int FileHandler::LinesNumber() const {
 
 }
 
+QString FileHandler::GetFilename() const {
+
+    return m_Filename;
+
+}
+
 QVector< QString > FileHandler::GetDataV() const {
 
     return m_FileContents;
@@ -165,10 +171,13 @@ bool FileHandler::Close() {
 
 bool FileHandler::Save( const QString &filename ) {
 
-
-    QFile file( filename );
+    if ( ! filename.isNull() ) {
+        m_Filename = filename;
+    }
+        
+    QFile file( m_Filename );
     if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
-        qWarning() << Q_FUNC_INFO << "Could not write to file:" << filename;
+        qWarning() << Q_FUNC_INFO << "Could not write to file:" << m_Filename;
         return false;
     }
     QTextStream out(&file);

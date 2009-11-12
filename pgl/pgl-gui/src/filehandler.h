@@ -70,6 +70,12 @@ class FileHandler : public RawData {
          */
         int LinesNumber() const;
         /**
+         * The name of the file currently loaded.
+         *
+         * @return The filename.
+         */
+        QString GetFilename() const;
+        /**
         * Gives the raw file data to the caller.
         *
         * @return A QVector of QStrings with the file data.
