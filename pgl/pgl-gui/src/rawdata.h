@@ -112,6 +112,7 @@ class RawData : public QObject {
          * Sends a QVector of QStrings containing the some raw data.
          */
         void RawDataV( const QVector< QString > &newD );
+        void RawDataS( const QString &newD );
 
     protected:
         QVector< QString > m_RawDataVector;

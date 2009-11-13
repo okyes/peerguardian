@@ -194,7 +194,8 @@ void FileHandler::RequestNewData() {
         return;
     }
     
-    emit RawData::RawDataV( RawData::m_RawDataVector );
+    emit RawData::RawDataV( RawData::GetDataV() );
+    //emit RawData::RawDataS( RawData::GetDataS() );
 
 }
 
