@@ -49,7 +49,10 @@ ProcessHandler::~ProcessHandler() {
 
 QString ProcessHandler::GetProcessName() const {
 
-    return m_ProcessName;
+    QString name = m_Cmd;
+    name.append( m_Args.join( " " ) );
+
+    return name;
 
 }
 
@@ -66,43 +69,56 @@ bool ProcessHandler::Open( const QString &process ) {
         return false;
     }
 
-    QString poutput;
-
-    m_ProcessName = process;
     //Separate the command and its arguments
-    QStringList args = process.split( " ", QString::SkipEmptyParts );
-    QString cmd = args.first();
-    args.removeFirst();
-    qDebug() << Q_FUNC_INFO << "Executing command:" << m_ProcessName;
-    QProcess proc;
-    proc.setProcessChannelMode( m_ChanMode );
-    proc.start( cmd, args );
-    proc.waitForStarted();
-    proc.waitForFinished();
-    proc.closeWriteChannel();
+    m_Args = process.split( " ", QString::SkipEmptyParts );
+    m_Cmd = m_Args.first();
+    m_Args.removeFirst();
     
-    poutput = proc.readAll().trimmed();
-
-    RawData::m_RawDataVector = poutput.split( "\n" ).toVector();
-
-    emit RawData::RawDataS( poutput ); //Saves some time. No need to call GetDataS
-    emit RawData::RawDataV( RawData::GetDataV() );
-    qDebug() << Q_FUNC_INFO << "Command execution finished.";
 
     return true;
 
 }
 
+void ProcessHandler::run() {
+
+    QString poutput;
+
+    qDebug() << Q_FUNC_INFO << "Executing command:" << GetProcessName();
+    QProcess proc;
+    proc.setProcessChannelMode( m_ChanMode );
+    proc.start( m_Cmd, m_Args );
+    proc.waitForStarted();
+    proc.waitForFinished();
+    proc.closeWriteChannel();
+    
+    poutput = proc.readAll().trimmed();
+    
+    RawData::m_RawDataVector = poutput.split( "\n" ).toVector();
+    
+    emit RawData::RawDataS( poutput ); //Saves some time. No need to call GetDataS
+    emit RawData::RawDataV( RawData::GetDataV() );
+    qDebug() << Q_FUNC_INFO << "Command execution finished.";
+
+}
+    
+
 bool ProcessHandler::Close() {
 
-    wait();
+    qWarning() << Q_FUNC_INFO << "Terminating process:" << GetProcessName();
+    wait(); //Maybe remove?
     QThread::terminate();
 
 }
 
 void ProcessHandler::RequestNewData() {
 
-    this->Open( m_ProcessName );
+    if ( !isRunning() ) {
+        start();
+    }
+    else {
+        qWarning() << Q_FUNC_INFO << "Thread already running, doing nothing.";
+        return;
+    }
 
 }
     

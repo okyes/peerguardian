@@ -31,7 +31,7 @@
 #include "rawdata.h"
 
 /**
- * @brief A class used to handle processes
+ * @brief A class used to handle processes.
  * 
  * ProcessHandler creates a new QProcess and runs it. 
  * The main program does not have to wait for the process to finish its execution.
@@ -80,12 +80,17 @@ class ProcessHandler : public QThread, public RawData {
 
     public slots:
         /**
-         * Start a new process.
+         * Set the name of the process which will be executed when start() is called.
          * 
-         * Creates a new QProcess and runs it, saving its output.
          * @param process A QString containing both the process name and the arguments.
          */
         virtual bool Open( const QString &process );
+        /**
+         * Reimplementation of QThread's run()
+         * Starts the process which was set using Open()
+         * If no process has been set, this does nothing
+         */
+        virtual void run();
         /**
          * Terminates the thread.
          * 
@@ -99,7 +104,8 @@ class ProcessHandler : public QThread, public RawData {
         virtual void RequestNewData();
 
     private:
-        QString m_ProcessName;
+        QString m_Cmd;
+        QStringList m_Args;
         QProcess m_Runner;
         QProcess::ProcessChannelMode m_ChanMode;
 
