@@ -28,7 +28,8 @@
 #include "rawdata.h"
 
 
-RawData::RawData( QObject *parent ) : QObject( parent ) {
+RawData::RawData( QObject *parent ) :
+    QObject( parent ) {
 
 }
 
@@ -36,22 +37,43 @@ RawData::~RawData() {
 
 }
 
+bool RawData::HasData() const {
+
+    return ( this->GetSize() > 0 );
+
+}
+
+int RawData::GetSize() const {
+
+    return m_RawDataVector.size();
+
+}
+
 QString RawData::GetDataS() const {
 
-    qWarning() << Q_FUNC_INFO << "This function shouldn't have been called!\nReturning empty QString.";
-    
-    return QString();
+    QString data;
+    for ( QVector< QString >::const_iterator s = m_RawDataVector.begin(); s != m_RawDataVector.end(); s++ ) {
+        data.append( *s );
+        data.append('\n');
+    }
+
+    return data;
 
 }
 
 QVector< QString > RawData::GetDataV() const {
 
-
-    qWarning() << Q_FUNC_INFO << "This function shouldn't have been called!\nReturning empty QVector< QString >.";
-    
-    return QVector < QString > ();
+    return m_RawDataVector;
 
 }
+
+void RawData::RequestData() {
+    
+    
+    emit RawDataV( m_RawDataVector );
+    
+}
+
 
 #include "rawdata.moc" //Required for CMake, do not remove.
 

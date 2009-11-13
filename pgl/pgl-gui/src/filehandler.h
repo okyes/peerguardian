@@ -28,7 +28,7 @@
  * @brief A class which deals with raw file data.
  *
  * FileHandler can open, edit and save files. It can also be used to emit signals when file change and reload them.
- *
+ * This class inherits some basic functions from RawData.
  */ 
 
 class FileHandler : public RawData {
@@ -56,31 +56,12 @@ class FileHandler : public RawData {
          * Destroys the FileHandler object. Does NOT save the file.
          */
         virtual ~FileHandler();
-        
-        /**
-        * Checks if there are any data to give.
-        * 
-        * @return True if a non-empty file is currently opened, otherwise false.
-        */
-        virtual bool HasData() const;
-        /**
-         * Number of the lines of the file.
-         *
-         * @return The number of the lines of the file currently opened.
-         */
-        int LinesNumber() const;
         /**
          * The name of the file currently loaded.
          *
          * @return The filename.
          */
         QString GetFilename() const;
-        /**
-        * Gives the raw file data to the caller.
-        *
-        * @return A QVector of QStrings with the file data.
-        */
-        virtual QVector< QString > GetDataV() const;
         /**
          * Set the file data to be the contets of the QVector< QString > given.
          * 
@@ -133,23 +114,11 @@ class FileHandler : public RawData {
         virtual bool Save( const QString &filename = QString() );
         
         /**
-        * Emit a signal sending the file data as a QVector< QString >.
-        */
-        virtual void RequestData();
-        /**
         * Reload the file and emit the new data as a QVector< QString >
         *
         * @see RequestData()
         */
         virtual void RequestNewData();
-        
-    signals:
-        /**
-        * Emited when a file is reloaded or when the data are requested.
-        *
-        * @param newD A QVector of QStrings containing the data.
-        */
-        virtual void RawDataV( const QVector< QString > &newD );
 
 
     private:

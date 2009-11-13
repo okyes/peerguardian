@@ -54,21 +54,26 @@ class RawData : public QObject {
          */
         virtual ~RawData();
 
-
         /**
          * Checks if there are any data to give.
          * 
          * @return True if there are any data available, otherwise false.
          */
-        virtual bool HasData() const = 0;
+        virtual bool HasData() const;
         /**
-         * Gives the raw data to the caller.
+         * Give the size of the data vector.
+         * 
+         * @return The number of lines of the raw data vector.
+         */
+        int GetSize() const;
+        /**
+         * Gives the saved raw data to the caller.
          *
          * @return A QString with the data.
          */
         virtual QString GetDataS() const;
         /**
-        * Gives the raw data to the caller.
+        * Gives the saved raw data to the caller.
         *
         * @return A QVector of QStrings with the data.
         */
@@ -92,15 +97,24 @@ class RawData : public QObject {
         */
         virtual bool Close() = 0;
         /**
-        * Emit the appropriate signal and send the data to the caller.
+        * Emit the appropriate signal and send the saved data to the caller.
         */
-        virtual void RequestData() = 0;       
+        virtual void RequestData();       
         /**
-         * This is essentially the same as RequestData but it emits a singal only if the data have not been read before.
+         * This is essentially the same as RequestData but it updates the data first. Depends on the derived class.
          * 
          * @see RequestData()
          */
         virtual void RequestNewData() = 0;
+
+    signals:
+        /**
+         * Sends a QVector of QStrings containing the some raw data.
+         */
+        void RawDataV( const QVector< QString > &newD );
+
+    protected:
+        QVector< QString > m_RawDataVector;
 
 };
         

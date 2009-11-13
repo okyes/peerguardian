@@ -29,12 +29,14 @@
 
 #include "filehandler.h"
 
-FileHandler::FileHandler( RawData *parent ) : RawData( parent ) {
+FileHandler::FileHandler( RawData *parent ) :
+    RawData( parent ) {
 
     
 }
 
-FileHandler::FileHandler( const QString &filename, RawData *parent ) : RawData( parent ) {
+FileHandler::FileHandler( const QString &filename, RawData *parent ) :
+    RawData( parent ) {
 
     this->Open( filename );
 
@@ -45,27 +47,9 @@ FileHandler::~FileHandler() {
 
 }
 
-bool FileHandler::HasData() const {
-
-    return ( this->LinesNumber() > 0 );
-
-}
-
-int FileHandler::LinesNumber() const {
-
-    return  ( m_FileContents.size() );
-
-}
-
 QString FileHandler::GetFilename() const {
 
     return m_Filename;
-
-}
-
-QVector< QString > FileHandler::GetDataV() const {
-
-    return m_FileContents;
 
 }
 
@@ -76,7 +60,7 @@ void FileHandler::SetData( const QVector< QString > &newD ) {
         qWarning() << Q_FUNC_INFO << "Trying to set data of FileHandler to NULL!";
     }
 
-    m_FileContents = newD;
+    RawData::m_RawDataVector = newD;
 
     this->TrimLines();
 
@@ -88,8 +72,8 @@ void FileHandler::SetData( const QString &newD ) {
         qWarning() << Q_FUNC_INFO << "Trying to set data of FileHandler to NULL!";
     }
     //Clear the vector and make this string its only element
-    m_FileContents.clear();
-    m_FileContents.append( newD.trimmed() );
+    RawData::m_RawDataVector.clear();
+    RawData::m_RawDataVector.append( newD.trimmed() );
 
 }
 
@@ -100,7 +84,7 @@ void FileHandler::AppendData( const QVector< QString > &newD ) {
         qWarning() << Q_FUNC_INFO << "Trying to append an empty data vector!";
     }
 
-    m_FileContents += newD;
+    RawData::m_RawDataVector += newD;
 
     this->TrimLines();
     
@@ -113,7 +97,7 @@ void FileHandler::AppendData( const QString &newD ) {
         qWarning() << Q_FUNC_INFO << "Trying to append an empty data string!";
     }
 
-    m_FileContents.append( newD.trimmed() );
+    RawData::m_RawDataVector.append( newD.trimmed() );
 
 }
 
@@ -124,14 +108,14 @@ bool FileHandler::operator==( const FileHandler &second ) const {
         return false;
     }
 
-    return ( this->m_FileContents == second.m_FileContents );
+    return ( this->RawData::m_RawDataVector == second.RawData::m_RawDataVector );
 
 }
 
 void FileHandler::operator=( const FileHandler &second ) {
 
 
-    this->m_FileContents = second.m_FileContents;
+    this->RawData::m_RawDataVector = second.RawData::m_RawDataVector;
 
 }
 
@@ -152,7 +136,7 @@ bool FileHandler::Open( const QString &filename ) {
     while ( !in.atEnd() ) {
         QString line = in.readLine();
         line = line.trimmed();
-        m_FileContents.append(line);
+        RawData::m_RawDataVector.append(line);
     }
 
     return true;
@@ -162,7 +146,7 @@ bool FileHandler::Open( const QString &filename ) {
 bool FileHandler::Close() {
 
 
-    m_FileContents.clear();
+    RawData::m_RawDataVector.clear();
     m_Filename.clear();
 
     return true;
@@ -181,7 +165,7 @@ bool FileHandler::Save( const QString &filename ) {
         return false;
     }
     QTextStream out(&file);
-    for ( QVector< QString >::const_iterator s = m_FileContents.begin(); s != m_FileContents.end(); s++ ) {
+    for ( QVector< QString >::const_iterator s = RawData::m_RawDataVector.begin(); s != RawData::m_RawDataVector.end(); s++ ) {
         out << *s << "\n";
     }
 
@@ -192,32 +176,25 @@ bool FileHandler::Save( const QString &filename ) {
 void FileHandler::TrimLines() {
 
 
-    for ( QVector< QString >::iterator s = m_FileContents.begin(); s != m_FileContents.end(); s++ ) {
+    for ( QVector< QString >::iterator s = RawData::m_RawDataVector.begin(); s != RawData::m_RawDataVector.end(); s++ ) {
         *s = s->trimmed();
     }
 
 }
 
-void FileHandler::RequestData() {
-
-
-
-    emit RawDataV( m_FileContents );
-
-}
 
 void FileHandler::RequestNewData() {
 
 
 
     //Reload the file
-    m_FileContents.clear();
+    RawData::m_RawDataVector.clear();
     if ( this->Open( m_Filename ) == false ) {
         qWarning() << Q_FUNC_INFO << "Could not reload file:" << m_Filename;
         return;
     }
     
-    emit RawDataV( m_FileContents );
+    emit RawData::RawDataV( RawData::m_RawDataVector );
 
 }
 
