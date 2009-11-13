@@ -20,13 +20,37 @@
 ***************************************************************************/
 
 #include <QDebug>
+#include <QVector>
+#include <QString>
 
 #include "filehandler.h"
+#include "processhandler.h"
+
+void customOutput( QtMsgType type, const char *msg );
 
 int main() {
 
-    qDebug() << "HELLO WORLD!";
+    qInstallMsgHandler( customOutput );
 
     return 0;
 
+}
+
+void customOutput( QtMsgType type, const char *msg ) {
+    
+    switch( type ) {
+        case QtDebugMsg:
+            fprintf( stderr, "** Debug: %s\n", msg );
+            break;
+        case QtWarningMsg:
+            fprintf( stderr, "** Warning: %s\n", msg );
+            break;
+        case QtCriticalMsg:
+            fprintf( stderr, "** Critical: %s\n", msg );
+            break;
+        case QtFatalMsg:
+            fprintf( stderr, "** Fatal: %s\n", msg );
+            break;
+    }
+    
 }
