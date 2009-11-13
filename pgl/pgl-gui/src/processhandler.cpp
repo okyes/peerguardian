@@ -29,14 +29,14 @@ ProcessHandler::ProcessHandler( QThread *parent1, RawData *parent2 ) :
 
     qDebug() << Q_FUNC_INFO << "New thread created.";
 
-    this->SetChannelMode( QProcess::SeparateChannels );
+    this->setChannelMode( QProcess::SeparateChannels );
     
 }
 
 ProcessHandler::ProcessHandler( const QProcess::ProcessChannelMode &mode, QThread *parent1, RawData *parent2 ) :
     QThread(parent1), RawData( parent2 ) {
 
-    this->SetChannelMode( mode );
+    this->setChannelMode( mode );
 
 }
 
@@ -47,7 +47,7 @@ ProcessHandler::~ProcessHandler() {
 
 }
 
-QString ProcessHandler::GetProcessName() const {
+QString ProcessHandler::getProcessName() const {
 
     QString name = m_Cmd;
     name.append( m_Args.join( " " ) );
@@ -56,13 +56,13 @@ QString ProcessHandler::GetProcessName() const {
 
 }
 
-void ProcessHandler::SetChannelMode( const QProcess::ProcessChannelMode &mode ) {
+void ProcessHandler::setChannelMode( const QProcess::ProcessChannelMode &mode ) {
 
     m_ChanMode = mode;
 
 }
 
-bool ProcessHandler::Open( const QString &process ) {
+bool ProcessHandler::open( const QString &process ) {
 
     if ( process.isEmpty() ) {
         qWarning() << Q_FUNC_INFO << "No process name set, doing nothing.";
@@ -81,9 +81,15 @@ bool ProcessHandler::Open( const QString &process ) {
 
 void ProcessHandler::run() {
 
+    if ( m_Cmd.isEmpty() ) {
+        qWarning() << Q_FUNC_INFO << "No process name set, doing nothing.";
+        return;
+    }
+    
+
     QString poutput;
 
-    qDebug() << Q_FUNC_INFO << "Executing command:" << GetProcessName();
+    qDebug() << Q_FUNC_INFO << "Executing command:" << getProcessName();
     QProcess proc;
     proc.setProcessChannelMode( m_ChanMode );
     proc.start( m_Cmd, m_Args );
@@ -95,22 +101,22 @@ void ProcessHandler::run() {
     
     RawData::m_RawDataVector = poutput.split( "\n" ).toVector();
     
-    emit RawData::RawDataS( poutput ); //Saves some time. No need to call GetDataS
-    emit RawData::RawDataV( RawData::GetDataV() );
+    emit RawData::rawDataS( poutput ); //Saves some time. No need to call GetDataS
+    emit RawData::rawDataV( RawData::getDataV() );
     qDebug() << Q_FUNC_INFO << "Command execution finished.";
 
 }
     
 
-bool ProcessHandler::Close() {
+bool ProcessHandler::close() {
 
-    qWarning() << Q_FUNC_INFO << "Terminating process:" << GetProcessName();
+    qWarning() << Q_FUNC_INFO << "Terminating process:" << getProcessName();
     wait(); //Maybe remove?
     QThread::terminate();
 
 }
 
-void ProcessHandler::RequestNewData() {
+void ProcessHandler::requestNewData() {
 
     if ( !isRunning() ) {
         start();

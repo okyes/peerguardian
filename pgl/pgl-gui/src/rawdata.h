@@ -59,25 +59,25 @@ class RawData : public QObject {
          * 
          * @return True if there are any data available, otherwise false.
          */
-        virtual bool HasData() const;
+        virtual bool hasData() const;
         /**
          * Give the size of the data vector.
          * 
          * @return The number of lines of the raw data vector.
          */
-        int GetSize() const;
+        int getSize() const;
         /**
          * Gives the saved raw data to the caller.
          *
          * @return A QString with the data.
          */
-        virtual QString GetDataS() const;
+        virtual QString getDataS() const;
         /**
         * Gives the saved raw data to the caller.
         *
         * @return A QVector of QStrings with the data.
         */
-        virtual QVector< QString > GetDataV() const;
+        virtual QVector< QString > getDataV() const;
 
 
     public slots:
@@ -88,31 +88,31 @@ class RawData : public QObject {
         * @param name The name of the file/process/dbus channel.
         * @return True if the source was opened sucessfully, otherwise false.
         */
-        virtual bool Open( const QString &name ) = 0;
+        virtual bool open( const QString &name ) = 0;
         /**
         * Closes the data source being used.
         *
         * Pure virtual function, does nothing.
         * @return True if the source was closed sucessfully, otherwise false.
         */
-        virtual bool Close() = 0;
+        virtual bool close() = 0;
         /**
         * Emit the appropriate signal and send the saved data to the caller.
         */
-        virtual void RequestData();       
+        virtual void requestData();
         /**
          * This is essentially the same as RequestData but it updates the data first. Depends on the derived class.
          * 
          * @see RequestData()
          */
-        virtual void RequestNewData() = 0;
+        virtual void requestNewData() = 0;
 
     signals:
         /**
          * Sends a QVector of QStrings containing the some raw data.
          */
-        void RawDataV( const QVector< QString > &newD );
-        void RawDataS( const QString &newD );
+        void rawDataV( const QVector< QString > &newD );
+        void rawDataS( const QString &newD );
 
     protected:
         QVector< QString > m_RawDataVector;

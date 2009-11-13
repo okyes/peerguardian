@@ -37,19 +37,19 @@ RawData::~RawData() {
 
 }
 
-bool RawData::HasData() const {
+bool RawData::hasData() const {
 
-    return ( this->GetSize() > 0 );
+    return ( this->getSize() > 0 );
 
 }
 
-int RawData::GetSize() const {
+int RawData::getSize() const {
 
     return m_RawDataVector.size();
 
 }
 
-QString RawData::GetDataS() const {
+QString RawData::getDataS() const {
 
     QString data;
     for ( QVector< QString >::const_iterator s = m_RawDataVector.begin(); s != m_RawDataVector.end(); s++ ) {
@@ -61,16 +61,16 @@ QString RawData::GetDataS() const {
 
 }
 
-QVector< QString > RawData::GetDataV() const {
+QVector< QString > RawData::getDataV() const {
 
     return m_RawDataVector;
 
 }
 
-void RawData::RequestData() {
+void RawData::requestData() {
     
     
-    emit RawDataV( m_RawDataVector );
+    emit rawDataV( m_RawDataVector );
     
 }
 

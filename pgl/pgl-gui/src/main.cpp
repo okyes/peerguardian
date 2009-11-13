@@ -31,9 +31,7 @@ void customOutput( QtMsgType type, const char *msg );
 int main() {
 
     qInstallMsgHandler( customOutput );
-    ProcessHandler test;
-    test.Open( "sleep 2m" );
-    test.Close();
+
     return 0;
 
 }

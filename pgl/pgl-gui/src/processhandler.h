@@ -69,14 +69,14 @@ class ProcessHandler : public QThread, public RawData {
          *
          * @return The name of the process, including the arguments.
          */
-        QString GetProcessName() const;
+        QString getProcessName() const;
         /**
         * Sets the channel mode of the QProcess standard output and standard error channels to the mode specified.
         * 
         * The default constructor sets the mode as QProcess::SeparateChannels.
         * @param mode The mode which will be used the next time a process is started.
         */
-        void SetChannelMode( const QProcess::ProcessChannelMode &mode );
+        void setChannelMode( const QProcess::ProcessChannelMode &mode );
 
     public slots:
         /**
@@ -84,7 +84,7 @@ class ProcessHandler : public QThread, public RawData {
          * 
          * @param process A QString containing both the process name and the arguments.
          */
-        virtual bool Open( const QString &process );
+        virtual bool open( const QString &process );
         /**
          * Reimplementation of QThread's run()
          * Starts the process which was set using Open()
@@ -97,11 +97,11 @@ class ProcessHandler : public QThread, public RawData {
          * Calling this is VERY dangerous. Should be used only in when absolutely necessary.
          * @return True if the Thread was terminated sucessfully, otherwise false.
          */
-        virtual bool Close();
+        virtual bool close();
         /**
          * Run the process set using open and emit its output using the appropriate signals when it has finished running.
          */
-        virtual void RequestNewData();
+        virtual void requestNewData();
 
     private:
         QString m_Cmd;

@@ -61,21 +61,21 @@ class FileHandler : public RawData {
          *
          * @return The filename.
          */
-        QString GetFilename() const;
+        QString getFilename() const;
         /**
          * Set the file data to be the contets of the QVector< QString > given.
          * 
          * @param newD The new file data.
          */
-        void SetData( const QVector< QString > &newD );
-        void SetData( const QString &newD );
+        void setData( const QVector< QString > &newD );
+        void setData( const QString &newD );
         /**
          * Append new data to the contents of the file already loaded.
          * 
          * @param newD The data to be appeneded.
          */
-        void AppendData( const QVector< QString > &newD );
-        void AppendData( const QString &newD );
+        void appendData( const QVector< QString > &newD );
+        void appendData( const QString &newD );
         /**
          * Compare two FileHandler objects.
          * 
@@ -98,34 +98,34 @@ class FileHandler : public RawData {
         * @param filename The name of the file.
         * @return True if the file was opened sucessfully, otherwise false.
         */
-        virtual bool Open( const QString &filename );
+        virtual bool open( const QString &filename );
         /**
         * Closes the data file being used, discarding its data.
         *
         * @return True if the file was closed sucessfully, otherwise false.
         */
-        virtual bool Close();
+        virtual bool close();
         /**
         * Saves the data into a file.
         *
         * @param filename The name of the file where the data will be saved. Leave this empty to save to the same file.
         * @return True if the data were sucessfully saved.
         */
-        virtual bool Save( const QString &filename = QString() );
+        virtual bool save( const QString &filename = QString() );
         
         /**
         * Reload the file and emit the new data as a QVector< QString >
         *
         * @see RequestData()
         */
-        virtual void RequestNewData();
+        virtual void requestNewData();
 
 
     private:
         /**
          * Trim the lines of the vector using QString::trimmed()
          */
-        void TrimLines();
+        void trimLines();
         QString m_Filename;
         QVector< QString > m_FileContents;
 
