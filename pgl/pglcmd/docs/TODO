@@ -2,6 +2,11 @@ TODO for blockcontrol and MoBlock debian packaging
 
 blockcontrol:
 
+- on "stop" remove kernel modules that were inserted by blockcontrol. (see dino's
+  synology packaging
+  http://forums.phoenixlabs.org/showpost.php?p=128371&postcount=20). Probably
+  disable this per default, to avoid problems.
+
 - send error messages to console and logfile. [João]
   Completely rework the logging part, and check if all messages go where they
   should.
@@ -21,11 +26,8 @@ blockcontrol:
 
 - implement options of NFBlock (no-dbus)
 
-- improve makefile:
-  - add (something like) "configure" to configure paths.
-  - read installation paths from blockcontrol.defaults and blockcontrol.conf,
-    special handling of blockcontrol.main and blockcontrol.defaults needed,
-    because they are not in the previous files.
+- improve makefile: add (something like) "configure" to configure paths (set the
+  paths in the Makefile and adjust all files automatically with sed.)
 
 - fix debconf to use debian/config again.
 

@@ -164,7 +164,9 @@ pidofproc () {
     fi
     if test_external pidof && [ ! "$specified" ]; then
         status="0"
-        pidof -o %PPID -x $1 || status="$?"
+        #pidof -o %PPID -x $1 || status="$?"
+        # Simplified this, because it results in errors on synology.
+        pidof $1 || status="$?"
         if [ "$status" = 1 ]; then
             return 3 # program is not running
         fi
@@ -1149,7 +1151,10 @@ do_start_wd () {
         # Use start-stop-daemon
         # Start watchdog in the background with "-b"
         # Note: use -N for nice level, not -n as per LSB
-        start-stop-daemon -b -N $WD_NICE -p $WD_PID --exec $WD_PATHNAME --start --
+        #start-stop-daemon -b -N $WD_NICE -p $WD_PID --exec $WD_PATHNAME --start --
+        # Use -x and -S to avoid problems on synology
+        start-stop-daemon -b -N $WD_NICE -p $WD_PID -x $WD_PATHNAME -S --
+
     else
         # LSB, start pglcmd.wd in the background with "&".
         start_daemon -n $WD_NICE -p $WD_PID $WD_PATHNAME &
