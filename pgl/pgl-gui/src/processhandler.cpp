@@ -24,20 +24,11 @@
 
 #include "processhandler.h"
 
-ProcessHandler::ProcessHandler( QThread *parent1, RawData *parent2 ) :
-    QThread(parent1), RawData( parent2 ) {
+ProcessHandler::ProcessHandler( QObject *parent ) :
+    QThread( parent ) {
 
     qDebug() << Q_FUNC_INFO << "New thread created.";
-
-    this->setChannelMode( QProcess::SeparateChannels );
     
-}
-
-ProcessHandler::ProcessHandler( const QProcess::ProcessChannelMode &mode, QThread *parent1, RawData *parent2 ) :
-    QThread(parent1), RawData( parent2 ) {
-
-    this->setChannelMode( mode );
-
 }
 
 ProcessHandler::~ProcessHandler() {
@@ -47,35 +38,31 @@ ProcessHandler::~ProcessHandler() {
 
 }
 
-QString ProcessHandler::getProcessName() const {
+void ProcessHandler::setCommand( const QString &cmd, const QProcess::ProcessChannelMode &mode  ) {
 
-    QString name = m_Cmd;
-    name.append( m_Args.join( " " ) );
-
-    return name;
-
-}
-
-void ProcessHandler::setChannelMode( const QProcess::ProcessChannelMode &mode ) {
-
-    m_ChanMode = mode;
-
-}
-
-bool ProcessHandler::open( const QString &process ) {
-
-    if ( process.isEmpty() ) {
+    if ( cmd.isEmpty() ) {
         qWarning() << Q_FUNC_INFO << "No process name set, doing nothing.";
-        return false;
+        return;
     }
 
     //Separate the command and its arguments
-    m_Args = process.split( " ", QString::SkipEmptyParts );
+    m_Args = cmd.split( " ", QString::SkipEmptyParts );
     m_Cmd = m_Args.first();
     m_Args.removeFirst();
-    
 
-    return true;
+}
+
+void ProcessHandler::runCommand( const QString &cmd, const QProcess::ProcessChannelMode &mode ) {
+
+    setCommand( cmd, mode );
+
+    if ( !this->isRunning() ) {
+        start();
+    }
+    else {
+        qWarning() << Q_FUNC_INFO << "Thread already running, doing nothing.";
+        return;
+    }
 
 }
 
@@ -89,7 +76,7 @@ void ProcessHandler::run() {
 
     QString poutput;
 
-    qDebug() << Q_FUNC_INFO << "Executing command:" << getProcessName();
+    qDebug() << Q_FUNC_INFO << "Executing command:" << m_Cmd << m_Args;
     QProcess proc;
     proc.setProcessChannelMode( m_ChanMode );
     proc.start( m_Cmd, m_Args );
@@ -98,35 +85,10 @@ void ProcessHandler::run() {
     proc.closeWriteChannel();
     
     poutput = proc.readAll().trimmed();
-    
-    RawData::m_RawDataVector = poutput.split( "\n" ).toVector();
-    
-    emit RawData::rawDataS( poutput ); //Saves some time. No need to call GetDataS
-    emit RawData::rawDataV( RawData::getDataV() );
+
+    emit processDataS( poutput );
     qDebug() << Q_FUNC_INFO << "Command execution finished.";
 
 }
-    
-
-bool ProcessHandler::close() {
-
-    qWarning() << Q_FUNC_INFO << "Terminating process:" << getProcessName();
-    wait(); //Maybe remove?
-    QThread::terminate();
-
-}
-
-void ProcessHandler::requestNewData() {
-
-    if ( !isRunning() ) {
-        start();
-    }
-    else {
-        qWarning() << Q_FUNC_INFO << "Thread already running, doing nothing.";
-        return;
-    }
-
-}
-    
 
 #include "processhandler.moc" //Required for CMake, do not remove.

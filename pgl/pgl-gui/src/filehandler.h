@@ -139,7 +139,7 @@ class FileHandler : public QObject {
         /**
         * Closes the data file being used, discarding its data.
         * 
-        * This function also deletes the filename, making this object empty again.
+        * 
         */
         void discard();
         /**

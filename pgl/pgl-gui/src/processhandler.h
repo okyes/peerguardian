@@ -28,8 +28,6 @@
 
 #include <QString>
 
-#include "rawdata.h"
-
 /**
  * @brief A class used to handle processes.
  * 
@@ -38,7 +36,7 @@
  * Moreover, the class saves and gives the output of the process when it's requested.
  */
 
-class ProcessHandler : public QThread, public RawData {
+class ProcessHandler : public QThread {
 
     Q_OBJECT
 
@@ -47,66 +45,45 @@ class ProcessHandler : public QThread, public RawData {
          * Default constructor.
          * 
          * Creates an empty object.
-         * @param parent1 The QThread parent of this object.
-         * @param parent2 The RawData parent of this object.
+         * @param parent The parent of this object.
          */
-        ProcessHandler( QThread *parent1 = 0, RawData *parent2 = 0 );
-        /**
-         * Alternative constructor.
-         * 
-         * Creates an empty object.
-         * @param mode The mode which will be used the next time a process is started.
-         * @param parent1 The QThread parent of this object.
-         * @param parent2 The RawData parent of this object.
-         */
-        ProcessHandler( const QProcess::ProcessChannelMode &mode, QThread *parent1 = 0, RawData *parent2 = 0 );
+        ProcessHandler( QObject *parent = 0 );
         /**
          * Destructor
          */
-        virtual ~ProcessHandler();
+        ~ProcessHandler();
         /**
-         * Get the name of the process currently set using Open();
-         *
-         * @return The name of the process, including the arguments.
-         */
-        QString getProcessName() const;
-        /**
-        * Sets the channel mode of the QProcess standard output and standard error channels to the mode specified.
-        * 
-        * The default constructor sets the mode as QProcess::SeparateChannels.
-        * @param mode The mode which will be used the next time a process is started.
+        * Set the given process to be executed when run() is called.
+        * @param cmd The name of the process including its arguments.
+        * @param mode The process channel modes of the command which will be executed.
         */
-        void setChannelMode( const QProcess::ProcessChannelMode &mode );
-
+        void setCommand( const QString &cmd, const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels );
+        /**
+        * Execute the given command. Calls setCommand() first and then just starts the thread if it's not running.
+        * @param cmd The name of the process including its arguments.
+        * @param mode The process channel modes of the command which will be executed.
+        */
+        void runCommand( const QString &cmd, const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels );
+        
     public slots:
         /**
-         * Set the name of the process which will be executed when start() is called.
-         * 
-         * @param process A QString containing both the process name and the arguments.
-         */
-        virtual bool open( const QString &process );
+        * Reimplementation of QThread::run().
+        * Executes the command which was set using setCommand().
+        * If no command was set, this function does nothing.
+        */
+        void run();
+
+    signals:
         /**
-         * Reimplementation of QThread's run()
-         * Starts the process which was set using Open()
-         * If no process has been set, this does nothing
-         */
-        virtual void run();
-        /**
-         * Terminates the thread.
-         * 
-         * Calling this is VERY dangerous. Should be used only in when absolutely necessary.
-         * @return True if the Thread was terminated sucessfully, otherwise false.
-         */
-        virtual bool close();
-        /**
-         * Run the process set using open and emit its output using the appropriate signals when it has finished running.
-         */
-        virtual void requestNewData();
+        * Emitted when a command has finished running.
+        * @param output The output of the command which was executed.
+        */
+        void processDataS( QString output );
+        
 
     private:
         QString m_Cmd;
         QStringList m_Args;
-        QProcess m_Runner;
         QProcess::ProcessChannelMode m_ChanMode;
 
 };

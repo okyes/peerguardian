@@ -19,9 +19,13 @@
 *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
 ***************************************************************************/
 
+#include <QObject>
+
 #include <QDebug>
 #include <QVector>
 #include <QString>
+
+#include <QThread>
 
 #include "filehandler.h"
 #include "processhandler.h"
@@ -31,6 +35,7 @@ void customOutput( QtMsgType type, const char *msg );
 int main() {
 
     qInstallMsgHandler( customOutput );
+
 
     return 0;
 

@@ -191,6 +191,7 @@ bool FileHandler::load( const QString &filename ) {
 
 bool FileHandler::reload() {
 
+    this->discard();
     return this->load( m_Filename );
 
 }
@@ -198,7 +199,6 @@ bool FileHandler::reload() {
 void FileHandler::discard() {
 
     m_FileContents.clear();
-    m_Filename.clear();
 
 }
 
