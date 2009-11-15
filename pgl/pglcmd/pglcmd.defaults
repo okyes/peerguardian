@@ -143,11 +143,6 @@ WGET_OPTS="wget -q -t 5 -T 120 -w 5 --user-agent=${CMD_NAME}/${VERSION}"
 # Before updating the blocklists check if this host is reachable
 TESTHOST="iblocklist.com"
 
-# Set your own options to start the daemon.
-# Warning: Do not change this, unless you know what you are doing.
-# Have a look at the code in pglcmd.lib to understand how it is used.
-CUSTOM_DAEMON_OPTS=""
-
 ################## Settings for the iptables firewall rules ###################
 
 # pgld checks traffic in userspace.

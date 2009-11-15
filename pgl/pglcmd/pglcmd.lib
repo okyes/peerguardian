@@ -1315,14 +1315,8 @@ do_start () {
                 DBUS_OPT=""
             fi
 
-            # Set the daemon options
-            if [ -n "$CUSTOM_DAEMON_OPTS" ] ; then
-                # Use only custom daemon options
-                DAEMON_OPTS="$CUSTOM_DAEMON_OPTS"
-            else
-                # The options the daemon is started with
-                DAEMON_OPTS="$LOG_SYSLOG_OPT $LOG_LOGFILE_OPT $DBUS_OPT -f $BLOCKLIST -p $PIDFILE $NFQUEUE_NUMBER_OPT $REJECT_OPT $ACCEPT_OPT"
-            fi
+            # Set the options the daemon is started with
+            DAEMON_OPTS="$LOG_SYSLOG_OPT $LOG_LOGFILE_OPT $DBUS_OPT -f $BLOCKLIST -p $PIDFILE $NFQUEUE_NUMBER_OPT $REJECT_OPT $ACCEPT_OPT"
 
             # Test NICE_LEVEL setting.
             [ "$NICE_LEVEL" -ge -20 ] && [ "$NICE_LEVEL" -le 19 ] || {
@@ -2011,15 +2005,10 @@ test_ipblocking () {
     test_set_BLOCKLIST
     test_BLOCKLIST
     test_REJECT
-    if [ "$LOG_SYSLOG" -eq 1 ] || echo "$CUSTOM_DAEMON_OPTS" | grep -- " -s " > /dev/null 2>&1 ; then
+    if [ "$LOG_LOGFILE" -eq 1 ] ; then
+        TEST_LOG="$DAEMON_LOG"
+    elif [ "$LOG_SYSLOG" -eq 1 ] ; then
         TEST_LOG="/var/log/syslog"
-    elif [ "$LOG_LOGFILE" -eq 1 ] || echo "$CUSTOM_DAEMON_OPTS" | grep -- " -l " > /dev/null 2>&1 ; then
-        if [ "$LOG_LOGFILE" -eq 1 ]
-        then
-            TEST_LOG="$DAEMON_LOG"
-        else
-            TEST_LOG=$(echo "$CUSTOM_DAEMON_OPTS" | awk 'match ($0, /-l.*-/) {print substr($0,RSTART,RLENGTH)}' | awk '{print$2}')
-        fi
     else
         echo "Error: $NAME has to be started with either LOG_SYSLOG=\"1\" or LOG_LOGFILE=\"1\" for \"test\" to work."
         exit $E_CONFIG
