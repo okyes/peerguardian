@@ -1007,7 +1007,7 @@ db_stop
 # Set the blocklist name depending on the type of the blocklist (configuration setting).
 test_set_BLOCKLIST
 
-if [ "$INIT" -ne 0 ] && [ -x "/etc/init.d/pglcmd" ] ; then
+if [ "$INIT" -ne 0 ] && [ -x "/etc/init.d/pgl" ] ; then
     # dh_installdeb inserts code to execute init "start".
     echo
     echo "$NAME will soon be started ..."
