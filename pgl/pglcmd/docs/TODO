@@ -10,6 +10,7 @@ blockcontrol:
 - send error messages to console and logfile. [João]
   Completely rework the logging part, and check if all messages go where they
   should.
+  E.g. the watchdog's message currently doesn't land in the logfile.
 
 - add option to temp allow (blockcontrol allow IP and blockcontrol allow-MM IP),
   which inserts the appropriate iptables rules directly.

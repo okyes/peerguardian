@@ -24,17 +24,17 @@ BUGS of pgl:
   --
   2009-03-21, jre <jre-phoenix@users.sourceforge.net>
 
-- blockcontrol can't verify if IP block daemon is really started
-
-  MoBlock is started in the background. So a successful start is reported before
-  this is really the case. If MoBlock crashes this will stay unnoticed.
-
-  NFBlock is started as a daemon. But still a successful start is reported
-  before NFBlock binds to nfq. (bug upstream)
-
-  blockcontrol.wd partly solves this (2009-05-03).
+- pglcmd only monitors if pgld starts successfully until pgld forks
+  (daemonizes). Everything that happens after the fork doesn't get catched.
+  Therefore move as much as possible of the pgld start code before the fork.
+  Note that e.g. the pidfile generation has to be done afterwards, because a
+  forked process has a new pid.
+  A possible solution would be for pglcmd to wait some seconds, and then check
+  again, but this makes starting slow, so this is not applied.
+  pglcmd.wd partly solves this by doing a restart and notifying the user per
+  email and in the logfile.
   --
-  2008-04-05, jre <jre-phoenix@users.sourceforge.net>
+  2009-11-15, jre <jre-phoenix@users.sourceforge.net>
 
 - Output to console that should not be there:
   Related to status_of_proc in Jaunty init-functions!? Or redirecting double-

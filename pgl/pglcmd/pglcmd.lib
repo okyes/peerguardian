@@ -1333,20 +1333,6 @@ do_start () {
             # Start daemon
             start_daemon -n $NICE_LEVEL -p $PIDFILE $DAEMON $DAEMON_OPTS
             RETVAL=$?
-
-#             # Verify that the daemon is running
-#             # TODO:
-#             COUNT=0
-#             # Wait up to 20 seconds
-#             while [ "$COUNT" -lt 20 ] ; do
-#                 kill -0 "$(pidofproc $DAEMON)" > /dev/null 2>&1
-#                 # If daemon is running remember success and break.
-#                 [ "$?" -eq 0 ] && RETVAL=0 && break
-#                 RETVAL=1
-#                 sleep 1
-#                 COUNT=$(($COUNT+1))
-#             done
-
             log_end_msg $RETVAL
 
             # Start pglcmd.wd.
