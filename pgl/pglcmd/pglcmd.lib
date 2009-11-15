@@ -1980,16 +1980,35 @@ build_blocklist () {
     else
         [ -f "$BLOCKLIST" ] && mv $BLOCKLIST $BLOCKLIST.backup    # Backup old master blocklist
         # Build blocklist:
-        cat --squeeze-blank $BLOCKLISTSCAT | grep -v -e "^[:space:]*#" | tr -cd '[:alnum:][:space:]:\\\*\.\-,\n' | sed 's/^[,: \t.-]*//' | tr -s [:space:] | sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | sort -u > $BLOCKLIST && log_end_msg 0 || {
-            log_failure_msg "Error: cat exited with $?"
-            if [ -f $BLOCKLIST.backup ] ; then
-                echo -n "Restoring $BLOCKLIST ..."
-                mv $BLOCKLIST.backup $BLOCKLIST || { log_failure_msg " Error: mv exited with $?" ; exit 1 ; }
-                log_end_msg 0
-            else
-                exit $E_BLOCKLIST
-            fi
-            }
+        # Cat together all single blocklists
+        cat --squeeze-blank $BLOCKLISTSCAT | \
+            # Ignore comment lines
+            grep -v -e "^[:space:]*#" | \
+            # Replace repeated whitespace with a single occurence
+            tr -s [:space:] | \
+            # Delete everything complimentary to the following characters/regex
+            # alphanumeric
+            # space
+            # :\*.-,[]
+            # newline (return gets removed, so CR+LF gets LF)
+            tr -cd '[:alnum:][:space:]:\\\*\.\-,[]\n' | \
+            # Remove the following characters from the line beginning:
+            # ,: .-*
+            # TAB
+            sed 's/^[,: \t.-]*//' | \
+            # Only keep the last occurence of :
+            sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | \
+            # Sort, and only output the first of equal lines
+            sort -u > $BLOCKLIST && log_end_msg 0 || {
+                log_failure_msg "Error: build_blocklist exited with $?"
+                if [ -f $BLOCKLIST.backup ] ; then
+                    echo -n "Restoring $BLOCKLIST ..."
+                    mv $BLOCKLIST.backup $BLOCKLIST || { log_failure_msg " Error: mv exited with $?" ; exit 1 ; }
+                    log_end_msg 0
+                else
+                    exit $E_BLOCKLIST
+                fi
+                }
     fi
 
     # Save configuration settings on which this blocklist bases:
