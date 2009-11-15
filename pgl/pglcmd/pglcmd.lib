@@ -1154,7 +1154,6 @@ do_start_wd () {
         #start-stop-daemon -b -N $WD_NICE -p $WD_PID --exec $WD_PATHNAME --start --
         # Use -x and -S to avoid problems on synology
         start-stop-daemon -b -N $WD_NICE -p $WD_PID -x $WD_PATHNAME -S --
-
     else
         # LSB, start pglcmd.wd in the background with "&".
         start_daemon -n $WD_NICE -p $WD_PID $WD_PATHNAME &
