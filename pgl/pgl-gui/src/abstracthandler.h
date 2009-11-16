@@ -27,7 +27,7 @@ class QString;
 /**
  * @brief Simple class intented to be a base for all high level data handlers(log, settings etc).
  * 
- * It's main function is to set the path of the data file after checking for its validity.
+ * Its main function is to set the path of the data file after checking for its validity.
  */
 
 class AbstractHandler {

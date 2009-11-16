@@ -67,3 +67,6 @@ void AbstractHandler::setFilePath( const QString &path ) {
     }
 
 }
+
+#include "abstracthandler.moc" //Required for cmake, do not remove
+
