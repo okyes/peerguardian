@@ -95,6 +95,14 @@ static int loadlist_ascii(blocklist_t *blocklist, const char *filename, const ch
                 ok++;
             }
         }
+        // just a range if in LOWMEM
+        else if (sscanf(buf, "%d.%d.%d.%d-%d.%d.%d.%d",
+                   &ip1[0], &ip1[1], &ip1[2], &ip1[3],
+                   &ip2[0], &ip2[1], &ip2[2], &ip2[3]) == 8){
+            name[0]='\0';
+            blocklist_append(blocklist, assemble_ip(ip1), assemble_ip(ip2), name, ic);
+            ok++;
+        }
         // could add more tests for other ASCII formats here.
         // else the line is invalid
         else {
