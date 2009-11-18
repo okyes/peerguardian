@@ -22,7 +22,10 @@
 #ifndef ABSTRACTHANDLER_H
 #define ABSTRACTHANDLER_H
 
-class QString;
+#include <QHash>
+
+
+#define DEFAULT_PATH "_DEFAULT_"
 
 /**
  * @brief Simple class intented to be a base for all high level data handlers(log, settings etc).
@@ -38,13 +41,6 @@ class AbstractHandler {
          */
         AbstractHandler();
         /**
-         * Alternative constructor.
-         * 
-         * Creates an AbstractHandler object and uses setFilePath() to set its path.
-         * @param path The path to the data file.
-         */
-        AbstractHandler( const QString &path );
-        /**
          * Destructor, does nothing.
          */
         ~AbstractHandler();
@@ -54,17 +50,18 @@ class AbstractHandler {
          * This function checks if the path is empty and if the file exists.
          * If any of the above is false, the function prints the appropriate error message.
          * @param path The path to the data file.
+         * @param id The id of the data file. This is used in order to allow the other classes to set more than on paths.
          */
-        void setFilePath( const QString &path );
+        void setFilePath( const QString &path, const QString &id = DEFAULT_PATH );
         /**
-         * Indicates if the object is intiallized correctly.
+         * Gives the path to the data file.
          * 
-         * @return True if the current file path set is valid, otherwise false.
+         * @return A QString containing the file path or a null QString if no path was set.
          */
-        bool isWorking() const;
+        QString getFilePath( const QString &id = DEFAULT_PATH ) const;
 
     private:
-        QString m_FilePath;
+        QHash< QString, QString > m_FilePaths;
 
 };
 

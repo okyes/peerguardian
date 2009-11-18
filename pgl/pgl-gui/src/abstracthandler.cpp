@@ -32,29 +32,28 @@ AbstractHandler::AbstractHandler() {
 }
 
 
-
-
-AbstractHandler::AbstractHandler( const QString& path ) {
-
-    this->setFilePath( path );
-
-}
-
 AbstractHandler::~AbstractHandler() {
 
 
 }
 
 
-bool AbstractHandler::isWorking() const {
+QString AbstractHandler::getFilePath( const QString &id  ) const {
 
-    return m_FilePath.isEmpty();
+    QHash< QString, QString >::const_iterator s = m_FilePaths.find( id );
+    if ( s != m_FilePaths.end() ) {
+        return *s;
+    }
+    else {
+        qWarning() << Q_FUNC_INFO << "File path" << id << "is not set!";
+        return QString();
+    }
 
 }
 
-void AbstractHandler::setFilePath( const QString &path ) {
 
-    m_FilePath = QString();
+void AbstractHandler::setFilePath( const QString &path, const QString &id ) {
+
 
     if ( path.isEmpty() ) {
         qWarning() << Q_FUNC_INFO << "Could not intiallize object: Empty file path given!";
@@ -63,10 +62,9 @@ void AbstractHandler::setFilePath( const QString &path ) {
         qWarning() << Q_FUNC_INFO << "Could not intiallize object: File" << path << "does not exist!";
     }
     else {
-        m_FilePath = path;
+        m_FilePaths.insert( id, path );
     }
 
 }
 
 #include "abstracthandler.moc" //Required for cmake, do not remove
-
