@@ -2,6 +2,7 @@
 set( pgl-gui_SRCS
     filehandler.cpp
     processhandler.cpp
+    abstracthandler.cpp
     main.cpp
     )
 

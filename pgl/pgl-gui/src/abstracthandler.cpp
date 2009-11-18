@@ -19,43 +19,52 @@
 *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
 ***************************************************************************/
 
-#include <QObject>
-
+#include <QFile>
 #include <QDebug>
-#include <QVector>
 #include <QString>
 
-#include <QThread>
-
-#include "filehandler.h"
-#include "processhandler.h"
-
-void customOutput( QtMsgType type, const char *msg );
-
-int main() {
-
-    qInstallMsgHandler( customOutput );
+#include "abstracthandler.h"
 
 
-    return 0;
+AbstractHandler::AbstractHandler() {
+
 
 }
 
-void customOutput( QtMsgType type, const char *msg ) {
-    
-    switch( type ) {
-        case QtDebugMsg:
-            fprintf( stderr, "** Debug: %s\n", msg );
-            break;
-        case QtWarningMsg:
-            fprintf( stderr, "** Warning: %s\n", msg );
-            break;
-        case QtCriticalMsg:
-            fprintf( stderr, "** Critical: %s\n", msg );
-            break;
-        case QtFatalMsg:
-            fprintf( stderr, "** Fatal: %s\n", msg );
-            break;
+
+AbstractHandler::~AbstractHandler() {
+
+
+}
+
+
+QString AbstractHandler::getFilePath( const QString &id  ) const {
+
+    QHash< QString, QString >::const_iterator s = m_FilePaths.find( id );
+    if ( s != m_FilePaths.end() ) {
+        return *s;
     }
-    
+    else {
+        qWarning() << Q_FUNC_INFO << "File path" << id << "is not set!";
+        return QString();
+    }
+
 }
+
+
+void AbstractHandler::setFilePath( const QString &path, const QString &id ) {
+
+
+    if ( path.isEmpty() ) {
+        qWarning() << Q_FUNC_INFO << "Could not intiallize object: Empty file path given!";
+    }
+    else if ( !QFile::exists( path ) ) {
+        qWarning() << Q_FUNC_INFO << "Could not intiallize object: File" << path << "does not exist!";
+    }
+    else {
+        m_FilePaths.insert( id, path );
+    }
+
+}
+
+#include "abstracthandler.moc" //Required for cmake, do not remove

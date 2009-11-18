@@ -19,43 +19,50 @@
 *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
 ***************************************************************************/
 
-#include <QObject>
+#ifndef ABSTRACTHANDLER_H
+#define ABSTRACTHANDLER_H
 
-#include <QDebug>
-#include <QVector>
-#include <QString>
-
-#include <QThread>
-
-#include "filehandler.h"
-#include "processhandler.h"
-
-void customOutput( QtMsgType type, const char *msg );
-
-int main() {
-
-    qInstallMsgHandler( customOutput );
+#include <QHash>
 
 
-    return 0;
+#define DEFAULT_PATH "_DEFAULT_"
 
-}
+/**
+ * @brief Simple class intented to be a base for all high level data handlers(log, settings etc).
+ * 
+ * Its main function is to set the path of the data file after checking for its validity.
+ */
 
-void customOutput( QtMsgType type, const char *msg ) {
-    
-    switch( type ) {
-        case QtDebugMsg:
-            fprintf( stderr, "** Debug: %s\n", msg );
-            break;
-        case QtWarningMsg:
-            fprintf( stderr, "** Warning: %s\n", msg );
-            break;
-        case QtCriticalMsg:
-            fprintf( stderr, "** Critical: %s\n", msg );
-            break;
-        case QtFatalMsg:
-            fprintf( stderr, "** Fatal: %s\n", msg );
-            break;
-    }
-    
-}
+class AbstractHandler {
+
+    public:
+        /**
+         * Default constructor, does nothing.
+         */
+        AbstractHandler();
+        /**
+         * Destructor, does nothing.
+         */
+        ~AbstractHandler();
+        /**
+         * Sets the path to the data file.
+         * 
+         * This function checks if the path is empty and if the file exists.
+         * If any of the above is false, the function prints the appropriate error message.
+         * @param path The path to the data file.
+         * @param id The id of the data file. This is used in order to allow the other classes to set more than on paths.
+         */
+        void setFilePath( const QString &path, const QString &id = DEFAULT_PATH );
+        /**
+         * Gives the path to the data file.
+         * 
+         * @return A QString containing the file path or a null QString if no path was set.
+         */
+        QString getFilePath( const QString &id = DEFAULT_PATH ) const;
+
+    private:
+        QHash< QString, QString > m_FilePaths;
+
+};
+
+#endif //ABSTRACTHANDLER_H
