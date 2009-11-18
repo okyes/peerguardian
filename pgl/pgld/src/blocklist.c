@@ -255,9 +255,9 @@ void blocklist_dump(blocklist_t *blocklist)
     for (i = 0; i < blocklist->count; i++) {
         block_entry_t *e = &blocklist->entries[i];
 #ifndef LOWMEM
-        printf("%d - %u.%u.%u.%u-%u.%u.%u.%u - %s\n", i, NIPQUADREV(e->ip_min), NIPQUADREV(e->ip_max),e->name);
+        printf("%s:%u.%u.%u.%u-%u.%u.%u.%u\n", e->name, NIPQUADREV(e->ip_min), NIPQUADREV(e->ip_max));
 #else
-        printf("%d - %u.%u.%u.%u-%u.%u.%u.%u\n", i, NIPQUADREV(e->ip_min), NIPQUADREV(e->ip_max));
+        printf("%u.%u.%u.%u-%u.%u.%u.%u\n",NIPQUADREV(e->ip_min), NIPQUADREV(e->ip_max));
 #endif
     }
 }
