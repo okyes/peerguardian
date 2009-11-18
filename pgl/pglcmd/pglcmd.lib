@@ -1993,6 +1993,8 @@ build_blocklist () {
             tr -cd '[:alnum:][:space:]:\\\*\.\-,[]\n' | \
             # Only keep the last occurence of :
             sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | \
+            # squeeze leading 0's from IP octets
+            sed -r "s/0{,2}([0-9]{1,2})/\1/g" | \
             # Sort, and only output the first of equal lines
             sort -u > $BLOCKLIST && log_end_msg 0 || {
                 log_failure_msg "Error: build_blocklist exited with $?"
