@@ -85,7 +85,7 @@ static int loadlist_ascii(blocklist_t *blocklist, const char *filename, const ch
             ok++;
         }
         // else try the line as a ipfilter.dat line
-        else if (sscanf(buf, "%d.%d.%d.%d %*[-,] %d.%d.%d.%d , %d , %199c",
+        else if (sscanf(buf, "%d.%d.%d.%d %*[-,] %d.%d.%d.%d , %d , %199s",
                    &ip1[0], &ip1[1], &ip1[2], &ip1[3],
                    &ip2[0], &ip2[1], &ip2[2], &ip2[3],
                    &filter_level, name) == 10){
