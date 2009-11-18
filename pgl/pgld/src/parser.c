@@ -81,16 +81,18 @@ static int loadlist_ascii(blocklist_t *blocklist, const char *filename, const ch
         if (sscanf(buf, "%199[^:]:%d.%d.%d.%d-%d.%d.%d.%d",
                         name, &ip1[0], &ip1[1], &ip1[2], &ip1[3],
                         &ip2[0], &ip2[1], &ip2[2], &ip2[3]) == 9) {
+            fprintf(stderr, "append p2p: %s\n", buf);
             blocklist_append(blocklist, assemble_ip(ip1), assemble_ip(ip2), name, ic);
             ok++;
         }
         // else try the line as a ipfilter.dat line
-        else if (sscanf(buf, "%d.%d.%d.%d %*[-,] %d.%d.%d.%d , %d , %199c",
+        else if (sscanf(buf, "%d.%d.%d.%d %*[-,] %d.%d.%d.%d , %d , %199s",
                    &ip1[0], &ip1[1], &ip1[2], &ip1[3],
                    &ip2[0], &ip2[1], &ip2[2], &ip2[3],
                    &filter_level, name) == 10){
             // .DAT spec if 3rd entry on line is <=127, the IP is blocked else >=128 it is allowed.
             if ( filter_level <= 127 ) {
+                fprintf(stderr, "append ipfilter: %s (%s)\n", buf, name);
                 blocklist_append(blocklist, assemble_ip(ip1), assemble_ip(ip2), name, ic);
                 ok++;
             }
