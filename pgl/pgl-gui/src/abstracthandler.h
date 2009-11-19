@@ -25,7 +25,7 @@
 #include <QHash>
 
 
-#define DEFAULT_PATH "_DEFAULT_"
+#define DEFAULT_FILE_ID "_DEFAULT_"
 
 /**
  * @brief Simple class intented to be a base for all high level data handlers(log, settings etc).
@@ -52,13 +52,13 @@ class AbstractHandler {
          * @param path The path to the data file.
          * @param id The id of the data file. This is used in order to allow the other classes to set more than on paths.
          */
-        void setFilePath( const QString &path, const QString &id = DEFAULT_PATH );
+        void setFilePath( const QString &path, const QString &id = DEFAULT_FILE_ID );
         /**
          * Gives the path to the data file.
          * 
          * @return A QString containing the file path or a null QString if no path was set.
          */
-        QString getFilePath( const QString &id = DEFAULT_PATH ) const;
+        QString getFilePath( const QString &id = DEFAULT_FILE_ID ) const;
 
     private:
         QHash< QString, QString > m_FilePaths;

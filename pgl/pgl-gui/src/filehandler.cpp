@@ -25,7 +25,7 @@
 #include <QFile>
 #include <QTextStream>
 
-#include <QDebug>
+#include "debug.h"
 
 #include "filehandler.h"
 
@@ -97,7 +97,7 @@ void FileHandler::setData( const QVector< QString > &newD ) {
 
 
     if ( newD.isEmpty() ) {
-        qWarning() << Q_FUNC_INFO << "Trying to set data of FileHandler to NULL!";
+        WARN_MSG << "Trying to set data of FileHandler to NULL!";
     }
 
     m_FileContents = newD;
@@ -109,7 +109,7 @@ void FileHandler::setData( const QVector< QString > &newD ) {
 void FileHandler::setData( const QString &newD ) {
 
     if ( newD.isEmpty() ) {
-        qWarning() << Q_FUNC_INFO << "Trying to set data of FileHandler to NULL!";
+        WARN_MSG << "Trying to set data of FileHandler to NULL!";
     }
     //Clear the vector and make this string its only element
     m_FileContents.clear();
@@ -121,7 +121,7 @@ void FileHandler::appendData( const QVector< QString > &newD ) {
 
 
     if ( newD.isEmpty() ) {
-        qWarning() << Q_FUNC_INFO << "Trying to append an empty data vector!";
+        WARN_MSG << "Trying to append an empty data vector!";
     }
 
     m_FileContents += newD ;
@@ -134,7 +134,7 @@ void FileHandler::appendData( const QString &newD ) {
 
 
     if ( newD.isEmpty() ) {
-        qWarning() << Q_FUNC_INFO << "Trying to append an empty data string!";
+        WARN_MSG << "Trying to append an empty data string!";
     }
 
     m_FileContents.append( newD.trimmed() );
@@ -164,11 +164,11 @@ bool FileHandler::load( const QString &filename ) {
 
     QFile file( filename );
     if ( filename.isEmpty() ) {
-        qWarning() << Q_FUNC_INFO << "Empty file filename given, doing nothing.";
+        WARN_MSG << "Empty file filename given, doing nothing.";
         return false;
     }
     else if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
-        qWarning() << Q_FUNC_INFO << "Could not read from file:" << filename;
+        WARN_MSG << "Could not read from file:" << filename;
         return false;
     }
     m_Filename = filename;
@@ -209,13 +209,13 @@ bool FileHandler::save( const QString &filename ) {
     }
 
     if ( m_Filename.isEmpty() ){
-        qWarning() << Q_FUNC_INFO << "Cannot save to file with no name.";
+        WARN_MSG << "Cannot save to file with no name.";
         return false;
     }
 
     QFile file( m_Filename );
     if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
-        qWarning() << Q_FUNC_INFO << "Could not write to file:" << m_Filename;
+        WARN_MSG << "Could not write to file:" << m_Filename;
         return false;
     }
     QTextStream out(&file);

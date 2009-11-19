@@ -21,41 +21,30 @@
 
 #include <QObject>
 
-#include <QDebug>
 #include <QVector>
 #include <QString>
 
 #include <QThread>
 
+#include <QRegExp>
+
+#include "debug.h"
+
+#include "abstracthandler.h"
 #include "filehandler.h"
 #include "processhandler.h"
 
-void customOutput( QtMsgType type, const char *msg );
+
+
 
 int main() {
 
     qInstallMsgHandler( customOutput );
-
+    //QRegExp rx( "^(.*)\\s(\\d\\d?:\\d\\d?:\\d\\d?)\\s(.*)" );
+    //rx.indexIn( "Nov 16 07:10:05 IN: 61.160.212.242:23 96.3.141.107:8085 TCP || CHINANETpossible MediaDefender" );
+    
+    //qDebug() << rx.capturedTexts();
 
     return 0;
 
-}
-
-void customOutput( QtMsgType type, const char *msg ) {
-    
-    switch( type ) {
-        case QtDebugMsg:
-            fprintf( stderr, "** Debug: %s\n", msg );
-            break;
-        case QtWarningMsg:
-            fprintf( stderr, "** Warning: %s\n", msg );
-            break;
-        case QtCriticalMsg:
-            fprintf( stderr, "** Critical: %s\n", msg );
-            break;
-        case QtFatalMsg:
-            fprintf( stderr, "** Fatal: %s\n", msg );
-            break;
-    }
-    
 }

@@ -1,5 +1,6 @@
 #Sources
 set( pgl-gui_SRCS
+    debug.cpp
     filehandler.cpp
     processhandler.cpp
     abstracthandler.cpp

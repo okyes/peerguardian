@@ -19,29 +19,30 @@
 *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
 ***************************************************************************/
 
-#include <QDebug>
 #include <QStringList>
+
+#include "debug.h"
 
 #include "processhandler.h"
 
 ProcessHandler::ProcessHandler( QObject *parent ) :
     QThread( parent ) {
 
-    qDebug() << Q_FUNC_INFO << "New thread created.";
+    DEBUG_MSG << "New thread created.";
     
 }
 
 ProcessHandler::~ProcessHandler() {
 
     wait(); //Wait for the thread to finish its job
-    qDebug() << Q_FUNC_INFO << "Thread destroyed";
+    DEBUG_MSG << "Thread destroyed";
 
 }
 
 void ProcessHandler::setCommand( const QString &cmd, const QProcess::ProcessChannelMode &mode  ) {
 
     if ( cmd.isEmpty() ) {
-        qWarning() << Q_FUNC_INFO << "No process name set, doing nothing.";
+        WARN_MSG << "No process name set, doing nothing.";
         return;
     }
 
@@ -60,7 +61,7 @@ void ProcessHandler::runCommand( const QString &cmd, const QProcess::ProcessChan
         start();
     }
     else {
-        qWarning() << Q_FUNC_INFO << "Thread already running, doing nothing.";
+        WARN_MSG << "Thread already running, doing nothing.";
         return;
     }
 
@@ -69,14 +70,14 @@ void ProcessHandler::runCommand( const QString &cmd, const QProcess::ProcessChan
 void ProcessHandler::run() {
 
     if ( m_Cmd.isEmpty() ) {
-        qWarning() << Q_FUNC_INFO << "No process name set, doing nothing.";
+        WARN_MSG << "No process name set, doing nothing.";
         return;
     }
     
 
     QString poutput;
 
-    qDebug() << Q_FUNC_INFO << "Executing command:" << m_Cmd << m_Args;
+    DEBUG_MSG << "Executing command:" << m_Cmd << m_Args;
     QProcess proc;
     proc.setProcessChannelMode( m_ChanMode );
     proc.start( m_Cmd, m_Args );
@@ -87,7 +88,7 @@ void ProcessHandler::run() {
     poutput = proc.readAll().trimmed();
 
     emit processDataS( poutput );
-    qDebug() << Q_FUNC_INFO << "Command execution finished.";
+    DEBUG_MSG << "Command execution finished.";
 
 }
 

@@ -20,8 +20,9 @@
 ***************************************************************************/
 
 #include <QFile>
-#include <QDebug>
 #include <QString>
+
+#include "debug.h"
 
 #include "abstracthandler.h"
 
@@ -45,7 +46,7 @@ QString AbstractHandler::getFilePath( const QString &id  ) const {
         return *s;
     }
     else {
-        qWarning() << Q_FUNC_INFO << "File path" << id << "is not set!";
+        WARN_MSG << "File path" << id << "is not set!";
         return QString();
     }
 
@@ -56,10 +57,10 @@ void AbstractHandler::setFilePath( const QString &path, const QString &id ) {
 
 
     if ( path.isEmpty() ) {
-        qWarning() << Q_FUNC_INFO << "Could not intiallize object: Empty file path given!";
+        WARN_MSG << "Could not intiallize object: Empty file path given!";
     }
     else if ( !QFile::exists( path ) ) {
-        qWarning() << Q_FUNC_INFO << "Could not intiallize object: File" << path << "does not exist!";
+        WARN_MSG << Q_FUNC_INFO << "Could not intiallize object: File" << path << "does not exist!";
     }
     else {
         m_FilePaths.insert( id, path );

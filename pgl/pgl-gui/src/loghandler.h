@@ -25,11 +25,15 @@
 #include <QObject>
 
 #include <QString>
+#include <QList>
 
 #include "abstracthandler.h"
 
 #define MAX_LOG_SIZE 100
-#define 
+
+/**
+ * The message type a specific log entry
+ */
 
 enum LogItemType {
     PGLD_IN, //pgld blocked an incoming connection
@@ -41,6 +45,10 @@ enum LogItemType {
     PGLC_ERROR, //pglcmd error message
     PGLG_INGORE //an invalid entry which should be ignored
 };
+
+/**
+ * A struct representing the information contained in a log entry
+ */
 
 struct LogItem {
     QString m_RawMessage; //The raw data string from the log
@@ -57,18 +65,81 @@ struct LogItem {
     QString m_Protocol; //The protocol of the connection
 };
 
+/**
+ * @brief LogHandler is responsible for parsing the logs created by both pgld and pglcmd.
+ * 
+ * After parsing the data, it stores them in a LogItem struct for easier access.
+ * This class inherits from QObject in order to provide the necessary signals and slots.
+ */
+
 class LogHandler : public AbstractHandler, public QObject {
 
     Q_OBJECT
 
     public:
-        LogHandler();
+        /**
+         * Default constructor. Does nothing
+         * 
+         * @param parent The parent of this object.
+         */
+        LogHandler( QObject *parent = 0 );
+        /**
+         * Alternative constructor.
+         * 
+         * This constructor not only creates a LogHandler object but it also tries to set the paths for the necessary log files.
+         * @param daemonPath The path to the pgld log file.
+         * @param cmdPath The path to the pglcmd log file.
+         */
+        LogHandler( const QString &daemonPath, const QString &cmdPath, QObject *parent = 0 );
+        /**
+         * Destructor.
+         */
         ~LogHandler();
-        LogItem getItemByIP( const QString &ip, const QString &type ) const;
-        LogItem getItemByName( const QString &name ) const;
+        /**
+         * Searches for a stored LogItem with the specific destination IP.
+         * 
+         * 
+         * @param destIP The destination IP of the specific log item.
+         * @param type The type of the LogItem you want to find.
+         * @return The LogItem with the specific properties or an empty LogItem with LogItemType = PGLG_IGNORE.
+         */
+        LogItem getItemByDestIP( const QString &ip, const LogItemType &type ) const;
+        /**
+        * Searches for a stored LogItem with the specific source IP.
+        *
+        *
+        * @param srcIP The source IP of the specific log item.
+        * @param type The type of the LogItem you want to find.
+        * @return The LogItem with the specific properties or an empty LogItem with LogItemType = PGLG_IGNORE.
+        */
+        LogItem getItemBySrcIP( const QString &srcIP, const LogItemType &type ) const;
+        /**
+         * Searches for a stored LogItem with the specific details.
+         * 
+         * @param details The details string of the LogItem you want to find.
+         * @return The LogItem with the specific properties or an empty LogItem with LogItemType = PGLG_IGNORE.
+         */
+        LogItem getItemByDetails( const QString &details ) const;
+        /**
+        * Sets the path to the log files.
+        *
+        * This function checks if the path is empty and if the file exists( using AbstractHandler::setFilePath() ).
+        * If any of the above is false, the function prints the appropriate error message.
+        * @param daemonPath The path to the pgld log file.
+        * @param cmdPath The path to the pglcmd log file.
+        */
+        void setFilePaths( const QString &daemonPath, const QString &cmdPath );
 
     public slots:
+        /**
+         * Checks if there are any new items in the logs.
+         * In that case, the appropriate signals, newLogItem() and newLogItemHits() are emitted.
+         * This function also handles the FIFO queue in which the last MAX_LOG_SIZE log items are stored.
+         */
         requestNewItem();
+        /**
+         * Empties the FIFO queue in which the LogItems are stored.
+         */
         clear();
 
     signals:
@@ -76,7 +147,7 @@ class LogHandler : public AbstractHandler, public QObject {
         newLogItemHits( const LogItem & );
 
     private:
-        QVector< LogItem > m_LogItemV;
+        QList< LogItem > m_LogItemL;
 
 };
 
