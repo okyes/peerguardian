@@ -29,13 +29,11 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
-// #define IP_STRING_SIZE 16
 #define RECVBUFFSIZE 1500
 #define PAYLOADSIZE 24
 #define ICMP    1
 #define TCP     6
 #define UDP     17
-// #define MIN_INTERVAL 60
 #define MAX_RANGES 16
 
 #define NIPQUAD(addr) \
@@ -50,17 +48,11 @@
 ((unsigned char *)&addr)[1], \
 ((unsigned char *)&addr)[0]
 
-/*#define SRC_ADDR(pkt) (((struct iphdr *)pkt)->saddr)
-#define DST_ADDR(pkt) (((struct iphdr *)pkt)->daddr)*/
 #define SRC_ADDR(payload) (*(in_addr_t *)((payload)+12))
 #define DST_ADDR(payload) (*(in_addr_t *)((payload)+16))
 
 #define likely(x)       __builtin_expect((x),1)
 #define unlikely(x)     __builtin_expect((x),0)
-
-void do_log(int priority, const char *format, ...);
-// typedef void (*log_func_t) (int priority, const char *format, ...);
-int opt_verbose;
 
 #define CHECK_OOM(ptr)                                                  \
     do {                                                                \
@@ -92,3 +84,6 @@ int opt_verbose;
     sprintf(ip_src, "%u.%u.%u.%u",NIPQUAD(ip->saddr));\
     sprintf(ip_dst, "%u.%u.%u.%u",NIPQUAD(ip->daddr));\
 }
+
+void do_log(int priority, const char *format, ...);
+int opt_verbose;

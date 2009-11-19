@@ -45,7 +45,7 @@ endif
 
 ifeq ($(DBUS),yes)
 CFLAGS+=-DHAVE_DBUS `pkg-config dbus-1 --cflags` -fPIC
-LIBS+=-ldl
+#LIBS+=-ldl
 endif
 
 ifeq ($(PROFILE),yes)
@@ -94,7 +94,7 @@ clean:
 
 install:
 	install -D -m 755 src/pgld $(DESTDIR)/$(SBINDIR)/pgld
-	install -D -m 755 src/dl-blocklistpro.pl $(DESTDIR)/$(PLUGINDIR)/dl-blocklistpro.pl
+	#install -D -m 755 src/dl-blocklistpro.pl $(DESTDIR)/$(PLUGINDIR)/dl-blocklistpro.pl
 ifeq ($(DBUS),yes)
 	install -D -m 644 dbus-pgld.conf $(DESTDIR)/$(DBUSCONFDIR)/pgld.conf
 	install -D -m 644 src/dbus.so $(DESTDIR)/$(PLUGINDIR)/dbus.so

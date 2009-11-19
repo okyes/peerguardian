@@ -30,8 +30,7 @@
 #include "parser.h"
 #include "stream.h"
 
-static void strip_crlf(char *str)
-{
+static void strip_crlf(char *str) {
     while (*str) {
         if (*str == '\r' || *str == '\n') {
             *str = 0;
@@ -41,13 +40,11 @@ static void strip_crlf(char *str)
     }
 }
 
-static inline uint32_t assemble_ip(int i[4])
-{
+static inline uint32_t assemble_ip(int i[4]) {
     return (i[0] << 24) + (i[1] << 16) + (i[2] << 8) + i[3];
 }
 
-static int loadlist_ascii(blocklist_t *blocklist, const char *filename, const char *charset)
-{
+static int loadlist_ascii(const char *filename, const char *charset) {
     stream_t s;
     char buf[MAX_LABEL_LENGTH + 1], name[MAX_LABEL_LENGTH];
     int ip1[4], ip2[4], filter_level;
@@ -81,8 +78,7 @@ static int loadlist_ascii(blocklist_t *blocklist, const char *filename, const ch
         if (sscanf(buf, "%199[^:]:%d.%d.%d.%d-%d.%d.%d.%d",
                         name, &ip1[0], &ip1[1], &ip1[2], &ip1[3],
                         &ip2[0], &ip2[1], &ip2[2], &ip2[3]) == 9) {
-            fprintf(stderr, "append p2p: %s\n", buf);
-            blocklist_append(blocklist, assemble_ip(ip1), assemble_ip(ip2), name, ic);
+            blocklist_append(assemble_ip(ip1), assemble_ip(ip2), name, ic);
             ok++;
         }
         // else try the line as a ipfilter.dat line
@@ -92,8 +88,7 @@ static int loadlist_ascii(blocklist_t *blocklist, const char *filename, const ch
                    &filter_level, name) == 10){
             // .DAT spec if 3rd entry on line is <=127, the IP is blocked else >=128 it is allowed.
             if ( filter_level <= 127 ) {
-                fprintf(stderr, "append ipfilter: %s (%s)\n", buf, name);
-                blocklist_append(blocklist, assemble_ip(ip1), assemble_ip(ip2), name, ic);
+                blocklist_append(assemble_ip(ip1), assemble_ip(ip2), name, ic);
                 ok++;
             }
         }
@@ -102,7 +97,7 @@ static int loadlist_ascii(blocklist_t *blocklist, const char *filename, const ch
                    &ip1[0], &ip1[1], &ip1[2], &ip1[3],
                    &ip2[0], &ip2[1], &ip2[2], &ip2[3]) == 8){
             name[0]='\0';
-            blocklist_append(blocklist, assemble_ip(ip1), assemble_ip(ip2), name, ic);
+            blocklist_append(assemble_ip(ip1), assemble_ip(ip2), name, ic);
             ok++;
         }
         // could add more tests for other ASCII formats here.
@@ -114,18 +109,14 @@ static int loadlist_ascii(blocklist_t *blocklist, const char *filename, const ch
     stream_close(&s);
 
     if (ok == 0) goto err;
-
     ret = 0;
-
 err:
     if (ic)
         iconv_close(ic);
-
     return ret;
 }
 
-static int read_cstr(char *buf, int maxsize, FILE *f)
-{
+static int read_cstr(char *buf, int maxsize, FILE *f) {
     int c, n = 0;
     for (;;) {
         c = fgetc(f);
@@ -142,8 +133,7 @@ static int read_cstr(char *buf, int maxsize, FILE *f)
     return n;
 }
 
-static int loadlist_binary(blocklist_t *blocklist, const char *filename)
-{
+static int loadlist_binary(const char *filename) {
     FILE *f;
     uint8_t header[8];
     int version, n, i, nlabels = 0;
@@ -218,7 +208,7 @@ static int loadlist_binary(blocklist_t *blocklist, const char *filename)
                 do_log(LOG_ERR, "P2B: Error reading range end");
                 break;
             }
-            blocklist_append(blocklist, ntohl(ip1), ntohl(ip2), buf, ic);
+            blocklist_append(ntohl(ip1), ntohl(ip2), buf, ic);
         }
         break;
     case 3:
@@ -268,9 +258,9 @@ static int loadlist_binary(blocklist_t *blocklist, const char *filename)
                 goto err;
             }
 #ifndef LOWMEM
-            blocklist_append(blocklist, ntohl(ip1), ntohl(ip2), labels[ntohl(idx)], ic);
+            blocklist_append(ntohl(ip1), ntohl(ip2), labels[ntohl(idx)], ic);
 #else
-            blocklist_append(blocklist, ntohl(ip1), ntohl(ip2), NULL, ic);
+            blocklist_append(ntohl(ip1), ntohl(ip2), NULL, ic);
 #endif
         }
         break;
@@ -293,34 +283,24 @@ err:
     return ret;
 }
 
-int load_list(blocklist_t *blocklist, const char *filename, const char *charset)
-{
+int load_list(const char *filename, const char *charset) {
     int prevcount;
     // Get current count and try to parse the file as ascii
-    prevcount = blocklist->count;
-    if (loadlist_ascii(blocklist, filename, charset ? charset : "ISO8859-1") == 0) {
-        do_log(LOG_INFO, "Ascii: %d entries loaded", blocklist->count - prevcount);
+    prevcount = blocklist.count;
+    if (loadlist_ascii(filename, charset ? charset : "ISO8859-1") == 0) {
+        do_log(LOG_INFO, "Ascii: %d entries loaded", blocklist.count - prevcount);
         return 0;
     }
     // it wasn't ascii so clear the blocklist starting were it was before and get new count
-    blocklist_clear(blocklist, prevcount);
-    prevcount = blocklist->count;
-
-    // Try ipfilter format
-//     if (loadlist_dat(blocklist, filename, charset ? charset : "ISO8859-1") == 0) {
-//         do_log(LOG_INFO, "IPFilter: %d entries loaded", blocklist->count - prevcount);
-//         return 0;
-//     }
-//     // it wasn't ipfilter format...
-//     blocklist_clear(blocklist, prevcount);
-//     prevcount = blocklist->count;
+    blocklist_clear(prevcount);
+    prevcount = blocklist.count;
 
     // Try binary
-    if (loadlist_binary(blocklist, filename) == 0) {
-        do_log(LOG_INFO, "Binary: %d entries loaded", blocklist->count - prevcount);
+    if (loadlist_binary(filename) == 0) {
+        do_log(LOG_INFO, "Binary: %d entries loaded", blocklist.count - prevcount);
         return 0;
     }
     // it wasn't binary either so return -1 since we don't know what it was.
-    blocklist_clear(blocklist, prevcount);
+    blocklist_clear(prevcount);
     return -1;
 }

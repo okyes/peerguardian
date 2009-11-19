@@ -30,8 +30,7 @@
 
 static DBusConnection *dbconn = NULL;
 
-int pgl_dbus_init()
-{
+int pgl_dbus_init() {
     DBusError dberr;
     int req;
 
@@ -62,14 +61,10 @@ int pgl_dbus_init()
         do_log(LOG_WARNING, "pgld is already running. Exiting.");
         return -1;
     }
-
     return 0;
 }
 
-
-
-void pgl_dbus_send(const char *format, va_list ap)
-{
+void pgl_dbus_send(const char *format, va_list ap) {
     dbus_uint32_t serial = 0; // unique number to associate replies with requests
     DBusMessage *dbmsg = NULL;
     DBusMessageIter dbiter;
