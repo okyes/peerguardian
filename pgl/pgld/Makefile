@@ -19,7 +19,7 @@ ZLIB ?= yes
 #PROFILE ?= yes
 
 # Want to use gdb on the target binary?
-#DEBUG ?= yes
+DEBUG ?= yes
 
 prefix ?= /usr/local
 SBINDIR ?= $(prefix)/sbin
