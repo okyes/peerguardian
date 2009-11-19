@@ -4,6 +4,7 @@ set( pgl-gui_SRCS
     filehandler.cpp
     processhandler.cpp
     abstracthandler.cpp
+    loghandler.cpp
     main.cpp
     )
 

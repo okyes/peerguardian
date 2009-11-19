@@ -59,6 +59,13 @@ class AbstractHandler {
          * @return A QString containing the file path or a null QString if no path was set.
          */
         QString getFilePath( const QString &id = DEFAULT_FILE_ID ) const;
+        /**
+         * Checks whether the required files for the specific object to work are set or not.
+         * 
+         * This is a pure virtual function. It needs to be reimplemented.
+         * @return True if the files are set, otherwise false.
+         */
+        virtual bool isWorking() const = 0;
 
     private:
         QHash< QString, QString > m_FilePaths;

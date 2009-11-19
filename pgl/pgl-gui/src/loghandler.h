@@ -31,6 +31,9 @@
 
 #define MAX_LOG_SIZE 100
 
+#define DAEMON_FILE_ID "_DAEMON_"
+#define CMD_FILE_ID "_CMD_"
+
 /**
  * The message type a specific log entry
  */
@@ -72,7 +75,7 @@ struct LogItem {
  * This class inherits from QObject in order to provide the necessary signals and slots.
  */
 
-class LogHandler : public AbstractHandler, public QObject {
+class LogHandler : public QObject, public AbstractHandler {
 
     Q_OBJECT
 
@@ -129,6 +132,12 @@ class LogHandler : public AbstractHandler, public QObject {
         * @param cmdPath The path to the pglcmd log file.
         */
         void setFilePaths( const QString &daemonPath, const QString &cmdPath );
+        /**
+         * Checks whether pgld and pglcmd log paths are set correctly.
+         * 
+         * @return True if the file paths are set, otherwise false.
+         */
+        virtual bool isWorking() const;
 
     public slots:
         /**
@@ -136,15 +145,15 @@ class LogHandler : public AbstractHandler, public QObject {
          * In that case, the appropriate signals, newLogItem() and newLogItemHits() are emitted.
          * This function also handles the FIFO queue in which the last MAX_LOG_SIZE log items are stored.
          */
-        requestNewItem();
+        //void requestNewItem();
         /**
          * Empties the FIFO queue in which the LogItems are stored.
          */
-        clear();
+        //void clear();
 
     signals:
-        newLogItem( const LogItem & );
-        newLogItemHits( const LogItem & );
+        void newLogItem( const LogItem & );
+        void newLogItemHits( const LogItem & );
 
     private:
         QList< LogItem > m_LogItemL;
