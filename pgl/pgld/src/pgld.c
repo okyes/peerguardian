@@ -114,6 +114,11 @@ void do_log(int priority, const char *format, ...) {
 //     }
 // #endif
 
+    if (opt_merge) {
+        vfprintf(stderr, format, ap);
+        fprintf(stderr,"\n");
+    }
+
     va_end(ap);
 }
 

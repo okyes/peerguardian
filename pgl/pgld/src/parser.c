@@ -46,7 +46,7 @@ static inline uint32_t assemble_ip(int i[4]) {
 
 static int loadlist_ascii(const char *filename, const char *charset) {
     stream_t s;
-    char buf[MAX_LABEL_LENGTH + 1], name[MAX_LABEL_LENGTH];
+    char buf[MAX_LINE_LENGTH + 1], name[MAX_LABEL_LENGTH];
     int ip1[4], ip2[4], filter_level;
     int total, ok;
     int ret = -1;
@@ -64,7 +64,7 @@ static int loadlist_ascii(const char *filename, const char *charset) {
     }
 
     total = ok = 0;
-    while (stream_getline(buf, MAX_LABEL_LENGTH, &s)) {
+    while (stream_getline(buf, MAX_LINE_LENGTH, &s)) {
         strip_crlf(buf);
         total++;
         // try 100 lines if none worked ("ok" didn't increment) then it isn't ascii
@@ -75,14 +75,14 @@ static int loadlist_ascii(const char *filename, const char *charset) {
 
         memset(name, 0, sizeof(name));
         // try the line as a p2p line
-        if (sscanf(buf, "%199[^:]:%d.%d.%d.%d-%d.%d.%d.%d",
+        if (sscanf(buf, "%299[^:]:%d.%d.%d.%d-%d.%d.%d.%d",
                         name, &ip1[0], &ip1[1], &ip1[2], &ip1[3],
                         &ip2[0], &ip2[1], &ip2[2], &ip2[3]) == 9) {
             blocklist_append(assemble_ip(ip1), assemble_ip(ip2), name, ic);
             ok++;
         }
         // else try the line as a ipfilter.dat line
-        else if (sscanf(buf, "%d.%d.%d.%d %*[-,] %d.%d.%d.%d , %d , %199s",
+        else if (sscanf(buf, "%d.%d.%d.%d %*[-,] %d.%d.%d.%d , %d , %299s",
                    &ip1[0], &ip1[1], &ip1[2], &ip1[3],
                    &ip2[0], &ip2[1], &ip2[2], &ip2[3],
                    &filter_level, name) == 10){
@@ -191,10 +191,10 @@ static int loadlist_binary(const char *filename) {
     case 1:
     case 2:
         for (;;) {
-            char buf[MAX_LABEL_LENGTH];
+            char buf[MAX_LINE_LENGTH];
             uint32_t ip1, ip2;
-            n = read_cstr(buf, MAX_LABEL_LENGTH, f);
-            if (n < 0 || n > MAX_LABEL_LENGTH) {
+            n = read_cstr(buf, MAX_LINE_LENGTH, f);
+            if (n < 0 || n > MAX_LINE_LENGTH) {
                 do_log(LOG_ERR, "P2B: Error reading label");
                 break;
             }
@@ -226,9 +226,9 @@ static int loadlist_binary(const char *filename) {
             labels[i] = NULL;
 #endif
         for (i = 0; i < nlabels; i++) {
-            char buf[MAX_LABEL_LENGTH];
-            n = read_cstr(buf, MAX_LABEL_LENGTH, f);
-            if (n < 0 || n > MAX_LABEL_LENGTH) {
+            char buf[MAX_LINE_LENGTH];
+            n = read_cstr(buf, MAX_LINE_LENGTH, f);
+            if (n < 0 || n > MAX_LINE_LENGTH) {
                 do_log(LOG_ERR, "P2B3: Error reading label");
                 goto err;
             }

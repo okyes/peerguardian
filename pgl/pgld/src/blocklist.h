@@ -41,7 +41,9 @@ static inline int iconv_close(iconv_t cd) {
 }
 #endif
 
-#define MAX_LABEL_LENGTH 255
+#define MAX_LINE_LENGTH 350
+#define MAX_LABEL_LENGTH 300
+#define MAX_INMEMLABEL_LENGTH 64
 
 typedef struct {
     uint32_t ip_min, ip_max;

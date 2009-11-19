@@ -125,6 +125,11 @@ void blocklist_trim () {
     }
 
     for (i = 0; i < blocklist.count; i++) {
+        //truncate name to MAX_LABEL_LENGTH
+        if ( strlen(blocklist.entries[i].name) > MAX_INMEMLABEL_LENGTH) {
+            blocklist.entries[i].name=realloc(blocklist.entries[i].name, MAX_INMEMLABEL_LENGTH);
+            blocklist.entries[i].name[MAX_INMEMLABEL_LENGTH]='\0';
+        }
         ip_max = blocklist.entries[i].ip_max;
         //look at the next entries to see if they can merge or are the same
         for (j = i + 1; j < blocklist.count; j++) {
@@ -140,20 +145,27 @@ void blocklist_trim () {
             // set i max to new max
             blocklist.entries[i].ip_max = ip_max;
             // go through merged elements and blank them
-            for (k = i + 1; k < j; k++) { // i:0 k:1 j:6
-                blocklist.entries[k].ip_min=4294967295UL; //set to 255.255.255.255 so sort push this element to bottom
-                blocklist.entries[k].ip_max=4294967295UL; //set to 255.255.255.255 so sort push this element to bottom
-                blocklist.entries[k].hits=0;
+            for (k = i + 1; k < j; k++) {
 #ifndef LOWMEM
+//                 if ( (strlen(blocklist.entries[i].name) + strlen(blocklist.entries[k].name) +4) < MAX_LABEL_LENGTH - 1) {
                 // merge names together - needs work so commented for now...
-//                 blocklist->entries[i].name = realloc(blocklist->entries[i].name, strlen(blocklist->entries[i].name) + strlen(blocklist->entries[k].name) +3);
-//                 strcat(blocklist->entries[i].name, ", ");
-//                 strcat(blocklist->entries[i].name, blocklist->entries[k].name);
+                    blocklist.entries[i].name = realloc(blocklist.entries[i].name, strlen(blocklist.entries[i].name) + strlen(blocklist.entries[k].name) +4);
+                    strcat(blocklist.entries[i].name, " | ");
+                    strcat(blocklist.entries[i].name, blocklist.entries[k].name);
+//                 }
                 free(blocklist.entries[k].name);
                 blocklist.entries[k].name = '\0';
 #endif
+                blocklist.entries[k].ip_min=4294967295UL; //set to 255.255.255.255 so sort push this element to bottom
+                blocklist.entries[k].ip_max=4294967295UL; //set to 255.255.255.255 so sort push this element to bottom
+                blocklist.entries[k].hits=0;
                 merged++;
             } // end for k
+            //truncate merged name to MAX_INMEMLABEL_LENGTH
+            if ( strlen(blocklist.entries[i].name) > MAX_INMEMLABEL_LENGTH) {
+                blocklist.entries[i].name=realloc(blocklist.entries[i].name, MAX_INMEMLABEL_LENGTH);
+                blocklist.entries[i].name[MAX_INMEMLABEL_LENGTH]='\0';
+            }
             i = j - 1;
         } //end if j
     } //end for i
