@@ -35,16 +35,10 @@
 #include "processhandler.h"
 
 
-
-
 int main() {
 
     qInstallMsgHandler( customOutput );
-    //QRegExp rx( "^(.*)\\s(\\d\\d?:\\d\\d?:\\d\\d?)\\s(.*)" );
-    //rx.indexIn( "Nov 16 07:10:05 IN: 61.160.212.242:23 96.3.141.107:8085 TCP || CHINANETpossible MediaDefender" );
-    
-    //qDebug() << rx.capturedTexts();
 
     return 0;
-
+    
 }

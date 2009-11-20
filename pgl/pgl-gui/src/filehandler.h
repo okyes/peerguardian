@@ -34,6 +34,8 @@
  * 
  */
 
+//TODO: Handle comments!
+
 class FileHandler : public QObject {
 
 
@@ -76,15 +78,22 @@ class FileHandler : public QObject {
         /**
         * Gives the loaded file data to the caller.
         *
-        * @return A QString with the data.
+        * @return A QString with the raw file data.
         */
-        QString getDataS() const;
+        QString getRawDataS() const;
         /**
         * Gives the loaded file data to the caller.
         *
-        * @return A QVector of QStrings with the data.
+        * @return A QVector of QStrings with the raw file data.
         */
-        QVector< QString > getDataV() const;
+        QVector< QString > getRawDataV() const;
+        /**
+         * Gives the loaded file data to the caller, without the comments.
+         * 
+         * @param commentSymbol The symbol indicating the start of a comment.
+         * @return A QVector of QStrings with the processed file data.
+         */
+        QVector< QString > getDataV( const QString &commentSymbol = "#" ) const;
         /**
          * Set the file data to be the contets of the QVector< QString > given.
          * 
@@ -139,7 +148,6 @@ class FileHandler : public QObject {
         /**
         * Closes the data file being used, discarding its data.
         * 
-        * 
         */
         void discard();
         /**
@@ -157,6 +165,9 @@ class FileHandler : public QObject {
         void requestData();
 
     signals:
+        /**
+         * This signals sends the raw file data to the caller.
+         */
         void fileDataV( const QVector< QString > &newD );
 
 

@@ -156,6 +156,8 @@ class LogHandler : public QObject, public AbstractHandler {
         void newLogItemHits( const LogItem & );
 
     private:
+        LogItem parseDaemonEntry( const QString &entry ) const;
+        LogItem parseCmdEntry( const QString &entry ) const;
         QList< LogItem > m_LogItemL;
 
 };

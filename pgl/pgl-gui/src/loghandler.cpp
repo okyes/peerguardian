@@ -57,4 +57,14 @@ bool LogHandler::isWorking() const {
 
 }
 
+LogItem LogHandler::parseDaemonEntry( const QString &entry ) const {
+
+    LogItem newItem;
+    newItem.m_Type = PGLG_INGORE;
+
+    //Separate the time and date from the rest of the item
+   // QString 
+
+}
+
 #include "loghandler.moc"

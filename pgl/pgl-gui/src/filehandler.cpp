@@ -68,13 +68,33 @@ bool FileHandler::hasData() const {
 
 }
 
-QVector< QString > FileHandler::getDataV() const {
+QVector< QString > FileHandler::getRawDataV() const {
 
     return m_FileContents;
 
 }
 
-QString FileHandler::getDataS() const {
+QVector< QString > FileHandler::getDataV( const QString &commentSymbol ) const {
+
+    QVector< QString > result;
+
+    for ( QVector< QString >::const_iterator s = m_FileContents.begin(); s != m_FileContents.end(); s++ ) {
+        int place = s->indexOf( commentSymbol );
+        QString line = *s;
+        if ( place == 0 ) { //If the whole line is a comment
+            line = ""; //FIXME: Maybe do not push it to the result at all?
+        }
+        else if ( place != -1 ) { //If the line contains a comment, remove that part
+            line.remove( place, line.length() );
+        }
+        result.push_back( line );
+    }
+
+    return result;
+
+}
+
+QString FileHandler::getRawDataS() const {
 
     QString data;
 
