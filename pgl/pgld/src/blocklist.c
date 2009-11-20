@@ -41,7 +41,7 @@ void blocklist_append(uint32_t ip_min, uint32_t ip_max, const char *name, iconv_
     // lowered because you could be possibly using (X-1)*20 bytes extra mem
     // where X is the blocklist->size += X; below
     if (blocklist.size == blocklist.count) {
-        blocklist.size += 1024;
+        blocklist.size += ALLOC_CHUNK;
         blocklist.entries = realloc(blocklist.entries, sizeof(block_entry_t) * blocklist.size);
         CHECK_OOM(blocklist.entries);
     }
@@ -116,7 +116,7 @@ void blocklist_sort() {
     qsort(blocklist.entries, blocklist.count, sizeof(block_entry_t), block_entry_compare);
 }
 
-void blocklist_trim () {
+void blocklist_merge () {
     int i, j, k, merged = 0;
     uint32_t ip_max=0;
 
@@ -125,7 +125,7 @@ void blocklist_trim () {
     }
 
     for (i = 0; i < blocklist.count; i++) {
-        //truncate name to MAX_LABEL_LENGTH
+        //truncate name to MAX_INMEMLABEL_LENGTH
         if ( strlen(blocklist.entries[i].name) > MAX_INMEMLABEL_LENGTH) {
             blocklist.entries[i].name=realloc(blocklist.entries[i].name, MAX_INMEMLABEL_LENGTH);
             blocklist.entries[i].name[MAX_INMEMLABEL_LENGTH]='\0';
@@ -147,12 +147,11 @@ void blocklist_trim () {
             // go through merged elements and blank them
             for (k = i + 1; k < j; k++) {
 #ifndef LOWMEM
-//                 if ( (strlen(blocklist.entries[i].name) + strlen(blocklist.entries[k].name) +4) < MAX_LABEL_LENGTH - 1) {
-                // merge names together - needs work so commented for now...
+                if ( strlen(blocklist.entries[i].name)  < MAX_INMEMLABEL_LENGTH - 1) {
                     blocklist.entries[i].name = realloc(blocklist.entries[i].name, strlen(blocklist.entries[i].name) + strlen(blocklist.entries[k].name) +4);
                     strcat(blocklist.entries[i].name, " | ");
                     strcat(blocklist.entries[i].name, blocklist.entries[k].name);
-//                 }
+                }
                 free(blocklist.entries[k].name);
                 blocklist.entries[k].name = '\0';
 #endif
@@ -170,11 +169,11 @@ void blocklist_trim () {
         } //end if j
     } //end for i
     if (merged) {
-        do_log(LOG_INFO, "Merged %d of %d entries. Resorting and try new merge.", merged, blocklist.count);
+        do_log(LOG_INFO, "Merged %d of %d entries. Re-sorting and try new merge.", merged, blocklist.count);
         blocklist_sort();
         blocklist.count -= merged;
         blocklist.entries = realloc(blocklist.entries, blocklist.count * sizeof(block_entry_t));
-        blocklist_trim();
+        blocklist_merge();
     } else {
         do_log(LOG_INFO, "Nothing left to merge. List contains %d entries.", blocklist.count);
     }

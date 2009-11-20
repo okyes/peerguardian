@@ -231,7 +231,7 @@ static int load_all_lists() {
         }
     }
     blocklist_sort();
-    blocklist_trim();
+    blocklist_merge();
     do_log(LOG_INFO, "Blocklist has %d entries", blocklist.count);
     return ret;
 }

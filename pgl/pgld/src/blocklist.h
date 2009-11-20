@@ -44,6 +44,7 @@ static inline int iconv_close(iconv_t cd) {
 #define MAX_LINE_LENGTH 350
 #define MAX_LABEL_LENGTH 300
 #define MAX_INMEMLABEL_LENGTH 64
+#define ALLOC_CHUNK 16384
 
 typedef struct {
     uint32_t ip_min, ip_max;
@@ -62,7 +63,7 @@ void blocklist_init();
 void blocklist_append(uint32_t ip_min, uint32_t ip_max, const char *name, iconv_t ic);
 void blocklist_clear(int start);
 void blocklist_sort();
-void blocklist_trim();
+void blocklist_merge();
 void blocklist_stats(int clearhits);
 block_entry_t * blocklist_find(uint32_t ip);
 void blocklist_dump();
