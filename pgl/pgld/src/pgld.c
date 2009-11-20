@@ -63,6 +63,7 @@
 // static blocklist_t blocklist;
 
 static int opt_merge = 0;
+static int opt_debug = 0;
 static int queue_num = 0;
 static int use_syslog = 0;
 static uint32_t accept_mark = 0, reject_mark = 0;
@@ -494,7 +495,9 @@ static void nfqueue_loop () {
         do_log(LOG_ERR, "ERROR binding to queue!");
         exit(1);
     }
-    daemonize();
+    if (!opt_debug) {
+        daemonize();
+    }
 
     if (install_sighandler() != 0) {
         do_log(LOG_ERR, "ERROR installing signal handlers");
@@ -559,7 +562,7 @@ void add_blocklist(const char *name, const char *charset) {
 int main(int argc, char *argv[]) {
     int opt, i;
 
-    while ((opt = getopt(argc, argv, "q:a:r:dp:f:sl:m"
+    while ((opt = getopt(argc, argv, "q:a:r:dp:f:sl:mD"
 #ifndef LOWMEM
                               "c:"
 #endif
@@ -604,6 +607,9 @@ int main(int argc, char *argv[]) {
             use_dbus = 1;
             break;
 #endif
+        case 'D':
+            opt_debug = 1;
+            break;
         }
     }
 
