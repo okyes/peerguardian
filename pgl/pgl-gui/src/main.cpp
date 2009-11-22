@@ -21,24 +21,19 @@
 
 #include <QObject>
 
-#include <QVector>
-#include <QString>
-
-#include <QThread>
-
-#include <QRegExp>
-
 #include "debug.h"
 
 #include "abstracthandler.h"
 #include "filehandler.h"
 #include "processhandler.h"
-
+#include "loghandler.h"
 
 int main() {
 
     qInstallMsgHandler( customOutput );
 
+
+
     return 0;
-    
+
 }

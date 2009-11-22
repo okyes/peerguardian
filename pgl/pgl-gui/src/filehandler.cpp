@@ -54,6 +54,12 @@ QString FileHandler::getFilename() const {
 
 }
 
+int FileHandler::getSize() const {
+
+    return m_FileContents.size();
+
+}
+
 bool FileHandler::hasData() const {
 
     if ( ! m_FileContents.isEmpty() ) {
@@ -74,20 +80,32 @@ QVector< QString > FileHandler::getRawDataV() const {
 
 }
 
+QString FileHandler::getLine( const int &lineNumber, const QString &commentSymbol ) const {
+
+    if ( lineNumber > this->getSize() || lineNumber < 0 ) {
+        WARN_MSG << "Contents of line" << lineNumber << "requested but file contains" << getSize() << "lines!";
+        return QString();
+    }
+    
+    QString ln = m_FileContents[ lineNumber ];
+    int place = ln.indexOf( commentSymbol );
+    if ( place == 0 ) { //If the whole line is a comment
+        return QString("");
+    }
+    else if ( place != -1 ) { //If the line contains a comment, remove that part
+        ln.remove( place, ln.length() );
+    }
+
+    return ln.trimmed();
+
+}
+
 QVector< QString > FileHandler::getDataV( const QString &commentSymbol ) const {
 
     QVector< QString > result;
 
-    for ( QVector< QString >::const_iterator s = m_FileContents.begin(); s != m_FileContents.end(); s++ ) {
-        int place = s->indexOf( commentSymbol );
-        QString line = *s;
-        if ( place == 0 ) { //If the whole line is a comment
-            line = ""; //FIXME: Maybe do not push it to the result at all?
-        }
-        else if ( place != -1 ) { //If the line contains a comment, remove that part
-            line.remove( place, line.length() );
-        }
-        result.push_back( line );
+    for ( int i = 1; i < this->getSize(); i++ ) {
+        result.push_back( this->getLine( i, commentSymbol ) ); //FIXME: Maybe don't push empty lines at all?
     }
 
     return result;

@@ -70,6 +70,12 @@ class FileHandler : public QObject {
          */
         QString getFilename() const;
         /**
+         * Gives the size of the file in lines.
+         * 
+         * @return The number of lines in the file.
+         */
+        int getSize() const;
+        /**
          * Checks if there are any data currently loaded.
          * 
          * @return True if the file contents are not empty.
@@ -94,6 +100,14 @@ class FileHandler : public QObject {
          * @return A QVector of QStrings with the processed file data.
          */
         QVector< QString > getDataV( const QString &commentSymbol = "#" ) const;
+        /**
+         * Gives one line of the file to the caller, without the comments.
+         * 
+         * @param lineN The number of the line.
+         * @param commentSymbol The symbol indicating the start of a comment.
+         * @return A QString with the comments of the specific line, otherwise a null QString.
+         */
+         QString getLine( const int &lineNumber, const QString &commentSymbol = "#" ) const;
         /**
          * Set the file data to be the contets of the QVector< QString > given.
          * 

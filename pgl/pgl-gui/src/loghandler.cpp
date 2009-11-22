@@ -19,15 +19,23 @@
 *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
 ***************************************************************************/
 
+#include <QRegExp>
+
+#include "debug.h"
+
 #include "loghandler.h"
 
-LogHandler::LogHandler( QObject *parent ) :
-    QObject( parent ) {
+#include <QStringList>
+
+LogHandler::LogHandler( const QString &regexPath, QObject *parent ) :
+    QObject( parent ),
+    m_RegExFile( regexPath ) {
 
 }
 
-LogHandler::LogHandler( const QString &daemonPath, const QString &cmdPath, QObject *parent ) :
-    QObject( parent ) {
+LogHandler::LogHandler( const QString &daemonPath, const QString &cmdPath, const QString &regexPath, QObject *parent ) :
+    QObject( parent ),
+    m_RegExFile( regexPath ) {
 
     setFilePaths( daemonPath, cmdPath );
 
@@ -60,11 +68,40 @@ bool LogHandler::isWorking() const {
 LogItem LogHandler::parseDaemonEntry( const QString &entry ) const {
 
     LogItem newItem;
+    newItem.m_RawMessage = entry;
     newItem.m_Type = PGLG_INGORE;
 
     //Separate the time and date from the rest of the item
-   // QString 
+    if ( !m_RegExFile.hasData() ) {
+        WARN_MSG << "Regular expressions file seems to be empty. Cannot parse log!";
+        return newItem;
+    }
 
+    QRegExp td( m_RegExFile.getLine( REGEX_FILE_DAEMON_TIMEDATE ) );
+    QRegExp hitMsg( m_RegExFile.getLine( REGEX_FILE_DAEMON_HIT ) );
+    QRegExp systemMsg( m_RegExFile.getLine( REGEX_FILE_DAEMON_SYSTEM ) );
+
+    //Separate time and date
+    td.indexIn( entry );
+    newItem.m_Date = td.cap(1);
+    newItem.m_Time = td.cap(2);
+    QString msg = td.cap(3);
+    if ( msg.isEmpty() ) {
+        WARN_MSG << "Failed to parse log entry:" << entry;
+        return newItem;
+    }
+    //Check if it's a general system message
+    systemMsg.indexIn( msg );
+    if ( !systemMsg.cap(1).isEmpty() ) {
+        newItem.m_Type = PGLD_SYSTEM;
+        return newItem;
+    }
+
+    qDebug() << msg;
+
+    //If we got here, it's a hit entry
+    hitMsg.indexIn( msg );
+    
 }
 
 #include "loghandler.moc"

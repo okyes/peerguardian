@@ -27,12 +27,30 @@
 #include <QString>
 #include <QList>
 
+#include <QSettings>
+
+#include "filehandler.h"
 #include "abstracthandler.h"
 
 #define MAX_LOG_SIZE 100
 
+/**
+ * The IDs of the file paths which are required to find the file stored in AbstractHandler's QHash object.
+ */
+
 #define DAEMON_FILE_ID "_DAEMON_"
 #define CMD_FILE_ID "_CMD_"
+#define REGEX_FILE_ID "_REGEX_"
+
+/**
+ * The file containing the regular expressions(regex.txt) has a specific format.
+ * In each line there is a regular expression which decodes a specific part of a log entry.
+ * The definitions below are required to show where each regular expression is located in the file.
+ */
+
+#define REGEX_FILE_DAEMON_TIMEDATE 0
+#define REGEX_FILE_DAEMON_HIT 1
+#define REGEX_FILE_DAEMON_SYSTEM 2
 
 /**
  * The message type a specific log entry
@@ -82,18 +100,21 @@ class LogHandler : public QObject, public AbstractHandler {
     public:
         /**
          * Default constructor. Does nothing
-         * 
+         *
+         * @param regexPath The path to the regural expressions file[part of pgl-gui].
          * @param parent The parent of this object.
          */
-        LogHandler( QObject *parent = 0 );
+        LogHandler( const QString &regexPath, QObject *parent = 0 );
         /**
          * Alternative constructor.
          * 
-         * This constructor not only creates a LogHandler object but it also tries to set the paths for the necessary log files.
+         * This constructor creates a LogHandler object and tries to set the paths for the necessary log files.
          * @param daemonPath The path to the pgld log file.
          * @param cmdPath The path to the pglcmd log file.
+         * @param regexPath The path to the regural expressions file[part of pgl-gui].
+         * @param parent The parent of this object.
          */
-        LogHandler( const QString &daemonPath, const QString &cmdPath, QObject *parent = 0 );
+        LogHandler( const QString &daemonPath, const QString &cmdPath, const QString &regexPath, QObject *parent = 0 );
         /**
          * Destructor.
          */
@@ -156,8 +177,10 @@ class LogHandler : public QObject, public AbstractHandler {
         void newLogItemHits( const LogItem & );
 
     private:
-        LogItem parseDaemonEntry( const QString &entry ) const;
         LogItem parseCmdEntry( const QString &entry ) const;
+        LogItem parseDaemonEntry( const QString &entry ) const;
+
+        FileHandler m_RegExFile;
         QList< LogItem > m_LogItemL;
 
 };
