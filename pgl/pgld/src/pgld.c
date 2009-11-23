@@ -53,15 +53,6 @@
 #include "parser.h"
 #include "pgld.h"
 
-// typedef enum {
-//     CMD_NONE,
-//     CMD_DUMPSTATS,
-//     CMD_RELOAD,
-//     CMD_QUIT,
-// } command_t;
-
-// static blocklist_t blocklist;
-
 static int opt_merge = 0;
 static int opt_debug = 0;
 static int queue_num = 0;
