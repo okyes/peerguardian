@@ -128,7 +128,7 @@ void blocklist_merge () {
         //truncate name to MAX_INMEMLABEL_LENGTH
         if ( strlen(blocklist.entries[i].name) > MAX_INMEMLABEL_LENGTH) {
             blocklist.entries[i].name=realloc(blocklist.entries[i].name, MAX_INMEMLABEL_LENGTH);
-            blocklist.entries[i].name[MAX_INMEMLABEL_LENGTH]='\0';
+            blocklist.entries[i].name[MAX_INMEMLABEL_LENGTH-1]='\0';
         }
         ip_max = blocklist.entries[i].ip_max;
         //look at the next entries to see if they can merge or are the same
@@ -147,7 +147,7 @@ void blocklist_merge () {
             // go through merged elements and blank them
             for (k = i + 1; k < j; k++) {
 #ifndef LOWMEM
-                if ( strlen(blocklist.entries[i].name)  < MAX_INMEMLABEL_LENGTH - 1) {
+                if ( strlen(blocklist.entries[i].name)  < MAX_INMEMLABEL_LENGTH) {
                     blocklist.entries[i].name = realloc(blocklist.entries[i].name, strlen(blocklist.entries[i].name) + strlen(blocklist.entries[k].name) +4);
                     strcat(blocklist.entries[i].name, " | ");
                     strcat(blocklist.entries[i].name, blocklist.entries[k].name);
@@ -163,7 +163,7 @@ void blocklist_merge () {
             //truncate merged name to MAX_INMEMLABEL_LENGTH
             if ( strlen(blocklist.entries[i].name) > MAX_INMEMLABEL_LENGTH) {
                 blocklist.entries[i].name=realloc(blocklist.entries[i].name, MAX_INMEMLABEL_LENGTH);
-                blocklist.entries[i].name[MAX_INMEMLABEL_LENGTH]='\0';
+                blocklist.entries[i].name[MAX_INMEMLABEL_LENGTH-1]='\0';
             }
             i = j - 1;
         } //end if j
