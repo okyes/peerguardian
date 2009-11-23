@@ -89,14 +89,16 @@ struct nfq_q_handle *nfqueue_qh = 0;
 
 void do_log(int priority, const char *format, ...)
 {
+    if (use_syslog) {
     va_list ap;
     va_start(ap, format);
-
-    if (use_syslog) {
     vsyslog(LOG_MAKEPRI(LOG_DAEMON, priority), format, ap);
+    va_end(ap);
     }
 
     if (logfile) {
+        va_list ap;
+        va_start(ap, format);
         char timestr[17];
         time_t tv;
         struct tm * timeinfo;
@@ -108,14 +110,17 @@ void do_log(int priority, const char *format, ...)
         vfprintf(logfile, format, ap);
         fprintf(logfile, "\n");
         fflush(logfile);
+        va_end(ap);
     }
 // #ifdef HAVE_DBUS
 //     if (use_dbus) {
+//         va_list ap;
+//         va_start(ap, format);
 //         pgl_dbus_send(format, ap);
+//         va_end(ap);
 //     }
 // #endif
 
-    va_end(ap);
 }
 
 
