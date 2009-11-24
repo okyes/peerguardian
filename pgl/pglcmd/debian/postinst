@@ -129,16 +129,6 @@ LISTS_POSSIBLE="
     TBG_Hijacked
     TBG_Bogon"
 
-# Rename lists as bluetack did it:
-if grep -Eq "^[[:space:]]*(notimestamp)?[[:space:]]*(http://)?www.bluetack.co.uk/config/templist" $BLOCKLISTS_LIST ; then
-    echo -n "Renaming list templist to badpeers as bluetack.co.uk did it..."
-    sed -i -r "s|www.bluetack.co.uk/config/templist|www.bluetack.co.uk/config/badpeers|" $BLOCKLISTS_LIST
-    echo "done."
-fi
-
-
-
-
 ###############################################################################
 
 # Store values from configuration files into debconf db.
