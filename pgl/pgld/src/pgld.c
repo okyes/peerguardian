@@ -53,20 +53,11 @@
 #include "parser.h"
 #include "pgld.h"
 
-// typedef enum {
-//     CMD_NONE,
-//     CMD_DUMPSTATS,
-//     CMD_RELOAD,
-//     CMD_QUIT,
-// } command_t;
-
-static blocklist_t blocklist;
-
-int opt_verbose = 0;
+static int opt_merge = 0;
 static int queue_num = 0;
 static int use_syslog = 0;
 static uint32_t accept_mark = 0, reject_mark = 0;
-static char *pidfile_name = "/var/run/pgld.pid";
+static char *pidfile_name = NULL;
 static FILE *logfile;
 static char *logfile_name=NULL;
 
@@ -90,10 +81,10 @@ struct nfq_q_handle *nfqueue_qh = 0;
 void do_log(int priority, const char *format, ...)
 {
     if (use_syslog) {
-    va_list ap;
-    va_start(ap, format);
-    vsyslog(LOG_MAKEPRI(LOG_DAEMON, priority), format, ap);
-    va_end(ap);
+        va_list ap;
+        va_start(ap, format);
+        vsyslog(LOG_MAKEPRI(LOG_DAEMON, priority), format, ap);
+        va_end(ap);
     }
 
     if (logfile) {
@@ -121,8 +112,14 @@ void do_log(int priority, const char *format, ...)
 //     }
 // #endif
 
+    if (opt_merge) {
+        va_list ap;
+        va_start(ap, format);
+        vfprintf(stderr, format, ap);
+        fprintf(stderr,"\n");
+        va_end(ap);
+    }
 }
-
 
 /*#ifdef HAVE_DBUS
 static void *dbus_lh = NULL;
@@ -141,8 +138,7 @@ static void *dbus_lh = NULL;
     } while (0)
 
 static int
-open_dbus()
-{
+open_dbus() {
     char *err;
 
     dbus_lh = dlopen(PLUGINDIR "/dbus.so", RTLD_NOW);
@@ -164,8 +160,7 @@ out_err:
 }
 
 static int
-close_dbus()
-{
+close_dbus() {
     int ret = 0;
 
     if (dbus_lh) {
@@ -178,18 +173,17 @@ close_dbus()
 
 #endif*/
 
-static FILE *create_pidfile(const char *name)
-{
+static FILE *create_pidfile(const char *name) {
     FILE *f;
 
     f = fopen(name, "w");
-    if (f == NULL){
+    if (f == NULL) {
         fprintf(stderr, "Unable to create PID file %s: %s\n", name, strerror(errno));
         return NULL;
     }
 
     /* this works even if pidfile is stale after daemon is sigkilled */
-    if (lockf(fileno(f), F_TLOCK, 0) == -1){
+    if (lockf(fileno(f), F_TLOCK, 0) == -1) {
         fprintf(stderr, "Unable to set exclusive lock for pidfile %s: %s\n", name, strerror(errno));
         return NULL;
     }
@@ -224,25 +218,28 @@ static void daemonize() {
 }
 
 
-static int load_all_lists()
-{
+static int load_all_lists() {
     int i, ret = 0;
 
-    blocklist_clear(&blocklist, 0);
-    for (i = 0; i < blockfile_count; i++) {
-        if (load_list(&blocklist, blocklist_filenames[i], blocklist_charsets[i])) {
-            do_log(LOG_ERR, "Error loading %s", blocklist_filenames[i]);
-            ret = -1;
+    blocklist_clear(0);
+    if (blockfile_count) {
+        for (i = 0; i < blockfile_count; i++) {
+            if (load_list(blocklist_filenames[i], blocklist_charsets[i])) {
+                do_log(LOG_ERR, "Error loading %s", blocklist_filenames[i]);
+                ret = -1;
+            }
         }
+    } else {
+        //assume stdin for list
+        load_list(NULL,NULL);
     }
-    blocklist_sort(&blocklist);
-    blocklist_trim(&blocklist);
+    blocklist_sort();
+    blocklist_merge();
     do_log(LOG_INFO, "Blocklist has %d entries", blocklist.count);
     return ret;
 }
 
-static void nfqueue_unbind()
-{
+static void nfqueue_unbind() {
     if (!nfqueue_h)
         return;
 
@@ -254,23 +251,21 @@ static void nfqueue_unbind()
     nfq_close(nfqueue_h);
 }
 
-static void sighandler(int sig, siginfo_t *info, void *context)
-{
+static void sighandler(int sig, siginfo_t *info, void *context) {
     switch (sig) {
     case SIGUSR1:
         // dump and reset stats
-        blocklist_stats(&blocklist, 1);
+        blocklist_stats(1);
         break;
     case SIGUSR2:
         // just dump stats
-        blocklist_stats(&blocklist, 0);
+        blocklist_stats(0);
         break;
     case SIGHUP:
-//         blocklist_stats(&blocklist, 1);
         if (logfile_name != NULL) {
             do_log(LOG_INFO, "Closing logfile: %s", logfile_name);
             fclose(logfile);
-//             logfile=NULL;
+            logfile=NULL;
             if ((logfile=fopen(logfile_name,"a")) == NULL) {
                 do_log(LOG_ERR, "Unable to open logfile: %s", logfile_name);
                 perror(" ");
@@ -279,20 +274,21 @@ static void sighandler(int sig, siginfo_t *info, void *context)
                 do_log(LOG_INFO, "Reopened logfile: %s", logfile_name);
             }
         }
-        if (load_all_lists() < 0)
+        if (load_all_lists() < 0) {
             do_log(LOG_ERR, "Cannot load the blocklist");
+        }
         do_log(LOG_INFO, "Blocklist reloaded");
         break;
     case SIGTERM:
     case SIGINT:
         nfqueue_unbind();
-        blocklist_stats(&blocklist, 0);
+        blocklist_stats(0);
 
 // #ifdef HAVE_DBUS
 //         if (use_dbus)
 //             close_dbus();
 // #endif
-        blocklist_clear(&blocklist, 0);
+        blocklist_clear(0);
         free(blocklist_filenames);
         free(blocklist_charsets);
         closelog();
@@ -311,8 +307,7 @@ static void sighandler(int sig, siginfo_t *info, void *context)
     }
 }
 
-static int install_sighandler()
-{
+static int install_sighandler() {
     struct sigaction sa;
 
     memset(&sa, 0, sizeof(sa));
@@ -346,22 +341,21 @@ static int install_sighandler()
     return 0;
 }
 
-static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *nfa, void *data)
-{
+static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *nfa, void *data) {
     int id = 0, status = 0;
     struct nfqnl_msg_packet_hdr *ph;
-    block_entry_t *src, *dst;
+    block_entry_t *found_range;
     //uint32_t ip_src, ip_dst;
     struct iphdr *ip;
     struct udphdr *udp;
     struct tcphdr *tcp;
     char *payload, proto[5], ip_src[23], ip_dst[23];
-#ifndef LOWMEM
-    block_sub_entry_t *sranges[MAX_RANGES + 1], *dranges[MAX_RANGES + 1];
-#else
+// #ifndef LOWMEM
+//     block_sub_entry_t *sranges[MAX_RANGES + 1], *dranges[MAX_RANGES + 1];
+// #else
     /* dummy variables */
-    static void *sranges = 0, *dranges = 0;
-#endif
+//     static void *sranges = 0, *dranges = 0;
+// #endif
 
     ph = nfq_get_msg_packet_hdr(nfa);
     if (ph) {
@@ -370,15 +364,15 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
         ip = (struct iphdr*) payload;
         switch (ph->hook) {
         case NF_IP_LOCAL_IN:
-            src = blocklist_find(&blocklist, ntohl(ip->saddr), sranges, MAX_RANGES);
-            if (src) {
+            found_range = blocklist_find(ntohl(ip->saddr));
+            if (found_range) {
                 status = nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
-                src->hits++;
-                    GETIPINFO
+                found_range->hits++;
+                GETIPINFO
 #ifndef LOWMEM
-                    do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s || %s",ip_src,ip_dst,proto,sranges[0]->name);
+                do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s || %s",ip_src,ip_dst,proto,found_range->name);
 #else
-                    do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s",ip_src,ip_dst,proto);
+                do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s",ip_src,ip_dst,proto);
 #endif
             } else if (unlikely(accept_mark)) {
                 // we set the user-defined accept_mark and set NF_REPEAT verdict
@@ -391,8 +385,8 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
             break;
         case NF_IP_LOCAL_OUT:
 
-            dst = blocklist_find(&blocklist, ntohl(ip->daddr), dranges, MAX_RANGES);
-            if (dst) {
+            found_range = blocklist_find(ntohl(ip->daddr));
+            if (found_range) {
                 if (likely(reject_mark)) {
                     // we set the user-defined reject_mark and set NF_REPEAT verdict
                     // it's up to other iptables rules to decide what to do with this marked packet
@@ -400,12 +394,12 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                 } else {
                     status = nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
                 }
-                dst->hits++;
-                        GETIPINFO
+                found_range->hits++;
+                GETIPINFO
 #ifndef LOWMEM
-                        do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4s || %s",ip_src,ip_dst,proto,dranges[0]->name);
+                do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4s || %s",ip_src,ip_dst,proto,found_range->name);
 #else
-                        do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4su", ip_src,ip_dst,proto);
+                do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4su", ip_src,ip_dst,proto);
 #endif
             } else if (unlikely(accept_mark)) {
                 // we set the user-defined accept_mark and set NF_REPEAT verdict
@@ -417,9 +411,11 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
             }
             break;
         case NF_IP_FORWARD:
-            src = blocklist_find(&blocklist, ntohl(ip->saddr), sranges, MAX_RANGES);
-            dst = blocklist_find(&blocklist, ntohl(ip->daddr), dranges, MAX_RANGES);
-            if (dst || src) {
+            found_range = blocklist_find(ntohl(ip->saddr));
+            if (!found_range) {
+                found_range = blocklist_find(ntohl(ip->daddr));
+            }
+            if (found_range) {
                 if (likely(reject_mark)) {
                     // we set the user-defined reject_mark and set NF_REPEAT verdict
                     // it's up to other iptables rules to decide what to do with this marked packet
@@ -427,17 +423,13 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                 } else {
                     status = nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
                 }
-                if (src) {
-                    src->hits++;
-                }
-                if (dst) {
-                    dst->hits++;
-                }
-                        GETIPINFO
+
+                found_range->hits++;
+                GETIPINFO
 #ifndef LOWMEM
-                        do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s || %s",ip_src,ip_dst,proto,src ? sranges[0]->name : dranges[0]->name);
+                do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s || %s",ip_src,ip_dst,proto,found_range->name);
 #else
-                        do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s",ip_src,ip_dst,proto);
+                do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s",ip_src,ip_dst,proto);
 #endif
             } else if ( unlikely(accept_mark) ) {
                 // we set the user-defined accept_mark and set NF_REPEAT verdict
@@ -459,8 +451,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
     return 0;
 }
 
-static int nfqueue_bind()
-{
+static int nfqueue_bind() {
     nfqueue_h = nfq_open();
     if (!nfqueue_h) {
         do_log(LOG_ERR, "Error during nfq_open(): %s", strerror(errno));
@@ -479,7 +470,7 @@ static int nfqueue_bind()
         return -1;
     }
 
-    do_log(LOG_INFO, "NFQUEUE: binding to queue %d", queue_num);
+    do_log(LOG_INFO, "NFQUEUE: binding to queue %d, ACCEPT mark: %d, REJECT mark: %d", queue_num, ntohl(accept_mark), ntohl(reject_mark));
     nfqueue_qh = nfq_create_queue(nfqueue_h, queue_num, &nfqueue_cb, NULL);
     if (!nfqueue_qh) {
         do_log(LOG_ERR, "Error during nfq_create_queue(): %s", strerror(errno));
@@ -496,8 +487,7 @@ static int nfqueue_bind()
     return 0;
 }
 
-static void nfqueue_loop ()
-{
+static void nfqueue_loop () {
     struct nfnl_handle *nh;
     int fd, rv;
     char buf[RECVBUFFSIZE];
@@ -523,36 +513,6 @@ static void nfqueue_loop ()
     nh = nfq_nfnlh(nfqueue_h);
     fd = nfnl_fd(nh);
 
-//     for (;;) {
-//         fds[0].fd = fd;
-//         fds[0].events = POLLIN;
-//         fds[0].revents = 0;
-//         rv = poll(fds, 1, 5000);
-//
-// //         curtime = time(NULL);
-//
-//         if (rv < 0) {
-//             if (errno == EINTR)
-//                 continue;
-//             do_log(LOG_ERR, "ERROR waiting for socket: %s", strerror(errno));
-//             goto out;
-//         }
-//         if (rv > 0) {
-//             rv = recv(fd, buf, sizeof(buf), 0);
-//             if (rv < 0) {
-//                 if (errno == EINTR)
-//                     continue;
-//                 do_log(LOG_ERR, "ERROR reading from socket: %s", strerror(errno));
-//                 goto out;
-//             }
-//             if (rv >= 0)
-//                 nfq_handle_packet(nfqueue_h, buf, rv);
-//         }
-//
-//     }
-// out:
-//     nfqueue_unbind();
-
     while ((rv = recv(fd, buf, sizeof(buf), 0)) >= 0) {
         nfq_handle_packet(nfqueue_h, buf, rv);
     }
@@ -569,31 +529,27 @@ static void nfqueue_loop ()
     }
 }
 
-static void print_usage()
-{
-    fprintf(stderr, PKGNAME " " VERSION " (c) 2008 Jindrich Makovicka\n");
-    fprintf(stderr, "Syntax: pgld [-d] [-s] [-v] [-a MARK] [-r MARK] [-q 0-65535] BLOCKLIST...\n\n");
-//     fprintf(stderr, "        -d            Run in foreground in debug mode\n");
-#ifndef LOWMEM
-    fprintf(stderr, "        -c            Blocklist file charset (for all following filenames)\n");
-#endif
-    fprintf(stderr, "        -f            Blocklist file name\n");
-    fprintf(stderr, "        -p NAME       Use a pidfile named NAME\n");
-    fprintf(stderr, "        -v            Verbose output\n");
-//     fprintf(stderr, "        -b            Benchmark IP matches per second\n");
-    fprintf(stderr, "        -q 0-65535    NFQUEUE number, as specified in --queue-num with iptables\n");
-    fprintf(stderr, "        -a MARK       32-bit mark to place on ACCEPTED packets\n");
-    fprintf(stderr, "        -r MARK       32-bit mark to place on REJECTED packets\n");
-    fprintf(stderr, "        -l LOGFILE    Log to LOGFILE (Default: " LOGDIR "/pgld.log)\n");
-    fprintf(stderr, "        -s            Enable logging to the system log\n");
+static void print_usage() {
+    fprintf(stderr, PKGNAME " " VERSION "\n");
+    fprintf(stderr, "Syntax:\npgld [-d] [-s] [-l LOGFILE] [-c CHARSET] [-p PIDFILE] [-a MARK] [-r MARK] [-q 0-65535] BLOCKLIST ... BLOCKLIST\n");
+    fprintf(stderr, "or\npgld -m [BLOCKLIST ... BLOCKLIST]\n\n");
+    fprintf(stderr, "        -a MARK       32-bit mark to place on ACCEPTED packets (Default: 20)\n");
+    fprintf(stderr, "        -r MARK       32-bit mark to place on REJECTED packets (Default: 10)\n");
+    fprintf(stderr, "        -q 0-65535    NFQUEUE number, as specified in --queue-num with iptables (Default: 92)\n");
+    fprintf(stderr, "        -p NAME       Use a pidfile named NAME (Default: /var/run/pgld.pid)\n");
+    fprintf(stderr, "        -l LOGFILE    Enable logging to LOGFILE\n");
+    fprintf(stderr, "        -s            Enable syslog logging \n");
 #ifdef HAVE_DBUS
     fprintf(stderr, "        -d            Enable D-Bus support\n");
 #endif
+#ifndef LOWMEM
+    fprintf(stderr, "        -c            Blocklist file charset\n");
+#endif
+    fprintf(stderr, "        -m            Load, sort, merge, and dump list(s) specified or from stdin.\n");
     fprintf(stderr, "\n");
 }
 
-void add_blocklist(const char *name, const char *charset)
-{
+void add_blocklist(const char *name, const char *charset) {
     blocklist_filenames = (const char**)realloc(blocklist_filenames, sizeof(const char*) * (blockfile_count + 1));
     CHECK_OOM(blocklist_filenames);
     blocklist_charsets = (const char**)realloc(blocklist_charsets, sizeof(const char*) * (blockfile_count + 1));
@@ -603,11 +559,10 @@ void add_blocklist(const char *name, const char *charset)
     blockfile_count++;
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     int opt, i;
 
-    while ((opt = getopt(argc, argv, "q:a:r:dp:f:vsl:"
+    while ((opt = getopt(argc, argv, "q:a:r:dp:sl:m"
 #ifndef LOWMEM
                               "c:"
 #endif
@@ -632,14 +587,11 @@ int main(int argc, char *argv[])
             current_charset = optarg;
             break;
 #endif
-        case 'f':
-            add_blocklist(optarg, current_charset);
-            break;
-        case 'v':
-            opt_verbose++;
-            break;
         case 's':
             use_syslog = 1;
+            break;
+        case 'm':
+            opt_merge = 1;
             break;
         case 'l':
             logfile_name=malloc(strlen(optarg)+1);
@@ -654,17 +606,37 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (queue_num < 0 || queue_num > 65535) {
+    for (i = 0; i < argc - optind; i++) {
+        add_blocklist(argv[optind + i], current_charset);
+    }
+
+    if (opt_merge) {
+        blocklist_init();
+        load_all_lists();
+        blocklist_dump();
+        exit(0);
+    }
+
+    if (blockfile_count == 0) {
+        fprintf(stderr, "\nERROR: No BLOCKLIST(S) specified!\n\n");
         print_usage();
         exit(1);
     }
 
-    for (i = 0; i < argc - optind; i++)
-        add_blocklist(argv[optind + i], current_charset);
-
-    if (blockfile_count == 0) {
+    if ((queue_num < 0 || queue_num > 65535) && !opt_merge) {
+        fprintf(stderr, "\nERROR: Invalid queue number! Must be 0-65535\n\n");
         print_usage();
         exit(1);
+    }
+
+    if (!queue_num) {
+        queue_num = 92;
+    }
+    if (!reject_mark) {
+        reject_mark = htonl((uint32_t)10);
+    }
+    if (!accept_mark) {
+        accept_mark = htonl((uint32_t)20);
     }
 
     if (logfile_name != NULL) {
@@ -674,13 +646,18 @@ int main(int argc, char *argv[])
             exit(-1);
         }
     }
+    if (pidfile_name == NULL) {
+            pidfile_name=malloc(strlen("/var/run/pgld.pid")+1);
+            CHECK_OOM(pidfile_name);
+            strcpy(pidfile_name,"/var/run/pgld.pid");
+    }
 
     //open syslog
     if (use_syslog) {
         openlog("pgld", 0, LOG_DAEMON);
     }
 
-    blocklist_init(&blocklist);
+    blocklist_init();
     if (load_all_lists() < 0) {
         do_log(LOG_ERR, "Cannot load the blocklist");
         return -1;
@@ -701,12 +678,12 @@ int main(int argc, char *argv[])
 // #endif
 
     nfqueue_loop();
-    blocklist_stats(&blocklist,0);
+    blocklist_stats(0);
 // #ifdef HAVE_DBUS
 //     if (use_dbus)
 //         close_dbus();
 // #endif
-    blocklist_clear(&blocklist, 0);
+    blocklist_clear(0);
     free(blocklist_filenames);
     free(blocklist_charsets);
 

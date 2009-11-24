@@ -28,10 +28,13 @@
 #include "stream.h"
 
 #ifdef HAVE_ZLIB
-int
-stream_open(stream_t *stream, const char *filename)
-{
-    int l = strlen(filename);
+int stream_open(stream_t *stream, const char *filename) {
+    int l;
+    if (filename) {
+        l = strlen(filename);
+    } else {
+        l = 0;
+    }
     if (l >= 3 && strcmp(filename + l - 3, ".gz") == 0) {
         stream->f = fopen(filename, "r");
         if (!stream->f) {
@@ -56,17 +59,17 @@ stream_open(stream_t *stream, const char *filename)
         stream->compressed = 0;
         stream->f = fopen(filename, "r");
         if (!stream->f) {
-            do_log(LOG_ERR, "Cannot open file %s: %s",
-                   filename, strerror(errno));
-            return -1;
+            stream->f = stdin;
+            if (!stream->f) {
+                do_log(LOG_ERR, "Cannot open file %s: %s",filename, strerror(errno));
+                return -1;
+            }
         }
     }
     return 0;
 }
 
-int
-stream_close(stream_t *stream)
-{
+int stream_close(stream_t *stream) {
     if (stream->compressed) {
         if (!stream->eos) {
             do_log(LOG_ERR, "Error finishing decompression");
@@ -85,9 +88,7 @@ stream_close(stream_t *stream)
     return 0;
 }
 
-char *
-stream_getline(char *buf, int max, stream_t *stream)
-{
+char *stream_getline(char *buf, int max, stream_t *stream) {
     if (stream->compressed) {
         int ret, avail;
         unsigned char *ptr;
@@ -127,7 +128,6 @@ stream_getline(char *buf, int max, stream_t *stream)
         }
 
     out:
-
         avail = CHUNK - stream->strm.avail_out;
         ptr = memchr(stream->out, '\n', avail);
         // handle lines is longer than the maximum
@@ -163,33 +163,25 @@ stream_getline(char *buf, int max, stream_t *stream)
 
 #else /* !HAVE_ZLIB */
 
-int
-stream_open(stream_t *stream, const char *filename)
-{
+int stream_open(stream_t *stream, const char *filename) {
     stream->f = fopen(filename, "r");
 
     if (!stream->f) {
         do_log(LOG_ERR, "Cannot open file %s: %s", filename, strerror(errno));
         return -1;
     }
-
     return 0;
 }
 
-int
-stream_close(stream_t *stream)
-{
+int stream_close(stream_t *stream) {
     if (fclose(stream->f) < 0) {
         do_log(LOG_ERR, "Error closing file: %s", strerror(errno));
         return -1;
     }
-
     return 0;
 }
 
-char *
-stream_getline(char *buf, int max, stream_t *stream)
-{
+char *stream_getline(char *buf, int max, stream_t *stream) {
     char *ret;
     ret = fgets(buf, max, stream->f);
     if (!ret)

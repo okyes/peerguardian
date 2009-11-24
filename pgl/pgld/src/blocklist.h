@@ -32,67 +32,41 @@
 #include <iconv.h>
 #else
 typedef int iconv_t;
-static inline iconv_t iconv_open(const char *tocode, const char *fromcode)
-{
+static inline iconv_t iconv_open(const char *tocode, const char *fromcode) {
     return 0;
 }
-static inline int iconv_close(iconv_t cd)
-{
+
+static inline int iconv_close(iconv_t cd) {
     return 0;
 }
 #endif
 
-#define MAX_LABEL_LENGTH 255
+#define MAX_LINE_LENGTH 350
+#define MAX_LABEL_LENGTH 300
+#define MAX_INMEMLABEL_LENGTH 64
+#define ALLOC_CHUNK 16384
 
-#ifndef LOWMEM
-typedef struct
-{
-    uint32_t ip_min, ip_max;
-    char *name;
-} block_sub_entry_t;
-#endif
-
-typedef struct
-{
-    /* must start with sub-entry */
+typedef struct {
     uint32_t ip_min, ip_max;
 #ifndef LOWMEM
     char *name;
 #endif
-
     int hits;
-#ifndef LOWMEM
-    int merged_idx;
-#endif
-//     time_t lasttime;
 } block_entry_t;
 
-typedef struct
-{
+typedef struct {
     block_entry_t *entries;
     unsigned int count, size;
-
-#ifndef LOWMEM
-    block_sub_entry_t *subentries;
-    unsigned int subcount;
-#endif
 } blocklist_t;
 
-void blocklist_init(blocklist_t *blocklist);
-void blocklist_append(blocklist_t *blocklist,
-                      uint32_t ip_min, uint32_t ip_max,
-                      const char *name, iconv_t ic);
-void blocklist_clear(blocklist_t *blocklist, int start);
-void blocklist_sort(blocklist_t *blocklist);
-void blocklist_trim(blocklist_t *blocklist);
-void blocklist_stats(blocklist_t *blocklist, int clearhits);
-#ifndef LOWMEM
-block_entry_t * blocklist_find(blocklist_t *blocklist, uint32_t ip,
-                               block_sub_entry_t **sub, int max);
-#else
-block_entry_t * blocklist_find(blocklist_t *blocklist, uint32_t ip,
-                               void *dummy1, int dummy2);
-#endif
-void blocklist_dump(blocklist_t *blocklist);
+void blocklist_init();
+void blocklist_append(uint32_t ip_min, uint32_t ip_max, const char *name, iconv_t ic);
+void blocklist_clear(int start);
+void blocklist_sort();
+void blocklist_merge();
+void blocklist_stats(int clearhits);
+block_entry_t * blocklist_find(uint32_t ip);
+void blocklist_dump();
+blocklist_t blocklist;
 
 #endif

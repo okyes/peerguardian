@@ -27,7 +27,7 @@
 #include "blocklist.h"
 #include "pgld.h"
 
-int load_list(blocklist_t *blocklist, const char *filename, const char *charset);
+int load_list(const char *filename, const char *charset);
 
 #endif
 

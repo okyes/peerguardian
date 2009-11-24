@@ -32,8 +32,7 @@
 
 #define CHUNK 1024
 
-typedef struct
-{
+typedef struct {
     FILE *f;
 #ifdef HAVE_ZLIB
     int compressed;
