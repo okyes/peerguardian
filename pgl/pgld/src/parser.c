@@ -51,7 +51,6 @@ static int loadlist_ascii(const char *filename, const char *charset) {
     int total, ok;
     int ret = -1;
     iconv_t ic;
-
     if (stream_open(&s, filename) < 0) {
         do_log(LOG_ERR, "Error opening %s.", filename);
         return -1;
@@ -288,7 +287,7 @@ int load_list(const char *filename, const char *charset) {
     // Get current count and try to parse the file as ascii
     prevcount = blocklist.count;
     if (loadlist_ascii(filename, charset ? charset : "ISO8859-1") == 0) {
-        do_log(LOG_INFO, "Ascii: %d entries loaded", blocklist.count - prevcount);
+        do_log(LOG_INFO, "ASCII: %d entries loaded", blocklist.count - prevcount);
         return 0;
     }
     // it wasn't ascii so clear the blocklist starting were it was before and get new count

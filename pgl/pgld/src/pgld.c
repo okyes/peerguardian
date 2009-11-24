@@ -54,7 +54,6 @@
 #include "pgld.h"
 
 static int opt_merge = 0;
-static int opt_debug = 0;
 static int queue_num = 0;
 static int use_syslog = 0;
 static uint32_t accept_mark = 0, reject_mark = 0;
@@ -223,11 +222,16 @@ static int load_all_lists() {
     int i, ret = 0;
 
     blocklist_clear(0);
-    for (i = 0; i < blockfile_count; i++) {
-        if (load_list(blocklist_filenames[i], blocklist_charsets[i])) {
-            do_log(LOG_ERR, "Error loading %s", blocklist_filenames[i]);
-            ret = -1;
+    if (blockfile_count) {
+        for (i = 0; i < blockfile_count; i++) {
+            if (load_list(blocklist_filenames[i], blocklist_charsets[i])) {
+                do_log(LOG_ERR, "Error loading %s", blocklist_filenames[i]);
+                ret = -1;
+            }
         }
+    } else {
+        //assume stdin for list
+        load_list(NULL,NULL);
     }
     blocklist_sort();
     blocklist_merge();
@@ -493,9 +497,7 @@ static void nfqueue_loop () {
         do_log(LOG_ERR, "ERROR binding to queue!");
         exit(1);
     }
-    if (!opt_debug) {
-        daemonize();
-    }
+    daemonize();
 
     if (install_sighandler() != 0) {
         do_log(LOG_ERR, "ERROR installing signal handlers");
@@ -529,21 +531,21 @@ static void nfqueue_loop () {
 
 static void print_usage() {
     fprintf(stderr, PKGNAME " " VERSION "\n");
-    fprintf(stderr, "Syntax: pgld [-d] [-s] [-l LOGFILE] [-c CHARSET] [-p PIDFILE] [-a MARK] [-r MARK] [-q 0-65535] -f BLOCKLIST | BLOCKLIST...\n\n");
+    fprintf(stderr, "Syntax:\npgld [-d] [-s] [-l LOGFILE] [-c CHARSET] [-p PIDFILE] [-a MARK] [-r MARK] [-q 0-65535] BLOCKLIST ... BLOCKLIST\n");
+    fprintf(stderr, "or\npgld -m [BLOCKLIST ... BLOCKLIST]\n\n");
     fprintf(stderr, "        -a MARK       32-bit mark to place on ACCEPTED packets (Default: 20)\n");
     fprintf(stderr, "        -r MARK       32-bit mark to place on REJECTED packets (Default: 10)\n");
     fprintf(stderr, "        -q 0-65535    NFQUEUE number, as specified in --queue-num with iptables (Default: 92)\n");
-    fprintf(stderr, "        -f            Blocklist file name OR list of BLOCKLISTS (Required)\n\n");
     fprintf(stderr, "        -p NAME       Use a pidfile named NAME (Default: /var/run/pgld.pid)\n");
-    fprintf(stderr, "        -l LOGFILE    Log to LOGFILE (Default: " LOGDIR "/pgld.log)\n");
-    fprintf(stderr, "        -s            Enable logging to the system log\n");
+    fprintf(stderr, "        -l LOGFILE    Enable logging to LOGFILE\n");
+    fprintf(stderr, "        -s            Enable syslog logging \n");
 #ifdef HAVE_DBUS
     fprintf(stderr, "        -d            Enable D-Bus support\n");
 #endif
 #ifndef LOWMEM
     fprintf(stderr, "        -c            Blocklist file charset\n");
 #endif
-    fprintf(stderr, "        -m            Load, sort, merge, and dump list(s) specified.\n");
+    fprintf(stderr, "        -m            Load, sort, merge, and dump list(s) specified or from stdin.\n");
     fprintf(stderr, "\n");
 }
 
@@ -560,7 +562,7 @@ void add_blocklist(const char *name, const char *charset) {
 int main(int argc, char *argv[]) {
     int opt, i;
 
-    while ((opt = getopt(argc, argv, "q:a:r:dp:f:sl:mD"
+    while ((opt = getopt(argc, argv, "q:a:r:dp:sl:m"
 #ifndef LOWMEM
                               "c:"
 #endif
@@ -576,7 +578,6 @@ int main(int argc, char *argv[]) {
             accept_mark = htonl((uint32_t)atoi(optarg));
             break;
         case 'p':
-//             free (pidfile_name);
             pidfile_name=malloc(strlen(optarg)+1);
             CHECK_OOM(pidfile_name);
             strcpy(pidfile_name,optarg);
@@ -586,9 +587,6 @@ int main(int argc, char *argv[]) {
             current_charset = optarg;
             break;
 #endif
-        case 'f':
-            add_blocklist(optarg, current_charset);
-            break;
         case 's':
             use_syslog = 1;
             break;
@@ -605,31 +603,30 @@ int main(int argc, char *argv[]) {
             use_dbus = 1;
             break;
 #endif
-        case 'D':
-            opt_debug = 1;
-            break;
         }
     }
 
-    if ((queue_num < 0 || queue_num > 65535) && !opt_merge) {
-        fprintf(stderr, "\nERROR: Invalid queue number! Must be 0-65535\n\n");
-        print_usage();
-        exit(1);
+    for (i = 0; i < argc - optind; i++) {
+        add_blocklist(argv[optind + i], current_charset);
     }
 
-    for (i = 0; i < argc - optind; i++)
-        add_blocklist(argv[optind + i], current_charset);
+    if (opt_merge) {
+        blocklist_init();
+        load_all_lists();
+        blocklist_dump();
+        exit(0);
+    }
 
     if (blockfile_count == 0) {
         fprintf(stderr, "\nERROR: No BLOCKLIST(S) specified!\n\n");
         print_usage();
         exit(1);
     }
-    if (opt_merge) {
-        blocklist_init();
-        load_all_lists();
-        blocklist_dump();
-        exit(0);
+
+    if ((queue_num < 0 || queue_num > 65535) && !opt_merge) {
+        fprintf(stderr, "\nERROR: Invalid queue number! Must be 0-65535\n\n");
+        print_usage();
+        exit(1);
     }
 
     if (!queue_num) {

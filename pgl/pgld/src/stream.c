@@ -29,7 +29,12 @@
 
 #ifdef HAVE_ZLIB
 int stream_open(stream_t *stream, const char *filename) {
-    int l = strlen(filename);
+    int l;
+    if (filename) {
+        l = strlen(filename);
+    } else {
+        l = 0;
+    }
     if (l >= 3 && strcmp(filename + l - 3, ".gz") == 0) {
         stream->f = fopen(filename, "r");
         if (!stream->f) {
@@ -54,9 +59,11 @@ int stream_open(stream_t *stream, const char *filename) {
         stream->compressed = 0;
         stream->f = fopen(filename, "r");
         if (!stream->f) {
-            do_log(LOG_ERR, "Cannot open file %s: %s",
-                   filename, strerror(errno));
-            return -1;
+            stream->f = stdin;
+            if (!stream->f) {
+                do_log(LOG_ERR, "Cannot open file %s: %s",filename, strerror(errno));
+                return -1;
+            }
         }
     }
     return 0;
