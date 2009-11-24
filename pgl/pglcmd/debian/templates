@@ -64,11 +64,10 @@ _Description: What blocklists shall be used?
 Template: pglcmd/LOG_SYSLOG
 Type: boolean
 Default: true
-_Description: Turn on hit logging to syslog?
+_Description: Turn on logging to syslog?
  Configuration variable: LOG_SYSLOG
  .
- This enables hit logging to the system log.
- If you disable it, "test" will not work.
+ This enables logging of pgld and pglcmd to the system log.
 
 Template: pglcmd/LOG_IPTABLES
 Type: select

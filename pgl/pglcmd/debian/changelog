@@ -8,6 +8,14 @@ pglcmd (2.0~pre1-1) unstable; urgency=low
     - Added option WD_MAILTO.
   * removed CUSTOM_DAEMON_OPTS, all pgld options are (and have to) be supported
     by pglcmd directly
+  * removed all code for blocklist format specification
+    - removed options BLOCKLIST_FORMAT, MASTER_BLOCKLIST_DIR
+    - made MASTER_BLOCKLIST directly configurable, renamed from BLOCKLIST to
+      avoid confusion with other use of this variable.
+    - removed function test_set_BLOCKLIST
+  * build_blocklist: premerge blocklist
+
+
 
   [Cade Robinson]
   * added pglcmd options
