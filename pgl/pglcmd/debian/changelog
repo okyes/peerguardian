@@ -4,6 +4,10 @@ pglcmd (2.0~pre1-1) unstable; urgency=low
   * transition to pglcmd at peerguardian.sourceforge.net
   * updated description
   * init: added should-start after dbus
+  * Email if watchdog detects a problem.
+    - Added option WD_MAILTO.
+  * removed CUSTOM_DAEMON_OPTS, all pgld options are (and have to) be supported
+    by pglcmd directly
 
   [Cade Robinson]
   * added pglcmd options

@@ -3,7 +3,7 @@
 *   jimaras@gmail.com                                                     *
 *                                                                         *
 *   This is a part of pgl-gui.                                            *
-*   Pgl-gui is free software; you can redistribute it and/or modify       *
+*   pgl-gui is free software; you can redistribute it and/or modify       *
 *   it under the terms of the GNU General Public License as published by  *
 *   the Free Software Foundation; either version 3 of the License, or     *
 *   (at your option) any later version.                                   *
@@ -21,36 +21,19 @@
 
 #include <QObject>
 
-#include <QVector>
-#include <QString>
+#include "debug.h"
 
-#include <QDebug>
+#include "abstracthandler.h"
+#include "filehandler.h"
+#include "processhandler.h"
+#include "loghandler.h"
 
-#include "rawdata.h"
+int main() {
+
+    qInstallMsgHandler( customOutput );
 
 
-RawData::RawData( QObject *parent ) : QObject( parent ) {
 
-}
-
-RawData::~RawData() {
-
-}
-
-QString &RawData::GetDataS() const {
-
-    qWarning() << Q_FUNC_INFO << "This function shouldn't have been called!\nReturning empty QString.";
-    
-    return QString();
+    return 0;
 
 }
-
-QVector< QString > &RawData::GetDataV() const {
-
-
-    qWarning() << Q_FUNC_INFO << "This function shouldn't have been called!\nReturning empty QVector< QString >.";
-    
-    return QVector < QString > ();
-
-}
-

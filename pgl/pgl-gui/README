@@ -1,1 +1,18 @@
 This is the Graphical User Interface for PeerGuardian Linux.
+
+
+
+COMPILE INSTRUCTIONS
+---
+-To compile pgl-gui run the following commands in the pgl-gui directory:
+cmake .
+make
+
+-If it all goes well, an executable named pgl-gui should exist.
+
+
+
+DEPENDENCIES
+---
+-Qt4 Development packages
+-cmake(>=2.6)

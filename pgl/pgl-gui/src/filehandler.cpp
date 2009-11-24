@@ -3,7 +3,7 @@
 *   jimaras@gmail.com                                                     *
 *                                                                         *
 *   This is a part of pgl-gui.                                            *
-*   Pgl-gui is free software; you can redistribute it and/or modify       *
+*   pgl-gui is free software; you can redistribute it and/or modify       *
 *   it under the terms of the GNU General Public License as published by  *
 *   the Free Software Foundation; either version 3 of the License, or     *
 *   (at your option) any later version.                                   *
@@ -25,53 +25,129 @@
 #include <QFile>
 #include <QTextStream>
 
+#include "debug.h"
+
 #include "filehandler.h"
 
-FileHandler::FileHandler( RawData *parent ) : RawData( parent ) {
+FileHandler::FileHandler( QObject *parent ) :
+    QObject( parent ) {
 
-
+        this->setAutoEmit( false );
 }
 
-FileHandler::FileHandler( const QString &filename, RawData *parent ) : RawData( parent ) {
+FileHandler::FileHandler( const QString &filename, const bool &autoE, QObject *parent ) :
+    QObject( parent ) {
 
-    this->Open( filename );
+    this->setAutoEmit( autoE );
+    this->load( filename );
 
 }
 
 FileHandler::~FileHandler() {
 
-    qDebug() << Q_FUNC_INFO << "Destroying FileHandler object...";
 
 }
 
-bool FileHandler::HasData() const {
+QString FileHandler::getFilename() const {
 
-    return ( this->LinesNumber() > 0 );
-
-}
-
-int FileHandler::LinesNumber() const {
-
-    return ( m_FileContents.size() );
+    return m_Filename;
 
 }
 
-void FileHandler::SetData( const QVector< QString > &newD ) {
+int FileHandler::getSize() const {
+
+    return m_FileContents.size();
+
+}
+
+bool FileHandler::hasData() const {
+
+    if ( ! m_FileContents.isEmpty() ) {
+        for ( QVector< QString >::const_iterator s = m_FileContents.begin(); s != m_FileContents.end(); s++ ) {
+            if ( ! s->isEmpty() ) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+
+}
+
+QVector< QString > FileHandler::getRawDataV() const {
+
+    return m_FileContents;
+
+}
+
+QString FileHandler::getLine( const int &lineNumber, const QString &commentSymbol ) const {
+
+    if ( lineNumber > this->getSize() || lineNumber < 0 ) {
+        WARN_MSG << "Contents of line" << lineNumber << "requested but file contains" << getSize() << "lines!";
+        return QString();
+    }
+    
+    QString ln = m_FileContents[ lineNumber ];
+    int place = ln.indexOf( commentSymbol );
+    if ( place == 0 ) { //If the whole line is a comment
+        return QString("");
+    }
+    else if ( place != -1 ) { //If the line contains a comment, remove that part
+        ln.remove( place, ln.length() );
+    }
+
+    return ln.trimmed();
+
+}
+
+QVector< QString > FileHandler::getDataV( const QString &commentSymbol ) const {
+
+    QVector< QString > result;
+
+    for ( int i = 1; i < this->getSize(); i++ ) {
+        result.push_back( this->getLine( i, commentSymbol ) ); //FIXME: Maybe don't push empty lines at all?
+    }
+
+    return result;
+
+}
+
+QString FileHandler::getRawDataS() const {
+
+    QString data;
+
+    for ( QVector< QString >::const_iterator s = m_FileContents.begin(); s != m_FileContents.end(); s++ ) {
+        data += *s;
+        data += '\n';
+    }
+
+    return data;
+
+}
+
+void FileHandler::setAutoEmit( const bool &autoE ) {
+
+    m_AutoEmitSignal = autoE;
+
+}
+
+void FileHandler::setData( const QVector< QString > &newD ) {
+
 
     if ( newD.isEmpty() ) {
-        qWarning() << Q_FUNC_INFO << "Trying to set data of FileHandler to NULL!";
+        WARN_MSG << "Trying to set data of FileHandler to NULL!";
     }
 
     m_FileContents = newD;
 
-    this->TrimLines();
+    this->trimLines();
 
 }
 
 void FileHandler::setData( const QString &newD ) {
 
     if ( newD.isEmpty() ) {
-        qWarning() << Q_FUNC_INFO << "Trying to set data of FileHandler to NULL!";
+        WARN_MSG << "Trying to set data of FileHandler to NULL!";
     }
     //Clear the vector and make this string its only element
     m_FileContents.clear();
@@ -79,32 +155,34 @@ void FileHandler::setData( const QString &newD ) {
 
 }
 
-void FileHandler::AppendData( const QVector< QString > &newD ) {
+void FileHandler::appendData( const QVector< QString > &newD ) {
+
 
     if ( newD.isEmpty() ) {
-        qWarning() << Q_FUNC_INFO << "Trying to append an empty data vector!";
+        WARN_MSG << "Trying to append an empty data vector!";
     }
 
-    m_FileContents += newD;
+    m_FileContents += newD ;
 
-    this->TrimLines();
+    this->trimLines();
     
 }
 
-void FileHandler::AppendData( const QString &newD ) {
+void FileHandler::appendData( const QString &newD ) {
+
 
     if ( newD.isEmpty() ) {
-        qWarning() << Q_FUNC_INFO << "Trying to append an empty data string!";
+        WARN_MSG << "Trying to append an empty data string!";
     }
 
     m_FileContents.append( newD.trimmed() );
 
 }
 
-bool FileHandler::operator==( const FileHandler &second ) {
+bool FileHandler::operator==( const FileHandler &second ) const {
 
     //If one file is empty
-    if ( ! ( this->HasData() && second.HasData() ) ) {
+    if ( ! ( this->hasData() && second.hasData() ) ) {
         return false;
     }
 
@@ -114,49 +192,68 @@ bool FileHandler::operator==( const FileHandler &second ) {
 
 void FileHandler::operator=( const FileHandler &second ) {
 
+
     this->m_FileContents = second.m_FileContents;
 
 }
 
 
-bool FileHandler::Open( const QString &filename ) {
+bool FileHandler::load( const QString &filename ) {
 
-    QVector< QString > m_FileContents;
     QFile file( filename );
     if ( filename.isEmpty() ) {
-        qWarning() << Q_FUNC_INFO << "Empty file filename given, doing nothing.";
+        WARN_MSG << "Empty file filename given, doing nothing.";
         return false;
     }
     else if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
-        qWarning() << Q_FUNC_INFO << "Could not read from file:" << filename;
+        WARN_MSG << "Could not read from file:" << filename;
         return false;
     }
-    filename = m_Filename;
+    m_Filename = filename;
+
     QTextStream in( &file );
     while ( !in.atEnd() ) {
         QString line = in.readLine();
         line = line.trimmed();
-        m_FileContents.push_back(line);
+        m_FileContents.append(line);
+    }
+
+    //Emit signal here
+    if ( m_AutoEmitSignal == true ) {
+        emit fileDataV( m_FileContents );
     }
 
     return true;
 
 }
 
-bool FileHandler::Close() {
+bool FileHandler::reload() {
 
-    m_FileContents.clear();
-    m_Filename.clear();
-
-    return true;
+    this->discard();
+    return this->load( m_Filename );
 
 }
 
-bool FileHandler::Save( const QString &filename ) {
+void FileHandler::discard() {
 
-    QFile file( filename );
+    m_FileContents.clear();
+
+}
+
+bool FileHandler::save( const QString &filename ) {
+
+    if ( ! filename.isNull() ) {
+        m_Filename = filename;
+    }
+
+    if ( m_Filename.isEmpty() ){
+        WARN_MSG << "Cannot save to file with no name.";
+        return false;
+    }
+
+    QFile file( m_Filename );
     if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
-        qWarning() << Q_FUNC_INFO << "Could not write to file:" << filename;
+        WARN_MSG << "Could not write to file:" << m_Filename;
         return false;
     }
     QTextStream out(&file);
@@ -168,7 +265,8 @@ bool FileHandler::Save( const QString &filename ) {
 
 }
 
-void FileHandler::TrimLines() {
+void FileHandler::trimLines() {
+
 
     for ( QVector< QString >::iterator s = m_FileContents.begin(); s != m_FileContents.end(); s++ ) {
         *s = s->trimmed();
@@ -176,21 +274,10 @@ void FileHandler::TrimLines() {
 
 }
 
-void FileHandler::RequestData() {
+void FileHandler::requestData() {
 
-    emit RawDataV( m_FileContents );
-
-}
-
-void FileHandler::RequestNewData() {
-
-    //Reload the file
-    m_FileContents.clear();
-    if ( this->Open( m_Filename ) == false ) {
-        qWarning() << Q_FUNC_INFO << "Could not reload file:" << m_Filename;
-        return;
-    }
-    
-    emit RawDataV( m_FileContents );
+    emit fileDataV( m_FileContents );
 
 }
+
+#include "filehandler.moc" //Required for CMake, do not remove.

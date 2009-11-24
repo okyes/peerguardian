@@ -115,8 +115,10 @@ CRON="1"
 # 1 - Start watchdog
 WD="1"
 
-# Set the interval in seconds in which pglcmd.wd checks if the
-# blocking works.
+# Set the interval in seconds in which pglcmd.wd checks if the blocking works.
+# Don't choose a too low value! Or the watchdog will think the daemon is not
+# working, although the daemon is just still busy with loading the blocklist
+# after a start.
 WD_SLEEP="300"
 
 # Set the nice level the watchdog is started with. Valid values are between -20
@@ -140,11 +142,6 @@ WGET_OPTS="wget -q -t 5 -T 120 -w 5 --user-agent=${CMD_NAME}/${VERSION}"
 
 # Before updating the blocklists check if this host is reachable
 TESTHOST="iblocklist.com"
-
-# Set your own options to start the daemon.
-# Warning: Do not change this, unless you know what you are doing.
-# Have a look at the code in pglcmd.lib to understand how it is used.
-CUSTOM_DAEMON_OPTS=""
 
 ################## Settings for the iptables firewall rules ###################
 
@@ -311,10 +308,10 @@ IP_REMOVE=""
 # Turn on/off pgld's logging to syslog
 # 0 - Don't log to syslog
 # 1 - Log to syslog
-LOG_SYSLOG="0"
+LOG_SYSLOG="1"
 
-# Turn on/off pgld's logging to syslog
-# 0 - Don't log to log file
+# Turn on/off pgld's logging to logfile
+# 0 - Don't log to logfile
 # 1 - Log to logfile
 LOG_LOGFILE="0"
 
@@ -339,14 +336,18 @@ LOG_IPTABLES=""
 #     configured not to be executed.
 VERBOSITY="1"
 
-# Specify the mail recipient of the result of the automatic blocklist update.
-# If empty, cron will decide what happens with the output.
+# Email the result of the automatic (cron) blocklist update.
+# Specify the mail recipient.
+# If not set, cron will decide what happens with the output.
 CRON_MAILTO="root"
 
-# Email daily stats
-# Default email to $CRON_MAILTO
-# If not set stats will not be emailed.
+# Email daily stats.
+# Specify the mail recipient. If not set, stats will not be emailed.
 STATS_MAILTO=$CRON_MAILTO
+
+# Email if watchdog detects a problem.
+# Specify the mail recipient. If not set, no notification will be emailed.
+WD_MAILTO=$CRON_MAILTO
 
 # Compress the guarding.*/ipfilter.dat file since pgld can read gzipped files
 # This doesn't do anything yet

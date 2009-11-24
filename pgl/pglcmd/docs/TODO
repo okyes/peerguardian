@@ -1,10 +1,16 @@
-TODO for blockcontrol and MoBlock debian packaging
+TODO
 
-blockcontrol:
+pglcmd:
+
+- on "stop" remove kernel modules that were inserted by blockcontrol. (see dino's
+  synology packaging
+  http://forums.phoenixlabs.org/showpost.php?p=128371&postcount=20). Probably
+  disable this per default, to avoid problems.
 
 - send error messages to console and logfile. [João]
   Completely rework the logging part, and check if all messages go where they
   should.
+  E.g. the watchdog's message currently doesn't land in the logfile.
 
 - add option to temp allow (blockcontrol allow IP and blockcontrol allow-MM IP),
   which inserts the appropriate iptables rules directly.
@@ -12,20 +18,8 @@ blockcontrol:
 - add configuration possibility to shut off checking in specific chains
   (FORWARD).
 
-- explicitly stop/start moblock and nfblock in their own packages.
-  But there's still a bug:
-  Can't switch from moblock to nfblock (and vice versa!?) without rebooting,
-  because else nfblock can't bind to NFQUEUE.
-  (nfblockd: Error during nfq_bind_pf(): Illegal seek).
-  See BUGS
-
-- implement options of NFBlock (no-dbus)
-
-- improve makefile:
-  - add (something like) "configure" to configure paths.
-  - read installation paths from blockcontrol.defaults and blockcontrol.conf,
-    special handling of blockcontrol.main and blockcontrol.defaults needed,
-    because they are not in the previous files.
+- improve makefile: add (something like) "configure" to configure paths (set the
+  paths in the Makefile and adjust all files automatically with sed.)
 
 - fix debconf to use debian/config again.
 

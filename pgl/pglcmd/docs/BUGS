@@ -8,13 +8,6 @@ BUGS of pgl:
   http://forums.phoenixlabs.org/showthread.php?t=18045
   http://ubuntuforums.org/showthread.php?t=1189320
 
-- Can't switch from moblock to nfblock (and vice versa!?) without rebooting,
-  because else nfblock can't bind to NFQUEUE.
-  (nfblockd: Error during nfq_bind_pf(): Illegal seek).
-  See TODO and nfblock patch.
-
-- Mobloquer only works with start-stop-daemon, but fails with LSB start_daemon.
-
 - blockcontrol (1.3) if-up:
   check for already whitelisted LAN does not work for all subnetmasks
   -
@@ -24,31 +17,22 @@ BUGS of pgl:
   --
   2009-03-21, jre <jre-phoenix@users.sourceforge.net>
 
-- blockcontrol can't verify if IP block daemon is really started
-
-  MoBlock is started in the background. So a successful start is reported before
-  this is really the case. If MoBlock crashes this will stay unnoticed.
-
-  NFBlock is started as a daemon. But still a successful start is reported
-  before NFBlock binds to nfq. (bug upstream)
-
-  blockcontrol.wd partly solves this (2009-05-03).
+- pglcmd only monitors if pgld starts successfully until pgld forks
+  (daemonizes). Everything that happens after the fork doesn't get catched.
+  Therefore move as much as possible of the pgld start code before the fork.
+  Note that e.g. the pidfile generation has to be done afterwards, because a
+  forked process has a new pid.
+  A possible solution would be for pglcmd to wait some seconds, and then check
+  again, but this makes starting slow, so this is not applied.
+  pglcmd.wd partly solves this by doing a restart and notifying the user per
+  email and in the logfile.
   --
-  2008-04-05, jre <jre-phoenix@users.sourceforge.net>
-
-- Output to console that should not be there:
-  Related to status_of_proc in Jaunty init-functions!? Or redirecting double-
-  backgrounded /dev/null traffic to TTY!?
-  http://ubuntuforums.org/showpost.php?p=7754828&postcount=334
-  Jerriy, 2009-08-09
-  
-  http://ubuntuforums.org/showthread.php?t=1235735
-  trench.me, 2009-08-12
+  2009-11-15, jre <jre-phoenix@users.sourceforge.net>
 
 
 ############################# (Major) closed bugs: #############################
 
-- <SOLVED in blockcontrol 1.0-1>
+- [SOLVED in blockcontrol 1.0-1]
   debconf doesn't work as expected. Debconf runs twice during installation:
   first it asks questions and then it overwrites the answers with the not-yet
   modified configuration files.
@@ -58,47 +42,9 @@ BUGS of pgl:
   --
   2008-07-14, jre <jre-phoenix@users.sourceforge.net>
 
-- <SOLVED in 0.9~rc1-6 and 0.8-40> MoBlock fails to start after install/update
-  -
-  I frequently have the problem that after updating moblock with aptitude
-  moblock was not running (no pid, no process). moblock.log stated:
-  "Error opening , aborting...".
-  "blockcontrol restart" solves this.
-
-  A test with MoBlock 0.8-39 showed: the process was dead, but the pidfile
-  existed. Restarting also solved this...
-
-  Solution:
-  On Debian start MoBlock with Debian specific "start-stop-daemon -b"
-  and DAEMON_OPTS without "&" instead of the LSB way.
-
-  Have a look for bugs in the init.functions :-/
-
-  Note that blockcontrol can't verify if MoBlock is really started, since
-  MoBlock is started in the background. See separate bug of 2008-01-21.
-  --
-  2008-01-07, jre <jre-phoenix@users.sourceforge.net>
-
-
-- <SOLVED upstream in 0.9~rc2-1> Merging blocklists results in incomplete IP
-  ranges
+- [SOLVED upstream in moblock 0.9~rc2-1]
+  Merging blocklists results in incomplete IP ranges. Merging range IP1-IP5 with
+  range IP3-IP6 resulted in merged range IP1-IP3 instead of IP1-IP6. Therefore
+  always check this, if the merge code gets changed!
   --
   https://sourceforge.net/tracker/?atid=825649&group_id=162910
-
-################################ Archived bugs: ################################
-
-- <Not reproducible> blockcontrol stop doesn't stop moblock
-  Found on Debian sid, moblock 0.9~rc2-3,
-  Kernel 2.6.24-1-686 #1 SMP Mon Feb 11 14:37:45 UTC 2008 i686 GNU/Linux
-  -
-  Bug in lsb-base?
-  --
-  2008-03-05, jre <jre-phoenix@users.sourceforge.net>
-
-- <Not confirmed> blockcontrol fails with openbox start menu / rxvt
-  Environment problems?
-  --
-  http://ubuntuforums.org/showthread.php?t=192559
-  [QUOTE=quixotic-cynic;3434826]If I run moblock off my openbox start menu with
-  the command [CODE]rxvt -e sudo /etc/init.d/moblock-nfq start[/CODE] it
-  completely nerfs my internet connection.[/QUOTE]
