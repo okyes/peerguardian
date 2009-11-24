@@ -2093,6 +2093,9 @@ test_ipblocking () {
     RETVAL_PING=$? # the ping exit code
     # The ping exit status is 0 if ping succeeds and 1 if ping does not receive any reply packets.
     # On other error it exits with code 2.
+
+    # Wait a second to give the daemon time to log the current block
+    sleep 1
     LOG_LENGTH_NEW="$(wc -l ${TEST_LOG} | awk '{ print $1 }')" # new log length
 
     if [ "$LOG_LENGTH" -ne "$LOG_LENGTH_NEW" ] ; then    # log length changed
