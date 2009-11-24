@@ -81,7 +81,6 @@ fi
 ################################################################################
 
 VARIABLES="
-    BLOCKLIST_FORMAT
     LOG_SYSLOG
     LOG_IPTABLES
     VERBOSITY
@@ -105,15 +104,9 @@ VARIABLES="
     WHITE_UDP_FORWARD
     IP_REMOVE"
 
-# Known lists in .dat format.
-LISTS_DAT="
-    tbg.iblocklist.com/Lists/ipfilter.dat.gz"
-
-LISTS_P2B=""
-
-# Known lists in .p2p format.
+# Known lists
 # Make sure LIST_NAME is also in debian/templates and LIST_NAME2LIST_URL
-LISTS_P2P="
+LISTS_POSSIBLE="
     Bluetack_level1
     Bluetack_level2
     Bluetack_level3
@@ -149,6 +142,7 @@ fi
 ###############################################################################
 
 # Store values from configuration files into debconf db.
+
 for VAR in $VARIABLES ; do
     # We don't need to check if the variable is set, because we also source 
     # pglcmd.defaults, where all variables are set.
@@ -156,50 +150,6 @@ for VAR in $VARIABLES ; do
     # (then it can run, before any variable is set).
     eval VALUE=\$$VAR
     case "$VAR" in
-
-        'BLOCKLIST_FORMAT')
-            case "$VALUE" in
-                'd')
-                    db_set pglcmd/$VAR 'eMule ipfilter.dat format'
-                    LISTS_POSSIBLE="$LISTS_DAT"
-                    ;;
-                'n')
-                    db_set pglcmd/$VAR 'PeerGuardian .p2b v2 binary format'
-                    LISTS_POSSIBLE=""
-                    ;;
-                'p')
-                    db_set pglcmd/$VAR 'PeerGuardian .p2p text format'
-                    LISTS_POSSIBLE="$LISTS_P2P"
-                    ;;
-            esac
-
-            # Set the blocklists to be used.
-            [ -f "$BLOCKLISTS_LIST" ] && {
-                # Gives possible lists separated with |:
-                LISTS_POSSIBLE_PIPE="$(echo $LISTS_POSSIBLE | sed 's/\ /|/g')"
-                # Read the non-comment|not-empty lines from BLOCKLISTS_LIST:
-                set_LISTS_URL
-                for LIST in $LISTS_URL ; do
-                    # This function depends on LIST:
-                    LIST_URL2LIST_NAME
-                    # LIST_URL is empty, if LIST is notimestamp or locallist - so we can continue with the next LIST.
-                    [ -z "$LIST_URL" ] && continue
-                    # Gives currently selected (=configured in blocklists.list and known by debconf) lists:
-                    LISTS_SET="$LISTS_SET $(echo $LIST_NAME | grep -Eo "$LISTS_POSSIBLE_PIPE" || true)"
-                done
-                # Gives currently selected lists separated with ", " for debconf:
-                LISTS_SET_COMMA="$(echo $LISTS_SET | sed 's/\ /,\ /g')"
-                case "$VALUE" in
-                    'd')
-                        db_set pglcmd/blocklists_dat "$LISTS_SET_COMMA"
-                        ;;
-                    'p')
-                        db_set pglcmd/blocklists_p2p "$LISTS_SET_COMMA"
-                        ;;
-                esac
-            } || true
-            ;;
-
         'LOG_IPTABLES')
             case "$VALUE" in
                 '')
@@ -302,6 +252,26 @@ for VAR in $VARIABLES ; do
             ;;
     esac
 done
+
+# Set the blocklists to be used.
+[ -f "$BLOCKLISTS_LIST" ] && {
+    # Gives possible lists separated with |:
+    LISTS_POSSIBLE_PIPE="$(echo $LISTS_POSSIBLE | sed 's/\ /|/g')"
+    # Read the non-comment|not-empty lines from BLOCKLISTS_LIST:
+    set_LISTS_URL
+    for LIST in $LISTS_URL ; do
+        # This function depends on LIST:
+        LIST_URL2LIST_NAME
+        # LIST_URL is empty, if LIST is notimestamp or locallist - so we can continue with the next LIST.
+        [ -z "$LIST_URL" ] && continue
+        # Gives currently selected (=configured in blocklists.list and known by debconf) lists:
+        LISTS_SET="$LISTS_SET $(echo $LIST_NAME | grep -Eo "$LISTS_POSSIBLE_PIPE" || true)"
+    done
+    # Gives currently selected lists separated with ", " for debconf:
+    LISTS_SET_COMMA="$(echo $LISTS_SET | sed 's/\ /,\ /g')"
+    db_set pglcmd/blocklists "$LISTS_SET_COMMA"
+} || true
+
 # Set "Add line to allowlist" to empty value because adding the same
 # line several times does not make much sense.
 db_set pglcmd/allowlist
@@ -323,31 +293,23 @@ while true ; do
     '1')
         db_input critical pglcmd/warning_block || true
         ;;
-    '2')    
+    '2')
         db_input critical pglcmd/warning_firewall || true
         ;;
     '3')
-        db_input low pglcmd/BLOCKLIST_FORMAT || true
+        db_input high pglcmd/blocklists || true
         ;;
     '4')
-        db_get pglcmd/BLOCKLIST_FORMAT
-        if [ "$RET" = 'eMule ipfilter.dat format' ] ; then
-            db_input high pglcmd/blocklists_dat || true
-        elif [ "$RET" = 'PeerGuardian .p2p text format' ] ; then
-            db_input high pglcmd/blocklists_p2p || true
-        fi
-        ;;
-    '5')
         db_input low pglcmd/LOG_SYSLOG || true
         db_input low pglcmd/LOG_IPTABLES || true
         db_input low pglcmd/VERBOSITY || true
         ;;
-    '6')
+    '5')
         db_input critical pglcmd/INIT || true
         db_input medium pglcmd/CRON || true
         db_input medium pglcmd/WD || true
         ;;
-    '7')    # This part contains the db_go here instead of at the end of the function.
+    '6')    # This part contains the db_go here instead of at the end of the function.
         db_input low pglcmd/NFQUEUE_NUMBER && RETVAL=$? || { RETVAL=$? ; true ; }
         if db_go ; then
             # Check for valid setting, otherwise ask again
@@ -361,28 +323,28 @@ while true ; do
                 break
             else
                 echo "Invalid NFQUEUE_NUMBER setting, choose a number between 0 and 65535."
-            fi  
+            fi
         else
             STATE=$(($STATE - 1))
         fi
         DONTSET=1
         ;;
-    '8')
+    '7')
         db_input low pglcmd/IPTABLES_SETTINGS || true
         ;;
-    '9')
+    '8')
         db_get pglcmd/IPTABLES_SETTINGS
         if [ "$RET" = "Use separate iptables chains." ] ; then
             db_input low pglcmd/IPTABLES_ACTIVATION || true
         fi
         ;;
-    '10')
+    '9')
         db_get pglcmd/IPTABLES_SETTINGS
         if [ "$RET" = "Use separate iptables chains." ] ; then
             db_input low pglcmd/REJECT || true
         fi
         ;;
-    '11')
+    '10')
         db_get pglcmd/IPTABLES_SETTINGS
         if [ "$RET" = "Use separate iptables chains." ] ; then
             db_get pglcmd/REJECT
@@ -393,19 +355,19 @@ while true ; do
             fi
         fi
         ;;
-    '12')
+    '11')
         db_get pglcmd/IPTABLES_SETTINGS
         if [ "$RET" = "Use separate iptables chains." ] ; then
             db_input low pglcmd/ACCEPT || true
         fi
         ;;
-    '13')
+    '12')
         db_get pglcmd/IPTABLES_SETTINGS
         if [ "$RET" = "Use separate iptables chains." ] ; then
             db_input high pglcmd/info_whitelisting || true
         fi
         ;;
-    '14')
+    '13')
         db_get pglcmd/IPTABLES_SETTINGS
         if [ "$RET" = "Use separate iptables chains." ] ; then
             db_input high pglcmd/WHITE_TCP_OUT || true
@@ -416,7 +378,7 @@ while true ; do
             db_input high pglcmd/WHITE_UDP_FORWARD || true
         fi
         ;;
-    '15')
+    '14')
         db_get pglcmd/IPTABLES_SETTINGS
         if [ "$RET" = "Use separate iptables chains." ] ; then
             db_input high pglcmd/WHITE_LOCAL || true
@@ -491,52 +453,10 @@ my_db_get () {
 # Default values will be set in default if they were set there already,
 # otherwise they will be set in pglcmd.conf
 
-my_db_get BLOCKLIST_FORMAT
-case "$RET" in
-    'eMule ipfilter.dat format')
-        # Set blocklist format
-        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
-            sed -i -r "s|^[[:space:]]*BLOCKLIST_FORMAT=.*|BLOCKLIST_FORMAT=\"d\"|" $CMD_CONF
-        else
-            echo "BLOCKLIST_FORMAT=\"d\"" >> $CMD_CONF
-        fi
-        # Define available lists for this format:
-        LISTS_POSSIBLE="$LISTS_DAT"
-        # Define lists that are incompatible with this format:
-        # The bluetack ipfilters aren't downloadable anymore (Dec 2008).
-        LISTS_X="$LISTS_P2B $LISTS_P2P"
-        # Get the selected lists for this blocklist format:
-        db_get pglcmd/blocklists_dat
-        ;;
-    'PeerGuardian .p2b v2 binary format')
-        # Set blocklist format
-        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
-            sed -i -r "s|^[[:space:]]*BLOCKLIST_FORMAT=.*|BLOCKLIST_FORMAT=\"n\"|" $CMD_CONF
-        else
-            echo "BLOCKLIST_FORMAT=\"n\"" >> $CMD_CONF
-        fi
-        # Define available lists for this format:
-        LISTS_POSSIBLE="$LISTS_P2B"
-        # Define lists that are incompatible with this format:
-        LISTS_X="$LISTS_DAT $LISTS_P2P"
-        # Get the selected lists for this blocklist format - no debconf here, yet:
-        RET=""
-        ;;
-    'PeerGuardian .p2p text format')    # Default
-        # Set blocklist format
-        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
-            sed -i -r "s|^[[:space:]]*BLOCKLIST_FORMAT=.*|BLOCKLIST_FORMAT=\"p\"|" $CMD_CONF
-        fi
-        # Define available lists for this format:
-        LISTS_POSSIBLE="$LISTS_P2P"
-        # Define lists that are incompatible with this format:
-        LISTS_X="$LISTS_DAT $LISTS_P2B"
-        # Get the selected lists for this blocklist format:
-        db_get pglcmd/blocklists_p2p
-        ;;
-esac
 
-# $RET of the previous db_get gives selected lists seperated with (", ").
+# $RET of db_get gives selected lists seperated with (", ").
+db_get pglcmd/blocklists
+
 # If all lists were deselected replace empty value with dummy, otherwise
 # LISTS_XGET will stay empty although it should contain all LISTs:
 LISTS_GET_NAME_COMMA=${RET:-dummy}
@@ -580,8 +500,8 @@ for LIST_NAME in $LISTS_POSSIBLE ; do
     LISTS_XGET="$LISTS_XGET $(echo $LIST_NAME | grep -Ev $LISTS_GET_NAME_PIPE || true)"
 done
 
-# These lists were either deselected or are in an incompatible format:
-for LIST_NAME in $LISTS_XGET $LISTS_X ; do
+# These lists were deselected.
+for LIST_NAME in $LISTS_XGET ; do
     # Translate human readable/debconf LIST_NAME to LIST_URL.
     LIST_NAME2LIST_URL
     LIST_NAME2LIST_URL_ALT
@@ -597,15 +517,13 @@ for LIST_NAME in $LISTS_XGET $LISTS_X ; do
 done
 
 # Unavailable lists:
-if [ "$BLOCKLIST_FORMAT" = d ] ; then
-    for LIST_URL in www.bluetack.co.uk/config/nipfilter.dat.gz www.bluetack.co.uk/config/pipfilter.dat.gz ; do
-        if grep -Eq "^[[:space:]]*(notimestamp)?[[:space:]]*(http://)?$LIST_URL" $BLOCKLISTS_LIST ; then
-            echo -n "Disabling $LIST_URL because it is no more downloadable directly"
-            sed -i -r "s|^[[:space:]]*(notimestamp)?[[:space:]]*(http://)?$LIST_URL|# Disabled because list is no more downloadable directly: &|" $BLOCKLISTS_LIST
-            echo "."
-        fi
-    done
-fi
+for LIST_URL in www.bluetack.co.uk/config/nipfilter.dat.gz www.bluetack.co.uk/config/pipfilter.dat.gz ; do
+    if grep -Eq "^[[:space:]]*(notimestamp)?[[:space:]]*(http://)?$LIST_URL" $BLOCKLISTS_LIST ; then
+        echo -n "Disabling $LIST_URL because it is no more downloadable directly"
+        sed -i -r "s|^[[:space:]]*(notimestamp)?[[:space:]]*(http://)?$LIST_URL|# Disabled because list is no more downloadable directly: &|" $BLOCKLISTS_LIST
+        echo "."
+    fi
+done
 
 my_db_get LOG_SYSLOG
 case "$RET" in
@@ -1002,10 +920,6 @@ db_stop
 
 
 ###############################################################################
-
-# Test correct BLOCKLIST_FORMAT setting.
-# Set the blocklist name depending on the type of the blocklist (configuration setting).
-test_set_BLOCKLIST
 
 if [ "$INIT" -ne 0 ] && [ -x "/etc/init.d/pgl" ] ; then
     # dh_installdeb inserts code to execute init "start".

@@ -419,26 +419,6 @@ test_external () {
     return $E_XEXTERNAL
 }
 
-# Test correct BLOCKLIST_FORMAT setting.
-# Set the blocklist name depending on the type of the blocklist (configuration setting).
-test_set_BLOCKLIST () {
-    case "$BLOCKLIST_FORMAT" in
-        'd')    # blocklist file is in eMule ipfilter.dat format
-            BLOCKLIST="$MASTER_BLOCKLIST_DIR/ipfilter.dat"
-            ;;
-        'n')    # blocklist file is in peerguardian .p2b v2 binary format
-            BLOCKLIST="$MASTER_BLOCKLIST_DIR/guarding.p2b"
-            ;;
-        'p')    # blocklist file is in peerguardian .p2p text format
-            BLOCKLIST="$MASTER_BLOCKLIST_DIR/guarding.p2p"
-            ;;
-        *)
-            log_failure_msg "Error $E_CONFIG: Check the BLOCKLIST_FORMAT setting."
-            exit $E_CONFIG
-            ;;
-    esac
-}
-
 test_INIT () {
     case "$INIT" in
         '0'|'1')
@@ -488,17 +468,6 @@ test_CMD_PATHNAME () {
     [ -x "$CMD_PATHNAME" ] || {
         log_failure_msg "$0: $CMD_PATHNAME not installed."
         exit $E_XBIN
-    }
-}
-
-test_MASTER_BLOCKLIST_DIR () {
-    [ -d "$MASTER_BLOCKLIST_DIR" ] || {
-        echo -n "Creating missing directory $MASTER_BLOCKLIST_DIR ..."
-        mkdir -p $MASTER_BLOCKLIST_DIR && echo "."
-    } || {
-        log_failure_msg "Error $E_XCD: Missing directory $MASTER_BLOCKLIST_DIR."
-        log_failure_msg "Check the MASTER_BLOCKLIST_DIR setting."
-        exit $E_XCD
     }
 }
 
@@ -715,8 +684,8 @@ test_net () {
 }
 
 test_BLOCKLIST () {
-    [ -f "$BLOCKLIST" ] || build_blocklist || {
-        log_failure_msg "Error $E_BLOCKLIST: Missing file $BLOCKLIST."
+    [ -f "$MASTER_BLOCKLIST" ] || build_blocklist || {
+        log_failure_msg "Error $E_BLOCKLIST: Missing file $MASTER_BLOCKLIST."
         exit $E_BLOCKLIST
     }
 }
@@ -1198,10 +1167,9 @@ do_start () {
             log_success_msg "$NAME is already running, doing nothing."
             ;;
          3)    # Daemon is not running.
-            test_set_BLOCKLIST
             # Build blocklist if necessary to make sure pglcmd's settings are taken.
             [ -e "$MD5SUM_FILE" ] && {
-                SUM="$(echo $BLOCKLIST_FORMAT $IP_REMOVE ; md5sum $BLOCKLISTS_LIST)"
+                SUM="$(echo $IP_REMOVE ; md5sum $BLOCKLISTS_LIST)"
                 MD5SUM="$(echo $SUM | md5sum | cut -c -32)"
                 [ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ]
                 } || build_blocklist
@@ -1394,7 +1362,6 @@ do_reload () {
     RETVAL=$?
     case "$RETVAL" in
         0)    # Daemon is running
-            test_set_BLOCKLIST
             build_blocklist
             test_BLOCKLIST
             echo -n "Reloading $NAME... "
@@ -1900,6 +1867,15 @@ update_blocklists () {
 # Function that builds the blocklist
 build_blocklist () {
     test_BLOCKLISTS_DIR
+    [ -d "$(dirname $MASTER_BLOCKLIST)" ] || {
+        echo -n "Creating missing directory $(dirname $MASTER_BLOCKLIST) ..."
+        mkdir -p $(dirname $MASTER_BLOCKLIST) && echo "."
+        } || {
+        log_failure_msg "Error $E_XCD: Missing directory $(dirname $MASTER_BLOCKLIST)."
+        log_failure_msg "Check the MASTER_BLOCKLIST setting."
+        exit $E_XCD
+    }
+
     echo -n "Building blocklist... "
 
     BLOCKLISTSCAT=""
@@ -1977,7 +1953,8 @@ build_blocklist () {
         log_failure_msg "Error $E_BLOCKLIST: There are no blocklists configured to be used! Aborting."
         exit $E_BLOCKLIST
     else
-        [ -f "$BLOCKLIST" ] && mv $BLOCKLIST $BLOCKLIST.backup    # Backup old master blocklist
+        # Backup old master blocklist
+        [ -f "$MASTER_BLOCKLIST" ] && mv $MASTER_BLOCKLIST ${MASTER_BLOCKLIST}.backup
         # Build blocklist:
         # Cat together all single blocklists
         cat --squeeze-blank $BLOCKLISTSCAT | \
@@ -1998,9 +1975,9 @@ build_blocklist () {
             # Sort, and only output the first of equal lines
             sort -u > $BLOCKLIST && log_end_msg 0 || {
                 log_failure_msg "Error: build_blocklist exited with $?"
-                if [ -f $BLOCKLIST.backup ] ; then
-                    echo -n "Restoring $BLOCKLIST ..."
-                    mv $BLOCKLIST.backup $BLOCKLIST || { log_failure_msg " Error: mv exited with $?" ; exit 1 ; }
+                if [ -f ${MASTER_BLOCKLIST}.backup ] ; then
+                    echo -n "Restoring $MASTER_BLOCKLIST ..."
+                    mv ${MASTER_BLOCKLIST}.backup $MASTER_BLOCKLIST || { log_failure_msg " Error: mv exited with $?" ; exit 1 ; }
                     log_end_msg 0
                 else
                     exit $E_BLOCKLIST
@@ -2009,7 +1986,7 @@ build_blocklist () {
     fi
 
     # Save configuration settings on which this blocklist bases:
-    SUM="$(echo $BLOCKLIST_FORMAT $IP_REMOVE ; md5sum $BLOCKLISTS_LIST)"
+    SUM="$(echo $IP_REMOVE ; md5sum $BLOCKLISTS_LIST)"
     MD5SUM="$(echo $SUM | md5sum | cut -c -32)"
     echo "$MD5SUM" > "$MD5SUM_FILE"
 }
@@ -2018,7 +1995,6 @@ build_blocklist () {
 test_ipblocking () {
     # First check some preconditions for the test:
     test_DAEMON
-    test_set_BLOCKLIST
     test_BLOCKLIST
     test_REJECT
     if [ "$LOG_LOGFILE" -eq 1 ] ; then
@@ -2054,20 +2030,11 @@ test_ipblocking () {
             ;;
     esac
 
-    # Pick TEST_IP
+    # Pick TEST_IP. Assume blocklist in text (not binary) format.
     TESTLINE="$(expr $$ % 100 + 10)"
-    case "$BLOCKLIST_FORMAT" in
-        'd'|'p')    # blocklist file is in eMule ipfilter.dat format or p2p
-            # Pick the last IP address from a random line in BLOCKLIST file (earlier IPs often result in problems with ping)
-            # Remove the leading zeros in the IPs.
-            TEST_IP="$(head -n$TESTLINE $BLOCKLIST | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1 | sed -r "s/0{,2}([0-9]{1,2})/\1/g")"
-            ;;
-        'n')    # blocklist file is in peerguardian .p2b v2 binary format
-            log_failure_msg "At the moment it's not possible to test blocklists in"
-            log_failure_msg "peerguardian .p2b v2 binary format"
-            exit 1
-            ;;
-    esac
+    # Pick the last IP address from a random line in BLOCKLIST file (earlier IPs often result in problems with ping)
+    # Remove the leading zeros in the IPs.
+    TEST_IP="$(head -n$TESTLINE $MASTER_BLOCKLIST | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1 )"
     echo ""
     echo "CAUTION: This is just a simple test to check if $DESC blocks outgoing"
     echo "connections. For this, an IP from the blocklist will be pinged. Then the test"
@@ -2087,7 +2054,7 @@ test_ipblocking () {
     echo "Also have a look at \"$(basename $0) status\" and test manually with traceroute."
     echo ""
 
-    echo "Trying to ping $TEST_IP from $BLOCKLIST ..."
+    echo "Trying to ping $TEST_IP from $MASTER_BLOCKLIST ..."
     LOG_LENGTH="$(wc -l ${TEST_LOG} | awk '{ print $1 }')"    # remember log length before test
     ping -c1 -W2 $TEST_IP > /dev/null 2>&1
     RETVAL_PING=$? # the ping exit code

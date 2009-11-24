@@ -47,14 +47,16 @@ CMD_LIB="/usr/lib/pgl/$CMD_NAME.lib"
 # The path to the user configuration
 CMD_CONF="/etc/pgl/$CMD_NAME.conf"
 
-# The path of blocklists.list
+# The path of blocklists.list. There you can specify URLs and paths of the
+# single blocklists that you want to use.
 BLOCKLISTS_LIST="/etc/pgl/blocklists.list"
-
-# The path of the master blocklist directory
-MASTER_BLOCKLIST_DIR="/var/lib/pgl"
 
 # The path of the directory where the blocklists are downloaded and manipulated
 BLOCKLISTS_DIR="/var/spool/pgl"
+
+# The path of the master blocklist that pgld uses.
+# The master blocklist is built automatically from the single blocklists.
+MASTER_BLOCKLIST="/var/lib/pgl/guarding.p2p"
 
 # The path to the allow lists
 # Note that per default the same allow list is used for all input and output
@@ -84,17 +86,6 @@ LSB="/lib/lsb/init-functions"
 STDIFS=$IFS
 
 ############################ General configuration ############################
-
-# Set the format of the blocklists that you use. All your blocklists have to be
-# in this format.
-# d - eMule ipfilter.dat format
-#     Example line:
-#     001.000.000.000 , 001.255.255.255 , 100 , Some organization
-# n - PeerGuardian .p2b v2 binary format
-# p - PeerGuardian .p2p text format
-#     Example line:
-#     Some organization:1.0.0.0-1.255.255.255
-BLOCKLIST_FORMAT="p"
 
 # Turn on/off automatic start.
 # Note: this tells the init script not to start pgl on "start".

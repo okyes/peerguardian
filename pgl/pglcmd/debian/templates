@@ -41,64 +41,25 @@ _Description: WARNING: Users with other firewall (iptables rules)
  or
   pglcmd status.
 
-Template: pglcmd/BLOCKLIST_FORMAT
-Type: select
-Choices: eMule ipfilter.dat format, PeerGuardian .p2b v2 binary format, PeerGuardian .p2p text format
-Default: PeerGuardian .p2p text format
-_Description: Set the blocklist format:
- Configuration variable: BLOCKLIST_FORMAT
- .
- Set the format of the blocklists that you use. All your blocklists have to be
- in this format.
- .
-  eMule ipfilter.dat format:
-   MoBlock option: -d
-   Example line:
-   001.000.000.000 , 001.000.000.255 , 100 , Some organization
- .
-  PeerGuardian .p2b v2 binary format:
-   MoBlock option: -n
- .
-  PeerGuardian .p2p text format (default)
-   MoBlock option: -p
-   Example line:
-   Some organization:1.0.0.0-1.000.000.255
-
-Template: pglcmd/blocklists_dat
-Type: multiselect
-Choices: tbg.iblocklist.com/Lists/ipfilter.dat.gz
-Default: tbg.iblocklist.com/Lists/ipfilter.dat.gz
-_Description: What blocklists shall be used?
- This selects the blocklists. They are all in the eMule ipfilter.dat format.
- .
- /usr/share/doc/pglcmd/README.blocklists.gz provides more information
- about these blocklists. Online information sources are
-  http://tbg.iblocklist.com/pages/faq.html and
-  http://www.bluetack.co.uk/forums/index.php?autocom=faq&CODE=02&qid=17 and of
- course http://phoenixlabs.org.
- .
- If you have specified additional blocklists in /etc/pgl/blocklists.list
- they will be kept as well. Known blocklists in an incompatible blocklist format
- will be commented out.
-
-Template: pglcmd/blocklists_p2p
+Template: pglcmd/blocklists
 Type: multiselect
 Choices: TBG_Primary_Threats, TBG_General_Corporate_Ranges, TBG_Business_ISPs, TBG_Educational_Institutions, TBG_Search_Engines, TBG_Hijacked, TBG_Bogon, Bluetack_level1, Bluetack_level2, Bluetack_level3, Bluetack_edu, Bluetack_ads, Bluetack_bogon, Bluetack_spyware, Bluetack_spider, Bluetack_Microsoft, Bluetack_proxy, Bluetack_hijacked, Bluetack_badpeers, Bluetack_rangetest, Bluetack_dshield
 Default: TBG_Primary_Threats, TBG_General_Corporate_Ranges, TBG_Business_ISPs, TBG_Search_Engines, TBG_Hijacked, TBG_Bogon, Bluetack_proxy, Bluetack_dshield
 _Description: What blocklists shall be used?
- This selects the blocklists. They are all in the PeerGuardian .p2p text format.
+ This selects the blocklists. You may use all blocklists in text format (eMule
+ ipfilter.dat, peerguardian .p2p text, and LOWMEM format)
  .
  These lists were created by Bluetack (http://www.bluetack.co.uk) and TBG
  (http://tbg.iblocklist.com). They are provided by iblocklist.com.
  .
- You can get more information  about these blocklists in
+ You can get more information about these blocklists in
   /usr/share/doc/pglcmd/README.blocklists.gz and online at
   http://www.bluetack.co.uk/forums/index.php?autocom=faq&CODE=02&qid=17 and
   http://tbg.iblocklist.com/pages/faq.html
  .
  If you have specified additional blocklists in /etc/pgl/blocklists.list,
- they will be kept as well. Known blocklists in an incompatible blocklist
- format will be commented out.
+ they will be kept as well. Blocklists that are known to be not downloadable
+ will be commented out.
 
 Template: pglcmd/LOG_SYSLOG
 Type: boolean
@@ -409,7 +370,7 @@ Default:
 _Description: Add a line to the allowlist:
  Any value given here will be added to the allow list (per default this is
  /etc/pgl/allow.p2p). Lines in the allow list must be in the PeerGuardian
- .p2p text format:
+ .p2p text or the LOWMEM format (description is optional):
    Some organization:1.0.0.0-1.255.255.255
  .
  This is also true if your blocklists are in another format.
