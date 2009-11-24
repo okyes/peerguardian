@@ -1972,8 +1972,9 @@ build_blocklist () {
             sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | \
             # squeeze leading 0's from IP octets
             sed -r "s/0{,2}([0-9]{1,2})/\1/g" | \
-            # Sort, and only output the first of equal lines
-            sort -u > $BLOCKLIST && log_end_msg 0 || {
+            # Premerge the blocklist
+            pgld -m > $MASTER_BLOCKLIST && \
+            log_end_msg 0 || {
                 log_failure_msg "Error: build_blocklist exited with $?"
                 if [ -f ${MASTER_BLOCKLIST}.backup ] ; then
                     echo -n "Restoring $MASTER_BLOCKLIST ..."
