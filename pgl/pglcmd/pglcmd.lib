@@ -1793,50 +1793,59 @@ get_blocklist () {
             echo -n "detected 7z... "
             # TODO: 7z, 7zr, ...
             test_external p7zip || exit $E_XEXTERNAL
-            p7zip -d < "$BLOCKLIST_DOWNLOADED" > "$BLOCKLIST_EXTRACTED.tmp" || {
+            p7zip -d < "$BLOCKLIST_DOWNLOADED" > "${BLOCKLIST_EXTRACTED}.tmp" || {
                 log_failure_msg "Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
                 log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
                 log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
                 rm "$BLOCKLIST_DOWNLOADED" || { log_failure_msg "Error: rm exited with $?" ; exit 1 ; }
                 exit $E_BLOCKLIST
             }
-            mv -f "$BLOCKLIST_EXTRACTED.tmp" "$BLOCKLIST_EXTRACTED" || { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
-            echo "done."
             ;;
         # gz packed file
         "$(/usr/bin/printf '\x1F\x8B\x08')"*)
             echo -n "detected gz... "
-            zcat "$BLOCKLIST_DOWNLOADED" > "$BLOCKLIST_EXTRACTED.tmp" || {
+            zcat "$BLOCKLIST_DOWNLOADED" > "${BLOCKLIST_EXTRACTED}.tmp" || {
                 log_failure_msg "Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
                 log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
                 log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
                 rm "$BLOCKLIST_DOWNLOADED" || { log_failure_msg "Error: rm exited with $?" ; exit 1 ; }
                 exit $E_BLOCKLIST
             }
-            mv -f "$BLOCKLIST_EXTRACTED.tmp" "$BLOCKLIST_EXTRACTED" || { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
-            echo "done."
             ;;
         # zip packed file
         "$(/usr/bin/printf '\x50\x4B\x03\x04')"*)
             echo -n "detected zip... "
             test_external unzip || exit $E_XEXTERNAL
-            unzip -p "$BLOCKLIST_DOWNLOADED" > "$BLOCKLIST_EXTRACTED.tmp" || {
+            unzip -p "$BLOCKLIST_DOWNLOADED" > "${BLOCKLIST_EXTRACTED}.tmp" || {
                 log_failure_msg "Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
                 log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
                 log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
                 rm "$BLOCKLIST_DOWNLOADED" || { log_failure_msg "Error: rm exited with $?" ; exit 1 ; }
                 exit $E_BLOCKLIST
             }
-            mv -f $BLOCKLIST_EXTRACTED.tmp $BLOCKLIST_EXTRACTED || { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
-            echo "done."
             ;;
         # Assuming non-packed otherwise:
         *)
             echo -n "not packed... "
-            ln -fs $BLOCKLIST_DOWNLOADED $BLOCKLIST_EXTRACTED || { log_failure_msg " Error: ln exited with $?"; exit 1; }
-            echo "done."
+            ln -fs $BLOCKLIST_DOWNLOADED ${BLOCKLIST_EXTRACTED}.tmp || { log_failure_msg " Error: ln exited with $?"; exit 1; }
             ;;
     esac
+    # Count the lines in the list
+    LIST_LINES="$( wc -l ${BLOCKLIST_EXTRACTED}.tmp | sed "s|${BLOCKLIST_EXTRACTED}.tmp||")"
+    if [ "$LIST_LINES" -gt 0 ] ; then
+        mv -f "${BLOCKLIST_EXTRACTED}.tmp" "${BLOCKLIST_EXTRACTED}" || { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
+        echo "done."
+    else
+        log_warning_msg "${BLOCKLIST_EXTRACTED}.tmp is empty!"
+        log_warning_msg "wc -l: $(wc -l ${BLOCKLIST_EXTRACTED}.tmp)"
+        if [ -f "$BLOCKLIST_EXTRACTED" ] ; then
+            log_warning_msg "Keeping old $BLOCKLIST_EXTRACTED."
+        else
+            touch $BLOCKLIST_EXTRACTED
+        fi
+    fi
+    # Add a newline at the end of the blocklist to fix broken lists:
+    echo "" >> $BLOCKLIST_EXTRACTED
 }
 
 # Function that updates blocklists and reloads daemon
@@ -1881,6 +1890,10 @@ build_blocklist () {
 
     BLOCKLISTSCAT=""
 
+    # Prepare removing lines from the blocklist:
+    # replace in IP_REMOVE all semicolons with pipe character
+    SINGLE_REMOVE="$(echo $IP_REMOVE | sed "s/;/|/g")"
+
     # Remove the old MD5SUM file now, so that if anything goes wrong, it's clear we have to rebuild the blocklist:
     [ -e "$MD5SUM_FILE" ] && { rm "$MD5SUM_FILE" || { log_failure_msg " Error: rm exited with $?" ; exit 1; } ; }
 
@@ -1894,15 +1907,8 @@ build_blocklist () {
         # LIST_URL is empty, if LIST is notimestamp or locallist - so we can continue with the next LIST.
         [ -z "$LIST_URL" ] && continue
 
-        # Set blocklist directory name.
-        BLOCKLIST_DIR="$BLOCKLISTS_DIR/$LIST_NAME_FIX"
         # Set name of the extracted blocklist.
-        BLOCKLIST_EXTRACTED="$BLOCKLIST_DIR/extracted/$LIST_NAME_FIX"
-        # The single lists are modified by this script (IP_REMOVE and empty line at the end)
-        # This might be omitted and done directly during master blocklist creation.
-        # I decided against that, to allow IPBlockers, which support several single
-        # blocklists in different formats, to use these single blocklists (planned feature):
-        BLOCKLIST_USED="$BLOCKLIST_DIR/used/$LIST_NAME_FIX"
+        BLOCKLIST_EXTRACTED="$BLOCKLISTS_DIR/$LIST_NAME_FIX/extracted/$LIST_NAME_FIX"
 
         # Test if list is available:
         [ -f "$BLOCKLIST_EXTRACTED" ] || \
@@ -1913,41 +1919,14 @@ build_blocklist () {
             exit $E_BLOCKLIST
             }
 
-        # Create necessary directories if missing:
-        [ -d "$(dirname $BLOCKLIST_USED)" ] || \
-            mkdir -p "$(dirname $BLOCKLIST_USED)" || \
-            { log_failure_msg "Error: mkdir -p exited with $?" ; exit 1 ; }
-        # Count the lines in the list
-        LIST_LINES="$( wc -l $BLOCKLIST_EXTRACTED | sed "s|$BLOCKLIST_EXTRACTED||")"
-        # Remove lines from the blocklist (if configured and if the list is not empty, otherwise just copy) and save in .../used/
-        if [ -n "$IP_REMOVE" ] && [ "$LIST_LINES" -gt 0 ] ; then
-            # Delete lines from the blocklist:
-            # Replace all semicolons with pipe character
-            SINGLE_REMOVE="$(echo $IP_REMOVE | sed "s/;/|/g")"
+        # Log which lines will be removed later
+        if [ -n "$IP_REMOVE" ] ; then
             echo "Removing the following lines from $LIST_NAME:"
             grep -Ei "$SINGLE_REMOVE" "$BLOCKLIST_EXTRACTED" | sort
-            grep -Eiv "$SINGLE_REMOVE" "$BLOCKLIST_EXTRACTED" > "$BLOCKLIST_USED" || \
-                { log_failure_msg "Error: grep exited with $?"; exit 1; }
-            log_end_msg 0
-        elif [ ! "$LIST_LINES" -gt 0 ] ; then
-            log_warning_msg "$BLOCKLIST_EXTRACTED is empty!"
-            log_warning_msg "wc -l: $(wc -l $BLOCKLIST_EXTRACTED)"
-            if [ -f $BLOCKLIST_USED ] ; then
-                log_warning_msg "Keeping old $BLOCKLIST_USED."
-            else
-                touch $BLOCKLIST_USED
-            fi
-        else
-            cp -f $BLOCKLIST_EXTRACTED $BLOCKLIST_USED || { log_failure_msg "Error: cp exited with $?" ; exit 1 ; }
         fi
 
-        [ -f "$BLOCKLIST_USED" ] || { \
-            log_failure_msg " Error: $BLOCKLIST_USED doesn't exist! Strange, aborting!" ; exit 1 ; }
-
-        # Add a newline at the end of the blocklist to fix broken lists:
-        echo "" >> $BLOCKLIST_USED
-
-        BLOCKLISTSCAT="$BLOCKLISTSCAT $BLOCKLIST_USED"
+        # Remember all used lists
+        BLOCKLISTSCAT="$BLOCKLISTSCAT $BLOCKLIST_EXTRACTED"
     done
 
     if [ -z "$BLOCKLISTSCAT" ] ; then
@@ -1956,11 +1935,18 @@ build_blocklist () {
     else
         # Backup old master blocklist
         [ -f "$MASTER_BLOCKLIST" ] && mv $MASTER_BLOCKLIST ${MASTER_BLOCKLIST}.backup
-        # Build blocklist:
-        # Cat together all single blocklists
-        cat --squeeze-blank $BLOCKLISTSCAT | \
+
+        # Tells whether blocklist was built successfully
+        BUILT=0
+
+        # Build blocklist and remove some lines from the blocklists
+        if [ -n "$IP_REMOVE" ] ; then
+            # Cat together all single blocklists
+            cat --squeeze-blank $BLOCKLISTSCAT | \
             # Ignore comment lines
-            grep -v -e "^[:space:]*#" | \
+            grep -Ev "^[[:space:]]*#" | \
+            # Remove lines from IP_REMOVE (case-insensitive)
+            grep -Eiv "$SINGLE_REMOVE" | \
             # Replace repeated whitespace with a single occurence
             tr -s [:space:] | \
             # Delete everything complimentary to the following characters/regex
@@ -1971,19 +1957,39 @@ build_blocklist () {
             tr -cd '[:alnum:][:space:]:\\\*\.\-,[]\n' | \
             # Only keep the last occurence of :
             sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | \
-            # squeeze leading 0's from IP octets
-            sed -r "s/0{,2}([0-9]{1,2})/\1/g" | \
             # Premerge the blocklist
-            pgld -m > $MASTER_BLOCKLIST && \
-            log_end_msg 0 || {
-                log_failure_msg "Error: build_blocklist exited with $?"
-                if [ -f ${MASTER_BLOCKLIST}.backup ] ; then
-                    echo -n "Restoring $MASTER_BLOCKLIST ..."
-                    mv ${MASTER_BLOCKLIST}.backup $MASTER_BLOCKLIST || { log_failure_msg " Error: mv exited with $?" ; exit 1 ; }
-                    log_end_msg 0
-                else
-                    exit $E_BLOCKLIST
-                fi
+            pgld -m > $MASTER_BLOCKLIST && BUILT=1
+        # Build blocklist without removing some lines from the blocklists
+        else
+            # Cat together all single blocklists
+            cat --squeeze-blank $BLOCKLISTSCAT | \
+            # Ignore comment lines
+            grep -Ev "^[[:space:]]*#" | \
+            # Replace repeated whitespace with a single occurence
+            tr -s [:space:] | \
+            # Delete everything complimentary to the following characters/regex
+            # alphanumeric
+            # space
+            # :\*.-,[]
+            # newline (return gets removed, so CR+LF gets LF)
+            tr -cd '[:alnum:][:space:]:\\\*\.\-,[]\n' | \
+            # Only keep the last occurence of :
+            sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | \
+            # Premerge the blocklist
+            pgld -m > $MASTER_BLOCKLIST && BUILT=1
+        fi
+
+        [ "$BUILT" -eq 1 ] && \
+            log_end_msg 0 || \
+                {
+                    log_failure_msg "Error: build_blocklist failed."
+                    if [ -f ${MASTER_BLOCKLIST}.backup ] ; then
+                        echo -n "Restoring $MASTER_BLOCKLIST ..."
+                        mv ${MASTER_BLOCKLIST}.backup $MASTER_BLOCKLIST || { log_failure_msg " Error: mv exited with $?" ; exit 1 ; }
+                        log_end_msg 0
+                    else
+                        exit $E_BLOCKLIST
+                    fi
                 }
     fi
 
