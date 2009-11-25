@@ -1867,6 +1867,7 @@ update_blocklists () {
 # Function that builds the blocklist
 build_blocklist () {
     test_BLOCKLISTS_DIR
+    test_DAEMON
     [ -d "$(dirname $MASTER_BLOCKLIST)" ] || {
         echo -n "Creating missing directory $(dirname $MASTER_BLOCKLIST) ..."
         mkdir -p $(dirname $MASTER_BLOCKLIST) && echo "."
