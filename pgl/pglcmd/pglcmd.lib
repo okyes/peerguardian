@@ -2195,7 +2195,7 @@ search () {
         LIST_URL2LIST_NAME
         # LIST_URL is empty, if LIST is notimestamp or locallist - so we can return to the for loop to the next LIST.
         [ -z "$LIST_URL" ] && return
-        BLOCKLIST="$BLOCKLISTS_DIR/$LIST_NAME_FIX/used/$LIST_NAME"
+        BLOCKLIST="$BLOCKLISTS_DIR/$LIST_NAME_FIX/extracted/$LIST_NAME"
         # Exit immediately with zero status if any match is found
         grep -qEi "$SEARCHPATTERN" "$BLOCKLIST" && {
             echo
