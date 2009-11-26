@@ -1647,6 +1647,7 @@ LIST_NAME2LIST_URL_ALT () {
 # Get blocklist.
 # Depends on LIST being set.
 get_blocklist () {
+    test_BLOCKLISTS_DIR
     # This function depends on LIST:
     LIST_URL2LIST_NAME
     # LIST_URL is empty, if LIST is notimestamp or locallist - so we can return to the for loop to the next LIST.
@@ -1851,7 +1852,6 @@ get_blocklist () {
 # Function that updates blocklists and reloads daemon
 update_blocklists () {
     test_net
-    test_BLOCKLISTS_DIR
     echo "Updating blocklists ..."
 
     # Remove the old MD5SUM file now, so that if anything goes wrong it's clear we have to rebuild the blocklist:
