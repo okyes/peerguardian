@@ -6,9 +6,11 @@
     missingok
     notifempty
     prerotate
-                test ! -e /var/run/pgld.pid || /usr/bin/pglcmd email_stats
+        # If pgld pidfile exists and pglcmd is installed, send statistics per mail.
+        [ ! -e /var/run/pgld.pid ] || { [ ! -x /usr/bin/pglcmd ] || /usr/bin/pglcmd email_stats ; }
     endscript
     postrotate
-                test ! -e /var/run/pgld.pid || /usr/bin/pglcmd reload
+        # Reload pgld to reopen the logfile
+        [ ! -e /var/run/pgld.pid ] || kill -s HUP `cat /var/run/pgld.pid`
     endscript
 }
