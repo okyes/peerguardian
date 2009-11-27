@@ -1406,16 +1406,6 @@ LIST_URL2LIST_NAME () {
             LIST_NAME=""
             return
             ;;
-        notimestamp)
-            # Remote blocklists on servers without timestamping
-            # This is marked as deprecated since pglcmd 1.0
-            # The separate function has been removed in pglcmd 1.1
-            echo "Usage of the \"notimestamp\" option is deprecated."
-            echo "Its functionality has been implemented as fallback for all remote lists."
-            LIST_URL=""
-            LIST_NAME=""
-            return
-            ;;
         # Assuming remote blocklists for the rest:
         *)
             LIST_URL="$(echo $LIST | sed -r "s|http://||")"
@@ -1650,7 +1640,7 @@ get_blocklist () {
     test_BLOCKLISTS_DIR
     # This function depends on LIST:
     LIST_URL2LIST_NAME
-    # LIST_URL is empty, if LIST is notimestamp or locallist - so we can return to the for loop to the next LIST.
+    # LIST_URL is empty, if LIST is locallist - so we can return to the for loop to the next LIST.
     # If it is a locallist, LOCALLIST=1 was just set, so that the next LIST can be handled as such.
     [ -z "$LIST_URL" ] && return
 
@@ -1904,7 +1894,7 @@ build_blocklist () {
     for LIST in $LISTS_URL ; do
         # This function depends on LIST:
         LIST_URL2LIST_NAME
-        # LIST_URL is empty, if LIST is notimestamp or locallist - so we can continue with the next LIST.
+        # LIST_URL is empty, if LIST is locallist - so we can continue with the next LIST.
         [ -z "$LIST_URL" ] && continue
 
         # Set name of the extracted blocklist.
@@ -2193,7 +2183,7 @@ search () {
     for LIST in $LISTS_URL ; do
         # This function depends on LIST:
         LIST_URL2LIST_NAME
-        # LIST_URL is empty, if LIST is notimestamp or locallist - so we can return to the for loop to the next LIST.
+        # LIST_URL is empty, if LIST is locallist - so we can return to the for loop to the next LIST.
         [ -z "$LIST_URL" ] && return
         BLOCKLIST="$BLOCKLISTS_DIR/$LIST_NAME_FIX/extracted/$LIST_NAME"
         # Exit immediately with zero status if any match is found
