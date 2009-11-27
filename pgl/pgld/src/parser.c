@@ -52,13 +52,13 @@ static int loadlist_ascii(const char *filename, const char *charset) {
     int ret = -1;
     iconv_t ic;
     if (stream_open(&s, filename) < 0) {
-        do_log(LOG_ERR, "Error opening %s.", filename);
+        do_log(LOG_ERR, "ERROR: opening %s.", filename);
         return -1;
     }
 
     ic = iconv_open("UTF-8", charset);
     if (ic < 0) {
-        do_log(LOG_ERR, "Cannot initialize charset conversion: %s", strerror(errno));
+        do_log(LOG_ERR, "ERROR: Cannot initialize charset conversion: %s", strerror(errno));
         goto err;
     }
 
@@ -102,7 +102,7 @@ static int loadlist_ascii(const char *filename, const char *charset) {
         // could add more tests for other ASCII formats here.
         // else the line is invalid
         else {
-            do_log(LOG_INFO, "Invalid ASCII line: %s", buf);
+            do_log(LOG_INFO, "WARN: Invalid ASCII line: %s", buf);
         }
     }
     stream_close(&s);
@@ -145,7 +145,7 @@ static int loadlist_binary(const char *filename) {
 
     f = fopen(filename, "r");
     if (!f) {
-        do_log(LOG_ERR, "Error opening %s.", filename);
+        do_log(LOG_ERR, "ERROR: opening %s.", filename);
         return -1;
     }
 
@@ -177,12 +177,12 @@ static int loadlist_binary(const char *filename) {
         ic = iconv_open("UTF-8", "UTF-8");
         break;
     default:
-        do_log(LOG_ERR, "Unknown P2B version: %d", version);
+        do_log(LOG_ERR, "ERROR: Unknown P2B version: %d", version);
         goto err;
     }
 
     if (ic < 0) {
-        do_log(LOG_ERR, "Cannot initialize charset conversion: %s", strerror(errno));
+        do_log(LOG_ERR, "ERROR: Cannot initialize charset conversion: %s", strerror(errno));
         goto err;
     }
 
@@ -194,17 +194,17 @@ static int loadlist_binary(const char *filename) {
             uint32_t ip1, ip2;
             n = read_cstr(buf, MAX_LINE_LENGTH, f);
             if (n < 0 || n > MAX_LINE_LENGTH) {
-                do_log(LOG_ERR, "P2B: Error reading label");
+                do_log(LOG_ERR, "ERROR: P2B: Error reading label");
                 break;
             }
             n = fread(&ip1, 1, 4, f);
             if (n != 4) {
-                do_log(LOG_ERR, "P2B: Error reading range start");
+                do_log(LOG_ERR, "ERROR: P2B: Error reading range start");
                 break;
             }
             n = fread(&ip2, 1, 4, f);
             if (n != 4) {
-                do_log(LOG_ERR, "P2B: Error reading range end");
+                do_log(LOG_ERR, "ERROR: P2B: Error reading range end");
                 break;
             }
             blocklist_append(ntohl(ip1), ntohl(ip2), buf, ic);
@@ -218,7 +218,7 @@ static int loadlist_binary(const char *filename) {
 #ifndef LOWMEM
         labels = (char**)malloc(sizeof(char*) * nlabels);
         if (!labels) {
-            do_log(LOG_ERR, "P2B: Out of memory");
+            do_log(LOG_ERR, "ERROR: P2B: Out of memory");
             goto err;
         }
         for (i = 0; i < nlabels; i++)
@@ -228,7 +228,7 @@ static int loadlist_binary(const char *filename) {
             char buf[MAX_LINE_LENGTH];
             n = read_cstr(buf, MAX_LINE_LENGTH, f);
             if (n < 0 || n > MAX_LINE_LENGTH) {
-                do_log(LOG_ERR, "P2B3: Error reading label");
+                do_log(LOG_ERR, "ERROR: P2B3: Error reading label");
                 goto err;
             }
 #ifndef LOWMEM
@@ -243,17 +243,17 @@ static int loadlist_binary(const char *filename) {
         for (i = 0; i < cnt; i++) {
             n = fread(&idx, 1, 4, f);
             if (n != 4 || ntohl(idx) > nlabels) {
-                do_log(LOG_ERR, "P2B3: Error reading label index");
+                do_log(LOG_ERR, "ERROR: P2B3: Error reading label index");
                 goto err;
             }
             n = fread(&ip1, 1, 4, f);
             if (n != 4) {
-                do_log(LOG_ERR, "P2B3: Error reading range start");
+                do_log(LOG_ERR, "ERROR: P2B3: Error reading range start");
                 goto err;
             }
             n = fread(&ip2, 1, 4, f);
             if (n != 4) {
-                do_log(LOG_ERR, "P2B3: Error reading range end");
+                do_log(LOG_ERR, "ERROR: P2B3: Error reading range end");
                 goto err;
             }
 #ifndef LOWMEM
@@ -287,7 +287,7 @@ int load_list(const char *filename, const char *charset) {
     // Get current count and try to parse the file as ascii
     prevcount = blocklist.count;
     if (loadlist_ascii(filename, charset ? charset : "ISO8859-1") == 0) {
-        do_log(LOG_INFO, "ASCII: %d entries loaded", blocklist.count - prevcount);
+        do_log(LOG_INFO, "INFO: ASCII: %d entries loaded", blocklist.count - prevcount);
         return 0;
     }
     // it wasn't ascii so clear the blocklist starting were it was before and get new count
@@ -296,7 +296,7 @@ int load_list(const char *filename, const char *charset) {
 
     // Try binary
     if (loadlist_binary(filename) == 0) {
-        do_log(LOG_INFO, "Binary: %d entries loaded", blocklist.count - prevcount);
+        do_log(LOG_INFO, "INFO: Binary: %d entries loaded", blocklist.count - prevcount);
         return 0;
     }
     // it wasn't binary either so return -1 since we don't know what it was.

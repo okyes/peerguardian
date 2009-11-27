@@ -33,6 +33,7 @@ void blocklist_init() {
     blocklist.entries = NULL;
     blocklist.count = 0;
     blocklist.size = 0;
+    blocklist.numips = 0;
 }
 
 void blocklist_append(uint32_t ip_min, uint32_t ip_max, const char *name, iconv_t ic) {
@@ -64,7 +65,7 @@ void blocklist_append(uint32_t ip_min, uint32_t ip_max, const char *name, iconv_
         if (ret >= 0) {
             e->name = strdup(buf2);
         } else {
-            do_log(LOG_ERR, "Cannot convert string: %s", strerror(errno));
+            do_log(LOG_ERR, "ERROR: Cannot convert string: %s", strerror(errno));
             e->name = strdup("(conversion error)");
         }
     } else {
@@ -86,9 +87,10 @@ void blocklist_clear(int start) {
 #endif
     if (start == 0) {
         free(blocklist.entries);
-        blocklist.entries = NULL;
-        blocklist.count = 0;
-        blocklist.size = 0;
+        blocklist_init();
+//         blocklist.entries = NULL;
+//         blocklist.count = 0;
+//         blocklist.size = 0;
     } else {
         blocklist.size = blocklist.count = start;
         blocklist.entries = realloc(blocklist.entries, sizeof(block_entry_t) * blocklist.size);
@@ -119,6 +121,7 @@ void blocklist_sort() {
 void blocklist_merge () {
     int i, j, k, merged = 0;
     uint32_t ip_max=0;
+    blocklist.numips = 0;
 
     if (blocklist.count == 0) {
          return;
@@ -147,7 +150,7 @@ void blocklist_merge () {
             // go through merged elements and blank them
             for (k = i + 1; k < j; k++) {
 #ifndef LOWMEM
-                if ( strlen(blocklist.entries[i].name)  < MAX_INMEMLABEL_LENGTH) {
+                if ( !strstr(blocklist.entries[i].name, blocklist.entries[k].name) ) {
                     blocklist.entries[i].name = realloc(blocklist.entries[i].name, strlen(blocklist.entries[i].name) + strlen(blocklist.entries[k].name) +4);
                     strcat(blocklist.entries[i].name, " | ");
                     strcat(blocklist.entries[i].name, blocklist.entries[k].name);
@@ -167,28 +170,34 @@ void blocklist_merge () {
             }
             i = j - 1;
         } //end if j
+        if ( blocklist.entries[i].ip_min == blocklist.entries[i].ip_max) {
+            blocklist.numips += 1;
+        } else {
+            blocklist.numips += (blocklist.entries[i].ip_max - blocklist.entries[i].ip_min);
+        }
     } //end for i
     if (merged) {
-        do_log(LOG_INFO, "Merged %d of %d entries. Re-sorting and try new merge.", merged, blocklist.count);
+        do_log(LOG_INFO, "INFO: Merged %d of %d entries.", merged, blocklist.count);
         blocklist_sort();
         blocklist.count -= merged;
         blocklist.entries = realloc(blocklist.entries, blocklist.count * sizeof(block_entry_t));
         blocklist_merge();
-    } else {
-        do_log(LOG_INFO, "Nothing left to merge. List contains %d entries.", blocklist.count);
     }
+//     else {
+//         do_log(LOG_INFO, "Nothing left to merge. List contains %d entries.", blocklist.count);
+//     }
 
 }
 
 void blocklist_stats(int clearhits) {
     int i, total = 0;
-    do_log(LOG_INFO, "Blocked hit statistics:");
+    do_log(LOG_INFO, "STATS: Blocked hit statistics:");
     for (i = 0; i < blocklist.count; i++) {
         if (blocklist.entries[i].hits >= 1) {
 #ifndef LOWMEM
-            do_log(LOG_INFO, "%u.%u.%u.%u-%u.%u.%u.%u: %s - %d hit(s)", NIPQUADREV(blocklist.entries[i].ip_min), NIPQUADREV(blocklist.entries[i].ip_max), blocklist.entries[i].name, blocklist.entries[i].hits);
+            do_log(LOG_INFO, "STATS: %u.%u.%u.%u-%u.%u.%u.%u: %s - %d hit(s)", NIPQUADREV(blocklist.entries[i].ip_min), NIPQUADREV(blocklist.entries[i].ip_max), blocklist.entries[i].name, blocklist.entries[i].hits);
 #else
-            do_log(LOG_INFO, "%u.%u.%u.%u-%u.%u.%u.%u: %d hit(s)", NIPQUADREV(blocklist.entries[i].ip_min), NIPQUADREV(blocklist.entries[i].ip_max), blocklist.entries[i].hits);
+            do_log(LOG_INFO, "STATS: %u.%u.%u.%u-%u.%u.%u.%u: %d hit(s)", NIPQUADREV(blocklist.entries[i].ip_min), NIPQUADREV(blocklist.entries[i].ip_max), blocklist.entries[i].hits);
 #endif
             total += blocklist.entries[i].hits;
             if (clearhits) {
@@ -196,7 +205,7 @@ void blocklist_stats(int clearhits) {
             }
         }
     }
-    do_log(LOG_INFO, "%d hits total", total);
+    do_log(LOG_INFO, "STATS: %d hits total", total);
 }
 
 block_entry_t *blocklist_find(uint32_t ip) {

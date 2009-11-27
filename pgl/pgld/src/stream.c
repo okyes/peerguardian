@@ -38,7 +38,7 @@ int stream_open(stream_t *stream, const char *filename) {
     if (l >= 3 && strcmp(filename + l - 3, ".gz") == 0) {
         stream->f = fopen(filename, "r");
         if (!stream->f) {
-            do_log(LOG_ERR, "Cannot open file %s: %s",
+            do_log(LOG_ERR, "ERROR: Cannot open file %s: %s",
                    filename, strerror(errno));
             return -1;
         }
@@ -49,7 +49,7 @@ int stream_open(stream_t *stream, const char *filename) {
         stream->strm.avail_in = 0;
         stream->strm.next_in = Z_NULL;
         if (inflateInit2(&stream->strm, 47) != Z_OK) {
-            do_log(LOG_ERR, "Cannot initialize zLib");
+            do_log(LOG_ERR, "ERROR: Cannot initialize zLib");
             return -1;
         }
         stream->strm.avail_out = CHUNK;
@@ -61,7 +61,7 @@ int stream_open(stream_t *stream, const char *filename) {
         if (!stream->f) {
             stream->f = stdin;
             if (!stream->f) {
-                do_log(LOG_ERR, "Cannot open file %s: %s",filename, strerror(errno));
+                do_log(LOG_ERR, "ERROR: Cannot open file %s: %s",filename, strerror(errno));
                 return -1;
             }
         }
@@ -72,16 +72,16 @@ int stream_open(stream_t *stream, const char *filename) {
 int stream_close(stream_t *stream) {
     if (stream->compressed) {
         if (!stream->eos) {
-            do_log(LOG_ERR, "Error finishing decompression");
+            do_log(LOG_ERR, "ERROR: Error finishing decompression");
             inflateEnd(&stream->strm);
         }
         if (fclose(stream->f) < 0) {
-            do_log(LOG_ERR, "Error closing file: %s", strerror(errno));
+            do_log(LOG_ERR, "ERROR: Error closing file: %s", strerror(errno));
             return -1;
         }
     } else {
         if (fclose(stream->f) < 0) {
-            do_log(LOG_ERR, "Error closing file: %s", strerror(errno));
+            do_log(LOG_ERR, "ERROR: Error closing file: %s", strerror(errno));
             return -1;
         }
     }
@@ -99,7 +99,7 @@ char *stream_getline(char *buf, int max, stream_t *stream) {
                                                   CHUNK, stream->f);
                     if (stream->strm.avail_in == 0) {
                         if (ferror(stream->f))
-                            do_log(LOG_ERR, "Error reading file! Error %d", ferror(stream->f));
+                            do_log(LOG_ERR, "ERROR: Error reading file! Error %d", ferror(stream->f));
                         stream->eos = 1;
                         inflateEnd(&stream->strm);
                         break;
@@ -117,7 +117,7 @@ char *stream_getline(char *buf, int max, stream_t *stream) {
                     ret = Z_DATA_ERROR;     /* and fall through */
                 case Z_DATA_ERROR:
                 case Z_MEM_ERROR:
-                    do_log(LOG_ERR, "Error during decompression");
+                    do_log(LOG_ERR, "ERROR: Error during decompression");
                     stream->eos = 1;
                     inflateEnd(&stream->strm);
                     goto out;
@@ -155,7 +155,7 @@ char *stream_getline(char *buf, int max, stream_t *stream) {
         ret = fgets(buf, max, stream->f);
         if (!ret)
             if (ferror(stream->f)) {
-                do_log(LOG_ERR, "Error reading file! Error %d", ferror(stream->f));
+                do_log(LOG_ERR, "ERROR: Error reading file! Error %d", ferror(stream->f));
             }
         return ret;
     }
@@ -167,7 +167,7 @@ int stream_open(stream_t *stream, const char *filename) {
     stream->f = fopen(filename, "r");
 
     if (!stream->f) {
-        do_log(LOG_ERR, "Cannot open file %s: %s", filename, strerror(errno));
+        do_log(LOG_ERR, "ERROR: Cannot open file %s: %s", filename, strerror(errno));
         return -1;
     }
     return 0;
@@ -175,7 +175,7 @@ int stream_open(stream_t *stream, const char *filename) {
 
 int stream_close(stream_t *stream) {
     if (fclose(stream->f) < 0) {
-        do_log(LOG_ERR, "Error closing file: %s", strerror(errno));
+        do_log(LOG_ERR, "ERROR: Error closing file: %s", strerror(errno));
         return -1;
     }
     return 0;
@@ -186,7 +186,7 @@ char *stream_getline(char *buf, int max, stream_t *stream) {
     ret = fgets(buf, max, stream->f);
     if (!ret)
         if (ferror(stream->f)) {
-            do_log(LOG_ERR, "Error reading file! Error %d", ferror(stream->f));
+            do_log(LOG_ERR, "ERROR: Error reading file! Error %d", ferror(stream->f));
         }
     return ret;
 }

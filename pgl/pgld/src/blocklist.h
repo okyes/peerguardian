@@ -57,6 +57,7 @@ typedef struct {
 typedef struct {
     block_entry_t *entries;
     unsigned int count, size;
+    uint32_t numips;
 } blocklist_t;
 
 void blocklist_init();

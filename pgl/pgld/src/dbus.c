@@ -43,14 +43,14 @@ int pgl_dbus_init() {
     if (dbconn == NULL) {
       return -1;
     }
-    do_log(LOG_INFO, "Connected to system bus.");
+    do_log(LOG_INFO, "INFO: Connected to system bus.");
 
     /* need d-bus policy privileges for this to work */
 //     dbus_error_init (&dberr);
     req = dbus_bus_request_name (dbconn, NFB_DBUS_PUBLIC_NAME,
                                  DBUS_NAME_FLAG_DO_NOT_QUEUE, &dberr);
     if (dbus_error_is_set (&dberr)) {
-        do_log(LOG_ERR, "Error requesting name: %s.", dberr.message);
+        do_log(LOG_ERR, "ERROR: requesting name: %s.", dberr.message);
         dbus_error_free(&dberr);
         return -1;
     }
@@ -58,7 +58,7 @@ int pgl_dbus_init() {
         /* FIXME: replace the current name owner instead of giving up?
          * Need to request name with DBUS_NAME_FLAG_ALLOW_REPLACEMENT
          * in that case... */
-        do_log(LOG_WARNING, "pgld is already running. Exiting.");
+        do_log(LOG_WARNING, "WARN: pgld is already running.");
         return -1;
     }
     return 0;

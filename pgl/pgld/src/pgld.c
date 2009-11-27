@@ -66,14 +66,13 @@ static const char *current_charset = 0;
 static int blockfile_count = 0;
 static const char **blocklist_filenames = 0;
 static const char **blocklist_charsets = 0;
+static FILE* pidfile = NULL;
+static char timestr[17];
 
 #ifdef HAVE_DBUS
 static int use_dbus = 0;
 #endif
 
-// static volatile command_t command = CMD_NONE;
-// static time_t curtime = 0;
-static FILE* pidfile = NULL;
 
 struct nfq_handle *nfqueue_h = 0;
 struct nfq_q_handle *nfqueue_qh = 0;
@@ -90,7 +89,6 @@ void do_log(int priority, const char *format, ...)
     if (logfile) {
         va_list ap;
         va_start(ap, format);
-        char timestr[17];
         time_t tv;
         struct tm * timeinfo;
         time( &tv );
@@ -132,7 +130,7 @@ static void *dbus_lh = NULL;
         symbol = dlsym(dbus_lh, # symbol);                              \
         err = dlerror();                                                \
         if (err) {                                                      \
-            do_log(LOG_ERR, "Cannot get symbol %s: %s", # symbol, err); \
+            do_log(LOG_ERR, "ERROR: Cannot get symbol %s: %s", # symbol, err); \
             goto out_err;                                               \
         }                                                               \
     } while (0)
@@ -143,7 +141,7 @@ open_dbus() {
 
     dbus_lh = dlopen(PLUGINDIR "/dbus.so", RTLD_NOW);
     if (!dbus_lh) {
-        do_log(LOG_ERR, "dlopen() failed: %s", dlerror());
+        do_log(LOG_ERR, "ERROR: dlopen() failed: %s", dlerror());
         return -1;
     }
     dlerror(); // clear the error flag
@@ -214,7 +212,7 @@ static void daemonize() {
     close(fileno(stdin));
     close(fileno(stdout));
     close(fileno(stderr));
-    do_log(LOG_INFO, "Started");
+    do_log(LOG_INFO, "INFO: Started");
 }
 
 
@@ -225,7 +223,7 @@ static int load_all_lists() {
     if (blockfile_count) {
         for (i = 0; i < blockfile_count; i++) {
             if (load_list(blocklist_filenames[i], blocklist_charsets[i])) {
-                do_log(LOG_ERR, "Error loading %s", blocklist_filenames[i]);
+                do_log(LOG_ERR, "ERROR: Error loading %s", blocklist_filenames[i]);
                 ret = -1;
             }
         }
@@ -235,7 +233,7 @@ static int load_all_lists() {
     }
     blocklist_sort();
     blocklist_merge();
-    do_log(LOG_INFO, "Blocklist has %d entries", blocklist.count);
+    do_log(LOG_INFO, "INFO: Blocklist has %d IP ranges (%d IPs)", blocklist.count, blocklist.numips);
     return ret;
 }
 
@@ -243,10 +241,10 @@ static void nfqueue_unbind() {
     if (!nfqueue_h)
         return;
 
-    do_log(LOG_INFO, "NFQUEUE: unbinding from queue 0");
+    do_log(LOG_INFO, "INFO: NFQUEUE: unbinding from queue 0");
     nfq_destroy_queue(nfqueue_qh);
     if (nfq_unbind_pf(nfqueue_h, AF_INET) < 0) {
-        do_log(LOG_ERR, "ERROR during nfq_unbind_pf(): %s", strerror(errno));
+        do_log(LOG_ERR, "ERROR: during nfq_unbind_pf(): %s", strerror(errno));
     }
     nfq_close(nfqueue_h);
 }
@@ -263,21 +261,21 @@ static void sighandler(int sig, siginfo_t *info, void *context) {
         break;
     case SIGHUP:
         if (logfile_name != NULL) {
-            do_log(LOG_INFO, "Closing logfile: %s", logfile_name);
+            do_log(LOG_INFO, "INFO: Closing logfile: %s", logfile_name);
             fclose(logfile);
             logfile=NULL;
             if ((logfile=fopen(logfile_name,"a")) == NULL) {
-                do_log(LOG_ERR, "Unable to open logfile: %s", logfile_name);
+                do_log(LOG_ERR, "ERROR: Unable to open logfile: %s", logfile_name);
                 perror(" ");
                 exit(-1);
             } else {
-                do_log(LOG_INFO, "Reopened logfile: %s", logfile_name);
+                do_log(LOG_INFO, "INFO: Reopened logfile: %s", logfile_name);
             }
         }
         if (load_all_lists() < 0) {
-            do_log(LOG_ERR, "Cannot load the blocklist");
+            do_log(LOG_ERR, "ERROR: Cannot load the blocklist");
         }
-        do_log(LOG_INFO, "Blocklist reloaded");
+        do_log(LOG_INFO, "INFO: Blocklist reloaded");
         break;
     case SIGTERM:
     case SIGINT:
@@ -441,11 +439,11 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
             }
             break;
         default:
-            do_log(LOG_NOTICE, "Not NF_LOCAL_IN/OUT/FORWARD packet!");
+            do_log(LOG_NOTICE, "WARN: Not NF_LOCAL_IN/OUT/FORWARD packet!");
             break;
         }
     } else {
-        do_log(LOG_ERR, "NFQUEUE: can't get msg packet header.");
+        do_log(LOG_ERR, "ERROR: NFQUEUE: can't get msg packet header.");
         return 1;               // from nfqueue source: 0 = ok, >0 = soft error, <0 hard error
     }
     return 0;
@@ -454,32 +452,38 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
 static int nfqueue_bind() {
     nfqueue_h = nfq_open();
     if (!nfqueue_h) {
-        do_log(LOG_ERR, "Error during nfq_open(): %s", strerror(errno));
+        do_log(LOG_ERR, "ERROR: Error during nfq_open(): %s", strerror(errno));
         return -1;
     }
 
     if (nfq_unbind_pf(nfqueue_h, AF_INET) < 0) {
-        do_log(LOG_ERR, "Error during nfq_unbind_pf(): %s", strerror(errno));
+        do_log(LOG_ERR, "ERROR: Error during nfq_unbind_pf(): %s", strerror(errno));
         nfq_close(nfqueue_h);
         return -1;
     }
 
     if (nfq_bind_pf(nfqueue_h, AF_INET) < 0) {
-        do_log(LOG_ERR, "Error during nfq_bind_pf(): %s", strerror(errno));
+        do_log(LOG_ERR, "ERROR: Error during nfq_bind_pf(): %s", strerror(errno));
         nfq_close(nfqueue_h);
         return -1;
     }
 
-    do_log(LOG_INFO, "NFQUEUE: binding to queue %d, ACCEPT mark: %d, REJECT mark: %d", queue_num, ntohl(accept_mark), ntohl(reject_mark));
+    do_log(LOG_INFO, "INFO: NFQUEUE: binding to queue %d", queue_num);
+    if (accept_mark) {
+        do_log(LOG_INFO, "INFO: ACCEPT mark: %d", ntohl(accept_mark));
+    }
+    if (reject_mark) {
+        do_log(LOG_INFO, "INFO: REJECT mark: %d", ntohl(reject_mark));
+    }
     nfqueue_qh = nfq_create_queue(nfqueue_h, queue_num, &nfqueue_cb, NULL);
     if (!nfqueue_qh) {
-        do_log(LOG_ERR, "Error during nfq_create_queue(): %s", strerror(errno));
+        do_log(LOG_ERR, "ERROR: Error during nfq_create_queue(): %s", strerror(errno));
         nfq_close(nfqueue_h);
         return -1;
     }
 
     if (nfq_set_mode(nfqueue_qh, NFQNL_COPY_PACKET, PAYLOADSIZE) < 0) {
-        do_log(LOG_ERR, "Can't set packet_copy mode: %s", strerror(errno));
+        do_log(LOG_ERR, "ERROR: Can't set packet_copy mode: %s", strerror(errno));
         nfq_destroy_queue(nfqueue_qh);
         nfq_close(nfqueue_h);
         return -1;
@@ -494,19 +498,19 @@ static void nfqueue_loop () {
 //     struct pollfd fds[1];
 
     if (nfqueue_bind() < 0) {
-        do_log(LOG_ERR, "ERROR binding to queue!");
+        do_log(LOG_ERR, "ERROR: ERROR binding to queue!");
         exit(1);
     }
     daemonize();
 
     if (install_sighandler() != 0) {
-        do_log(LOG_ERR, "ERROR installing signal handlers");
+        do_log(LOG_ERR, "ERROR: ERROR installing signal handlers");
         exit(1);
     }
 
     pidfile = create_pidfile(pidfile_name);
     if (!pidfile) {
-        do_log(LOG_ERR, "ERROR creating pidfile %s", pidfile_name);
+        do_log(LOG_ERR, "ERROR: ERROR creating pidfile %s", pidfile_name);
         exit(1);
     }
 
@@ -517,7 +521,7 @@ static void nfqueue_loop () {
         nfq_handle_packet(nfqueue_h, buf, rv);
     }
     int err=errno;
-    do_log(LOG_ERR, "NFQUEUE ERROR: unbinding from queue '%hd', recv returned %s", queue_num, strerror(err));
+    do_log(LOG_ERR, "ERROR: unbinding from queue '%hd', recv returned %s", queue_num, strerror(err));
     if ( err == ENOBUFS ) {
         /* close and return, nfq_destroy_queue() won't work as we've no buffers */
         nfq_close(nfqueue_h);
@@ -632,12 +636,12 @@ int main(int argc, char *argv[]) {
     if (!queue_num) {
         queue_num = 92;
     }
-    if (!reject_mark) {
-        reject_mark = htonl((uint32_t)10);
-    }
-    if (!accept_mark) {
-        accept_mark = htonl((uint32_t)20);
-    }
+//     if (!reject_mark) {
+//         reject_mark = htonl((uint32_t)10);
+//     }
+//     if (!accept_mark) {
+//         accept_mark = htonl((uint32_t)20);
+//     }
 
     if (logfile_name != NULL) {
         if ((logfile=fopen(logfile_name,"a")) == NULL) {
@@ -659,14 +663,14 @@ int main(int argc, char *argv[]) {
 
     blocklist_init();
     if (load_all_lists() < 0) {
-        do_log(LOG_ERR, "Cannot load the blocklist");
+        do_log(LOG_ERR, "ERROR: Cannot load the blocklist");
         return -1;
     }
 
 // #ifdef HAVE_DBUS
 //     if (use_dbus) {
 //         if (open_dbus() < 0) {
-//             do_log(LOG_ERR, "Cannot load D-Bus plugin");
+//             do_log(LOG_ERR, "ERROR: Cannot load D-Bus plugin");
 //             use_dbus = 0;
 //         }
 //
