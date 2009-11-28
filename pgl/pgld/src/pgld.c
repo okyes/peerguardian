@@ -233,7 +233,7 @@ static int load_all_lists() {
     }
     blocklist_sort();
     blocklist_merge();
-    do_log(LOG_INFO, "INFO: Blocklist has %d IP ranges (%d IPs)", blocklist.count, blocklist.numips);
+    do_log(LOG_INFO, "INFO: Blocklist has %d IP ranges (%u IPs)", blocklist.count, blocklist.numips);
     return ret;
 }
 

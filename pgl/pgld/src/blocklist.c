@@ -170,11 +170,7 @@ void blocklist_merge () {
             }
             i = j - 1;
         } //end if j
-        if ( blocklist.entries[i].ip_min == blocklist.entries[i].ip_max) {
-            blocklist.numips += 1;
-        } else {
-            blocklist.numips += (blocklist.entries[i].ip_max - blocklist.entries[i].ip_min);
-        }
+            blocklist.numips += ((blocklist.entries[i].ip_max - blocklist.entries[i].ip_min) + 1UL);
     } //end for i
     if (merged) {
         do_log(LOG_INFO, "INFO: Merged %d of %d entries.", merged, blocklist.count);
