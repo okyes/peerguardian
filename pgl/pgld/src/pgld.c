@@ -233,7 +233,7 @@ static int load_all_lists() {
     }
     blocklist_sort();
     blocklist_merge();
-    do_log(LOG_INFO, "INFO: Blocklist has %d IP ranges (%u IPs)", blocklist.count, blocklist.numips);
+    do_log(LOG_INFO, "INFO: Blocklist has %u IP ranges (%u IPs)", blocklist.count, blocklist.numips);
     return ret;
 }
 
@@ -339,21 +339,43 @@ static int install_sighandler() {
     return 0;
 }
 
+static void setipinfo (char *src, char *dst, char *proto, struct iphdr *ip, char *payload){
+    struct udphdr *udp;
+    struct tcphdr *tcp;
+    switch (ip->protocol) {
+        case TCP:
+            strcpy(proto, "TCP");
+            tcp     = (struct tcphdr*) (payload + (4 * ip->ihl));
+            sprintf(src, "%u.%u.%u.%u:%u",NIPQUAD(ip->saddr),ntohs(tcp->source));
+            sprintf(dst, "%u.%u.%u.%u:%u",NIPQUAD(ip->daddr),ntohs(tcp->dest));
+            break;
+        case UDP:
+            strcpy(proto, "UDP");
+            udp     = (struct udphdr*) (payload + (4 * ip->ihl));
+            sprintf(src, "%u.%u.%u.%u:%u",NIPQUAD(ip->saddr),ntohs(udp->source));
+            sprintf(dst, "%u.%u.%u.%u:%u",NIPQUAD(ip->daddr),ntohs(udp->dest));
+            break;
+        case ICMP:
+            strcpy(proto, "ICMP");\
+            sprintf(src, "%u.%u.%u.%u",NIPQUAD(ip->saddr));
+            sprintf(dst, "%u.%u.%u.%u",NIPQUAD(ip->daddr));
+            break;
+        default:
+            sprintf(proto, "%d", ip->protocol);
+            sprintf(src, "%u.%u.%u.%u",NIPQUAD(ip->saddr));
+            sprintf(dst, "%u.%u.%u.%u",NIPQUAD(ip->daddr));
+            break;
+    }
+}
+
 static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nfq_data *nfa, void *data) {
     int id = 0, status = 0;
     struct nfqnl_msg_packet_hdr *ph;
     block_entry_t *found_range;
-    //uint32_t ip_src, ip_dst;
     struct iphdr *ip;
-    struct udphdr *udp;
-    struct tcphdr *tcp;
-    char *payload, proto[5], ip_src[23], ip_dst[23];
-// #ifndef LOWMEM
-//     block_sub_entry_t *sranges[MAX_RANGES + 1], *dranges[MAX_RANGES + 1];
-// #else
-    /* dummy variables */
-//     static void *sranges = 0, *dranges = 0;
-// #endif
+//     struct udphdr *udp;
+//     struct tcphdr *tcp;
+    char *payload, proto[5], src[23], dst[23];
 
     ph = nfq_get_msg_packet_hdr(nfa);
     if (ph) {
@@ -366,11 +388,11 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
             if (found_range) {
                 status = nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
                 found_range->hits++;
-                GETIPINFO
+                setipinfo(src, dst, proto, ip, payload);
 #ifndef LOWMEM
-                do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s || %s",ip_src,ip_dst,proto,found_range->name);
+                do_log(LOG_NOTICE, " IN: %-22s -> %-22s %-4s || %s",src,dst,proto,found_range->name);
 #else
-                do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s",ip_src,ip_dst,proto);
+                do_log(LOG_NOTICE, " IN: %-22s -> %-22s %-4s",src,dst,proto);
 #endif
             } else if (unlikely(accept_mark)) {
                 // we set the user-defined accept_mark and set NF_REPEAT verdict
@@ -393,11 +415,11 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                     status = nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
                 }
                 found_range->hits++;
-                GETIPINFO
+                setipinfo(src, dst, proto, ip, payload);
 #ifndef LOWMEM
-                do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4s || %s",ip_src,ip_dst,proto,found_range->name);
+                do_log(LOG_NOTICE, "OUT: %-22s -> %-22s %-4s || %s",src,dst,proto,found_range->name);
 #else
-                do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4su", ip_src,ip_dst,proto);
+                do_log(LOG_NOTICE, "OUT: %-22s -> %-22s %-4su", src,dst,proto);
 #endif
             } else if (unlikely(accept_mark)) {
                 // we set the user-defined accept_mark and set NF_REPEAT verdict
@@ -423,11 +445,11 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                 }
 
                 found_range->hits++;
-                GETIPINFO
+                setipinfo(src, dst, proto, ip, payload);
 #ifndef LOWMEM
-                do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s || %s",ip_src,ip_dst,proto,found_range->name);
+                do_log(LOG_NOTICE, "FWD: %-22s -> %-22s %-4s || %s",src,dst,proto,found_range->name);
 #else
-                do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s",ip_src,ip_dst,proto);
+                do_log(LOG_NOTICE, "FWD: %-22s -> %-22s %-4s",src,dst,proto);
 #endif
             } else if ( unlikely(accept_mark) ) {
                 // we set the user-defined accept_mark and set NF_REPEAT verdict

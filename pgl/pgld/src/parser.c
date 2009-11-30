@@ -287,7 +287,7 @@ int load_list(const char *filename, const char *charset) {
     // Get current count and try to parse the file as ascii
     prevcount = blocklist.count;
     if (loadlist_ascii(filename, charset ? charset : "ISO8859-1") == 0) {
-        do_log(LOG_INFO, "INFO: ASCII: %d entries loaded", blocklist.count - prevcount);
+        do_log(LOG_INFO, "INFO: ASCII: %u entries loaded", blocklist.count - prevcount);
         return 0;
     }
     // it wasn't ascii so clear the blocklist starting were it was before and get new count
@@ -296,7 +296,7 @@ int load_list(const char *filename, const char *charset) {
 
     // Try binary
     if (loadlist_binary(filename) == 0) {
-        do_log(LOG_INFO, "INFO: Binary: %d entries loaded", blocklist.count - prevcount);
+        do_log(LOG_INFO, "INFO: Binary: %u entries loaded", blocklist.count - prevcount);
         return 0;
     }
     // it wasn't binary either so return -1 since we don't know what it was.

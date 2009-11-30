@@ -65,25 +65,5 @@
 
 #endif
 
-#define GETIPINFO   if (ip->protocol == TCP) {\
-    strcpy(proto, "TCP");\
-    tcp     = (struct tcphdr*) (payload + (4 * ip->ihl));\
-    sprintf(ip_src, "%u.%u.%u.%u:%u",NIPQUAD(ip->saddr),ntohs(tcp->source));\
-    sprintf(ip_dst, "%u.%u.%u.%u:%u",NIPQUAD(ip->daddr),ntohs(tcp->dest));\
-} else if (ip->protocol == UDP) {\
-    strcpy(proto, "UDP");\
-    udp     = (struct udphdr*) (payload + (4 * ip->ihl));\
-    sprintf(ip_src, "%u.%u.%u.%u:%u",NIPQUAD(ip->saddr),ntohs(udp->source));\
-    sprintf(ip_dst, "%u.%u.%u.%u:%u",NIPQUAD(ip->daddr),ntohs(udp->dest));\
-} else if (ip->protocol == ICMP) {\
-    strcpy(proto, "ICMP");\
-    sprintf(ip_src, "%u.%u.%u.%u",NIPQUAD(ip->saddr));\
-    sprintf(ip_dst, "%u.%u.%u.%u",NIPQUAD(ip->daddr));\
-} else {\
-    sprintf(proto, "%d", ip->protocol);\
-    sprintf(ip_src, "%u.%u.%u.%u",NIPQUAD(ip->saddr));\
-    sprintf(ip_dst, "%u.%u.%u.%u",NIPQUAD(ip->daddr));\
-}
-
 void do_log(int priority, const char *format, ...);
-int opt_verbose;
+
