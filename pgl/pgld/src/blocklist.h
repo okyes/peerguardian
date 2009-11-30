@@ -51,7 +51,7 @@ typedef struct {
 #ifndef LOWMEM
     char *name;
 #endif
-    int hits;
+    unsigned int hits;
 } block_entry_t;
 
 typedef struct {

@@ -150,7 +150,7 @@ void blocklist_merge () {
             // go through merged elements and blank them
             for (k = i + 1; k < j; k++) {
 #ifndef LOWMEM
-                if ( !strstr(blocklist.entries[i].name, blocklist.entries[k].name) ) {
+                if ( (strlen(blocklist.entries[i].name) + strlen(blocklist.entries[k].name)) <  MAX_INMEMLABEL_LENGTH && !strstr(blocklist.entries[i].name, blocklist.entries[k].name) ) {
                     blocklist.entries[i].name = realloc(blocklist.entries[i].name, strlen(blocklist.entries[i].name) + strlen(blocklist.entries[k].name) +4);
                     strcat(blocklist.entries[i].name, " | ");
                     strcat(blocklist.entries[i].name, blocklist.entries[k].name);
@@ -173,7 +173,7 @@ void blocklist_merge () {
             blocklist.numips += ((blocklist.entries[i].ip_max - blocklist.entries[i].ip_min) + 1UL);
     } //end for i
     if (merged) {
-        do_log(LOG_INFO, "INFO: Merged %d of %d entries.", merged, blocklist.count);
+        do_log(LOG_INFO, "INFO: Merged %d of %u entries.", merged, blocklist.count);
         blocklist_sort();
         blocklist.count -= merged;
         blocklist.entries = realloc(blocklist.entries, blocklist.count * sizeof(block_entry_t));
@@ -191,9 +191,9 @@ void blocklist_stats(int clearhits) {
     for (i = 0; i < blocklist.count; i++) {
         if (blocklist.entries[i].hits >= 1) {
 #ifndef LOWMEM
-            do_log(LOG_INFO, "STATS: %u.%u.%u.%u-%u.%u.%u.%u: %s - %d hit(s)", NIPQUADREV(blocklist.entries[i].ip_min), NIPQUADREV(blocklist.entries[i].ip_max), blocklist.entries[i].name, blocklist.entries[i].hits);
+            do_log(LOG_INFO, "STATS: %u.%u.%u.%u-%u.%u.%u.%u: %s - %u hit(s)", NIPQUADREV(blocklist.entries[i].ip_min), NIPQUADREV(blocklist.entries[i].ip_max), blocklist.entries[i].name, blocklist.entries[i].hits);
 #else
-            do_log(LOG_INFO, "STATS: %u.%u.%u.%u-%u.%u.%u.%u: %d hit(s)", NIPQUADREV(blocklist.entries[i].ip_min), NIPQUADREV(blocklist.entries[i].ip_max), blocklist.entries[i].hits);
+            do_log(LOG_INFO, "STATS: %u.%u.%u.%u-%u.%u.%u.%u: %u hit(s)", NIPQUADREV(blocklist.entries[i].ip_min), NIPQUADREV(blocklist.entries[i].ip_max), blocklist.entries[i].hits);
 #endif
             total += blocklist.entries[i].hits;
             if (clearhits) {
