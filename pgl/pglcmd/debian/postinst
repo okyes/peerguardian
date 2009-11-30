@@ -252,7 +252,7 @@ done
     for LIST in $LISTS_URL ; do
         # This function depends on LIST:
         LIST_URL2LIST_NAME
-        # LIST_URL is empty, if LIST is notimestamp or locallist - so we can continue with the next LIST.
+        # LIST_URL is empty, if LIST is locallist - so we can continue with the next LIST.
         [ -z "$LIST_URL" ] && continue
         # Gives currently selected (=configured in blocklists.list and known by debconf) lists:
         LISTS_SET="$LISTS_SET $(echo $LIST_NAME | grep -Eo "$LISTS_POSSIBLE_PIPE" || true)"
@@ -460,15 +460,11 @@ for LIST_NAME in $LISTS_GET_NAME ; do
     if [ "$LIST_URL" = dummy ] ; then
         # just ignore the dummy
         true
-    elif grep -Eq "^[[:space:]]*(notimestamp)?[[:space:]]*(http://)?$LIST_URL_REGEX" $BLOCKLISTS_LIST ; then
+    elif grep -Eq "^[[:space:]]*(http://)?$LIST_URL_REGEX" $BLOCKLISTS_LIST ; then
         # LIST_URL is already selected.
-        # If the already selected list is used with the deprecated notimestamp option
-        # we're fine, too.
         true
-    elif LIST_NAME2LIST_URL_ALT && [ -n "$LIST_URL_ALT" ] && grep -Eq "^[[:space:]]*(notimestamp)?[[:space:]]*(http://)?$LIST_URL_ALT" $BLOCKLISTS_LIST ; then
+    elif LIST_NAME2LIST_URL_ALT && [ -n "$LIST_URL_ALT" ] && grep -Eq "^[[:space:]]*(http://)?$LIST_URL_ALT" $BLOCKLISTS_LIST ; then
         # LIST_URL_ALT is already selected with an alternative URL.
-        # If the already selected list is used with the deprecated notimestamp option
-        # we're fine, too
         true
     elif grep -Eq "^#(http://)?$LIST_URL_REGEX$" $BLOCKLISTS_LIST ; then
         # LIST is commented, uncomment it.
@@ -496,21 +492,21 @@ for LIST_NAME in $LISTS_XGET ; do
     LIST_NAME2LIST_URL
     LIST_NAME2LIST_URL_ALT
     # Remove deselected and known incompatible lists from blocklists.list
-    if grep -Eq "^[[:space:]]*(notimestamp)?[[:space:]]*(http://)?$LIST_URL_REGEX" $BLOCKLISTS_LIST ; then
+    if grep -Eq "^[[:space:]]*(http://)?$LIST_URL_REGEX" $BLOCKLISTS_LIST ; then
         # LIST_NAME is currently selected, add a # in front of pattern
-        sed -i -r "s|^[[:space:]]*(notimestamp)?[[:space:]]*(http://)?$LIST_URL_REGEX|#&|" $BLOCKLISTS_LIST
+        sed -i -r "s|^[[:space:]]*(http://)?$LIST_URL_REGEX|#&|" $BLOCKLISTS_LIST
     fi
-    if [ -n "$LIST_URL_ALT" ] && grep -Eq "^[[:space:]]*(notimestamp)?[[:space:]]*(http://)?$LIST_URL_ALT" $BLOCKLISTS_LIST ; then  # List is currently selected
+    if [ -n "$LIST_URL_ALT" ] && grep -Eq "^[[:space:]]*(http://)?$LIST_URL_ALT" $BLOCKLISTS_LIST ; then  # List is currently selected
         # LIST_NAME is currently selected with alternative URL, add a # in front of pattern
-        sed -i -r "s|^[[:space:]]*(notimestamp)?[[:space:]]*(http://)?$LIST_URL_ALT|#&|" $BLOCKLISTS_LIST
+        sed -i -r "s|^[[:space:]]*(http://)?$LIST_URL_ALT|#&|" $BLOCKLISTS_LIST
     fi
 done
 
 # Unavailable lists:
 for LIST_URL in www.bluetack.co.uk/config/nipfilter.dat.gz www.bluetack.co.uk/config/pipfilter.dat.gz ; do
-    if grep -Eq "^[[:space:]]*(notimestamp)?[[:space:]]*(http://)?$LIST_URL" $BLOCKLISTS_LIST ; then
+    if grep -Eq "^[[:space:]]*(http://)?$LIST_URL" $BLOCKLISTS_LIST ; then
         echo -n "Disabling $LIST_URL because it is no more downloadable directly"
-        sed -i -r "s|^[[:space:]]*(notimestamp)?[[:space:]]*(http://)?$LIST_URL|# Disabled because list is no more downloadable directly: &|" $BLOCKLISTS_LIST
+        sed -i -r "s|^[[:space:]]*(http://)?$LIST_URL|# Disabled because list is no more downloadable directly: &|" $BLOCKLISTS_LIST
         echo "."
     fi
 done
