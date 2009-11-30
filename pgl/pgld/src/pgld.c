@@ -390,9 +390,9 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                 found_range->hits++;
                 setipinfo(src, dst, proto, ip, payload);
 #ifndef LOWMEM
-                do_log(LOG_NOTICE, " IN: %-22s -> %-22s %-4s || %s",src,dst,proto,found_range->name);
+                do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s || %s",src,dst,proto,found_range->name);
 #else
-                do_log(LOG_NOTICE, " IN: %-22s -> %-22s %-4s",src,dst,proto);
+                do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s",src,dst,proto);
 #endif
             } else if (unlikely(accept_mark)) {
                 // we set the user-defined accept_mark and set NF_REPEAT verdict
@@ -417,9 +417,9 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                 found_range->hits++;
                 setipinfo(src, dst, proto, ip, payload);
 #ifndef LOWMEM
-                do_log(LOG_NOTICE, "OUT: %-22s -> %-22s %-4s || %s",src,dst,proto,found_range->name);
+                do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4s || %s",src,dst,proto,found_range->name);
 #else
-                do_log(LOG_NOTICE, "OUT: %-22s -> %-22s %-4su", src,dst,proto);
+                do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4su", src,dst,proto);
 #endif
             } else if (unlikely(accept_mark)) {
                 // we set the user-defined accept_mark and set NF_REPEAT verdict
@@ -447,9 +447,9 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                 found_range->hits++;
                 setipinfo(src, dst, proto, ip, payload);
 #ifndef LOWMEM
-                do_log(LOG_NOTICE, "FWD: %-22s -> %-22s %-4s || %s",src,dst,proto,found_range->name);
+                do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s || %s",src,dst,proto,found_range->name);
 #else
-                do_log(LOG_NOTICE, "FWD: %-22s -> %-22s %-4s",src,dst,proto);
+                do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s",src,dst,proto);
 #endif
             } else if ( unlikely(accept_mark) ) {
                 // we set the user-defined accept_mark and set NF_REPEAT verdict
