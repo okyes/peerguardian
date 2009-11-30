@@ -15,6 +15,7 @@ pglcmd (2.0~pre1-1) unstable; urgency=low
     - removed function test_set_BLOCKLIST
   * build_blocklist: premerge blocklist
   * removed deprecated notimestamp option
+  * removed tests for obsolete blockcontrol variables
 
 
 

@@ -608,21 +608,6 @@ test_IPTABLES_VARS () {
                     exit $E_CONFIG
                     ;;
             esac
-            # Test if old unused config variables are still used
-            if [ -n "$IP_TCP_IN" ] \
-            || [ -n "$IP_UDP_IN" ] \
-            || [ -n "$IP_TCP_OUT" ] \
-            || [ -n "$IP_UDP_OUT" ] \
-            || [ -n "$IP_TCP_FORWARD" ] \
-            || [ -n "$IP_UDP_FORWARD" ] ; then
-                log_failure_msg "Error $E_CONFIG: You're using the obsolete variables IP_[TCP|UDP]_[IN|OUT|FORWARD]."
-                log_failure_msg "Since they are no more used this would result in an unwanted behaviour."
-                log_failure_msg "Therefore not starting $NAME."
-                exit $E_CONFIG
-            fi
-            if [ -n "$LOOPBACK" ] ; then
-                log_warning_msg "The variable LOOPBACK is no more used. Use WHITE_LOCAL instead."
-            fi
             case "$WHITE_LOCAL" in
                 '0'|'1'|'2')
                     true
