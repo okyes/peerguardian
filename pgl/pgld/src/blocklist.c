@@ -150,7 +150,7 @@ void blocklist_merge () {
             // go through merged elements and blank them
             for (k = i + 1; k < j; k++) {
 #ifndef LOWMEM
-                if ( !strstr(blocklist.entries[i].name, blocklist.entries[k].name) ) {
+                if ( (strlen(blocklist.entries[i].name) + strlen(blocklist.entries[k].name)) <  MAX_INMEMLABEL_LENGTH && !strstr(blocklist.entries[i].name, blocklist.entries[k].name) ) {
                     blocklist.entries[i].name = realloc(blocklist.entries[i].name, strlen(blocklist.entries[i].name) + strlen(blocklist.entries[k].name) +4);
                     strcat(blocklist.entries[i].name, " | ");
                     strcat(blocklist.entries[i].name, blocklist.entries[k].name);
