@@ -54,7 +54,7 @@
 #include "pgld.h"
 
 static int opt_merge = 0;
-static int queue_num = 0;
+static uint16_t queue_num = 0;
 static int use_syslog = 0;
 static uint32_t accept_mark = 0, reject_mark = 0;
 static char *pidfile_name = NULL;
@@ -490,14 +490,14 @@ static int nfqueue_bind() {
         return -1;
     }
 
-    do_log(LOG_INFO, "INFO: NFQUEUE: binding to queue %d", queue_num);
+    do_log(LOG_INFO, "INFO: NFQUEUE: binding to queue %d", ntohs(queue_num));
     if (accept_mark) {
-        do_log(LOG_INFO, "INFO: ACCEPT mark: %d", ntohl(accept_mark));
+        do_log(LOG_INFO, "INFO: ACCEPT mark: %u", ntohl(accept_mark));
     }
     if (reject_mark) {
-        do_log(LOG_INFO, "INFO: REJECT mark: %d", ntohl(reject_mark));
+        do_log(LOG_INFO, "INFO: REJECT mark: %u", ntohl(reject_mark));
     }
-    nfqueue_qh = nfq_create_queue(nfqueue_h, queue_num, &nfqueue_cb, NULL);
+    nfqueue_qh = nfq_create_queue(nfqueue_h, ntohs(queue_num), &nfqueue_cb, NULL);
     if (!nfqueue_qh) {
         do_log(LOG_ERR, "ERROR: Error during nfq_create_queue(): %s", strerror(errno));
         nfq_close(nfqueue_h);
@@ -595,7 +595,7 @@ int main(int argc, char *argv[]) {
                               )) != -1) {
         switch (opt) {
         case 'q':
-            queue_num = atoi(optarg);
+            queue_num = htons((uint16_t)atoi(optarg));
             break;
         case 'r':
             reject_mark = htonl((uint32_t)atoi(optarg));
@@ -649,21 +649,15 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    if ((queue_num < 0 || queue_num > 65535) && !opt_merge) {
+    if (!queue_num) {
+        queue_num = htons(92);
+    }
+
+    if ((ntohs(queue_num) < 0 || ntohs(queue_num) > 65535) && !opt_merge) {
         fprintf(stderr, "\nERROR: Invalid queue number! Must be 0-65535\n\n");
         print_usage();
         exit(1);
     }
-
-    if (!queue_num) {
-        queue_num = 92;
-    }
-//     if (!reject_mark) {
-//         reject_mark = htonl((uint32_t)10);
-//     }
-//     if (!accept_mark) {
-//         accept_mark = htonl((uint32_t)20);
-//     }
 
     if (logfile_name != NULL) {
         if ((logfile=fopen(logfile_name,"a")) == NULL) {
@@ -672,6 +666,7 @@ int main(int argc, char *argv[]) {
             exit(-1);
         }
     }
+
     if (pidfile_name == NULL) {
             pidfile_name=malloc(strlen("/var/run/pgld.pid")+1);
             CHECK_OOM(pidfile_name);
