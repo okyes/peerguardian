@@ -3,6 +3,9 @@ pgld (2.0~pre1-1) unstable; urgency=low
   * transition to pgld at peerguardian.sourceforge.net
   * removed debian/cron*, debian/init.d and debian/postrm. This is covered by
     pglcmd.
+  * removed dl-blocklistpro.pl: blocklistpro is for manual download only. Of
+    course we honour the decisions of the blocklist providers. The underlying
+    single lists of ipfilter.dat can be downloaded with pglcmd.
   * Debian packaging:
     - depend on debhelper version 6, added debian/compat, removed DH_COMPAT from
       rules

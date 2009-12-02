@@ -69,7 +69,6 @@ DISTFILES = \
 	src/parser.c src/parser.h \
 	src/stream.c src/stream.h \
 	src/dbus.c src/dbus.h \
-	src/dl-blocklistpro.pl \
 	dbus-pgld.conf ChangeLog README logrotate\
 	debian/changelog debian/control debian/copyright \
 	debian/default \
@@ -94,7 +93,6 @@ clean:
 
 install:
 	install -D -m 755 src/pgld $(DESTDIR)/$(SBINDIR)/pgld
-	#install -D -m 755 src/dl-blocklistpro.pl $(DESTDIR)/$(PLUGINDIR)/dl-blocklistpro.pl
 ifeq ($(DBUS),yes)
 	install -D -m 644 dbus-pgld.conf $(DESTDIR)/$(DBUSCONFDIR)/pgld.conf
 	install -D -m 644 src/dbus.so $(DESTDIR)/$(PLUGINDIR)/dbus.so

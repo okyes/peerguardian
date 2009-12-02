@@ -13,9 +13,6 @@ if test "$1" = "configure"; then
 
     mkdir -p /var/lib/pgl
 
-    if [ -n "$BLOCKLISTPRO_NAMES" ] ; then
-        /usr/lib/pgl/dl-blocklistpro.pl $BLOCKLISTPRO_NAMES
-    fi
 fi
 
 #DEBHELPER#
