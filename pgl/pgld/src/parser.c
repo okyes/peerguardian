@@ -52,8 +52,8 @@ static int loadlist_ascii(const char *filename, const char *charset) {
     int ret = -1;
     iconv_t ic;
     if (stream_open(&s, filename) < 0) {
-        do_log(LOG_ERR, "ERROR: opening %s.", filename);
-        return -1;
+//         do_log(LOG_ERR, "ERROR: Error opening %s as ASCII.", filename);
+        return -2;
     }
 
     ic = iconv_open("UTF-8", charset);
@@ -145,7 +145,7 @@ static int loadlist_binary(const char *filename) {
 
     f = fopen(filename, "r");
     if (!f) {
-        do_log(LOG_ERR, "ERROR: opening %s.", filename);
+        do_log(LOG_ERR, "ERROR: Error opening %s as binary.", filename);
         return -1;
     }
 
@@ -284,15 +284,19 @@ err:
 
 int load_list(const char *filename, const char *charset) {
     uint32_t prevcount;
+    int ret;
     // Get current count and try to parse the file as ascii
     prevcount = blocklist.count;
-    if (loadlist_ascii(filename, charset ? charset : "ISO8859-1") == 0) {
+    ret=loadlist_ascii(filename, charset ? charset : "ISO8859-1");
+    if (ret == 0) {
         if (filename) {
             do_log(LOG_INFO, "INFO: ASCII: %u entries loaded from %s", blocklist.count - prevcount, filename);
         } else {
             do_log(LOG_INFO, "INFO: ASCII: %u entries loaded from STDIN", blocklist.count - prevcount);
         }
         return 0;
+    } else if (ret == -2) {
+        return ret;
     }
     // it wasn't ascii so clear the blocklist starting were it was before and get new count
     blocklist_clear(prevcount);

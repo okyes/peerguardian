@@ -278,7 +278,7 @@ static void sighandler(int sig, siginfo_t *info, void *context) {
             }
         }
         if (load_all_lists() < 0) {
-            do_log(LOG_ERR, "ERROR: Cannot load the blocklist");
+            do_log(LOG_ERR, "ERROR: Cannot re-load the blocklist(s)");
         }
         do_log(LOG_INFO, "INFO: Blocklist reloaded");
         break;
@@ -683,7 +683,7 @@ int main(int argc, char *argv[]) {
 
     blocklist_init();
     if (load_all_lists() < 0) {
-        do_log(LOG_ERR, "ERROR: Cannot load the blocklist");
+        do_log(LOG_ERR, "ERROR: Cannot load the blocklist(s)");
         return -1;
     }
 

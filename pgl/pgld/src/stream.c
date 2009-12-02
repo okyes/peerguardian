@@ -38,8 +38,7 @@ int stream_open(stream_t *stream, const char *filename) {
     if (l >= 3 && strcmp(filename + l - 3, ".gz") == 0) {
         stream->f = fopen(filename, "r");
         if (!stream->f) {
-            do_log(LOG_ERR, "ERROR: Cannot open file %s: %s",
-                   filename, strerror(errno));
+            do_log(LOG_ERR, "ERROR: Cannot open file %s: %s",filename, strerror(errno));
             return -1;
         }
         stream->compressed = 1;
@@ -57,13 +56,14 @@ int stream_open(stream_t *stream, const char *filename) {
         stream->eos = 0;
     } else {
         stream->compressed = 0;
-        stream->f = fopen(filename, "r");
-        if (!stream->f) {
-            stream->f = stdin;
+        if (filename) {
+            stream->f = fopen(filename, "r");
             if (!stream->f) {
                 do_log(LOG_ERR, "ERROR: Cannot open file %s: %s",filename, strerror(errno));
                 return -1;
             }
+        } else {
+            stream->f = stdin;
         }
     }
     return 0;
