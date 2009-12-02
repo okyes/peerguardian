@@ -14,10 +14,14 @@ pglcmd (2.0~pre1-1) unstable; urgency=low
       avoid confusion with other use of this variable.
     - removed function test_set_BLOCKLIST
   * build_blocklist: premerge blocklist
-  * removed deprecated notimestamp option
   * removed tests for obsolete blockcontrol variables
-
-
+  * all blocklists in MASTER_BLOCKLIST_DIR, except those which end in "~",
+    are used by pgld. This allows to combine pglcmd's automatic blocklist
+    management with manual placed blocklists ("local lists") without any
+    configuration hassle.
+  * removed "notimestamp" and "locallist" option from blocklists.list
+  * force to build master blocklist with "force-update". Otherwise only build,
+    if the relevant configuration changed.
 
   [Cade Robinson]
   * added pglcmd options
@@ -31,7 +35,7 @@ pglcmd (2.0~pre1-1) unstable; urgency=low
       parsing in pgld
   * added the ipfilter.dat URL to blocklists.list for reference.
 
- -- jre <jre-phoenix@users.sourceforge.net>  Wed, 07 Oct 2009 22:24:03 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 02 Dec 2009 23:55:08 +0100
 
 blockcontrol (1.6.9-1) unstable; urgency=low
 

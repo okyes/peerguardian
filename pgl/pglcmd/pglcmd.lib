@@ -548,14 +548,6 @@ test_BLOCKLISTS_DIR () {
     }
 }
 
-test_BLOCKLISTS_LIST () {
-    [ -f "$BLOCKLISTS_LIST" ] || {
-        log_failure_msg "Error $E_XFILE: Missing file $BLOCKLISTS_LIST."
-        log_failure_msg "Check the BLOCKLISTS_LIST setting."
-        exit $E_XFILE
-    }
-}
-
 test_CMD_LOG () {
     [ -d "$(dirname $CMD_LOG)" ] || {
         echo -n "Creating missing directory $(dirname $CMD_LOG) ..."
@@ -666,13 +658,6 @@ test_net () {
         log_failure_msg "Error $E_NETWORK_DOWN: No connection to $TESTHOST. Aborting!"
         exit $E_NETWORK_DOWN
     fi
-}
-
-test_BLOCKLIST () {
-    [ -f "$MASTER_BLOCKLIST" ] || build_blocklist || {
-        log_failure_msg "Error $E_BLOCKLIST: Missing file $MASTER_BLOCKLIST."
-        exit $E_BLOCKLIST
-    }
 }
 
 white_lan () {
@@ -1087,6 +1072,11 @@ delete_iptables () {
     esac
 }
 
+set_md5sum () {
+    SUM="$( echo $IP_REMOVE ; [ -f "$BLOCKLISTS_LIST" ] && md5sum $BLOCKLISTS_LIST ; [ -f "$MASTER_BLOCKLIST" ] && md5sum $MASTER_BLOCKLIST )"
+    MD5SUM="$(echo $SUM | md5sum | cut -c -32)"
+}
+
 # Function that starts the watchdog
 do_start_wd () {
     # Start pglcmd.wd.
@@ -1153,12 +1143,18 @@ do_start () {
             ;;
          3)    # Daemon is not running.
             # Build blocklist if necessary to make sure pglcmd's settings are taken.
-            [ -e "$MD5SUM_FILE" ] && {
-                SUM="$(echo $IP_REMOVE ; md5sum $BLOCKLISTS_LIST)"
-                MD5SUM="$(echo $SUM | md5sum | cut -c -32)"
-                [ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ]
-                } || build_blocklist
-            test_BLOCKLIST
+            [ -e "$MD5SUM_FILE" ] && set_md5sum && [ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ] || build_blocklist
+            # All blocklists in the MASTER_BLOCKLIST_DIR directory, except those which end in "~", are used by pgld.
+            MASTER_BLOCKLISTS="$(find $MASTER_BLOCKLIST_DIR -maxdepth 1 -type f ! -name "*~" -print0 | xargs -0r)"
+            [ -n "$MASTER_BLOCKLISTS" ] || {
+                log_failure_msg "Error $E_BLOCKLIST: No master blocklist found in $MASTER_BLOCKLIST_DIR."
+                exit $E_BLOCKLIST
+                }
+            # Notify users of possible excess blocklists:
+            [ -f "$MASTER_BLOCKLIST" ] && [ -f ${MASTER_BLOCKLIST_DIR}/guarding.p2p ] && \
+                echo "WARNING: You are using the old ${MASTER_BLOCKLIST_DIR}/guarding.p2p which has been replaced by the new $MASTER_BLOCKLIST."
+            [ -f ${MASTER_BLOCKLIST_DIR}/guarding.p2p.backup ] && \
+                echo "WARNING: You are using ${MASTER_BLOCKLIST_DIR}/guarding.p2p.backup. Probably you only want to use the new $MASTER_BLOCKLIST."
             test_IPTABLES_TARGET
             test_REJECT
             test_ACCEPT
@@ -1268,7 +1264,7 @@ do_start () {
             fi
 
             # Set the options the daemon is started with
-            DAEMON_OPTS="$LOG_SYSLOG_OPT $LOG_LOGFILE_OPT $DBUS_OPT -p $PIDFILE $NFQUEUE_NUMBER_OPT $REJECT_OPT $ACCEPT_OPT $MASTER_BLOCKLIST"
+            DAEMON_OPTS="$LOG_SYSLOG_OPT $LOG_LOGFILE_OPT $DBUS_OPT -p $PIDFILE $NFQUEUE_NUMBER_OPT $REJECT_OPT $ACCEPT_OPT $MASTER_BLOCKLISTS"
 
             # Test NICE_LEVEL setting.
             [ "$NICE_LEVEL" -ge -20 ] && [ "$NICE_LEVEL" -le 19 ] || {
@@ -1346,9 +1342,22 @@ do_reload () {
     status_of_proc $DAEMON $NAME > /dev/null 2>&1
     RETVAL=$?
     case "$RETVAL" in
-        0)    # Daemon is running
-            build_blocklist
-            test_BLOCKLIST
+        0)  # Daemon is running
+            # Build blocklist if necessary to make sure pglcmd's settings are taken.
+            # Force to build it, if started with force-update.
+            [ "$1" = reload ] && \
+            [ -e "$MD5SUM_FILE" ] && set_md5sum && [ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ] || build_blocklist
+            # TODO: Instead of checking if any master blocklist is available, there should be a check to see whether
+            # TODO: all blocklists pgld was started with, are available. Even better would be to check which master
+            # TODO: blocklists are available and to tell pgld to use those blocklists. But I think that would require
+            # TODO: a restart instead of the reload.
+            # TODO: Note that pgld reloads successfully even if a blocklist is missing.
+            # All blocklists in the MASTER_BLOCKLIST_DIR directory, except those which end in "~", are used by pgld.
+            MASTER_BLOCKLISTS="$(find $MASTER_BLOCKLIST_DIR -maxdepth 1 -type f ! -name "*~" -print0 | xargs -0r)"
+            [ -n "$MASTER_BLOCKLISTS" ] || {
+                log_failure_msg "Error $E_BLOCKLIST: No master blocklist found in $MASTER_BLOCKLIST_DIR."
+                exit $E_BLOCKLIST
+                }
             echo -n "Reloading $NAME... "
             kill -s HUP "$(pidofproc $DAEMON)"
             RETVAL=$?
@@ -1370,11 +1379,12 @@ do_reload () {
 # Read the non-comment|not-empty lines from BLOCKLISTS_LIST.
 # Ignore all entries after # (comments).
 set_LISTS_URL () {
-    test_BLOCKLISTS_LIST
-    LISTS_URL="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $BLOCKLISTS_LIST | sed "s|#.*$||g")"
-    [ $? -eq 0 ] || { log_failure_msg "Error: set_LISTS_URL exited with $?" ; exit 1 ; }
-    # (Re-)set LOCALLIST for further use.
-    LOCALLIST=""
+    if [ -f "$BLOCKLISTS_LIST" ] ; then
+        LISTS_URL="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $BLOCKLISTS_LIST | sed "s|#.*$||g")"
+        [ $? -eq 0 ] || { log_failure_msg "Error: set_LISTS_URL exited with $?" ; exit 1 ; }
+    else
+        LISTS_URL=""
+    fi
 }
 
 # This function depends on LIST:
@@ -1382,20 +1392,8 @@ LIST_URL2LIST_NAME () {
     # Set LIST_URL depending on LIST
     # Since IFS now is standard IFS, separate words (not the complete lines from
     # blocklists.list) are used for LIST.
-    case "$LIST" in
-        # Local blocklists:
-        locallist)
-            # Remember that the next LIST is a locallist and reset it after usage (in get_blocklist)
-            LOCALLIST=1
-            LIST_URL=""
-            LIST_NAME=""
-            return
-            ;;
-        # Assuming remote blocklists for the rest:
-        *)
-            LIST_URL="$(echo $LIST | sed -r "s|http://||")"
-            ;;
-    esac
+    # Assuming remote blocklists (supported through wget) for all blocklists in blocklists.list:
+    LIST_URL="$(echo $LIST | sed -r "s|http://||" | sed -r "s|https://||" | sed -r "s|ftp://||")"
 
     # Translate LIST_URL to human readable/debconf LIST_NAME.
     # Several LIST_URL may resolve to the same LIST_NAME, if alternative URLs are known for the same list.
@@ -1620,127 +1618,111 @@ LIST_NAME2LIST_URL_ALT () {
 }
 
 # Get blocklist.
-# Depends on LIST being set.
 get_blocklist () {
+    # Depends on LIST being set.
+    [ -n "$LIST" ] || {
+        echo "Error $E_BLOCKLIST: get_blocklist: internal error, LIST is not set or BLOCKLISTS_LIST not existant!"
+        exit $E_BLOCKLIST
+        }
     test_BLOCKLISTS_DIR
     # This function depends on LIST:
     LIST_URL2LIST_NAME
-    # LIST_URL is empty, if LIST is locallist - so we can return to the for loop to the next LIST.
-    # If it is a locallist, LOCALLIST=1 was just set, so that the next LIST can be handled as such.
-    [ -z "$LIST_URL" ] && return
 
     # Set blocklist directory name.
     BLOCKLIST_DIR="$BLOCKLISTS_DIR/$LIST_NAME_FIX"
     # Gives the name of the blocklist downloaded by wget. Reset the value here
     # and set it later in the script:
     BLOCKLIST_DOWNLOAD=""
-    # Gives the name of successfully downloaded file or links to local blocklist:
+    # Gives the name of successfully downloaded files:
     BLOCKLIST_DOWNLOADED="$BLOCKLIST_DIR/downloaded/$LIST_NAME_FIX"
     # BLOCKLIST_DOWNLOADED is extracted to this file
     BLOCKLIST_EXTRACTED="$BLOCKLIST_DIR/extracted/$LIST_NAME_FIX"
 
     echo -n "Updating $LIST_NAME... "
 
-    # Create necessary (for local and remote lists) directories if missing:
+    # Create necessary directories if missing:
     [ -d "$(dirname $BLOCKLIST_DOWNLOADED)" ] || mkdir -p "$(dirname $BLOCKLIST_DOWNLOADED)" || { log_failure_msg "Error: mkdir -p exited with $?" ; exit 1 ; }
 
-    # Get lists
-    if [ "$LOCALLIST" = 1 ] ; then
-        # This is a locallist as announced by the previous LIST.
-        # Reset LOCALLIST for the next LIST.
-        LOCALLIST=""
-        if [ -f "$LIST_URL" ] ; then
-            ln -fs $LIST_URL $BLOCKLIST_DOWNLOADED || { log_failure_msg " Error: ln exited with $?"; exit 1; }
-            echo "... using local blocklist."
-            [ -f "$BLOCKLIST_DOWNLOADED" ] && \
-                UPDATE_LOCAL="$UPDATE_LOCAL $LIST_NAME (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));" || { \
-                log_failure_msg " Error: $LIST_URL exists, but $BLOCKLIST_DOWNLOADED doesn't exist! Strange, aborting!" ; exit 1 ; }
+    # Assuming remote blocklists (supported through wget) for all blocklists in blocklists.list:
+    # Create necessary directories if missing:
+    [ -d "$BLOCKLIST_DIR/download" ] || mkdir -p "$BLOCKLIST_DIR/download" || { log_failure_msg " Error: mkdir -p exited with $?" ; exit 1 ; }
+
+    cd "$BLOCKLIST_DIR/download"|| { log_failure_msg " Error: cd exited with $?" ; exit 1 ; }
+    # Download blocklists with timestamping. If this fails remove
+    # the old blocklist (which might be a corrupted file)
+    # and try again without timestamping:
+    test_external wget || exit $E_XEXTERNAL
+    # If 7z is not available, change user agent to pglcmd_x7z, so that iblocklist.com knows we are not capable of 7z.
+    test_external p7zip > /dev/null 2>&1 || \
+        WGET_OPTS="$(echo $WGET_OPTS | sed "s|--user-agent=${CMD_NAME}/${VERSION}|--user-agent=${CMD_NAME}_x7z/${VERSION}|")"
+    $WGET_OPTS -N "$LIST_URL"
+    WGET_RET=$?
+    case "$WGET_RET" in
+        0)
+            ;;
+        403)
+            echo -n "... Access denied!"
+            rm -Rf $BLOCKLIST_DIR/download/* || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
+            ;;
+        *)
+            echo -n "... failed!"
+            rm -Rf $BLOCKLIST_DIR/download/* || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
+            echo -n " Trying without timestamping ..."
+            $WGET_OPTS "$LIST_URL"
+            WGET_RET=$?
+            ;;
+    esac
+
+
+    # Get the name of the downloaded blocklist: BLOCKLIST_DOWNLOAD
+    # Take the newest file, in case there are several files in the folder.
+    # There may be several files from different URLs for the same LIST_NAME
+    # If the directory is empty the variable will stay empty, too.
+    ls $BLOCKLIST_DIR/download/* > /dev/null 2>&1 && \
+        BLOCKLIST_DOWNLOAD="$BLOCKLIST_DIR/download/$(ls -1t $BLOCKLIST_DIR/download/ | head -n 1)"
+
+    # Download was not successful:
+    if [ "$WGET_RET" -eq 403 ] ; then
+        if [ -f "$BLOCKLIST_DOWNLOADED" ] ; then
+            echo " Using old blocklist."
+            UPDATE_403="$UPDATE_403 $UPDATE_403 (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));"
         else
-            log_failure_msg " Error $E_BLOCKLIST: $LIST_URL not available. Aborting!"
+            log_failure_msg " Error $E_BLOCKLIST: $LIST_NAME not available. Aborting!"
+            log_failure_msg "Check your entry $LIST_URL in $BLOCKLISTS_LIST."
+            log_failure_msg "To fix this manually download $LIST_URL and save it as $BLOCKLIST_DOWNLOADED"
             exit $E_BLOCKLIST
         fi
-    else
-        # Assuming remote blocklists for the rest:
-        # Create necessary directories if missing:
-        [ -d "$BLOCKLIST_DIR/download" ] || mkdir -p "$BLOCKLIST_DIR/download" || { log_failure_msg " Error: mkdir -p exited with $?" ; exit 1 ; }
-
-        cd "$BLOCKLIST_DIR/download"|| { log_failure_msg " Error: cd exited with $?" ; exit 1 ; }
-        # Download blocklists with timestamping. If this fails remove
-        # the old blocklist (which might be a corrupted file)
-        # and try again without timestamping:
-        test_external wget || exit $E_XEXTERNAL
-        # If 7z is not available, change user agent to pglcmd_x7z, so that iblocklist.com knows we are not capable of 7z.
-        test_external p7zip > /dev/null 2>&1 || \
-            WGET_OPTS="$(echo $WGET_OPTS | sed "s|--user-agent=${CMD_NAME}/${VERSION}|--user-agent=${CMD_NAME}_x7z/${VERSION}|")"
-        $WGET_OPTS -N "$LIST_URL"
-        WGET_RET=$?
-        case "$WGET_RET" in
-            0)
-                ;;
-            403)
-                echo -n "... Access denied!"
-                rm -Rf $BLOCKLIST_DIR/download/* || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
-                ;;
-            *)
-                echo -n "... failed!"
-                rm -Rf $BLOCKLIST_DIR/download/* || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
-                echo -n " Trying without timestamping ..."
-                $WGET_OPTS "$LIST_URL"
-                WGET_RET=$?
-                ;;
-        esac
-
-
-        # Get the name of the downloaded blocklist: BLOCKLIST_DOWNLOAD
-        # Take the newest file, in case there are several files in the folder.
-        # There may be several files from different URLs for the same LIST_NAME
-        # If the directory is empty the variable will stay empty, too.
-        ls $BLOCKLIST_DIR/download/* > /dev/null 2>&1 && \
-            BLOCKLIST_DOWNLOAD="$BLOCKLIST_DIR/download/$(ls -1t $BLOCKLIST_DIR/download/ | head -n 1)"
-
-        # Download was not successful:
-        if [ "$WGET_RET" -eq 403 ] ; then
-            if [ -f "$BLOCKLIST_DOWNLOADED" ] ; then
-                echo " Using old blocklist."
-                UPDATE_403="$UPDATE_403 $UPDATE_403 (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));"
-            else
-                log_failure_msg " Error $E_BLOCKLIST: $LIST_NAME not available. Aborting!"
-                log_failure_msg "Check your entry $LIST_URL in $BLOCKLISTS_LIST."
-                log_failure_msg "To fix this manually download $LIST_URL and save it as $BLOCKLIST_DOWNLOADED"
-                exit $E_BLOCKLIST
-            fi
-        elif [ "$WGET_RET" -ne 0 ] ; then
-            if [ -f "$BLOCKLIST_DOWNLOADED" ] ; then
-                echo " failed! Using old blocklist."
-                UPDATE_FAIL="$UPDATE_FAIL $LIST_NAME (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));"
-            else
-                log_failure_msg " Error $E_BLOCKLIST: $LIST_NAME not available. Aborting!"
-                log_failure_msg "To fix this manually download $LIST_URL and save it as $BLOCKLIST_DOWNLOADED"
-                exit $E_BLOCKLIST
-            fi
-        # Download was successful ($WGET_RET = 0):
-        # This should not happen, just for debugging:
-        elif [ -z "$BLOCKLIST_DOWNLOAD" ] ; then
-            log_failure_msg " Error: $LIST_URL was downloaded successfully but BLOCKLIST_DOWNLOAD is empty! Strange, aborting!"
-            exit 1
-        # This should not happen, just for debugging:
-        elif [ ! -f "$BLOCKLIST_DOWNLOAD" ] ; then
-            log_failure_msg " Error: $LIST_URL was downloaded successfully but $BLOCKLIST_DOWNLOAD doesn't exist! Strange, aborting!"
-            exit 1
-        # Download was successful, old blocklist is not available or older than the new one:
-        elif ( [ ! -f "$BLOCKLIST_DOWNLOADED" ] || [ "$BLOCKLIST_DOWNLOAD" -nt "$BLOCKLIST_DOWNLOADED" ] ) ; then
-            cp -f --preserve=timestamps $BLOCKLIST_DOWNLOAD $BLOCKLIST_DOWNLOADED && \
-                echo "done." || { log_failure_msg " Error: cp exited with $?"; exit 1; }
-            [ -f "$BLOCKLIST_DOWNLOADED" ] && \
-                UPDATE_SUCCESS="$UPDATE_SUCCESS $LIST_NAME (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));" || { \
-                log_failure_msg " Error: $LIST_URL exists, but $BLOCKLIST_DOWNLOADED doesn't exist! Strange, aborting!" ; exit 1 ; }
-        # Download was successful, blocklist is not newer than the old one:
+    elif [ "$WGET_RET" -ne 0 ] ; then
+        if [ -f "$BLOCKLIST_DOWNLOADED" ] ; then
+            echo " failed! Using old blocklist."
+            UPDATE_FAIL="$UPDATE_FAIL $LIST_NAME (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));"
         else
-            echo ". No update available."
-            [ -f "$BLOCKLIST_DOWNLOADED" ] && \
-                UPDATE_SUCCESS_NA="$UPDATE_SUCCESS_NA $LIST_NAME (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));" || { \
-                log_failure_msg " Error: $LIST_URL exists, but $BLOCKLIST_DOWNLOADED doesn't exist! Strange, aborting!" ; exit 1 ; }
+            log_failure_msg " Error $E_BLOCKLIST: $LIST_NAME not available. Aborting!"
+            log_failure_msg "To fix this manually download $LIST_URL and save it as $BLOCKLIST_DOWNLOADED"
+            exit $E_BLOCKLIST
         fi
+    # Download was successful ($WGET_RET = 0):
+    # This should not happen, just for debugging:
+    elif [ -z "$BLOCKLIST_DOWNLOAD" ] ; then
+        log_failure_msg " Error: $LIST_URL was downloaded successfully but BLOCKLIST_DOWNLOAD is empty! Strange, aborting!"
+        exit 1
+    # This should not happen, just for debugging:
+    elif [ ! -f "$BLOCKLIST_DOWNLOAD" ] ; then
+        log_failure_msg " Error: $LIST_URL was downloaded successfully but $BLOCKLIST_DOWNLOAD doesn't exist! Strange, aborting!"
+        exit 1
+    # Download was successful, old blocklist is not available or older than the new one:
+    elif ( [ ! -f "$BLOCKLIST_DOWNLOADED" ] || [ "$BLOCKLIST_DOWNLOAD" -nt "$BLOCKLIST_DOWNLOADED" ] ) ; then
+        cp -f --preserve=timestamps $BLOCKLIST_DOWNLOAD $BLOCKLIST_DOWNLOADED && \
+            echo "done." || { log_failure_msg " Error: cp exited with $?"; exit 1; }
+        [ -f "$BLOCKLIST_DOWNLOADED" ] && \
+            UPDATE_SUCCESS="$UPDATE_SUCCESS $LIST_NAME (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));" || { \
+            log_failure_msg " Error: $LIST_URL exists, but $BLOCKLIST_DOWNLOADED doesn't exist! Strange, aborting!" ; exit 1 ; }
+    # Download was successful, blocklist is not newer than the old one:
+    else
+        echo ". No update available."
+        [ -f "$BLOCKLIST_DOWNLOADED" ] && \
+            UPDATE_SUCCESS_NA="$UPDATE_SUCCESS_NA $LIST_NAME (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));" || { \
+            log_failure_msg " Error: $LIST_URL exists, but $BLOCKLIST_DOWNLOADED doesn't exist! Strange, aborting!" ; exit 1 ; }
     fi
 
     # Unpack the lists
@@ -1826,151 +1808,159 @@ get_blocklist () {
 
 # Function that updates blocklists and reloads daemon
 update_blocklists () {
-    test_net
-    echo "Updating blocklists ..."
-
     # Remove the old MD5SUM file now, so that if anything goes wrong it's clear we have to rebuild the blocklist:
     [ -e "$MD5SUM_FILE" ] && { rm "$MD5SUM_FILE" || { log_failure_msg " Error: rm exited with $?" ; exit 1; } ; }
 
-    UPDATE_FAIL=""        # Lists failed blocklist updates
-    UPDATE_SUCCESS=""    # Lists successful blocklist updates
+    UPDATE_FAIL=""          # Lists failed blocklist updates
+    UPDATE_SUCCESS=""       # Lists successful blocklist updates
     UPDATE_SUCCESS_NA=""    # Lists blocklist where no update was available
-    UPDATE_LOCAL=""        # Lists local blocklists
 
     # Read the non-comment|not-empty lines from BLOCKLISTS_LIST.
     # Ignore all entries after # (comments).
+    # LISTS_URL are all blocklists that are configured to be handled automatically.
     set_LISTS_URL
 
-    for LIST in $LISTS_URL ; do
-        get_blocklist
-    done
+    # Only do the automatic updating, if any blocklist is configured to be handled automatically.
+    if [ -n "$LISTS_URL" ] ; then
+        echo "Updating blocklists ..."
+        test_net
 
-    echo "Blocklists updated."
+        for LIST in $LISTS_URL ; do
+            get_blocklist
+        done
+
+        echo "Blocklists updated."
+    else
+        echo "Automatic blocklist management disabled."
+    fi
 }
 
 # Function that builds the blocklist
 build_blocklist () {
-    test_BLOCKLISTS_DIR
-    test_DAEMON
-    [ -d "$(dirname $MASTER_BLOCKLIST)" ] || {
-        echo -n "Creating missing directory $(dirname $MASTER_BLOCKLIST) ..."
-        mkdir -p $(dirname $MASTER_BLOCKLIST) && echo "."
-        } || {
-        log_failure_msg "Error $E_XCD: Missing directory $(dirname $MASTER_BLOCKLIST)."
-        log_failure_msg "Check the MASTER_BLOCKLIST setting."
-        exit $E_XCD
-    }
-
-    echo -n "Building blocklist... "
-
-    BLOCKLISTSCAT=""
-
-    # Prepare removing lines from the blocklist:
-    # replace in IP_REMOVE all semicolons with pipe character
-    SINGLE_REMOVE="$(echo $IP_REMOVE | sed "s/;/|/g")"
-
-    # Remove the old MD5SUM file now, so that if anything goes wrong, it's clear we have to rebuild the blocklist:
-    [ -e "$MD5SUM_FILE" ] && { rm "$MD5SUM_FILE" || { log_failure_msg " Error: rm exited with $?" ; exit 1; } ; }
+    # Move master blocklist to backup position. This way it is also removed, in case the configuartion changed
+    # in that way, that no blocklists are configured for the automatic blocklist management.
+    [ -f "$MASTER_BLOCKLIST" ] && mv $MASTER_BLOCKLIST ${MASTER_BLOCKLIST}~
 
     # Read the non-comment|not-empty lines from BLOCKLISTS_LIST.
     # Ignore all entries after # (comments).
+    # LISTS_URL are all blocklists that are configured to be handled automatically.
     set_LISTS_URL
 
-    for LIST in $LISTS_URL ; do
-        # This function depends on LIST:
-        LIST_URL2LIST_NAME
-        # LIST_URL is empty, if LIST is locallist - so we can continue with the next LIST.
-        [ -z "$LIST_URL" ] && continue
+    # Only build a master blocklist, if any blocklist is configured to be handled automatically.
+    if [ -n "$LISTS_URL" ] ; then
+        test_BLOCKLISTS_DIR
+        test_DAEMON
+        [ -d "$MASTER_BLOCKLIST_DIR" ] || {
+            echo -n "Creating missing directory $MASTER_BLOCKLIST_DIR ..."
+            mkdir -p "$MASTER_BLOCKLIST_DIR" && echo "."
+            } || {
+            log_failure_msg "Error $E_XCD: Missing directory $MASTER_BLOCKLIST_DIR."
+            log_failure_msg "Check the $MASTER_BLOCKLIST_DIR setting."
+            exit $E_XCD
+        }
 
-        # Set name of the extracted blocklist.
-        BLOCKLIST_EXTRACTED="$BLOCKLISTS_DIR/$LIST_NAME_FIX/extracted/$LIST_NAME_FIX"
+        echo -n "Building blocklist... "
 
-        # Test if list is available:
-        [ -f "$BLOCKLIST_EXTRACTED" ] || \
-            get_blocklist || {
-            log_failure_msg "Error $E_BLOCKLIST: $LIST_NAME not available."
-            log_failure_msg "Check the entry $LIST"
-            log_failure_msg "in $BLOCKLISTS_LIST. Aborting!"
-            exit $E_BLOCKLIST
-            }
+        BLOCKLISTSCAT=""
 
-        # Log which lines will be removed later
-        if [ -n "$IP_REMOVE" ] ; then
-            echo "Removing the following lines from $LIST_NAME:"
-            grep -Ei "$SINGLE_REMOVE" "$BLOCKLIST_EXTRACTED" | sort
-        fi
+        # Prepare removing lines from the blocklist:
+        # replace in IP_REMOVE all semicolons with pipe character
+        SINGLE_REMOVE="$(echo $IP_REMOVE | sed "s/;/|/g")"
 
-        # Remember all used lists
-        BLOCKLISTSCAT="$BLOCKLISTSCAT $BLOCKLIST_EXTRACTED"
-    done
+        # Remove the old MD5SUM file now, so that if anything goes wrong, it's clear we have to rebuild the blocklist:
+        [ -e "$MD5SUM_FILE" ] && { rm "$MD5SUM_FILE" || { log_failure_msg " Error: rm exited with $?" ; exit 1; } ; }
 
-    if [ -z "$BLOCKLISTSCAT" ] ; then
-        log_failure_msg "Error $E_BLOCKLIST: There are no blocklists configured to be used! Aborting."
-        exit $E_BLOCKLIST
-    else
-        # Backup old master blocklist
-        [ -f "$MASTER_BLOCKLIST" ] && mv $MASTER_BLOCKLIST ${MASTER_BLOCKLIST}.backup
+        for LIST in $LISTS_URL ; do
+            # This function depends on LIST:
+            LIST_URL2LIST_NAME
 
-        # Tells whether blocklist was built successfully
-        BUILT=0
+            # Set name of the extracted blocklist.
+            BLOCKLIST_EXTRACTED="$BLOCKLISTS_DIR/$LIST_NAME_FIX/extracted/$LIST_NAME_FIX"
 
-        # Build blocklist and remove some lines from the blocklists
-        if [ -n "$IP_REMOVE" ] ; then
-            # Cat together all single blocklists
-            cat --squeeze-blank $BLOCKLISTSCAT | \
-            # Ignore comment lines
-            grep -Ev "^[[:space:]]*#" | \
-            # Remove lines from IP_REMOVE (case-insensitive)
-            grep -Eiv "$SINGLE_REMOVE" | \
-            # Replace repeated whitespace with a single occurence
-            tr -s [:space:] | \
-            # Delete everything complimentary to the following characters/regex
-            # alphanumeric
-            # space
-            # :\*.-,[]
-            # newline (return gets removed, so CR+LF gets LF)
-            tr -cd '[:alnum:][:space:]:\\\*\.\-,[]\n' | \
-            # Only keep the last occurence of :
-            sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | \
-            # Premerge the blocklist
-            pgld -m > $MASTER_BLOCKLIST && BUILT=1
-        # Build blocklist without removing some lines from the blocklists
-        else
-            # Cat together all single blocklists
-            cat --squeeze-blank $BLOCKLISTSCAT | \
-            # Ignore comment lines
-            grep -Ev "^[[:space:]]*#" | \
-            # Replace repeated whitespace with a single occurence
-            tr -s [:space:] | \
-            # Delete everything complimentary to the following characters/regex
-            # alphanumeric
-            # space
-            # :\*.-,[]
-            # newline (return gets removed, so CR+LF gets LF)
-            tr -cd '[:alnum:][:space:]:\\\*\.\-,[]\n' | \
-            # Only keep the last occurence of :
-            sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | \
-            # Premerge the blocklist
-            pgld -m > $MASTER_BLOCKLIST && BUILT=1
-        fi
-
-        [ "$BUILT" -eq 1 ] && \
-            log_end_msg 0 || \
-                {
-                    log_failure_msg "Error: build_blocklist failed."
-                    if [ -f ${MASTER_BLOCKLIST}.backup ] ; then
-                        echo -n "Restoring $MASTER_BLOCKLIST ..."
-                        mv ${MASTER_BLOCKLIST}.backup $MASTER_BLOCKLIST || { log_failure_msg " Error: mv exited with $?" ; exit 1 ; }
-                        log_end_msg 0
-                    else
-                        exit $E_BLOCKLIST
-                    fi
+            # Test if list is available:
+            [ -f "$BLOCKLIST_EXTRACTED" ] || \
+                get_blocklist || {
+                log_failure_msg "Error $E_BLOCKLIST: $LIST_NAME not available."
+                log_failure_msg "Check the entry $LIST"
+                log_failure_msg "in $BLOCKLISTS_LIST. Aborting!"
+                exit $E_BLOCKLIST
                 }
-    fi
 
+            # Log which lines will be removed later
+            if [ -n "$IP_REMOVE" ] ; then
+                echo "Removing the following lines from $LIST_NAME:"
+                grep -Ei "$SINGLE_REMOVE" "$BLOCKLIST_EXTRACTED" | sort
+            fi
+
+            # Remember all used lists
+            BLOCKLISTSCAT="$BLOCKLISTSCAT $BLOCKLIST_EXTRACTED"
+        done
+
+        if [ -z "$BLOCKLISTSCAT" ] ; then
+            log_failure_msg "Error $E_BLOCKLIST: Strange! There are no blocklists available, although some are configured and seemed to be available! Aborting."
+            exit $E_BLOCKLIST
+        else
+            # Tells whether blocklist was built successfully
+            BUILT=0
+
+            # Build blocklist and remove some lines from the blocklists
+            if [ -n "$IP_REMOVE" ] ; then
+                # Cat together all single blocklists
+                cat --squeeze-blank $BLOCKLISTSCAT | \
+                # Ignore comment lines
+                grep -Ev "^[[:space:]]*#" | \
+                # Remove lines from IP_REMOVE (case-insensitive)
+                grep -Eiv "$SINGLE_REMOVE" | \
+                # Replace repeated whitespace with a single occurence
+                tr -s [:space:] | \
+                # Delete everything complimentary to the following characters/regex
+                # alphanumeric
+                # space
+                # :\*.-,[]
+                # newline (return gets removed, so CR+LF gets LF)
+                tr -cd '[:alnum:][:space:]:\\\*\.\-,[]\n' | \
+                # Only keep the last occurence of :
+                sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | \
+                # Premerge the blocklist
+                pgld -m > $MASTER_BLOCKLIST && BUILT=1
+            # Build blocklist without removing some lines from the blocklists
+            else
+                # Cat together all single blocklists
+                cat --squeeze-blank $BLOCKLISTSCAT | \
+                # Ignore comment lines
+                grep -Ev "^[[:space:]]*#" | \
+                # Replace repeated whitespace with a single occurence
+                tr -s [:space:] | \
+                # Delete everything complimentary to the following characters/regex
+                # alphanumeric
+                # space
+                # :\*.-,[]
+                # newline (return gets removed, so CR+LF gets LF)
+                tr -cd '[:alnum:][:space:]:\\\*\.\-,[]\n' | \
+                # Only keep the last occurence of :
+                sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | \
+                # Premerge the blocklist
+                pgld -m > $MASTER_BLOCKLIST && BUILT=1
+            fi
+
+            [ "$BUILT" -eq 1 ] && \
+                log_end_msg 0 || \
+                    {
+                        log_failure_msg "Error: build_blocklist failed."
+                        if [ -f ${MASTER_BLOCKLIST}~ ] ; then
+                            echo -n "Restoring $MASTER_BLOCKLIST ..."
+                            mv ${MASTER_BLOCKLIST}~ $MASTER_BLOCKLIST || { log_failure_msg " Error: mv exited with $?" ; exit 1 ; }
+                            log_end_msg 0
+                        else
+                            exit $E_BLOCKLIST
+                        fi
+                    }
+        fi
+    else
+        echo "No blocklists are configured in $BLOCKLISTS_LIST."
+    fi
     # Save configuration settings on which this blocklist bases:
-    SUM="$(echo $IP_REMOVE ; md5sum $BLOCKLISTS_LIST)"
-    MD5SUM="$(echo $SUM | md5sum | cut -c -32)"
+    set_md5sum
     echo "$MD5SUM" > "$MD5SUM_FILE"
 }
 
@@ -1978,7 +1968,12 @@ build_blocklist () {
 test_ipblocking () {
     # First check some preconditions for the test:
     test_DAEMON
-    test_BLOCKLIST
+    # All blocklists in the MASTER_BLOCKLIST_DIR directory, except those which end in "~", are used by pgld.
+    MASTER_BLOCKLISTS="$(find $MASTER_BLOCKLIST_DIR -maxdepth 1 -type f ! -name "*~" -print0 | xargs -0r)"
+    [ -n "$MASTER_BLOCKLISTS" ] || {
+        log_failure_msg "Error $E_BLOCKLIST: No master blocklist found in $MASTER_BLOCKLIST_DIR."
+        exit $E_BLOCKLIST
+        }
     test_REJECT
     if [ "$LOG_LOGFILE" -eq 1 ] ; then
         TEST_LOG="$DAEMON_LOG"
@@ -2015,9 +2010,21 @@ test_ipblocking () {
 
     # Pick TEST_IP. Assume blocklist in text (not binary) format.
     TESTLINE="$(expr $$ % 100 + 10)"
+    # Choose TEST_LIST
+    if [ -f "$MASTER_BLOCKLIST" ] ; then
+        # Take pglcmd's master blocklist if available
+        TEST_LIST="$MASTER_BLOCKLIST"
+    else
+        # Take first list of MASTER_BLOCKLISTS
+        TEST_LIST="$(echo "$MASTER_BLOCKLISTS" | sed -r "s/ .*//" )"
+        [ -f "$TEST_LIST" ] || {
+            log_failure_msg " Error $E_BLOCKLIST: $TEST_LIST not available."
+            exit $E_BLOCKLIST
+            }
+    fi
     # Pick the last IP address from a random line in BLOCKLIST file (earlier IPs often result in problems with ping)
     # Remove the leading zeros in the IPs.
-    TEST_IP="$(head -n$TESTLINE $MASTER_BLOCKLIST | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1 )"
+    TEST_IP="$(head -n$TESTLINE $TEST_LIST | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1 )"
     echo ""
     echo "CAUTION: This is just a simple test to check if $DESC blocks outgoing"
     echo "connections. For this, an IP from the blocklist will be pinged. Then the test"
@@ -2168,8 +2175,6 @@ search () {
     for LIST in $LISTS_URL ; do
         # This function depends on LIST:
         LIST_URL2LIST_NAME
-        # LIST_URL is empty, if LIST is locallist - so we can return to the for loop to the next LIST.
-        [ -z "$LIST_URL" ] && return
         BLOCKLIST="$BLOCKLISTS_DIR/$LIST_NAME_FIX/extracted/$LIST_NAME"
         # Exit immediately with zero status if any match is found
         grep -qEi "$SEARCHPATTERN" "$BLOCKLIST" && {

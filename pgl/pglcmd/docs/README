@@ -81,8 +81,9 @@ happens to them.
 Features:
 
 - Start and stop pgl. Or let init do this automatically.
-- Update your blocklist from online sources and local blocklists. Or let cron do
-  this automatically on a regular basis. Use backups if anything goes wrong.
+- Update your blocklists from online sources. Or let cron do this automatically.
+  Backups will be used if a problem occurs. Additionally you may use your local
+  blocklists.
 - Examine your selected blocklists by searching the single blocklists for
   keywords.
 - Remove lines by keyword from the blocklists.

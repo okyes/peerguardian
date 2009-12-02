@@ -25,8 +25,9 @@ Description: PeerGuardian Linux - pglcmd
  .
  Features:
   - Start and stop pgld. Or let init do this automatically.
-  - Update your blocklist from online sources and local blocklists. Or let cron
-    do this automatically on a regular basis.
+  - Update your blocklists from online sources. Or let cron do this
+    automatically. Backups will be used if a problem occurs. Additionally you
+    may use your local blocklists.
   - Remove lines by keyword from the blocklists.
   - Handle your iptables rules: use a default setup, easily allow all traffic on
     specific ports and use an allow list, or add your own sophisticated iptables

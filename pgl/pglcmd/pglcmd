@@ -154,13 +154,6 @@ case "$1" in
                     echo "$i"
                 done
             fi
-            if [ -n "$UPDATE_LOCAL" ] ; then
-                echo ""
-                echo "The following local blocklists are used:"
-                for i in $UPDATE_LOCAL ; do
-                    echo "$i"
-                done
-            fi
             IFS=$STDIFS
         fi
         ;;

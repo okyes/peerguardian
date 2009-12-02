@@ -1,19 +1,20 @@
-# blocklists.list - lists the blocklists used by pglcmd
+# blocklists.list - lists the blocklists that are handled automatically by pglcmd
 
 # Place one URL per line for every blocklist. Any line which starts with a #
 # (hash) is a comment and is ignored.
 
-# All lists have to be in the same blocklist format. This format has to be
-# specified in pglcmd.conf.
-
-# For local blocklists start the line with "locallist".
-
 # Have a look at /usr/share/doc/pglcmd/README.blocklists.gz for detailed
 # information about some available blocklists.
 
+# Instead or additionally to the blocklists that are specified in this file,
+# you can manually put lists in MASTER_BLOCKLIST_DIR (/var/lib/pgl).
+# All blocklists in that directory, except those which end in "~", are used by
+# pgld. They may be in any supported format and have to be either unpacked or
+# gzip'ped. Note that these manually installed blocklists are neither updated
+# automatically, nore does IP_REMOVE work for them.
+
 # Do a "pglcmd reload" (or "restart" or "update") when you have edited
 # this file.
-
 
 # TBG Primary Threats
 http://list.iblocklist.com/?list=ijfqtofzixtwayqovmxn
@@ -77,8 +78,3 @@ http://list.iblocklist.com/?list=bt_proxy
 
 # Bluetack dshield
 http://list.iblocklist.com/?list=bt_dshield
-
-# ipfilter.dat url
-#http://downloads.sourceforge.net/project/emulepawcio/Ipfilter/Ipfilter/ipfilter.dat
-
-#locallist /etc/pgl/custom-blocklist.p2p
