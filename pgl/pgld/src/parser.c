@@ -40,7 +40,7 @@ static void strip_crlf(char *str) {
     }
 }
 
-static inline uint32_t assemble_ip(int i[4]) {
+static uint32_t ip2int(int i[4]) {
     return (i[0] << 24) + (i[1] << 16) + (i[2] << 8) + i[3];
 }
 
@@ -48,7 +48,7 @@ static int loadlist_ascii(const char *filename, const char *charset) {
     stream_t s;
     char buf[MAX_LINE_LENGTH + 1], name[MAX_LABEL_LENGTH];
     int ip1[4], ip2[4], filter_level;
-    int total, ok;
+    uint32_t total, ok;
     int ret = -1;
     iconv_t ic;
     if (stream_open(&s, filename) < 0) {
@@ -77,7 +77,7 @@ static int loadlist_ascii(const char *filename, const char *charset) {
         if (sscanf(buf, "%299[^:]:%d.%d.%d.%d-%d.%d.%d.%d",
                         name, &ip1[0], &ip1[1], &ip1[2], &ip1[3],
                         &ip2[0], &ip2[1], &ip2[2], &ip2[3]) == 9) {
-            blocklist_append(assemble_ip(ip1), assemble_ip(ip2), name, ic);
+            blocklist_append(ip2int(ip1), ip2int(ip2), name, ic);
             ok++;
         }
         // else try the line as a ipfilter.dat line
@@ -87,7 +87,7 @@ static int loadlist_ascii(const char *filename, const char *charset) {
                    &filter_level, name) == 10){
             // .DAT spec if 3rd entry on line is <=127, the IP is blocked else >=128 it is allowed.
             if ( filter_level <= 127 ) {
-                blocklist_append(assemble_ip(ip1), assemble_ip(ip2), name, ic);
+                blocklist_append(ip2int(ip1), ip2int(ip2), name, ic);
                 ok++;
             }
         }
@@ -96,7 +96,7 @@ static int loadlist_ascii(const char *filename, const char *charset) {
                    &ip1[0], &ip1[1], &ip1[2], &ip1[3],
                    &ip2[0], &ip2[1], &ip2[2], &ip2[3]) == 8){
             name[0]='\0';
-            blocklist_append(assemble_ip(ip1), assemble_ip(ip2), name, ic);
+            blocklist_append(ip2int(ip1), ip2int(ip2), name, ic);
             ok++;
         }
         // could add more tests for other ASCII formats here.
@@ -283,11 +283,15 @@ err:
 }
 
 int load_list(const char *filename, const char *charset) {
-    int prevcount;
+    uint32_t prevcount;
     // Get current count and try to parse the file as ascii
     prevcount = blocklist.count;
     if (loadlist_ascii(filename, charset ? charset : "ISO8859-1") == 0) {
-        do_log(LOG_INFO, "INFO: ASCII: %u entries loaded", blocklist.count - prevcount);
+        if (filename) {
+            do_log(LOG_INFO, "INFO: ASCII: %u entries loaded from %s", blocklist.count - prevcount, filename);
+        } else {
+            do_log(LOG_INFO, "INFO: ASCII: %u entries loaded from STDIN", blocklist.count - prevcount);
+        }
         return 0;
     }
     // it wasn't ascii so clear the blocklist starting were it was before and get new count
@@ -296,7 +300,11 @@ int load_list(const char *filename, const char *charset) {
 
     // Try binary
     if (loadlist_binary(filename) == 0) {
-        do_log(LOG_INFO, "INFO: Binary: %u entries loaded", blocklist.count - prevcount);
+        if (filename) {
+            do_log(LOG_INFO, "INFO: Binary: %u entries loaded from %s", blocklist.count - prevcount, filename);
+        } else {
+            do_log(LOG_INFO, "INFO: Binary: %u entries loaded from STDIN", blocklist.count - prevcount);
+        }
         return 0;
     }
     // it wasn't binary either so return -1 since we don't know what it was.

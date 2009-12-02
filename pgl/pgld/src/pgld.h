@@ -42,12 +42,6 @@
 ((unsigned char *)&addr)[2], \
 ((unsigned char *)&addr)[3]
 
-#define NIPQUADREV(addr) \
-((unsigned char *)&addr)[3], \
-((unsigned char *)&addr)[2], \
-((unsigned char *)&addr)[1], \
-((unsigned char *)&addr)[0]
-
 #define SRC_ADDR(payload) (*(in_addr_t *)((payload)+12))
 #define DST_ADDR(payload) (*(in_addr_t *)((payload)+16))
 
@@ -66,4 +60,4 @@
 #endif
 
 void do_log(int priority, const char *format, ...);
-
+void int2ip (uint32_t ipint, char *ipstr);

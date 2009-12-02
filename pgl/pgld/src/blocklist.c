@@ -28,6 +28,7 @@
 #include <string.h>
 #include <syslog.h>
 #include <errno.h>
+#include <netinet/in.h>
 
 void blocklist_init() {
     blocklist.entries = NULL;
@@ -76,9 +77,9 @@ void blocklist_append(uint32_t ip_min, uint32_t ip_max, const char *name, iconv_
     blocklist.count++;
 }
 
-void blocklist_clear(int start) {
+void blocklist_clear(uint32_t start) {
 #ifndef LOWMEM
-    int i;
+    uint32_t i;
     for (i = start; i < blocklist.count; i++) {
         if (blocklist.entries[i].name) {
             free(blocklist.entries[i].name);
@@ -119,8 +120,7 @@ void blocklist_sort() {
 }
 
 void blocklist_merge () {
-    int i, j, k, merged = 0;
-    uint32_t ip_max=0;
+    uint32_t i, j, k, merged=0, ip_max=0;
     blocklist.numips = 0;
 
     if (blocklist.count == 0) {
@@ -134,8 +134,13 @@ void blocklist_merge () {
             blocklist.entries[i].name[MAX_INMEMLABEL_LENGTH-1]='\0';
         }
         ip_max = blocklist.entries[i].ip_max;
+
         //look at the next entries to see if they can merge or are the same
         for (j = i + 1; j < blocklist.count; j++) {
+            if (ip_max == 4294967295UL ) {
+                j=blocklist.count;
+                break;
+            }
             if (blocklist.entries[j].ip_min > ip_max + 1) {
                 break;
             }
@@ -170,30 +175,32 @@ void blocklist_merge () {
             }
             i = j - 1;
         } //end if j
-            blocklist.numips += ((blocklist.entries[i].ip_max - blocklist.entries[i].ip_min) + 1UL);
+            blocklist.numips += (blocklist.entries[i].ip_max - blocklist.entries[i].ip_min);
+            if (blocklist.numips < 4294967295UL) {
+                blocklist.numips++;
+            }
     } //end for i
     if (merged) {
-        do_log(LOG_INFO, "INFO: Merged %d of %u entries.", merged, blocklist.count);
+        do_log(LOG_INFO, "INFO: Merged %u of %u entries.", merged, blocklist.count);
         blocklist_sort();
         blocklist.count -= merged;
-        blocklist.entries = realloc(blocklist.entries, blocklist.count * sizeof(block_entry_t));
+        blocklist.entries = realloc(blocklist.entries, sizeof(block_entry_t) * blocklist.count );
         blocklist_merge();
     }
-//     else {
-//         do_log(LOG_INFO, "Nothing left to merge. List contains %d entries.", blocklist.count);
-//     }
-
 }
 
 void blocklist_stats(int clearhits) {
-    int i, total = 0;
+    uint32_t i, total = 0;
+    char pip_min[INET_ADDRSTRLEN],pip_max[INET_ADDRSTRLEN];
     do_log(LOG_INFO, "STATS: Blocked hit statistics:");
     for (i = 0; i < blocklist.count; i++) {
         if (blocklist.entries[i].hits >= 1) {
+            int2ip(blocklist.entries[i].ip_min, pip_min);
+            int2ip(blocklist.entries[i].ip_max, pip_max);
 #ifndef LOWMEM
-            do_log(LOG_INFO, "STATS: %u.%u.%u.%u-%u.%u.%u.%u: %s - %u hit(s)", NIPQUADREV(blocklist.entries[i].ip_min), NIPQUADREV(blocklist.entries[i].ip_max), blocklist.entries[i].name, blocklist.entries[i].hits);
+            do_log(LOG_INFO, "STATS: %s-%s: %s - %u hit(s)", pip_min, pip_max, blocklist.entries[i].name, blocklist.entries[i].hits);
 #else
-            do_log(LOG_INFO, "STATS: %u.%u.%u.%u-%u.%u.%u.%u: %u hit(s)", NIPQUADREV(blocklist.entries[i].ip_min), NIPQUADREV(blocklist.entries[i].ip_max), blocklist.entries[i].hits);
+            do_log(LOG_INFO, "STATS: %s-%s: %u hit(s)", pip_min, pip_max, blocklist.entries[i].hits);
 #endif
             total += blocklist.entries[i].hits;
             if (clearhits) {
@@ -201,7 +208,7 @@ void blocklist_stats(int clearhits) {
             }
         }
     }
-    do_log(LOG_INFO, "STATS: %d hits total", total);
+    do_log(LOG_INFO, "STATS: %u hits total", total);
 }
 
 block_entry_t *blocklist_find(uint32_t ip) {
@@ -211,14 +218,15 @@ block_entry_t *blocklist_find(uint32_t ip) {
 }
 
 void blocklist_dump() {
-    int i;
+    uint32_t i;
+    char pip_min[INET_ADDRSTRLEN],pip_max[INET_ADDRSTRLEN];
     for (i = 0; i < blocklist.count; i++) {
-        if (blocklist.entries[i].ip_min || blocklist.entries[i].ip_max) {
+        int2ip(blocklist.entries[i].ip_min,pip_min);
+        int2ip(blocklist.entries[i].ip_max,pip_max);
 #ifndef LOWMEM
-        printf("%s:%u.%u.%u.%u-%u.%u.%u.%u\n", blocklist.entries[i].name, NIPQUADREV(blocklist.entries[i].ip_min), NIPQUADREV(blocklist.entries[i].ip_max));
+        printf("%s:%s-%s\n", blocklist.entries[i].name, pip_min, pip_max);
 #else
-        printf("%u.%u.%u.%u-%u.%u.%u.%u\n",NIPQUADREV(blocklist.entries[i].ip_min), NIPQUADREV(blocklist.entries[i].ip_max));
+        printf("%s-%s\n", pip_min, pip_max);
 #endif
-        }
     }
 }

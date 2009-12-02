@@ -51,18 +51,17 @@ typedef struct {
 #ifndef LOWMEM
     char *name;
 #endif
-    unsigned int hits;
+    uint32_t hits;
 } block_entry_t;
 
 typedef struct {
     block_entry_t *entries;
-    unsigned int count, size;
-    uint32_t numips;
+    uint32_t count, size, numips;
 } blocklist_t;
 
 void blocklist_init();
 void blocklist_append(uint32_t ip_min, uint32_t ip_max, const char *name, iconv_t ic);
-void blocklist_clear(int start);
+void blocklist_clear(uint32_t start);
 void blocklist_sort();
 void blocklist_merge();
 void blocklist_stats(int clearhits);

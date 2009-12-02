@@ -42,7 +42,7 @@
 #include <arpa/inet.h>
 #include <linux/netfilter_ipv4.h>
 #include <libnetfilter_queue/libnetfilter_queue.h>
-#include <poll.h>
+// #include <poll.h>
 
 #ifdef HAVE_DBUS
 #include <dlfcn.h>
@@ -117,6 +117,11 @@ void do_log(int priority, const char *format, ...)
         fprintf(stderr,"\n");
         va_end(ap);
     }
+}
+
+void int2ip (uint32_t ipint, char *ipstr) {
+    ipint=htonl(ipint);
+    inet_ntop(AF_INET, &ipint, ipstr, INET_ADDRSTRLEN);
 }
 
 /*#ifdef HAVE_DBUS
@@ -373,9 +378,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
     struct nfqnl_msg_packet_hdr *ph;
     block_entry_t *found_range;
     struct iphdr *ip;
-//     struct udphdr *udp;
-//     struct tcphdr *tcp;
-    char *payload, proto[5], src[23], dst[23];
+    char *payload, proto[5], src[23], dst[23];  //src and dst are 23 for IP(16)+port(5) + : + NULL
 
     ph = nfq_get_msg_packet_hdr(nfa);
     if (ph) {
@@ -559,9 +562,9 @@ static void print_usage() {
     fprintf(stderr, PKGNAME " " VERSION "\n");
     fprintf(stderr, "Syntax:\npgld [-d] [-s] [-l LOGFILE] [-c CHARSET] [-p PIDFILE] [-a MARK] [-r MARK] [-q 0-65535] BLOCKLIST ... BLOCKLIST\n");
     fprintf(stderr, "or\npgld -m [BLOCKLIST ... BLOCKLIST]\n\n");
-    fprintf(stderr, "        -a MARK       32-bit mark to place on ACCEPTED packets (Default: 20)\n");
-    fprintf(stderr, "        -r MARK       32-bit mark to place on REJECTED packets (Default: 10)\n");
-    fprintf(stderr, "        -q 0-65535    NFQUEUE number, as specified in --queue-num with iptables (Default: 92)\n");
+    fprintf(stderr, "        -a MARK       32-bit mark to place on ACCEPTED packets\n");
+    fprintf(stderr, "        -r MARK       32-bit mark to place on REJECTED packets\n");
+    fprintf(stderr, "        -q 0-65535    16-bit NFQUEUE number. Must match --queue-num used in with iptables (Default: 92)\n");
     fprintf(stderr, "        -p NAME       Use a pidfile named NAME (Default: /var/run/pgld.pid)\n");
     fprintf(stderr, "        -l LOGFILE    Enable logging to LOGFILE\n");
     fprintf(stderr, "        -s            Enable syslog logging \n");
@@ -571,7 +574,7 @@ static void print_usage() {
 #ifndef LOWMEM
     fprintf(stderr, "        -c            Blocklist file charset\n");
 #endif
-    fprintf(stderr, "        -m            Load, sort, merge, and dump list(s) specified or from stdin.\n");
+    fprintf(stderr, "        -m            Load, sort, merge, and dump list(s) specified or piped from stdin.\n");
     fprintf(stderr, "\n");
 }
 
