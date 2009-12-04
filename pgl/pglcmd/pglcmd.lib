@@ -2120,12 +2120,12 @@ dump_stats () {
         CURLINE="$(wc -l $DAEMON_LOG | awk '{print$1}')"
         kill -s USR2 "$(pidofproc $DAEMON)"
         sleep 5
-        tail -n+$(($CURLINE + 1)) $DAEMON_LOG
+        tail -n+$(($CURLINE + 1)) $DAEMON_LOG | grep STATS:
     elif [ "$LOG_SYSLOG" = 1 ] ; then
         CURLINE=$(grep pgld: /var/log/syslog | wc -l | awk '{print$1}')
         kill -s USR2 "$(pidofproc $DAEMON)"
         sleep 5
-        grep pgld: /var/log/syslog | tail -n+$(($CURLINE + 1))
+        grep pgld: /var/log/syslog | tail -n+$(($CURLINE + 1)) | grep STATS:
     else
         echo "Logging to logfile or syslog must be enabled to dump stats."
     fi
@@ -2136,12 +2136,12 @@ reset_stats () {
         CURLINE="$(wc -l $DAEMON_LOG | awk '{print$1}')"
         kill -s USR1 "$(pidofproc $DAEMON)"
         sleep 5
-        tail -n+$(($CURLINE + 1)) $DAEMON_LOG
+        tail -n+$(($CURLINE + 1)) $DAEMON_LOG | grep STATS:
     elif [ "$LOG_SYSLOG" = 1 ] ; then
         CURLINE="$(grep pgld: /var/log/syslog | wc -l | awk '{print$1}')"
         kill -s USR1 "$(pidofproc $DAEMON)"
         sleep 5
-        grep pgld: /var/log/syslog | tail -n+$(($CURLINE + 1))
+        grep pgld: /var/log/syslog | tail -n+$(($CURLINE + 1)) | grep STATS:
     else
         echo "Logging to logfile or syslog must be enabled to dump stats"
     fi
@@ -2159,7 +2159,7 @@ email_stats () {
 To: $STATS_MAILTO
 Subject: $SUBJECT
 
-$(reset_stats)
+$(dump_stats)
 
 EOF
     fi
