@@ -1149,10 +1149,10 @@ do_start () {
     status_of_proc $DAEMON $NAME > /dev/null 2>&1
     RETVAL=$?
     case "$RETVAL" in
-        0)    # Daemon is running
+        0)  # Daemon is running
             log_success_msg "$NAME is already running, doing nothing."
             ;;
-         3)    # Daemon is not running.
+        3)  # Daemon is not running.
             # Build blocklist if necessary to make sure pglcmd's settings are taken.
             [ -e "$MD5SUM_FILE" ] && set_md5sum && [ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ] || build_blocklist
             # All blocklists in the MASTER_BLOCKLIST_DIR directory, except those which end in "~", are used by pgld.
@@ -2008,6 +2008,7 @@ test_ipblocking () {
 
     # Pick TEST_IP. Assume blocklist in text (not binary) format.
     TESTLINE="$(expr $$ % 100 + 10)"
+
     # Choose TEST_LIST
     if [ -f "$MASTER_BLOCKLIST" ] ; then
         # Take pglcmd's master blocklist if available
