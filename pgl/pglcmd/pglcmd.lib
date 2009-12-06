@@ -1077,6 +1077,17 @@ set_md5sum () {
     MD5SUM="$(echo $SUM | md5sum | cut -c -32)"
 }
 
+# All blocklists in the MASTER_BLOCKLIST_DIR directory, except those which end in "~", are used by pgld.
+# Listnames with spaces are NOT allowed.
+# The -print0 | xargs -0r moves the found lists from separate lines to one line separated with blanks.
+set_MASTER_BLOCKLISTS () {
+    MASTER_BLOCKLISTS="$(find $MASTER_BLOCKLIST_DIR -maxdepth 1 -type f ! -name "*~" -print0 | xargs -0r)"
+    [ -n "$MASTER_BLOCKLISTS" ] || {
+        log_failure_msg "Error $E_BLOCKLIST: No master blocklist found in $MASTER_BLOCKLIST_DIR."
+        exit $E_BLOCKLIST
+        }
+}
+
 # Function that starts the watchdog
 do_start_wd () {
     # Start pglcmd.wd.
@@ -1145,11 +1156,7 @@ do_start () {
             # Build blocklist if necessary to make sure pglcmd's settings are taken.
             [ -e "$MD5SUM_FILE" ] && set_md5sum && [ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ] || build_blocklist
             # All blocklists in the MASTER_BLOCKLIST_DIR directory, except those which end in "~", are used by pgld.
-            MASTER_BLOCKLISTS="$(find $MASTER_BLOCKLIST_DIR -maxdepth 1 -type f ! -name "*~" -print0 | xargs -0r)"
-            [ -n "$MASTER_BLOCKLISTS" ] || {
-                log_failure_msg "Error $E_BLOCKLIST: No master blocklist found in $MASTER_BLOCKLIST_DIR."
-                exit $E_BLOCKLIST
-                }
+            set_MASTER_BLOCKLISTS
             # Notify users of possible excess blocklists:
             [ -f "$MASTER_BLOCKLIST" ] && [ -f ${MASTER_BLOCKLIST_DIR}/guarding.p2p ] && \
                 echo "WARNING: You are using the old ${MASTER_BLOCKLIST_DIR}/guarding.p2p which has been replaced by the new $MASTER_BLOCKLIST."
@@ -1353,11 +1360,7 @@ do_reload () {
             # TODO: a restart instead of the reload.
             # TODO: Note that pgld reloads successfully even if a blocklist is missing.
             # All blocklists in the MASTER_BLOCKLIST_DIR directory, except those which end in "~", are used by pgld.
-            MASTER_BLOCKLISTS="$(find $MASTER_BLOCKLIST_DIR -maxdepth 1 -type f ! -name "*~" -print0 | xargs -0r)"
-            [ -n "$MASTER_BLOCKLISTS" ] || {
-                log_failure_msg "Error $E_BLOCKLIST: No master blocklist found in $MASTER_BLOCKLIST_DIR."
-                exit $E_BLOCKLIST
-                }
+            set_MASTER_BLOCKLISTS
             echo -n "Reloading $NAME... "
             kill -s HUP "$(pidofproc $DAEMON)"
             RETVAL=$?
@@ -1969,11 +1972,7 @@ test_ipblocking () {
     # First check some preconditions for the test:
     test_DAEMON
     # All blocklists in the MASTER_BLOCKLIST_DIR directory, except those which end in "~", are used by pgld.
-    MASTER_BLOCKLISTS="$(find $MASTER_BLOCKLIST_DIR -maxdepth 1 -type f ! -name "*~" -print0 | xargs -0r)"
-    [ -n "$MASTER_BLOCKLISTS" ] || {
-        log_failure_msg "Error $E_BLOCKLIST: No master blocklist found in $MASTER_BLOCKLIST_DIR."
-        exit $E_BLOCKLIST
-        }
+    set_MASTER_BLOCKLISTS
     test_REJECT
     if [ "$LOG_LOGFILE" -eq 1 ] ; then
         TEST_LOG="$DAEMON_LOG"
@@ -1983,7 +1982,6 @@ test_ipblocking () {
         echo "Error: $NAME has to be started with either LOG_SYSLOG=\"1\" or LOG_LOGFILE=\"1\" for \"test\" to work."
         exit $E_CONFIG
     fi
-
 
     # If logfile does not exist (for whatever reasons), just create a plain one.
     # If it is missing this does not necessarily mean that the daemon is not running.
