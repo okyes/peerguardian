@@ -103,6 +103,7 @@ LogItem LogHandler::parseDaemonEntry( const QString &entry ) const {
     else {
         //If we got here, it's a hit entry
         hitMsg.indexIn( msg );
+        qDebug() << hitMsg.capturedTexts();
         //Check if the RegExp worked(maybe not the best way to do so) and use it
         if ( ! hitMsg.cap(1).isEmpty() ) {
             //The following depend on the format of the specific entry
