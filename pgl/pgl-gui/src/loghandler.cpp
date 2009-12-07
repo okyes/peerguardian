@@ -68,6 +68,7 @@ bool LogHandler::isWorking() const {
 LogItem LogHandler::parseDaemonEntry( const QString &entry ) const {
 
     LogItem newItem;
+
     newItem.m_RawMessage = entry;
     newItem.m_Type = PGLG_INGORE;
 
@@ -77,6 +78,7 @@ LogItem LogHandler::parseDaemonEntry( const QString &entry ) const {
         return newItem;
     }
 
+    //Intiallize the regural expressions from the regexps text file
     QRegExp td( m_RegExFile.getLine( REGEX_FILE_DAEMON_TIMEDATE ) );
     QRegExp hitMsg( m_RegExFile.getLine( REGEX_FILE_DAEMON_HIT ) );
     QRegExp systemMsg( m_RegExFile.getLine( REGEX_FILE_DAEMON_SYSTEM ) );
@@ -86,22 +88,54 @@ LogItem LogHandler::parseDaemonEntry( const QString &entry ) const {
     newItem.m_Date = td.cap(1);
     newItem.m_Time = td.cap(2);
     QString msg = td.cap(3);
+
     if ( msg.isEmpty() ) {
         WARN_MSG << "Failed to parse log entry:" << entry;
         return newItem;
     }
+
     //Check if it's a general system message
     systemMsg.indexIn( msg );
     if ( !systemMsg.cap(1).isEmpty() ) {
         newItem.m_Type = PGLD_SYSTEM;
-        return newItem;
+        newItem.m_Details = systemMsg.cap(1);
+    }
+    else {
+        //If we got here, it's a hit entry
+        hitMsg.indexIn( msg );
+        //Check if the RegExp worked(maybe not the best way to do so) and use it
+        if ( ! hitMsg.cap(1).isEmpty() ) {
+            //The following depend on the format of the specific entry
+            //Written to parse strings with the following format: "Date CHAIN: SRC_IP:PORT DEST_IP:PORT PROTO || Label"
+            QString itype = hitMsg.cap(1);
+            newItem.m_SrcIP = hitMsg.cap(2);
+            newItem.m_SrcPort = hitMsg.cap(3);
+            newItem.m_DestIP = hitMsg.cap(4);
+            newItem.m_DestPort = hitMsg.cap(5);
+            newItem.m_Protocol = hitMsg.cap(6);
+            newItem.m_Details = hitMsg.cap(7);
+
+            //If the item was parsed sucessfully, set the correct item type
+            if ( itype == "IN" ) {
+                newItem.m_Type = PGLD_IN;
+            }
+            else if ( itype == "OUT" ) {
+                newItem.m_Type = PGLD_OUT;
+            }
+            else if ( itype == "FWD" ) {
+                newItem.m_Type = PGLD_FWD;
+            }
+        }
+        else {
+            WARN_MSG << "Failed to parse hit(?) entry:" << entry;
+        }
     }
 
-    qDebug() << msg;
 
-    //If we got here, it's a hit entry
-    hitMsg.indexIn( msg );
-    
+
+    return newItem;
+
+
 }
 
 #include "loghandler.moc"

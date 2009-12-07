@@ -82,8 +82,8 @@ QVector< QString > FileHandler::getRawDataV() const {
 
 QString FileHandler::getLine( const int &lineNumber, const QString &commentSymbol ) const {
 
-    if ( lineNumber > this->getSize() || lineNumber < 0 ) {
-        WARN_MSG << "Contents of line" << lineNumber << "requested but file contains" << getSize() << "lines!";
+    if ( lineNumber + 1 > this->getSize() || lineNumber < 0 ) {
+        WARN_MSG << "Contents of line" << lineNumber + 1 << "requested but file contains" << getSize() << "lines!";
         return QString();
     }
     

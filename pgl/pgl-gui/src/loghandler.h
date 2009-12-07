@@ -160,6 +160,7 @@ class LogHandler : public QObject, public AbstractHandler {
          */
         virtual bool isWorking() const;
 
+
     public slots:
         /**
          * Checks if there are any new items in the logs.
@@ -179,7 +180,6 @@ class LogHandler : public QObject, public AbstractHandler {
     private:
         LogItem parseCmdEntry( const QString &entry ) const;
         LogItem parseDaemonEntry( const QString &entry ) const;
-
         FileHandler m_RegExFile;
         QList< LogItem > m_LogItemL;
 

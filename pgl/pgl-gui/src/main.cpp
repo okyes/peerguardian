@@ -33,7 +33,6 @@ int main() {
     qInstallMsgHandler( customOutput );
 
 
-
     return 0;
 
 }
