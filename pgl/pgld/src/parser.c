@@ -290,9 +290,9 @@ int load_list(const char *filename, const char *charset) {
     ret=loadlist_ascii(filename, charset ? charset : "ISO8859-1");
     if (ret == 0) {
         if (filename) {
-            do_log(LOG_INFO, "INFO: ASCII: %u entries loaded from %s", blocklist.count - prevcount, filename);
+            do_log(LOG_INFO, "INFO: ASCII: %u entries loaded from \"%s\"", blocklist.count - prevcount, filename);
         } else {
-            do_log(LOG_INFO, "INFO: ASCII: %u entries loaded from STDIN", blocklist.count - prevcount);
+            do_log(LOG_INFO, "INFO: ASCII: %u entries loaded from \"STDIN\"", blocklist.count - prevcount);
         }
         return 0;
     } else if (ret == -2) {
@@ -305,9 +305,9 @@ int load_list(const char *filename, const char *charset) {
     // Try binary
     if (loadlist_binary(filename) == 0) {
         if (filename) {
-            do_log(LOG_INFO, "INFO: Binary: %u entries loaded from %s", blocklist.count - prevcount, filename);
+            do_log(LOG_INFO, "INFO: Binary: %u entries loaded from \"%s\"", blocklist.count - prevcount, filename);
         } else {
-            do_log(LOG_INFO, "INFO: Binary: %u entries loaded from STDIN", blocklist.count - prevcount);
+            do_log(LOG_INFO, "INFO: Binary: %u entries loaded from \"STDIN\"", blocklist.count - prevcount);
         }
         return 0;
     }
