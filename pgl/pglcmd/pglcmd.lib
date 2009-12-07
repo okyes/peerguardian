@@ -1078,10 +1078,9 @@ set_md5sum () {
 }
 
 # All blocklists in the MASTER_BLOCKLIST_DIR directory, except those which end in "~", are used by pgld.
-# Listnames with spaces are NOT allowed.
-# The -print0 | xargs -0r moves the found lists from separate lines to one line separated with blanks.
+# Place "quotes" around every list. So spaces in listnames are allowed.
 set_MASTER_BLOCKLISTS () {
-    MASTER_BLOCKLISTS="$(find $MASTER_BLOCKLIST_DIR -maxdepth 1 -type f ! -name "*~" -print0 | xargs -0r)"
+    MASTER_BLOCKLISTS="$(find $MASTER_BLOCKLIST_DIR -maxdepth 1 -type f ! -name "*~" | sed -e 's|.*|\"&\"|' | tr "\n" " ")"
     [ -n "$MASTER_BLOCKLISTS" ] || {
         log_failure_msg "Error $E_BLOCKLIST: No master blocklist found in $MASTER_BLOCKLIST_DIR."
         exit $E_BLOCKLIST
@@ -1280,7 +1279,8 @@ do_start () {
                 }
 
             # Start daemon
-            start_daemon -n $NICE_LEVEL -p $PIDFILE $DAEMON $DAEMON_OPTS
+            # eval is needed because blocklist names are "quoted" (in order to allow spaces in the name).
+            eval start_daemon -n $NICE_LEVEL -p $PIDFILE $DAEMON $DAEMON_OPTS
             RETVAL=$?
             log_end_msg $RETVAL
 
@@ -1354,19 +1354,16 @@ do_reload () {
             # Force to build it, if started with force-update.
             [ "$1" = reload ] && \
             [ -e "$MD5SUM_FILE" ] && set_md5sum && [ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ] || build_blocklist
-            # TODO: Instead of checking if any master blocklist is available, there should be a check to see whether
-            # TODO: all blocklists pgld was started with, are available. Even better would be to check which master
-            # TODO: blocklists are available and to tell pgld to use those blocklists. But I think that would require
-            # TODO: a restart instead of the reload.
             # TODO: Note that pgld reloads successfully even if a blocklist is missing.
-            # All blocklists in the MASTER_BLOCKLIST_DIR directory, except those which end in "~", are used by pgld.
-            set_MASTER_BLOCKLISTS
+            # TODO: There should be a check to see whether all blocklists pgld was started with, are available.
+            # TODO: Even better would be to check which master blocklists are available and to tell pgld to
+            # TODO: use those blocklists. But I think this requires a restart instead of the reload.
             echo -n "Reloading $NAME... "
             kill -s HUP "$(pidofproc $DAEMON)"
             RETVAL=$?
             log_end_msg $RETVAL
             ;;
-        3)    # Daemon is not running
+        3)  # Daemon is not running
             log_success_msg "$NAME is not running, doing nothing."
             RETVAL=0
             ;;
@@ -1971,9 +1968,19 @@ build_blocklist () {
 test_ipblocking () {
     # First check some preconditions for the test:
     test_DAEMON
+    test_REJECT
+
     # All blocklists in the MASTER_BLOCKLIST_DIR directory, except those which end in "~", are used by pgld.
     set_MASTER_BLOCKLISTS
-    test_REJECT
+    # Use the last master blocklsit as test list.
+    TEST_LIST="$(echo $MASTER_BLOCKLISTS | sed "s|.*\(\".*\"\)|\1|")"
+    # eval is needed because blocklist names are "quoted" (in order to allow spaces in the name).
+    eval [ -f "$TEST_LIST" ] || {
+        log_failure_msg " Error $E_BLOCKLIST: $TEST_LIST not available."
+        exit $E_BLOCKLIST
+        }
+
+    # Detect the logfile, where hits are logged.
     if [ "$LOG_LOGFILE" -eq 1 ] ; then
         TEST_LOG="$DAEMON_LOG"
     elif [ "$LOG_SYSLOG" -eq 1 ] ; then
@@ -1982,7 +1989,6 @@ test_ipblocking () {
         echo "Error: $NAME has to be started with either LOG_SYSLOG=\"1\" or LOG_LOGFILE=\"1\" for \"test\" to work."
         exit $E_CONFIG
     fi
-
     # If logfile does not exist (for whatever reasons), just create a plain one.
     # If it is missing this does not necessarily mean that the daemon is not running.
     [ -f "$TEST_LOG" ] || touch $TEST_LOG
@@ -2009,21 +2015,10 @@ test_ipblocking () {
     # Pick TEST_IP. Assume blocklist in text (not binary) format.
     TESTLINE="$(expr $$ % 100 + 10)"
 
-    # Choose TEST_LIST
-    if [ -f "$MASTER_BLOCKLIST" ] ; then
-        # Take pglcmd's master blocklist if available
-        TEST_LIST="$MASTER_BLOCKLIST"
-    else
-        # Take first list of MASTER_BLOCKLISTS
-        TEST_LIST="$(echo "$MASTER_BLOCKLISTS" | sed -r "s/ .*//" )"
-        [ -f "$TEST_LIST" ] || {
-            log_failure_msg " Error $E_BLOCKLIST: $TEST_LIST not available."
-            exit $E_BLOCKLIST
-            }
-    fi
     # Pick the last IP address from a random line in BLOCKLIST file (earlier IPs often result in problems with ping)
     # Remove the leading zeros in the IPs.
-    TEST_IP="$(head -n$TESTLINE $TEST_LIST | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1 )"
+    # eval is needed because blocklist names are "quoted" (in order to allow spaces in the name).
+    TEST_IP="$(eval head -n$TESTLINE $TEST_LIST | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1 )"
     echo ""
     echo "CAUTION: This is just a simple test to check if $DESC blocks outgoing"
     echo "connections. For this, an IP from the blocklist will be pinged. Then the test"
