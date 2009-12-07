@@ -55,12 +55,14 @@ BLOCKLISTS_LIST="/etc/pgl/blocklists.list"
 BLOCKLISTS_DIR="/var/spool/pgl"
 
 # The path of the master blocklist dir.
-# All blocklists in this directory, except those which end in "~", are used by pgld.
+# All blocklists in this directory, except those which end in "~", are used by
+# pgld.
 MASTER_BLOCKLIST_DIR="/var/lib/pgl"
 
-# The path of the master blocklist that pglcmd builds.
-# The master blocklist is built automatically from the single blocklists that are
-# listed in BLOCKLISTS_LIST.
+# The pathname of the master blocklist that pglcmd builds. This has to be in
+# MASTER_BLOCKLIST_DIR, otherwise the list will not be used.
+# This master blocklist is built automatically from the single blocklists that
+# are listed in BLOCKLISTS_LIST.
 MASTER_BLOCKLIST="${MASTER_BLOCKLIST_DIR}/${CMD_NAME}_premerged_blocklist.p2p"
 
 # The path to the allow lists
