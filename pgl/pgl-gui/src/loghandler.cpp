@@ -20,12 +20,13 @@
 ***************************************************************************/
 
 #include <QRegExp>
+#include <QStringList>
+#include <QDateTime>
 
 #include "debug.h"
 
 #include "loghandler.h"
 
-#include <QStringList>
 
 LogHandler::LogHandler( const QString &regexPath, QObject *parent ) :
     QObject( parent ),
@@ -65,6 +66,21 @@ bool LogHandler::isWorking() const {
 
 }
 
+void LogHandler::clear() {
+
+    m_LogItemL.clear();
+
+}
+
+void LogHandler::requestDaemonItem() {
+
+}
+
+void LogHandler::requestCmdItem() {
+
+
+}
+
 LogItem LogHandler::parseDaemonEntry( const QString &entry ) const {
 
     LogItem newItem;
@@ -87,6 +103,9 @@ LogItem LogHandler::parseDaemonEntry( const QString &entry ) const {
     td.indexIn( entry );
     newItem.m_Date = td.cap(1);
     newItem.m_Time = td.cap(2);
+    //Or maybe(in order to have one common format in all the logs):
+    //newItem.m_Date = QDate( QDate::currentDate() ).toString("dd MMM yyyy");
+    //newItem.m_Time = QTime( QTime::currentTime() ).toString();
     QString msg = td.cap(3);
 
     if ( msg.isEmpty() ) {
@@ -133,6 +152,44 @@ LogItem LogHandler::parseDaemonEntry( const QString &entry ) const {
     }
 
 
+
+    return newItem;
+
+
+}
+
+LogItem LogHandler::parseCmdEntry( const QString &entry ) const {
+
+    //pglcmd entries can have one of the following formats:
+    //2009-12-07 17:47:37 CET Begin: pglcmd start
+    //...Information...
+    //2009-12-07 17:47:44 CET End: pglcmd start
+    //Error [errorcode]: description
+
+    QRegExp detsep( m_RegExFile.getLine( REGEX_FILE_CMD_BASIC ) );
+    detsep.indexIn(entry);
+
+    LogItem newItem;
+
+    newItem.m_RawMessage = entry;
+    //No need to waste time parsing the time/date
+    newItem.m_Date = QDate( QDate::currentDate() ).toString("dd MMM yyyy");
+    newItem.m_Time = QTime( QTime::currentTime() ).toString();
+
+    if ( entry.contains( "error", Qt::CaseInsensitive ) ) { //Format: "Error [errorcode]: description"
+        newItem.m_Type = PGLC_ERROR;
+    }
+    else if ( entry.contains( "Begin:", Qt::CaseInsensitive ) ) { //Format: "2009-12-07 17:47:37 CET Begin: pglcmd start"
+        newItem.m_Type = PGLC_BEGIN;
+    }
+    else if ( entry.contains( "End:", Qt::CaseInsensitive ) ) { //Format: "2009-12-07 17:47:44 CET End: pglcmd start"
+        newItem.m_Type = PGLC_END;
+    }
+    else {
+        newItem.m_Type = PGLC_SYSTEM; //Any other entry goes here
+    }
+
+    newItem.m_Details = detsep.cap(1);
 
     return newItem;
 

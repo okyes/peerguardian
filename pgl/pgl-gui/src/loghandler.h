@@ -51,6 +51,7 @@
 #define REGEX_FILE_DAEMON_TIMEDATE 0
 #define REGEX_FILE_DAEMON_HIT 1
 #define REGEX_FILE_DAEMON_SYSTEM 2
+#define REGEX_FILE_CMD_BASIC 3
 
 /**
  * The message type a specific log entry
@@ -64,6 +65,8 @@ enum LogItemType {
     PGLD_ERROR, //pgld error message
     PGLC_SYSTEM, //pglcmd system message
     PGLC_ERROR, //pglcmd error message
+    PGLC_BEGIN, //pglcmd start indicator
+    PGLC_END, //pglcmd end indicator
     PGLG_INGORE //an invalid entry which should be ignored
 };
 
@@ -167,15 +170,15 @@ class LogHandler : public QObject, public AbstractHandler {
          * In that case, the appropriate signals, newLogItem() and newLogItemHits() are emitted.
          * This function also handles the FIFO queue in which the last MAX_LOG_SIZE log items are stored.
          */
-        //void requestNewItem();
+        void requestDaemonItem();
+        void requestCmdItem();
         /**
          * Empties the FIFO queue in which the LogItems are stored.
          */
-        //void clear();
+        void clear();
 
     signals:
-        void newLogItem( const LogItem & );
-        void newLogItemHits( const LogItem & );
+        void newDaemonItem( const LogItem & );
 
     private:
         LogItem parseCmdEntry( const QString &entry ) const;
