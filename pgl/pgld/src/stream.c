@@ -21,10 +21,10 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include <string.h>
-#include <syslog.h>
-#include <errno.h>
-#include "pgld.h"
+// #include <string.h>
+// #include <syslog.h>
+// #include <errno.h>
+// #include "pgld.h"
 #include "stream.h"
 
 #ifdef HAVE_ZLIB

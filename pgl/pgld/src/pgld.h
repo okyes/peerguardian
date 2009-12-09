@@ -23,30 +23,50 @@
    Boston, MA 02110-1301, USA.
 */
 
-#ifndef PGLD_H
-#define PGLD_H
+#ifndef INC_PGLD_H
+#define INC_PGLD_H
 
+
+#include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include <string.h>
+#include <stdarg.h>
+#include <limits.h>
+#include <unistd.h>
+#include <getopt.h>
+#include <errno.h>
+#include <syslog.h>
+#include <signal.h>
+#include <sys/time.h>
+#include <time.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
+#include <arpa/inet.h>
+#include <linux/netfilter_ipv4.h>
+#include <libnetfilter_queue/libnetfilter_queue.h>
+
+#include "blocklist.h"
+#include "parser.h"
+
+#ifdef HAVE_DBUS
+#include <dlfcn.h>
+#include "dbus.h"
+#endif
+
 
 #define RECVBUFFSIZE 1500
 #define PAYLOADSIZE 24
 #define ICMP    1
 #define TCP     6
 #define UDP     17
-#define MAX_RANGES 16
 
 #define NIPQUAD(addr) \
 ((unsigned char *)&addr)[0], \
 ((unsigned char *)&addr)[1], \
 ((unsigned char *)&addr)[2], \
 ((unsigned char *)&addr)[3]
-
-#define SRC_ADDR(payload) (*(in_addr_t *)((payload)+12))
-#define DST_ADDR(payload) (*(in_addr_t *)((payload)+16))
-
-#define likely(x)       __builtin_expect((x),1)
-#define unlikely(x)     __builtin_expect((x),0)
 
 #define CHECK_OOM(ptr)                                                  \
     do {                                                                \
@@ -57,7 +77,8 @@
         }                                                               \
     } while(0);                                                         \
 
-#endif
 
 void do_log(int priority, const char *format, ...);
 void int2ip (uint32_t ipint, char *ipstr);
+
+#endif /* INC_PGLD_H */

@@ -21,16 +21,26 @@
    Boston, MA 02110-1301, USA.
 */
 
-#ifndef BLOCKLIST_H
-#define BLOCKLIST_H
+#ifndef INC_BLOCKLIST_H
+#define INC_BLOCKLIST_H
 
+#include <stdio.h>
 #include <inttypes.h>
-#include <time.h>
+// #include <time.h>
+#include <stdlib.h>
+#include <string.h>
+#include <syslog.h>
+#include <errno.h>
+#include <netinet/in.h>
+
 
 /* iconv is not needed in LOWMEM mode (no strings handled) */
 #ifndef LOWMEM
 #include <iconv.h>
 #else
+
+#include "pgld.h"
+
 typedef int iconv_t;
 static inline iconv_t iconv_open(const char *tocode, const char *fromcode) {
     return 0;
@@ -39,7 +49,7 @@ static inline iconv_t iconv_open(const char *tocode, const char *fromcode) {
 static inline int iconv_close(iconv_t cd) {
     return 0;
 }
-#endif
+#endif /* LOWMEM */
 
 #define MAX_LINE_LENGTH 350
 #define MAX_LABEL_LENGTH 300
@@ -69,4 +79,4 @@ block_entry_t * blocklist_find(uint32_t ip);
 void blocklist_dump();
 blocklist_t blocklist;
 
-#endif
+#endif /* INC_BLOCKLIST_H */

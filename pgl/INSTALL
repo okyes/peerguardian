@@ -1,0 +1,39 @@
+Requied packages:
+libnfnetlink-dev
+libnfnetlink0
+libnetfilter-queue-dev
+libnetfilter-queue1
+
+Recommended packages:
+iptables
+gzip
+
+Suggeste packages if building on a desktop machine:
+dbus
+libdbus-1-3
+libdbus-1-3-dev
+
+How to build:
+git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
+cd peerguardian
+mkdir build
+cd build
+cmake ..
+make
+make install
+
+If you just want certain modules like just pgld do the above but before "make install"
+cd pgl/pgld
+Then "make install"
+
+
+Currently this only builds pgld.
+
+Options to cmake: (syntax: "cmake OPTIONS ..")
+
+-DNODUBS=1
+    No DBus support (Auto-detect otherwise)
+
+-DLOWMEM
+    Enable LOWMEM support for devices like routers etc
+    This disables DBus

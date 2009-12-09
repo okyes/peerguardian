@@ -21,13 +21,13 @@
    Boston, MA 02110-1301, USA.
 */
 
-#ifndef BLOCKLOAD_H
-#define BLOCKLOAD_H
+#ifndef INC_PARSER_H
+#define INC_PARSER_H
 
-#include "blocklist.h"
-#include "pgld.h"
+// #include "blocklist.h"
+// #include "pgld.h"
 
 int load_list(const char *filename, const char *charset);
 
-#endif
+#endif /* INC_PARSER_H */
 

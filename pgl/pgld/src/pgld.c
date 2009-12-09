@@ -23,34 +23,8 @@
    Boston, MA 02110-1301, USA.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <limits.h>
-#include <unistd.h>
-#include <getopt.h>
-#include <errno.h>
-#include <syslog.h>
-#include <inttypes.h>
-#include <signal.h>
-#include <sys/time.h>
-#include <time.h>
-#include <netinet/ip.h>
-#include <netinet/tcp.h>
-#include <netinet/udp.h>
-#include <arpa/inet.h>
-#include <linux/netfilter_ipv4.h>
-#include <libnetfilter_queue/libnetfilter_queue.h>
-// #include <poll.h>
 
-#ifdef HAVE_DBUS
-#include <dlfcn.h>
-#include "dbus.h"
-#endif
 
-#include "blocklist.h"
-#include "parser.h"
 #include "pgld.h"
 
 static int opt_merge = 0;
@@ -397,7 +371,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
 #else
                 do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s",src,dst,proto);
 #endif
-            } else if (unlikely(accept_mark)) {
+            } else if (accept_mark) {
                 // we set the user-defined accept_mark and set NF_REPEAT verdict
                 // it's up to other iptables rules to decide what to do with this marked packet
                 status = nfq_set_verdict_mark(qh, id, NF_REPEAT, accept_mark, 0, NULL);
@@ -410,7 +384,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
 
             found_range = blocklist_find(ntohl(ip->daddr));
             if (found_range) {
-                if (likely(reject_mark)) {
+                if (reject_mark) {
                     // we set the user-defined reject_mark and set NF_REPEAT verdict
                     // it's up to other iptables rules to decide what to do with this marked packet
                     status = nfq_set_verdict_mark(qh, id, NF_REPEAT, reject_mark, 0, NULL);
@@ -424,7 +398,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
 #else
                 do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4su", src,dst,proto);
 #endif
-            } else if (unlikely(accept_mark)) {
+            } else if (accept_mark) {
                 // we set the user-defined accept_mark and set NF_REPEAT verdict
                 // it's up to other iptables rules to decide what to do with this marked packet
                 status = nfq_set_verdict_mark(qh, id, NF_REPEAT, accept_mark, 0, NULL);
@@ -439,7 +413,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                 found_range = blocklist_find(ntohl(ip->daddr));
             }
             if (found_range) {
-                if (likely(reject_mark)) {
+                if (reject_mark) {
                     // we set the user-defined reject_mark and set NF_REPEAT verdict
                     // it's up to other iptables rules to decide what to do with this marked packet
                     status = nfq_set_verdict_mark(qh, id, NF_REPEAT, reject_mark, 0, NULL);
@@ -454,7 +428,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
 #else
                 do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s",src,dst,proto);
 #endif
-            } else if ( unlikely(accept_mark) ) {
+            } else if (accept_mark) {
                 // we set the user-defined accept_mark and set NF_REPEAT verdict
                 // it's up to other iptables rules to decide what to do with this marked packet
                 status = nfq_set_verdict_mark(qh, id, NF_REPEAT, accept_mark, 0, NULL);
@@ -559,13 +533,21 @@ static void nfqueue_loop () {
 }
 
 static void print_usage() {
-    fprintf(stderr, PKGNAME " " VERSION "\n");
-    fprintf(stderr, "Syntax:\npgld [-d] [-s] [-l LOGFILE] [-c CHARSET] [-p PIDFILE] [-a MARK] [-r MARK] [-q 0-65535] BLOCKLIST ... BLOCKLIST\n");
+    fprintf(stderr, PACKAGE_NAME " " VERSION "\n");
+    fprintf(stderr, "Syntax:\npgld ");
+#ifdef HAVE_DBUS
+    fprintf(stderr, "[-d] ");
+#endif
+    fprintf(stderr, "[-s] [-l LOGFILE] ");
+#ifndef LOWMEM
+    fprintf(stderr, "[-c CHARSET] ");
+#endif
+    fprintf(stderr, "[-p PIDFILE] [-a MARK] [-r MARK] [-q 0-65535] BLOCKLIST ... BLOCKLIST\n");
     fprintf(stderr, "or\npgld -m [BLOCKLIST ... BLOCKLIST]\n\n");
     fprintf(stderr, "        -a MARK       32-bit mark to place on ACCEPTED packets\n");
     fprintf(stderr, "        -r MARK       32-bit mark to place on REJECTED packets\n");
     fprintf(stderr, "        -q 0-65535    16-bit NFQUEUE number. Must match --queue-num used in with iptables (Default: 92)\n");
-    fprintf(stderr, "        -p NAME       Use a pidfile named NAME (Default: /var/run/pgld.pid)\n");
+    fprintf(stderr, "        -p NAME       Use a pidfile named NAME (Default: "PIDFILE")\n");
     fprintf(stderr, "        -l LOGFILE    Enable logging to LOGFILE\n");
     fprintf(stderr, "        -s            Enable syslog logging \n");
 #ifdef HAVE_DBUS
@@ -591,7 +573,7 @@ void add_blocklist(const char *name, const char *charset) {
 int main(int argc, char *argv[]) {
     int opt, i;
 
-    while ((opt = getopt(argc, argv, "q:a:r:dp:sl:m"
+    while ((opt = getopt(argc, argv, "q:a:r:dp:sl:mh"
 #ifndef LOWMEM
                               "c:"
 #endif
@@ -627,6 +609,9 @@ int main(int argc, char *argv[]) {
             CHECK_OOM(logfile_name);
             strcpy(logfile_name,optarg);
             break;
+        case 'h':
+            print_usage();
+            exit(0);
 #ifdef HAVE_DBUS
         case 'd':
             use_dbus = 1;
@@ -671,9 +656,9 @@ int main(int argc, char *argv[]) {
     }
 
     if (pidfile_name == NULL) {
-            pidfile_name=malloc(strlen("/var/run/pgld.pid")+1);
+            pidfile_name=malloc(strlen(PIDFILE)+1);
             CHECK_OOM(pidfile_name);
-            strcpy(pidfile_name,"/var/run/pgld.pid");
+            strcpy(pidfile_name,PIDFILE);
     }
 
     //open syslog

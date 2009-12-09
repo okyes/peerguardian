@@ -23,12 +23,6 @@
 
 #include "blocklist.h"
 #include "pgld.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <syslog.h>
-#include <errno.h>
-#include <netinet/in.h>
 
 void blocklist_init() {
     blocklist.entries = NULL;
@@ -128,11 +122,13 @@ void blocklist_merge () {
     }
 
     for (i = 0; i < blocklist.count; i++) {
+#ifndef LOWMEM
         //truncate name to MAX_INMEMLABEL_LENGTH
         if ( strlen(blocklist.entries[i].name) > MAX_INMEMLABEL_LENGTH) {
             blocklist.entries[i].name=realloc(blocklist.entries[i].name, MAX_INMEMLABEL_LENGTH);
             blocklist.entries[i].name[MAX_INMEMLABEL_LENGTH-1]='\0';
         }
+#endif
         ip_max = blocklist.entries[i].ip_max;
 
         //look at the next entries to see if they can merge or are the same
@@ -168,11 +164,13 @@ void blocklist_merge () {
                 blocklist.entries[k].hits=0;
                 merged++;
             } // end for k
+#ifndef LOWMEM
             //truncate merged name to MAX_INMEMLABEL_LENGTH
             if ( strlen(blocklist.entries[i].name) > MAX_INMEMLABEL_LENGTH) {
                 blocklist.entries[i].name=realloc(blocklist.entries[i].name, MAX_INMEMLABEL_LENGTH);
                 blocklist.entries[i].name[MAX_INMEMLABEL_LENGTH-1]='\0';
             }
+#endif
             i = j - 1;
         } //end if j
             blocklist.numips += (blocklist.entries[i].ip_max - blocklist.entries[i].ip_min);

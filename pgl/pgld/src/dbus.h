@@ -25,14 +25,14 @@
 */
 
 
-#ifndef PGLD_DBUS_H
-#define PGLD_DBUS_H
-#define MSG_SIZE 256
+#ifndef INC_DBUS_H
+#define INC_DBUS_H
 
-#include <stdbool.h>
-#include <inttypes.h>
-#include <time.h>
-#include <dbus/dbus.h>
+#define MSG_SIZE 256
+// #include <stdbool.h>
+// #include <inttypes.h>
+// #include <time.h>
+#include <dbus-1.0/dbus/dbus.h>
 
 #include "blocklist.h"
 #include "pgld.h"
@@ -54,4 +54,4 @@ void pgl_dbus_send(const char *format, va_list ap);
 //                                            block_sub_entry_t **ranges,
 //                                            uint32_t hits);
 
-#endif
+#endif /* INC_DBUS_H */

@@ -24,8 +24,8 @@
   Boston, MA 02110-1301, USA.
 */
 
-#include <syslog.h>
-#include <stdio.h>
+// #include <syslog.h>
+// #include <stdio.h>
 #include "dbus.h"
 
 static DBusConnection *dbconn = NULL;

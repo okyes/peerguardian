@@ -21,14 +21,17 @@
    Boston, MA 02110-1301, USA.
 */
 
-#ifndef STREAM_H
-#define STREAM_H
+#ifndef INC_STREAM_H
+#define INC_STREAM_H
 
 #include <stdio.h>
+#include <string.h>
 
 #ifdef HAVE_ZLIB
 #include <zlib.h>
 #endif
+
+#include "pgld.h"
 
 #define CHUNK 1024
 
@@ -47,5 +50,5 @@ int stream_open(stream_t *stream, const char *filename);
 int stream_close(stream_t *stream);
 char * stream_getline(char *buf, int max, stream_t *stream);
 
-#endif
+#endif /* INC_STREAM_H */
 
