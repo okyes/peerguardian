@@ -23,13 +23,26 @@ make
 make install
 
 If you just want certain modules like just pgld do the above but before "make install"
+git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
+cd peerguardian
+mkdir build
+cd build
+cmake ..
+make
 cd pgl/pgld
-Then "make install"
+make install
 
+If you just want to build one module like just pgld then cd  to that dir before
+creating the build dir:
+git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
+cd peerguardian/pgl/pgld
+mkdir build
+cd build
+cmake ..
+make
+make install
 
-Currently this only builds pgld.
-
-Options to cmake: (syntax: "cmake OPTIONS ..")
+Options to cmake for pgld: (syntax: "cmake OPTIONS ..")
 
 -DNODUBS=1
     No DBus support (Auto-detect otherwise)
