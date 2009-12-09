@@ -1,4 +1,4 @@
-MESSAGE(STATUS "Building pgld")
+MESSAGE(STATUS "Configuring pgld")
 
 SET(DAEMONNAME pgld)
 SET(VERSION 2.0~pre1-1)

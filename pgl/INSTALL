@@ -1,52 +1,85 @@
-Requied packages:
-libnfnetlink-dev
-libnfnetlink0
-libnetfilter-queue-dev
-libnetfilter-queue1
+##############################################################################
+Build and install everything:
+
+git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
+cd peerguardian
+mkdir build
+cd build
+cmake ..
+make
+make instal
+
+Options to cmake:
+-DCMAKE_INSTALL_PREFIX=/install_prefix
+    Change the install prefix from the default /usr/local
+
+-DNOPGLD=1
+    Don't build pgld
+
+-DNOPGLCMD=1
+    Don't build pglcmd
+
+-DNOPGLGUI=1
+    Don't build pgl-gui
+
+-DNODUBS=1
+    For pgld only
+    No DBus support (Auto-detect otherwise)
+
+-DLOWMEM=1
+    For pgld only
+    Enable LOWMEM support for devices like routers etc
+    This disables DBus
+
+##############################################################################
+Building only pgld:
+
+Required packages:
+    libnfnetlink-dev
+    libnfnetlink0
+    libnetfilter-queue-dev
+    libnetfilter-queue1
 
 Recommended packages:
-iptables
-gzip
+    iptables
+    gzip
 
 Suggeste packages if building on a desktop machine:
-dbus
-libdbus-1-3
-libdbus-1-3-dev
+    dbus
+    libdbus-1-3
+    libdbus-1-3-dev
 
 How to build:
 git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
 cd peerguardian
 mkdir build
 cd build
-cmake ..
+cmake -DNOPGLCMD=1 -DNOPGLGUI=1 ..
 make
 make install
+##############################################################################
 
-If you just want certain modules like just pgld do the above but before "make install"
+Installing only pglcmd:
 git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
 cd peerguardian
 mkdir build
 cd build
-cmake ..
-make
-cd pgl/pgld
+cmake -DNOPGLD=1 -DNOPGLGUI=1 ..
 make install
 
-If you just want to build one module like just pgld then cd  to that dir before
-creating the build dir:
+##############################################################################
+
+Building only pgl-gui:
+
+Required packages:
+    Qt
+
 git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
-cd peerguardian/pgl/pgld
+cd peerguardian
 mkdir build
 cd build
-cmake ..
+cmake -DNOPGLD=1 -DNOPGLCMD=1 ..
 make
 make install
 
-Options to cmake for pgld: (syntax: "cmake OPTIONS ..")
-
--DNODUBS=1
-    No DBus support (Auto-detect otherwise)
-
--DLOWMEM
-    Enable LOWMEM support for devices like routers etc
-    This disables DBus
+##############################################################################
