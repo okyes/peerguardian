@@ -21,3 +21,6 @@ INSTALL(FILES blocklists.list DESTINATION /etc/pgl)
 INSTALL(FILES pglcmd.conf DESTINATION /etc/pgl)
 
 # INSTALL(CODE "EXECUTE_PROCESS(COMMAND 'test -d /var/lib/pgl && mkdir -p /var/lib/pgl')")
+# INSTALL(CODE "EXECUTE_PROCESS(COMMAND 'test -d /var/log/pgl && mkdir -p /var/log/pgl')")
+# INSTALL(CODE "EXECUTE_PROCESS(COMMAND 'test -d /var/spool/pgl && mkdir -p /var/spool/pgl')")
+

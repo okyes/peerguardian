@@ -164,11 +164,14 @@ char *stream_getline(char *buf, int max, stream_t *stream) {
 #else /* !HAVE_ZLIB */
 
 int stream_open(stream_t *stream, const char *filename) {
-    stream->f = fopen(filename, "r");
-
-    if (!stream->f) {
-        do_log(LOG_ERR, "ERROR: Cannot open file %s: %s", filename, strerror(errno));
-        return -1;
+    if (filename) {
+        stream->f = fopen(filename, "r");
+        if (!stream->f) {
+            do_log(LOG_ERR, "ERROR: Cannot open file %s: %s", filename, strerror(errno));
+            return -1;
+        }
+    } else {
+        stream->f = stdin;
     }
     return 0;
 }
