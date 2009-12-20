@@ -1,5 +1,5 @@
 PKGNAME = pgld
-VERSION = 2.0~pre1
+VERSION = git
 
 # Set DBUS to yes if you want to be able to use DBUS.
 
