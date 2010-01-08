@@ -533,8 +533,9 @@ static void nfqueue_loop () {
 }
 
 static void print_usage() {
-    fprintf(stderr, PACKAGE_NAME " " VERSION "\n");
-    fprintf(stderr, "Syntax:\npgld ");
+    fprintf(stderr, PACKAGE_NAME " " VERSION "\n\n");
+    fprintf(stderr, "Usage:\n");
+    fprintf(stderr, "  pgld ");
 #ifdef HAVE_DBUS
     fprintf(stderr, "[-d] ");
 #endif
@@ -542,22 +543,22 @@ static void print_usage() {
 #ifndef LOWMEM
     fprintf(stderr, "[-c CHARSET] ");
 #endif
-    fprintf(stderr, "[-p PIDFILE] [-a MARK] [-r MARK] [-q 0-65535] BLOCKLIST ... BLOCKLIST\n");
-    fprintf(stderr, "or\npgld -m [BLOCKLIST ... BLOCKLIST]\n\n");
-    fprintf(stderr, "        -a MARK       32-bit mark to place on ACCEPTED packets\n");
-    fprintf(stderr, "        -r MARK       32-bit mark to place on REJECTED packets\n");
-    fprintf(stderr, "        -q 0-65535    16-bit NFQUEUE number. Must match --queue-num used in with iptables (Default: 92)\n");
-    fprintf(stderr, "        -p NAME       Use a pidfile named NAME (Default: "PIDFILE")\n");
-    fprintf(stderr, "        -l LOGFILE    Enable logging to LOGFILE\n");
-    fprintf(stderr, "        -s            Enable syslog logging \n");
+    fprintf(stderr, "[-p PIDFILE] [-a MARK] [-r MARK] [-q 0-65535] BLOCKLIST(S)\n");
+    fprintf(stderr, "  pgld -m [BLOCKLIST(S)]\n\n");
 #ifdef HAVE_DBUS
-    fprintf(stderr, "        -d            Enable D-Bus support\n");
+    fprintf(stderr, "        -d            Enable D-Bus support.\n");
 #endif
+    fprintf(stderr, "        -s            Enable logging to syslog.\n");
+    fprintf(stderr, "        -l LOGFILE    Enable logging to LOGFILE.\n");
 #ifndef LOWMEM
-    fprintf(stderr, "        -c            Blocklist file charset\n");
+    fprintf(stderr, "        -c CHARSET    Specify blocklist file CHARSET.\n");
 #endif
-    fprintf(stderr, "        -m            Load, sort, merge, and dump list(s) specified or piped from stdin.\n");
-    fprintf(stderr, "\n");
+    fprintf(stderr, "        -p PIDFILE    Use a PIDFILE.\n");
+    fprintf(stderr, "        -a MARK       Place a 32-bit MARK on accepted packets.\n");
+    fprintf(stderr, "        -r MARK       Place a 32-bit MARK on rejected packets.\n");
+    fprintf(stderr, "        -q 0-65535    Specify a 16-bit NFQUEUE number.\n");
+    fprintf(stderr, "                      Must match --queue-num used in iptables rules.\n");
+    fprintf(stderr, "        -m [BLOCKLIST(S)] Load, sort, merge, and dump blocklist(s) specified or piped from stdin.\n");
 }
 
 void add_blocklist(const char *name, const char *charset) {
@@ -632,7 +633,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (blockfile_count == 0) {
-        fprintf(stderr, "\nERROR: No BLOCKLIST(S) specified!\n\n");
+        fprintf(stderr, "\nERROR: No blocklist specified!\n\n");
         print_usage();
         exit(1);
     }
