@@ -1,0 +1,91 @@
+TODO
+
+pglcmd:
+
+- pglcmd.lib, kernel module loading: change this part, so that the modules are
+  loaded in any case, but that the exit happens only in the given conditions.
+
+- watchdog: separate running process check and iptables check. For iptables
+  check allow to work without complete pglcmd iptables setup. Probably issue a
+  warning about that on wd startup and in the .default-
+
+- [blocked by kernel module loading and watchdog changes]:
+  doc for run pgl on one device only:
+
+================================================================================
+First do a "pglcmd stop"!!!
+
+Then add to /etc/pgl/pglcmd.conf:
+IPTABLES_ACTIVATION="0"
+
+/etc/pgl/iptables-custom-insert.sh
+iptables -I INPUT -i [DEVICENAME] -m state --state NEW -m mark ! --mark 20 -j pgl_in || { log_end_msg $? ; exit $E_IPTABLES ; }
+iptables -I OUTPUT -o [DEVICENAME] -m state --state NEW -m mark ! --mark 20 -j pgl_out || { log_end_msg $? ; exit $E_IPTABLES ; }
+iptables -I FORWARD -i [DEVICENAME] -m state --state NEW -m mark ! --mark 20 -j pgl_fwd || { log_end_msg $? ; exit $E_IPTABLES ; }
+iptables -I FORWARD -o [DEVICENAME] -m state --state NEW -m mark ! --mark 20 -j pgl_fwd || { log_end_msg $? ; exit $E_IPTABLES ; }
+
+/etc/pgl/iptables-custom-remove.sh:
+iptables -D INPUT -i [DEVICENAME] -m state --state NEW -m mark ! --mark 20 -j pgl_in
+iptables -D OUTPUT -o [DEVICENAME] -m state --state NEW -m mark ! --mark 20 -j pgl_out
+iptables -D FORWARD -i [DEVICENAME] -m state --state NEW -m mark ! --mark 20 -j pgl_fwd
+iptables -D FORWARD -o [DEVICENAME] -m state --state NEW -m mark ! --mark 20 -j pgl_fwd
+================================================================================
+
+- support iblocklists new hierarchical URL system.
+
+- on "stop" remove kernel modules that were inserted by blockcontrol. (see dino's
+  synology packaging
+  http://forums.phoenixlabs.org/showpost.php?p=128371&postcount=20). Probably
+  disable this per default, to avoid problems.
+
+- send error messages to console and logfile. [João]
+  Completely rework the logging part, and check if all messages go where they
+  should.
+  E.g. the watchdog's message currently doesn't land in the logfile.
+
+- add option to temp allow (blockcontrol allow IP and blockcontrol allow-MM IP),
+  which inserts the appropriate iptables rules directly.
+
+- add configuration possibility to shut off checking in specific chains
+  (FORWARD). Change watchdog appropriately!
+
+- improve makefile: add (something like) "configure" to configure paths (set the
+  paths in the Makefile and adjust all files automatically with sed.)
+
+- fix debconf to use debian/config again.
+
+- expand test to use traceroute (with a timeout)
+
+- build_blocklist: disable concatenating blocklists in .p2b (binary) format.
+
+- adapt test function for peerguardian .p2b v2 binary format blocklist formats.
+
+- [DISCUSS]: if any blocklist is unavailable, should blockcontrol exit (as it
+  does currently, in order to give no false security), or continue but return an
+  error (if one list is missing, it´s still better to use at least the other
+  blocklists).
+
+- [DISCUSS] Block IPv6 completely because currently only IPv4 is checked?
+
+
+Requests for upstream:
+
+- [nfblock]: use a real allowlist (instead of the iptables whitelisting)
+
+- [iblocklist.com]: This site renames some filenames. So it is not possible to
+  use the upstream URL and the iblocklist.com URL, and avoid the second download
+  with wget's timestamp option.
+
+
+Debian packaging:
+
+- make rpms
+  http://forums.phoenixlabs.org/showthread.php?p=123060
+
+- make ARCH packages:
+  http://forums.phoenixlabs.org/showpost.php?p=123175&postcount=8
+
+- Slackware hints:
+  http://forums.phoenixlabs.org/showthread.php?p=123198
+
+- add debtags

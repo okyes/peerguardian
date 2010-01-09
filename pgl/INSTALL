@@ -7,7 +7,7 @@ mkdir build
 cd build
 cmake ..
 make
-make instal
+make install
 
 Options to cmake:
 -DCMAKE_INSTALL_PREFIX=/install_prefix
@@ -44,7 +44,7 @@ Recommended packages:
     iptables
     gzip
 
-Suggeste packages if building on a desktop machine:
+Suggested packages if building on a desktop machine:
     dbus
     libdbus-1-3
     libdbus-1-3-dev

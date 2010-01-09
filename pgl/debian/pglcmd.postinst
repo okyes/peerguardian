@@ -1,0 +1,930 @@
+#!/bin/sh
+# postinst script for pglcmd
+# see: dh_installdeb(1)
+
+# Copyright (C) 2008 - 2010 jre <jre-phoenix@users.sourceforge.net>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+set -e
+
+# summary of how this script can be called:
+#   * <postinst> `configure' <most-recently-configured-version>
+#   * <old-postinst> `abort-upgrade' <new version>
+#   * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+#     <new-version>
+#   * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+#     <failed-install-package> <version> `removing'
+#     <conflicting-package> <version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+# Note: Some of the following code is normally placed in debian/config and some
+# would need to be present in both files.
+# TODO: Bring it back there, but make sure that
+# - purge cleans debconf db
+# - configuration works (http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=352697)
+
+# Source debconf library.
+. /usr/share/debconf/confmodule
+
+db_version 2.0 || ( echo $? ; true )
+
+# This (deb)conf script is capable of backing up
+db_capb backup || ( echo $? ; true )
+
+case "$1" in
+    configure|reconfigure)
+        true    # continue below
+        ;;
+    abort-upgrade|abort-remove|abort-deconfigure)
+        exit 0
+        ;;
+    *)
+        echo "postinst called with unknown argument \"$1\"" >&2
+        exit 1
+        ;;
+esac
+
+################################################################################
+# The following code is common between pglcmd, pglcmd.wd,
+# cron.daily, init and debian/postinst.
+
+# if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
+# This can happen in early boot stages before local file systems are mounted.
+
+# CONTROL_MAIN has to be set correctly in all just mentioned files.
+CONTROL_MAIN="/usr/lib/pgl/pglcmd.main"
+
+# Configure pglcmd and load functions.
+if [ -f "$CONTROL_MAIN" ] ; then
+    . $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
+else
+    echo "$0 Error 7: Missing file $CONTROL_MAIN."
+    exit 7
+fi
+
+# End of the common code between pglcmd, pglcmd.wd,
+# cron.daily, (if-up), init and debian/postinst.
+################################################################################
+
+VARIABLES="
+    LOG_SYSLOG
+    LOG_IPTABLES
+    VERBOSITY
+    INIT
+    CRON
+    WD
+    NFQUEUE_NUMBER
+    IPTABLES_SETTINGS
+    IPTABLES_ACTIVATION
+    REJECT
+    REJECT_IN
+    REJECT_OUT
+    REJECT_FW
+    ACCEPT
+    WHITE_LOCAL
+    WHITE_TCP_OUT
+    WHITE_UDP_OUT
+    WHITE_TCP_IN
+    WHITE_UDP_IN
+    WHITE_TCP_FORWARD
+    WHITE_UDP_FORWARD
+    IP_REMOVE"
+
+# Known lists
+# Make sure LIST_NAME is also in debian/templates and LIST_NAME2LIST_URL
+LISTS_POSSIBLE="
+    Bluetack_level1
+    Bluetack_level2
+    Bluetack_level3
+    Bluetack_edu
+    Bluetack_ads
+    Bluetack_bogon
+    Bluetack_spyware
+    Bluetack_spider
+    Bluetack_Microsoft
+    Bluetack_proxy
+    Bluetack_hijacked
+    Bluetack_badpeers
+    Bluetack_rangetest
+    Bluetack_dshield
+    TBG_Primary_Threats
+    TBG_General_Corporate_Ranges
+    TBG_Business_ISPs
+    TBG_Educational_Institutions
+    TBG_Search_Engines
+    TBG_Hijacked
+    TBG_Bogon"
+
+###############################################################################
+
+# Store values from configuration files into debconf db.
+
+for VAR in $VARIABLES ; do
+    # We don't need to check if the variable is set, because we also source 
+    # pglcmd.defaults, where all variables are set.
+    # TODO: This has to be changed if the debconf part is moved to config again
+    # (then it can run, before any variable is set).
+    eval VALUE=\$$VAR
+    case "$VAR" in
+        'LOG_IPTABLES')
+            case "$VALUE" in
+                '')
+                    db_set pglcmd/$VAR 'Do not log blocked packets to syslog.'
+                    ;;
+                'LOG --log-level info')
+                    db_set pglcmd/$VAR 'Log blocked packets to syslog.'
+                    ;;
+                *)
+                    db_set pglcmd/$VAR 'Do not touch my settings. Use the current custom value instead.'
+                    ;;
+            esac
+            ;;
+
+        'VERBOSITY')
+            case "$VALUE" in
+                '0')
+                    db_set pglcmd/$VAR 'Output to STDOUT is off (only errors will be reported).'
+                    ;;
+                '1')
+                    db_set pglcmd/$VAR 'Output to STDOUT is on.'
+                    ;;
+                '2')
+                    db_set pglcmd/$VAR 'Output to STDOUT is on but no warning will be shown if an operation is configured not to be executed.'
+                    ;;
+            esac
+            ;;
+
+        'IPTABLES_SETTINGS')
+            case "$VALUE" in
+                '0')
+                    db_set pglcmd/$VAR 'Do not set any iptables rules. You or another script/firewall has to do this!'
+                    ;;
+                '1')
+                    db_set pglcmd/$VAR 'Use separate iptables chains.'
+                    ;;
+                '2')
+                    db_set pglcmd/$VAR 'Only set custom iptables rules.'
+                    ;;
+            esac
+            ;;
+
+        'IPTABLES_ACTIVATION')
+            case "$VALUE" in
+                '0')
+                    db_set pglcmd/$VAR 'Do nothing. You or another script/firewall has to do this!'
+                    ;;
+                '1')
+                    db_set pglcmd/$VAR 'Send all NEW traffic to the iptables chains.'
+                    ;;
+                '2')
+                    db_set pglcmd/$VAR 'Send all traffic to the iptables chains.'
+                    ;;
+            esac
+            ;;
+
+        'REJECT_IN'|'REJECT_OUT'|'REJECT_FW')
+            case "$VALUE" in
+                'DROP'|'REJECT')
+                    db_set pglcmd/$VAR "$VALUE"
+                    ;;
+                *)
+                    db_set pglcmd/$VAR 'Do not touch my settings. Use the current custom value instead.'
+                    ;;
+            esac
+            ;;
+
+        'WHITE_LOCAL')
+            case "$VALUE" in
+                '0')
+                    db_set pglcmd/$VAR 'No automatic whitelisting.'
+                    ;;
+                '1')
+                    db_set pglcmd/$VAR 'Automatic whitelisting of LAN and DNS server and loopback device.'
+                    ;;
+                '2')
+                    db_set pglcmd/$VAR 'Automatic whitelisting of DNS server and loopback device.'
+                    ;;
+            esac
+            ;;
+
+        # For boolean variables:
+        'LOG_SYSLOG'|'INIT'|'CRON'|'WD'|'REJECT'|'ACCEPT')
+            case "$VALUE" in
+                '0')
+                    db_set pglcmd/$VAR false
+                    ;;
+                '1')
+                    db_set pglcmd/$VAR true
+                    ;;
+                *)
+                    echo "WARNING: unknown value (\"$VALUE\") for $VAR. Ignoring."
+                    ;;
+            esac
+            ;;
+
+        # For all other variables:
+        *)
+            db_set pglcmd/$VAR $VALUE
+            ;;
+    esac
+done
+
+# Set the blocklists to be used.
+[ -f "$BLOCKLISTS_LIST" ] && {
+    # Gives possible lists separated with |:
+    LISTS_POSSIBLE_PIPE="$(echo $LISTS_POSSIBLE | sed 's/\ /|/g')"
+    # Read the non-comment|not-empty lines from BLOCKLISTS_LIST:
+    set_LISTS_URL
+    for LIST in $LISTS_URL ; do
+        # This function depends on LIST:
+        LIST_URL2LIST_NAME
+        # Gives currently selected (=configured in blocklists.list and known by debconf) lists:
+        LISTS_SET="$LISTS_SET $(echo $LIST_NAME | grep -Eo "$LISTS_POSSIBLE_PIPE" || true)"
+    done
+    # Gives currently selected lists separated with ", " for debconf:
+    LISTS_SET_COMMA="$(echo $LISTS_SET | sed 's/\ /,\ /g')"
+    db_set pglcmd/blocklists "$LISTS_SET_COMMA"
+} || true
+
+# Set "Add line to allowlist" to empty value because adding the same
+# line several times does not make much sense.
+db_set pglcmd/allowlist
+
+
+
+
+###############################################################################
+
+
+
+
+# Ask debconf's questions.
+
+STATE=1
+DONTSET=0   # Used for variables that do their own db_go
+while true ; do
+    case "$STATE" in
+    '1')
+        db_input critical pglcmd/warning_block || true
+        ;;
+    '2')
+        db_input critical pglcmd/warning_firewall || true
+        ;;
+    '3')
+        db_input high pglcmd/blocklists || true
+        ;;
+    '4')
+        db_input low pglcmd/LOG_SYSLOG || true
+        db_input low pglcmd/LOG_IPTABLES || true
+        db_input low pglcmd/VERBOSITY || true
+        ;;
+    '5')
+        db_input critical pglcmd/INIT || true
+        db_input medium pglcmd/CRON || true
+        db_input medium pglcmd/WD || true
+        ;;
+    '6')    # This part contains the db_go here instead of at the end of the function.
+        db_input low pglcmd/NFQUEUE_NUMBER && RETVAL=$? || { RETVAL=$? ; true ; }
+        if db_go ; then
+            # Check for valid setting, otherwise ask again
+            db_get pglcmd/NFQUEUE_NUMBER
+            if [ "$RET" -ge 0 ] && [ "$RET" -le 65535 ] ; then
+                # Continue if value is valid
+                STATE=$(($STATE + 1))
+            elif [ "$RETVAL" -eq 30 ] ; then
+                # Break if value is not valid but we're in non-interactive mode
+                echo "Invalid NFQUEUE_NUMBER settings, aborting."
+                break
+            else
+                echo "Invalid NFQUEUE_NUMBER setting, choose a number between 0 and 65535."
+            fi
+        else
+            STATE=$(($STATE - 1))
+        fi
+        DONTSET=1
+        ;;
+    '7')
+        db_input low pglcmd/IPTABLES_SETTINGS || true
+        ;;
+    '8')
+        db_get pglcmd/IPTABLES_SETTINGS
+        if [ "$RET" = "Use separate iptables chains." ] ; then
+            db_input low pglcmd/IPTABLES_ACTIVATION || true
+        fi
+        ;;
+    '9')
+        db_get pglcmd/IPTABLES_SETTINGS
+        if [ "$RET" = "Use separate iptables chains." ] ; then
+            db_input low pglcmd/REJECT || true
+        fi
+        ;;
+    '10')
+        db_get pglcmd/IPTABLES_SETTINGS
+        if [ "$RET" = "Use separate iptables chains." ] ; then
+            db_get pglcmd/REJECT
+            if [ "$RET" = true ] ; then
+                db_input low pglcmd/REJECT_IN || true
+                db_input low pglcmd/REJECT_OUT || true
+                db_input low pglcmd/REJECT_FW || true
+            fi
+        fi
+        ;;
+    '11')
+        db_get pglcmd/IPTABLES_SETTINGS
+        if [ "$RET" = "Use separate iptables chains." ] ; then
+            db_input low pglcmd/ACCEPT || true
+        fi
+        ;;
+    '12')
+        db_get pglcmd/IPTABLES_SETTINGS
+        if [ "$RET" = "Use separate iptables chains." ] ; then
+            db_input high pglcmd/info_whitelisting || true
+        fi
+        ;;
+    '13')
+        db_get pglcmd/IPTABLES_SETTINGS
+        if [ "$RET" = "Use separate iptables chains." ] ; then
+            db_input high pglcmd/WHITE_TCP_OUT || true
+            db_input high pglcmd/WHITE_UDP_OUT || true
+            db_input high pglcmd/WHITE_TCP_IN || true
+            db_input high pglcmd/WHITE_UDP_IN || true
+            db_input high pglcmd/WHITE_TCP_FORWARD || true
+            db_input high pglcmd/WHITE_UDP_FORWARD || true
+        fi
+        ;;
+    '14')
+        db_get pglcmd/IPTABLES_SETTINGS
+        if [ "$RET" = "Use separate iptables chains." ] ; then
+            db_input high pglcmd/WHITE_LOCAL || true
+            db_input high pglcmd/allowlist || true
+            db_input low pglcmd/IP_REMOVE || true
+        fi
+        ;;
+    *)
+        # The default case catches when $STATE is greater than the
+        # last implemented state, and breaks out of the loop. This
+        # requires that states be numbered consecutively from 1
+        # with no gaps, as the default case will also be entered
+        # if there is a break in the numbering
+        break # exits the enclosing "while" loop
+        ;;
+    esac
+    # Go on in the state machine. If DONTSET is set a question did handle this on its own.
+    [ "$DONTSET" -eq 1 ] && DONTSET=0 || {
+        if db_go ; then
+            STATE=$(($STATE + 1))
+        elif [ "$STATE" -eq 1 ]; then
+            # The user has asked to back up from the first
+            # question. This case is problematical. Regular
+            # dpkg and apt package installation isn’t capable
+            # of backing up questions between packages as this
+            # is written, so this will exit leaving the package
+            # unconfigured - probably the best way to handle
+            # the situation.
+            exit 10
+        else
+            STATE=$(($STATE - 1))
+        fi
+    }
+done
+
+
+
+
+###############################################################################
+
+
+
+
+# Define function for debconf's db_get. Usage my_db_get $1, where $1 is the
+# variable set in debconf. The name of the package is already set within this
+# function.
+# Check if $RET contains invalid signs.
+my_db_get () {
+    # Test if exactly $1 was specified.
+    [ "$#" = 1 ] || { echo "Internal script error. Aborting."; exit 1; }
+    db_get pglcmd/$1
+    case "$RET" in
+        *\|*)
+            echo "WARNING: This script does not allow to use pipes (\"|\")."
+            echo "You have set $1 to \"$RET\" which does contain a pipe."
+            echo "Therefore not changing this variable."
+            ;;
+        *)
+            # If the value is set in pglcmd.conf, then set it there:
+            if [ -f "$CMD_CONF" ] && grep -Eq "^[[:space:]]*$1=" $CMD_CONF ; then
+                CONFFILE=$CMD_CONF
+            else
+                CONFFILE=$CMD_DEFAULTS
+            fi
+            ;;
+    esac
+}
+
+# Substitute in the values from the debconf db.
+# See `man debconf-devel`
+# Non-default values will be set in default.
+# Default values will be set in default if they were set there already,
+# otherwise they will be set in pglcmd.conf
+
+
+# $RET of db_get gives selected lists seperated with (", ").
+db_get pglcmd/blocklists
+
+# If all lists were deselected replace empty value with dummy, otherwise
+# LISTS_XGET will stay empty although it should contain all LISTs:
+LISTS_GET_NAME_COMMA=${RET:-dummy}
+LISTS_GET_NAME="$(echo $LISTS_GET_NAME_COMMA | sed 's/,//g')"
+
+# Add (if necessary) selected blocklists to blocklists.list
+for LIST_NAME in $LISTS_GET_NAME ; do
+    # Translate human readable/debconf LIST_NAME to LIST_URL.
+    LIST_NAME2LIST_URL
+    # Add selected lists to blocklists.list
+    if [ "$LIST_URL" = dummy ] ; then
+        # just ignore the dummy
+        true
+    elif grep -Eq "^[[:space:]]*(http://)?$LIST_URL_REGEX" $BLOCKLISTS_LIST ; then
+        # LIST_URL is already selected.
+        true
+    elif LIST_NAME2LIST_URL_ALT && [ -n "$LIST_URL_ALT" ] && grep -Eq "^[[:space:]]*(http://)?$LIST_URL_ALT" $BLOCKLISTS_LIST ; then
+        # LIST_URL_ALT is already selected with an alternative URL.
+        true
+    elif grep -Eq "^#(http://)?$LIST_URL_REGEX$" $BLOCKLISTS_LIST ; then
+        # LIST is commented, uncomment it.
+        # The REGEX is very strict, so that no user changes get lost.
+        # An occurence of http:// is kept on uncommenting.
+        sed -i -r "s|^#((http://)?$LIST_URL_REGEX)$|\1|" $BLOCKLISTS_LIST
+    else
+        # LIST is not in blocklists.list (at least not in the very strict form described before).
+        echo >> $BLOCKLISTS_LIST
+        echo "# Added by debconf:" >> $BLOCKLISTS_LIST
+        echo $LIST_URL >> $BLOCKLISTS_LIST
+    fi
+done
+
+# Gives selected lists seperated with "|":
+LISTS_GET_NAME_PIPE="$(echo $LISTS_GET_NAME | sed "s/\ /\|/g")"
+for LIST_NAME in $LISTS_POSSIBLE ; do
+    # Gives deselected (known to debconf but not configured to be used) lists seperated with space:
+    LISTS_XGET="$LISTS_XGET $(echo $LIST_NAME | grep -Ev $LISTS_GET_NAME_PIPE || true)"
+done
+
+# These lists were deselected.
+for LIST_NAME in $LISTS_XGET ; do
+    # Translate human readable/debconf LIST_NAME to LIST_URL.
+    LIST_NAME2LIST_URL
+    LIST_NAME2LIST_URL_ALT
+    # Remove deselected and known incompatible lists from blocklists.list
+    if grep -Eq "^[[:space:]]*(http://)?$LIST_URL_REGEX" $BLOCKLISTS_LIST ; then
+        # LIST_NAME is currently selected, add a # in front of pattern
+        sed -i -r "s|^[[:space:]]*(http://)?$LIST_URL_REGEX|#&|" $BLOCKLISTS_LIST
+    fi
+    if [ -n "$LIST_URL_ALT" ] && grep -Eq "^[[:space:]]*(http://)?$LIST_URL_ALT" $BLOCKLISTS_LIST ; then  # List is currently selected
+        # LIST_NAME is currently selected with alternative URL, add a # in front of pattern
+        sed -i -r "s|^[[:space:]]*(http://)?$LIST_URL_ALT|#&|" $BLOCKLISTS_LIST
+    fi
+done
+
+# Unavailable lists:
+for LIST_URL in www.bluetack.co.uk/config/nipfilter.dat.gz www.bluetack.co.uk/config/pipfilter.dat.gz ; do
+    if grep -Eq "^[[:space:]]*(http://)?$LIST_URL" $BLOCKLISTS_LIST ; then
+        echo -n "Disabling $LIST_URL because it is no more downloadable directly"
+        sed -i -r "s|^[[:space:]]*(http://)?$LIST_URL|# Disabled because list is no more downloadable directly: &|" $BLOCKLISTS_LIST
+        echo "."
+    fi
+done
+
+my_db_get LOG_SYSLOG
+case "$RET" in
+    'false')
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*LOG_SYSLOG=.*|LOG_SYSLOG=\"0\"|" $CMD_CONF
+        else
+            echo "LOG_SYSLOG=\"0\"" >> $CMD_CONF
+        fi
+        ;;
+    'true') # Default
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*LOG_SYSLOG=.*|LOG_SYSLOG=\"1\"|" $CMD_CONF
+        fi
+        ;;
+esac
+
+my_db_get LOG_IPTABLES
+case "$RET" in
+    'Do not log blocked packets to syslog.')    # Default
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*LOG_IPTABLES=.*|LOG_IPTABLES=\"\"|" $CMD_CONF
+        fi
+        ;;
+    'Log blocked packets to syslog.')
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*LOG_IPTABLES=.*|LOG_IPTABLES=\"LOG --log-level info\"|" $CMD_CONF
+        else
+            echo "LOG_IPTABLES=\"LOG --log-level info\"" >> $CMD_CONF
+        fi
+        ;;
+    'Do not touch my settings. Use the current custom value instead.')
+        true
+        ;;
+esac
+
+my_db_get VERBOSITY
+case "$RET" in
+    'Output to STDOUT is off (only errors will be reported).')
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*VERBOSITY=.*|VERBOSITY=\"0\"|" $CMD_CONF
+        else
+            echo "VERBOSITY=\"0\"" >> $CMD_CONF
+        fi
+        ;;
+    'Output to STDOUT is on.')  # Default
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*VERBOSITY=.*|VERBOSITY=\"1\"|" $CMD_CONF
+        fi
+        ;;
+    'Output to STDOUT is on but no warning will be shown if an operation is configured not to be executed.')
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*VERBOSITY=.*|VERBOSITY=\"2\"|" $CMD_CONF
+        else
+            echo "VERBOSITY=\"2\"" >> $CMD_CONF
+        fi
+        ;;
+esac
+
+my_db_get INIT
+case "$RET" in
+    'false')
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*INIT=.*|INIT=\"0\"|" $CMD_CONF
+        else
+            echo "INIT=\"0\"" >> $CMD_CONF
+        fi
+        ;;
+    'true') # Default
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*INIT=.*|INIT=\"1\"|" $CMD_CONF
+        fi
+        ;;
+esac
+
+my_db_get CRON
+case "$RET" in
+    'false')
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*CRON=.*|CRON=\"0\"|" $CMD_CONF
+        else
+            echo "CRON=\"0\"" >> $CMD_CONF
+        fi
+        ;;
+    'true') # Default
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*CRON=.*|CRON=\"1\"|" $CMD_CONF
+        fi
+        ;;
+esac
+
+my_db_get WD
+case "$RET" in
+    'false')
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*WD=.*|WD=\"0\"|" $CMD_CONF
+        else
+            echo "WD=\"0\"" >> $CMD_CONF
+        fi
+        ;;
+    'true') # Default
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*WD=.*|WD=\"1\"|" $CMD_CONF
+        fi
+        ;;
+esac
+
+my_db_get NFQUEUE_NUMBER
+if [ "$RET" = 92 ] ; then   # Default
+    if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+        sed -i -r "s|^[[:space:]]*NFQUEUE_NUMBER=.*|NFQUEUE_NUMBER=\"$RET\"|" $CMD_CONF
+    fi
+else
+    if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+        sed -i -r "s|^[[:space:]]*NFQUEUE_NUMBER=.*|NFQUEUE_NUMBER=\"$RET\"|" $CMD_CONF
+    else
+        echo "NFQUEUE_NUMBER=\"$RET\"" >> $CMD_CONF
+    fi
+fi
+
+my_db_get IPTABLES_SETTINGS
+case "$RET" in
+    'Do not set any iptables rules. You or another script/firewall has to do this!')
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*IPTABLES_SETTINGS=.*|IPTABLES_SETTINGS=\"0\"|" $CMD_CONF
+        else
+            echo "IPTABLES_SETTINGS=\"0\"" >> $CMD_CONF
+        fi
+        ;;
+    'Use separate iptables chains.')    # Default
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*IPTABLES_SETTINGS=.*|IPTABLES_SETTINGS=\"1\"|" $CMD_CONF
+        fi
+        ;;
+    'Only set custom iptables rules.')
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*IPTABLES_SETTINGS=.*|IPTABLES_SETTINGS=\"2\"|" $CMD_CONF
+        else
+            echo "IPTABLES_SETTINGS=\"2\"" >> $CMD_CONF
+        fi
+        ;;
+esac
+
+my_db_get IPTABLES_ACTIVATION
+case "$RET" in
+    'Do nothing. You or another script/firewall has to do this!')
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*IPTABLES_ACTIVATION=.*|IPTABLES_ACTIVATION=\"0\"|" $CMD_CONF
+        else
+            echo "IPTABLES_ACTIVATION=\"0\"" >> $CMD_CONF
+        fi
+        ;;
+    'Send all NEW traffic to the iptables chains.') # Default
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*IPTABLES_ACTIVATION=.*|IPTABLES_ACTIVATION=\"1\"|" $CMD_CONF
+        fi
+        ;;
+    'Send all traffic to the iptables chains.')
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*IPTABLES_ACTIVATION=.*|IPTABLES_ACTIVATION=\"2\"|" $CMD_CONF
+        else
+            echo "IPTABLES_ACTIVATION=\"2\"" >> $CMD_CONF
+        fi
+        ;;
+esac
+
+my_db_get REJECT
+case "$RET" in
+    'false')
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*REJECT=.*|REJECT=\"0\"|" $CMD_CONF
+        else
+            echo "REJECT=\"0\"" >> $CMD_CONF
+        fi
+        ;;
+    'true') # Default
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*REJECT=.*|REJECT=\"1\"|" $CMD_CONF
+        fi
+        ;;
+esac
+
+my_db_get REJECT_IN
+case "$RET" in
+    'DROP') # Default
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*REJECT_IN=.*|REJECT_IN=\"$RET\"|" $CMD_CONF
+        fi
+        ;;
+    'REJECT')
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*REJECT_IN=.*|REJECT_IN=\"$RET\"|" $CMD_CONF
+        else
+            echo "REJECT_IN=\"$RET\"" >> $CMD_CONF
+        fi
+        ;;
+    'Do not touch my settings. Use the current custom value instead.')
+        true
+        ;;
+esac
+
+my_db_get REJECT_OUT
+case "$RET" in
+    'DROP')
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*REJECT_OUT=.*|REJECT_OUT=\"$RET\"|" $CMD_CONF
+        else
+            echo "REJECT_OUT=\"$RET\"" >> $CMD_CONF
+        fi
+        ;;
+    'REJECT')   # Default
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*REJECT_OUT=.*|REJECT_OUT=\"$RET\"|" $CMD_CONF
+        fi
+        ;;
+    'Do not touch my settings. Use the current custom value instead.')
+        true
+        ;;
+esac
+
+my_db_get REJECT_FW
+case "$RET" in
+    'DROP') # Default
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*REJECT_FW=.*|REJECT_FW=\"$RET\"|" $CMD_CONF
+        fi
+        ;;
+    'REJECT')
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*REJECT_FW=.*|REJECT_FW=\"$RET\"|" $CMD_CONF
+        else
+            echo "REJECT_FW=\"$RET\"" >> $CMD_CONF
+        fi
+        ;;
+    'Do not touch my settings. Use the current custom value instead.')
+        true
+        ;;
+esac
+
+my_db_get ACCEPT
+case "$RET" in
+    'false')
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*ACCEPT=.*|ACCEPT=\"0\"|" $CMD_CONF
+        else
+            echo "ACCEPT=\"0\"" >> $CMD_CONF
+        fi
+        ;;
+    'true') # Default
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*ACCEPT=.*|ACCEPT=\"1\"|" $CMD_CONF
+        fi
+        ;;
+esac
+
+my_db_get WHITE_TCP_OUT
+if [ -z "$RET" ] ; then # Default
+    if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+        sed -i -r "s|^[[:space:]]*WHITE_TCP_OUT=.*|WHITE_TCP_OUT=\"\"|" $CMD_CONF
+    fi
+else
+    # change port numbers to associated service name because of mobloquer (0.5) bug.
+    RET_FIXED="$(echo $RET | sed "s|^80 443|http https|")"
+    if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+        sed -i -r "s|^[[:space:]]*WHITE_TCP_OUT=.*|WHITE_TCP_OUT=\"$RET_FIXED\"|" $CMD_CONF
+    else
+        echo "WHITE_TCP_OUT=\"$RET_FIXED\"" >> $CMD_CONF
+    fi
+fi
+
+my_db_get WHITE_UDP_OUT
+if [ -n "$RET" ] ; then
+    if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+        sed -i -r "s|^[[:space:]]*WHITE_UDP_OUT=.*|WHITE_UDP_OUT=\"$RET\"|" $CMD_CONF
+    else
+        echo "WHITE_UDP_OUT=\"$RET\"" >> $CMD_CONF
+    fi
+else    # Default
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*WHITE_UDP_OUT=.*|WHITE_UDP_OUT=\"$RET\"|" $CMD_CONF
+        fi
+fi
+
+my_db_get WHITE_TCP_IN
+if [ -n "$RET" ] ; then
+    if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+        sed -i -r "s|^[[:space:]]*WHITE_TCP_IN=.*|WHITE_TCP_IN=\"$RET\"|" $CMD_CONF
+    else
+        echo "WHITE_TCP_IN=\"$RET\"" >> $CMD_CONF
+    fi
+else    # Default
+    if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+        sed -i -r "s|^[[:space:]]*WHITE_TCP_IN=.*|WHITE_TCP_IN=\"$RET\"|" $CMD_CONF
+    fi
+fi
+
+my_db_get WHITE_UDP_IN
+if [ -n "$RET" ] ; then
+    if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+        sed -i -r "s|^[[:space:]]*WHITE_UDP_IN=.*|WHITE_UDP_IN=\"$RET\"|" $CMD_CONF
+    else
+        echo "WHITE_UDP_IN=\"$RET\"" >> $CMD_CONF
+    fi
+else    # Default
+    if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+        sed -i -r "s|^[[:space:]]*WHITE_UDP_IN=.*|WHITE_UDP_IN=\"$RET\"|" $CMD_CONF
+    fi
+fi
+
+my_db_get WHITE_TCP_FORWARD
+if [ -n "$RET" ] ; then
+    if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+        sed -i -r "s|^[[:space:]]*WHITE_TCP_FORWARD=.*|WHITE_TCP_FORWARD=\"$RET\"|" $CMD_CONF
+    else
+        echo "WHITE_TCP_FORWARD=\"$RET\"" >> $CMD_CONF
+    fi
+else    # Default
+    if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+        sed -i -r "s|^[[:space:]]*WHITE_TCP_FORWARD=.*|WHITE_TCP_FORWARD=\"$RET\"|" $CMD_CONF
+    fi
+fi
+
+my_db_get WHITE_UDP_FORWARD
+if [ -n "$RET" ] ; then
+    if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+        sed -i -r "s|^[[:space:]]*WHITE_UDP_FORWARD=.*|WHITE_UDP_FORWARD=\"$RET\"|" $CMD_CONF
+    else
+        echo "WHITE_UDP_FORWARD=\"$RET\"" >> $CMD_CONF
+    fi
+else    # Default
+    if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+        sed -i -r "s|^[[:space:]]*WHITE_UDP_FORWARD=.*|WHITE_UDP_FORWARD=\"$RET\"|" $CMD_CONF
+    fi
+fi
+
+my_db_get WHITE_LOCAL
+case "$RET" in
+    'No automatic whitelisting.')
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*WHITE_LOCAL=.*|WHITE_LOCAL=\"0\"|" $CMD_CONF
+        else
+            echo "WHITE_LOCAL=\"0\"" >> $CMD_CONF
+        fi
+        ;;
+    'Automatic whitelisting of LAN and DNS server and loopback device.')    # Default
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*WHITE_LOCAL=.*|WHITE_LOCAL=\"1\"|" $CMD_CONF
+        fi
+        ;;
+    'Automatic whitelisting of DNS server and loopback device.')
+        if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+            sed -i -r "s|^[[:space:]]*WHITE_LOCAL=.*|WHITE_LOCAL=\"2\"|" $CMD_CONF
+        else
+            echo "WHITE_LOCAL=\"2\"" >> $CMD_CONF
+        fi
+        ;;
+esac
+
+my_db_get IP_REMOVE
+if [ -n "$RET" ] ; then
+    if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+        sed -i -r "s|^[[:space:]]*IP_REMOVE=.*|IP_REMOVE=\"$RET\"|" $CMD_CONF
+    else
+        echo "IP_REMOVE=\"$RET\"" >> $CMD_CONF
+    fi
+else    # Default
+    if [ "$CONFFILE" = "$CMD_CONF" ] ; then
+        sed -i -r "s|^[[:space:]]*IP_REMOVE=.*|IP_REMOVE=\"$RET\"|" $CMD_CONF
+    fi
+fi
+
+# Add a line to the allow list.
+# The configuration files must have been sourced already for this!
+db_get pglcmd/allowlist
+[ -z "$RET" ] || {
+    echo "" >> "$ALLOW_OUT" # add newline first in case the current file lacks one!
+    echo $RET >> "$ALLOW_OUT"
+    if [ -n "$ALLOW_IN" ] && [ "$ALLOW_IN" != "$ALLOW_OUT" ] ; then
+        echo "" >> "$ALLOW_IN"  # add newline first in case the current file lacks one!
+        echo $RET >> "$ALLOW_IN"
+    fi
+    if [ -n "$ALLOW_FW" ] && [ "$ALLOW_FW" != "$ALLOW_OUT" ] ; then
+        echo "" >> "$ALLOW_FW"  # add newline first in case the current file lacks one!
+        echo $RET >> "$ALLOW_FW"
+    fi
+}
+
+# done with debconf...
+db_stop
+
+# End of substitute in the values from the debconf db.
+
+
+
+
+###############################################################################
+
+if [ "$INIT" -ne 0 ] && [ -x "/etc/init.d/pgl" ] ; then
+    # dh_installdeb inserts code to execute init "start".
+    echo
+    echo "$NAME will soon be started ..."
+    echo "If any blocklists are missing, they will be downloaded. This may take several"
+    echo "minutes. Please be patient and don't abort. If you want to follow the update"
+    echo "process, then do in another terminal a"
+    echo " tail -f $CMD_LOG"
+    echo "The lists are saved to $BLOCKLISTS_DIR/."
+    echo "The installation of $CMD_NAME will fail, if starting $NAME fails. So if"
+    echo "downloading the blocklists fails temporarily, the installation will fail."
+    echo "To workaround this, you can turn the automatic starting of $NAME off by setting"
+    echo "in $CMD_CONF:"
+    echo " INIT=\"0\""
+    echo "Please be patient ..."
+fi
+
+# dh_installdeb will replace this with shell code automatically
+# generated by other debhelper scripts.
+
+#DEBHELPER#
+
+exit 0

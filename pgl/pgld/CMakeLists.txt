@@ -2,7 +2,6 @@ project(pgld)
 cmake_minimum_required(VERSION 2.6)
 
 SET(PKGNAME pgld)
-SET(PGLVERSION 2.0~pre1-1)
 
 add_subdirectory(src)
 

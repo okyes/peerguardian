@@ -1,0 +1,84 @@
+Source: pgl
+Section: net
+Priority: optional
+Maintainer: jre <jre-phoenix@users.sourceforge.net>
+Bugs: mailto:peerguardian-devel@lists.sourceforge.net
+Build-Depends: debhelper (>= 7.3), cmake, po-debconf, zlib1g-dev, libnetfilter-queue-dev, libnfnetlink-dev, libdbus-1-dev
+Standards-Version: 3.8.3.0
+Homepage: http://peerguardian.sourceforge.net/
+Vcs-Browser: http://peerguardian.git.sourceforge.net/
+Vcs-Git: git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
+
+Package: pgld
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, iptables
+Description: PeerGuardian Linux - pgld
+ pgl blocks connections from and to hosts, that are listed in a very large
+ blocklist (thousands or millions of IP ranges).
+ .
+ This is the pgl daemon pgld. It uses the netfilter xt_NFQUEUE kernel module
+ (available since kernel 2.6.13).
+
+Package: pgld-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends: ${misc:Depends}, pgld (= ${binary:Version})
+Description: PeerGuardian Linux - pgld (debug)
+ pgl blocks connections from and to hosts, that are listed in a very large
+ blocklist (thousands or millions of IP ranges).
+ .
+ This is the pgl daemon pgld. It uses the netfilter xt_NFQUEUE kernel module
+ (available since kernel 2.6.13).
+ .
+ This package contains the debugging symbols.
+
+Package: pglcmd
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, iptables, lsb-base (>= 3.0-6), pgld (>= ${source:Version}), pgld (<< ${source:Version}.1~)
+Recommends: wget, unzip, p7zip | p7zip-full
+Conflicts: moblock-control, blockcontrol (<<2~)
+Replaces: blockcontrol
+Description: PeerGuardian Linux - pglcmd
+ pgl blocks connections from and to hosts, that are listed in a very large
+ blocklist (thousands or millions of IP ranges).
+ .
+ This is the pgl command line interface pglcmd. It provides easy ways to
+ interact with the pgl daemon and does all common related tasks.
+ .
+ Features:
+  - Start and stop pgld. Or let init do this automatically.
+  - Update your blocklists from online sources. Or let cron do this
+    automatically. Backups will be used if a problem occurs. Additionally you
+    may use your local blocklists.
+  - Remove lines by keyword from the blocklists.
+  - Handle your iptables rules: use a default setup, easily allow all traffic on
+    specific ports and use an allow list, or add your own sophisticated iptables
+    rules.
+  - Automatically make sure the LAN and the DNS server aren't blocked. If you
+    are on a public LAN, you probably want to disable this feature.
+  - Check the status and test pgl.
+  - Detects if kernel modules are needed and loads them if necessary.
+  - Set verbosity and logging options.
+  - Provides LSB 3.1 compatible init script.
+  - Daily rotation of the logfiles.
+
+Package: pgl-gui
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, pgld (>= ${source:Version}), pgld (<< ${source:Version}.1~), pglcmd (= ${source:Version})
+Description: PeerGuardian Linux - pgl-gui
+ pgl blocks connections from and to hosts, that are listed in a very large
+ blocklist (thousands or millions of IP ranges).
+ .
+ This is the pgl GUI (Qt).
+
+Package: pgl-gui-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends: ${misc:Depends}, pgl-gui (= ${binary:Version})
+Description: PeerGuardian Linux - pgl-gui (debug)
+ pgl blocks connections from and to hosts, that are listed in a very large
+ blocklist (thousands or millions of IP ranges).
+ .
+ This package contains the debugging symbols for the pgl GUI (Qt).

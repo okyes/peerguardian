@@ -1,0 +1,42 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# debian/rules that uses debhelper
+
+# Uncomment this to turn on verbose mode. (from debhelper sample file)
+#export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work. (from debhelper sample file)
+export DH_OPTIONS
+
+override_dh_auto_build:
+	# Link some files to debian/ directory until debhelper can handle such
+	# cases better. See http://bugs.debian.org/499486
+	ln -f pglcmd/cron.daily debian/pglcmd.cron.daily
+	ln -f pglcmd/if-up debian/pglcmd.if-up
+	ln -f pglcmd/init debian/pglcmd.pgl.init
+	ln -f pglcmd/logrotate debian/pglcmd.logrotate
+	ln -f pgld/logrotate debian/pgld.logrotate
+	dh_auto_build
+
+override_dh_clean:
+	# This will guarantee that PO files are always synced with templates.
+	# This should be run on the "clean" target.
+	debconf-updatepo
+	# Remove the hardlinks from debian/ directory again. See above.
+	rm -f debian/pglcmd.cron.daily \
+		debian/pglcmd.if-up \
+		debian/pglcmd.pgl.init \
+		debian/pglcmd.logrotate \
+		debian/pgld.logrotate
+	dh_clean
+
+override_dh_installinit:
+	dh_installinit -p pglcmd --name=pgl -- start 60 2 3 4 5 . stop 20 0 1 6 .
+
+override_dh_strip:
+	dh_strip -p pgld --dbg-package=pgld-dbg
+	dh_strip -p pgl-gui --dbg-package=pgl-gui-dbg
+
+%:
+#	dh --buildsystem=cmake --builddirectory=builddir $@
+	dh --buildsystem=cmake $@

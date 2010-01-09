@@ -1,6 +1,8 @@
 project(pgl)
 cmake_minimum_required(VERSION 2.6)
 
+SET(PGLVERSION 2.0~pre2)
+
 if(NOT NOPGLD)
     add_subdirectory(pgld)
 endif(NOT NOPGLD)
