@@ -3,7 +3,7 @@ Section: net
 Priority: optional
 Maintainer: jre <jre-phoenix@users.sourceforge.net>
 Bugs: mailto:peerguardian-devel@lists.sourceforge.net
-Build-Depends: debhelper (>= 7.3), cmake, po-debconf, zlib1g-dev, libnetfilter-queue-dev, libnfnetlink-dev, libdbus-1-dev
+Build-Depends: debhelper (>= 7.3), cmake (>= 2.6), po-debconf, zlib1g-dev, libnetfilter-queue-dev, libnfnetlink-dev, libdbus-1-dev
 Standards-Version: 3.8.3.0
 Homepage: http://peerguardian.sourceforge.net/
 Vcs-Browser: http://peerguardian.git.sourceforge.net/
@@ -35,7 +35,7 @@ Description: PeerGuardian Linux - pgld (debug)
 
 Package: pglcmd
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, iptables, lsb-base (>= 3.0-6), pgld (>= ${source:Version}), pgld (<< ${source:Version}.1~)
+Depends: ${misc:Depends}, iptables, lsb-base (>= 3.0-6), pgld (>= ${source:Version}), pgld (<< ${source:Version}.1~)
 Recommends: wget, unzip, p7zip | p7zip-full
 Conflicts: moblock-control, blockcontrol (<<2~)
 Replaces: blockcontrol
