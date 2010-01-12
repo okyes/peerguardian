@@ -1,9 +1,7 @@
 project(pglcmd)
 cmake_minimum_required(VERSION 2.6)
 
-SET(GLOBALNAME pgl)
 SET(PKGNAME pglcmd)
-SET(PGLVERSION 2.0~pre1-1)
 
 MESSAGE(STATUS "Configuring ${PKGNAME}")
 
@@ -14,7 +12,7 @@ INSTALL(FILES ${PKGNAME}.lib DESTINATION lib/${GLOBALNAME})
 INSTALL(FILES ${PKGNAME}.main DESTINATION lib/${GLOBALNAME})
 INSTALL(FILES ${PKGNAME}.defaults DESTINATION lib/${GLOBALNAME})
 
-INSTALL(PROGRAMS logrotate DESTINATION /etc/logrotate.d RENAME ${PKGNAME})
+INSTALL(FILES logrotate DESTINATION /etc/logrotate.d RENAME ${PKGNAME})
 INSTALL(PROGRAMS cron.daily DESTINATION /etc/cron.daily RENAME ${PKGNAME})
 INSTALL(PROGRAMS if-up DESTINATION /etc/network/if-up.d RENAME ${PKGNAME})
 INSTALL(PROGRAMS init DESTINATION /etc/init.d RENAME ${GLOBALNAME})
@@ -28,6 +26,9 @@ INSTALL(FILES .empty DESTINATION /var/lib/${GLOBALNAME} RENAME .empty_${PKGNAME}
 INSTALL(FILES .empty DESTINATION /var/log/${GLOBALNAME} RENAME .empty_${PKGNAME})
 INSTALL(FILES .empty DESTINATION /var/spool/${GLOBALNAME} RENAME .empty_${PKGNAME})
 
+
+#Build Debian package. Note that it is recommended to use the native Debian way,
+#see debian/README.Debian
 SET(CPACK_GENERATOR DEB)
 SET(CPACK_SET_DESTDIR "ON")
 SET(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
@@ -38,10 +39,9 @@ SET(CPACK_DEBIAN_PACKAGE_DEPENDS "iptables, lsb-base (>= 3.0-6), wget, unzip, p7
 SET(CPACK_DEBIAN_PACKAGE_MAINTAINER peerguardian-devel@lists.sourceforge.net)
 SET(CPACK_DEBIAN_PACKAGE_DESCRIPTION "PeerGuardian Linux - ${PKGNAME}
  pgl blocks connections from and to hosts, that are listed in a very large
- blocklist. The blocklist can be in any of the following formats:
- eMule ipfilter.dat, peerguardian.p2p text, or peerguardian.p2b v2 binary.
+ blocklist (thousands or millions of IP ranges).
  .
- This is the pgl command line interface ${PKGNAME}. It provides easy ways to
+ This is the pgl command line interface pglcmd. It provides easy ways to
  interact with the pgl daemon and does all common related tasks.
  .
  Features:

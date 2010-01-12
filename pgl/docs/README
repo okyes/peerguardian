@@ -4,23 +4,21 @@ README for pgl                                      Fri Jan  8 14:27:35 CET 2010
 
 Table of Contents:
 
-Description
-Features
-Usage
-Options
-Configuration
-Files
-Installation
-Supported systems
-Requirements
+1.) Description
+2.) Features pglcmd
+3.) Usage pglcmd
+4.) Options pglcmd
+5.) Configuration pglcmd
+
+See also INSTALL for installation instruction and requirements.
 
 ================================================================================
 
-Description:
+1.) Description:
 
-pglcmd is designed to do all tasks related to pgld. pgld checks internet traffic
-based on large lists of IP address ranges in order to protect your privacy. You
-can get it at http://sourceforge.net/projects/peerguardian/
+pgl checks internet traffic based on large lists of IP address ranges in order
+to protect your privacy. You can get it at
+http://sourceforge.net/projects/peerguardian/
 
 WARNING: pgl may block your complete network/internet access!
 
@@ -82,7 +80,7 @@ packet will loop forever.
 
 ================================================================================
 
-Features:
+2.) Features pglcmd:
 
 - Start and stop pgl. Or let init do this automatically.
 - Update your blocklists from online sources. Or let cron do this automatically.
@@ -105,14 +103,14 @@ Features:
 
 ================================================================================
 
-Usage:
+3.) Usage pglcmd:
 
 pglcmd OPTION
 pglcmd search PATTERN
 
 ================================================================================
 
-Options:
+4.) Options pglcmd:
 
 start
   inserts iptables rules, starts pgld and the watchdog. If the blocklist
@@ -162,180 +160,16 @@ single blocklists are downloaded. If any blocklist fails to download, and if
 there is no old version available, the operation aborts. If a downloaded
 blocklist fails to extract, it is deleted and the operation aborts.
 
-
 ================================================================================
 
-Configuration:
+5.) Configuration pglcmd:
 
-Blocklists are configured in blocklists.list
-(/etc/pgl/blocklists.list).
+Blocklists are configured in blocklists.list (/etc/pgl/blocklists.list).
 
-Most things are done in pglcmd.conf (/etc/pgl/pglcmd.conf).
-Refer to pglcmd.defaults (/usr/lib/pgl/pglcmd.defaults) for
-the complete set of possible configuration variables with comments.
+Most things are done in pglcmd.conf (/etc/pgl/pglcmd.conf). Refer to
+pglcmd.defaults (/usr/lib/pgl/pglcmd.defaults) for the complete set of possible
+configuration variables with comments.
 
-The allow list for IP ranges is allow.p2p (/etc/pgl/allow.p2p). Per
-default, the allowlist is used for incoming and outgoing connections. If desired
-different allow lists for incoming, outgoing and forward connections may be
-used.
-
-
-
-
-================================================================================
-
-Files:
-
-- pglcmd (required)
-  The shell script pglcmd. Must be executable.
-
-- pglcmd.main (required)
-  The core of all executable scripts. Must be executable.
-  Referenced as CONTROL_MAIN in pglcmd, init, cron.daily and if.up.
-
-- pglcmd.defaults (required)
-  Default settings for all variables and pathnames.
-  Referenced as CMD_DEFAULTS in pglcmd.main.
-
-- pglcmd.lib (required)
-  Library for pglcmd.main.
-
-- blocklists.list (required)
-  Lists all blocklists that are used (and downloaded) by pglcmd for use by pgld.
-
-- pglcmd.wd (recommended)
-  Monitors pgl and restarts it if necessary.
-
-- pglcmd.conf
-  The user configuration file for pglcmd.
-
-- allow.p2p
-  Allow list which contains IP ranges that shall be whitelisted.
-
-- if-up
-  Execute this, whenever a network interface is brought up, to make sure that
-  the automatic whitelisting of traffic in the LAN does work. Must be
-  executable.
-
-- iptables-custom-insert.sh (example)
-  Script to insert custom iptables rules. Any script in /etc/pgl/ (the
-  directory is defined in IPTABLES_CUSTOM_DIR) that ends in insert.sh will be
-  executed on every "pglcmd start", if IPTABLES_SETTINGS="1" or "2" is
-  configured.
-
-- iptables-custom-remove.sh (example)
-  Script to delete custom iptables rules. Any script in /etc/pgl/ (the
-  directory is defined in IPTABLES_CUSTOM_DIR) that ends in remove.sh will be
-  executed on every "pglcmd stop", if IPTABLES_SETTINGS="1" or "2" is
-  configured.
-
-- init (optional)
-  Init file for starting pgld automatically on every bootup. Must be executable.
-
-- cron.daily (optional)
-  Cron file for updating the blocklists automatically with cron. Must be
-  executable.
-
-- logrotate (optional, configuration file for logrotate)
-  Debian place: /etc/logrotate.d/pglcmd
-  Assumes logfile in /var/log/pglcmd.log
-
-- docs/
-  Some documentatation. pglcmd.1 is a man page.
-
-- debian/
-  You don't need this, this is only needed for the Debian packages.
-
-The following directories/files will be created on usage (path examples for
-Debian, configurable in pglcmd.conf):
-
-- /var/spool/pgl
-  The single blocklists are downloaded and manipulated in subfolders of this
-  folder.
-
-- /var/log/pglcmd.log + rotated logs
-  The logfile of the pglcmd script. This file contains amongst other
-  things about starting/stopping pgld and updating the blocklists.
-  pgld uses /var/log/syslog.
-
-- /var/lib/pgl/guarding.p2p + backup or
-  /var/lib/pgl/guarding.p2b + backup or
-  /var/lib/pgl/ipfilter.dat + backup
-  The master blocklist used by pgld depending on the used format.
-
-================================================================================
-
-Installation:
-
-There's a simple Makefile, which will install pglcmd in fileplaces as in
-Debian. This should be the same as defined by the File Hierarchy Standard
-(FHS). If this fits for you, simply type
-
-  make install
-
-If you choose other file places, you have to adjust:
-
-- the path to pglcmd.main (CONTROL_MAIN) in pglcmd,
-  pglcmd.wd, if-up, cron.daily and init.
-- the path to pglcmd.defaults (CMD_DEFAULTS) in pglcmd.main
-- PATH in pglcmd.defaults. pgld has to be installed in PATH.
-- all other pathnames in pglcmd.defaults
-- the Makefile
-
-If your system doesn't have the LSB init-funtions (/lib/lsb/init-functions),
-then hardcoded fallback functions will be used.
-Fedora 7, CentOS 5 and Ubuntu Hardy and Intrepid have broken LSB init-functions.
-On these distributions you should disable the system wide init-functions by
-setting LSB="".
-
-================================================================================
-
-Supported systems:
-
-pglcmd was written and tested under Debian Squeeze. However it should run
-under every Linux distribution or other POSIX compliant systems.
-
-================================================================================
-
-Requirements:
-
-- iptables
-- wget (optional, needed for blocklists update)
-- /usr/bin/printf (optional, needed during "update" for archive type detection)
-- p7zip (optional, needed for blocklists packed as .7z)
-- unzip (optional, needed for blocklists packed as .zip)
-- start-stop-daemon (optional)
-- awk, sed, grep, basename, dirname, cat, cd, mv, cp, zcat, md5sum, renice, pidof
-  (those should really be on every system)
-- netfilter kernel support (either as modules or directly built in the kernel)
-  These are the modules that are loaded here:
-    iptable_filter
-    ip_tables
-    ipt_REJECT
-    nf_conntrack
-    nf_conntrack_ipv4
-    nf_defrag_ipv4
-    nfnetlink
-    nfnetlink_queue
-    x_tables
-    xt_iprange
-    xt_mark
-    xt_multiport
-    xt_NFQUEUE
-    xt_state
-    xt_tcpudp
-  The list was compiled with:
-  lsmod | grep -E "^x|^nf|^ip" | grep -Ev "^ip6|^ipv6" | sed "s| .*||" | sort
-  Note that xt_ may be named ip_ or ipt_ on older systems.
-- /lib/lsb/init-functions (optional, because as fallback there's a modified copy
-  of the Debian init-functions in pglcmd)
-  Used functions, provided by /lib/lsb/init-functions (version >= 3.1):
-   - start_daemon
-   - killproc
-   - pidofproc
-   - status_of_proc
-   - log_failure_msg
-   - log_warning_msg
-   - log_success_msg
-
-================================================================================
+The allow list for IP ranges is allow.p2p (/etc/pgl/allow.p2p). Per default, the
+allowlist is used for incoming and outgoing connections. If desired different
+allow lists for incoming, outgoing and forward connections may be used.

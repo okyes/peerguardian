@@ -1,7 +1,11 @@
 MESSAGE(STATUS "Configuring ${PKGNAME}")
 
-SET(GLOBALNAME pgl)
-SET(MYSOURCES blocklist.c parser.c pgld.c stream.c)
+set(pgld_SRCS
+    blocklist.c
+    parser.c
+    pgld.c
+    stream.c
+    )
 
 INCLUDE(FindPkgConfig)
 INCLUDE(FindZLIB)
@@ -20,7 +24,7 @@ IF(NOT NODBUS AND NOT LOWMEM)
 ENDIF(NOT NODBUS AND NOT LOWMEM)
 
 
-ADD_EXECUTABLE(${PKGNAME} ${MYSOURCES})
+ADD_EXECUTABLE(${PKGNAME} ${pgld_SRCS})
 TARGET_LINK_LIBRARIES(${PKGNAME} ${NFQUEUE_LIBRARIES} ${NFLINK_LIBRARIES})
 
 IF(ZLIB_FOUND)

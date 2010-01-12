@@ -1,4 +1,17 @@
+Table of Contents:
+
+Installation
+Uninstall
+Files
+Requirements
+Supported systems
+
 ##############################################################################
+
+Installation:
+
+==============================================================================
+
 Build and install everything:
 
 git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
@@ -8,6 +21,12 @@ cd build
 cmake ..
 make
 make install
+
+NOTE: It is strongly recommended to make only out-of-source builds (see above).
+So don't issue the "cmake" command directly in the source - always do it in a
+separate directory as e.g. the "build" directory. If you already have issued
+"cmake" directly in the source, you have to take care to clean up the source
+from any generated files, before you can issue "cmake" in another place.
 
 Options to cmake:
 -DCMAKE_INSTALL_PREFIX=/install_prefix
@@ -31,23 +50,9 @@ Options to cmake:
     Enable LOWMEM support for devices like routers etc
     This disables DBus
 
-##############################################################################
+==============================================================================
+
 Building only pgld:
-
-Required packages:
-    libnfnetlink-dev
-    libnfnetlink0
-    libnetfilter-queue-dev
-    libnetfilter-queue1
-
-Recommended packages:
-    iptables
-    gzip
-
-Suggested packages if building on a desktop machine:
-    dbus
-    libdbus-1-3
-    libdbus-1-3-dev
 
 How to build:
 git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
@@ -57,9 +62,11 @@ cd build
 cmake -DNOPGLCMD=1 -DNOPGLGUI=1 ..
 make
 make install
-##############################################################################
+
+==============================================================================
 
 Installing only pglcmd:
+
 git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
 cd peerguardian
 mkdir build
@@ -67,12 +74,32 @@ cd build
 cmake -DNOPGLD=1 -DNOPGLGUI=1 ..
 make install
 
-##############################################################################
+NOTE: pglcmd has some system files (init, cron, logrotate and network/if-up),
+that have to be installed in the correct places of your system. It is not
+possible to install them e.g. in /usr/local.
+pglcmd uses hardcoded paths, if you choose other file places, you have to
+adjust:
+
+- the path to pglcmd.main (CONTROL_MAIN) in pglcmd,
+  pglcmd.wd, if-up, cron.daily and init.
+- the path to pglcmd.defaults (CMD_DEFAULTS) in pglcmd.main
+- PATH in pglcmd.defaults. pgld has to be installed in PATH.
+- all other pathnames in pglcmd.defaults
+- the Makefile
+
+If your system doesn't have the LSB init-funtions (/lib/lsb/init-functions),
+then hardcoded fallback functions will be used.
+Fedora 7, CentOS 5 and Ubuntu Hardy and Intrepid have broken LSB init-functions.
+On these distributions you should disable the system wide init-functions by
+setting LSB="".
+
+
+==============================================================================
 
 Building only pgl-gui:
 
 Required packages:
-    Qt
+    Qt4 development files
 
 git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
 cd peerguardian
@@ -83,3 +110,160 @@ make
 make install
 
 ##############################################################################
+
+Uninstall:
+
+There is no UNINSTALL routine (yet). But cmake keeps track of the installed
+files in install_manifest.txt.
+
+##############################################################################
+
+Files pglcmd:
+
+- pglcmd (required)
+  The shell script pglcmd. Must be executable.
+
+- pglcmd.main (required)
+  The core of all executable scripts. Must be executable.
+  Referenced as CONTROL_MAIN in pglcmd, init, cron.daily and if.up.
+
+- pglcmd.defaults (required)
+  Default settings for all variables and pathnames.
+  Referenced as CMD_DEFAULTS in pglcmd.main.
+
+- pglcmd.lib (required)
+  Library for pglcmd.main.
+
+- blocklists.list (required)
+  Lists all blocklists that are used (and downloaded) by pglcmd for use by pgld.
+
+- pglcmd.wd (recommended)
+  Monitors pgl and restarts it if necessary.
+
+- pglcmd.conf
+  The user configuration file for pglcmd.
+
+- allow.p2p
+  Allow list which contains IP ranges that shall be whitelisted.
+
+- if-up
+  Execute this, whenever a network interface is brought up, to make sure that
+  the automatic whitelisting of traffic in the LAN does work. Must be
+  executable.
+
+- iptables-custom-insert.sh (example)
+  Script to insert custom iptables rules. Any script in /etc/pgl/ (the
+  directory is defined in IPTABLES_CUSTOM_DIR) that ends in insert.sh will be
+  executed on every "pglcmd start", if IPTABLES_SETTINGS="1" or "2" is
+  configured.
+
+- iptables-custom-remove.sh (example)
+  Script to delete custom iptables rules. Any script in /etc/pgl/ (the
+  directory is defined in IPTABLES_CUSTOM_DIR) that ends in remove.sh will be
+  executed on every "pglcmd stop", if IPTABLES_SETTINGS="1" or "2" is
+  configured.
+
+- init (optional)
+  Init file for starting pgld automatically on every bootup. Must be executable.
+
+- cron.daily (optional)
+  Cron file for updating the blocklists automatically with cron. Must be
+  executable.
+
+- logrotate (optional, configuration file for logrotate)
+  Debian place: /etc/logrotate.d/pglcmd
+  Assumes logfile in /var/log/pglcmd.log
+
+- docs/
+  Some documentatation. pglcmd.1 is a man page.
+
+- debian/
+  You don't need this, this is only needed for the Debian packages.
+
+The following directories/files will be created on usage (path examples for
+Debian, configurable in pglcmd.conf):
+
+- /var/spool/pgl
+  The single blocklists are downloaded and manipulated in subfolders of this
+  folder.
+
+- /var/log/pgl/pglcmd.log + rotated logs
+  The logfile of the pglcmd script. This file contains amongst other
+  things about starting/stopping pgld and updating the blocklists.
+  pgld uses /var/log/syslog.
+
+- /var/lib/pgl/guarding.p2p + backup or
+  /var/lib/pgl/guarding.p2b + backup or
+  /var/lib/pgl/ipfilter.dat + backup
+  The master blocklist used by pgld depending on the used format.
+
+##############################################################################
+
+Requirements:
+
+Build dependency:
+    - cmake (>= 2.6)
+
+Build dependencies pgld:
+    - nfnetlink development files
+    - libnetfilter-queue development files
+    - libdbus development files (optional)
+    - zlib development files (optional, for loading gz compressed blocklists
+        directly)
+
+Runtime environment pgld:
+    - the above libraries
+    - iptables (required)
+    - netfilter kernel support (kernel >= 2.6.13 for NFQUEUE support)
+      Either as modules or directly built in the kernel. These are the modules
+      that are loaded here (with pglcmd):
+        iptable_filter
+        ip_tables
+        ipt_REJECT
+        nf_conntrack
+        nf_conntrack_ipv4
+        nf_defrag_ipv4
+        nfnetlink
+        nfnetlink_queue
+        x_tables
+        xt_iprange
+        xt_mark
+        xt_multiport
+        xt_NFQUEUE
+        xt_state
+        xt_tcpudp
+      The list was compiled with:
+        lsmod|grep -E "^x|^nf|^ip"|grep -Ev "^ip6|^ipv6"|sed "s| .*||"|sort
+      Note that xt_ may be named ip_ or ipt_ on older systems.
+
+Runtime environment pglcmd:
+    - pgld
+    - wget (optional, needed for blocklists update)
+    - p7zip (optional, needed for blocklists packed as .7z)
+    - unzip (optional, needed for blocklists packed as .zip)
+    - start-stop-daemon (optional)
+    - awk, sed, grep, basename, dirname, cat, cd, mv, cp, zcat, md5sum, renice,
+        pidof (those should really be on every system)
+    - /usr/bin/printf (optional, needed during "update" for archive type
+        detection)
+    - /lib/lsb/init-functions (optional, because as fallback there's a modified
+        copy of the Debian init-functions in pglcmd)
+        Used functions, provided by /lib/lsb/init-functions (version >= 3.1):
+        - start_daemon
+        - killproc
+        - pidofproc
+        - status_of_proc
+        - log_failure_msg
+        - log_warning_msg
+        - log_success_msg
+
+Runtime environment pgl-gui:
+    - pgld
+    - pglcmd
+    - Qt 4
+##############################################################################
+
+Supported systems:
+
+pgl was written and tested under Debian Squeeze. However it should run under
+every Linux distribution or other POSIX compliant systems.
