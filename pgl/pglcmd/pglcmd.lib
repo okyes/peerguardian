@@ -1972,7 +1972,7 @@ test_ipblocking () {
 
     # All blocklists in the MASTER_BLOCKLIST_DIR directory, except those which end in "~", are used by pgld.
     set_MASTER_BLOCKLISTS
-    # Use the last master blocklsit as test list.
+    # Use the last master blocklist as test list.
     TEST_LIST="$(echo $MASTER_BLOCKLISTS | sed "s|.*\(\".*\"\)|\1|")"
     # eval is needed because blocklist names are "quoted" (in order to allow spaces in the name).
     eval [ -f "$TEST_LIST" ] || {
@@ -2171,7 +2171,7 @@ search () {
         # Exit immediately with zero status if any match is found
         grep -qEi "$SEARCHPATTERN" "$BLOCKLIST" && {
             echo
-            echo "$LIST_NAME ($LIST)"
+            echo "$LIST_NAME ($LIST):"
             grep -Ei "$SEARCHPATTERN" "$BLOCKLIST"
             # Remember that current list contains SEARCHPATTERN
             HITLIST="$HITLIST $LIST"
