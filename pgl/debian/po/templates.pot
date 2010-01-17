@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: pgl@packages.debian.org\n"
-"POT-Creation-Date: 2010-01-09 14:19+0100\n"
+"POT-Creation-Date: 2010-01-10 15:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,21 +26,22 @@ msgstr ""
 #. Description
 #: ../pglcmd.templates:1001
 msgid ""
-"pgl is started automatically at system boot per default. Some preconfigured "
-"blocklists are updated once a day. Be warned, that blocklists may block more "
-"than what you want. In most cases this will result in a limited  network "
-"availability. This includes your own LAN and router, many webpages, services "
-"like eMail, instant messaging or the \"weather applet\" and your machine's "
-"accessibility from the internet."
+"pgl starts automatically at system boot per default. Some preconfigured "
+"blocklists are used and will be updated once a day. These blocklists may "
+"block much more than what you want. This may result in a strongly limited "
+"network availability - including your own LAN, gateway and DNS server, many "
+"webpages, services like eMail, instant messaging or the \"weather applet\" "
+"and your machine's accessibility from the internet."
 msgstr ""
 
 #. Type: note
 #. Description
 #: ../pglcmd.templates:1001
 msgid ""
-"There are many configuration options to prevent this. E.g. the default is to "
-"always allow (whitelist) LAN traffic, DNS server and loopback device. If you "
-"are on a public LAN, you probably want to disable this feature."
+"There are many configuration options to prevent this. Per default pglcmd "
+"already takes care of allowing (whitelisting) LAN traffic, DNS server and "
+"loopback device. If you are on a public LAN, you probably want to disable "
+"this feature."
 msgstr ""
 
 #. Type: note
