@@ -1283,10 +1283,17 @@ do_start () {
             eval start_daemon -n $NICE_LEVEL -p $PIDFILE $DAEMON $DAEMON_OPTS
             RETVAL=$?
             log_end_msg $RETVAL
-
-            # Start pglcmd.wd.
-            if [ "$WD" = 1 ] && [ "$RETVAL" = 0 ] ; then
-               do_start_wd
+            if [ "$RETVAL" = 0 ] ; then
+                if [ "$WD" = 1 ] ; then
+                    # Start pglcmd.wd.
+                    do_start_wd
+                fi
+            else
+                # Remove iptables again, since starting failed.
+                # Save the retval (although currently delete_iptables doesn't use this variable).
+                SAVE_RETVAL=$RETVAL
+                delete_iptables
+                RETVAL=$SAVE_RETVAL
             fi
             ;;
         # Problematic daemon status. Be verbose and exit!
