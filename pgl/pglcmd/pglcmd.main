@@ -31,16 +31,6 @@ else
     exit 7
 fi
 
-# Search pgld pathname and set DAEMON. Otherwise this can still be done in pglcmd.conf
-IFS=":"
-for PATH_I in $PATH ; do
-    if [ -x "$PATH_I/$NAME" ] ; then
-        DAEMON="$PATH_I/$NAME"
-        break
-    fi
-done
-IFS=$STDIFS
-
 # Load user configuration. This overwrites the above values.
 if [ -f "$CMD_CONF" ] ; then
     . $CMD_CONF || echo "$0 Warning: Failed to source $CMD_CONF although this file exists."
