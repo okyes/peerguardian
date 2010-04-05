@@ -1929,7 +1929,7 @@ build_blocklist () {
                 # Only keep the last occurence of :
                 sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | \
                 # Premerge the blocklist
-                pgld -m > $MASTER_BLOCKLIST && BUILT=1
+                $DAEMON -m > $MASTER_BLOCKLIST && BUILT=1
             # Build blocklist without removing some lines from the blocklists
             else
                 # Cat together all single blocklists
@@ -1947,7 +1947,7 @@ build_blocklist () {
                 # Only keep the last occurence of :
                 sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | \
                 # Premerge the blocklist
-                pgld -m > $MASTER_BLOCKLIST && BUILT=1
+                $DAEMON -m > $MASTER_BLOCKLIST && BUILT=1
             fi
 
             [ "$BUILT" -eq 1 ] && \
