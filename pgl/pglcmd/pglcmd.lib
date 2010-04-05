@@ -164,9 +164,11 @@ pidofproc () {
     fi
     if test_external pidof && [ ! "$specified" ]; then
         status="0"
-        #pidof -o %PPID -x $1 || status="$?"
-        # Simplified this, because it results in errors on synology.
-        pidof $1 || status="$?"
+        pidof -o %PPID -x $1 || status="$?"
+        # According to http://forums.phoenixlabs.org/showpost.php?p=128365&postcount=18
+        # the Synology busybox pidof doesn't recognize the -o and -x options. Then you may take this,
+        # but this doesn't work for the watchdog.
+        #pidof $1 || status="$?"
         if [ "$status" = 1 ]; then
             return 3 # program is not running
         fi
