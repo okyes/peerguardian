@@ -1,6 +1,7 @@
 #!/bin/sh
-# pglcmd.wd
-# Copyright (C) 2009 jre <jre-phoenix@users.sourceforge.net>
+# pglcmd.wd - watchdog to monitor pgl
+#
+# Copyright (C) 2009 - 2010 jre <jre-phoenix@users.sourceforge.net>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
