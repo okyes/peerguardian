@@ -1143,7 +1143,7 @@ do_stop_wd () {
     log_end_msg $RETVAL
 }
 
-# Function that starts daemon
+# Function that starts daemon and watchdog
 do_start () {
     test_DAEMON
     # Check if daemon is already running
@@ -1307,9 +1307,8 @@ do_start () {
     esac
 }
 
-# Function that stops daemon
+# Function that stops daemon (but not watchdog)
 do_stop () {
-    do_stop_wd
     # Remove iptables rules/chains
     delete_iptables
     # As per LSB don't test if daemon is installed on stop!

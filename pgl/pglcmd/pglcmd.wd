@@ -30,9 +30,9 @@ CONTROL_MAIN="/usr/lib/pgl/pglcmd.main"
 
 # Configure pglcmd and load functions.
 if [ -f "$CONTROL_MAIN" ] ; then
-    . $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
+    . $CONTROL_MAIN || { echo "$(basename $0) Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
 else
-    echo "$0 Error 7: Missing file $CONTROL_MAIN."
+    echo "$(basename $0) Error 7: Missing file $CONTROL_MAIN."
     exit 7
 fi
 
@@ -40,10 +40,12 @@ fi
 # cron.daily, (if-up), init and debian/postinst.
 ################################################################################
 
+# All output gets redirected to the logfile.
+{
 test_root
 
 # Check if watchdog is already running.
-[ ! -f "$WD_PID" ] || { log_success_msg "$WD_PID exists, doing nothing." ; exit 0 ; }
+[ ! -f "$WD_PID" ] || { log_success_msg "$WD_PID already exists, not starting $(basename $0) again" ; exit 0 ; }
 
 RETVAL=0
 
@@ -85,49 +87,60 @@ while true ; do
         # First check if the daemon is running.
         status_of_proc $DAEMON $NAME > /dev/null 2>&1 && \
         # Then check if traffic "might" be sent to the daemon.
-        iptables -L INPUT -n | grep "${IPTABLES_IN}" > /dev/null 2>&1 && \
-        iptables -L OUTPUT -n | grep "${IPTABLES_OUT}" > /dev/null 2>&1 && \
-        iptables -L ${IPTABLES_IN} -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1 && \
-        iptables -L ${IPTABLES_OUT} -n | grep "$IPTABLES_TARGET" > /dev/null 2>&1
+        iptables -L INPUT -n | grep -q "${IPTABLES_IN}" && \
+        iptables -L OUTPUT -n | grep -q "${IPTABLES_OUT}" && \
+        iptables -L ${IPTABLES_IN} -n | grep -q "$IPTABLES_TARGET" && \
+        iptables -L ${IPTABLES_OUT} -n | grep -q "$IPTABLES_TARGET"
         # Not using "test" here, because ping fails if network is down,
         # other iptables rules might block the test packet before it reaches
         # pglcmd or the test packet might be whitelisted.
     } || {
-        echo "$0: $NAME does not block!"
-        echo "In most cases another firewall application messed up the iptables rules."
-        echo "Remember to make a \"${CMD_NAME} restart\" whenever you start, stop or change"
-        echo "the configuration of your other firewall applications."
+        echo "$(basename $0): $NAME does not block!"
+        echo "In most cases the reason for this problem is that another firewall application"
+        echo "messed up the iptables rules. To avoid this remember to do a \"${CMD_NAME} restart\""
+        echo "whenever you start, stop or change the configuration of your other firewall"
+        echo "applications."
         echo "To disable the watchdog set WATCHDOG=\"0\" in $CMD_CONF."
-        echo "Now doing a restart"
+        echo "Now doing a restart:"
         if [ -x /usr/sbin/sendmail ] ; then
             SENDMAIL="/usr/sbin/sendmail"
         elif [ -x /usr/lib/sendmail ] ; then
             SENDMAIL="/usr/lib/sendmail"
         fi
+        $CMD_PATHNAME restart_not_wd || { RETVAL=$? ; break ; }
         if [ $WD_MAILTO ] && [ $SENDMAIL ] ; then
             cat<<EOF | $SENDMAIL -t
 To: $WD_MAILTO
-Subject: $(basename $0) detected a problem
+Subject: $(basename $0) restarted $NAME
 
-$NAME does not block!
+$NAME did not block! Therefore $(basename $0) restarted $NAME!
 
-In most cases another firewall application messed up the iptables rules.
-Remember to make a "${CMD_NAME} restart" whenever you start, stop or change
-the configuration of your other firewall applications.
+In most cases the reason for this problem is that another firewall application
+messed up the iptables rules. To avoid this remember to do a "${CMD_NAME} restart"
+whenever you start, stop or change the configuration of your other firewall
+applications.
+
 To disable the watchdog set WD="0" in $CMD_CONF.
-Now doing a restart ...
-
-"$($CMD_NAME restart || echo "$0 exited with return code $?.")"
-
 EOF
-        else
-            $CMD_NAME restart
         fi
-    } || {
-        # We only end up here, if restart fails before it terminates the watchdog!
-        log_failure_msg "Failed! Stopping $(basename $WD_PATHNAME) now!"
-        rm -f $WD_PID || { log_failure_msg " Error: rm exited with $?" ; exit 1; }
-        exit 1
     }
 done
-# We should never end here!
+
+# We only end up here, if restart fails!
+if [ $WD_MAILTO ] && [ $SENDMAIL ] ; then
+cat<<EOF | $SENDMAIL -t
+To: $WD_MAILTO
+Subject: $(basename $0) failed to restart $NAME
+
+$NAME did not block! And $(basename $0) failed to restart $NAME!
+"$CMD_PATHNAME restart_not_wd" exited with code $RETVAL.
+
+To disable the watchdog set WD="0" in $CMD_CONF.
+EOF
+fi
+log_failure_msg "\"$CMD_PATHNAME restart_not_wd\" failed (Error $RETVAL)."
+echo  "Stopping $(basename $WD_PATHNAME) now!"
+exit $RETVAL
+
+# All output gets redirected to the logfile
+} >> $CMD_LOG 2>&1

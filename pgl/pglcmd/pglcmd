@@ -74,6 +74,7 @@ case "$1" in
         test_CMD_LOG
         [ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Stopping $DESC" "$NAME"
         date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
+        do_stop_wd >> $CMD_LOG 2>&1
         do_stop >> $CMD_LOG 2>&1
         date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
         [ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
@@ -97,6 +98,16 @@ case "$1" in
     'restart')
         test_CMD_LOG
         [ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Restarting $DESC" "$NAME"
+        date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
+        do_stop_wd >> $CMD_LOG 2>&1
+        do_restart >> $CMD_LOG 2>&1
+        date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
+        [ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
+        ;;
+    'restart_not_wd')
+        test_CMD_LOG
+        [ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Restarting only $DESC" "$NAME"
+        echo
         date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
         do_restart >> $CMD_LOG 2>&1
         date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
