@@ -1,37 +1,24 @@
-PKGNAME = pgld
-VERSION = git
+#!/usr/bin/make -f
+# Makefile for pgl component pgld
+# This Makefile gets executed by the main pgl Makefile. Don't execute it directly!
+# TODO: check this: ifeq (0,${MAKELEVEL})
 
-# Set DBUS to yes if you want to be able to use DBUS.
-
-DBUS ?= yes
-
-# Set ZLIB to yes if you want to be able to load compressed blocklists.
-
-ZLIB ?= yes
-
-# LOWMEM disables storing of textual range descriptions in RAM.
-# Set to yes if you are building a version for embedded devices
-# like router or NAS box.
-
-#LOWMEM ?= yes
-
-# Want to run gprof?
-#PROFILE ?= yes
-
-# Want to use gdb on the target binary?
-DEBUG ?= yes
-
-prefix ?= /usr/local
-SBINDIR ?= $(prefix)/sbin
-DBUSCONFDIR ?= /etc/dbus-1/system.d
-PLUGINDIR ?= $(prefix)/lib/pgl
-PIDFILE ?= /var/run/pgld.pid
-
-OBJS=src/pgld.o src/stream.o src/blocklist.o src/parser.o
-OPTFLAGS=-Os
-CFLAGS=-Wall -DVERSION=\"$(VERSION)\" -DPLUGINDIR=\"$(PLUGINDIR)\" -DPACKAGE_NAME=\"$(PKGNAME)\" -DPIDFILE=\"$(PIDFILE)\"
-LIBS=-lnetfilter_queue -lnfnetlink
 CC=gcc
+CFLAGS = \
+	-Wall \
+	-DVERSION=\"$(VERSION)\" \
+	-DLIBDIR=\"$(LIBDIR)\" \
+	-DPACKAGE_NAME=\"$(PKGNAME)\" \
+	-DPIDFILE=\"$(PIDDIR)/pgld.pid\"
+OPTFLAGS=-Os
+OBJS = \
+	src/pgld.o \
+	src/stream.o \
+	src/blocklist.o \
+	src/parser.o
+LIBS = \
+	-lnetfilter_queue \
+	-lnfnetlink
 
 ifeq ($(LOWMEM),yes)
 DBUS=no
@@ -60,7 +47,7 @@ endif
 
 CFLAGS+=$(OPTFLAGS)
 
-DISTDIR = $(PKGNAME)-$(VERSION)
+DISTDIR = ../$(PKGNAME)-$(VERSION)/pgld
 
 DISTFILES = \
 	Makefile \
@@ -69,10 +56,7 @@ DISTFILES = \
 	src/parser.c src/parser.h \
 	src/stream.c src/stream.h \
 	src/dbus.c src/dbus.h \
-	dbus-pgld.conf ChangeLog README logrotate\
-	debian/changelog debian/control debian/copyright \
-	debian/default \
-	debian/postinst debian/postrm debian/rules \
+	dbus-pgld.conf logrotate
 
 ifeq ($(DBUS),yes)
 all: src/pgld src/dbus.so
@@ -88,27 +72,25 @@ src/pgld: $(OBJS)
 
 src/dbus.so: src/dbus.o
 	$(CC) -shared -Wl `pkg-config dbus-1 --libs` -o $@ $^
+
 clean:
-	rm -f *~ src/*.o src/*~ src/pgld src/dbus.so
+	rm -rf *~ src/*.o src/*~ src/pgld src/dbus.so $(DISTDIR)
 
 install:
 	install -D -m 755 src/pgld $(DESTDIR)/$(SBINDIR)/pgld
 ifeq ($(DBUS),yes)
 	install -D -m 644 dbus-pgld.conf $(DESTDIR)/$(DBUSCONFDIR)/pgld.conf
-	install -D -m 644 src/dbus.so $(DESTDIR)/$(PLUGINDIR)/dbus.so
+	install -D -m 644 src/dbus.so $(DESTDIR)/$(LIBDIR)/dbus.so
 endif
 
 install-strip: install
 	strip $(DESTDIR)/$(SBINDIR)/pgld
 ifeq ($(DBUS),yes)
-	strip $(DESTDIR)/$(PLUGINDIR)/dbus.so
+	strip $(DESTDIR)/$(LIBDIR)/dbus.so
 endif
 
 dist:
-	rm -rf $(DISTDIR)
-	mkdir $(DISTDIR) $(DISTDIR)/debian $(DISTDIR)/src
+	mkdir -p $(DISTDIR) $(DISTDIR)/src
 	for I in $(DISTFILES) ; do cp "$$I" $(DISTDIR)/$$I ; done
-	tar zcf $(PKGNAME)-$(VERSION).tgz $(PKGNAME)-$(VERSION)
-	rm -rf $(DISTDIR)
 
-.PHONY: clean
+.PHONY: all clean dist install install-strip

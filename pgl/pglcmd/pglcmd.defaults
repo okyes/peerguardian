@@ -9,48 +9,46 @@
 
 ################################ Paths and names ###############################
 
-# PATH
+# PATH and paths.
 PATH="/usr/bin:/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
+BINDIR="/usr/bin"
+SBINDIR="/usr/sbin"
+PIDDIR="/var/run"
+LOGDIR="/var/log/pgl"
+CONFDIR="/etc/pgl"
+LIBDIR="/usr/lib/pgl"
 
-# The daemon description.
+# The description.
 DESC="PeerGuardian Linux"
-# The daemon name.
-NAME="pgld"
-# The daemon pathname.
-DAEMON="/usr/sbin/pgld"
-# The daemon pidfile path.
-PIDFILE="/var/run/pgld.pid"
-
-# The name of this software.
-CMD_NAME="pglcmd"
-
-# The path of the pglcmd script.
-CMD_PATHNAME="/usr/bin/$CMD_NAME"
-
-# The pglcmd version. This is set to a numerical value automatically by
-# the maintainer scripts.
+# The version.
 VERSION="git"
 
-# The path and pidfile of the pglcmd.wd script
-WD_PATHNAME="/usr/sbin/$CMD_NAME.wd"
-WD_PID="/var/run/$(basename $WD_PATHNAME).pid"
+# The name, pathname, pidfile and logfile of the daemon.
+NAME="pgld"
+DAEMON="${SBINDIR}/${NAME}"
+PIDFILE="${PIDDIR}/${NAME}.pid"
+DAEMON_LOG="${LOGDIR}/${NAME}.log"
 
-# pglcmd's log file
-LOG_DIR="/var/log/pgl"
-CMD_LOG="$LOG_DIR/$CMD_NAME.log"
-DAEMON_LOG="$LOG_DIR/$NAME.log"
+# The name, pathname and logfile of the command line interface.
+CMD_NAME="pglcmd"
+CMD_PATHNAME="${BINDIR}/${CMD_NAME}"
+CMD_LOG="${LOGDIR}/${CMD_NAME}.log"
 
-# The path to the pglcmd library
-CMD_LIB="/usr/lib/pgl/$CMD_NAME.lib"
+# The pathname and pidfile of the watchdog.
+WD_PATHNAME="${SBINDIR}/${CMD_NAME}.wd"
+WD_PID="${PIDDIR}/$(basename $WD_PATHNAME).pid"
+
+# The cmd library pathname.
+CMD_LIB="${LIBDIR}/${CMD_NAME}.lib"
 
 # The path to the user configuration
-CMD_CONF="/etc/pgl/$CMD_NAME.conf"
+CMD_CONF="${CONFDIR}/${CMD_NAME}.conf"
 
 # The path of blocklists.list. There you can specify URLs and paths of the
 # single blocklists that you want to use.
-BLOCKLISTS_LIST="/etc/pgl/blocklists.list"
+BLOCKLISTS_LIST="${CONFDIR}/blocklists.list"
 
-# The path of the directory where the blocklists are downloaded and manipulated
+# The path of the directory where the blocklists are downloaded and manipulated.
 BLOCKLISTS_DIR="/var/spool/pgl"
 
 # The path of the master blocklist dir.
@@ -58,34 +56,34 @@ BLOCKLISTS_DIR="/var/spool/pgl"
 # pgld.
 MASTER_BLOCKLIST_DIR="/var/lib/pgl"
 
-# The pathname of the master blocklist that pglcmd builds. This has to be in
-# MASTER_BLOCKLIST_DIR, otherwise the list will not be used.
-# This master blocklist is built automatically from the single blocklists that
-# are listed in BLOCKLISTS_LIST.
+# The pathname of the master blocklist that pglcmd builds automatically from
+# the single blocklists that are listed in BLOCKLISTS_LIST.
+# This has to be in MASTER_BLOCKLIST_DIR, otherwise the list will not be used.
 MASTER_BLOCKLIST="${MASTER_BLOCKLIST_DIR}/${CMD_NAME}_premerged_blocklist.p2p"
 
 # The path to the allow lists
 # Note that per default the same allow list is used for all input and output
 # connections, and is disabled for forward.
 # The path to the allow list for incoming connections
-ALLOW_IN="/etc/pgl/allow.p2p"
+ALLOW_IN="${CONFDIR}/allow.p2p"
 # The path to the allow list for outgoing connections
-ALLOW_OUT="/etc/pgl/allow.p2p"
+ALLOW_OUT="${CONFDIR}/allow.p2p"
 # The path to the allow list for forwarded connections.
-# Don't add your own IP / LAN there or pgl will not work at all for FORWARD.
+# WARNING: Don't add your own IP / LAN to the forward allow list or pgl will not
+# work at all for FORWARD.
 ALLOW_FW=""
 
 # The directory of the custom iptables scripts.
 # All files in this directory, that end in insert.sh/remove.sh will be executed
 # on "pglcmd start/stop", if IPTABLES_SETTINGS is 1 or 2.
-IPTABLES_CUSTOM_DIR="/etc/pgl"
+IPTABLES_CUSTOM_DIR="${CONFDIR}"
 
 # The path of the file with the md5sum of all blocklist configurations
 MD5SUM_FILE="$BLOCKLISTS_DIR/MD5SUM"
 
 # The path of the lsb init functions.
-# If you want to use only pglcmd´s builtin LSB functions, you have to set
-# this to an empty value.
+# If LSB file does not exist or variable is set to an empty value, pglcmd's
+# builtin LSB functions are used.
 LSB="/lib/lsb/init-functions"
 
 # Remember standard IFS (Internal Field Seperator)
