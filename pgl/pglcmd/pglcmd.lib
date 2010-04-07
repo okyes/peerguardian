@@ -281,13 +281,13 @@ status_of_proc () {
     status="0"
     pidofproc $pidfile $daemon >/dev/null || status="$?"
     if [ "$status" = 0 ]; then
-        log_success_msg "$name is running."
+        log_success_msg "$name is running"
         return 0
     elif [ "$status" = 4 ]; then
-        log_failure_msg "could not access PID file for $name."
+        log_failure_msg "could not access PID file for $name"
         return $status
     else
-        log_failure_msg "$name is not running."
+        log_failure_msg "$name is not running"
         return $status
     fi
 }
@@ -1322,7 +1322,7 @@ do_stop () {
     # Normally killproc should take care of this.
     # Otherwise restarting nfblock fails, because it was restarted too early.
     # This also fixes broken lsb init-functions (e.g. Ubuntu hardy), that give
-    # the wrong return code.
+    # the wrong exit code.
     COUNT=0
     # Wait up to 20 seconds
     while [ "$COUNT" -lt 20 ] ; do

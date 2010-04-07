@@ -13,9 +13,6 @@ _Description: WARNING: pgl may block your complete network/internet access!
  loopback device. If you are on a public LAN, you probably want to disable this
  feature.
  .
- You can now tweak your settings. They can later be changed with
-  sudo dpkg-reconfigure pglcmd
- .
  For those who are stuck on this screen: Press the TAB key to select OK and
  press enter.
 
@@ -79,8 +76,6 @@ _Description: Turn on iptables logging of blocked packets to syslog?
  This will only work if you mark matched (IP is in the blocklist) packets. (The
  marking feature is on per default. It will be explained and asked for later.)
  .
- This is one way to figure out the port of the blocked packets.
- 
  The default is not to log blocked packets to syslog.
 
 Template: pglcmd/VERBOSITY
@@ -152,7 +147,7 @@ _Description: Set how traffic is sent to pgld:
  The default is to place iptables rules in separate iptables chains
  (pgl_in, pgl_out and pgl_fwd).
  .
- You can set custom iptables rules in any file named ...insert.sh or 
+ You can set custom iptables rules in any file named ...insert.sh or
  ...remove.sh in the folder /etc/pgl/. These custom scripts are executed either
  additionally to the setting of separate iptables chains or exclusively.
 
@@ -282,7 +277,7 @@ _Description: Whitelist outgoing TCP ports:
 
 Template: pglcmd/WHITE_UDP_OUT
 Type: string
-Default: 
+Default:
 _Description: Whitelist outgoing UDP ports:
  Configuration variable: WHITE_UDP_OUT
  .
@@ -295,7 +290,7 @@ _Description: Whitelist outgoing UDP ports:
 
 Template: pglcmd/WHITE_TCP_IN
 Type: string
-Default: 
+Default:
 _Description: Whitelist incoming TCP ports:
  Configuration variable: WHITE_TCP_IN
  .
@@ -308,7 +303,7 @@ _Description: Whitelist incoming TCP ports:
 
 Template: pglcmd/WHITE_UDP_IN
 Type: string
-Default: 
+Default:
 _Description: Whitelist incoming UDP ports:
  Configuration variable: WHITE_UDP_IN
  .
@@ -321,7 +316,7 @@ _Description: Whitelist incoming UDP ports:
 
 Template: pglcmd/WHITE_TCP_FORWARD
 Type: string
-Default: 
+Default:
 _Description: Whitelist forwarded TCP ports:
  Configuration variable: WHITE_TCP_FORWARD
  .
@@ -334,7 +329,7 @@ _Description: Whitelist forwarded TCP ports:
 
 Template: pglcmd/WHITE_UDP_FORWARD
 Type: string
-Default: 
+Default:
 _Description: Whitelist forwarded UDP ports:
  Configuration variable: WHITE_UDP_FORWARD
  .
@@ -360,7 +355,7 @@ _Description: Set the automatic whitelisting options:
 
 Template: pglcmd/allowlist
 Type: string
-Default: 
+Default:
 _Description: Add a line to the allowlist:
  Any value given here will be added to the allow list (per default this is
  /etc/pgl/allow.p2p). Lines in the allow list must be in the PeerGuardian
@@ -373,7 +368,7 @@ _Description: Add a line to the allowlist:
 
 Template: pglcmd/IP_REMOVE
 Type: string
-Default: 
+Default:
 _Description: Remove lines from the blocklist:
  Configuration variable: IP_REMOVE
  .

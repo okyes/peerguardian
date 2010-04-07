@@ -1,7 +1,8 @@
 Source: pgl
 Section: net
 Priority: optional
-Maintainer: jre <jre-phoenix@users.sourceforge.net>
+Maintainer: PeerGuardian Linux Developers <peerguardian-devel@lists.sourceforge.net>
+Uploaders: jre <jre-phoenix@users.sourceforge.net>
 Bugs: mailto:peerguardian-devel@lists.sourceforge.net
 Build-Depends: debhelper (>= 7.3), cmake (>= 2.6), po-debconf, zlib1g-dev, libnetfilter-queue-dev, libnfnetlink-dev, libdbus-1-dev
 Standards-Version: 3.8.3.0
@@ -11,7 +12,9 @@ Vcs-Git: git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardia
 
 Package: pgld
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, iptables
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         iptables
 Description: PeerGuardian Linux - pgld
  pgl blocks connections from and to hosts, that are listed in a very large
  blocklist (thousands or millions of IP ranges).
@@ -23,7 +26,8 @@ Package: pgld-dbg
 Architecture: any
 Section: debug
 Priority: extra
-Depends: ${misc:Depends}, pgld (= ${binary:Version})
+Depends: ${misc:Depends},
+         pgld (= ${binary:Version})
 Description: PeerGuardian Linux - pgld (debug)
  pgl blocks connections from and to hosts, that are listed in a very large
  blocklist (thousands or millions of IP ranges).
@@ -35,9 +39,16 @@ Description: PeerGuardian Linux - pgld (debug)
 
 Package: pglcmd
 Architecture: all
-Depends: ${misc:Depends}, iptables, lsb-base (>= 3.0-6), pgld (>= ${source:Version}), pgld (<< ${source:Version}.1~)
-Recommends: wget, unzip, p7zip | p7zip-full
-Conflicts: moblock-control, blockcontrol (<<2~)
+Depends: ${misc:Depends},
+         iptables,
+         lsb-base,
+         pgld (>= ${source:Version}),
+         pgld (<< ${source:Version}.1~)
+Recommends: wget,
+            unzip,
+            p7zip | p7zip-full
+Conflicts: moblock-control,
+           blockcontrol (<<2~)
 Replaces: blockcontrol
 Description: PeerGuardian Linux - pglcmd
  pgl blocks connections from and to hosts, that are listed in a very large

@@ -45,9 +45,8 @@ else
 fi
 
 # Load LSB init-functions shell library
-# Debian: Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
-# In pglcmd.lib there's a modified copy of the Debian init-functions, as a
-# fallback, which will be overwritten by the following functions.
+# As fallback there's a modified copy of the Debian init-functions in
+# pglcmd.lib. Those functions will be overwritten by the following functions.
 if [ -f "$LSB" ] ; then
     . $LSB || echo "$0 Warning: Failed to source $LSB although this file exists."
 fi
