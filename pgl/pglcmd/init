@@ -47,8 +47,8 @@ CONTROL_MAIN="/usr/lib/pgl/pglcmd.main"
 if [ -f "$CONTROL_MAIN" ] ; then
     . $CONTROL_MAIN || { echo "$0 Error: Failed to source $CONTROL_MAIN although this file exists."; exit 1; }
 else
-    echo "$0 Error 7: Missing file $CONTROL_MAIN."
-    exit 7
+    echo "$0: Missing file $CONTROL_MAIN. Doing nothing."
+    exit 0
 fi
 
 # End of the common code between pglcmd, pglcmd.wd,

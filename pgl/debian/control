@@ -5,13 +5,13 @@ Maintainer: PeerGuardian Linux Developers <peerguardian-devel@lists.sourceforge.
 Uploaders: jre <jre-phoenix@users.sourceforge.net>
 Bugs: mailto:peerguardian-devel@lists.sourceforge.net
 Build-Depends: debhelper (>= 7.3),
-               libqt4-dev,
+#               libqt4-dev,
                po-debconf,
                zlib1g-dev,
                libnetfilter-queue-dev,
                libnfnetlink-dev,
                libdbus-1-dev
-Standards-Version: 3.8.3.0
+Standards-Version: 3.8.4.0
 Homepage: http://peerguardian.sourceforge.net/
 Vcs-Browser: http://peerguardian.git.sourceforge.net/
 Vcs-Git: git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
@@ -79,3 +79,28 @@ Description: PeerGuardian Linux - pglcmd
   - Set verbosity and logging options.
   - Provides LSB 3.1 compatible init script.
   - Daily rotation of the logfiles.
+
+# Package: pgl-gui
+# Architecture: any
+# Depends: ${shlibs:Depends},
+#          ${misc:Depends},
+#          pgld (>= ${source:Version}),
+#          pgld (<< ${source:Version}.1~),
+#          pglcmd (= ${source:Version})
+# Description: PeerGuardian Linux - pgl-gui
+#  pgl blocks connections from and to hosts, that are listed in a very large
+#  blocklist (thousands or millions of IP ranges).
+#  .
+#  This is the pgl GUI (Qt).
+
+# Package: pgl-gui-dbg
+# Architecture: any
+# Section: debug
+# Priority: extra
+# Depends: ${misc:Depends},
+#          pgl-gui (= ${binary:Version})
+# Description: PeerGuardian Linux - pgl-gui (debug)
+#  pgl blocks connections from and to hosts, that are listed in a very large
+#  blocklist (thousands or millions of IP ranges).
+#  .
+#  This package contains the debugging symbols for the pgl GUI (Qt).

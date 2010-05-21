@@ -24,7 +24,7 @@
 # Whitelist outgoing TCP traffic to port 80 for the application firefox-bin:
 # My system doesn't support this, feedback welcome ;-)
 iptables -I pgl_out -p tcp --dport 80 -m owner --pid-owner [processid] -j RETURN
-iptables -I pgl_out -p tcp --dport 80 -m owner --pid-owner firefox-bin -j RETURN
+iptables -I pgl_out -p tcp --dport 80 -m owner --cmd-owner firefox-bin -j RETURN
 
 # Whitelist outgoing TCP traffic on port 80 if it does not belong to user
 # [username]. This may be used e.g. if there are normal desktop users (who are

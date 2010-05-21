@@ -66,5 +66,6 @@ clean:
 dist:
 	mkdir -p $(DISTDIR)
 	for I in $(DISTFILES) ; do cp "$$I" $(DISTDIR)/$$I ; done
+	chmod +x cron.daily if-up init pglcmd pglcmd.wd
 
 .PHONY: all clean dist install

@@ -13,7 +13,8 @@ SHELL = /bin/sh
 #
 MAKE_PGLD ?= yes
 MAKE_PGLCMD ?= yes
-#MAKE_PGL-GUI ?= yes
+# NOTE: currently only the "dist" and "clean" target is enabled for pgl-gui.
+MAKE_PGL-GUI ?= yes
 
 
 #
@@ -78,9 +79,9 @@ MODULES_CLEAN+=pglcmd_clean
 MODULES_DIST+=pglcmd_dist
 endif
 ifeq ($(MAKE_PGL-GUI),yes)
-MODULES_ALL+=pgl-gui_all
-MODULES_INSTALL+=pgl-gui_install
-MODULES_INSTALL-STRIP+=pgl-gui_install-strip
+# MODULES_ALL+=pgl-gui_all
+# MODULES_INSTALL+=pgl-gui_install
+# MODULES_INSTALL-STRIP+=pgl-gui_install-strip
 MODULES_CLEAN+=pgl-gui_clean
 MODULES_DIST+=pgl-gui_dist
 endif
@@ -139,6 +140,7 @@ clean: $(MODULES_CLEAN)
 dist: clean $(MODULES_DIST)
 	mkdir -p $(DISTDIR) $(DISTDIR)/debian $(DISTDIR)/debian/po $(DISTDIR)/debian/source $(DISTDIR)/docs
 	for I in $(DISTFILES) ; do cp "$$I" $(DISTDIR)/$$I ; done
+	chmod +x debian/rules
 	tar cvzf $(PKGNAME)-$(VERSION).tgz $(PKGNAME)-$(VERSION)
 	rm -rf $(DISTDIR)
 
