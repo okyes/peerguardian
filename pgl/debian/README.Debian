@@ -9,21 +9,8 @@ https://bugs.launchpad.net/soyuz/+bug/491455.
 More information on http://wiki.debian.org/Projects/DebSrc3.0.
 If this is a problem for you, please contact me.
 
-
-There are two ways to make Debian packages of pgl:
-
-1. Recommended way:
-Use the Debian packaging tool dpkg-buildpackage with debhelper, where debhelper
-uses cmake as build system. This is supported by debhelper since version 7.3 of
-24 Jul 2009 via the dh_auto_... functions. Therefore the build-depends in
-debian/control is set on debhelper (>= 7.3).
+Make Debian packages:
 Unpack the source, change to the source directory (peerguardian/pgl/) and issue
-    dpkg-buildpackage -us -uc -tc -rfakeroot
-Please tell me your experiences, especially if you build with debhelper < 7.3!
+  dpkg-buildpackage -us -uc -tc -rfakeroot
 
-2. Direct way, if the recommended way fails:
-You can let cpack construct the Debian packages directly. The resulting packages
-may not be policy compliant, and may miss some goodies. But still, they should
-work. Otherwise please tell me!
-
- -- jre <jre-phoenix@users.sourceforge.net>  Mon, 04 Jan 2010 17:48:40 +0100
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 25 May 2010 23:55:26 +0200

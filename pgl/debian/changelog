@@ -1,3 +1,12 @@
+pgl (2.0.1-1~pre1) unstable; urgency=low
+
+  * build-depend on debhelper (>= 7.0.50~) for debhelper overrides. Previously
+    this was set to debhelper (>= 7.3) for dh_auto_... functions, which were
+    (perhaps) needed for the now unused cmake build system.
+  * removed cmake hints from README.Debian
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 25 May 2010 23:47:08 +0200
+
 pgl (2.0.0-1) unstable; urgency=low
 
   * initial release, based on moblock/nfblock and blockcontrol

@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: PeerGuardian Linux Developers <peerguardian-devel@lists.sourceforge.net>
 Uploaders: jre <jre-phoenix@users.sourceforge.net>
 Bugs: mailto:peerguardian-devel@lists.sourceforge.net
-Build-Depends: debhelper (>= 7.3),
+Build-Depends: debhelper (>= 7.0.50~),
 #               libqt4-dev,
                po-debconf,
                zlib1g-dev,
