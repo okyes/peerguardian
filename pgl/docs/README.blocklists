@@ -18,6 +18,9 @@ Local (custom) blocklists
 
 Introduction:
 
+WARNING: Using too many and/or inappropriate lists may seriously degrade your
+internet service.
+
 This text shall help you to decide what blocklists you use. Just add the URLs of
 the blocklists that you want to use to "/etc/pgl/blocklists.list".
 Afterwards do a "pglcmd reload" to add the new blocklists to your master
@@ -282,7 +285,7 @@ forum.
 
 http://www.bluetack.co.uk/config/dshield.gz
 This list contains known Hackers and such people in it.
-More information can be found at the DShield Website 
+More information can be found at the DShield Website
 
 
 http://www.bluetack.co.uk/config/Microsoft.gz
@@ -334,7 +337,7 @@ Exclusions list in the Blocklist Manager.
 More information on IANA can be found in the Bluetack IANA FAQ
 Another important post for additional information about common IP ranges you
 may have trouble with and need to unblock to prevent internet connection issues
-is our IANA Sticky 
+is our IANA Sticky
 
 
 http://www.bluetack.co.uk/config/bogon.gz

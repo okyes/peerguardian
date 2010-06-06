@@ -20,7 +20,8 @@ pgl checks internet traffic based on large lists of IP address ranges in order
 to protect your privacy. You can get it at
 http://sourceforge.net/projects/peerguardian/
 
-WARNING: pgl may block your complete network/internet access!
+WARNING: pgl may block your complete network/internet access! Using too many
+and/or inappropriate lists may seriously degrade your internet service.
 
 pgl starts automatically at system boot per default. Some preconfigured
 blocklists are used and will be updated once a day. These blocklists may block

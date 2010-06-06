@@ -1,16 +1,30 @@
 pgl for Debian
 --------------
 
-The official pgl is released with a debian/ directory. This should not be a
-problem, since it uses the Debian 3.0 (quilt) source format. This is supported
-since Debian Lenny's dpkg (user site), and by DAK (Debian project site). I don't
-know, if this might be a problem for the Launchad ppa yet. See
-https://bugs.launchpad.net/soyuz/+bug/491455.
-More information on http://wiki.debian.org/Projects/DebSrc3.0.
-If this is a problem for you, please contact me.
+pgl is released with a debian/ directory. This should not be a problem, since it
+uses the Debian 3.0 (quilt) source format. This is supported since Debian
+Lenny's dpkg (user site), and by DAK (Debian project site). More information on
+http://wiki.debian.org/Projects/DebSrc3.0.
 
 Make Debian packages:
-Unpack the source, change to the source directory (peerguardian/pgl/) and issue
-  dpkg-buildpackage -us -uc -tc -rfakeroot
 
- -- jre <jre-phoenix@users.sourceforge.net>  Tue, 25 May 2010 23:55:26 +0200
+Install the build requirements:
+  aptitude install devscripts \
+                   debhelper \
+                   po-debconf \
+                   zlib1g-dev \
+                   libnetfilter-queue-dev \
+                   libnfnetlink-dev \
+                   libdbus-1-dev
+
+Get the source (see INSTALL, Step 1: Get the source).
+
+Change to the source directory "peerguardian/pgl/".
+
+Then issue
+  debuild --no-lintian -us -uc -tc -b
+
+You will get deb package called pglcmd, pgld and pgld-dbg in the "peerguardian/"
+directory.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 02 Jun 2010 11:01:46 +0200

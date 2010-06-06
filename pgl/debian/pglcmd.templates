@@ -38,6 +38,9 @@ Type: multiselect
 Choices: TBG_Primary_Threats, TBG_General_Corporate_Ranges, TBG_Business_ISPs, TBG_Educational_Institutions, TBG_Search_Engines, TBG_Hijacked, TBG_Bogon, Bluetack_level1, Bluetack_level2, Bluetack_level3, Bluetack_edu, Bluetack_ads, Bluetack_bogon, Bluetack_spyware, Bluetack_spider, Bluetack_Microsoft, Bluetack_proxy, Bluetack_hijacked, Bluetack_badpeers, Bluetack_rangetest, Bluetack_dshield
 Default: TBG_Primary_Threats, TBG_General_Corporate_Ranges, TBG_Business_ISPs, TBG_Search_Engines, TBG_Hijacked, TBG_Bogon, Bluetack_proxy, Bluetack_dshield
 _Description: What blocklists shall be used?
+ WARNING: Using too many and/or inappropriate lists may seriously degrade your
+ internet service.
+ .
  This selects the blocklists. You may use all blocklists in text format (eMule
  ipfilter.dat, peerguardian .p2p text, and LOWMEM format)
  .
