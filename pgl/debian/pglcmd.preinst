@@ -17,7 +17,7 @@ set -e
 case "$1" in
     install|upgrade)
         # Remove other init files to prevent conflict with pglcmd by several identical services.
-        for i in blockcontrol moblock moblock-nfq moblock-ipq peerguardnf peerguardian pgl ; do
+        for i in blockcontrol moblock moblock-nfq moblock-ipq peerguardnf peerguardian ; do
             if [ -x "/etc/init.d/$i" ] ; then
                 rm /etc/init.d/$i || exit $?
                 update-rc.d $i remove >/dev/null || exit $?

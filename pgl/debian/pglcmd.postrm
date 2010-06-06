@@ -27,12 +27,6 @@ case "$1" in
         for LIST in $LISTS ; do
             [ ! -f /var/lib/pgl/$LIST ] || { echo -n "Removing /var/lib/pgl/$LIST" ; rm /var/lib/pgl/$LIST && echo "." ; }
         done
-        # User/pgl-gui might have changed frequency from daily:
-        [ ! -e /etc/cron.*/pglcmd ] || rm /etc/cron.*/pglcmd
-        # The _back files are created by mobloquer.
-        for FILE in pglcmd.conf_back blocklists.list_back iptables-custom-insert.sh iptables-custom-remove.sh ; do
-            [ ! -f /etc/pgl/$FILE ] || { echo -n "Removing /etc/pgl/$FILE" ; rm /etc/pgl/$FILE && echo "." ; }
-        done
         ;;
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
         ;;
