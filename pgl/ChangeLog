@@ -1,6 +1,7 @@
 pgl 2.0.1 WIP
 
   [ jre ]
+  * added delete_iptables if inserting iptables fails
   * updated documentation and 2.0.0 ChangeLog
 
  -- jre <jre-phoenix@users.sourceforge.net>  Wed, 09 Jun 2010 12:17:48 +0200

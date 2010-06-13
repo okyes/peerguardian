@@ -774,6 +774,15 @@ white_dns () {
     done
 }
 
+
+# Function to be executed if iptables insert command fails:
+# removes all iptables rules again and aborts
+fail_insert_iptables () {
+    log_end_msg $?
+    delete_iptables
+    exit $E_IPTABLES
+}
+
 # Function that inserts the iptables rules
 insert_iptables () {
     test_IPTABLES_VARS
@@ -801,13 +810,13 @@ insert_iptables () {
                     ;;
             esac
 
-            iptables -N ${IPTABLES_IN} || { log_end_msg $? ; exit $E_IPTABLES ; }
-            iptables -N ${IPTABLES_OUT} || { log_end_msg $? ; exit $E_IPTABLES ; }
-            iptables -N ${IPTABLES_FWD} || { log_end_msg $? ; exit $E_IPTABLES ; }
+            iptables -N ${IPTABLES_IN} || fail_insert_iptables
+            iptables -N ${IPTABLES_OUT} || fail_insert_iptables
+            iptables -N ${IPTABLES_FWD} || fail_insert_iptables
 
-            iptables -I ${IPTABLES_IN} -j $IPTABLES_TARGET_BLOCK || { log_end_msg $? ; exit $E_IPTABLES ; }
-            iptables -I ${IPTABLES_OUT} -j $IPTABLES_TARGET_BLOCK || { log_end_msg $? ; exit $E_IPTABLES ; }
-            iptables -I ${IPTABLES_FWD} -j $IPTABLES_TARGET_BLOCK || { log_end_msg $? ; exit $E_IPTABLES ; }
+            iptables -I ${IPTABLES_IN} -j $IPTABLES_TARGET_BLOCK || fail_insert_iptables
+            iptables -I ${IPTABLES_OUT} -j $IPTABLES_TARGET_BLOCK || fail_insert_iptables
+            iptables -I ${IPTABLES_FWD} -j $IPTABLES_TARGET_BLOCK || fail_insert_iptables
 
             # Port Whitelisting
             for PORT in $WHITE_TCP_IN ; do
@@ -833,16 +842,16 @@ insert_iptables () {
 
             # IP Whitelisting
             for IP in $WHITE_IP_IN ; do
-                iptables -I ${IPTABLES_IN} --source $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+                iptables -I ${IPTABLES_IN} --source $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
             done
 
             for IP in $WHITE_IP_OUT ; do
-                iptables -I ${IPTABLES_OUT} --destination $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+                iptables -I ${IPTABLES_OUT} --destination $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
             done
 
             for IP in $WHITE_IP_FORWARD ; do
-                iptables -I ${IPTABLES_FWD} --source $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
-                iptables -I ${IPTABLES_FWD} --destination $IP -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
+                iptables -I ${IPTABLES_FWD} --source $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                iptables -I ${IPTABLES_FWD} --destination $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
             done
 
             # IP ranges whitelisting
@@ -914,16 +923,16 @@ insert_iptables () {
             # keep those chains cleaner. It has to be made sure that the MARK of the
             # packets is not changed by other iptables rules.
             if [ "$REJECT" -eq 1 ] ; then
-                iptables -I ${IPTABLES_IN} -m mark --mark $REJECT_MARK -j $REJECT_IN || { log_end_msg $? ; exit $E_IPTABLES ; }
-                iptables -I ${IPTABLES_OUT} -m mark --mark $REJECT_MARK -j $REJECT_OUT || { log_end_msg $? ; exit $E_IPTABLES ; }
-                iptables -I ${IPTABLES_FWD} -m mark --mark $REJECT_MARK -j $REJECT_FW || { log_end_msg $? ; exit $E_IPTABLES ; }
+                iptables -I ${IPTABLES_IN} -m mark --mark $REJECT_MARK -j $REJECT_IN || fail_insert_iptables
+                iptables -I ${IPTABLES_OUT} -m mark --mark $REJECT_MARK -j $REJECT_OUT || fail_insert_iptables
+                iptables -I ${IPTABLES_FWD} -m mark --mark $REJECT_MARK -j $REJECT_FW || fail_insert_iptables
                 # Log "Marked block" packages: The log-iptables-rules should be
                 # placed directly before the block-iptables-rules (i.e. Insert them
                 # directly after them)
                 if [ -n "$LOG_IPTABLES" ] ; then    # string is not empty
-                    iptables -I ${IPTABLES_IN} -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || { log_end_msg $? ; exit $E_IPTABLES ; }
-                    iptables -I ${IPTABLES_OUT} -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || { log_end_msg $? ; exit $E_IPTABLES ; }
-                    iptables -I ${IPTABLES_FWD} -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || { log_end_msg $? ; exit $E_IPTABLES ; }
+                    iptables -I ${IPTABLES_IN} -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || fail_insert_iptables
+                    iptables -I ${IPTABLES_OUT} -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || fail_insert_iptables
+                    iptables -I ${IPTABLES_FWD} -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || fail_insert_iptables
                 fi
             fi
 
@@ -956,9 +965,9 @@ insert_iptables () {
                             IPTABLES_MARK_ACCEPT="-m mark ! --mark $ACCEPT_MARK"
                             ;;
                     esac
-                    iptables -I INPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_IN} || { log_end_msg $? ; exit $E_IPTABLES ; }
-                    iptables -I OUTPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_OUT} || { log_end_msg $? ; exit $E_IPTABLES ; }
-                    iptables -I FORWARD $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_FWD} || { log_end_msg $? ; exit $E_IPTABLES ; }
+                    iptables -I INPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_IN} || fail_insert_iptables
+                    iptables -I OUTPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_OUT} || fail_insert_iptables
+                    iptables -I FORWARD $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_FWD} || fail_insert_iptables
                     ;;
             esac
 
@@ -981,7 +990,7 @@ insert_iptables () {
                 echo -n "Executing custom iptables insertion script(s) ..."
                 for FILE in $CUSTOM_INSERT_SCRIPTS ; do
                     echo -n "Executing $FILE ..."
-                    sh $FILE && log_end_msg $? || { log_end_msg $? ; exit $E_IPTABLES ; }
+                    sh $FILE && log_end_msg $? || fail_insert_iptables
                 done
                 echo "$?"
                 }
