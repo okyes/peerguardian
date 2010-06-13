@@ -86,7 +86,7 @@ MD5SUM_FILE="$BLOCKLISTS_DIR/MD5SUM"
 # builtin LSB functions are used.
 LSB="/lib/lsb/init-functions"
 
-# Remember standard IFS (Internal Field Seperator)
+# Remember standard IFS (Internal Field Separator)
 STDIFS=$IFS
 
 ############################ General configuration ############################
@@ -272,7 +272,7 @@ WHITE_UDP_FORWARD=""
 # The mask can be either a network mask or a plain number, specifying the number
 # of 1's at the left side of the network mask. Thus, a mask of 24 is equivalent
 # to 255.255.255.0.
-# Seperate several entries with whitespace (" ")
+# Separate several entries with whitespace (" ")
 # This section works only for IPTABLES_SETTINGS="1"
 # Do a "pglcmd restart" when you have changed these settings.
 
@@ -284,7 +284,7 @@ WHITE_IP_FORWARD=""
 
 # Remove lines from the blocklist matching the specified pattern (the search
 # pattern is case-insensitive).
-# Seperate patterns with a semicolon ";". Be careful: senseless values are also
+# Separate patterns with a semicolon ";". Be careful: senseless values are also
 # accepted.
 # Warning for beginners: If you want to whitelist a special IP then use the
 # allowlist. If you specify an IP here you will most likely fail.

@@ -134,7 +134,7 @@ LISTS_POSSIBLE="
 # Store values from configuration files into debconf db.
 
 for VAR in $VARIABLES ; do
-    # We don't need to check if the variable is set, because we also source 
+    # We don't need to check if the variable is set, because we also source
     # pglcmd.defaults, where all variables are set.
     # TODO: This has to be changed if the debconf part is moved to config again
     # (then it can run, before any variable is set).
@@ -442,7 +442,7 @@ my_db_get () {
 # otherwise they will be set in pglcmd.conf
 
 
-# $RET of db_get gives selected lists seperated with (", ").
+# $RET of db_get gives selected lists separated with (", ").
 db_get pglcmd/blocklists
 
 # If all lists were deselected replace empty value with dummy, otherwise
@@ -477,10 +477,10 @@ for LIST_NAME in $LISTS_GET_NAME ; do
     fi
 done
 
-# Gives selected lists seperated with "|":
+# Gives selected lists separated with "|":
 LISTS_GET_NAME_PIPE="$(echo $LISTS_GET_NAME | sed "s/\ /\|/g")"
 for LIST_NAME in $LISTS_POSSIBLE ; do
-    # Gives deselected (known to debconf but not configured to be used) lists seperated with space:
+    # Gives deselected (known to debconf but not configured to be used) lists separated with space:
     LISTS_XGET="$LISTS_XGET $(echo $LIST_NAME | grep -Ev $LISTS_GET_NAME_PIPE || true)"
 done
 

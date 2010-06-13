@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: pgl@packages.debian.org\n"
-"POT-Creation-Date: 2010-01-10 15:51+0100\n"
+"POT-Creation-Date: 2010-06-10 15:46+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -42,14 +42,6 @@ msgid ""
 "already takes care of allowing (whitelisting) LAN traffic, DNS server and "
 "loopback device. If you are on a public LAN, you probably want to disable "
 "this feature."
-msgstr ""
-
-#. Type: note
-#. Description
-#: ../pglcmd.templates:1001
-msgid ""
-"You can now tweak your settings. They can later be changed with\n"
-" sudo dpkg-reconfigure pglcmd"
 msgstr ""
 
 #. Type: note
@@ -91,6 +83,14 @@ msgstr ""
 #. Description
 #: ../pglcmd.templates:3001
 msgid "What blocklists shall be used?"
+msgstr ""
+
+#. Type: multiselect
+#. Description
+#: ../pglcmd.templates:3001
+msgid ""
+"WARNING: Using too many and/or inappropriate lists may seriously degrade "
+"your internet service."
 msgstr ""
 
 #. Type: multiselect
@@ -180,9 +180,7 @@ msgstr ""
 #. Type: select
 #. Description
 #: ../pglcmd.templates:5001
-msgid ""
-"This is one way to figure out the port of the blocked packets.  The default "
-"is not to log blocked packets to syslog."
+msgid "The default is not to log blocked packets to syslog."
 msgstr ""
 
 #. Type: select
@@ -335,7 +333,7 @@ msgstr ""
 #. Description
 #: ../pglcmd.templates:11001
 msgid ""
-"You can set custom iptables rules in any file named ...insert.sh or  ..."
+"You can set custom iptables rules in any file named ...insert.sh or ..."
 "remove.sh in the folder /etc/pgl/. These custom scripts are executed either "
 "additionally to the setting of separate iptables chains or exclusively."
 msgstr ""
@@ -615,7 +613,7 @@ msgstr ""
 #: ../pglcmd.templates:21001 ../pglcmd.templates:22001
 #: ../pglcmd.templates:23001 ../pglcmd.templates:24001
 msgid ""
-"Seperate multiple entries with whitespace (\" \"). Do not use surrounding "
+"Separate multiple entries with whitespace (\" \"). Do not use surrounding "
 "\"quotes\". Be careful: senseless values are also accepted."
 msgstr ""
 
@@ -759,7 +757,7 @@ msgstr ""
 #. Description
 #: ../pglcmd.templates:27001
 msgid ""
-"Seperate patterns with a semicolon \";\". Do not use surrounding \"quotes\". "
+"Separate patterns with a semicolon \";\". Do not use surrounding \"quotes\". "
 "Be careful: senseless values are also accepted."
 msgstr ""
 
