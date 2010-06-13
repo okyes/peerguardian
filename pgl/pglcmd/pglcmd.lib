@@ -775,6 +775,53 @@ white_dns () {
 }
 
 
+# Function to insert whitelisting iptables rules for ports with the module multiport
+# Usage: white_port_iptables
+#        $CHAIN, $PROTO and $MULTIPORT have to be set.
+white_port_iptables () {
+    PORTS="$( echo $MULTIPORT | sed "s|\(.*\),$|\1|" )"
+    iptables -I $CHAIN -p $PROTO -m multiport --ports $PORTS -j $IPTABLES_TARGET_WHITELISTING \
+        || fail_insert_iptables
+}
+
+# Function to construct $MULTIPORT variable as iptables accepts it (ports
+# separated by ",", max 15 ports, port ranges (port:port) count as 2 ports) and
+# call white_port_iptables
+# Usage: white_port_prepare CHAIN PROTO PORTS
+white_port_prepare () {
+    local CHAIN PROTO MULTIPORT
+    CHAIN=$1
+    PROTO=$2
+    shift 2
+    COUNT=0
+    MULTIPORT=""
+    for PORT in $@ ; do
+        # Count all ports (max 15 allowed in multiport)
+        COUNT=$(($COUNT+1))
+        # Port ranges count as 2 ports
+        echo $PORT | grep -qv ":" || COUNT=$(($COUNT+1))
+        if [ "$COUNT" -lt 15 ] ; then
+            # Just continue to add ports, while less than 15
+            MULTIPORT="$PORT,$MULTIPORT"
+        elif [ "$COUNT" -eq 15 ] ; then
+            # Whitelist 15 ports
+            MULTIPORT="$PORT,$MULTIPORT"
+            white_port_iptables
+            # and then continue with a clean new run
+            MULTIPORT=""
+            COUNT=0
+        elif [ "$COUNT" -gt 15 ] ; then
+            # This happens if the 15th port is a port range
+            # So whitelist the first 14 ports
+            white_port_iptables
+            # And then continue with the port range
+            MULTIPORT="$PORT"
+            COUNT=2
+        fi
+    done
+    [ -z "$MULTIPORT" ] || white_port_iptables
+}
+
 # Function to be executed if iptables insert command fails:
 # removes all iptables rules again and aborts
 fail_insert_iptables () {
@@ -819,26 +866,13 @@ insert_iptables () {
             iptables -I ${IPTABLES_FWD} -j $IPTABLES_TARGET_BLOCK || fail_insert_iptables
 
             # Port Whitelisting
-            for PORT in $WHITE_TCP_IN ; do
-                iptables -I ${IPTABLES_IN} -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
-            done
-            for PORT in $WHITE_UDP_IN ; do
-                iptables -I ${IPTABLES_IN} -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
-            done
+            white_port_prepare $IPTABLES_IN tcp $WHITE_TCP_IN
+            white_port_prepare $IPTABLES_IN udp $WHITE_UDP_IN
+            white_port_prepare $IPTABLES_OUT tcp $WHITE_TCP_OUT
+            white_port_prepare $IPTABLES_OUT udp $WHITE_UDP_OUT
+            white_port_prepare $IPTABLES_FWD tcp $WHITE_TCP_FORWARD
+            white_port_prepare $IPTABLES_FWD udp $WHITE_UDP_FORWARD
 
-            for PORT in $WHITE_TCP_OUT ; do
-                iptables -I ${IPTABLES_OUT} -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
-            done
-            for PORT in $WHITE_UDP_OUT ; do
-                iptables -I ${IPTABLES_OUT} -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
-            done
-
-            for PORT in $WHITE_TCP_FORWARD ; do
-                iptables -I ${IPTABLES_FWD} -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
-            done
-            for PORT in $WHITE_UDP_FORWARD ; do
-                iptables -I ${IPTABLES_FWD} -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || { log_end_msg $? ; exit $E_IPTABLES ; }
-            done
 
             # IP Whitelisting
             for IP in $WHITE_IP_IN ; do
@@ -1051,9 +1085,8 @@ delete_iptables () {
         log_end_msg $IPTABLES_DELETE
 
         if [ "$IPTABLES_DELETE" = 1 ] ; then
-            log_warning_msg "Don't worry! There occured some errors during the deletion of the iptables "
-            log_warning_msg "rules. The most common reason for this is that they did not exist, because"
-            log_warning_msg "$NAME was not running."
+            log_warning_msg "Some errors occured during the deletion of the iptables rules."
+            log_warning_msg "If $NAME wasn't running before, no iptables rules existed and you don't have to" log_warning_msg "worry."
             log_warning_msg "But if $NAME was running there is some problem. Most probably you have"
             log_warning_msg "installed another firewall application that did delete the iptables rules."
             log_warning_msg "A \"$(basename $0) restart\" will then fix the situation."
@@ -1218,6 +1251,19 @@ do_start () {
                     exit $E_XEXTERNAL
                     }
             fi
+
+            ALL_WHITE_PORTS="$WHITE_TCP_IN $WHITE_UDP_IN $WHITE_TCP_OUT $WHITE_UDP_OUT $WHITE_TCP_FORWARD $WHITE_UDP_FORWARD"
+            if [ "$IPTABLES_SETTINGS" = 1 ] && [ -n "$ALL_WHITE_PORTS" ] ; then
+                [ -f /proc/net/ip_tables_matches ] && grep -q multiport /proc/net/ip_tables_matches || \
+                    modprobe -q xt_multiport || \
+                    modprobe -q ipt_multiport || {
+                    log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_multiport, not starting $NAME!"
+                    log_failure_msg "Use a kernel with netfilter MULTIPORT support or reconfigure $(basename $0)"
+                    log_failure_msg "to not whitelist any ports."
+                    exit $E_XEXTERNAL
+                    }
+            fi
+
             [ -f /proc/net/ip_tables_matches ] && grep -q iprange /proc/net/ip_tables_matches || \
                 modprobe -q xt_iprange || \
                 modprobe -q ipt_iprange || {

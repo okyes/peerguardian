@@ -1,6 +1,7 @@
 pgl 2.0.1 WIP
 
   [ jre ]
+  * use "-m multiport --ports" for port whitelisting
   * added delete_iptables if inserting iptables fails
   * updated documentation and 2.0.0 ChangeLog
 

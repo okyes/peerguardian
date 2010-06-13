@@ -233,9 +233,8 @@ WHITE_LOCAL="1"
 ############################### Whitelist ports ###############################
 
 # Whitelist ports by port number or with the associated service name. Port
-# ranges are specified in the format "port:port". Up to 15 ports can be
-# specified. A port range (port:port) counts as two ports.
-# Seperate several entries with whitespace (" "). Be careful: senseless values
+# ranges are specified in the format "port:port".
+# Separate several entries with whitespace (" "). Be careful: senseless values
 # are also accepted.
 #
 # Common ports:
