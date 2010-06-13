@@ -1,5 +1,6 @@
-pgl (2.0.1-1~pre1) unstable; urgency=low
+pgl (2.0.1-1~pre2) UNRELEASED; urgency=low
 
+  [ jre ]
   * build-depend on debhelper (>= 7.0.50~) for debhelper overrides. Previously
     this was set to debhelper (>= 7.3) for dh_auto_... functions, which were
     (perhaps) needed for the now unused cmake build system.
@@ -7,10 +8,18 @@ pgl (2.0.1-1~pre1) unstable; urgency=low
   * debian/pglcmd.preinst: don't remove pgl init file on updates
   * debian/pglcmd.postrm: don't remove user files on purge
 
- -- jre <jre-phoenix@users.sourceforge.net>  Tue, 25 May 2010 23:47:08 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Thu, 10 Jun 2010 01:13:28 +0200
 
 pgl (2.0.0-1) unstable; urgency=low
 
+  [ jre ]
   * initial release, based on moblock/nfblock and blockcontrol
+  * common Debian packaging:
+    - source format 3.0 (quilt)
+    - bumped Standards-Version to 3.8.4.0
+    - depend on debhelper version 7
+    - control: added Uploaders (jre), Bugs (mailto jre), Homepage, Vcs-Browser
+      and Vcs-Git fields.
+    - other changes
 
- -- jre <jre-phoenix@users.sourceforge.net>  Tue, 13 Apr 2010 22:50:05 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 18 May 2010 18:39:39 +0200

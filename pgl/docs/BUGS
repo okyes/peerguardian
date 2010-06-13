@@ -2,7 +2,16 @@ BUGS of pgl:
 
 ################################## Open bugs: ##################################
 
-- update doesn´t work with OpenDNS
+- "reload" doesn't check whether a master blocklist was added.
+   pgld reloads successfully even if a blocklist is missing. There should be
+   a check to see whether all blocklists pgld was started with, are available.
+   Even better would be to check which master blocklists are available and to
+   tell pgld to use those blocklists. But I think this requires a restart
+   instead of the reload.
+   --
+   2010-06-10, jre <jre-phoenix@users.sourceforge.net>
+
+- "update" doesn't work with OpenDNS
   see e.g. here:
   http://forums.phoenixlabs.org/showpost.php?p=127410&postcount=7
   http://forums.phoenixlabs.org/showthread.php?t=18045
@@ -19,32 +28,12 @@ BUGS of pgl:
 
 - pglcmd only monitors if pgld starts successfully until pgld forks
   (daemonizes). Everything that happens after the fork doesn't get catched.
-  Therefore move as much as possible of the pgld start code before the fork.
-  Note that e.g. the pidfile generation has to be done afterwards, because a
-  forked process has a new pid.
-  A possible solution would be for pglcmd to wait some seconds, and then check
-  again, but this makes starting slow, so this is not applied.
-  pglcmd.wd partly solves this by doing a restart and notifying the user per
-  email and in the logfile.
+  - Therefore move as much as possible of the pgld start code before the fork.
+    Note that e.g. the pidfile generation has to be done afterwards, because a
+    forked process has a new pid. [ DONE ]
+  - A possible solution would be for pglcmd to wait some seconds, and then check
+    again, but this makes starting slow, so this is not applied.
+  - pglcmd.wd partly solves this by doing a restart and notifying the user per
+    email and in the logfile.
   --
   2009-11-15, jre <jre-phoenix@users.sourceforge.net>
-
-
-############################# (Major) closed bugs: #############################
-
-- [SOLVED in blockcontrol 1.0-1]
-  debconf doesn't work as expected. Debconf runs twice during installation:
-  first it asks questions and then it overwrites the answers with the not-yet
-  modified configuration files.
-  Further the debconf database is not cleared properly on purge.
-
-  Solution: move all stuff from debian/config to debian/postinst.
-  --
-  2008-07-14, jre <jre-phoenix@users.sourceforge.net>
-
-- [SOLVED upstream in moblock 0.9~rc2-1]
-  Merging blocklists results in incomplete IP ranges. Merging range IP1-IP5 with
-  range IP3-IP6 resulted in merged range IP1-IP3 instead of IP1-IP6. Therefore
-  always check this, if the merge code gets changed!
-  --
-  https://sourceforge.net/tracker/?atid=825649&group_id=162910

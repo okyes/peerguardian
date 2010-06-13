@@ -1,71 +1,139 @@
-pgl 2.0 (WIP)
+pgl 2.0.1 WIP
 
-  * initial release
+  [ jre ]
+  * updated documentation and 2.0.0 ChangeLog
 
-pgld
-  * transition to pgld at peerguardian.sourceforge.net
-  * removed debian/cron*, debian/init.d and debian/postrm. This is covered by
-    pglcmd.
-  * removed dl-blocklistpro.pl: blocklistpro is for manual download only. Of
-    course we honour the decisions of the blocklist providers. The underlying
-    single lists of ipfilter.dat can be downloaded with pglcmd.
-  * Debian packaging:
-    - depend on debhelper version 6, added debian/compat, removed DH_COMPAT from
-      rules
-    - bumped Standards-Version to 3.8.3.0
-    - postinst: do "set -e" separately
-    - rules: don't ignore errors on "clean"
-    - updated description
-    - control: added Uploaders (jre), Bugs (mailto jre), Homepage, Vcs-Browser
-      and Vcs-Git fields.
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 09 Jun 2010 12:17:48 +0200
 
-  [Cade Robinson]
-  * fixed up logging
-  * removed "--no-syslog" and rather use "-s" to enable syslogging
-  * removed "--no-dbus" and rather use -d to enable dbus
-  * added logging to log file
-  * moved closelog (for syslogging) to just before the program exit so we can
-    log up to the end of running
-  * Changed hit lines to use "||" since descriptions in block file had "|" in
-    them.
-  * Change order of start up to make sure daemon starts correcly and returns if
-    it started correctly
-  * Changed to have just a ASCII parse and binary parse
-  * changed logrotate to reset stats and reload pgld to open new logfile
 
-pglcmd
-  [jre]
-  * transition to pglcmd at peerguardian.sourceforge.net
-  * updated description
-  * init: added should-start after dbus
-  * Email if watchdog detects a problem.
-    - Added option WD_MAILTO.
-  * removed CUSTOM_DAEMON_OPTS, all pgld options are (and have to) be supported
-    by pglcmd directly
-  * removed all code for blocklist format specification
-    - removed options BLOCKLIST_FORMAT, MASTER_BLOCKLIST_DIR
-    - made MASTER_BLOCKLIST directly configurable, renamed from BLOCKLIST to
-      avoid confusion with other use of this variable.
-    - removed function test_set_BLOCKLIST
-  * build_blocklist: premerge blocklist
-  * removed tests for obsolete blockcontrol variables
-  * all blocklists in MASTER_BLOCKLIST_DIR, except those which end in "~",
-    are used by pgld. This allows to combine pglcmd's automatic blocklist
-    management with manual placed blocklists ("local lists") without any
-    configuration hassle.
-  * removed "notimestamp" and "locallist" option from blocklists.list
-  * force to build master blocklist with "force-update". Otherwise only build,
-    if the relevant configuration changed.
-  * removed the shebang from pglcmd.main
+pgl 2.0.0
 
-  [Cade Robinson]
-  * added pglcmd options
-    - enable/disable dbus (DBUS)
-    - enable/disable compression of blocklist (COMPRESS)
-    - enable/disable logging verbosity of pgld (...)
-    - enable/disable daemon debug mode (...)
-  * build_blocklist: added cleanup in the "cat --squeeze-blank" to remove dupes,
-    special chars, repeated whitespace, and other chars not needed.
-    - this also fixes up p2p lines with multiple colons that was messing up
-      parsing in pgld
-  * added the ipfilter.dat URL to blocklists.list for reference.
+  * initial release, based on moblock/nfblock and blockcontrol
+
+  [ jre ]
+  * common Gnu make buildsystem for pgld and pglcmd
+  * updated documentation
+
+  [ Cade Robinson ]
+  * common cmake buildsystem for pgld, pglcmd and pgl-gui (superseded by
+    Gnu make buildsystem, but still needed for pgl-gui)
+
+  [Dimitris Palyvos-Giannas ]
+  * work on pgl-gui has started, but is not in a working state, yet
+
+
+  * CHANGES NFBLOCK - PGLD
+
+    [ jre ]
+    - transition to pglcmd at peerguardian.sourceforge.net
+      - removed cron* and init.d. This is covered by pglcmd.
+      - removed dl-blocklistpro.pl: blocklistpro is for manual download only. Of
+        course we honour the decisions of the blocklist providers. The
+        underlying single lists of ipfilter.dat can be downloaded with pglcmd.
+    - updated output when pgld is called without option
+    - change logrotate to work without pglcmd being installed
+
+    [ Cade Robinson ]
+    - Changed logging
+      - added logging to log file
+      - do logging to logfile, syslog and dbus with one function. dbus logging
+        is broken now!
+      - removed "--no-syslog" and rather use "-s" to enable syslogging
+      - Changed hit lines to use "||" since descriptions in block file had "|"
+        in them.
+      - Tag the lines logged with INFO: ERROR: STATS: or WARN:.
+      - Log the number of IPs that fall in the loaded ranges.
+      - Log IP, port and proto
+      - Don't log merging ranges
+    - Added -m option to load, merge, dump lists.
+      - Dump in p2p format, if in LOWMEM just dump the range
+    - Cleaner blocklist handling
+      - Major change to in memory blocklist.
+        - remove subentries
+        - fix merging and shrinking of array
+        - don't pass blocklist pointer around - don't really need to
+        - take out subranges, don't trim, simpler design
+      - Change parser.c to only need an ASCII parser and a binary parser
+        function
+      - allow just a range line in blocklists for LOWMEM mode
+      - Allow blocklist lines to be 350 chars (up from 255)
+      - Allow the range name / label on the line to be 300 chars (up from 199)
+      - Concat the range names together on merged ranges
+      - Truncate all labels to be 64 chars in memory only
+      - Change blocklist_trim to blocklist_merge for clarity
+      - handle variable argument list separately for every log destination
+      - Make sure lable truncate is in the name array
+      - Allow blocklist to be read from STDIN
+      - Remove -f (blocklist to load)
+      - fix parsing ipfilter.dat line to follow the standard found at:
+        http://wiki.phoenixlabs.org/wiki/DAT_Format
+      - Fix parsing ipfilter.dat lines (Change the %199c to %199s)
+    - Reordered functions in pgld:
+      - Change the startup functions order to guarantee it started correctly
+        before returning from pgld command.
+      - moved closelog (for syslogging) to just before the program exit so we
+        can log up to the end of running
+    - removed "--no-dbus" and rather use -d to enable dbus
+    - Added nfq_unbind_pf before the nfq_bind_pf in start up to make sure the
+      queue is closed.
+    - Make local functions static and move order to make static work.
+    - Comment out libdl from Makefile when built with dbus (do we need it?
+      building .deb complains about being useless)
+    - Fix up code formats, remove extra blanks, remove useless commented code
+    - always run pgld as daemon, removed -D option
+    - Change to use unsigned int for positive values (hits, count, etc)
+    - Change GETIPINFO from an included cpp "function" to an actual function.
+    - Change queue_num to 16bit int to conform with libnetfilter_queue
+    - Fix printing of IPs in big-endian (int2ip function)
+    - Change name of assemble_ip to ip2int to match int2ip
+    - Change a lot of int's to unsigned 32-bit int's
+    - Fix issues if a range ends at 255.255.255.255.
+    - Fix issues if a range is 0.0.0.0-255.255.255.255
+    - Added listing the name of the file loading in the num entries loaded line.
+    - Make some error messages more clear.
+    - Don't assume to use stdin if filename fails to open.
+    - Check if there is filename first, if not open stdin instead.
+    - Add quotes around file name to make the name easier to read if there is
+      spaces in the file name
+
+
+  * CHANGES BLOCKCONTROL - PGLCMD
+
+    [ jre ]
+    - transition to pglcmd at peerguardian.sourceforge.net
+      - removed automatic daemon name detection
+      - removed tests for obsolete blockcontrol variables
+      - removed CUSTOM_DAEMON_OPTS, all pgld options are (and have to) be
+        supported by pglcmd directly
+    - blocklist handling:
+      - premerge single blocklists (pgld -m)
+      - allow several master blocklists: all blocklists in MASTER_BLOCKLIST_DIR,
+        except those which end in "~", are used. This allows to combine
+        pglcmd's automatic blocklist management with manual placed
+        blocklists ("local lists") without any configuration hassle.
+      - removed "notimestamp" and "locallist" option from blocklists.list
+      - force to build master blocklist with "force-update". Otherwise only
+        build, if the relevant configuration changed.
+      - removed all code for blocklist format specification
+      - allow spaces in master blocklist names.
+      - remove "used" directory for single blocklists
+      - move test_BLOCKLISTS_DIR to get_blocklist
+    - fixed watchdog logging
+    - Email if watchdog detects a problem, added option WD_MAILTO.
+    - Added simplification that is necessary on Synology, but reverted pidof
+      command simplification because otherwise the watchdog status is shown as
+      not running
+    - remove iptables rules again, if starting the daemon fails
+    - on "test" wait a second to give the daemon time to log the current block
+    - init: added Should-Start/Stop dbus
+    - removed shebang from pglcmd.main
+
+    [ Cade Robinson ]
+    - Added "email_stat" function to email stats.
+    - Change pgld logrotate to email stats, rotate, then reopen
+    - hide .files in MASTER_BLOCKLISTS
+    - build_blocklist: added cleanup in the "cat --squeeze-blank"
+    - added configuration option enable/disable compression of blocklist
+      (COMPRESS). Not implemented yet.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 18 May 2010 18:39:39 +0200
