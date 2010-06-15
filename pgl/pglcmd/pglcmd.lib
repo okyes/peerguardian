@@ -1716,6 +1716,9 @@ get_blocklist () {
     # and try again without timestamping:
     test_external wget || exit $E_XEXTERNAL
     # If 7z is not available, change user agent to pglcmd_x7z, so that iblocklist.com knows we are not capable of 7z.
+    test_external 7zr > /dev/null 2>&1 || \
+    test_external 7za > /dev/null 2>&1 || \
+    test_external 7z > /dev/null 2>&1 || \
     test_external p7zip > /dev/null 2>&1 || \
         WGET_OPTS="$(echo $WGET_OPTS | sed "s|--user-agent=${CMD_NAME}/${VERSION}|--user-agent=${CMD_NAME}_x7z/${VERSION}|")"
     $WGET_OPTS -N "$LIST_URL"
@@ -1812,9 +1815,12 @@ get_blocklist () {
         # 7z packed file
         "$(/usr/bin/printf '\x37\x7A\xBC\xAF\x27\x1C')")
             echo -n "detected 7z... "
-            # TODO: 7z, 7zr, ...
-            test_external p7zip || exit $E_XEXTERNAL
-            p7zip -d < "$BLOCKLIST_DOWNLOADED" > "${BLOCKLIST_EXTRACTED}.tmp" || {
+            { test_external 7zr && EXTRACT_CMD='7zr x "$BLOCKLIST_DOWNLOADED" -so > "${BLOCKLIST_EXTRACTED}.tmp" 2>/dev/null' ; } || \
+            { test_external 7za && EXTRACT_CMD='7za x "$BLOCKLIST_DOWNLOADED" -so > "${BLOCKLIST_EXTRACTED}.tmp" 2>/dev/null' ; } || \
+            { test_external 7z && EXTRACT_CMD='7z x "$BLOCKLIST_DOWNLOADED" -so > "${BLOCKLIST_EXTRACTED}.tmp" 2>/dev/null' ; } || \
+            { test_external p7zip && EXTRACT_CMD="p7zip -d < $BLOCKLIST_DOWNLOADED > ${BLOCKLIST_EXTRACTED}.tmp" ; } || \
+                exit $E_XEXTERNAL
+            eval $EXTRACT_CMD || {
                 log_failure_msg "Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
                 log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
                 log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
