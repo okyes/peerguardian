@@ -16,65 +16,40 @@
 # Do a "pglcmd reload" (or "restart" or "update") when you have edited
 # this file.
 
-# TBG Primary Threats
-http://list.iblocklist.com/?list=ijfqtofzixtwayqovmxn
-
-# TBG General Corporate Ranges
-http://list.iblocklist.com/?list=ecqbsykllnadihkdirsh
-
-# TBG Business ISPs
-http://list.iblocklist.com/?list=jcjfaxgyyshvdbceroxf
-
-# TBG Educational Institutions
-#http://list.iblocklist.com/?list=lljggjrpmefcwqknpalp
-
-# TBG Search Engines
-http://list.iblocklist.com/?list=pfefqteoxlfzopecdtyw
-
-# TBG Hijacked
-http://list.iblocklist.com/?list=tbnuqfclfkemqivekikv
-
-# TBG Bogon
-http://list.iblocklist.com/?list=ewqglwibdgjttwttrinl
-
-# Bluetack level1 (P2P)
-#http://list.iblocklist.com/?list=bt_level1
-
-# Bluetack level2
-#http://list.iblocklist.com/?list=bt_level2
-
-# Bluetack level3
-#http://list.iblocklist.com/?list=bt_level3
-
-# Bluetack edu
-#http://list.iblocklist.com/?list=bt_edu
-
-# Bluetack ads
-#http://list.iblocklist.com/?list=bt_ads
-
-# Bluetack bogon
-#http://list.iblocklist.com/?list=bt_bogon
-
-# Bluetack spyware
-#http://list.iblocklist.com/?list=bt_spyware
-
-# Bluetack spider
-#http://list.iblocklist.com/?list=bt_spider
-
-# Bluetack Microsoft
-#http://list.iblocklist.com/?list=bt_microsoft
-
-# Bluetack proxy
-http://list.iblocklist.com/?list=bt_proxy
-
-# Bluetack hijacked
-#http://list.iblocklist.com/?list=bt_hijacked
-
-# Bluetack badpeers (previously known as templist)
-#http://list.iblocklist.com/?list=bt_templist
-
-# Bluetack rangetest
-#http://list.iblocklist.com/?list=bt_rangetest
-
-# Bluetack dshield
-http://list.iblocklist.com/?list=bt_dshield
+# list.iblocklist.com/lists/atma/atma
+# list.iblocklist.com/lists/bluetack/ads-trackers-and-bad-pr0n
+# list.iblocklist.com/lists/bluetack/bad-peers
+# list.iblocklist.com/lists/bluetack/bogon
+list.iblocklist.com/lists/bluetack/dshield
+# list.iblocklist.com/lists/bluetack/edu
+# list.iblocklist.com/lists/bluetack/for-non-lan-computers
+# list.iblocklist.com/lists/bluetack/forum-spam
+# list.iblocklist.com/lists/bluetack/hijacked
+# list.iblocklist.com/lists/bluetack/iana-multicast
+# list.iblocklist.com/lists/bluetack/iana-private
+# list.iblocklist.com/lists/bluetack/iana-reserved
+# list.iblocklist.com/lists/bluetack/level-1
+# list.iblocklist.com/lists/bluetack/level-2
+# list.iblocklist.com/lists/bluetack/level-3
+# list.iblocklist.com/lists/bluetack/microsoft
+list.iblocklist.com/lists/bluetack/proxy
+# list.iblocklist.com/lists/bluetack/range-test
+# list.iblocklist.com/lists/bluetack/spider
+# list.iblocklist.com/lists/bluetack/spyware
+# list.iblocklist.com/lists/bluetack/web-exploit
+# list.iblocklist.com/lists/bluetack/webexploit-forumspam
+# list.iblocklist.com/lists/cidr-report/bogon
+# list.iblocklist.com/lists/dchubad/faker
+# list.iblocklist.com/lists/dchubad/hacker
+# list.iblocklist.com/lists/dchubad/pedophiles
+# list.iblocklist.com/lists/dchubad/spammer
+# list.iblocklist.com/lists/nexus23/ipfilterx
+# list.iblocklist.com/lists/peerblock/rapidshare
+# list.iblocklist.com/lists/spamhaus/drop
+list.iblocklist.com/lists/tbg/bogon
+list.iblocklist.com/lists/tbg/business-isps
+# list.iblocklist.com/lists/tbg/educational-institutions
+list.iblocklist.com/lists/tbg/general-corporate-ranges
+list.iblocklist.com/lists/tbg/hijacked
+list.iblocklist.com/lists/tbg/primary-threats
+list.iblocklist.com/lists/tbg/search-engines

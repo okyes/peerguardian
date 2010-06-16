@@ -108,27 +108,44 @@ VARIABLES="
 # Make sure LIST_NAME is also in debian/templates and LIST_NAME2LIST_URL
 # other lists may be added manually to blocklists.list
 LISTS_POSSIBLE="
+    atma_atma
+    Bluetack_ads
+    Bluetack_badpeers
+    Bluetack_bogon
+    Bluetack_dshield
+    Bluetack_edu
+    Bluetack_for-non-lan-computers
+    Bluetack_forum-spam
+    Bluetack_hijacked
+    Bluetack_iana-multicast
+    Bluetack_iana-private
+    Bluetack_iana-reserved
     Bluetack_level1
     Bluetack_level2
     Bluetack_level3
-    Bluetack_edu
-    Bluetack_ads
-    Bluetack_bogon
-    Bluetack_spyware
-    Bluetack_spider
     Bluetack_Microsoft
     Bluetack_proxy
-    Bluetack_hijacked
-    Bluetack_badpeers
     Bluetack_rangetest
-    Bluetack_dshield
-    TBG_Primary_Threats
-    TBG_General_Corporate_Ranges
+    Bluetack_spider
+    Bluetack_spyware
+    Bluetack_web-exploit
+    Bluetack_webexploit-forumspam
+    cidr-report_bogon
+    dchubad_faker
+    dchubad_hacker
+    dchubad_pedophiles
+    dchubad_spammer
+    nexus23_ipfilterx
+    peerblock_rapidshare
+    spamhaus_drop
+    TBG_Bogon
     TBG_Business_ISPs
     TBG_Educational_Institutions
-    TBG_Search_Engines
+    TBG_General_Corporate_Ranges
     TBG_Hijacked
-    TBG_Bogon"
+    TBG_Primary_Threats
+    TBG_Search_Engines
+    "
 
 ###############################################################################
 
@@ -455,26 +472,39 @@ LISTS_GET_NAME="$(echo $LISTS_GET_NAME_COMMA | sed 's/,//g')"
 for LIST_NAME in $LISTS_GET_NAME ; do
     # Translate human readable/debconf LIST_NAME to LIST_URL.
     LIST_NAME2LIST_URL
+    # Reset variable that tells whether URL is already in blocklists.list
+    URL_SELECTED=""
     # Add selected lists to blocklists.list
     if [ "$LIST_URL" = dummy ] ; then
         # just ignore the dummy
         true
-    elif grep -Eq "^[[:space:]]*(http://)?$LIST_URL_REGEX" $BLOCKLISTS_LIST ; then
-        # LIST_URL is already selected.
-        true
-    elif LIST_NAME2LIST_URL_ALT && [ -n "$LIST_URL_ALT" ] && grep -Eq "^[[:space:]]*(http://)?$LIST_URL_ALT" $BLOCKLISTS_LIST ; then
-        # LIST_URL_ALT is already selected with an alternative URL.
-        true
-    elif grep -Eq "^#(http://)?$LIST_URL_REGEX$" $BLOCKLISTS_LIST ; then
-        # LIST is commented, uncomment it.
-        # The REGEX is very strict, so that no user changes get lost.
-        # An occurence of http:// is kept on uncommenting.
-        sed -i -r "s|^#((http://)?$LIST_URL_REGEX)$|\1|" $BLOCKLISTS_LIST
     else
-        # LIST is not in blocklists.list (at least not in the very strict form described before).
-        echo >> $BLOCKLISTS_LIST
-        echo "# Added by debconf:" >> $BLOCKLISTS_LIST
-        echo $LIST_URL >> $BLOCKLISTS_LIST
+        for i in $LIST_URL_REGEX ; do
+            if grep -Eq "^[[:space:]]*(http://)?$i" $BLOCKLISTS_LIST ; then
+                # LIST_URL is already selected.
+                URL_SELECTED="yes"
+                break
+            fi
+        done
+        [ "$URL_SELECTED" = yes ] || {
+            for i in $LIST_URL_REGEX ; do
+                if grep -Eq "^#[[:space:]]*(http://)?$i$" $BLOCKLISTS_LIST ; then
+                    # LIST is commented, uncomment it.
+                    # The REGEX is very strict, so that no user changes get lost.
+                    # An occurence of http:// is kept on uncommenting.
+                    sed -i -r "s|^#[[:space:]]*((http://)?$i)$|\1|" $BLOCKLISTS_LIST
+                    URL_SELECTED="yes"
+                    break
+                fi
+            done
+            }
+        [ "$URL_SELECTED" = yes ] || {
+            # LIST is not in blocklists.list (at least not in the very strict form described before).
+            echo >> $BLOCKLISTS_LIST
+            echo "# Added by debconf:" >> $BLOCKLISTS_LIST
+            # Add the first entry (before first "space") to blocklsits.list
+            echo $LIST_URL | sed "s| .*||" >> $BLOCKLISTS_LIST
+            }
     fi
 done
 
@@ -489,16 +519,13 @@ done
 for LIST_NAME in $LISTS_XGET ; do
     # Translate human readable/debconf LIST_NAME to LIST_URL.
     LIST_NAME2LIST_URL
-    LIST_NAME2LIST_URL_ALT
-    # Remove deselected and known incompatible lists from blocklists.list
-    if grep -Eq "^[[:space:]]*(http://)?$LIST_URL_REGEX" $BLOCKLISTS_LIST ; then
-        # LIST_NAME is currently selected, add a # in front of pattern
-        sed -i -r "s|^[[:space:]]*(http://)?$LIST_URL_REGEX|#&|" $BLOCKLISTS_LIST
-    fi
-    if [ -n "$LIST_URL_ALT" ] && grep -Eq "^[[:space:]]*(http://)?$LIST_URL_ALT" $BLOCKLISTS_LIST ; then  # List is currently selected
-        # LIST_NAME is currently selected with alternative URL, add a # in front of pattern
-        sed -i -r "s|^[[:space:]]*(http://)?$LIST_URL_ALT|#&|" $BLOCKLISTS_LIST
-    fi
+    for i in $LIST_URL_REGEX ; do
+        # Remove deselected lists from blocklists.list
+        if grep -Eq "^[[:space:]]*(http://)?$i" $BLOCKLISTS_LIST ; then
+            # List is currently selected, add a # in front of pattern
+            sed -i -r "s|^[[:space:]]*(http://)?$i|#&|" $BLOCKLISTS_LIST
+        fi
+    done
 done
 
 # Remove unavailable lists from blocklists.list:

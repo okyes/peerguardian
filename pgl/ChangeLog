@@ -3,9 +3,13 @@ pgl 2.0.1 WIP
   [ jre ]
   * use "-m multiport --ports" for port whitelisting
   * added delete_iptables if inserting iptables fails
+  * added direct support for all currently available iblocklist URLs in the
+    format http://list.iblocklist.com/lists/<author>/<list>. They are recognized
+    to be the same as the cryptic iblocklist URLs, and if available the original
+    upstream URLs. Simplified code.
   * updated documentation and 2.0.0 ChangeLog
 
- -- jre <jre-phoenix@users.sourceforge.net>  Wed, 09 Jun 2010 12:17:48 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 16 Jun 2010 14:33:52 +0200
 
 
 pgl 2.0.0

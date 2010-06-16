@@ -35,17 +35,15 @@ _Description: WARNING: Users with other firewall (iptables rules)
 
 Template: pglcmd/blocklists
 Type: multiselect
-Choices: TBG_Primary_Threats, TBG_General_Corporate_Ranges, TBG_Business_ISPs, TBG_Educational_Institutions, TBG_Search_Engines, TBG_Hijacked, TBG_Bogon, Bluetack_level1, Bluetack_level2, Bluetack_level3, Bluetack_edu, Bluetack_ads, Bluetack_bogon, Bluetack_spyware, Bluetack_spider, Bluetack_Microsoft, Bluetack_proxy, Bluetack_hijacked, Bluetack_badpeers, Bluetack_rangetest, Bluetack_dshield
+Choices: atma_atma, Bluetack_ads, Bluetack_badpeers, Bluetack_bogon, Bluetack_dshield, Bluetack_edu, Bluetack_for-non-lan-computers, Bluetack_forum-spam, Bluetack_hijacked, Bluetack_iana-multicast, Bluetack_iana-private, Bluetack_iana-reserved, Bluetack_level1, Bluetack_level2, Bluetack_level3, Bluetack_Microsoft, Bluetack_proxy, Bluetack_rangetest, Bluetack_spider, Bluetack_spyware, Bluetack_web-exploit, Bluetack_webexploit-forumspam, cidr-report_bogon, dchubad_faker, dchubad_hacker, dchubad_pedophiles, dchubad_spammer, nexus23_ipfilterx, peerblock_rapidshare, spamhaus_drop, TBG_Bogon, TBG_Business_ISPs, TBG_Educational_Institutions, TBG_General_Corporate_Ranges, TBG_Hijacked, TBG_Primary_Threats, TBG_Search_Engines
 Default: TBG_Primary_Threats, TBG_General_Corporate_Ranges, TBG_Business_ISPs, TBG_Search_Engines, TBG_Hijacked, TBG_Bogon, Bluetack_proxy, Bluetack_dshield
 _Description: What blocklists shall be used?
  WARNING: Using too many and/or inappropriate lists may seriously degrade your
  internet service.
  .
- This selects the blocklists. You may use all blocklists in text format (eMule
- ipfilter.dat, peerguardian .p2p text, and LOWMEM format)
- .
- These lists were created by Bluetack (http://www.bluetack.co.uk) and TBG
- (http://tbg.iblocklist.com). They are provided by iblocklist.com.
+ This selects the blocklists. These lists were created by Bluetack
+ (http://www.bluetack.co.uk),TBG (http://tbg.iblocklist.com) and others.
+ They are provided by iblocklist.com.
  .
  You can get more information about these blocklists in
   /usr/share/doc/pglcmd/README.blocklists.gz and online at

@@ -1462,68 +1462,175 @@ LIST_URL2LIST_NAME () {
     # Translate LIST_URL to human readable/debconf LIST_NAME.
     # Several LIST_URL may resolve to the same LIST_NAME, if alternative URLs are known for the same list.
     case "$LIST_URL" in
-        list.iblocklist.com/?list=bt_level1 | www.bluetack.co.uk/config/level1.gz)
+        list.iblocklist.com/lists/bluetack/level-1 | \
+        list.iblocklist.com/?list=bt_level1 | \
+        www.bluetack.co.uk/config/level1.gz)
             LIST_NAME="Bluetack_level1"
             ;;
-        list.iblocklist.com/?list=bt_level2 | www.bluetack.co.uk/config/level2.gz)
+        list.iblocklist.com/lists/bluetack/level-2 | \
+        list.iblocklist.com/?list=bt_level2 | \
+        www.bluetack.co.uk/config/level2.gz)
             LIST_NAME="Bluetack_level2"
             ;;
-        list.iblocklist.com/?list=bt_level3 | www.bluetack.co.uk/config/level3.gz)
+        list.iblocklist.com/lists/bluetack/level-3 | \
+        list.iblocklist.com/?list=bt_level3 | \
+        www.bluetack.co.uk/config/level3.gz)
             LIST_NAME="Bluetack_level3"
             ;;
-        list.iblocklist.com/?list=bt_edu | www.bluetack.co.uk/config/edu.gz)
+        list.iblocklist.com/lists/bluetack/edu | \
+        list.iblocklist.com/?list=bt_edu | \
+        www.bluetack.co.uk/config/edu.gz)
             LIST_NAME="Bluetack_edu"
             ;;
-        list.iblocklist.com/?list=bt_ads | www.bluetack.co.uk/config/ads-trackers-and-bad-pr0n.gz)
+        list.iblocklist.com/lists/bluetack/ads-trackers-and-bad-pr0n | \
+        list.iblocklist.com/?list=bt_ads | \
+        www.bluetack.co.uk/config/ads-trackers-and-bad-pr0n.gz)
             LIST_NAME="Bluetack_ads"
             ;;
-        list.iblocklist.com/?list=bt_bogon | www.bluetack.co.uk/config/bogon.gz)
+        list.iblocklist.com/lists/bluetack/bogon | \
+        list.iblocklist.com/?list=bt_bogon | \
+        www.bluetack.co.uk/config/bogon.gz)
             LIST_NAME="Bluetack_bogon"
             ;;
-        list.iblocklist.com/?list=bt_spyware | www.bluetack.co.uk/config/spyware.gz)
+        list.iblocklist.com/lists/bluetack/spyware | \
+        list.iblocklist.com/?list=bt_spyware | \
+        www.bluetack.co.uk/config/spyware.gz)
             LIST_NAME="Bluetack_spyware"
             ;;
-        list.iblocklist.com/?list=bt_spider | www.bluetack.co.uk/config/spider.gz)
+        list.iblocklist.com/lists/bluetack/spider | \
+        list.iblocklist.com/?list=bt_spider | \
+        www.bluetack.co.uk/config/spider.gz)
             LIST_NAME="Bluetack_spider"
             ;;
-        list.iblocklist.com/?list=bt_microsoft | www.bluetack.co.uk/config/Microsoft.gz)
+        list.iblocklist.com/lists/bluetack/microsoft | \
+        list.iblocklist.com/?list=bt_microsoft | \
+        www.bluetack.co.uk/config/Microsoft.gz)
             LIST_NAME="Bluetack_Microsoft"
             ;;
-        list.iblocklist.com/?list=bt_proxy | www.bluetack.co.uk/config/proxy.gz)
+        list.iblocklist.com/lists/bluetack/proxy | \
+        list.iblocklist.com/?list=bt_proxy | \
+        www.bluetack.co.uk/config/proxy.gz)
             LIST_NAME="Bluetack_proxy"
             ;;
-        list.iblocklist.com/?list=bt_hijacked | www.bluetack.co.uk/config/hijacked.gz)
+        list.iblocklist.com/lists/bluetack/hijacked | \
+        list.iblocklist.com/?list=bt_hijacked | \
+        www.bluetack.co.uk/config/hijacked.gz)
             LIST_NAME="Bluetack_hijacked"
             ;;
-        list.iblocklist.com/?list=bt_templist | www.bluetack.co.uk/config/badpeers.gz)
+        # Bluetack badpeers (previously known as templist)
+        list.iblocklist.com/lists/bluetack/bad-peers | \
+        list.iblocklist.com/?list=bt_templist | \
+        www.bluetack.co.uk/config/badpeers.gz)
             LIST_NAME="Bluetack_badpeers"
             ;;
-        list.iblocklist.com/?list=bt_rangetest | www.bluetack.co.uk/config/rangetest.gz)
+        list.iblocklist.com/lists/bluetack/range-test | \
+        list.iblocklist.com/?list=bt_rangetest | \
+        www.bluetack.co.uk/config/rangetest.gz)
             LIST_NAME="Bluetack_rangetest"
             ;;
-        list.iblocklist.com/?list=bt_dshield | www.bluetack.co.uk/config/dshield.gz)
+        list.iblocklist.com/lists/bluetack/dshield | \
+        list.iblocklist.com/?list=bt_dshield | \
+        www.bluetack.co.uk/config/dshield.gz)
             LIST_NAME="Bluetack_dshield"
             ;;
-        list.iblocklist.com/?list=ijfqtofzixtwayqovmxn | tbg.iblocklist.com/Lists/PrimaryThreats.zip)
+        list.iblocklist.com/lists/tbg/primary-threats | \
+        list.iblocklist.com/?list=ijfqtofzixtwayqovmxn | \
+        tbg.iblocklist.com/Lists/PrimaryThreats.zip)
             LIST_NAME="TBG_Primary_Threats"
             ;;
-        list.iblocklist.com/?list=ecqbsykllnadihkdirsh | tbg.iblocklist.com/Lists/GeneralCorporateRanges.zip)
+        list.iblocklist.com/lists/tbg/general-corporate-ranges | \
+        list.iblocklist.com/?list=ecqbsykllnadihkdirsh | \
+        tbg.iblocklist.com/Lists/GeneralCorporateRanges.zip)
             LIST_NAME="TBG_General_Corporate_Ranges"
             ;;
-        list.iblocklist.com/?list=jcjfaxgyyshvdbceroxf | tbg.iblocklist.com/Lists/BusinessISPs.zip)
+        list.iblocklist.com/lists/tbg/business-isps | \
+        list.iblocklist.com/?list=jcjfaxgyyshvdbceroxf | \
+        tbg.iblocklist.com/Lists/BusinessISPs.zip)
             LIST_NAME="TBG_Business_ISPs"
             ;;
-        list.iblocklist.com/?list=lljggjrpmefcwqknpalp | tbg.iblocklist.com/Lists/Educational-Institutions.zip)
+        list.iblocklist.com/lists/tbg/educational-institutions | \
+        list.iblocklist.com/?list=lljggjrpmefcwqknpalp | \
+        tbg.iblocklist.com/Lists/Educational-Institutions.zip)
             LIST_NAME="TBG_Educational_Institutions"
             ;;
-        list.iblocklist.com/?list=pfefqteoxlfzopecdtyw | tbg.iblocklist.com/Lists/SearchEngines.zip)
+        list.iblocklist.com/lists/tbg/search-engines | \
+        list.iblocklist.com/?list=pfefqteoxlfzopecdtyw | \
+        tbg.iblocklist.com/Lists/SearchEngines.zip)
             LIST_NAME="TBG_Search_Engines"
             ;;
-        list.iblocklist.com/?list=tbnuqfclfkemqivekikv | tbg.iblocklist.com/Lists/Hijacked.zip)
+        list.iblocklist.com/lists/tbg/hijacked | \
+        list.iblocklist.com/?list=tbnuqfclfkemqivekikv | \
+        tbg.iblocklist.com/Lists/Hijacked.zip)
             LIST_NAME="TBG_Hijacked"
             ;;
-        list.iblocklist.com/?list=ewqglwibdgjttwttrinl | tbg.iblocklist.com/Lists/Bogon.zip)
+        list.iblocklist.com/lists/tbg/bogon | \
+        list.iblocklist.com/?list=ewqglwibdgjttwttrinl | \
+        tbg.iblocklist.com/Lists/Bogon.zip)
             LIST_NAME="TBG_Bogon"
+            ;;
+        list.iblocklist.com/lists/atma/atma | \
+        http://list.iblocklist.com/?list=tzmtqbbsgbtfxainogvm)
+            LIST_NAME="atma_atma"
+            ;;
+        list.iblocklist.com/lists/bluetack/for-non-lan-computers | \
+        list.iblocklist.com/?list=jhaoawihmfxgnvmaqffp)
+            LIST_NAME="Bluetack_for-non-lan-computers"
+            ;;
+        list.iblocklist.com/lists/bluetack/forum-spam | \
+        list.iblocklist.com/?list=ficutxiwawokxlcyoeye)
+            LIST_NAME="Bluetack_forum-spam"
+            ;;
+        list.iblocklist.com/lists/bluetack/iana-multicast | \
+        list.iblocklist.com/?list=pwqnlynprfgtjbgqoizj)
+            LIST_NAME="Bluetack_iana-multicast"
+            ;;
+        list.iblocklist.com/lists/bluetack/iana-private | \
+        list.iblocklist.com/?list=cslpybexmxyuacbyuvib)
+            LIST_NAME="Bluetack_iana-private"
+            ;;
+        list.iblocklist.com/lists/bluetack/iana-reserved | \
+        list.iblocklist.com/?list=bcoepfyewziejvcqyhqo)
+            LIST_NAME="Bluetack_iana-reserved"
+            ;;
+        list.iblocklist.com/lists/bluetack/web-exploit | \
+        list.iblocklist.com/?list=ghlzqtqxnzctvvajwwag)
+            LIST_NAME="Bluetack_web-exploit"
+            ;;
+        list.iblocklist.com/lists/bluetack/webexploit-forumspam | \
+        list.iblocklist.com/?list=ficutxiwawokxlcyoeye)
+            LIST_NAME="Bluetack_webexploit-forumspam"
+            ;;
+        list.iblocklist.com/lists/cidr-report/bogon | \
+        list.iblocklist.com/?list=cr_bogon)
+            LIST_NAME="cidr-report_bogon"
+            ;;
+        list.iblocklist.com/lists/dchubad/faker | \
+        list.iblocklist.com/?list=dcha_faker)
+            LIST_NAME="dchubad_faker"
+            ;;
+        list.iblocklist.com/lists/dchubad/hacker | \
+        list.iblocklist.com/?list=dcha_hacker)
+            LIST_NAME="dchubad_hacker"
+            ;;
+        list.iblocklist.com/lists/dchubad/pedophiles | \
+        list.iblocklist.com/?list=dcha_pedophiles)
+            LIST_NAME="dchubad_pedophiles"
+            ;;
+        list.iblocklist.com/lists/dchubad/spammer | \
+        list.iblocklist.com/?list=dcha_spammer)
+            LIST_NAME="dchubad_spammer"
+            ;;
+        list.iblocklist.com/lists/nexus23/ipfilterx | \
+        list.iblocklist.com/?list=nxs23_ipfilterx)
+            LIST_NAME="nexus23_ipfilterx"
+            ;;
+        list.iblocklist.com/lists/peerblock/rapidshare | \
+        list.iblocklist.com/?list=zfucwtjkfwkalytktyiw)
+            LIST_NAME="peerblock_rapidshare"
+            ;;
+        list.iblocklist.com/lists/spamhaus/drop | \
+        list.iblocklist.com/?list=sh_drop)
+            LIST_NAME="spamhaus_drop"
             ;;
         *)
             # Otherwise, use LIST_URL. For file/directory operations problematic letters have to be replaced!
@@ -1538,67 +1645,241 @@ LIST_URL2LIST_NAME () {
 LIST_NAME2LIST_URL () {
     case "$LIST_NAME" in
         Bluetack_level1)
-            LIST_URL="list.iblocklist.com/?list=bt_level1"
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/level-1
+                list.iblocklist.com/?list=bt_level1
+                www.bluetack.co.uk/config/level1.gz
+                "
             ;;
         Bluetack_level2)
-            LIST_URL="list.iblocklist.com/?list=bt_level2"
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/level-2
+                list.iblocklist.com/?list=bt_level2
+                www.bluetack.co.uk/config/level2.gz
+                "
             ;;
         Bluetack_level3)
-            LIST_URL="list.iblocklist.com/?list=bt_level3"
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/level-3
+                list.iblocklist.com/?list=bt_level3
+                www.bluetack.co.uk/config/level3.gz
+                "
             ;;
         Bluetack_edu)
-            LIST_URL="list.iblocklist.com/?list=bt_edu"
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/edu
+                list.iblocklist.com/?list=bt_edu
+                www.bluetack.co.uk/config/edu.gz
+                "
             ;;
         Bluetack_ads)
-            LIST_URL="list.iblocklist.com/?list=bt_ads"
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/ads-trackers-and-bad-pr0n
+                list.iblocklist.com/?list=bt_ads
+                www.bluetack.co.uk/config/ads-trackers-and-bad-pr0n.gz
+                "
             ;;
         Bluetack_bogon)
-            LIST_URL="list.iblocklist.com/?list=bt_bogon"
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/bogon
+                list.iblocklist.com/?list=bt_bogon
+                www.bluetack.co.uk/config/bogon.gz
+                "
             ;;
         Bluetack_spyware)
-            LIST_URL="list.iblocklist.com/?list=bt_spyware"
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/spyware
+                list.iblocklist.com/?list=bt_spyware
+                www.bluetack.co.uk/config/spyware.gz
+                "
             ;;
         Bluetack_spider)
-            LIST_URL="list.iblocklist.com/?list=bt_spider"
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/spider
+                list.iblocklist.com/?list=bt_spider
+                www.bluetack.co.uk/config/spider.gz
+                "
             ;;
         Bluetack_Microsoft)
-            LIST_URL="list.iblocklist.com/?list=bt_microsoft"
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/microsoft
+                list.iblocklist.com/?list=bt_microsoft
+                www.bluetack.co.uk/config/Microsoft.gz
+                "
             ;;
         Bluetack_proxy)
-            LIST_URL="list.iblocklist.com/?list=bt_proxy"
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/proxy
+                list.iblocklist.com/?list=bt_proxy
+                www.bluetack.co.uk/config/proxy.gz
+                "
             ;;
         Bluetack_hijacked)
-            LIST_URL="list.iblocklist.com/?list=bt_hijacked"
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/hijacked
+                list.iblocklist.com/?list=bt_hijacked
+                www.bluetack.co.uk/config/hijacked.gz
+                "
             ;;
+        # Bluetack badpeers (previously known as templist)
         Bluetack_badpeers)
-            LIST_URL="list.iblocklist.com/?list=bt_templist"
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/bad-peers
+                list.iblocklist.com/?list=bt_templist
+                www.bluetack.co.uk/config/badpeers.gz
+                "
             ;;
         Bluetack_rangetest)
-            LIST_URL="list.iblocklist.com/?list=bt_rangetest"
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/range-test
+                list.iblocklist.com/?list=bt_rangetest
+                www.bluetack.co.uk/config/rangetest.gz
+                "
             ;;
         Bluetack_dshield)
-            LIST_URL="list.iblocklist.com/?list=bt_dshield"
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/dshield
+                list.iblocklist.com/?list=bt_dshield
+                www.bluetack.co.uk/config/dshield.gz
+                "
             ;;
         TBG_Primary_Threats)
-            LIST_URL="list.iblocklist.com/?list=ijfqtofzixtwayqovmxn"
+            LIST_URL="
+                list.iblocklist.com/lists/tbg/primary-threats
+                list.iblocklist.com/?list=ijfqtofzixtwayqovmxn
+                tbg.iblocklist.com/Lists/PrimaryThreats.zip"
             ;;
         TBG_General_Corporate_Ranges)
-            LIST_URL="list.iblocklist.com/?list=ecqbsykllnadihkdirsh"
+            LIST_URL="
+                list.iblocklist.com/lists/tbg/general-corporate-ranges
+                list.iblocklist.com/?list=ecqbsykllnadihkdirsh
+                tbg.iblocklist.com/Lists/GeneralCorporateRanges.zip"
             ;;
         TBG_Business_ISPs)
-            LIST_URL="list.iblocklist.com/?list=jcjfaxgyyshvdbceroxf"
+            LIST_URL="
+                list.iblocklist.com/lists/tbg/business-isps
+                list.iblocklist.com/?list=jcjfaxgyyshvdbceroxf
+                tbg.iblocklist.com/Lists/BusinessISPs.zip"
             ;;
         TBG_Educational_Institutions)
-            LIST_URL="list.iblocklist.com/?list=lljggjrpmefcwqknpalp"
+            LIST_URL="
+                list.iblocklist.com/lists/tbg/educational-institutions
+                list.iblocklist.com/?list=lljggjrpmefcwqknpalp
+                tbg.iblocklist.com/Lists/Educational-Institutions.zip"
             ;;
         TBG_Search_Engines)
-            LIST_URL="list.iblocklist.com/?list=pfefqteoxlfzopecdtyw"
+            LIST_URL="
+                list.iblocklist.com/lists/tbg/search-engines
+                list.iblocklist.com/?list=pfefqteoxlfzopecdtyw
+                tbg.iblocklist.com/Lists/SearchEngines.zip"
             ;;
         TBG_Hijacked)
-            LIST_URL="list.iblocklist.com/?list=tbnuqfclfkemqivekikv"
+            LIST_URL="
+                list.iblocklist.com/lists/tbg/hijacked
+                list.iblocklist.com/?list=tbnuqfclfkemqivekikv
+                tbg.iblocklist.com/Lists/Hijacked.zip"
             ;;
         TBG_Bogon)
-            LIST_URL="list.iblocklist.com/?list=ewqglwibdgjttwttrinl"
+            LIST_URL="
+                list.iblocklist.com/lists/tbg/bogon
+                list.iblocklist.com/?list=ewqglwibdgjttwttrinl
+                tbg.iblocklist.com/Lists/Bogon.zip"
+            ;;
+        atma_atma)
+            LIST_URL="
+                list.iblocklist.com/lists/atma/atma
+                list.iblocklist.com/?list=tzmtqbbsgbtfxainogvm
+                "
+            ;;
+        Bluetack_for-non-lan-computers)
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/for-non-lan-computers
+                list.iblocklist.com/?list=jhaoawihmfxgnvmaqffp
+                "
+            ;;
+        Bluetack_forum-spam)
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/forum-spam
+                list.iblocklist.com/?list=ficutxiwawokxlcyoeye
+                "
+            ;;
+        Bluetack_iana-multicast)
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/iana-multicast
+                list.iblocklist.com/?list=pwqnlynprfgtjbgqoizj
+                "
+            ;;
+        Bluetack_iana-private)
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/iana-private
+                list.iblocklist.com/?list=cslpybexmxyuacbyuvib
+                "
+            ;;
+        Bluetack_iana-reserved)
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/iana-reserved
+                list.iblocklist.com/?list=bcoepfyewziejvcqyhqo
+                "
+            ;;
+        Bluetack_web-exploit)
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/web-exploit
+                list.iblocklist.com/?list=ghlzqtqxnzctvvajwwag
+                "
+            ;;
+        Bluetack_webexploit-forumspam)
+            LIST_URL="
+                list.iblocklist.com/lists/bluetack/webexploit-forumspam
+                list.iblocklist.com/?list=ficutxiwawokxlcyoeye
+                "
+            ;;
+        cidr-report_bogon)
+            LIST_URL="
+                list.iblocklist.com/lists/cidr-report/bogon
+                list.iblocklist.com/?list=cr_bogon
+                "
+            ;;
+        dchubad_faker)
+            LIST_URL="
+                list.iblocklist.com/lists/dchubad/faker
+                list.iblocklist.com/?list=dcha_faker
+                "
+            ;;
+        dchubad_hacker)
+            LIST_URL="
+                list.iblocklist.com/lists/dchubad/hacker
+                list.iblocklist.com/?list=dcha_hacker
+                "
+            ;;
+        dchubad_pedophiles)
+            LIST_URL="
+                list.iblocklist.com/lists/dchubad/pedophiles
+                list.iblocklist.com/?list=dcha_pedophiles
+                "
+            ;;
+        dchubad_spammer)
+            LIST_URL="
+                list.iblocklist.com/lists/dchubad/spammer
+                list.iblocklist.com/?list=dcha_spammer
+                "
+            ;;
+        nexus23_ipfilterx)
+            LIST_URL="
+                list.iblocklist.com/lists/nexus23/ipfilterx
+                list.iblocklist.com/?list=nxs23_ipfilterx
+                "
+            ;;
+        peerblock_rapidshare)
+            LIST_URL="
+                list.iblocklist.com/lists/peerblock/rapidshare
+                list.iblocklist.com/?list=zfucwtjkfwkalytktyiw
+                "
+            ;;
+        spamhaus_drop)
+            LIST_URL="
+                list.iblocklist.com/lists/spamhaus/drop
+                list.iblocklist.com/?list=sh_drop
+                "
             ;;
         *)
             LIST_URL="$LIST_NAME"
@@ -1606,79 +1887,6 @@ LIST_NAME2LIST_URL () {
     esac
     # Escape ? (\?) for "grep -E":
     LIST_URL_REGEX="$(echo $LIST_URL | sed "s/\?/\\\?/g")"
-}
-
-# Translate human readable/debconf LIST_NAME to LIST_URL_ALT.
-# Only used by debconf.
-LIST_NAME2LIST_URL_ALT () {
-    case "$LIST_NAME" in
-        Bluetack_level1)
-            LIST_URL_ALT="www.bluetack.co.uk/config/level1.gz"
-            ;;
-        Bluetack_level2)
-            LIST_URL_ALT="www.bluetack.co.uk/config/level2.gz"
-            ;;
-        Bluetack_level3)
-            LIST_URL_ALT="www.bluetack.co.uk/config/level3.gz"
-            ;;
-        Bluetack_edu)
-            LIST_URL_ALT="www.bluetack.co.uk/config/edu.gz"
-            ;;
-        Bluetack_ads)
-            LIST_URL_ALT="www.bluetack.co.uk/config/ads-trackers-and-bad-pr0n.gz"
-            ;;
-        Bluetack_bogon)
-            LIST_URL_ALT="www.bluetack.co.uk/config/bogon.gz"
-            ;;
-        Bluetack_spyware)
-            LIST_URL_ALT="www.bluetack.co.uk/config/spyware.gz"
-            ;;
-        Bluetack_spider)
-            LIST_URL_ALT="www.bluetack.co.uk/config/spider.gz"
-            ;;
-        Bluetack_Microsoft)
-            LIST_URL_ALT="www.bluetack.co.uk/config/Microsoft.gz"
-            ;;
-        Bluetack_proxy)
-            LIST_URL_ALT="www.bluetack.co.uk/config/proxy.gz"
-            ;;
-        Bluetack_hijacked)
-            LIST_URL_ALT="www.bluetack.co.uk/config/hijacked.gz"
-            ;;
-        Bluetack_badpeers)
-            LIST_URL_ALT="www.bluetack.co.uk/config/badpeers.gz"
-            ;;
-        Bluetack_rangetest)
-            LIST_URL_ALT="www.bluetack.co.uk/config/rangetest.gz"
-            ;;
-        Bluetack_dshield)
-            LIST_URL_ALT="www.bluetack.co.uk/config/dshield.gz"
-            ;;
-        TBG_Primary_Threats)
-            LIST_URL_ALT="tbg.iblocklist.com/Lists/PrimaryThreats.zip"
-            ;;
-        TBG_General_Corporate_Ranges)
-            LIST_URL_ALT="tbg.iblocklist.com/Lists/GeneralCorporateRanges.zip"
-            ;;
-        TBG_Business_ISPs)
-            LIST_URL_ALT="tbg.iblocklist.com/Lists/BusinessISPs.zip"
-            ;;
-        TBG_Educational_Institutions)
-            LIST_URL_ALT="tbg.iblocklist.com/Lists/Educational-Institutions.zip"
-            ;;
-        TBG_Search_Engines)
-            LIST_URL_ALT="tbg.iblocklist.com/Lists/SearchEngines.zip"
-            ;;
-        TBG_Hijacked)
-            LIST_URL_ALT="tbg.iblocklist.com/Lists/Hijacked.zip"
-            ;;
-        TBG_Bogon)
-            LIST_URL_ALT="tbg.iblocklist.com/Lists/Bogon.zip"
-            ;;
-        *)
-            LIST_URL_ALT=""
-            ;;
-    esac
 }
 
 # Get blocklist.
