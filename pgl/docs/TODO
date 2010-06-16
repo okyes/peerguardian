@@ -17,9 +17,7 @@ pglcmd:
     warning about that on wd startup and in the .default-
 
   - [blocked by kernel module loading and watchdog changes]:
-    doc for run pgl on one device only:
-
-  - add option to only work on a specific device
+    documentation or option to only work on a specific device
 ================================================================================
   First do a "pglcmd stop"!!!
 

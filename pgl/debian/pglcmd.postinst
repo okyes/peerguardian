@@ -106,6 +106,7 @@ VARIABLES="
 
 # Known lists
 # Make sure LIST_NAME is also in debian/templates and LIST_NAME2LIST_URL
+# other lists may be added manually to blocklists.list
 LISTS_POSSIBLE="
     Bluetack_level1
     Bluetack_level2
@@ -480,7 +481,7 @@ done
 # Gives selected lists separated with "|":
 LISTS_GET_NAME_PIPE="$(echo $LISTS_GET_NAME | sed "s/\ /\|/g")"
 for LIST_NAME in $LISTS_POSSIBLE ; do
-    # Gives deselected (known to debconf but not configured to be used) lists separated with space:
+    # Gives deselected (known to debconf but configured to be not used) lists separated with space:
     LISTS_XGET="$LISTS_XGET $(echo $LIST_NAME | grep -Ev $LISTS_GET_NAME_PIPE || true)"
 done
 
@@ -500,7 +501,7 @@ for LIST_NAME in $LISTS_XGET ; do
     fi
 done
 
-# Unavailable lists:
+# Remove unavailable lists from blocklists.list:
 for LIST_URL in www.bluetack.co.uk/config/nipfilter.dat.gz www.bluetack.co.uk/config/pipfilter.dat.gz ; do
     if grep -Eq "^[[:space:]]*(http://)?$LIST_URL" $BLOCKLISTS_LIST ; then
         echo -n "Disabling $LIST_URL because it is no more downloadable directly"
