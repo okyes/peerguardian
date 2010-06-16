@@ -1,4 +1,4 @@
-pgl (2.0.1-1~pre3) UNRELEASED; urgency=low
+pgl (2.0.1-1) unstable; urgency=low
 
   [ jre ]
   * build-depend on debhelper (>= 7.0.50~) for debhelper overrides. Previously
@@ -10,7 +10,7 @@ pgl (2.0.1-1~pre3) UNRELEASED; urgency=low
   * debian/pglcmd.postinst and templates: adapted to iblocklist URL change in
     pglcmd.lib
 
- -- jre <jre-phoenix@users.sourceforge.net>  Wed, 16 Jun 2010 14:33:52 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 16 Jun 2010 21:54:04 +0200
 
 pgl (2.0.0-1) unstable; urgency=low
 

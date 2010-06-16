@@ -1,4 +1,4 @@
-pgl 2.0.1 WIP
+pgl 2.0.1
 
   [ jre ]
   * use "-m multiport --ports" for port whitelisting

@@ -46,10 +46,8 @@ pglcmd:
 
 ================================================================================
 
-  - support iblocklists new hierarchical URL system.
-  - [iblocklist.com]: This site renames some filenames. So it is not possible to
-    use the upstream URL and the iblocklist.com URL, and avoid the second
-    download with wget's timestamp option.
+  - add configuration possibility to shut off checking in specific chains
+    (FORWARD). Change watchdog appropriately!
 
   - on "stop" remove kernel modules that were inserted by blockcontrol. (see
     dino's synology packaging
@@ -59,10 +57,6 @@ pglcmd:
   - send error messages to console and logfile. [João]
     Completely rework the logging part, and check if all messages go where they
     should.
-    E.g. the watchdog's message currently doesn't land in the logfile.
-
-  - add configuration possibility to shut off checking in specific chains
-    (FORWARD). Change watchdog appropriately!
 
   - fix debconf to use debian/config again.
     This stuff is currently in postinst, because otherwise debconf doesn't work
