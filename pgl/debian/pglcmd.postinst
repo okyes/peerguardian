@@ -431,26 +431,21 @@ done
 # Define function for debconf's db_get. Usage my_db_get $1, where $1 is the
 # variable set in debconf. The name of the package is already set within this
 # function.
-# Check if $RET contains invalid signs.
+# Remove invalid characters (" or |) from $RET
 my_db_get () {
     # Test if exactly $1 was specified.
     [ "$#" = 1 ] || { echo "Internal script error. Aborting."; exit 1; }
     db_get pglcmd/$1
-    case "$RET" in
-        *\|*)
-            echo "WARNING: This script does not allow to use pipes (\"|\")."
-            echo "You have set $1 to \"$RET\" which does contain a pipe."
-            echo "Therefore not changing this variable."
-            ;;
-        *)
-            # If the value is set in pglcmd.conf, then set it there:
-            if [ -f "$CMD_CONF" ] && grep -Eq "^[[:space:]]*$1=" $CMD_CONF ; then
-                CONFFILE=$CMD_CONF
-            else
-                CONFFILE=$CMD_DEFAULTS
-            fi
-            ;;
-    esac
+    # Assigning the fixed value to the same variable again seems to work.
+    RET="$( echo "$RET" | \
+        sed "s|\"||g" | \
+        sed "s|\|||g" )"
+	# If the value is set in pglcmd.conf, then set it there:
+	if [ -f "$CMD_CONF" ] && grep -Eq "^[[:space:]]*$1=" $CMD_CONF ; then
+		CONFFILE=$CMD_CONF
+	else
+		CONFFILE=$CMD_DEFAULTS
+	fi
 }
 
 # Substitute in the values from the debconf db.

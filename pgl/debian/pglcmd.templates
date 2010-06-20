@@ -136,7 +136,7 @@ _Description: Set the NFQUEUE queue number:
  Valid queue numbers are 0 to 65535. The default value is 92.
  .
  Insert the plain number as you would give it in an iptables command after
- "--queue-num". Do not use surrounding "quotes".
+ "--queue-num".
 
 Template: pglcmd/IPTABLES_SETTINGS
 Type: select
@@ -273,8 +273,8 @@ _Description: Whitelist outgoing TCP ports:
    22 - ssh
   993 - SSL IMAP
  .
- Separate multiple entries with whitespace (" "). Do not use surrounding
- "quotes". Be careful: senseless values are also accepted.
+ Separate multiple entries with whitespace (" "). Be careful: senseless values
+ are also accepted.
 
 Template: pglcmd/WHITE_UDP_OUT
 Type: string
@@ -286,8 +286,8 @@ _Description: Whitelist outgoing UDP ports:
  ranges are specified in the format "port:port". Up to 15 ports can be
  specified. A port range (port:port) counts as two ports.
  .
- Separate multiple entries with whitespace (" "). Do not use surrounding
- "quotes". Be careful: senseless values are also accepted.
+ Separate multiple entries with whitespace (" "). Be careful: senseless values
+ are also accepted.
 
 Template: pglcmd/WHITE_TCP_IN
 Type: string
@@ -299,8 +299,8 @@ _Description: Whitelist incoming TCP ports:
  ranges are specified in the format "port:port". Up to 15 ports can be
  specified. A port range (port:port) counts as two ports.
  .
- Separate multiple entries with whitespace (" "). Do not use surrounding
- "quotes". Be careful: senseless values are also accepted.
+ Separate multiple entries with whitespace (" "). Be careful: senseless values
+ are also accepted.
 
 Template: pglcmd/WHITE_UDP_IN
 Type: string
@@ -312,8 +312,8 @@ _Description: Whitelist incoming UDP ports:
  ranges are specified in the format "port:port". Up to 15 ports can be
  specified. A port range (port:port) counts as two ports.
  .
- Separate multiple entries with whitespace (" "). Do not use surrounding
- "quotes". Be careful: senseless values are also accepted.
+ Separate multiple entries with whitespace (" "). Be careful: senseless values
+ are also accepted.
 
 Template: pglcmd/WHITE_TCP_FORWARD
 Type: string
@@ -325,8 +325,8 @@ _Description: Whitelist forwarded TCP ports:
  ranges are specified in the format "port:port". Up to 15 ports can be
  specified. A port range (port:port) counts as two ports.
  .
- Separate multiple entries with whitespace (" "). Do not use surrounding
- "quotes". Be careful: senseless values are also accepted.
+ Separate multiple entries with whitespace (" "). Be careful: senseless values
+ are also accepted.
 
 Template: pglcmd/WHITE_UDP_FORWARD
 Type: string
@@ -338,8 +338,8 @@ _Description: Whitelist forwarded UDP ports:
  ranges are specified in the format "port:port". Up to 15 ports can be
  specified. A port range (port:port) counts as two ports.
  .
- Separate multiple entries with whitespace (" "). Do not use surrounding
- "quotes". Be careful: senseless values are also accepted.
+ Separate multiple entries with whitespace (" "). Be careful: senseless values
+ are also accepted.
 
 Template: pglcmd/WHITE_LOCAL
 Type: select
@@ -376,8 +376,7 @@ _Description: Remove lines from the blocklist:
  Remove lines from the blocklist matching the specified pattern (the search
  pattern is case-insensitive).
  .
- Separate patterns with a semicolon ";". Do not use surrounding "quotes".
- Be careful: senseless values are also accepted.
+ Separate patterns with a semicolon ";".
  .
  Example:
   google;yahoo;altavista;debian;sourceforge

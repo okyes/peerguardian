@@ -1,3 +1,9 @@
+pgl (2.0.2-1~pre1) UNRELEASED; urgency=low
+
+  * debian/postinst: remove invalid characters (" or |) from $RET
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 21 Jun 2010 00:26:19 +0200
+
 pgl (2.0.1-1) unstable; urgency=low
 
   [ jre ]
