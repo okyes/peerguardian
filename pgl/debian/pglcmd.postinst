@@ -792,12 +792,10 @@ if [ -z "$RET" ] ; then # Default
         sed -i -r "s|^[[:space:]]*WHITE_TCP_OUT=.*|WHITE_TCP_OUT=\"\"|" $CMD_CONF
     fi
 else
-    # change port numbers to associated service name because of mobloquer (0.5) bug.
-    RET_FIXED="$(echo $RET | sed "s|^80 443|http https|")"
     if [ "$CONFFILE" = "$CMD_CONF" ] ; then
-        sed -i -r "s|^[[:space:]]*WHITE_TCP_OUT=.*|WHITE_TCP_OUT=\"$RET_FIXED\"|" $CMD_CONF
+        sed -i -r "s|^[[:space:]]*WHITE_TCP_OUT=.*|WHITE_TCP_OUT=\"$RET\"|" $CMD_CONF
     else
-        echo "WHITE_TCP_OUT=\"$RET_FIXED\"" >> $CMD_CONF
+        echo "WHITE_TCP_OUT=\"$RET\"" >> $CMD_CONF
     fi
 fi
 
