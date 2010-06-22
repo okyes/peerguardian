@@ -22,24 +22,24 @@ git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardi
 Step 2: Base configuration (Makefile)
 =====================================
 pgl consists of three components: the daemon pgld, the command line interface
-pglcmd and the GUI pgl-gui. In the Makefile you can configure every component to
-be (not) built.
+pglcmd and the GUI pgl-gui. In the pgl/Makefile you can enable/disable these
+components and configure the paths pgl is installed to and uses. In the
+"install" stanza of the pgl/pglcmd/Makefile you can enable the init script
+activation, so that pgl starts automatically at system boot.
 Note (2010-05-18):  pgl-gui is not ready for usage, yet. Further it still uses
 cmake as build system.
 
 Especially for embedded devices (like router or NAS box) you might set the
 LOWMEM option to yes. This disables storing of textual range descriptions.
 
-Further you have options to turn on/off dbus support (currently disabled) and
-zlib support for loading compressed blocklists.
-
-Last but not least you can configure the paths pgl is installed to and uses.
+Further you have options to turn on/off dbus support and zlib support for pgld
+loading compressed blocklists (both currently disabled).
 
 
 Step 3: Compilation and installation
 ====================================
 Once you have adjusted the Makefile to your needs issue these commands:
-  cd peerguardian
+  cd peerguardian/pgl
   make
   make install
 

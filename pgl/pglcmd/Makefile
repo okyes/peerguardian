@@ -55,6 +55,9 @@ install:
 	install -D -m 755 if-up.install $(DESTDIR)/$(IFUPDIR)/pglcmd
 	install -D -m 755 cron.daily.install $(DESTDIR)/$(CRONDIR)/pglcmd
 	install -D -m 755 init.install $(DESTDIR)/$(INITDIR)/pgl
+# 	Uncomment if you want LSB 3.2 init script activation
+# 	/usr/lib/lsb/install_initd /etc/init.d/pgl
+# 	Uncomment if you want update-rc.d init script activation (like in Debian)
 # 	update-rc.d pgl start 60 2 3 4 5 . stop 20 0 1 6 .
 	install -D -m 644 logrotate $(DESTDIR)/$(LOGROTATEDIR)/pglcmd
 	install -d $(DESTDIR)/$(MASTER_BLOCKLIST_DIR)

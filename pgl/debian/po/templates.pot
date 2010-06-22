@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: pgl@packages.debian.org\n"
-"POT-Creation-Date: 2010-06-10 15:46+0200\n"
+"POT-Creation-Date: 2010-06-22 13:23+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -97,16 +97,9 @@ msgstr ""
 #. Description
 #: ../pglcmd.templates:3001
 msgid ""
-"This selects the blocklists. You may use all blocklists in text format "
-"(eMule ipfilter.dat, peerguardian .p2p text, and LOWMEM format)"
-msgstr ""
-
-#. Type: multiselect
-#. Description
-#: ../pglcmd.templates:3001
-msgid ""
-"These lists were created by Bluetack (http://www.bluetack.co.uk) and TBG "
-"(http://tbg.iblocklist.com). They are provided by iblocklist.com."
+"This selects the blocklists. These lists were created by Bluetack (http://"
+"www.bluetack.co.uk), TBG (http://tbg.iblocklist.com) and others. They are "
+"provided by iblocklist.com."
 msgstr ""
 
 #. Type: multiselect
@@ -279,8 +272,8 @@ msgstr ""
 #: ../pglcmd.templates:9001
 msgid ""
 "This is especially useful, if you have other firewall applications running, "
-"because they often mess up the iptables rules, which can be fixed by "
-"restarting pgl. Unfortunately this manual action is often forgotten."
+"that mess up the iptables rules. If you forget to fix the iptables rules by "
+"restarting pgl, the watchdog will do this for you."
 msgstr ""
 
 #. Type: string
@@ -306,7 +299,7 @@ msgstr ""
 #: ../pglcmd.templates:10001
 msgid ""
 "Insert the plain number as you would give it in an iptables command after "
-"\"--queue-num\". Do not use surrounding \"quotes\"."
+"\"--queue-num\"."
 msgstr ""
 
 #. Type: select
@@ -582,8 +575,8 @@ msgstr ""
 #: ../pglcmd.templates:23001 ../pglcmd.templates:24001
 msgid ""
 "Whitelist ports by port number or with the associated service name. Port "
-"ranges are specified in the format \"port:port\". Up to 15 ports can be "
-"specified. A port range (port:port) counts as two ports."
+"ranges are specified in the format \"port:port\". A port range (port:port) "
+"counts as two ports."
 msgstr ""
 
 #. Type: string
@@ -613,8 +606,8 @@ msgstr ""
 #: ../pglcmd.templates:21001 ../pglcmd.templates:22001
 #: ../pglcmd.templates:23001 ../pglcmd.templates:24001
 msgid ""
-"Separate multiple entries with whitespace (\" \"). Do not use surrounding "
-"\"quotes\". Be careful: senseless values are also accepted."
+"Separate multiple entries with whitespace (\" \"). Be careful: senseless "
+"values are also accepted."
 msgstr ""
 
 #. Type: string
@@ -756,9 +749,7 @@ msgstr ""
 #. Type: string
 #. Description
 #: ../pglcmd.templates:27001
-msgid ""
-"Separate patterns with a semicolon \";\". Do not use surrounding \"quotes\". "
-"Be careful: senseless values are also accepted."
+msgid "Separate patterns with a semicolon \";\"."
 msgstr ""
 
 #. Type: string

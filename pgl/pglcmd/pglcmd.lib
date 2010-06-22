@@ -1086,7 +1086,8 @@ delete_iptables () {
 
         if [ "$IPTABLES_DELETE" = 1 ] ; then
             log_warning_msg "Some errors occured during the deletion of the iptables rules."
-            log_warning_msg "If $NAME wasn't running before, no iptables rules existed and you don't have to" log_warning_msg "worry."
+            log_warning_msg "If $NAME wasn't running before, no iptables rules existed and you don't have to"
+            log_warning_msg "worry."
             log_warning_msg "But if $NAME was running there is some problem. Most probably you have"
             log_warning_msg "installed another firewall application that did delete the iptables rules."
             log_warning_msg "A \"$(basename $0) restart\" will then fix the situation."

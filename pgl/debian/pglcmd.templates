@@ -42,7 +42,7 @@ _Description: What blocklists shall be used?
  internet service.
  .
  This selects the blocklists. These lists were created by Bluetack
- (http://www.bluetack.co.uk),TBG (http://tbg.iblocklist.com) and others.
+ (http://www.bluetack.co.uk), TBG (http://tbg.iblocklist.com) and others.
  They are provided by iblocklist.com.
  .
  You can get more information about these blocklists in
@@ -124,8 +124,8 @@ _Description: Enable watchdog to monitor pgl?
  these tests fails, it restarts pgl.
  .
  This is especially useful, if you have other firewall applications running,
- because they often mess up the iptables rules, which can be fixed by restarting
- pgl. Unfortunately this manual action is often forgotten.
+ that mess up the iptables rules. If you forget to fix the iptables rules by
+ restarting pgl, the watchdog will do this for you.
 
 Template: pglcmd/NFQUEUE_NUMBER
 Type: string
@@ -264,8 +264,8 @@ _Description: Whitelist outgoing TCP ports:
  Configuration variable: WHITE_TCP_OUT
  .
  Whitelist ports by port number or with the associated service name. Port ranges
- are specified in the format "port:port". Up to 15 ports can be specified. A
- port range (port:port) counts as two ports.
+ are specified in the format "port:port". A port range (port:port) counts as two
+ ports.
  .
  Common ports:
    80 - http
@@ -282,9 +282,9 @@ Default:
 _Description: Whitelist outgoing UDP ports:
  Configuration variable: WHITE_UDP_OUT
  .
- Whitelist ports by port number or with the associated service name. Port
- ranges are specified in the format "port:port". Up to 15 ports can be
- specified. A port range (port:port) counts as two ports.
+ Whitelist ports by port number or with the associated service name. Port ranges
+ are specified in the format "port:port". A port range (port:port) counts as two
+ ports.
  .
  Separate multiple entries with whitespace (" "). Be careful: senseless values
  are also accepted.
@@ -295,9 +295,9 @@ Default:
 _Description: Whitelist incoming TCP ports:
  Configuration variable: WHITE_TCP_IN
  .
- Whitelist ports by port number or with the associated service name. Port
- ranges are specified in the format "port:port". Up to 15 ports can be
- specified. A port range (port:port) counts as two ports.
+ Whitelist ports by port number or with the associated service name. Port ranges
+ are specified in the format "port:port". A port range (port:port) counts as two
+ ports.
  .
  Separate multiple entries with whitespace (" "). Be careful: senseless values
  are also accepted.
@@ -308,9 +308,9 @@ Default:
 _Description: Whitelist incoming UDP ports:
  Configuration variable: WHITE_UDP_IN
  .
- Whitelist ports by port number or with the associated service name. Port
- ranges are specified in the format "port:port". Up to 15 ports can be
- specified. A port range (port:port) counts as two ports.
+ Whitelist ports by port number or with the associated service name. Port ranges
+ are specified in the format "port:port". A port range (port:port) counts as two
+ ports.
  .
  Separate multiple entries with whitespace (" "). Be careful: senseless values
  are also accepted.
@@ -321,9 +321,9 @@ Default:
 _Description: Whitelist forwarded TCP ports:
  Configuration variable: WHITE_TCP_FORWARD
  .
- Whitelist ports by port number or with the associated service name. Port
- ranges are specified in the format "port:port". Up to 15 ports can be
- specified. A port range (port:port) counts as two ports.
+ Whitelist ports by port number or with the associated service name. Port ranges
+ are specified in the format "port:port". A port range (port:port) counts as two
+ ports.
  .
  Separate multiple entries with whitespace (" "). Be careful: senseless values
  are also accepted.
@@ -334,9 +334,9 @@ Default:
 _Description: Whitelist forwarded UDP ports:
  Configuration variable: WHITE_UDP_FORWARD
  .
- Whitelist ports by port number or with the associated service name. Port
- ranges are specified in the format "port:port". Up to 15 ports can be
- specified. A port range (port:port) counts as two ports.
+ Whitelist ports by port number or with the associated service name. Port ranges
+ are specified in the format "port:port". A port range (port:port) counts as two
+ ports.
  .
  Separate multiple entries with whitespace (" "). Be careful: senseless values
  are also accepted.

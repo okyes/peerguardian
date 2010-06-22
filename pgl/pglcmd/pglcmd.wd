@@ -140,7 +140,7 @@ To disable the watchdog set WD="0" in $CMD_CONF.
 EOF
 fi
 log_failure_msg "\"$CMD_PATHNAME restart_not_wd\" failed (Error $RETVAL)."
-echo  "Stopping $(basename $WD_PATHNAME) now!"
+echo "Stopping $(basename $WD_PATHNAME) now!"
 exit $RETVAL
 
 # All output gets redirected to the logfile
