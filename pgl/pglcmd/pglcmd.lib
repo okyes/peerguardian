@@ -1398,6 +1398,10 @@ do_stop () {
     done
 
     log_end_msg $RETVAL
+
+    # init sets STATS_MAILTO to empty value to prevent email_stats on stop
+    # during system halt.
+    email_stats
 }
 
 # Function that restarts daemon
@@ -2461,7 +2465,7 @@ email_stats () {
 To: $STATS_MAILTO
 Subject: $SUBJECT
 
-$(dump_stats)
+$(reset_stats)
 
 EOF
     fi

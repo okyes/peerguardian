@@ -1,3 +1,11 @@
+pgl 2.0.2~WIP
+
+  [ jre ]
+  * Email stats on every stop/restart (except when the system is halted). Reset
+    stats in email_stats instead of just dumping them.
+
+-- jre <jre-phoenix@users.sourceforge.net>  WIP
+
 pgl 2.0.1
 
   [ jre ]
