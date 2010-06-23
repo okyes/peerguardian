@@ -6,8 +6,8 @@
     missingok
     notifempty
     prerotate
-        # If pgld pidfile exists and pglcmd is installed, send statistics per mail.
-        [ ! -e /var/run/pgld.pid ] || { [ ! -x /usr/bin/pglcmd ] || /usr/bin/pglcmd email_stats ; }
+        # If pglcmd is installed, send statistics per mail.
+        [ ! -x /usr/bin/pglcmd ] || /usr/bin/pglcmd email_stats
     endscript
     postrotate
         # Reload pgld to reopen the logfile

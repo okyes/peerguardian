@@ -1365,6 +1365,9 @@ do_start () {
 
 # Function that stops daemon (but not watchdog)
 do_stop () {
+    # STATS_MAILTO is set to empty value by init to prevent email_stats on stop
+    # during system halt.
+    email_stats
     # Remove iptables rules/chains
     delete_iptables
     # As per LSB don't test if daemon is installed on stop!
@@ -1398,10 +1401,6 @@ do_stop () {
     done
 
     log_end_msg $RETVAL
-
-    # init sets STATS_MAILTO to empty value to prevent email_stats on stop
-    # during system halt.
-    email_stats
 }
 
 # Function that restarts daemon
@@ -2454,13 +2453,17 @@ reset_stats () {
 }
 
 email_stats () {
-    if [ -x /usr/sbin/sendmail ] ; then
-        SENDMAIL="/usr/sbin/sendmail"
-    elif [ -x /usr/lib/sendmail ] ; then
-        SENDMAIL="/usr/lib/sendmail"
-    fi
-    SUBJECT="$NAME hit statistics"
-    if [ $STATS_MAILTO ] && [ $SENDMAIL ] ; then
+    # Check if daemon is running, otherwise stats are not available!
+    if status_of_proc $DAEMON $NAME > /dev/null 2>&1 ; then
+        # Find sendmail
+        if [ -x /usr/sbin/sendmail ] ; then
+            SENDMAIL="/usr/sbin/sendmail"
+        elif [ -x /usr/lib/sendmail ] ; then
+            SENDMAIL="/usr/lib/sendmail"
+        fi
+        SUBJECT="$NAME hit statistics"
+        # Check if pgl is configured to send email stats and if sendmail is available
+        if [ $STATS_MAILTO ] && [ $SENDMAIL ] ; then
             cat<<EOF | $SENDMAIL -t
 To: $STATS_MAILTO
 Subject: $SUBJECT
@@ -2468,6 +2471,7 @@ Subject: $SUBJECT
 $(reset_stats)
 
 EOF
+        fi
     fi
 }
 
