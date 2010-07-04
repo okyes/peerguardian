@@ -81,10 +81,11 @@ IPTABLES_CUSTOM_DIR="${CONFDIR}"
 # The path of the file with the md5sum of all blocklist configurations
 MD5SUM_FILE="$BLOCKLISTS_DIR/MD5SUM"
 
-# The path of the lsb init functions.
+# The path of the LSB init-functions.
 # If LSB file does not exist or variable is set to an empty value, pglcmd's
 # builtin LSB functions are used.
-LSB="/lib/lsb/init-functions"
+# LSB="/lib/lsb/init-functions"
+LSB=""
 
 # Remember standard IFS (Internal Field Separator)
 STDIFS=$IFS
