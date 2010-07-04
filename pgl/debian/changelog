@@ -2,8 +2,11 @@ pgl (2.0.2-1~pre1) UNRELEASED; urgency=low
 
   * debian/postinst: remove invalid characters (" or |) from $RET
   * added debian/patches/use-systemwide-LSB-init-functions.patch
+  * debian/control:
+    - replaced Conflicts with Breaks
+    - bumped to Standards-Version 3.9.0.0
 
- -- jre <jre-phoenix@users.sourceforge.net>  Mon, 21 Jun 2010 00:26:19 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 04 Jul 2010 13:12:20 +0200
 
 pgl (2.0.1-1) unstable; urgency=low
 

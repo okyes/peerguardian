@@ -11,7 +11,7 @@ Build-Depends: debhelper (>= 7.0.50~),
                libnetfilter-queue-dev,
                libnfnetlink-dev,
                libdbus-1-dev
-Standards-Version: 3.8.4.0
+Standards-Version: 3.9.0.0
 Homepage: http://peerguardian.sourceforge.net/
 Vcs-Browser: http://peerguardian.git.sourceforge.net/
 Vcs-Git: git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
@@ -53,9 +53,11 @@ Depends: ${misc:Depends},
 Recommends: wget,
             unzip,
             p7zip | p7zip-full
-Conflicts: moblock-control,
+Suggests: mail-transport-agent
+Breaks: moblock-control (<<2~),
            blockcontrol (<<2~)
-Replaces: blockcontrol
+Replaces: moblock-control (<<2~),
+           blockcontrol (<<2~)
 Description: PeerGuardian Linux - pglcmd
  pgl blocks connections from and to hosts, that are listed in a very large
  blocklist (thousands or millions of IP ranges).
