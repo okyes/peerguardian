@@ -1085,12 +1085,12 @@ delete_iptables () {
         log_end_msg $IPTABLES_DELETE
 
         if [ "$IPTABLES_DELETE" = 1 ] ; then
-            log_warning_msg "Some errors occured during the deletion of the iptables rules."
-            log_warning_msg "If $NAME wasn't running before, no iptables rules existed and you don't have to"
-            log_warning_msg "worry."
-            log_warning_msg "But if $NAME was running there is some problem. Most probably you have"
-            log_warning_msg "installed another firewall application that did delete the iptables rules."
-            log_warning_msg "A \"$(basename $0) restart\" will then fix the situation."
+            echo "Some errors occured during the deletion of the iptables rules."
+            echo "If $NAME wasn't running before, no iptables rules existed and therefore you"
+            echo "don't have to worry about this message."
+            echo "But if $NAME was running there is some problem. Most probably you have installed"
+            echo "another firewall application that deleted the iptables rules. A"
+            echo "\"$(basename $0) restart\" fixes this situation."
         fi
 
         # If custom iptables removal scripts exist, execute them:
@@ -1377,9 +1377,9 @@ do_stop () {
     killproc "$PID_OPT" "$DAEMON"
 
     # Verify that the daemon is really not running. This may take some
-    # time (e.g. nfblock 0.6.1), even after the killproc ended successfully.
+    # time, even after the killproc ended successfully.
     # Normally killproc should take care of this.
-    # Otherwise restarting nfblock fails, because it was restarted too early.
+    # Otherwise restarting pgld fails, because it was restarted too early.
     # This also fixes broken lsb init-functions (e.g. Ubuntu hardy), that give
     # the wrong exit code.
     COUNT=0

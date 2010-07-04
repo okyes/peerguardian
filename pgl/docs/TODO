@@ -54,7 +54,7 @@ pglcmd:
     http://forums.phoenixlabs.org/showpost.php?p=128371&postcount=20). Probably
     disable this per default, to avoid problems.
 
-  - send error messages to console and logfile. [João]
+  - send error messages to console (STDERR 1>&2) and logfile. [João]
     Completely rework the logging part, and check if all messages go where they
     should.
 
@@ -74,7 +74,7 @@ pglcmd:
 
   - [DISCUSS]: if any blocklist is unavailable, should blockcontrol exit (as it
     does currently, in order to give no false security), or continue but return
-    an error (if one list is missing, it´s still better to use at least the
+    an error (if one list is missing, it's still better to use at least the
     other blocklists).
 
   - [DISCUSS] Block IPv6 completely because currently only IPv4 is checked?

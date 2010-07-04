@@ -422,8 +422,14 @@ lists for use with IP blockers. It offers mirrors of all/most other blocklists,
 game allow lists, country lists and more.
 
 Per default, pgl uses these mirrored blocklists from iblocklist.com, instead of
-the original ones from bluetack.co.uk and tbg.iblocklist.com. Don't use both.
+the original ones from bluetack.co.uk and tbg.iblocklist.com. Please don't use
+both!
 
+At http://iblocklist.com/map.xls is a list of supported mappings from the 20
+character random list name URLs to human readable URLs in the format
+http://list.iblocklist.com/lists/LISTPROVIDER/LISTNAME
+These mappings are also hardcoded in pglcmd for e.g. the naming of the
+/var/spool/pgl/LISTNAME folders.
 
 ============================================================
 

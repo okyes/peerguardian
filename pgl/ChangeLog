@@ -1,3 +1,6 @@
+ChangeLog PeerGuardian Linux (pgl)
+
+
 pgl 2.0.2~WIP
 
   [ jre ]
@@ -6,6 +9,7 @@ pgl 2.0.2~WIP
   * Default to use builtin LSB init-functions instead of systemwide functions
 
 -- jre <jre-phoenix@users.sourceforge.net>  WIP
+
 
 pgl 2.0.1
 
@@ -33,7 +37,7 @@ pgl 2.0.0
   * common cmake buildsystem for pgld, pglcmd and pgl-gui (superseded by
     Gnu make buildsystem, but still needed for pgl-gui)
 
-  [Dimitris Palyvos-Giannas ]
+  [ Dimitris Palyvos-Giannas ]
   * work on pgl-gui has started, but is not in a working state, yet
 
 
