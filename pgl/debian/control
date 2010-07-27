@@ -11,7 +11,7 @@ Build-Depends: debhelper (>= 7.0.50~),
                libnetfilter-queue-dev,
                libnfnetlink-dev,
                libdbus-1-dev
-Standards-Version: 3.9.0.0
+Standards-Version: 3.9.1.0
 Homepage: http://peerguardian.sourceforge.net/
 Vcs-Browser: http://peerguardian.git.sourceforge.net/
 Vcs-Git: git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
