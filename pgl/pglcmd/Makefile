@@ -36,11 +36,11 @@ all:
 	cat pglcmd.main | \
 	sed "s|^CMD_DEFAULTS=.*|CMD_DEFAULTS=\"$(LIBDIR)/pglcmd.defaults\"|" > pglcmd.main.install
 
-	for FILE in pglcmd pglcmd.wd cron.daily init ../debian/postinst if-up ; do \
+	for FILE in pglcmd pglcmd.wd cron.daily init ../debian/pglcmd.postinst if-up ; do \
 		cat $$FILE | \
 		sed "s|^CONTROL_MAIN=.*|CONTROL_MAIN=\"$(LIBDIR)/pglcmd.main\"|" > $$FILE.install ; \
 	done
-	# Not clean because the original file is changed here. The debian/postinst should be handled by the debian/rules file.
+	# Not clean because the original file is changed here. The debian/pglcmd.postinst should be handled by the debian/rules file.
 	# Just doing this here to avoid to forget this. Normally this file shouldn't change anyway.
 
 install:
@@ -64,7 +64,15 @@ install:
 	install -d $(DESTDIR)/$(BLOCKLISTS_DIR)
 
 clean:
-	rm -f *~ pglcmd.defaults.install pglcmd.main.install pglcmd.install pglcmd.wd.install cron.daily.install init.install ../debian/postinst.install if-up.install
+	rm -f *~\
+	pglcmd.defaults.install\
+	pglcmd.main.install\
+	pglcmd.install\
+	pglcmd.wd.install\
+	cron.daily.install\
+	init.install\
+	../debian/pglcmd.postinst.install\
+	if-up.install
 
 dist:
 	mkdir -p $(DISTDIR)
