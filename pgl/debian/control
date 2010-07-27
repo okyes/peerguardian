@@ -21,6 +21,8 @@ Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          iptables
+Breaks: moblock (<<2~)
+Replaces: moblock (<<2~)
 Description: PeerGuardian Linux - pgld
  pgl blocks connections from and to hosts, that are listed in a very large
  blocklist (thousands or millions of IP ranges).
