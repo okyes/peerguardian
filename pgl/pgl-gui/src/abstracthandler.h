@@ -29,7 +29,7 @@
 
 /**
  * @brief Simple class intented to be a base for all high level data handlers(log, settings etc).
- * 
+ *
  * Its main function is to set the path of the data file after checking for its validity.
  */
 
@@ -46,7 +46,7 @@ class AbstractHandler {
         ~AbstractHandler();
         /**
          * Sets the path to the data file.
-         * 
+         *
          * This function checks if the path is empty and if the file exists.
          * If any of the above is false, the function prints the appropriate error message.
          * @param path The path to the data file.
@@ -55,13 +55,13 @@ class AbstractHandler {
         void setFilePath( const QString &path, const QString &id = DEFAULT_FILE_ID );
         /**
          * Gives the path to the data file.
-         * 
+         *
          * @return A QString containing the file path or a null QString if no path was set.
          */
         QString getFilePath( const QString &id = DEFAULT_FILE_ID ) const;
         /**
          * Checks whether the required files for the specific object to work are set or not.
-         * 
+         *
          * This is a pure virtual function. It needs to be reimplemented.
          * @return True if the files are set, otherwise false.
          */

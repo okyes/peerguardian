@@ -30,8 +30,8 @@
 
 /**
  * @brief A class used to handle processes.
- * 
- * ProcessHandler creates a new QProcess and runs it. 
+ *
+ * ProcessHandler creates a new QProcess and runs it.
  * The main program does not have to wait for the process to finish its execution.
  * Moreover, the class saves and gives the output of the process when it's requested.
  */
@@ -43,7 +43,7 @@ class ProcessHandler : public QThread {
     public:
         /**
          * Default constructor.
-         * 
+         *
          * Creates an empty object.
          * @param parent The parent of this object.
          */
@@ -64,7 +64,7 @@ class ProcessHandler : public QThread {
         * @param mode The process channel modes of the command which will be executed.
         */
         void runCommand( const QString &cmd, const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels );
-        
+
     public slots:
         /**
         * Reimplementation of QThread::run().
@@ -79,7 +79,7 @@ class ProcessHandler : public QThread {
         * @param output The output of the command which was executed.
         */
         void processDataS( QString output );
-        
+
 
     private:
         QString m_Cmd;

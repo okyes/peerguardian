@@ -30,7 +30,7 @@
 
 /**
  * Sets a custom format for the debugging output produced by qDebug(), qWarning(), qCritical and qFatal().
- * 
+ *
  * This function should be installed as a message handler using qInstallMsgHandler().
  * @param type The type of the output message.
  * @param msg The message string.

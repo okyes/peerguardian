@@ -91,7 +91,7 @@ struct LogItem {
 
 /**
  * @brief LogHandler is responsible for parsing the logs created by both pgld and pglcmd.
- * 
+ *
  * After parsing the data, it stores them in a LogItem struct for easier access.
  * This class inherits from QObject in order to provide the necessary signals and slots.
  */
@@ -110,7 +110,7 @@ class LogHandler : public QObject, public AbstractHandler {
         LogHandler( const QString &regexPath, QObject *parent = 0 );
         /**
          * Alternative constructor.
-         * 
+         *
          * This constructor creates a LogHandler object and tries to set the paths for the necessary log files.
          * @param daemonPath The path to the pgld log file.
          * @param cmdPath The path to the pglcmd log file.
@@ -124,8 +124,8 @@ class LogHandler : public QObject, public AbstractHandler {
         ~LogHandler();
         /**
          * Searches for a stored LogItem with the specific destination IP.
-         * 
-         * 
+         *
+         *
          * @param destIP The destination IP of the specific log item.
          * @param type The type of the LogItem you want to find.
          * @return The LogItem with the specific properties or an empty LogItem with LogItemType = PGLG_IGNORE.
@@ -142,7 +142,7 @@ class LogHandler : public QObject, public AbstractHandler {
         LogItem getItemBySrcIP( const QString &srcIP, const LogItemType &type ) const;
         /**
          * Searches for a stored LogItem with the specific details.
-         * 
+         *
          * @param details The details string of the LogItem you want to find.
          * @return The LogItem with the specific properties or an empty LogItem with LogItemType = PGLG_IGNORE.
          */
@@ -158,7 +158,7 @@ class LogHandler : public QObject, public AbstractHandler {
         void setFilePaths( const QString &daemonPath, const QString &cmdPath );
         /**
          * Checks whether pgld and pglcmd log paths are set correctly.
-         * 
+         *
          * @return True if the file paths are set, otherwise false.
          */
         virtual bool isWorking() const;

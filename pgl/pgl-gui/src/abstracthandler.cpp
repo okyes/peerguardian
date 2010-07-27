@@ -57,10 +57,10 @@ void AbstractHandler::setFilePath( const QString &path, const QString &id ) {
 
 
     if ( path.isEmpty() ) {
-        WARN_MSG << "Could not intiallize object: Empty file path given!";
+        WARN_MSG << "Could not initialize object: Empty file path given!";
     }
     else if ( !QFile::exists( path ) ) {
-        WARN_MSG << Q_FUNC_INFO << "Could not intiallize object: File" << path << "does not exist!";
+        WARN_MSG << Q_FUNC_INFO << "Could not initialize object: File" << path << "does not exist!";
     }
     else {
         m_FilePaths.insert( id, path );
