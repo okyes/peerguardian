@@ -22,14 +22,14 @@ DISTFILES = \
 
 all:
 	cat pglcmd.defaults | \
-	sed "s|^PATH=.*|PATH=\"$(PATHS)\"|"           | \
-	sed "s|^BINDIR=.*|BINDIR=\"$(BINDIR)\"|"     | \
-	sed "s|^SBINDIR=.*|SBINDIR=\"$(SBINDIR)\"|"  | \
-	sed "s|^PIDDIR=.*|PIDDIR=\"$(PIDDIR)\"|"     | \
-	sed "s|^LOGDIR=.*|LOGDIR=\"$(LOGDIR)\"|"     | \
-	sed "s|^CONFDIR=.*|CONFDIR=\"$(CONFDIR)\"|"  | \
-	sed "s|^LIBDIR=.*|LIBDIR=\"$(LIBDIR)\"|"     | \
-	sed "s|^BLOCKLISTS_DIR=.*|BLOCKLISTS_DIR=\"$(BLOCKLISTS_DIR)\"|"                   | \
+	sed "s|^PATH=.*|PATH=\"$(PATHS)\"|" | \
+	sed "s|^BINDIR=.*|BINDIR=\"$(BINDIR)\"|" | \
+	sed "s|^SBINDIR=.*|SBINDIR=\"$(SBINDIR)\"|" | \
+	sed "s|^PIDDIR=.*|PIDDIR=\"$(PIDDIR)\"|" | \
+	sed "s|^LOGDIR=.*|LOGDIR=\"$(LOGDIR)\"|" | \
+	sed "s|^CONFDIR=.*|CONFDIR=\"$(CONFDIR)\"|" | \
+	sed "s|^LIBDIR=.*|LIBDIR=\"$(LIBDIR)\"|" | \
+	sed "s|^BLOCKLISTS_DIR=.*|BLOCKLISTS_DIR=\"$(BLOCKLISTS_DIR)\"|" | \
 	sed "s|^MASTER_BLOCKLIST_DIR=.*|MASTER_BLOCKLIST_DIR=\"$(MASTER_BLOCKLIST_DIR)\"|" | \
 	sed "s|^LSB=.*|LSB=\"$(LSB)\"|" > pglcmd.defaults.install
 
@@ -64,14 +64,14 @@ install:
 	install -d $(DESTDIR)/$(BLOCKLISTS_DIR)
 
 clean:
-	rm -f *~\
-	pglcmd.defaults.install\
-	pglcmd.main.install\
-	pglcmd.install\
-	pglcmd.wd.install\
-	cron.daily.install\
-	init.install\
-	../debian/pglcmd.postinst.install\
+	rm -f *~ \
+	pglcmd.defaults.install \
+	pglcmd.main.install \
+	pglcmd.install \
+	pglcmd.wd.install \
+	cron.daily.install \
+	init.install \
+	../debian/pglcmd.postinst.install \
 	if-up.install
 
 dist:

@@ -24,10 +24,9 @@ override_dh_clean:
 	debconf-updatepo
 	# Remove the hardlinks from debian/ directory again. See above.
 	rm -f debian/pglcmd.cron.daily \
-		debian/pglcmd.if-up \
-		debian/pglcmd.pgl.init \
-		debian/pglcmd.logrotate \
-		debian/pgld.logrotate
+	debian/pglcmd.if-up \
+	debian/pglcmd.pgl.init \
+	debian/pglcmd.logrotate
 	dh_clean
 
 override_dh_installinit:

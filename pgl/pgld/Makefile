@@ -74,7 +74,12 @@ src/dbus.so: src/dbus.o
 	$(CC) -shared -Wl `pkg-config dbus-1 --libs` -o $@ $^
 
 clean:
-	rm -rf *~ src/*.o src/*~ src/pgld src/dbus.so $(DISTDIR)
+	rm -rf *~ \
+	src/*~ \
+	src/*.o \
+	src/pgld \
+	src/dbus.so \
+	$(DISTDIR)
 
 install:
 	install -D -m 755 src/pgld $(DESTDIR)/$(SBINDIR)/pgld
