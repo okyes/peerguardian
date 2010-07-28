@@ -11,14 +11,23 @@ export DH_OPTIONS
 override_dh_auto_build:
 	# Link some files to debian/ directory until debhelper can handle such
 	# cases better. See http://bugs.debian.org/499486
+	# Just act if pglcmd package is built:
+ifneq (,$(findstring pglcmd, $(shell dh_listpackages)))
 	ln -f pglcmd/cron.daily debian/pglcmd.cron.daily
 	ln -f pglcmd/if-up debian/pglcmd.if-up
 	ln -f pglcmd/init debian/pglcmd.pgl.init
 	ln -f pglcmd/logrotate debian/pglcmd.logrotate
+endif
+	# Just act if pgld package is built:
+ifneq (,$(findstring pgld, $(shell dh_listpackages)))
 	ln -f pgld/logrotate debian/pgld.logrotate
+endif
+
 	dh_auto_build
 
 override_dh_clean:
+	# Just act if pglcmd package is built:
+ifneq (, $(findstring pglcmd, $(shell dh_listpackages)))
 	# This will guarantee that PO files are always synced with templates.
 	# This should be run on the "clean" target.
 	debconf-updatepo
@@ -27,14 +36,26 @@ override_dh_clean:
 	debian/pglcmd.if-up \
 	debian/pglcmd.pgl.init \
 	debian/pglcmd.logrotate
+endif
+	# Just act if pgld package is built:
+ifneq (,$(findstring pgld, $(shell dh_listpackages)))
+	rm -f debian/pgld.logrotate
+endif
+
 	dh_clean
 
 override_dh_installinit:
 	dh_installinit -p pglcmd --name=pgl -- start 60 2 3 4 5 . stop 20 0 1 6 .
 
 override_dh_strip:
+	# Just act if pglcmd package is built:
+ifneq (,$(findstring pglcmd, $(shell dh_listpackages)))
 	dh_strip -p pgld --dbg-package=pgld-dbg
-#	dh_strip -p pgl-gui --dbg-package=pgl-gui-dbg
+endif
+	# Just act if pgl-gui package is built:
+ifneq (,$(findstring pgl-gui, $(shell dh_listpackages)))
+	dh_strip -p pgl-gui --dbg-package=pgl-gui-dbg
+endif
 
 %:
 	dh $@
