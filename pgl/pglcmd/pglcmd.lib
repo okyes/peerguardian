@@ -620,6 +620,7 @@ test_IPTABLES_VARS () {
             # No test for WHITE_IP_IN. Valid: network name, a hostname (please note that specifying any name to be resolved with a remote query such as DNS is a really bad idea), a network IP address (with /mask), or a plain IP address.
             # No test for WHITE_IP_OUT.
             # No test for WHITE_IP_FORWARD.
+            # No test for INTERFACES.
             # No test for IP_REMOVE. Valid: all regular expressions for grep
             ;;
         '2')
@@ -999,9 +1000,23 @@ insert_iptables () {
                             IPTABLES_MARK_ACCEPT="-m mark ! --mark $ACCEPT_MARK"
                             ;;
                     esac
-                    iptables -I INPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_IN} || fail_insert_iptables
-                    iptables -I OUTPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_OUT} || fail_insert_iptables
-                    iptables -I FORWARD $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_FWD} || fail_insert_iptables
+                    # If INTERFACE is empty/not set, then set it to "all".
+                    INTERFACES=${INTERFACES:-all}
+                    # Send traffic of the specified interfaces to the pgl chains.
+                    for INTERFACE in $INTERFACES ; do
+                        if [ "$INTERFACE" = all ] ; then
+                            INTERFACE_IN=""
+                            INTERFACE_OUT=""
+                            INTERFACE_FWD=""
+                        else
+                            INTERFACE_IN="-i $INTERFACE"
+                            INTERFACE_OUT="-o $INTERFACE"
+                            INTERFACE_FWD="-i $INTERFACE -o $INTERFACE"
+                        fi
+                        iptables -I INPUT $INTERFACE_IN $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_IN} || fail_insert_iptables
+                        iptables -I OUTPUT $INTERFACE_OUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_OUT} || fail_insert_iptables
+                        iptables -I FORWARD $INTERFACE_FWD $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_FWD} || fail_insert_iptables
+                    done
                     ;;
             esac
 
@@ -1070,9 +1085,23 @@ delete_iptables () {
                     IPTABLES_MARK_ACCEPT="-m mark ! --mark $ACCEPT_MARK"
                     ;;
             esac
-            iptables -D INPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_IN} || IPTABLES_DELETE="1"
-            iptables -D OUTPUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_OUT} || IPTABLES_DELETE="1"
-            iptables -D FORWARD $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_FWD} || IPTABLES_DELETE="1"
+            # If INTERFACE is empty/not set, then set it to "all".
+            INTERFACES=${INTERFACES:-all}
+            # Remove iptables chain activation (per inerface)
+            for INTERFACE in $INTERFACES ; do
+                if [ "$INTERFACE" = all ] ; then
+                    INTERFACE_IN=""
+                    INTERFACE_OUT=""
+                    INTERFACE_FWD=""
+                else
+                    INTERFACE_IN="-i $INTERFACE"
+                    INTERFACE_OUT="-o $INTERFACE"
+                    INTERFACE_FWD="-i $INTERFACE -o $INTERFACE"
+                fi
+                iptables -D INPUT $INTERFACE_IN $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_IN} || IPTABLES_DELETE="1"
+                iptables -D OUTPUT $INTERFACE_OUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_OUT} || IPTABLES_DELETE="1"
+                iptables -D FORWARD $INTERFACE_FWD $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_FWD} || IPTABLES_DELETE="1"
+            done
         fi
 
         iptables -F ${IPTABLES_IN} || IPTABLES_DELETE="1"

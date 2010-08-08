@@ -88,6 +88,8 @@ while true ; do
         # First check if the daemon is running.
         status_of_proc $DAEMON $NAME > /dev/null 2>&1 && \
         # Then check if traffic "might" be sent to the daemon.
+        # This does neither verify all pgl iptables rules, nore their exact setting.
+        # Further it doesn't care about non-pgl iptables rules
         iptables -L INPUT -n | grep -q "${IPTABLES_IN}" && \
         iptables -L OUTPUT -n | grep -q "${IPTABLES_OUT}" && \
         iptables -L ${IPTABLES_IN} -n | grep -q "$IPTABLES_TARGET" && \

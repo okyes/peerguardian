@@ -16,36 +16,6 @@ pglcmd:
     check allow to work without complete pglcmd iptables setup. Probably issue a
     warning about that on wd startup and in the .default-
 
-  - [blocked by kernel module loading and watchdog changes]:
-    documentation or option to only work on a specific device
-================================================================================
-  First do a "pglcmd stop"!!!
-
-  Then add to /etc/pgl/pglcmd.conf:
-  IPTABLES_ACTIVATION="0"
-
-  /etc/pgl/iptables-custom-insert.sh
-  iptables -I INPUT -i [DEVICENAME] -m state --state NEW -m mark ! --mark 20
-        -j pgl_in || { log_end_msg $? ; exit $E_IPTABLES ; }
-  iptables -I OUTPUT -o [DEVICENAME] -m state --state NEW -m mark ! --mark 20
-        -j pgl_out || { log_end_msg $? ; exit $E_IPTABLES ; }
-  iptables -I FORWARD -i [DEVICENAME] -m state --state NEW -m mark ! --mark 20
-        -j pgl_fwd || { log_end_msg $? ; exit $E_IPTABLES ; }
-  iptables -I FORWARD -o [DEVICENAME] -m state --state NEW -m mark ! --mark 20
-        -j pgl_fwd || { log_end_msg $? ; exit $E_IPTABLES ; }
-
-  /etc/pgl/iptables-custom-remove.sh:
-  iptables -D INPUT -i [DEVICENAME] -m state --state NEW -m mark ! --mark 20
-        -j pgl_in
-  iptables -D OUTPUT -o [DEVICENAME] -m state --state NEW -m mark ! --mark 20
-        -j pgl_out
-  iptables -D FORWARD -i [DEVICENAME] -m state --state NEW -m mark ! --mark 20
-        -j pgl_fwd
-  iptables -D FORWARD -o [DEVICENAME] -m state --state NEW -m mark ! --mark 20
-        -j pgl_fwd
-
-================================================================================
-
   - add configuration possibility to shut off checking in specific chains
     (FORWARD). Change watchdog appropriately!
 

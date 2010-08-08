@@ -7,6 +7,7 @@ pgl 2.0.2~WIP
   * Email stats on every stop/restart (except when the system is halted). Reset
     stats in email_stats instead of just dumping them.
   * Default to use builtin LSB init-functions instead of systemwide functions
+  * added option to activate the iptables setup only for specified interfaces.
 
 -- jre <jre-phoenix@users.sourceforge.net>  WIP
 

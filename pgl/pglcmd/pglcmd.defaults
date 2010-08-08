@@ -186,6 +186,13 @@ IPTABLES_FWD="pgl_fwd"
 #     you want to.
 IPTABLES_ACTIVATION="1"
 
+# pgl can check all network interfaces or only a few of them.
+# If you want pgl to work on all interfaces set "all" or just keep it empty.
+# Otherwise specify the network interfaces (e.g. "eth0 wlan").
+# Separate several entries with whitespace (" "). Be careful: senseless values
+# are also accepted.
+INTERFACES="all"
+
 # Set what happens to matched packets (IP is in the blocklist).
 # 0 - DROP them directly (as in MoBlock 0.8).
 # 1 - MARK them. Further iptables rules decide what happens to them. E.g. this
