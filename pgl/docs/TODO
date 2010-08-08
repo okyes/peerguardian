@@ -9,6 +9,17 @@ pgld:
 
 pglcmd:
 
+  - Send traffic to several NFQUEUE nums with --queue-balance and run multiple
+    pgld instances for these nums. This might help on heavy load.
+
+    Alternatively increasing the default receive/send window seems to fix the
+    problem:
+        sysctl -w net.core.rmem_default=8388608
+        sysctl -w net.core.wmem_default=8388608
+    --
+    peerguardian-devel@lists.sourceforge.net by dogg@retroject.net - 2010-04-20
+
+
   - pglcmd.lib, kernel module loading: change this part, so that the modules are
     loaded in any case, but that the exit happens only in the given conditions.
 

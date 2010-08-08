@@ -29,7 +29,7 @@ ProcessHandler::ProcessHandler( QObject *parent ) :
     QThread( parent ) {
 
     DEBUG_MSG << "New thread created.";
-    
+
 }
 
 ProcessHandler::~ProcessHandler() {
@@ -73,7 +73,7 @@ void ProcessHandler::run() {
         WARN_MSG << "No process name set, doing nothing.";
         return;
     }
-    
+
 
     QString poutput;
 
@@ -84,7 +84,7 @@ void ProcessHandler::run() {
     proc.waitForStarted();
     proc.waitForFinished();
     proc.closeWriteChannel();
-    
+
     poutput = proc.readAll().trimmed();
 
     emit processDataS( poutput );

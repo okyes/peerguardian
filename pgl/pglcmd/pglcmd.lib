@@ -673,11 +673,13 @@ white_lan () {
         grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" )"
     for IP in $LOCAL_IPS ; do
         case $IP in
-            127.*)    # IP is a loopback IP
+            127.*)
+                # IP is a loopback IP
                 # Ignore, this is done once on start.
                 true
                 ;;
-            *)    # For all other IPs
+            *)
+                # For all other IPs
                 # Get the corresponding subnetmask
                 # Use grep -F followed by a blank to match exactly a specific IP!
                 SUBNETMASK="$(ifconfig | grep -F "inet addr:${IP} " | \

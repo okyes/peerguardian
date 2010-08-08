@@ -86,7 +86,7 @@ QString FileHandler::getLine( const int &lineNumber, const QString &commentSymbo
         WARN_MSG << "Contents of line" << lineNumber + 1 << "requested but file contains" << getSize() << "lines!";
         return QString();
     }
-    
+
     QString ln = m_FileContents[ lineNumber ];
     int place = ln.indexOf( commentSymbol );
     if ( place == 0 ) { //If the whole line is a comment
@@ -165,7 +165,7 @@ void FileHandler::appendData( const QVector< QString > &newD ) {
     m_FileContents += newD ;
 
     this->trimLines();
-    
+
 }
 
 void FileHandler::appendData( const QString &newD ) {
