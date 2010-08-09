@@ -4,13 +4,11 @@
 # TODO: check this: ifeq (0,${MAKELEVEL})
 
 CC=gcc
-CFLAGS = \
-	-Wall \
+CFLAGS+= \
 	-DVERSION=\"$(VERSION)\" \
-	-DLIBDIR=\"$(LIBDIR)\" \
 	-DPACKAGE_NAME=\"$(PKGNAME)\" \
-	-DPIDFILE=\"$(PIDDIR)/pgld.pid\"
-OPTFLAGS=-Os
+	-DPIDFILE=\"$(PIDDIR)/$(PKGNAME)d.pid\"
+
 OBJS = \
 	src/pgld.o \
 	src/stream.o \
@@ -32,13 +30,14 @@ endif
 
 ifeq ($(DBUS),yes)
 CFLAGS+=-DHAVE_DBUS `pkg-config dbus-1 --cflags` -fPIC
-#LIBS+=-ldl
+LIBS+=-ldl
 endif
 
 ifeq ($(PROFILE),yes)
 CFLAGS+=-pg
 LDFLAGS+=-pg
 endif
+
 ifeq ($(DEBUG),yes)
 CFLAGS+=-ggdb3
 LDFLAGS+=-ggdb3
@@ -68,7 +67,7 @@ endif
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 src/pgld: $(OBJS)
-	gcc -o $@ $(LDFLAGS) $^ $(LIBS)
+	$(CC) -o $@ $(LDFLAGS) $^ $(LIBS)
 
 src/dbus.so: src/dbus.o
 	$(CC) -shared -Wl `pkg-config dbus-1 --libs` -o $@ $^

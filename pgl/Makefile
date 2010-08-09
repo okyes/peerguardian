@@ -8,21 +8,24 @@ PKGNAME = pgl
 VERSION = git
 SHELL = /bin/sh
 
+# Compilation settings
+CFLAGS=-Wall
+OPTFLAGS=-Os
+
 #
-# Set which pgl modules shall be made
+# Set which pgl modules shall be built
 #
 MAKE_PGLD ?= yes
 MAKE_PGLCMD ?= yes
-# NOTE: currently only the "dist" and "clean" target is enabled for pgl-gui.
-MAKE_PGL-GUI ?= yes
-
+# NOTE: currently pgl-gui compiles, but is not usable yet.
+MAKE_PGLGUI ?= no
 
 #
 # Configuration settings
 #
 
 # Set DBUS to yes if you want to be able to use DBUS.
-DBUS ?= yes
+DBUS ?= no
 
 # Set ZLIB to yes if you want pgld to be able to load compressed blocklists.
 ZLIB ?= yes
@@ -30,10 +33,10 @@ ZLIB ?= yes
 # LOWMEM disables storing of textual range descriptions in RAM.
 # Set to yes if you are building a version for embedded devices
 # like router or NAS box.
-#LOWMEM ?= yes
+LOWMEM ?= no
 
 # Want to run gprof?
-#PROFILE ?= yes
+PROFILE ?= no
 
 # Want to use gdb on the target binary?
 DEBUG ?= yes
@@ -65,26 +68,30 @@ LOGROTATEDIR ?= /etc/logrotate.d
 LSB ?= /lib/lsb/init-functions
 
 
+# Evaluate which components are to be built
 ifeq ($(MAKE_PGLD),yes)
 MODULES_ALL+=pgld_all
 MODULES_INSTALL+=pgld_install
-MODULES_INSTALL-STRIP+=pgld_install-strip
+MODULES_INSTALLSTRIP+=pgld_install-strip
 MODULES_CLEAN+=pgld_clean
-MODULES_DIST+=pgld_dist
 endif
 ifeq ($(MAKE_PGLCMD),yes)
 MODULES_ALL+=pglcmd_all
 MODULES_INSTALL+=pglcmd_install
 MODULES_CLEAN+=pglcmd_clean
-MODULES_DIST+=pglcmd_dist
 endif
-ifeq ($(MAKE_PGL-GUI),yes)
-# MODULES_ALL+=pgl-gui_all
-# MODULES_INSTALL+=pgl-gui_install
-# MODULES_INSTALL-STRIP+=pgl-gui_install-strip
+ifeq ($(MAKE_PGLGUI),yes)
+MODULES_ALL+=pgl-gui_all
+MODULES_INSTALL+=pgl-gui_install
+MODULES_INSTALLSTRIP+=pgl-gui_install-strip
 MODULES_CLEAN+=pgl-gui_clean
-MODULES_DIST+=pgl-gui_dist
 endif
+
+# Add all modules to the dist.
+MODULES_DIST = \
+	pgld_dist \
+	pglcmd_dist \
+	pgl-gui_dist
 
 DISTDIR = $(PKGNAME)-$(VERSION)
 
@@ -132,7 +139,7 @@ all: $(MODULES_ALL)
 
 install: $(MODULES_INSTALL)
 
-install-strip: $(MODULES_INSTALL-STRIP)
+install-strip: $(MODULES_INSTALLSTRIP)
 
 clean: $(MODULES_CLEAN)
 	rm -rf *~ debian/*~ docs/*~ $(DISTDIR)
@@ -150,7 +157,7 @@ $(MODULES_ALL):
 $(MODULES_INSTALL):
 	$(MAKE) -C $(subst _install,,$@) install
 
-$(MODULES_INSTALL-STRIP):
+$(MODULES_INSTALLSTRIP):
 	$(MAKE) -C $(subst _install-strip,,$@) install-strip
 
 $(MODULES_CLEAN):
@@ -164,6 +171,6 @@ $(MODULES_DIST):
 
 .PHONY: all $(MODULES_ALL) \
 	install $(MODULES_INSTALL) \
-	install-strip $(MODULES_INSTALL-STRIP) \
+	install-strip $(MODULES_INSTALLSTRIP) \
 	clean $(MODULES_CLEAN) \
 	dist $(MODULES_DIST)

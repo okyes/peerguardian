@@ -6,6 +6,7 @@ pgl (2.0.2-1~pre1) UNRELEASED; urgency=low
     - replaced Conflicts with Breaks
     - added breaks and replaces moblock (<<2~) for pgld
     - bumped to Standards-Version 3.9.1.0
+    - disabled dbus in Build-Depends
 
  -- jre <jre-phoenix@users.sourceforge.net>  Mon, 26 Jul 2010 16:51:20 +0200
 
