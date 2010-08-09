@@ -26,8 +26,7 @@ pglcmd and the GUI pgl-gui. In the pgl/Makefile you can enable/disable these
 components and configure the paths pgl is installed to and uses. In the
 "install" stanza of the pgl/pglcmd/Makefile you can enable the init script
 activation, so that pgl starts automatically at system boot.
-Note (2010-05-18):  pgl-gui is not ready for usage, yet. Further it still uses
-cmake as build system.
+Note (2010-08-09):  pgl-gui is not ready for usage, yet.
 
 Especially for embedded devices (like router or NAS box) you might set the
 LOWMEM option to yes. This disables storing of textual range descriptions.
@@ -42,48 +41,6 @@ Once you have adjusted the Makefile to your needs issue these commands:
   cd peerguardian/pgl
   make
   make install
-
-
-Hints for the obsolete cmake build system (only required for pgl-gui):
-======================================================================
-Required packages:
-  Qt4 development files
-
-git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
-cd peerguardian
-mkdir build
-cd build
-cmake -DNOPGLD=1 -DNOPGLCMD=1 ..
-make
-make install
-
-NOTE: It is strongly recommended to make only out-of-source builds (see above).
-So don't issue the "cmake" command directly in the source - always do it in a
-separate directory as e.g. the "build" directory. If you already have issued
-"cmake" directly in the source, you have to take care to clean up the source
-from any generated files, before you can issue "cmake" in another place.
-
-Options to cmake:
--DCMAKE_INSTALL_PREFIX=/install_prefix
-    Change the install prefix from the default /usr/local
-
--DNOPGLD=1
-    Don't build pgld
-
--DNOPGLCMD=1
-    Don't build pglcmd
-
--DNOPGLGUI=1
-    Don't build pgl-gui
-
--DNODUBS=1
-    For pgld only
-    No DBus support (Auto-detect otherwise)
-
--DLOWMEM=1
-    For pgld only
-    Enable LOWMEM support for devices like routers etc
-    This disables DBus
 
 ##############################################################################
 
@@ -126,6 +83,11 @@ Build dependencies pgld:
     - libdbus development files (optional)
     - zlib development files (optional, for loading gz compressed blocklists
         directly)
+
+Build dependencies pgl-gui:
+    - libdbus development files (optional)
+    - Qt4 development files
+
 
 Runtime environment pgld:
     - the above libraries
@@ -176,7 +138,7 @@ Runtime environment pglcmd:
 Runtime environment pgl-gui:
     - pgld
     - pglcmd
-    - Qt 4
+    - Qt4
 
 ##############################################################################
 
