@@ -19,10 +19,6 @@ pglcmd:
     --
     peerguardian-devel@lists.sourceforge.net by dogg@retroject.net - 2010-04-20
 
-
-  - pglcmd.lib, kernel module loading: change this part, so that the modules are
-    loaded in any case, but that the exit happens only in the given conditions.
-
   - watchdog: separate running process check and iptables check. For iptables
     check allow to work without complete pglcmd iptables setup. Probably issue a
     warning about that on wd startup and in the .default-

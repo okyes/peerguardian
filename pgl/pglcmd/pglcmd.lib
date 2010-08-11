@@ -1264,7 +1264,7 @@ do_start () {
             # not give the specified entries in /proc/net. But once pgld was started they are there.
             case "$IPTABLES_TARGET" in
                 NFQUEUE)
-                    [ -f /proc/net/ip_tables_targets ] && grep -q NFQUEUE /proc/net/ip_tables_targets ||
+                    ( [ -f /proc/net/ip_tables_targets ] && grep -q NFQUEUE /proc/net/ip_tables_targets ) ||
                         modprobe -q xt_NFQUEUE ||
                         modprobe -q ipt_NFQUEUE || {
                         log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_NFQUEUE, not starting $NAME!"
@@ -1279,52 +1279,68 @@ do_start () {
                         }
                     ;;
             esac
-            if [ "$REJECT" = 1 ] || [ "$ACCEPT" = 1 ] ; then
-                [ -f /proc/net/ip_tables_matches ] && grep -q mark /proc/net/ip_tables_matches || \
-                    modprobe -q xt_mark || \
-                    modprobe -q ipt_mark || {
+            # xt_mark
+            ( [ -f /proc/net/ip_tables_matches ] && grep -q mark /proc/net/ip_tables_matches ) ||
+                modprobe -q xt_mark ||
+                modprobe -q ipt_mark ||
+                if [ "$REJECT" = 1 ] || [ "$ACCEPT" = 1 ] ; then
                     log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_mark, not starting $NAME!"
                     log_failure_msg "Use a kernel with netfilter MARK support or reconfigure $(basename $0)"
                     log_failure_msg "to not use the MARKing feature (options REJECT and ACCEPT)."
                     exit $E_XEXTERNAL
-                    }
-            fi
-            if [ "$IPTABLES_ACTIVATION" = 1 ] ; then
-                [ -f /proc/net/ip_tables_matches ] && grep -q state /proc/net/ip_tables_matches || \
-                    modprobe -q xt_state || \
-                    modprobe -q ipt_state || {
+                else
+                    log_warning_msg "Warning: Could not load kernel module xt_mark, continuing anyway."
+                fi
+            # xt_state
+            ( [ -f /proc/net/ip_tables_matches ] && grep -q state /proc/net/ip_tables_matches ) ||
+                modprobe -q xt_state ||
+                modprobe -q ipt_state ||
+                if [ "$IPTABLES_ACTIVATION" = 1 ] ; then
                     log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_state, not starting $NAME!"
                     log_failure_msg "Use a kernel with netfilter STATE support or reconfigure $(basename $0)"
                     log_failure_msg "to check all traffic (not only NEW) traffic (option IPTABLES_ACTIVATION)."
                     exit $E_XEXTERNAL
-                    }
-            fi
-
-            ALL_WHITE_PORTS="$WHITE_TCP_IN $WHITE_UDP_IN $WHITE_TCP_OUT $WHITE_UDP_OUT $WHITE_TCP_FORWARD $WHITE_UDP_FORWARD"
-            if [ "$IPTABLES_SETTINGS" = 1 ] && [ -n "$ALL_WHITE_PORTS" ] ; then
-                [ -f /proc/net/ip_tables_matches ] && grep -q multiport /proc/net/ip_tables_matches || \
-                    modprobe -q xt_multiport || \
-                    modprobe -q ipt_multiport || {
+                else
+                    log_warning_msg "Warning: Could not load kernel module xt_state, continuing anyway."
+                fi
+            # xt_multiport
+            ALL_WHITE_PORTS="$WHITE_TCP_IN $WHITE_UDP_IN $WHITE_TCP_OUT $WHITE_UDP_OUT $WHITE_TCP_FWD $WHITE_UDP_FWD"
+            ( [ -f /proc/net/ip_tables_matches ] && grep -q multiport /proc/net/ip_tables_matches ) ||
+                modprobe -q xt_multiport ||
+                modprobe -q ipt_multiport ||
+                if [ "$IPTABLES_SETTINGS" = 1 ] && [ -n "$ALL_WHITE_PORTS" ] ; then
                     log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_multiport, not starting $NAME!"
                     log_failure_msg "Use a kernel with netfilter MULTIPORT support or reconfigure $(basename $0)"
                     log_failure_msg "to not whitelist any ports."
                     exit $E_XEXTERNAL
-                    }
-            fi
-
-            [ -f /proc/net/ip_tables_matches ] && grep -q iprange /proc/net/ip_tables_matches || \
-                modprobe -q xt_iprange || \
+                else
+                    log_warning_msg "Warning: Could not load kernel module xt_multiport, continuing anyway."
+                fi
+            # xt_iprange
+            [ -f /proc/net/ip_tables_matches ] && grep -q iprange /proc/net/ip_tables_matches ||
+                modprobe -q xt_iprange ||
                 modprobe -q ipt_iprange || {
+                if [ -n "$ALLOW_IN" ] && [ -f "$ALLOW_IN" ] ; then
+                    log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_iprange, not starting $NAME!"
+                    log_failure_msg "Use a kernel with netfilter IPRANGE support or reconfigure $(basename $0)"
+                    log_failure_msg "to not use the allow list $ALLOW_IN."
+                    exit $E_XEXTERNAL
+                fi
+                if [ -n "$ALLOW_OUT" ] && [ -f "$ALLOW_OUT" ] ; then
+                    log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_iprange, not starting $NAME!"
+                    log_failure_msg "Use a kernel with netfilter IPRANGE support or reconfigure $(basename $0)"
+                    log_failure_msg "to not use the allow list $ALLOW_OUT."
+                    exit $E_XEXTERNAL
+                fi
+                if [ -n "$ALLOW_FW" ] && [ -f "$ALLOW_FWD" ] ; then
+                    log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_iprange, not starting $NAME!"
+                    log_failure_msg "Use a kernel with netfilter IPRANGE support or reconfigure $(basename $0)"
+                    log_failure_msg "to not use the allow list $ALLOW_FWD."
+                    exit $E_XEXTERNAL
+                fi
                 log_warning_msg "Warning: Could not load kernel module xt_iprange, continuing anyway."
-                log_warning_msg "Whitelisting IP ranges with the allow list will not work."
-                log_warning_msg "The allow list is in $ALLOW_OUT".
-                if [ -n "$ALLOW_IN" ] && [ "$ALLOW_IN" != "$ALLOW_OUT" ] ; then
-                    log_warning_msg "And in $ALLOW_IN."
-                fi
-                if [ -n "$ALLOW_FW" ] && [ "$ALLOW_FW" != "$ALLOW_OUT" ] ; then
-                    log_warning_msg "And in $ALLOW_FW."
-                fi
                 }
+
             # Assuming that iptables rules are not inserted yet since daemon was not running.
             insert_iptables
             echo -n "Starting $NAME ..."
