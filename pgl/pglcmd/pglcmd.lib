@@ -89,7 +89,7 @@ start_daemon () {
             PID="$(pidofproc $PID_OPT $exec)" || {
                 sleep 1
                 PID="$(pidofproc $exec)"
-            } && \
+            } &&
             renice -n "$nice" -p "$PID" >/dev/null 2>&1
         fi
     elif [ $pidfile ]; then
@@ -101,7 +101,7 @@ start_daemon () {
             PID="$(pidofproc -p $pidfile $exec)" || {
                 sleep 1
                 PID="$(pidofproc -p $pidfile $exec)"
-            } && \
+            } &&
             renice -n "$nice" -p "$PID" >/dev/null 2>&1
         fi
     else
@@ -113,7 +113,7 @@ start_daemon () {
             PID="$(pidofproc $exec)" || {
                 sleep 1
                 PID="$(pidofproc $exec)"
-            } && \
+            } &&
             renice -n "$nice" -p "$PID" >/dev/null 2>&1
         fi
     fi
@@ -229,22 +229,22 @@ killproc () {
     if [ ! "$is_term_sig" = yes ]; then
         if [ -n "$sig" ]; then
             #/sbin/start-stop-daemon --stop --signal "$sig" --quiet $name_param || status="$?"
-            PID="$(pidofproc $1)" && \
-            kill -s $sig $PID || \
+            PID="$(pidofproc $1)" &&
+            kill -s $sig $PID ||
             status="$?"
         else
             # TODO: unnecessary, "if [ -n "$sig" ]" is always true above, because
             # if -z "$sig" then is_term_sig=yes
             #/sbin/start-stop-daemon --stop --quiet $name_param || status="$?"
-            PID="$(pidofproc $1)" && \
-            kill $PID || \
+            PID="$(pidofproc $1)" &&
+            kill $PID ||
             status="$?"
         fi
     else
         #/sbin/start-stop-daemon --stop --quiet --oknodo $name_param || status="$?"
         # send TERM signal
-        PID="$(pidofproc $1)" && \
-        kill $PID || \
+        PID="$(pidofproc $1)" &&
+        kill $PID ||
         status="$?"
     fi
     if [ ! "$is_term_sig" = yes ] && [ ! "$status" = 0 ]; then
@@ -724,7 +724,7 @@ white_lan () {
                 # pglcmd start/restart: always whitelist LAN
                 # if-up: first check if LAN is already whitelisted.
                 echo -n "Allowing inbound LAN traffic for $IP with subnetmask $SUBNETMASK"
-                if [ "$1" = start ] || [ "$1" = restart ] || \
+                if [ "$1" = start ] || [ "$1" = restart ] ||
                 ! iptables -nv -L ${IPTABLES_IN} | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
                     iptables -I ${IPTABLES_IN} --source ${IP}/${SUBNETMASK} -j $IPTABLES_TARGET_WHITELISTING
                     RETVAL=$?
@@ -734,7 +734,7 @@ white_lan () {
                     echo ", already done."
                 fi
                 echo -n "Allowing outbound LAN traffic for $IP with subnetmask $SUBNETMASK"
-                if [ "$1" = start ] || [ "$1" = restart ] || \
+                if [ "$1" = start ] || [ "$1" = restart ] ||
                 ! iptables -nv -L ${IPTABLES_OUT} | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
                     iptables -I ${IPTABLES_OUT} --destination ${IP}/${SUBNETMASK} -j $IPTABLES_TARGET_WHITELISTING
                     RETVAL=$?
@@ -744,7 +744,7 @@ white_lan () {
                     echo ", already done."
                 fi
                 echo -n "Allowing forwarded LAN traffic for $IP with subnetmask $SUBNETMASK"
-                if [ "$1" = start ] || [ "$1" = restart ] || \
+                if [ "$1" = start ] || [ "$1" = restart ] ||
                 ! iptables -nv -L ${IPTABLES_FWD} | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
                     iptables -I ${IPTABLES_FWD} --source ${IP}/${SUBNETMASK} --destination ${IP}/${SUBNETMASK} -j $IPTABLES_TARGET_WHITELISTING
                     RETVAL=$?
@@ -771,7 +771,7 @@ white_dns () {
     # pglcmd start/restart: always whitelist DNS server
     # if-up: first check if DNS server is already whitelisted.
         echo -n "Allowing outbound traffic to DNS server $IP"
-        if [ "$1" = start ] || [ "$1" = restart ] || \
+        if [ "$1" = start ] || [ "$1" = restart ] ||
         ! iptables -nv -L ${IPTABLES_OUT} | grep -F "$IP " | grep $IPTABLES_TARGET_WHITELISTING > /dev/null 2>&1 ; then
             iptables -I ${IPTABLES_OUT} --destination $IP -j $IPTABLES_TARGET_WHITELISTING
             RETVAL=$?
@@ -781,7 +781,7 @@ white_dns () {
             echo ", already done."
         fi
         echo -n "Allowing forwarded traffic to DNS server $IP"
-        if [ "$1" = start ] || [ "$1" = restart ] || \
+        if [ "$1" = start ] || [ "$1" = restart ] ||
         ! iptables -nv -L ${IPTABLES_FWD} | grep -F $IP | grep $IPTABLES_TARGET_WHITELISTING > /dev/null 2>&1 ; then
             iptables -I ${IPTABLES_FWD} --destination $IP -j $IPTABLES_TARGET_WHITELISTING
             RETVAL=$?
@@ -851,7 +851,7 @@ fail_insert_iptables () {
 
 # Function that inserts the iptables rules
 insert_iptables () {
-    test_IPTABLES_VARS
+    # test_IPTABLES_VARS # Already tested in do_start
     case "$IPTABLES_SETTINGS" in
         '0')
             test_VERBOSITY
@@ -941,7 +941,7 @@ insert_iptables () {
                 for LINE in $ALLOW ; do
                     IPRANGE_BEGIN="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -n1)"
                     IPRANGE_END="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1)"
-                    iptables -I ${IPTABLES_FWD} -m iprange --dst-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING && \
+                    iptables -I ${IPTABLES_FWD} -m iprange --dst-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING &&
                     iptables -I ${IPTABLES_FWD} -m iprange --src-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
                         # If iptables insertion failed assume that the line is malformed.
                         # Comment this line out.
@@ -961,7 +961,7 @@ insert_iptables () {
 
                 # Insert whitelisting rules for whole loopback interface
                 echo -n "Allowing loopback traffic"
-                iptables -I ${IPTABLES_IN} -i lo -j $IPTABLES_TARGET_WHITELISTING && \
+                iptables -I ${IPTABLES_IN} -i lo -j $IPTABLES_TARGET_WHITELISTING &&
                 iptables -I ${IPTABLES_OUT} -o lo -j $IPTABLES_TARGET_WHITELISTING
                 RETVAL=$?
                 log_end_msg $RETVAL
@@ -1018,7 +1018,7 @@ insert_iptables () {
                             IPTABLES_MARK_ACCEPT="-m mark ! --mark $ACCEPT_MARK"
                             ;;
                     esac
-                    # If INTERFACE is empty/not set, then set it to "all".
+                    # If INTERFACES is empty/not set, then set it to "all".
                     INTERFACES=${INTERFACES:-all}
                     # Send traffic of the specified interfaces to the pgl chains.
                     for INTERFACE in $INTERFACES ; do
@@ -1249,9 +1249,9 @@ do_start () {
             # All blocklists in the MASTER_BLOCKLIST_DIR directory, except those which end in "~", are used by pgld.
             set_MASTER_BLOCKLISTS
             # Notify users of possible excess blocklists:
-            [ -f "$MASTER_BLOCKLIST" ] && [ -f ${MASTER_BLOCKLIST_DIR}/guarding.p2p ] && \
+            [ -f "$MASTER_BLOCKLIST" ] && [ -f ${MASTER_BLOCKLIST_DIR}/guarding.p2p ] &&
                 echo "WARNING: You are using the old ${MASTER_BLOCKLIST_DIR}/guarding.p2p which has been replaced by the new $MASTER_BLOCKLIST."
-            [ -f ${MASTER_BLOCKLIST_DIR}/guarding.p2p.backup ] && \
+            [ -f ${MASTER_BLOCKLIST_DIR}/guarding.p2p.backup ] &&
                 echo "WARNING: You are using ${MASTER_BLOCKLIST_DIR}/guarding.p2p.backup. Probably you only want to use the new $MASTER_BLOCKLIST."
             test_IPTABLES_TARGET
             test_REJECT
@@ -1264,15 +1264,15 @@ do_start () {
             # not give the specified entries in /proc/net. But once pgld was started they are there.
             case "$IPTABLES_TARGET" in
                 NFQUEUE)
-                    [ -f /proc/net/ip_tables_targets ] && grep -q NFQUEUE /proc/net/ip_tables_targets || \
-                        modprobe -q xt_NFQUEUE || \
+                    [ -f /proc/net/ip_tables_targets ] && grep -q NFQUEUE /proc/net/ip_tables_targets ||
+                        modprobe -q xt_NFQUEUE ||
                         modprobe -q ipt_NFQUEUE || {
                         log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_NFQUEUE, not starting $NAME!"
                         exit $E_XEXTERNAL
                         }
                     ;;
                 QUEUE)
-                    [ -f /proc/net/ip_queue ] || \
+                    [ -f /proc/net/ip_queue ] ||
                         modprobe -q ip_queue || {
                         log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module ip_queue, not starting $NAME!"
                         exit $E_XEXTERNAL
@@ -1466,7 +1466,7 @@ do_reload () {
         0)  # Daemon is running
             # Build blocklist if necessary to make sure pglcmd's settings are taken.
             # Force to build it, if started with force-update.
-            [ "$1" = reload ] && \
+            [ "$1" = reload ] &&
             [ -e "$MD5SUM_FILE" ] && set_md5sum && [ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ] || build_blocklist
             # TODO: Note that pgld reloads successfully even if a blocklist is missing.
             # TODO: There should be a check to see whether all blocklists pgld was started with, are available.
@@ -1495,7 +1495,7 @@ do_reload () {
 set_LISTS_URL () {
     if [ -f "$BLOCKLISTS_LIST" ] ; then
         LISTS_URL="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $BLOCKLISTS_LIST | sed "s|#.*$||g")"
-        [ $? -eq 0 ] || \
+        [ $? -eq 0 ] ||
             { log_failure_msg "Error: set_LISTS_URL exited with $?" ; exit 1 ; }
     else
         LISTS_URL=""
@@ -1965,16 +1965,16 @@ get_blocklist () {
 
     # Assuming remote blocklists (supported through wget) for all blocklists in blocklists.list:
     # Create necessary directories if missing:
-    [ -d "$BLOCKLIST_DIR/download" ] || \
-        mkdir -p "$BLOCKLIST_DIR/download" || \
+    [ -d "$BLOCKLIST_DIR/download" ] ||
+        mkdir -p "$BLOCKLIST_DIR/download" ||
         { log_failure_msg " Error: mkdir -p exited with $?" ; exit 1 ; }
 
-    cd "$BLOCKLIST_DIR/download" || \
+    cd "$BLOCKLIST_DIR/download" ||
         { log_failure_msg " Error: cd exited with $?" ; exit 1 ; }
 
     # Create necessary directories if missing:
-    [ -d "$(dirname $BLOCKLIST_DOWNLOADED)" ] || \
-        mkdir -p "$(dirname $BLOCKLIST_DOWNLOADED)" || \
+    [ -d "$(dirname $BLOCKLIST_DOWNLOADED)" ] ||
+        mkdir -p "$(dirname $BLOCKLIST_DOWNLOADED)" ||
         { log_failure_msg "Error: mkdir -p exited with $?" ; exit 1 ; }
 
     # Download blocklists with timestamping. If this fails remove
@@ -1983,10 +1983,10 @@ get_blocklist () {
     test_external wget || exit $E_XEXTERNAL
     # If 7z is not available, change user agent to pglcmd_x7z,
     # so that iblocklist.com knows we are not capable of 7z.
-    test_external 7zr > /dev/null 2>&1 || \
-        test_external 7za > /dev/null 2>&1 || \
-        test_external 7z > /dev/null 2>&1 || \
-        test_external p7zip > /dev/null 2>&1 || \
+    test_external 7zr > /dev/null 2>&1 ||
+        test_external 7za > /dev/null 2>&1 ||
+        test_external 7z > /dev/null 2>&1 ||
+        test_external p7zip > /dev/null 2>&1 ||
         WGET_OPTS="$(echo $WGET_OPTS | \
             sed "s|--user-agent=${CMD_NAME}/${VERSION}|--user-agent=${CMD_NAME}_x7z/${VERSION}|")"
     $WGET_OPTS -N "$LIST_URL"
@@ -1996,12 +1996,12 @@ get_blocklist () {
             ;;
         403)
             echo -n "... Access denied!"
-            rm -Rf $BLOCKLIST_DIR/download/* || \
+            rm -Rf $BLOCKLIST_DIR/download/* ||
                 { log_failure_msg " Error: rm exited with $?" ; exit 1; }
             ;;
         *)
             echo -n "... failed!"
-            rm -Rf $BLOCKLIST_DIR/download/* || \
+            rm -Rf $BLOCKLIST_DIR/download/* ||
                 { log_failure_msg " Error: rm exited with $?" ; exit 1; }
             echo -n " Trying without timestamping ..."
             $WGET_OPTS "$LIST_URL"
@@ -2013,7 +2013,7 @@ get_blocklist () {
     # Take the newest file, in case there are several files in the folder.
     # There may be several files from different URLs for the same LIST_NAME
     # If the directory is empty the variable will stay empty, too.
-    ls $BLOCKLIST_DIR/download/* > /dev/null 2>&1 && \
+    ls $BLOCKLIST_DIR/download/* > /dev/null 2>&1 &&
         BLOCKLIST_DOWNLOAD="$BLOCKLIST_DIR/download/$(ls -1t $BLOCKLIST_DIR/download/ | head -n 1)"
 
     # Download was not successful, access forbidden
@@ -2048,17 +2048,17 @@ get_blocklist () {
         exit 1
     # Download was successful, old blocklist is not available or older than the new one:
     elif ( [ ! -f "$BLOCKLIST_DOWNLOADED" ] || [ "$BLOCKLIST_DOWNLOAD" -nt "$BLOCKLIST_DOWNLOADED" ] ) ; then
-        cp -f --preserve=timestamps $BLOCKLIST_DOWNLOAD $BLOCKLIST_DOWNLOADED && \
-            echo "done." || \
+        cp -f --preserve=timestamps $BLOCKLIST_DOWNLOAD $BLOCKLIST_DOWNLOADED &&
+            echo "done." ||
             { log_failure_msg " Error: cp exited with $?"; exit 1; }
-        [ -f "$BLOCKLIST_DOWNLOADED" ] && \
-            UPDATE_SUCCESS="$UPDATE_SUCCESS $LIST_NAME (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));" || \
+        [ -f "$BLOCKLIST_DOWNLOADED" ] &&
+            UPDATE_SUCCESS="$UPDATE_SUCCESS $LIST_NAME (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));" ||
             { log_failure_msg " Error: $LIST_URL exists, but $BLOCKLIST_DOWNLOADED doesn't exist! Strange, aborting!" ; exit 1 ; }
     # Download was successful, blocklist is not newer than the old one:
     else
         echo ". No update available."
-        [ -f "$BLOCKLIST_DOWNLOADED" ] && \
-            UPDATE_SUCCESS_NA="$UPDATE_SUCCESS_NA $LIST_NAME (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));" || \
+        [ -f "$BLOCKLIST_DOWNLOADED" ] &&
+            UPDATE_SUCCESS_NA="$UPDATE_SUCCESS_NA $LIST_NAME (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));" ||
             { log_failure_msg " Error: $LIST_URL exists, but $BLOCKLIST_DOWNLOADED doesn't exist! Strange, aborting!" ; exit 1 ; }
     fi
 
@@ -2066,8 +2066,8 @@ get_blocklist () {
     echo -n "Extracting $LIST_NAME, "
 
     # Create necessary directories if missing:
-    [ -d "$(dirname $BLOCKLIST_EXTRACTED)" ] || \
-        mkdir -p "$(dirname $BLOCKLIST_EXTRACTED)" || \
+    [ -d "$(dirname $BLOCKLIST_EXTRACTED)" ] ||
+        mkdir -p "$(dirname $BLOCKLIST_EXTRACTED)" ||
         { log_failure_msg " Error: mkdir -p exited with $?" ; exit 1 ; }
 
     # This should not happen, just for debugging:
@@ -2089,16 +2089,16 @@ get_blocklist () {
         # 7z packed file
         "$(/usr/bin/printf '\x37\x7A\xBC\xAF\x27\x1C')")
             echo -n "detected 7z... "
-            { test_external 7zr && EXTRACT_CMD='7zr x "$BLOCKLIST_DOWNLOADED" -so > "${BLOCKLIST_EXTRACTED}.tmp" 2>/dev/null' ; } || \
-            { test_external 7za && EXTRACT_CMD='7za x "$BLOCKLIST_DOWNLOADED" -so > "${BLOCKLIST_EXTRACTED}.tmp" 2>/dev/null' ; } || \
-            { test_external 7z && EXTRACT_CMD='7z x "$BLOCKLIST_DOWNLOADED" -so > "${BLOCKLIST_EXTRACTED}.tmp" 2>/dev/null' ; } || \
-            { test_external p7zip && EXTRACT_CMD="p7zip -d < $BLOCKLIST_DOWNLOADED > ${BLOCKLIST_EXTRACTED}.tmp" ; } || \
+            { test_external 7zr && EXTRACT_CMD='7zr x "$BLOCKLIST_DOWNLOADED" -so > "${BLOCKLIST_EXTRACTED}.tmp" 2>/dev/null' ; } ||
+            { test_external 7za && EXTRACT_CMD='7za x "$BLOCKLIST_DOWNLOADED" -so > "${BLOCKLIST_EXTRACTED}.tmp" 2>/dev/null' ; } ||
+            { test_external 7z && EXTRACT_CMD='7z x "$BLOCKLIST_DOWNLOADED" -so > "${BLOCKLIST_EXTRACTED}.tmp" 2>/dev/null' ; } ||
+            { test_external p7zip && EXTRACT_CMD="p7zip -d < $BLOCKLIST_DOWNLOADED > ${BLOCKLIST_EXTRACTED}.tmp" ; } ||
                 exit $E_XEXTERNAL
             eval $EXTRACT_CMD || {
                 log_failure_msg "Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
                 log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
                 log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
-                rm "$BLOCKLIST_DOWNLOADED" || \
+                rm "$BLOCKLIST_DOWNLOADED" ||
                     { log_failure_msg "Error: rm exited with $?" ; exit 1 ; }
                 exit $E_BLOCKLIST
                 }
@@ -2110,7 +2110,7 @@ get_blocklist () {
                 log_failure_msg "Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
                 log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
                 log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
-                rm "$BLOCKLIST_DOWNLOADED" || \
+                rm "$BLOCKLIST_DOWNLOADED" ||
                     { log_failure_msg "Error: rm exited with $?" ; exit 1 ; }
                 exit $E_BLOCKLIST
                 }
@@ -2123,7 +2123,7 @@ get_blocklist () {
                 log_failure_msg "Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
                 log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
                 log_failure_msg "Check your configuration in $BLOCKLISTS_LIST and try a new \"$(basename $0) update\"."
-                rm "$BLOCKLIST_DOWNLOADED" || \
+                rm "$BLOCKLIST_DOWNLOADED" ||
                     { log_failure_msg "Error: rm exited with $?" ; exit 1 ; }
                 exit $E_BLOCKLIST
                 }
@@ -2131,14 +2131,14 @@ get_blocklist () {
         # Assuming non-packed otherwise:
         *)
             echo -n "not packed... "
-            ln -fs $BLOCKLIST_DOWNLOADED ${BLOCKLIST_EXTRACTED}.tmp || \
+            ln -fs $BLOCKLIST_DOWNLOADED ${BLOCKLIST_EXTRACTED}.tmp ||
                 { log_failure_msg " Error: ln exited with $?"; exit 1; }
             ;;
     esac
     # Count the lines in the list
     LIST_LINES="$( wc -l ${BLOCKLIST_EXTRACTED}.tmp | sed "s|${BLOCKLIST_EXTRACTED}.tmp||")"
     if [ "$LIST_LINES" -gt 0 ] ; then
-        mv -f "${BLOCKLIST_EXTRACTED}.tmp" "${BLOCKLIST_EXTRACTED}" || \
+        mv -f "${BLOCKLIST_EXTRACTED}.tmp" "${BLOCKLIST_EXTRACTED}" ||
             { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
         echo "done."
     else
@@ -2192,7 +2192,7 @@ build_blocklist () {
     # Move master blocklist to backup position. This way it is also removed,
     # in case the configuartion changed in that way, that no blocklists are
     # configured for the automatic blocklist management.
-    [ -f "$MASTER_BLOCKLIST" ] && \
+    [ -f "$MASTER_BLOCKLIST" ] &&
         mv $MASTER_BLOCKLIST ${MASTER_BLOCKLIST}~
 
     # Read the non-comment|not-empty lines from BLOCKLISTS_LIST.
@@ -2223,8 +2223,8 @@ build_blocklist () {
 
         # Remove the old MD5SUM file now, so that if anything goes wrong,
         # it's clear we have to rebuild the blocklist:
-        [ -e "$MD5SUM_FILE" ] && \
-            { rm "$MD5SUM_FILE" || \
+        [ -e "$MD5SUM_FILE" ] &&
+            { rm "$MD5SUM_FILE" ||
             { log_failure_msg " Error: rm exited with $?" ; exit 1; } ; }
 
         for LIST in $LISTS_URL ; do
@@ -2235,7 +2235,7 @@ build_blocklist () {
             BLOCKLIST_EXTRACTED="$BLOCKLISTS_DIR/$LIST_NAME_FIX/extracted/$LIST_NAME_FIX"
 
             # Test if list is available:
-            [ -f "$BLOCKLIST_EXTRACTED" ] || \
+            [ -f "$BLOCKLIST_EXTRACTED" ] ||
                 get_blocklist || {
                 log_failure_msg "Error $E_BLOCKLIST: $LIST_NAME not available."
                 log_failure_msg "Check the entry $LIST"
@@ -2300,13 +2300,13 @@ build_blocklist () {
                 $DAEMON -m > $MASTER_BLOCKLIST && BUILT=1
             fi
 
-            [ "$BUILT" -eq 1 ] && \
-                log_end_msg 0 || \
+            [ "$BUILT" -eq 1 ] &&
+                log_end_msg 0 ||
                     {
                         log_failure_msg "Error: build_blocklist failed."
                         if [ -f ${MASTER_BLOCKLIST}~ ] ; then
                             echo -n "Restoring $MASTER_BLOCKLIST ..."
-                            mv ${MASTER_BLOCKLIST}~ $MASTER_BLOCKLIST || \
+                            mv ${MASTER_BLOCKLIST}~ $MASTER_BLOCKLIST ||
                                 { log_failure_msg " Error: mv exited with $?" ; exit 1 ; }
                             log_end_msg 0
                         else

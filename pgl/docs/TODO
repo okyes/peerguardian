@@ -38,6 +38,7 @@ pglcmd:
   - send error messages to console (STDERR 1>&2) and logfile. [João]
     Completely rework the logging part, and check if all messages go where they
     should.
+    Add dbus support.
 
   - fix debconf to use debian/config again.
     This stuff is currently in postinst, because otherwise debconf doesn't work
@@ -47,8 +48,6 @@ pglcmd:
     Further the debconf database is not cleared properly on purge.
 
   - expand test to use traceroute (with a timeout)
-
-  - build_blocklist: disable concatenating blocklists in .p2b (binary) format.
 
   - adapt test function for peerguardian .p2b v2 binary format blocklist
     formats.
