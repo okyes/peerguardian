@@ -6,6 +6,9 @@ pgld:
 
   - use a real allowlist (instead of the iptables whitelisting)
 
+  - add search option that gives all single blocklists (not master blocklist)
+    with the range and description that contain a specified IP.
+
 
 pglcmd:
 

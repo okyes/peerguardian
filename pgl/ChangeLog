@@ -15,7 +15,8 @@ pgl 2.0.2~WIP
     values are used.
   * pglcmd.lib, kernel module loading: check if kernel support is available or
     try to load kernel modules in any case. If this fails, but the kernel
-    support is needed for a given configuration, exit.
+    support is needed for a given configuration, exit. Fixed check for kernel
+    support.
 
 -- jre <jre-phoenix@users.sourceforge.net>  WIP
 
