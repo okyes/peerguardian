@@ -617,13 +617,15 @@ test_IPTABLES_VARS () {
             # No test for WHITE_UDP_OUT.
             # No test for WHITE_TCP_FWD.
             # Transition WHITE_TCP_FORWARD WHITE_TCP_FWD.
-            [ -n "$WHITE_TCP_FORWARD" ] || {
+            # If old var is not-empty, but new var is empty, then take old value.
+            [ -z "$WHITE_TCP_FORWARD" ] || {
                 WHITE_TCP_FWD=${WHITE_TCP_FWD:-${WHITE_TCP_FORWARD}}
                 log_warning_msg "WHITE_TCP_FORWARD is deprecated. Use WHITE_TCP_FWD instead."
                 }
             # No test for WHITE_UDP_FWD.
             # Transition WHITE_UDP_FORWARD WHITE_UDP_FWD.
-            [ -n "$WHITE_UDP_FORWARD" ] || {
+            # If old var is not-empty, but new var is empty, then take old value.
+            [ -z "$WHITE_UDP_FORWARD" ] || {
                 WHITE_UDP_FWD=${WHITE_UDP_FWD:-${WHITE_UDP_FORWARD}}
                 log_warning_msg "WHITE_UDP_FORWARD is deprecated. Use WHITE_UDP_FWD instead."
                 }
@@ -631,9 +633,10 @@ test_IPTABLES_VARS () {
             # No test for WHITE_IP_OUT.
             # No test for WHITE_IP_FWD.
             # Transition WHITE_IP_FORWARD WHITE_IP_FWD.
-            [ -n "$WHITE_IP_FORWARD" ] || {
+            # If old var is not-empty, but new var is empty, then take old value.
+            [ -z "$WHITE_IP_FORWARD" ] || {
                 WHITE_IP_FWD=${WHITE_IP_FWD:-${WHITE_IP_FORWARD}}
-                log_warning_msg "$WHITE_IP_FORWARD is deprecated. Use WHITE_IP_FWD instead."
+                log_warning_msg "WHITE_IP_FORWARD is deprecated. Use WHITE_IP_FWD instead."
                 }
 
             # No test for INTERFACES.
