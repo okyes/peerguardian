@@ -10,6 +10,8 @@ pgl 2.0.2~WIP
   * added option to activate the iptables setup only for specified interfaces.
   * added pgl-gui to common GNU Makefile buildsystem, removed cmake relicts
   * Makefile: removed "-" from variable names, because this sometimes causes problems.
+  * Renamed ..._FORWARD variables to ..._FWD. If only the old name is used, its
+    values are used.
 
 -- jre <jre-phoenix@users.sourceforge.net>  WIP
 

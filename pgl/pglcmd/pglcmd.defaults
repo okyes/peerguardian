@@ -257,8 +257,8 @@ WHITE_TCP_IN=""
 WHITE_UDP_IN=""
 WHITE_TCP_OUT=""
 WHITE_UDP_OUT=""
-WHITE_TCP_FORWARD=""
-WHITE_UDP_FORWARD=""
+WHITE_TCP_FWD=""
+WHITE_UDP_FWD=""
 # This is an example to whitelist outgoing web traffic:
 # WHITE_TCP_OUT="http https"
 # This is an example to whitelist the port range 1000-1024:
@@ -286,7 +286,7 @@ WHITE_UDP_FORWARD=""
 
 WHITE_IP_IN=""
 WHITE_IP_OUT=""
-WHITE_IP_FORWARD=""
+WHITE_IP_FWD=""
 
 ###################### Remove lines from the blocklist ########################
 

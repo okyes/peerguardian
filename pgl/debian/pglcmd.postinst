@@ -100,8 +100,8 @@ VARIABLES="
     WHITE_UDP_OUT
     WHITE_TCP_IN
     WHITE_UDP_IN
-    WHITE_TCP_FORWARD
-    WHITE_UDP_FORWARD
+    WHITE_TCP_FWD
+    WHITE_UDP_FWD
     IP_REMOVE"
 
 # Known lists
@@ -380,8 +380,8 @@ while true ; do
             db_input high pglcmd/WHITE_UDP_OUT || true
             db_input high pglcmd/WHITE_TCP_IN || true
             db_input high pglcmd/WHITE_UDP_IN || true
-            db_input high pglcmd/WHITE_TCP_FORWARD || true
-            db_input high pglcmd/WHITE_UDP_FORWARD || true
+            db_input high pglcmd/WHITE_TCP_FWD || true
+            db_input high pglcmd/WHITE_UDP_FWD || true
         fi
         ;;
     '14')
@@ -838,29 +838,29 @@ else    # Default
     fi
 fi
 
-my_db_get WHITE_TCP_FORWARD
+my_db_get WHITE_TCP_FWD
 if [ -n "$RET" ] ; then
     if [ "$CONFFILE" = "$CMD_CONF" ] ; then
-        sed -i -r "s|^[[:space:]]*WHITE_TCP_FORWARD=.*|WHITE_TCP_FORWARD=\"$RET\"|" $CMD_CONF
+        sed -i -r "s|^[[:space:]]*WHITE_TCP_FWD=.*|WHITE_TCP_FWD=\"$RET\"|" $CMD_CONF
     else
-        echo "WHITE_TCP_FORWARD=\"$RET\"" >> $CMD_CONF
+        echo "WHITE_TCP_FWD=\"$RET\"" >> $CMD_CONF
     fi
 else    # Default
     if [ "$CONFFILE" = "$CMD_CONF" ] ; then
-        sed -i -r "s|^[[:space:]]*WHITE_TCP_FORWARD=.*|WHITE_TCP_FORWARD=\"$RET\"|" $CMD_CONF
+        sed -i -r "s|^[[:space:]]*WHITE_TCP_FWD=.*|WHITE_TCP_FWD=\"$RET\"|" $CMD_CONF
     fi
 fi
 
-my_db_get WHITE_UDP_FORWARD
+my_db_get WHITE_UDP_FWD
 if [ -n "$RET" ] ; then
     if [ "$CONFFILE" = "$CMD_CONF" ] ; then
-        sed -i -r "s|^[[:space:]]*WHITE_UDP_FORWARD=.*|WHITE_UDP_FORWARD=\"$RET\"|" $CMD_CONF
+        sed -i -r "s|^[[:space:]]*WHITE_UDP_FWD=.*|WHITE_UDP_FWD=\"$RET\"|" $CMD_CONF
     else
-        echo "WHITE_UDP_FORWARD=\"$RET\"" >> $CMD_CONF
+        echo "WHITE_UDP_FWD=\"$RET\"" >> $CMD_CONF
     fi
 else    # Default
     if [ "$CONFFILE" = "$CMD_CONF" ] ; then
-        sed -i -r "s|^[[:space:]]*WHITE_UDP_FORWARD=.*|WHITE_UDP_FORWARD=\"$RET\"|" $CMD_CONF
+        sed -i -r "s|^[[:space:]]*WHITE_UDP_FWD=.*|WHITE_UDP_FWD=\"$RET\"|" $CMD_CONF
     fi
 fi
 

@@ -315,11 +315,11 @@ _Description: Whitelist incoming UDP ports:
  Separate multiple entries with whitespace (" "). Be careful: senseless values
  are also accepted.
 
-Template: pglcmd/WHITE_TCP_FORWARD
+Template: pglcmd/WHITE_TCP_FWD
 Type: string
 Default:
 _Description: Whitelist forwarded TCP ports:
- Configuration variable: WHITE_TCP_FORWARD
+ Configuration variable: WHITE_TCP_FWD
  .
  Whitelist ports by port number or with the associated service name. Port ranges
  are specified in the format "port:port". A port range (port:port) counts as two
@@ -328,11 +328,11 @@ _Description: Whitelist forwarded TCP ports:
  Separate multiple entries with whitespace (" "). Be careful: senseless values
  are also accepted.
 
-Template: pglcmd/WHITE_UDP_FORWARD
+Template: pglcmd/WHITE_UDP_FWD
 Type: string
 Default:
 _Description: Whitelist forwarded UDP ports:
- Configuration variable: WHITE_UDP_FORWARD
+ Configuration variable: WHITE_UDP_FWD
  .
  Whitelist ports by port number or with the associated service name. Port ranges
  are specified in the format "port:port". A port range (port:port) counts as two
