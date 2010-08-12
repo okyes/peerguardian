@@ -8,10 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: pgl@packages.debian.org\n"
-"POT-Creation-Date: 2010-06-22 13:23+0200\n"
+"POT-Creation-Date: 2010-08-12 10:06+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -473,7 +474,7 @@ msgstr ""
 #. Type: select
 #. Description
 #: ../pglcmd.templates:16001
-msgid "Configuration variable: REJECT_FW"
+msgid "Configuration variable: REJECT_FWD"
 msgstr ""
 
 #. Type: boolean
@@ -655,7 +656,7 @@ msgstr ""
 #. Type: string
 #. Description
 #: ../pglcmd.templates:23001
-msgid "Configuration variable: WHITE_TCP_FORWARD"
+msgid "Configuration variable: WHITE_TCP_FWD"
 msgstr ""
 
 #. Type: string
@@ -667,7 +668,7 @@ msgstr ""
 #. Type: string
 #. Description
 #: ../pglcmd.templates:24001
-msgid "Configuration variable: WHITE_UDP_FORWARD"
+msgid "Configuration variable: WHITE_UDP_FWD"
 msgstr ""
 
 #. Type: select

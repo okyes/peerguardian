@@ -11,8 +11,8 @@ pgl 2.0.2~WIP
   * added pgl-gui to common GNU Makefile buildsystem, removed cmake relicts
   * Makefile: removed "-" from variable names, because this sometimes causes
     problems.
-  * Renamed ..._FORWARD variables to ..._FWD. If only the old name is used, its
-    values are used.
+  * Renamed ..._FORWARD/_FW variables to ..._FWD. For a transition period use
+    value of old var, if the old name is used, but the new one not yet.
   * pglcmd.lib, kernel module loading: check if kernel support is available or
     try to load kernel modules in any case. If this fails, but the kernel
     support is needed for a given configuration, exit. Fixed check for kernel

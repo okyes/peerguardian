@@ -212,12 +212,12 @@ _Description: Set the iptables target for "marked block" outgoing packets:
  .
  Be careful: senseless values are also accepted.
 
-Template: pglcmd/REJECT_FW
+Template: pglcmd/REJECT_FWD
 Type: select
 Choices: REJECT, DROP, Do not touch my settings. Use the current custom value instead.
 Default: DROP
 _Description: Set the iptables target for "marked block" forwarded packets:
- Configuration variable: REJECT_FW
+ Configuration variable: REJECT_FWD
  .
  REJECT: The sender of the packet is notified that the packet was blocked.
  .

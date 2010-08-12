@@ -513,7 +513,13 @@ test_REJECT () {
             # No test for REJECT_MARK, yet
             # No test for REJECT_IN. Valid: all iptables targets
             # No test for REJECT_OUT. Valid: all iptables targets
-            # No test for REJECT_FW. Valid: all iptables targets
+            # No test for REJECT_FWD. Valid: all iptables targets
+            # Transition REJECT_FW REJECT_FWD.
+            # If old var is not-empty, but new var is empty, then take old value.
+            [ -z "$REJECT_FW" ] || {
+                REJECT_FWD=${REJECT_FWD:-${REJECT_FWD}}
+                log_warning_msg "REJECT_FW is deprecated. Use REJECT_FWD instead."
+                }
             true
             ;;
         *)
@@ -939,8 +945,8 @@ insert_iptables () {
                         }
                 done
             fi
-            if [ -f "$ALLOW_FW" ] ; then
-                ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOW_FW)"    # Read the non-comment|not-empty lines from $ALLOW_FW
+            if [ -f "$ALLOW_FWD" ] ; then
+                ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOW_FWD)"    # Read the non-comment|not-empty lines from $ALLOW_FWD
                 for LINE in $ALLOW ; do
                     IPRANGE_BEGIN="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -n1)"
                     IPRANGE_END="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1)"
@@ -948,8 +954,8 @@ insert_iptables () {
                     iptables -I ${IPTABLES_FWD} -m iprange --src-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
                         # If iptables insertion failed assume that the line is malformed.
                         # Comment this line out.
-                        sed -i "s|^$LINE$|# Malformed line commented out by $(basename $0): &|" $ALLOW_FW
-                        log_failure_msg "Commented out malformed line \"$LINE\" in $ALLOW_FW."
+                        sed -i "s|^$LINE$|# Malformed line commented out by $(basename $0): &|" $ALLOW_FWD
+                        log_failure_msg "Commented out malformed line \"$LINE\" in $ALLOW_FWD."
                         }
                 done
             fi
@@ -981,7 +987,7 @@ insert_iptables () {
             if [ "$REJECT" -eq 1 ] ; then
                 iptables -I ${IPTABLES_IN} -m mark --mark $REJECT_MARK -j $REJECT_IN || fail_insert_iptables
                 iptables -I ${IPTABLES_OUT} -m mark --mark $REJECT_MARK -j $REJECT_OUT || fail_insert_iptables
-                iptables -I ${IPTABLES_FWD} -m mark --mark $REJECT_MARK -j $REJECT_FW || fail_insert_iptables
+                iptables -I ${IPTABLES_FWD} -m mark --mark $REJECT_MARK -j $REJECT_FWD || fail_insert_iptables
                 # Log "Marked block" packages: The log-iptables-rules should be
                 # placed directly before the block-iptables-rules (i.e. Insert them
                 # directly after them)
@@ -1335,7 +1341,7 @@ do_start () {
                     log_failure_msg "to not use the allow list $ALLOW_OUT."
                     exit $E_XEXTERNAL
                 fi
-                if [ -n "$ALLOW_FW" ] && [ -f "$ALLOW_FWD" ] ; then
+                if [ -n "$ALLOW_FWD" ] && [ -f "$ALLOW_FWD" ] ; then
                     log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_iprange, not starting $NAME!"
                     log_failure_msg "Use a kernel with netfilter IPRANGE support or reconfigure $(basename $0)"
                     log_failure_msg "to not use the allow list $ALLOW_FWD."

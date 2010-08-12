@@ -71,7 +71,7 @@ ALLOW_OUT="${CONFDIR}/allow.p2p"
 # The path to the allow list for forwarded connections.
 # WARNING: Don't add your own IP / LAN to the forward allow list or pgl will not
 # work at all for FORWARD.
-ALLOW_FW=""
+ALLOW_FWD=""
 
 # The directory of the custom iptables scripts.
 # All files in this directory, that end in insert.sh/remove.sh will be executed
@@ -212,7 +212,7 @@ REJECT_MARK="10"
 # DROP: The sender of the packet is not notified that the packet was blocked.
 REJECT_IN="DROP"
 REJECT_OUT="REJECT"
-REJECT_FW="DROP"
+REJECT_FWD="DROP"
 
 # Set what happens to non-matched packets (IP is not in the blocklist).
 # 0 - ACCEPT them directly (as in MoBlock 0.8)
@@ -269,7 +269,7 @@ WHITE_UDP_FWD=""
 # Possibility 1:
 # You can specify IP ranges that shall not be checked by MoBlock in a separate
 # file. Per default this is /etc/pgl/allow.p2p. Change the
-# ALLOW_[IN|OUT|FW] variables if you want to use different allow lists for
+# ALLOW_[IN|OUT|FWD] variables if you want to use different allow lists for
 # incoming, outgoing and forwarded traffic.
 
 # Possibility 2:

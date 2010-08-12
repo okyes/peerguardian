@@ -93,7 +93,7 @@ VARIABLES="
     REJECT
     REJECT_IN
     REJECT_OUT
-    REJECT_FW
+    REJECT_FWD
     ACCEPT
     WHITE_LOCAL
     WHITE_TCP_OUT
@@ -214,7 +214,7 @@ for VAR in $VARIABLES ; do
             esac
             ;;
 
-        'REJECT_IN'|'REJECT_OUT'|'REJECT_FW')
+        'REJECT_IN'|'REJECT_OUT'|'REJECT_FWD')
             case "$VALUE" in
                 'DROP'|'REJECT')
                     db_set pglcmd/$VAR "$VALUE"
@@ -357,7 +357,7 @@ while true ; do
             if [ "$RET" = true ] ; then
                 db_input low pglcmd/REJECT_IN || true
                 db_input low pglcmd/REJECT_OUT || true
-                db_input low pglcmd/REJECT_FW || true
+                db_input low pglcmd/REJECT_FWD || true
             fi
         fi
         ;;
@@ -751,18 +751,18 @@ case "$RET" in
         ;;
 esac
 
-my_db_get REJECT_FW
+my_db_get REJECT_FWD
 case "$RET" in
     'DROP') # Default
         if [ "$CONFFILE" = "$CMD_CONF" ] ; then
-            sed -i -r "s|^[[:space:]]*REJECT_FW=.*|REJECT_FW=\"$RET\"|" $CMD_CONF
+            sed -i -r "s|^[[:space:]]*REJECT_FWD=.*|REJECT_FWD=\"$RET\"|" $CMD_CONF
         fi
         ;;
     'REJECT')
         if [ "$CONFFILE" = "$CMD_CONF" ] ; then
-            sed -i -r "s|^[[:space:]]*REJECT_FW=.*|REJECT_FW=\"$RET\"|" $CMD_CONF
+            sed -i -r "s|^[[:space:]]*REJECT_FWD=.*|REJECT_FWD=\"$RET\"|" $CMD_CONF
         else
-            echo "REJECT_FW=\"$RET\"" >> $CMD_CONF
+            echo "REJECT_FWD=\"$RET\"" >> $CMD_CONF
         fi
         ;;
     'Do not touch my settings. Use the current custom value instead.')
@@ -910,9 +910,9 @@ db_get pglcmd/allowlist
         echo "" >> "$ALLOW_IN"  # add newline first in case the current file lacks one!
         echo $RET >> "$ALLOW_IN"
     fi
-    if [ -n "$ALLOW_FW" ] && [ "$ALLOW_FW" != "$ALLOW_OUT" ] ; then
-        echo "" >> "$ALLOW_FW"  # add newline first in case the current file lacks one!
-        echo $RET >> "$ALLOW_FW"
+    if [ -n "$ALLOW_FWD" ] && [ "$ALLOW_FWD" != "$ALLOW_OUT" ] ; then
+        echo "" >> "$ALLOW_FWD"  # add newline first in case the current file lacks one!
+        echo $RET >> "$ALLOW_FWD"
     fi
 }
 
