@@ -2,11 +2,12 @@
 # -*- makefile -*-
 # debian/rules that uses debhelper
 
-# Uncomment this to turn on verbose mode. (from debhelper sample file)
+# Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-# This has to be exported to make some magic below work. (from debhelper sample file)
-export DH_OPTIONS
+%:
+	dh $@
+
 
 override_dh_auto_build:
 	# Link some files to debian/ directory until debhelper can handle such
@@ -56,6 +57,3 @@ endif
 ifneq (,$(findstring pgl-gui, $(shell dh_listpackages)))
 	dh_strip -p pgl-gui --dbg-package=pgl-gui-dbg
 endif
-
-%:
-	dh $@
