@@ -145,16 +145,8 @@ TESTHOST="iblocklist.com"
 # Iptables rules decide which traffic gets there.
 
 # Do a "pglcmd stop" before you change these iptables settings and a
-# "pglcmd start" afterwards.
-
-# Set the iptables target for sending traffic to userspace.
-# NFQUEUE - available since kernel version 2.6.13
-# QUEUE   - (deprecated)
-IPTABLES_TARGET="NFQUEUE"
-
-# Set the NFQUEUE queue number.
-# Valid queue numbers are 0 to 65535.
-NFQUEUE_NUMBER="92"
+# "pglcmd start" afterwards. Otherwise the old iptables rules might not be
+# removed.
 
 # Set how traffic is sent to pgld.
 # 0 - Don't set any iptables rules.
@@ -165,6 +157,20 @@ NFQUEUE_NUMBER="92"
 #     (/etc/pgl/iptables-custom-insert.sh and
 #     /etc/pgl/iptables-custom-remove.sh)
 IPTABLES_SETTINGS="1"
+
+# pgl can check all network interfaces or only a few of them.
+# If you want pgl to work on all interfaces set "all" or just keep it empty.
+# Otherwise specify the network interfaces (e.g. "eth0 wlan").
+# Separate several entries with whitespace (" "). Be careful: senseless values
+# are also accepted.
+INTERFACES="all"
+
+# pgl can check all iptables chains or only a few of them.
+# If you want pgl to work on all chains set "all" or just keep it empty.
+# Otherwise specify the chains (e.g. "INPUT OUTPUT").
+# Separate several entries with whitespace (" "). Be careful: senseless values
+# are also accepted.
+CHAINS="all"
 
 # Set names for the separate iptables chains.
 IPTABLES_IN="pgl_in"
@@ -186,12 +192,14 @@ IPTABLES_FWD="pgl_fwd"
 #     you want to.
 IPTABLES_ACTIVATION="1"
 
-# pgl can check all network interfaces or only a few of them.
-# If you want pgl to work on all interfaces set "all" or just keep it empty.
-# Otherwise specify the network interfaces (e.g. "eth0 wlan").
-# Separate several entries with whitespace (" "). Be careful: senseless values
-# are also accepted.
-INTERFACES="all"
+# Set the iptables target for sending traffic to userspace.
+# NFQUEUE - available since kernel version 2.6.13
+# QUEUE   - (deprecated)
+IPTABLES_TARGET="NFQUEUE"
+
+# Set the NFQUEUE queue number.
+# Valid queue numbers are 0 to 65535.
+NFQUEUE_NUMBER="92"
 
 # Set what happens to matched packets (IP is in the blocklist).
 # 0 - DROP them directly (as in MoBlock 0.8).

@@ -26,9 +26,6 @@ pglcmd:
     check allow to work without complete pglcmd iptables setup. Probably issue a
     warning about that on wd startup and in the .default-
 
-  - add configuration possibility to shut off checking in specific chains
-    (FORWARD). Change watchdog appropriately!
-
   - on "stop" remove kernel modules that were inserted by blockcontrol. (see
     dino's synology packaging
     http://forums.phoenixlabs.org/showpost.php?p=128371&postcount=20). Probably

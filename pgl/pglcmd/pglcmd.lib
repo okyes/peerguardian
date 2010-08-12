@@ -698,71 +698,76 @@ white_lan () {
         grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" )"
     for IP in $LOCAL_IPS ; do
         case $IP in
-            127.*)
-                # IP is a loopback IP
-                # Ignore, this is done once on start.
-                true
-                ;;
-            *)
-                # For all other IPs
-                # Get the corresponding subnetmask
-                # Use grep -F followed by a blank to match exactly a specific IP!
-                SUBNETMASK="$(ifconfig | grep -F "inet addr:${IP} " | \
-                    grep -Eo "Mask:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | \
-                    grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" )"
-                # Set the scope (IP/subnetmask) as it will be shown by iptables
-                if [ "$SUBNETMASK" = 255.255.255.0 ] ; then
-                    # Scope is X.X.X.0/24
-                    SCOPE="$( echo $IP | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\." )0/24"
-                elif [ "$SUBNETMASK" = 255.255.0.0 ] ; then
-                    # Scope is X.X.0.0/16
-                    SCOPE="$( echo $IP | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\." )0.0/16"
-                else
-                    # TODO: Find a way to check for the real IP/SUBNETMASK pattern.
-                    # With an empty SCOPE the last grep command will just fail, so
-                    # the result is as if no whitelisting already occured.
-                    # So if the network is brought up several times there will be multiple identical rules,
-                    # but no real harm will be done.
-                    SCOPE=""
-                fi
-                # Insert whitelisting rules for LAN with SUBNETMASK, if we do an
-                # inital start/restart (quick test of option)
-                # or if the LAN is not already
-                # whitelisted (time-consuming test if iptables rules exist).
+        127.*)
+            # IP is a loopback IP
+            # Ignore, this is done once on start.
+            true
+            ;;
+        *)
+            # For all other IPs
+            # Get the corresponding subnetmask
+            # Use grep -F followed by a blank to match exactly a specific IP!
+            SUBNETMASK="$(ifconfig | grep -F "inet addr:${IP} " | \
+                grep -Eo "Mask:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | \
+                grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" )"
+            # Set the scope (IP/subnetmask) as it will be shown by iptables
+            if [ "$SUBNETMASK" = 255.255.255.0 ] ; then
+                # Scope is X.X.X.0/24
+                SCOPE="$( echo $IP | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\." )0/24"
+            elif [ "$SUBNETMASK" = 255.255.0.0 ] ; then
+                # Scope is X.X.0.0/16
+                SCOPE="$( echo $IP | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\." )0.0/16"
+            else
+                # TODO: Find a way to check for the real IP/SUBNETMASK pattern.
+                # With an empty SCOPE the last grep command will just fail, so
+                # the result is as if no whitelisting already occured.
+                # So if the network is brought up several times there will be multiple identical rules,
+                # but no real harm will be done.
+                SCOPE=""
+            fi
+
+            # If CHAINS is empty/not set, then set it to "all". Replace all with the single names.
+            CHAINS=${CHAINS:-all}
+            [ "$CHAINS" != all ] || CHAINS="INPUT OUTPUT FORWARD"
+
+            # Insert whitelisting rules for LAN with SUBNETMASK.
+            for CHAIN in $CHAINS ; do
+                case $CHAIN in
+                INPUT)
+                    PGL_CHAIN="$IPTABLES_IN"
+                    CMD_WHITE_IP="--source ${IP}/${SUBNETMASK}"
+                    ;;
+                OUTPUT)
+                    PGL_CHAIN="$IPTABLES_OUT"
+                    CMD_WHITE_IP="--destination ${IP}/${SUBNETMASK}"
+                    ;;
+                FORWARD)
+                    PGL_CHAIN="$IPTABLES_FWD"
+                    CMD_WHITE_IP="--source ${IP}/${SUBNETMASK} --destination ${IP}/${SUBNETMASK}"
+                    ;;
+                *)
+                    echo "Unknown CHAIN $CHAIN specified."
+                    exit 1
+                    ;;
+                esac
+                echo -n "Allowing $CHAIN LAN traffic for $IP with subnetmask $SUBNETMASK"
+                # Whitelist LAN, if we do an inital start/restart (quick
+                # test of $1) or if the LAN is not already whitelisted
+                # (time-consuming test of iptables output).
                 # With other words:
                 # pglcmd start/restart: always whitelist LAN
-                # if-up: first check if LAN is already whitelisted.
-                echo -n "Allowing inbound LAN traffic for $IP with subnetmask $SUBNETMASK"
+                # if-up: first check iptables output if LAN is already whitelisted.
                 if [ "$1" = start ] || [ "$1" = restart ] ||
-                ! iptables -nv -L ${IPTABLES_IN} | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
-                    iptables -I ${IPTABLES_IN} --source ${IP}/${SUBNETMASK} -j $IPTABLES_TARGET_WHITELISTING
+                ! iptables -nv -L $PGL_CHAIN | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
+                    iptables -I $PGL_CHAIN $CMD_WHITE_IP -j $IPTABLES_TARGET_WHITELISTING
                     RETVAL=$?
                     log_end_msg $RETVAL
                     [ "$RETVAL" = 0 ] || exit $E_IPTABLES
                 else
                     echo ", already done."
                 fi
-                echo -n "Allowing outbound LAN traffic for $IP with subnetmask $SUBNETMASK"
-                if [ "$1" = start ] || [ "$1" = restart ] ||
-                ! iptables -nv -L ${IPTABLES_OUT} | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
-                    iptables -I ${IPTABLES_OUT} --destination ${IP}/${SUBNETMASK} -j $IPTABLES_TARGET_WHITELISTING
-                    RETVAL=$?
-                    log_end_msg $RETVAL
-                    [ "$RETVAL" = 0 ] || exit $E_IPTABLES
-                else
-                    echo ", already done."
-                fi
-                echo -n "Allowing forwarded LAN traffic for $IP with subnetmask $SUBNETMASK"
-                if [ "$1" = start ] || [ "$1" = restart ] ||
-                ! iptables -nv -L ${IPTABLES_FWD} | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
-                    iptables -I ${IPTABLES_FWD} --source ${IP}/${SUBNETMASK} --destination ${IP}/${SUBNETMASK} -j $IPTABLES_TARGET_WHITELISTING
-                    RETVAL=$?
-                    log_end_msg $RETVAL
-                    [ "$RETVAL" = 0 ] || exit $E_IPTABLES
-                else
-                    echo ", already done."
-                fi
-                ;;
+            done
+            ;;
         esac
     done
 }
@@ -773,32 +778,47 @@ white_dns () {
 
     #Get the DNS server's IP
     DNS_IPS="$( grep nameserver /etc/resolv.conf | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" )"
-    for IP in $DNS_IPS ; do
-    # Whitelist the DNS server, if we do an inital start/restart (quick test of option)
-    # or if the DNS server is not already whitelisted (time-consuming test if iptables rules exist).
-    # With other words:
-    # pglcmd start/restart: always whitelist DNS server
-    # if-up: first check if DNS server is already whitelisted.
-        echo -n "Allowing outbound traffic to DNS server $IP"
-        if [ "$1" = start ] || [ "$1" = restart ] ||
-        ! iptables -nv -L ${IPTABLES_OUT} | grep -F "$IP " | grep $IPTABLES_TARGET_WHITELISTING > /dev/null 2>&1 ; then
-            iptables -I ${IPTABLES_OUT} --destination $IP -j $IPTABLES_TARGET_WHITELISTING
-            RETVAL=$?
-            log_end_msg $RETVAL
-            [ "$RETVAL" = 0 ] || exit $E_IPTABLES
-        else
-            echo ", already done."
-        fi
-        echo -n "Allowing forwarded traffic to DNS server $IP"
-        if [ "$1" = start ] || [ "$1" = restart ] ||
-        ! iptables -nv -L ${IPTABLES_FWD} | grep -F $IP | grep $IPTABLES_TARGET_WHITELISTING > /dev/null 2>&1 ; then
-            iptables -I ${IPTABLES_FWD} --destination $IP -j $IPTABLES_TARGET_WHITELISTING
-            RETVAL=$?
-            log_end_msg $RETVAL
-            [ "$RETVAL" = 0 ] || exit $E_IPTABLES
-        else
-            echo ", already done."
-        fi
+
+    # If CHAINS is empty/not set, then set it to "all". Replace all with the single names.
+    CHAINS=${CHAINS:-all}
+    [ "$CHAINS" != all ] || CHAINS="INPUT OUTPUT FORWARD"
+
+    # Insert whitelisting rules for DNS server.
+    for CHAIN in $CHAINS ; do
+        case $CHAIN in
+        INPUT)
+            continue
+            ;;
+        OUTPUT)
+            PGL_CHAIN="$IPTABLES_OUT"
+            ;;
+        FORWARD)
+            PGL_CHAIN="$IPTABLES_FWD"
+            ;;
+        *)
+            echo "Unknown CHAIN $CHAIN specified."
+            exit 1
+            ;;
+        esac
+
+        for IP in $DNS_IPS ; do
+            echo -n "Allowing $CHAIN traffic to DNS server $IP"
+            # Whitelist DNS server, if we do an inital start/restart (quick
+            # test of $1) or if the DNS server is not already whitelisted
+            # (time-consuming test of iptables output).
+            # With other words:
+            # pglcmd start/restart: always whitelist DNS server
+            # if-up: first check if DNS server is already whitelisted.
+            if [ "$1" = start ] || [ "$1" = restart ] ||
+            ! iptables -nv -L $PGL_CHAIN | grep -F "$IP " | grep $IPTABLES_TARGET_WHITELISTING > /dev/null 2>&1 ; then
+                iptables -I $PGL_CHAIN --destination $IP -j $IPTABLES_TARGET_WHITELISTING
+                RETVAL=$?
+                log_end_msg $RETVAL
+                [ "$RETVAL" = 0 ] || exit $E_IPTABLES
+            else
+                echo ", already done."
+            fi
+        done
     done
 }
 
@@ -858,124 +878,140 @@ fail_insert_iptables () {
     exit $E_IPTABLES
 }
 
+prepare_iptables_activation () {
+    case "$IPTABLES_ACTIVATION" in
+    '1')
+        CMD_STATE="-m state --state NEW"
+        ;;
+    '2')
+        CMD_STATE=""
+        ;;
+    esac
+    case "$ACCEPT" in
+    '0')
+        CMD_MARK_ACCEPT=""
+        ;;
+    '1')
+        # Send all NEW packets, except the "marked accept" packets, to the pglcmd_* chains.
+        # From there "marked" packets are sent back to the head of the chain again
+        # (NF_REPEAT repeats the hook function). Thus "marked accept" packets traverse to
+        # the rest of the iptables setup.
+        # Problem: If another rule changes the MARK the packet will loop forever.
+        CMD_MARK_ACCEPT="-m mark ! --mark $ACCEPT_MARK"
+        ;;
+    esac
+}
+
 # Function that inserts the iptables rules
 insert_iptables () {
     # test_IPTABLES_VARS # Already tested in do_start
     case "$IPTABLES_SETTINGS" in
-        '0')
-            test_VERBOSITY
-            if [ "$VERBOSITY" -eq 1 ] ; then
-                log_warning_msg "$(basename $0) is configured not to insert iptables rules."
-            fi
-            ;;
-        # Place iptables rules in separate iptables chains (pgl_in, pgl_out and pgl_fwd).
-        '1')
-            test_IPTABLES_TARGET
-            test_REJECT
-            test_ACCEPT
-            echo "Inserting iptables ..."
-            test_external iptables || exit $?
+    '0')
+        test_VERBOSITY
+        if [ "$VERBOSITY" -eq 1 ] ; then
+            log_warning_msg "$(basename $0) is configured not to insert iptables rules."
+        fi
+        ;;
+    # Place iptables rules in separate iptables chains (pgl_in, pgl_out and pgl_fwd).
+    '1')
+        echo "Inserting iptables ..."
 
-            case "$IPTABLES_TARGET" in
-                NFQUEUE)
-                    IPTABLES_TARGET_BLOCK="$IPTABLES_TARGET --queue-num $NFQUEUE_NUMBER"
-                    ;;
-                QUEUE)
-                    IPTABLES_TARGET_BLOCK="$IPTABLES_TARGET"
-                    ;;
+        # Variable tests
+        test_IPTABLES_TARGET
+        test_REJECT
+        test_ACCEPT
+        test_external iptables || exit $?
+
+        # Set constant variables for iptables commands
+        case "$IPTABLES_TARGET" in
+        NFQUEUE)
+            IPTABLES_TARGET_BLOCK="$IPTABLES_TARGET --queue-num $NFQUEUE_NUMBER"
+            ;;
+        QUEUE)
+            IPTABLES_TARGET_BLOCK="$IPTABLES_TARGET"
+            ;;
+        esac
+
+        # If CHAINS is empty/not set, then set it to "all". Replace all with the single names.
+        CHAINS=${CHAINS:-all}
+        [ "$CHAINS" != all ] || CHAINS="INPUT OUTPUT FORWARD"
+
+        # Prepare and issue iptables commands for every chain.
+        for CHAIN in $CHAINS ; do
+            case $CHAIN in
+            INPUT)
+                PGL_CHAIN="$IPTABLES_IN"
+                WHITE_TCP="$WHITE_TCP_IN"
+                WHITE_UDP="$WHITE_UDP_IN"
+                CMD_WHITE_IP="--source"
+                WHITE_IP="$WHITE_IP_IN"
+                CMD_ALLOW="--src-range"
+                ALLOW_FILE="$ALLOW_IN"
+                REJECT_TARGET="$REJECT_IN"
+                ;;
+            OUTPUT)
+                PGL_CHAIN="$IPTABLES_OUT"
+                WHITE_TCP="$WHITE_TCP_OUT"
+                WHITE_UDP="$WHITE_UDP_OUT"
+                CMD_WHITE_IP="--destination"
+                WHITE_IP="$WHITE_IP_OUT"
+                CMD_ALLOW="--dst-range"
+                ALLOW_FILE="$ALLOW_OUT"
+                REJECT_TARGET="$REJECT_OUT"
+                ;;
+            FORWARD)
+                PGL_CHAIN="$IPTABLES_FWD"
+                WHITE_TCP="$WHITE_TCP_FWD"
+                WHITE_UDP="$WHITE_UDP_FWD"
+                CMD_WHITE_IP="--source --destination"
+                WHITE_IP="$WHITE_IP_FWD"
+                CMD_ALLOW="--src-range --dst-range"
+                ALLOW_FILE="$ALLOW_FWD"
+                REJECT_TARGET="$REJECT_FWD"
+                ;;
+            *)
+                echo "Unknown CHAIN $CHAIN specified."
+                exit 1
+                ;;
             esac
 
-            iptables -N ${IPTABLES_IN} || fail_insert_iptables
-            iptables -N ${IPTABLES_OUT} || fail_insert_iptables
-            iptables -N ${IPTABLES_FWD} || fail_insert_iptables
+            # Create new pgl_ chain.
+            iptables -N $PGL_CHAIN || fail_insert_iptables
 
-            iptables -I ${IPTABLES_IN} -j $IPTABLES_TARGET_BLOCK || fail_insert_iptables
-            iptables -I ${IPTABLES_OUT} -j $IPTABLES_TARGET_BLOCK || fail_insert_iptables
-            iptables -I ${IPTABLES_FWD} -j $IPTABLES_TARGET_BLOCK || fail_insert_iptables
+            # Insert block rule for matched packets.
+            iptables -I $PGL_CHAIN -j $IPTABLES_TARGET_BLOCK || fail_insert_iptables
 
             # Port Whitelisting
-            white_port_prepare $IPTABLES_IN tcp $WHITE_TCP_IN
-            white_port_prepare $IPTABLES_IN udp $WHITE_UDP_IN
-            white_port_prepare $IPTABLES_OUT tcp $WHITE_TCP_OUT
-            white_port_prepare $IPTABLES_OUT udp $WHITE_UDP_OUT
-            white_port_prepare $IPTABLES_FWD tcp $WHITE_TCP_FORWARD
-            white_port_prepare $IPTABLES_FWD udp $WHITE_UDP_FORWARD
-
+            white_port_prepare $PGL_CHAIN tcp $WHITE_TCP
+            white_port_prepare $PGL_CHAIN udp $WHITE_UDP
 
             # IP Whitelisting
-            for IP in $WHITE_IP_IN ; do
-                iptables -I ${IPTABLES_IN} --source $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
-            done
-
-            for IP in $WHITE_IP_OUT ; do
-                iptables -I ${IPTABLES_OUT} --destination $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
-            done
-
-            for IP in $WHITE_IP_FORWARD ; do
-                iptables -I ${IPTABLES_FWD} --source $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
-                iptables -I ${IPTABLES_FWD} --destination $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+            for CMD in $CMD_WHITE_IP ; do
+                for IP in $WHITE_IP ; do
+                    iptables -I $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                done
             done
 
             # IP ranges whitelisting
-            IFS='
-'    # Set IFS to newline only
-            if [ -f "$ALLOW_IN" ] ; then
-                ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOW_IN)"    # Read the non-comment|not-empty lines from $ALLOW_IN
+            IFS=$'
+' # Set IFS to newline only
+            if [ -f "$ALLOW_FILE" ] ; then
+                # Read the non-comment|not-empty lines from the allow file:
+                ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOW_FILE)"
                 for LINE in $ALLOW ; do
                     IPRANGE_BEGIN="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -n1)"
                     IPRANGE_END="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1)"
-                    iptables -I ${IPTABLES_IN} -m iprange --src-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
-                        # If iptables insertion failed assume that the line is malformed.
-                        # Comment this line out.
-                        sed -i "s|^$LINE$|# Malformed line commented out by $(basename $0): &|" $ALLOW_IN
-                        log_failure_msg "Commented out malformed line \"$LINE\" in $ALLOW_IN."
-                        }
-                done
-            fi
-            if [ -f "$ALLOW_OUT" ] ; then
-                ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOW_OUT)"    # Read the non-comment|not-empty lines from $ALLOW_OUT
-                for LINE in $ALLOW ; do
-                    IPRANGE_BEGIN="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -n1)"
-                    IPRANGE_END="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1)"
-                    iptables -I ${IPTABLES_OUT} -m iprange --dst-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
-                        # If iptables insertion failed assume that the line is malformed.
-                        # Comment this line out.
-                        sed -i "s|^$LINE$|# Malformed line commented out by $(basename $0): &|" $ALLOW_OUT
-                        log_failure_msg "Commented out malformed line \"$LINE\" in $ALLOW_OUT."
-                        }
-                done
-            fi
-            if [ -f "$ALLOW_FWD" ] ; then
-                ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOW_FWD)"    # Read the non-comment|not-empty lines from $ALLOW_FWD
-                for LINE in $ALLOW ; do
-                    IPRANGE_BEGIN="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -n1)"
-                    IPRANGE_END="$(echo $LINE | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1)"
-                    iptables -I ${IPTABLES_FWD} -m iprange --dst-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING &&
-                    iptables -I ${IPTABLES_FWD} -m iprange --src-range $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
-                        # If iptables insertion failed assume that the line is malformed.
-                        # Comment this line out.
-                        sed -i "s|^$LINE$|# Malformed line commented out by $(basename $0): &|" $ALLOW_FWD
-                        log_failure_msg "Commented out malformed line \"$LINE\" in $ALLOW_FWD."
-                        }
+                    for CMD in $CMD_ALLOW ; do
+                        iptables -I $PGL_CHAIN -m iprange $CMD $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
+                            # If iptables insertion failed assume that the line is malformed.
+                            # Comment this line out.
+                            sed -i "s|^$LINE$|# Malformed line commented out by $(basename $0): &|" $ALLOW_FILE
+                            log_failure_msg "Commented out malformed line \"$LINE\" in $ALLOW_FILE."
+                            }
+                    done
                 done
             fi
             IFS=$STDIFS
-
-            # Automatically whitelist LAN of all up interfaces (except loopback, see below)
-            [ "$WHITE_LOCAL" -eq 1 ] && white_lan
-
-            if [ "$WHITE_LOCAL" -ne 0 ] ; then
-                # Automatically whitelist the DNS server(s).
-                [ -f /etc/resolv.conf ] && white_dns
-
-                # Insert whitelisting rules for whole loopback interface
-                echo -n "Allowing loopback traffic"
-                iptables -I ${IPTABLES_IN} -i lo -j $IPTABLES_TARGET_WHITELISTING &&
-                iptables -I ${IPTABLES_OUT} -o lo -j $IPTABLES_TARGET_WHITELISTING
-                RETVAL=$?
-                log_end_msg $RETVAL
-                [ "$RETVAL" = 0 ] || exit $E_IPTABLES
-            fi
 
             # Block "Marked block" packages: "Marked block" packages are sent back
             # to the head of the chain again (NF_REPEAT repeats the hook function)
@@ -985,92 +1021,110 @@ insert_iptables () {
             # keep those chains cleaner. It has to be made sure that the MARK of the
             # packets is not changed by other iptables rules.
             if [ "$REJECT" -eq 1 ] ; then
-                iptables -I ${IPTABLES_IN} -m mark --mark $REJECT_MARK -j $REJECT_IN || fail_insert_iptables
-                iptables -I ${IPTABLES_OUT} -m mark --mark $REJECT_MARK -j $REJECT_OUT || fail_insert_iptables
-                iptables -I ${IPTABLES_FWD} -m mark --mark $REJECT_MARK -j $REJECT_FWD || fail_insert_iptables
+                iptables -I $PGL_CHAIN -m mark --mark $REJECT_MARK -j $REJECT_TARGET || fail_insert_iptables
                 # Log "Marked block" packages: The log-iptables-rules should be
                 # placed directly before the block-iptables-rules (i.e. Insert them
                 # directly after them)
                 if [ -n "$LOG_IPTABLES" ] ; then    # string is not empty
-                    iptables -I ${IPTABLES_IN} -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || fail_insert_iptables
-                    iptables -I ${IPTABLES_OUT} -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || fail_insert_iptables
-                    iptables -I ${IPTABLES_FWD} -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || fail_insert_iptables
+                    iptables -I $PGL_CHAIN -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || fail_insert_iptables
                 fi
             fi
+        done
 
-            # Chain activation
-            case "$IPTABLES_ACTIVATION" in
-                '0')
-                    if [ "$VERBOSITY" -eq 1 ] ; then
-                        echo -n " - not activating the chains"
+        # Automatically whitelist LAN of all up interfaces (except loopback, see below)
+        [ "$WHITE_LOCAL" -eq 1 ] && white_lan
+
+        if [ "$WHITE_LOCAL" -ne 0 ] ; then
+            # Automatically whitelist the DNS server(s).
+            [ -f /etc/resolv.conf ] && white_dns
+
+            # Insert whitelisting rules for whole loopback interface
+            echo -n "Allowing loopback traffic"
+            iptables -I ${IPTABLES_IN} -i lo -j $IPTABLES_TARGET_WHITELISTING &&
+            iptables -I ${IPTABLES_OUT} -o lo -j $IPTABLES_TARGET_WHITELISTING
+            RETVAL=$?
+            log_end_msg $RETVAL
+            [ "$RETVAL" = 0 ] || exit $E_IPTABLES
+        fi
+
+        # Chain activation
+        case "$IPTABLES_ACTIVATION" in
+        '0')
+            if [ "$VERBOSITY" -eq 1 ] ; then
+                echo -n " - not activating the chains"
+            fi
+            ;;
+        '1'|'2')
+            prepare_iptables_activation
+
+            # If INTERFACES is empty/not set, then set it to "all".
+            INTERFACES=${INTERFACES:-all}
+
+            # Send traffic of the specified interfaces to the pgl chains.
+            for INTERFACE in $INTERFACES ; do
+                for CHAIN in $CHAINS ; do
+                    case $CHAIN in
+                    INPUT)
+                        PGL_CHAIN="$IPTABLES_IN"
+                        ;;
+                    OUTPUT)
+                        PGL_CHAIN="$IPTABLES_OUT"
+                        ;;
+                    FORWARD)
+                        PGL_CHAIN="$IPTABLES_FWD"
+                        ;;
+                    *)
+                        echo "Unknown CHAIN $CHAIN specified."
+                        exit 1
+                        ;;
+                    esac
+
+                    if [ "$INTERFACE" = all ] ; then
+                        CMD_INTERFACE=""
+                    else
+                        case $CHAIN in
+                        INPUT)
+                            CMD_INTERFACE="-i $INTERFACE"
+                            ;;
+                        OUTPUT)
+                            CMD_INTERFACE="-o $INTERFACE"
+                            ;;
+                        FORWARD)
+                            CMD_INTERFACE="-i $INTERFACE -o $INTERFACE"
+                            ;;
+                        # Valid CHAINs was already tested above. No test needed here.
+                        esac
                     fi
-                    ;;
-                '1'|'2')
-                    case "$IPTABLES_ACTIVATION" in
-                        '1')
-                            IPTABLES_STATE="-m state --state NEW"
-                            ;;
-                        '2')
-                            IPTABLES_STATE=""
-                            ;;
-                    esac
-                    case "$ACCEPT" in
-                        '0')
-                            IPTABLES_MARK_ACCEPT=""
-                            ;;
-                        '1')
-                            # Send all NEW packets, except the "marked accept" packets, to the pglcmd_* chains.
-                            # From there "marked" packets are sent back to the head of the chain again
-                            # (NF_REPEAT repeats the hook function). Thus "marked accept" packets traverse to
-                            # the rest of the iptables setup.
-                            # Problem: If another rule changes the MARK the packet will loop forever.
-                            IPTABLES_MARK_ACCEPT="-m mark ! --mark $ACCEPT_MARK"
-                            ;;
-                    esac
-                    # If INTERFACES is empty/not set, then set it to "all".
-                    INTERFACES=${INTERFACES:-all}
-                    # Send traffic of the specified interfaces to the pgl chains.
-                    for INTERFACE in $INTERFACES ; do
-                        if [ "$INTERFACE" = all ] ; then
-                            INTERFACE_IN=""
-                            INTERFACE_OUT=""
-                            INTERFACE_FWD=""
-                        else
-                            INTERFACE_IN="-i $INTERFACE"
-                            INTERFACE_OUT="-o $INTERFACE"
-                            INTERFACE_FWD="-i $INTERFACE -o $INTERFACE"
-                        fi
-                        iptables -I INPUT $INTERFACE_IN $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_IN} || fail_insert_iptables
-                        iptables -I OUTPUT $INTERFACE_OUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_OUT} || fail_insert_iptables
-                        iptables -I FORWARD $INTERFACE_FWD $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_FWD} || fail_insert_iptables
-                    done
-                    ;;
-            esac
-
-            log_end_msg 0    # Complete iptables insertion went well.
-
-            # If custom iptables insertion scripts exist, execute them:
-            CUSTOM_INSERT_SCRIPTS="$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*insert.sh" -print0 | xargs -0r)"
-            [ -z "$CUSTOM_INSERT_SCRIPTS" ] || {
-                for FILE in $CUSTOM_INSERT_SCRIPTS ; do
-                    echo -n "Executing $FILE ..."
-                    sh $FILE
-                    log_end_msg "$?"
+                    iptables -I $CHAIN $CMD_INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN || fail_insert_iptables
                 done
-                }
+            done
             ;;
+        esac
 
-        '2')
-            CUSTOM_INSERT_SCRIPTS="$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*insert.sh" -print0 | xargs -0r)"
-            [ -z "$CUSTOM_INSERT_SCRIPTS" ] || {
-                echo -n "Executing custom iptables insertion script(s) ..."
-                for FILE in $CUSTOM_INSERT_SCRIPTS ; do
-                    echo -n "Executing $FILE ..."
-                    sh $FILE && log_end_msg $? || fail_insert_iptables
-                done
-                echo "$?"
-                }
-            ;;
+        log_end_msg 0    # Complete iptables insertion went well.
+
+        # If custom iptables insertion scripts exist, execute them:
+        CUSTOM_INSERT_SCRIPTS="$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*insert.sh" -print0 | xargs -0r)"
+        [ -z "$CUSTOM_INSERT_SCRIPTS" ] || {
+            for FILE in $CUSTOM_INSERT_SCRIPTS ; do
+                echo -n "Executing $FILE ..."
+                sh $FILE
+                log_end_msg "$?"
+            done
+            }
+        ;;
+
+    '2')
+        CUSTOM_INSERT_SCRIPTS="$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*insert.sh" -print0 | xargs -0r)"
+        [ -z "$CUSTOM_INSERT_SCRIPTS" ] || {
+            echo -n "Executing custom iptables insertion script(s) ..."
+            for FILE in $CUSTOM_INSERT_SCRIPTS ; do
+                echo -n "Executing $FILE ..."
+                sh $FILE && log_end_msg $? || fail_insert_iptables
+            done
+            echo "$?"
+            }
+        ;;
     esac
 }
 
@@ -1090,53 +1144,61 @@ delete_iptables () {
 
         IPTABLES_DELETE="0"
 
-        if [ "$IPTABLES_ACTIVATION" -eq 1 ] || [ "$IPTABLES_ACTIVATION" -eq 2 ] ; then
-            case "$IPTABLES_ACTIVATION" in
-                '1')
-                    IPTABLES_STATE="-m state --state NEW"
-                    ;;
-                '2')
-                    IPTABLES_STATE=""
-                    ;;
-            esac
-            case "$ACCEPT" in
-                '0')
-                    IPTABLES_MARK_ACCEPT=""
-                    ;;
-                '1')
-                    # Send all NEW packets, except the "marked accept" packets, to the pglcmd_* chains.
-                    # From there "marked" packets are sent back to the head of the chain again
-                    # (NF_REPEAT repeats the hook function). Thus "marked accept" packets traverse to
-                    # the rest of the iptables setup.
-                    # Problem: If another rule changes the MARK the packet will loop forever.
-                    IPTABLES_MARK_ACCEPT="-m mark ! --mark $ACCEPT_MARK"
-                    ;;
-            esac
-            # If INTERFACE is empty/not set, then set it to "all".
-            INTERFACES=${INTERFACES:-all}
-            # Remove iptables chain activation (per inerface)
-            for INTERFACE in $INTERFACES ; do
-                if [ "$INTERFACE" = all ] ; then
-                    INTERFACE_IN=""
-                    INTERFACE_OUT=""
-                    INTERFACE_FWD=""
-                else
-                    INTERFACE_IN="-i $INTERFACE"
-                    INTERFACE_OUT="-o $INTERFACE"
-                    INTERFACE_FWD="-i $INTERFACE -o $INTERFACE"
-                fi
-                iptables -D INPUT $INTERFACE_IN $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_IN} || IPTABLES_DELETE="1"
-                iptables -D OUTPUT $INTERFACE_OUT $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_OUT} || IPTABLES_DELETE="1"
-                iptables -D FORWARD $INTERFACE_FWD $IPTABLES_STATE $IPTABLES_MARK_ACCEPT -j ${IPTABLES_FWD} || IPTABLES_DELETE="1"
-            done
-        fi
+        # If CHAINS is empty/not set, then set it to "all". Replace all with the single names.
+        CHAINS=${CHAINS:-all}
+        [ "$CHAINS" != all ] || CHAINS="INPUT OUTPUT FORWARD"
 
-        iptables -F ${IPTABLES_IN} || IPTABLES_DELETE="1"
-        iptables -F ${IPTABLES_OUT} || IPTABLES_DELETE="1"
-        iptables -F ${IPTABLES_FWD} || IPTABLES_DELETE="1"
-        iptables -X ${IPTABLES_IN} || IPTABLES_DELETE="1"
-        iptables -X ${IPTABLES_OUT} || IPTABLES_DELETE="1"
-        iptables -X ${IPTABLES_FWD} || IPTABLES_DELETE="1"
+        ( [ "$IPTABLES_ACTIVATION" -eq 1 ] || [ "$IPTABLES_ACTIVATION" -eq 2 ] ) &&
+            prepare_iptables_activation
+
+        # If INTERFACE is empty/not set, then set it to "all".
+        INTERFACES=${INTERFACES:-all}
+
+        # Remove iptables rules per interface and chain
+        for CHAIN in $CHAINS ; do
+            case $CHAIN in
+            INPUT)
+                PGL_CHAIN="$IPTABLES_IN"
+                ;;
+            OUTPUT)
+                PGL_CHAIN="$IPTABLES_OUT"
+                ;;
+            FORWARD)
+                PGL_CHAIN="$IPTABLES_FWD"
+                ;;
+            *)
+                echo "Unknown CHAIN $CHAIN specified."
+                exit 1
+                ;;
+            esac
+
+            # Remove activation rules
+            if [ "$IPTABLES_ACTIVATION" -eq 1 ] || [ "$IPTABLES_ACTIVATION" -eq 2 ] ; then
+                for INTERFACE in $INTERFACES ; do
+                    if [ "$INTERFACE" = all ] ; then
+                        CMD_INTERFACE=""
+                    else
+                        case $CHAIN in
+                        INPUT)
+                            CMD_INTERFACE="-i $INTERFACE"
+                            ;;
+                        OUTPUT)
+                            CMD_INTERFACE="-o $INTERFACE"
+                            ;;
+                        FORWARD)
+                            CMD_INTERFACE="-i $INTERFACE -o $INTERFACE"
+                            ;;
+                        esac
+                    fi
+                    iptables -D $CHAIN $CMD_INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN || IPTABLES_DELETE="1"
+                done
+            fi
+
+            # Flush pgl_ chain
+            iptables -F $PGL_CHAIN || IPTABLES_DELETE="1"
+            # Delete pgl_ chain
+            iptables -X $PGL_CHAIN|| IPTABLES_DELETE="1"
+        done
 
         log_end_msg $IPTABLES_DELETE
 
@@ -1329,24 +1391,32 @@ do_start () {
             [ -f /proc/net/ip_tables_matches ] && grep -q iprange /proc/net/ip_tables_matches ||
                 modprobe -q xt_iprange ||
                 modprobe -q ipt_iprange || {
-                if [ -n "$ALLOW_IN" ] && [ -f "$ALLOW_IN" ] ; then
-                    log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_iprange, not starting $NAME!"
-                    log_failure_msg "Use a kernel with netfilter IPRANGE support or reconfigure $(basename $0)"
-                    log_failure_msg "to not use the allow list $ALLOW_IN."
-                    exit $E_XEXTERNAL
-                fi
-                if [ -n "$ALLOW_OUT" ] && [ -f "$ALLOW_OUT" ] ; then
-                    log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_iprange, not starting $NAME!"
-                    log_failure_msg "Use a kernel with netfilter IPRANGE support or reconfigure $(basename $0)"
-                    log_failure_msg "to not use the allow list $ALLOW_OUT."
-                    exit $E_XEXTERNAL
-                fi
-                if [ -n "$ALLOW_FWD" ] && [ -f "$ALLOW_FWD" ] ; then
-                    log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_iprange, not starting $NAME!"
-                    log_failure_msg "Use a kernel with netfilter IPRANGE support or reconfigure $(basename $0)"
-                    log_failure_msg "to not use the allow list $ALLOW_FWD."
-                    exit $E_XEXTERNAL
-                fi
+                # If CHAINS is empty/not set, then set it to "all". Replace all with the single names.
+                CHAINS=${CHAINS:-all}
+                [ "$CHAINS" != all ] || CHAINS="INPUT OUTPUT FORWARD"
+                for CHAIN in $CHAINS ; do
+                    case $CHAIN in
+                    INPUT)
+                        ALLOW_FILE="$ALLOW_IN"
+                        ;;
+                    OUTPUT)
+                        ALLOW_FILE="$ALLOW_OUT"
+                        ;;
+                    FORWARD)
+                        ALLOW_FILE="$ALLOW_FWD"
+                        ;;
+                    *)
+                        echo "Unknown CHAIN $CHAIN specified."
+                        exit 1
+                        ;;
+                    esac
+                    if [ -n "$ALLOW_FILE" ] && [ -f "$ALLOW_FILE" ] ; then
+                        log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_iprange, not starting $NAME!"
+                        log_failure_msg "Use a kernel with netfilter IPRANGE support or reconfigure $(basename $0)"
+                        log_failure_msg "to not use the allow list $ALLOW_FILE."
+                        exit $E_XEXTERNAL
+                    fi
+                done
                 log_warning_msg "Warning: Could not load kernel module xt_iprange, continuing anyway."
                 }
 

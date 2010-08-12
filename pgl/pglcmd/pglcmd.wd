@@ -84,16 +84,37 @@ echo $$ > $WD_PID
 
 while true ; do
     sleep $WD_SLEEP
+    # First check if the daemon is running.
+    status_of_proc $DAEMON $NAME > /dev/null 2>&1 &&
     {
-        # First check if the daemon is running.
-        status_of_proc $DAEMON $NAME > /dev/null 2>&1 &&
-        # Then check if traffic "might" be sent to the daemon.
-        # This does neither verify all pgl iptables rules, nore their exact setting.
-        # Further it doesn't care about non-pgl iptables rules
-        iptables -L INPUT -n | grep -q "${IPTABLES_IN}" &&
-        iptables -L OUTPUT -n | grep -q "${IPTABLES_OUT}" &&
-        iptables -L ${IPTABLES_IN} -n | grep -q "$IPTABLES_TARGET" &&
-        iptables -L ${IPTABLES_OUT} -n | grep -q "$IPTABLES_TARGET"
+        PASSED=1
+        # If CHAINS is empty/not set, then set it to "all". Replace all with the single names.
+        CHAINS=${CHAINS:-all}
+        [ "$CHAINS" != all ] || CHAINS="INPUT OUTPUT FORWARD"
+        for CHAIN in $CHAINS ; do
+            case $CHAIN in
+            INPUT)
+                PGL_CHAIN="$IPTABLES_IN"
+                ;;
+            OUTPUT)
+                PGL_CHAIN="$IPTABLES_OUT"
+                ;;
+            FORWARD)
+                PGL_CHAIN="$IPTABLES_FWD"
+                ;;
+            *)
+                echo "Unknown CHAIN $CHAIN specified."
+                exit 1
+                ;;
+            esac
+            # Check if traffic "might" be sent to the daemon.
+            # This does neither verify all pgl iptables rules, nore their exact setting.
+            # Further it doesn't care about non-pgl iptables rules
+            iptables -L $CHAIN -n | grep -q "$PGL_CHAIN" &&
+            iptables -L $PGL_CHAIN -n | grep -q "$IPTABLES_TARGET" ||
+            PASSED=0
+        done
+        [ "$PASSED" = 1 ]
         # Not using "test" here, because ping fails if network is down,
         # other iptables rules might block the test packet before it reaches
         # pglcmd or the test packet might be whitelisted.
