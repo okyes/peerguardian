@@ -173,7 +173,7 @@ case "$1" in
         echo "Current IPv4 iptables rules (this may take a while):"
         echo
         iptables -L -nv
-        if [ "$(lsmod | grep ipv6)" ] ; then
+        if lsmod | grep -Eq "ipv?6" ; then
             echo
             echo "Current IPv6 iptables rules (this may take a while):"
             echo
