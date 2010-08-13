@@ -169,19 +169,22 @@ case "$1" in
         fi
         ;;
     'status')
-        test_root
-        echo "Current IPv4 iptables rules (this may take a while):"
-        echo
-        iptables -L -nv
-        if lsmod | grep -Eq "ipv?6" ; then
+        if [ "$(id -ru)" -eq 0 ] ; then
+            echo "Current IPv4 iptables rules (this may take a while):"
             echo
-            echo "Current IPv6 iptables rules (this may take a while):"
+            iptables -L -nv
+            if lsmod | grep -Eq "ipv?6" ; then
+                echo
+                echo "Current IPv6 iptables rules (this may take a while):"
+                echo
+                ip6tables -L -nv
+            fi
             echo
-            ip6tables -L -nv
+            echo "Please check if the above printed iptables rules are correct!"
+            echo
+        else
+            echo "Run \"status\" as root to verify your iptables settings!"
         fi
-        echo
-        echo "Please check if the above printed iptables rules are correct!"
-        echo
         status_of_proc $DAEMON $NAME
         RETVAL="$?"
         if [ "$RETVAL" -eq 0 ] ; then
