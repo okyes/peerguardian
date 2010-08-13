@@ -20,6 +20,7 @@ pgl 2.0.2~WIP
     support.
   * added traceroute to "pglcmd test".
   * watchdog: separated running daemon process check and iptables check.
+  * on stop do a "kill -9" if normal kill fails.
   * allow to run "pglcmd status" as normal user (without iptables output)
 
 -- jre <jre-phoenix@users.sourceforge.net>  WIP

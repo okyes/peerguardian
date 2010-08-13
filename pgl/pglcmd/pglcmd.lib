@@ -1541,6 +1541,9 @@ do_stop () {
             break
         fi
     done
+    # If pidfile still exists (stop failed), force pgld to quit.
+    [ ! -f "$PIDFILE" ] || ( kill -9 "$(pidof $DAEMON)" && rm -f $PIDFILE )
+    RETVAL=$?
 
     log_end_msg $RETVAL
 }
