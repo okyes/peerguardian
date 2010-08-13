@@ -42,7 +42,7 @@ pglcmd:
   - adapt test function for peerguardian .p2b v2 binary format blocklist
     formats.
 
-  - [DISCUSS]: if any blocklist is unavailable, should blockcontrol exit (as it
+  - [DISCUSS]: if any blocklist is unavailable, should pglcmd exit (as it
     does currently, in order to give no false security), or continue but return
     an error (if one list is missing, it's still better to use at least the
     other blocklists).
