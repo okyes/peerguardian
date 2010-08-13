@@ -19,6 +19,7 @@ pgl 2.0.2~WIP
     support is needed for a given configuration, exit. Fixed check for kernel
     support.
   * added traceroute to "pglcmd test"
+  * watchdog: separated running daemon process check and iptables check.
 
 -- jre <jre-phoenix@users.sourceforge.net>  WIP
 

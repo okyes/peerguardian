@@ -22,10 +22,6 @@ pglcmd:
     --
     peerguardian-devel@lists.sourceforge.net by dogg@retroject.net - 2010-04-20
 
-  - watchdog: separate running process check and iptables check. For iptables
-    check allow to work without complete pglcmd iptables setup. Probably issue a
-    warning about that on wd startup and in pglcmd.default.
-
   - on "stop" remove kernel modules that were inserted by blockcontrol. (see
     dino's synology packaging
     http://forums.phoenixlabs.org/showpost.php?p=128371&postcount=20). Probably

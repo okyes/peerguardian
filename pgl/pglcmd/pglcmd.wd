@@ -49,16 +49,17 @@ test_root
 [ ! -f "$WD_PID" ] || { log_success_msg "$WD_PID already exists, not starting $(basename $0) again" ; exit 0 ; }
 
 RETVAL=0
+CHECK_IPTABLES=1
 
 # The iptables setup has to be done completely by pglcmd
 [ "$IPTABLES_SETTINGS" -gt 0 ] || {
-    log_failure_msg "Error $E_CONFIG: IPTABLES_SETTINGS has to be greater 0."
-    exit $E_CONFIG
+    log_warning_msg "$0: IPTABLES_SETTINGS has to be greater 0, not checking iptables!"
+    CHECK_IPTABLES=0
     }
 
 [ "$IPTABLES_ACTIVATION" -gt 0 ] || {
-    log_failure_msg "Error $E_CONFIG: IPTABLES_ACTIVATION has to be greater 0."
-    exit $E_CONFIG
+    log_warning_msg "$0: IPTABLES_ACTIVATION has to be greater 0, not checking iptables!"
+    CHECK_IPTABLES=0
     }
 
 [ "$WD_SLEEP" -gt 0 ] || {
@@ -82,10 +83,36 @@ trap onexit INT SEGV QUIT TERM EXIT
 # Create pidfile.
 echo $$ > $WD_PID
 
+if [ -x /usr/sbin/sendmail ] ; then
+    SENDMAIL="/usr/sbin/sendmail"
+elif [ -x /usr/lib/sendmail ] ; then
+    SENDMAIL="/usr/lib/sendmail"
+fi
+
 while true ; do
     sleep $WD_SLEEP
     # First check if the daemon is running.
-    status_of_proc $DAEMON $NAME > /dev/null 2>&1 &&
+    status_of_proc $DAEMON $NAME > /dev/null 2>&1 || {
+        echo "$(basename $0): $NAME is not running!"
+        echo "The watchdog detected that the daemon is not running."
+        echo "To disable the watchdog set WATCHDOG=\"0\" in $CMD_CONF."
+        echo "Now doing a restart:"
+        $CMD_PATHNAME restart_not_wd || { RETVAL=$? ; break ; }
+        if [ $WD_MAILTO ] && [ $SENDMAIL ] ; then
+            cat<<EOF | $SENDMAIL -t
+To: $WD_MAILTO
+Subject: $(basename $0) restarted $NAME
+
+$NAME was not running! Therefore $(basename $0) restarted $NAME!
+
+To disable the watchdog set WD="0" in $CMD_CONF.
+EOF
+        fi
+        sleep $WD_SLEEP
+        }
+
+    # (Basic) check of the iptables setup (if automatic iptables management is configured)
+    if [ "$CHECK_IPTABLES" -ne 0 ] ; then
     {
         PASSED=1
         # If CHAINS is empty/not set, then set it to "all". Replace all with the single names.
@@ -119,25 +146,20 @@ while true ; do
         # other iptables rules might block the test packet before it reaches
         # pglcmd or the test packet might be whitelisted.
     } || {
-        echo "$(basename $0): $NAME does not block!"
+        echo "$(basename $0): iptables setup broken!"
         echo "In most cases the reason for this problem is that another firewall application"
         echo "messed up the iptables rules. To avoid this remember to do a \"${CMD_NAME} restart\""
         echo "whenever you start, stop or change the configuration of your other firewall"
         echo "applications."
         echo "To disable the watchdog set WATCHDOG=\"0\" in $CMD_CONF."
         echo "Now doing a restart:"
-        if [ -x /usr/sbin/sendmail ] ; then
-            SENDMAIL="/usr/sbin/sendmail"
-        elif [ -x /usr/lib/sendmail ] ; then
-            SENDMAIL="/usr/lib/sendmail"
-        fi
         $CMD_PATHNAME restart_not_wd || { RETVAL=$? ; break ; }
         if [ $WD_MAILTO ] && [ $SENDMAIL ] ; then
             cat<<EOF | $SENDMAIL -t
 To: $WD_MAILTO
 Subject: $(basename $0) restarted $NAME
 
-$NAME did not block! Therefore $(basename $0) restarted $NAME!
+The iptables setup was broken! Therefore $(basename $0) restarted $NAME!
 
 In most cases the reason for this problem is that another firewall application
 messed up the iptables rules. To avoid this remember to do a "${CMD_NAME} restart"
@@ -147,7 +169,9 @@ applications.
 To disable the watchdog set WD="0" in $CMD_CONF.
 EOF
         fi
+        sleep $WD_SLEEP
     }
+    fi
 done
 
 # We only end up here, if restart fails!
