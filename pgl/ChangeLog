@@ -18,6 +18,7 @@ pgl 2.0.2~WIP
     try to load kernel modules in any case. If this fails, but the kernel
     support is needed for a given configuration, exit. Fixed check for kernel
     support.
+  * added traceroute to "pglcmd test"
 
 -- jre <jre-phoenix@users.sourceforge.net>  WIP
 

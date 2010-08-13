@@ -17,6 +17,7 @@ PIDDIR="/var/run"
 LOGDIR="/var/log/pgl"
 CONFDIR="/etc/pgl"
 LIBDIR="/usr/lib/pgl"
+TMPDIR="/tmp"
 
 # The description.
 DESC="PeerGuardian Linux"

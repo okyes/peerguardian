@@ -29,6 +29,7 @@ all:
 	sed "s|^LOGDIR=.*|LOGDIR=\"$(LOGDIR)\"|" | \
 	sed "s|^CONFDIR=.*|CONFDIR=\"$(CONFDIR)\"|" | \
 	sed "s|^LIBDIR=.*|LIBDIR=\"$(LIBDIR)\"|" | \
+	sed "s|^TMPDIR=.*|TMPDIR=\"$(TMPDIR)\"|" | \
 	sed "s|^BLOCKLISTS_DIR=.*|BLOCKLISTS_DIR=\"$(BLOCKLISTS_DIR)\"|" | \
 	sed "s|^MASTER_BLOCKLIST_DIR=.*|MASTER_BLOCKLIST_DIR=\"$(MASTER_BLOCKLIST_DIR)\"|" | \
 	sed "s|^LSB=.*|LSB=\"$(LSB)\"|" > pglcmd.defaults.install

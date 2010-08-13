@@ -43,8 +43,6 @@ pglcmd:
     files.
     Further the debconf database is not cleared properly on purge.
 
-  - expand test to use traceroute (with a timeout)
-
   - adapt test function for peerguardian .p2b v2 binary format blocklist
     formats.
 

@@ -2472,23 +2472,20 @@ test_ipblocking () {
     # Remove the leading zeros in the IPs.
     # eval is needed because blocklist names are "quoted" (in order to allow spaces in the name).
     TEST_IP="$(eval head -n$TESTLINE $TEST_LIST | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1 )"
-    echo ""
-    echo "CAUTION: This is just a simple test to check if $DESC blocks outgoing"
-    echo "connections. For this, an IP from the blocklist will be pinged. Then the test"
-    echo "checks if this IP appears in $TEST_LOG."
+    echo "CAUTION: This is just a simple test to check if $DESC blocks"
+    echo "outgoing connections. For this, an IP from the blocklist will be pinged. Then "
+    echo "the test checks if this IP appears in $TEST_LOG."
     if [ "$REJECT" -eq 1 ] ; then
-        echo ""
         echo "$NAME marks packets to be blocked. This means you have to make sure that the"
         echo "marked packets are also blocked later (with appropriate iptables rules). If you"
         echo "are using the default configuration and $NAME is started after other firewalls"
         echo "this will be the case."
     fi
-    echo ""
     echo "This test does not check if you have sane iptables rules or if your complete"
     echo "blocklist is in the correct format. Therefore success doesn't imply that"
     echo "everything is working as you expect it."
     echo ""
-    echo "Also have a look at \"$(basename $0) status\" and test manually with traceroute."
+    echo "Also have a look at \"$(basename $0) status\"."
     echo ""
 
     echo "Trying to ping $TEST_IP from $MASTER_BLOCKLIST ..."
@@ -2504,7 +2501,7 @@ test_ipblocking () {
 
     if [ "$LOG_LENGTH" -ne "$LOG_LENGTH_NEW" ] ; then    # log length changed
         tail -n$(($LOG_LENGTH_NEW-$LOG_LENGTH)) $TEST_LOG | \
-            grep $TEST_IP > /dev/null 2>&1
+            grep -q $TEST_IP
         RETVAL=$? # the grep exit status
         # The grep exit status is 0 if selected lines are found and 1 otherwise.
         # If an error occurred the grep exit status is 2.
@@ -2524,7 +2521,7 @@ test_ipblocking () {
             if [ "$REJECT" -eq 1 ] ; then
                 echo "$NAME blocked the IP, but ping got an answer or failed."
                 echo "Check the iptables settings and make sure that \"marked block\" packets really"
-                 echo "get blocked."
+                echo "get blocked."
                 RETVAL=2
             else    # REJECT is 0
                 echo "$NAME blocked the IP, but ping got an answer or failed - strange."
@@ -2540,17 +2537,45 @@ test_ipblocking () {
         else    # REJECT is 0
             echo "$NAME did not block the IP."
         fi
-        echo "Was $NAME already loaded completely? Wait some minutes and try again."
-        echo ""
         if [ "$RETVAL_PING" -eq 0 ] ; then    # Reply to ping
             echo "$TEST_IP answered. Test failed."
         elif [ "$RETVAL_PING" -eq 1 ] ; then    # No reply to ping
-            echo "$TEST_IP did not answer."
+            echo "$TEST_IP did not answer the ping."
             echo ""
-            echo "Maybe $TEST_IP is down/doesn't answer to pings"
-            echo "(this would still mean that $NAME is not working)"
-            echo "or your firewall filtered the ping before $NAME could check it"
-            echo "(then $NAME may be working as desired, check your iptables rules)."
+            echo "No clear test result! Trying \"traceroute -n -m 2 $TEST_IP\" now:"
+            TRACE_LOG="${TMPDIR}/$(basename $0).test.log"
+            traceroute -n -m 2 $TEST_IP > $TRACE_LOG 2>&1
+            RETVAL_TRACEROUTE=$?    # the traceroute exit status
+            cat $TRACE_LOG
+            echo ""
+            if [ "$RETVAL_TRACEROUTE" -eq 1 ] && grep -q "send: Operation not permitted" $TRACE_LOG ; then
+                echo "Probably the traceroute packet was blocked by another iptables rule on your"
+                echo "machine. Everything might be ok."
+                RETVAL=0
+            elif [ "$RETVAL_TRACEROUTE" -eq 0 ] && [ "$(wc -l $TRACE_LOG | awk '{ print $1 }')" -eq 2 ] ; then
+                # Wait a second to give the daemon time to log the current block
+                sleep 1
+                LOG_LENGTH_NEW="$(wc -l ${TEST_LOG} | awk '{ print $1 }')" # new log length
+                if [ "$LOG_LENGTH" -ne "$LOG_LENGTH_NEW" ] ; then    # log length changed
+                    tail -n$(($LOG_LENGTH_NEW-$LOG_LENGTH)) $TEST_LOG | \
+                        grep -q $TEST_IP
+                    RETVAL=$? # the grep exit status
+                    # The grep exit status is 0 if selected lines are found and 1 otherwise.
+                    # If an error occurred the grep exit status is 2.
+                    if [ "$RETVAL" -eq 0 ] ; then
+                        echo "Now the packet was blocked by pglcmd. Everything might be ok."
+                        RETVAL=0
+                    fi
+                else
+                    echo "The packet did not leave your machine, but wasn't blocked either. Confusing."
+                    echo "Traceroute return code was $RETVAL_TRACEROUTE."
+                fi
+            elif [ "$RETVAL_TRACEROUTE" -eq 0 ] && [ "$(wc -l $TRACE_LOG | awk '{ print $1 }')" -eq 3 ] ; then
+                echo "The traceroute packet was not blocked on your machine. There is a problem!"
+            else
+                echo "Probably $TEST_IP is down/doesn't answer to pings."
+                echo "This still means that $NAME is not working!"
+            fi
         else
             echo "Some error occured with ping, no test result."
             RETVAL=2
