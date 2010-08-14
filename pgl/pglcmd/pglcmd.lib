@@ -688,140 +688,158 @@ test_net () {
     fi
 }
 
-white_lan () {
-    # Automatically whitelist all up interfaces
-    # For this the output of "ifconfig" and "iptables -L -nv" is scanned for certain patterns
+white_local () {
+    # If CHAINS is empty/not set, then set it to "all". Replace all with the single names.
+    CHAINS=${CHAINS:-all}
+    [ "$CHAINS" != all ] || CHAINS="INPUT OUTPUT FORWARD"
 
-    # Get IPs of interfaces that are up
-    LOCAL_IPS="$(ifconfig | \
-        grep -Eo "inet addr:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | \
-        grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" )"
-    for IP in $LOCAL_IPS ; do
-        case $IP in
-        127.*)
-            # IP is a loopback IP
-            # Ignore, this is done once on start.
-            true
-            ;;
-        *)
-            # For all other IPs
-            # Get the corresponding subnetmask
-            # Use grep -F followed by a blank to match exactly a specific IP!
-            SUBNETMASK="$(ifconfig | grep -F "inet addr:${IP} " | \
-                grep -Eo "Mask:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | \
-                grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" )"
-            # Set the scope (IP/subnetmask) as it will be shown by iptables
-            if [ "$SUBNETMASK" = 255.255.255.0 ] ; then
-                # Scope is X.X.X.0/24
-                SCOPE="$( echo $IP | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\." )0/24"
-            elif [ "$SUBNETMASK" = 255.255.0.0 ] ; then
-                # Scope is X.X.0.0/16
-                SCOPE="$( echo $IP | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\." )0.0/16"
-            else
-                # TODO: Find a way to check for the real IP/SUBNETMASK pattern.
-                # With an empty SCOPE the last grep command will just fail, so
-                # the result is as if no whitelisting already occured.
-                # So if the network is brought up several times there will be multiple identical rules,
-                # but no real harm will be done.
-                SCOPE=""
-            fi
-
-            # If CHAINS is empty/not set, then set it to "all". Replace all with the single names.
-            CHAINS=${CHAINS:-all}
-            [ "$CHAINS" != all ] || CHAINS="INPUT OUTPUT FORWARD"
-
-            # Insert whitelisting rules for LAN with SUBNETMASK.
+    if [ "$WHITE_LOCAL" -ne 0 ] ; then
+        # Whitelist loopback interface
+        # Do this only once on (re)start
+        if [ "$1" = start ] || [ "$1" = restart ] ; then
             for CHAIN in $CHAINS ; do
                 case $CHAIN in
                 INPUT)
                     PGL_CHAIN="$IPTABLES_IN"
-                    CMD_WHITE_IP="--source ${IP}/${SUBNETMASK}"
+                    CMD_LOOP="-i lo"
                     ;;
                 OUTPUT)
                     PGL_CHAIN="$IPTABLES_OUT"
-                    CMD_WHITE_IP="--destination ${IP}/${SUBNETMASK}"
+                    CMD_LOOP="-o lo"
                     ;;
                 FORWARD)
-                    PGL_CHAIN="$IPTABLES_FWD"
-                    CMD_WHITE_IP="--source ${IP}/${SUBNETMASK} --destination ${IP}/${SUBNETMASK}"
+                    continue
                     ;;
                 *)
                     echo "Unknown CHAIN $CHAIN specified."
                     exit 1
                     ;;
                 esac
-                echo -n "Allowing $CHAIN LAN traffic for $IP with subnetmask $SUBNETMASK"
-                # Whitelist LAN, if we do an inital start/restart (quick
-                # test of $1) or if the LAN is not already whitelisted
-                # (time-consuming test of iptables output).
-                # With other words:
-                # pglcmd start/restart: always whitelist LAN
-                # if-up: first check iptables output if LAN is already whitelisted.
-                if [ "$1" = start ] || [ "$1" = restart ] ||
-                ! iptables -nv -L $PGL_CHAIN | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
-                    iptables -I $PGL_CHAIN $CMD_WHITE_IP -j $IPTABLES_TARGET_WHITELISTING
-                    RETVAL=$?
-                    log_end_msg $RETVAL
-                    [ "$RETVAL" = 0 ] || exit $E_IPTABLES
-                else
-                    echo ", already done."
-                fi
-            done
-            ;;
-        esac
-    done
-}
-
-white_dns () {
-    # Automatically whitelist the DNS server(s).
-    # For this /etc/resolv.conf and the output of "iptables -L -nv" is scanned for certain patterns.
-
-    #Get the DNS server's IP
-    DNS_IPS="$( grep nameserver /etc/resolv.conf | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" )"
-
-    # If CHAINS is empty/not set, then set it to "all". Replace all with the single names.
-    CHAINS=${CHAINS:-all}
-    [ "$CHAINS" != all ] || CHAINS="INPUT OUTPUT FORWARD"
-
-    # Insert whitelisting rules for DNS server.
-    for CHAIN in $CHAINS ; do
-        case $CHAIN in
-        INPUT)
-            continue
-            ;;
-        OUTPUT)
-            PGL_CHAIN="$IPTABLES_OUT"
-            ;;
-        FORWARD)
-            PGL_CHAIN="$IPTABLES_FWD"
-            ;;
-        *)
-            echo "Unknown CHAIN $CHAIN specified."
-            exit 1
-            ;;
-        esac
-
-        for IP in $DNS_IPS ; do
-            echo -n "Allowing $CHAIN traffic to DNS server $IP"
-            # Whitelist DNS server, if we do an inital start/restart (quick
-            # test of $1) or if the DNS server is not already whitelisted
-            # (time-consuming test of iptables output).
-            # With other words:
-            # pglcmd start/restart: always whitelist DNS server
-            # if-up: first check if DNS server is already whitelisted.
-            if [ "$1" = start ] || [ "$1" = restart ] ||
-            ! iptables -nv -L $PGL_CHAIN | grep -F "$IP " | grep $IPTABLES_TARGET_WHITELISTING > /dev/null 2>&1 ; then
-                iptables -I $PGL_CHAIN --destination $IP -j $IPTABLES_TARGET_WHITELISTING
+                echo -n "Allowing loopback traffic in $CHAIN"
+                # Insert whitelisting rules for whole loopback interface
+                iptables -I $PGL_CHAIN $CMD_LOOP -j $IPTABLES_TARGET_WHITELISTING
                 RETVAL=$?
                 log_end_msg $RETVAL
                 [ "$RETVAL" = 0 ] || exit $E_IPTABLES
-            else
-                echo ", already done."
-            fi
-        done
-    done
-}
+            done
+        fi
 
+        # Whitelist the DNS server(s).
+        # For this /etc/resolv.conf and the output of "iptables -L -nv" is scanned for certain patterns.
+        if [ -f /etc/resolv.conf ] ; then
+            # Get the DNS server's IP
+            DNS_IPS="$( grep nameserver /etc/resolv.conf | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" )"
+
+            # Insert whitelisting rules for DNS server.
+            for CHAIN in $CHAINS ; do
+                case $CHAIN in
+                INPUT)
+                    continue
+                    ;;
+                OUTPUT)
+                    PGL_CHAIN="$IPTABLES_OUT"
+                    ;;
+                FORWARD)
+                    PGL_CHAIN="$IPTABLES_FWD"
+                    ;;
+                esac
+
+                for IP in $DNS_IPS ; do
+                    echo -n "Allowing $CHAIN traffic to DNS server $IP"
+                    # Whitelist DNS server, if we do an inital start/restart (quick
+                    # test of $1) or if the DNS server is not already whitelisted
+                    # (time-consuming test of iptables output).
+                    # With other words:
+                    # pglcmd start/restart: always whitelist DNS server
+                    # if-up: first check if DNS server is already whitelisted.
+                    if [ "$1" = start ] || [ "$1" = restart ] ||
+                    ! iptables -nv -L $PGL_CHAIN | grep -F "$IP " | grep $IPTABLES_TARGET_WHITELISTING > /dev/null 2>&1 ; then
+                        iptables -I $PGL_CHAIN --destination $IP -j $IPTABLES_TARGET_WHITELISTING
+                        RETVAL=$?
+                        log_end_msg $RETVAL
+                        [ "$RETVAL" = 0 ] || exit $E_IPTABLES
+                    else
+                        echo ", already done."
+                    fi
+                done
+            done
+        fi
+    fi
+
+    if [ "$WHITE_LOCAL" -eq 1 ] ; then
+        # Automatically whitelist all up interfaces
+        # For this the output of "ifconfig" and "iptables -L -nv" is scanned for certain patterns
+
+        # Get IPs of interfaces that are up
+        LOCAL_IPS="$(ifconfig | \
+            grep -Eo "inet addr:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | \
+            grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" )"
+        for IP in $LOCAL_IPS ; do
+            case $IP in
+            127.*)
+                # IP is a loopback IP. This was already done above.
+                ;;
+            *)
+                # For all other IPs
+                # Get the corresponding subnetmask
+                # Use grep -F followed by a blank to match exactly a specific IP!
+                SUBNETMASK="$(ifconfig | grep -F "inet addr:${IP} " | \
+                    grep -Eo "Mask:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | \
+                    grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" )"
+                # Set the scope (IP/subnetmask) as it will be shown by iptables
+                if [ "$SUBNETMASK" = 255.255.255.0 ] ; then
+                    # Scope is X.X.X.0/24
+                    SCOPE="$( echo $IP | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\." )0/24"
+                elif [ "$SUBNETMASK" = 255.255.0.0 ] ; then
+                    # Scope is X.X.0.0/16
+                    SCOPE="$( echo $IP | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\." )0.0/16"
+                else
+                    # TODO: Find a way to check for the real IP/SUBNETMASK pattern.
+                    # With an empty SCOPE the last grep command will just fail, so
+                    # the result is as if no whitelisting already occured.
+                    # So if the network is brought up several times there will be multiple identical rules,
+                    # but no real harm will be done.
+                    SCOPE=""
+                fi
+
+                # Insert whitelisting rules for LAN with SUBNETMASK.
+                for CHAIN in $CHAINS ; do
+                    case $CHAIN in
+                    INPUT)
+                        PGL_CHAIN="$IPTABLES_IN"
+                        CMD_WHITE_IP="--source ${IP}/${SUBNETMASK}"
+                        ;;
+                    OUTPUT)
+                        PGL_CHAIN="$IPTABLES_OUT"
+                        CMD_WHITE_IP="--destination ${IP}/${SUBNETMASK}"
+                        ;;
+                    FORWARD)
+                        PGL_CHAIN="$IPTABLES_FWD"
+                        CMD_WHITE_IP="--source ${IP}/${SUBNETMASK} --destination ${IP}/${SUBNETMASK}"
+                        ;;
+                    esac
+                    echo -n "Allowing $CHAIN LAN traffic for $IP with subnetmask $SUBNETMASK"
+                    # Whitelist LAN, if we do an inital start/restart (quick
+                    # test of $1) or if the LAN is not already whitelisted
+                    # (time-consuming test of iptables output).
+                    # With other words:
+                    # pglcmd start/restart: always whitelist LAN
+                    # if-up: first check iptables output if LAN is already whitelisted.
+                    if [ "$1" = start ] || [ "$1" = restart ] ||
+                    ! iptables -nv -L $PGL_CHAIN | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
+                        iptables -I $PGL_CHAIN $CMD_WHITE_IP -j $IPTABLES_TARGET_WHITELISTING
+                        RETVAL=$?
+                        log_end_msg $RETVAL
+                        [ "$RETVAL" = 0 ] || exit $E_IPTABLES
+                    else
+                        echo ", already done."
+                    fi
+                done
+                ;;
+            esac
+        done
+    fi
+}
 
 # Function to insert whitelisting iptables rules for ports with the module multiport
 # Usage: white_port_iptables
@@ -1031,21 +1049,9 @@ insert_iptables () {
             fi
         done
 
-        # Automatically whitelist LAN of all up interfaces (except loopback, see below)
-        [ "$WHITE_LOCAL" -eq 1 ] && white_lan
-
-        if [ "$WHITE_LOCAL" -ne 0 ] ; then
-            # Automatically whitelist the DNS server(s).
-            [ -f /etc/resolv.conf ] && white_dns
-
-            # Insert whitelisting rules for whole loopback interface
-            echo -n "Allowing loopback traffic"
-            iptables -I ${IPTABLES_IN} -i lo -j $IPTABLES_TARGET_WHITELISTING &&
-            iptables -I ${IPTABLES_OUT} -o lo -j $IPTABLES_TARGET_WHITELISTING
-            RETVAL=$?
-            log_end_msg $RETVAL
-            [ "$RETVAL" = 0 ] || exit $E_IPTABLES
-        fi
+        # Automatically whitelist LAN of all up interfaces, loopback interface
+        # and DNS server(s) (if configured)
+        white_local
 
         # Chain activation
         case "$IPTABLES_ACTIVATION" in

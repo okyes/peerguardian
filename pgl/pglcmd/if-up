@@ -49,7 +49,8 @@ test_DAEMON
 test_CMD_PATHNAME
 test_external iptables || exit $?
 
-[ "$WHITE_LOCAL" -eq 1 ] && white_lan >> $CMD_LOG 2>&1
-[ "$WHITE_LOCAL" -ne 0 ] && [ -f /etc/resolv.conf ] && white_dns >> $CMD_LOG 2>&1
+# Automatically whitelist LAN of all up interfaces, loopback interface
+# and DNS server(s) (if configured)
+white_local >> $CMD_LOG 2>&1
 
 exit 0
