@@ -1,4 +1,4 @@
-pgl (2.0.2-1~pre1) UNRELEASED; urgency=low
+pgl (2.0.2-1) unstable; urgency=low
 
   * debian/postinst: remove invalid characters (" or |) from $RET
   * added debian/patches/use-systemwide-LSB-init-functions.patch
@@ -8,7 +8,7 @@ pgl (2.0.2-1~pre1) UNRELEASED; urgency=low
     - bumped to Standards-Version 3.9.1.0
     - disabled dbus in Build-Depends
 
- -- jre <jre-phoenix@users.sourceforge.net>  Mon, 26 Jul 2010 16:51:20 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Sat, 14 Aug 2010 17:17:31 +0200
 
 pgl (2.0.1-1) unstable; urgency=low
 

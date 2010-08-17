@@ -184,6 +184,7 @@ case "$1" in
             echo
         else
             echo "Run \"status\" as root to verify your iptables settings!"
+            echo ""
         fi
         status_of_proc $DAEMON $NAME
         RETVAL="$?"

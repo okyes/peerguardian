@@ -361,12 +361,6 @@ STATS_MAILTO=$CRON_MAILTO
 # Specify the mail recipient. If not set, no notification will be emailed.
 WD_MAILTO=$CRON_MAILTO
 
-# Compress the guarding.*/ipfilter.dat file since pgld can read gzipped files
-# This doesn't do anything yet
-# 0 - Don't compress (default)
-# 1 - Compress
-COMPRESS="0"
-
 # Use D-Bus
 # Currently disabled
 # 0 - Do NOT use D-Bus
