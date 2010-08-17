@@ -145,10 +145,6 @@ TESTHOST="iblocklist.com"
 # pgld checks traffic in userspace.
 # Iptables rules decide which traffic gets there.
 
-# Do a "pglcmd stop" before you change these iptables settings and a
-# "pglcmd start" afterwards. Otherwise the old iptables rules might not be
-# removed.
-
 # Set how traffic is sent to pgld.
 # 0 - Don't set any iptables rules.
 #     You or another script/firewall has to do this!

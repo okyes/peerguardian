@@ -1,3 +1,9 @@
+pgl (2.0.3-1~pre1) unstable; urgency=low
+
+  * new upstram release.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 17 Aug 2010 15:34:05 +0200
+
 pgl (2.0.2-1) unstable; urgency=low
 
   * debian/postinst: remove invalid characters (" or |) from $RET

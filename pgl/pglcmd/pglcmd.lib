@@ -715,7 +715,7 @@ white_local () {
                     exit 1
                     ;;
                 esac
-                echo -n "Allowing loopback traffic in $CHAIN"
+                echo -n "  Allowing loopback traffic in $CHAIN"
                 # Insert whitelisting rules for whole loopback interface
                 iptables -I $PGL_CHAIN $CMD_LOOP -j $IPTABLES_TARGET_WHITELISTING
                 RETVAL=$?
@@ -745,7 +745,7 @@ white_local () {
                 esac
 
                 for IP in $DNS_IPS ; do
-                    echo -n "Allowing $CHAIN traffic to DNS server $IP"
+                    echo -n "  Allowing $CHAIN traffic to DNS server $IP"
                     # Whitelist DNS server, if we do an inital start/restart (quick
                     # test of $1) or if the DNS server is not already whitelisted
                     # (time-consuming test of iptables output).
@@ -818,7 +818,7 @@ white_local () {
                         CMD_WHITE_IP="--source ${IP}/${SUBNETMASK} --destination ${IP}/${SUBNETMASK}"
                         ;;
                     esac
-                    echo -n "Allowing $CHAIN LAN traffic for $IP with subnetmask $SUBNETMASK"
+                    echo -n "  Allowing $CHAIN LAN traffic for $IP with subnetmask $SUBNETMASK"
                     # Whitelist LAN, if we do an inital start/restart (quick
                     # test of $1) or if the LAN is not already whitelisted
                     # (time-consuming test of iptables output).
@@ -920,9 +920,19 @@ prepare_iptables_activation () {
     esac
 }
 
+# Set REMOVE_SCRIPT needed by insert_iptables and delete_iptables
+REMOVE_SCRIPT="$BLOCKLISTS_DIR/${CMD_NAME}.iptables.remove.sh"
+
 # Function that inserts the iptables rules
 insert_iptables () {
     # test_IPTABLES_VARS # Already tested in do_start
+    test_external iptables || exit $?
+    if [ -f "$REMOVE_SCRIPT" ] ; then
+        echo -n "Old iptables remove script $REMOVE_SCRIPT exists. Executing now and then removing it"
+        sh $REMOVE_SCRIPT
+        rm $REMOVE_SCRIPT
+        log_end_msg $?
+    fi
     case "$IPTABLES_SETTINGS" in
     '0')
         test_VERBOSITY
@@ -938,7 +948,6 @@ insert_iptables () {
         test_IPTABLES_TARGET
         test_REJECT
         test_ACCEPT
-        test_external iptables || exit $?
 
         # Set constant variables for iptables commands
         case "$IPTABLES_TARGET" in
@@ -993,8 +1002,11 @@ insert_iptables () {
                 ;;
             esac
 
-            # Create new pgl_ chain.
-            iptables -N $PGL_CHAIN || fail_insert_iptables
+            # Create new pgl_ chain and remember iptables removal rules
+            ( iptables -N $PGL_CHAIN &&
+                echo "iptables -F $PGL_CHAIN" >> $REMOVE_SCRIPT &&
+                echo "iptables -X $PGL_CHAIN" >> $REMOVE_SCRIPT ) ||
+                fail_insert_iptables
 
             # Insert block rule for matched packets.
             iptables -I $PGL_CHAIN -j $IPTABLES_TARGET_BLOCK || fail_insert_iptables
@@ -1053,6 +1065,16 @@ insert_iptables () {
         # and DNS server(s) (if configured)
         white_local
 
+        # If custom iptables insertion scripts exist, execute them:
+        CUSTOM_INSERT_SCRIPTS="$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*insert.sh" -print0 | xargs -0r)"
+        [ -z "$CUSTOM_INSERT_SCRIPTS" ] || {
+            for FILE in $CUSTOM_INSERT_SCRIPTS ; do
+                echo -n "  Executing custom iptables insertion script $FILE"
+                sh $FILE
+                log_end_msg "$?"
+            done
+            }
+
         # Chain activation
         case "$IPTABLES_ACTIVATION" in
         '0')
@@ -1079,10 +1101,6 @@ insert_iptables () {
                     FORWARD)
                         PGL_CHAIN="$IPTABLES_FWD"
                         ;;
-                    *)
-                        echo "Unknown CHAIN $CHAIN specified."
-                        exit 1
-                        ;;
                     esac
 
                     if [ "$INTERFACE" = all ] ; then
@@ -1101,144 +1119,60 @@ insert_iptables () {
                         # Valid CHAINs was already tested above. No test needed here.
                         esac
                     fi
-                    iptables -I $CHAIN $CMD_INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN || fail_insert_iptables
+                    # Activate iptables chain and remember iptables removal rules
+                    ( iptables -I $CHAIN $CMD_INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
+                        echo "iptables -D $CHAIN $CMD_INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp &&
+                        cat $REMOVE_SCRIPT >> ${REMOVE_SCRIPT}.tmp &&
+                        mv ${REMOVE_SCRIPT}.tmp $REMOVE_SCRIPT
+                        ) ||
+                        fail_insert_iptables
                 done
             done
             ;;
         esac
-
         log_end_msg 0    # Complete iptables insertion went well.
-
-        # If custom iptables insertion scripts exist, execute them:
-        CUSTOM_INSERT_SCRIPTS="$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*insert.sh" -print0 | xargs -0r)"
-        [ -z "$CUSTOM_INSERT_SCRIPTS" ] || {
-            for FILE in $CUSTOM_INSERT_SCRIPTS ; do
-                echo -n "Executing $FILE ..."
-                sh $FILE
-                log_end_msg "$?"
-            done
-            }
         ;;
-
     '2')
         CUSTOM_INSERT_SCRIPTS="$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*insert.sh" -print0 | xargs -0r)"
         [ -z "$CUSTOM_INSERT_SCRIPTS" ] || {
-            echo -n "Executing custom iptables insertion script(s) ..."
             for FILE in $CUSTOM_INSERT_SCRIPTS ; do
-                echo -n "Executing $FILE ..."
+                echo -n "Executing custom iptables insertion script $FILE ..."
                 sh $FILE && log_end_msg $? || fail_insert_iptables
+                log_end_msg $?
             done
-            echo "$?"
             }
         ;;
     esac
 }
 
 # Function that deletes the iptables rules
+# iptables command errors are ignored, because removing an already removed rule
+# causes an error, although this is no problem for us.
 delete_iptables () {
     test_IPTABLES_VARS
-    case "$IPTABLES_SETTINGS" in
-    '0')
-        test_VERBOSITY
-        if [ "$VERBOSITY" -eq 1 ] ; then
-            log_warning_msg "$(basename $0) configured not to delete iptables rules."
-        fi
-        ;;
-    '1')
-        echo "Deleting iptables ..."
-        test_external iptables || exit $?
+    test_external iptables || exit $?
+    echo "Deleting iptables ..."
 
-        IPTABLES_DELETE="0"
-
-        # If CHAINS is empty/not set, then set it to "all". Replace all with the single names.
-        CHAINS=${CHAINS:-all}
-        [ "$CHAINS" != all ] || CHAINS="INPUT OUTPUT FORWARD"
-
-        ( [ "$IPTABLES_ACTIVATION" -eq 1 ] || [ "$IPTABLES_ACTIVATION" -eq 2 ] ) &&
-            prepare_iptables_activation
-
-        # If INTERFACE is empty/not set, then set it to "all".
-        INTERFACES=${INTERFACES:-all}
-
-        # Remove iptables rules per interface and chain
-        for CHAIN in $CHAINS ; do
-            case $CHAIN in
-            INPUT)
-                PGL_CHAIN="$IPTABLES_IN"
-                ;;
-            OUTPUT)
-                PGL_CHAIN="$IPTABLES_OUT"
-                ;;
-            FORWARD)
-                PGL_CHAIN="$IPTABLES_FWD"
-                ;;
-            *)
-                echo "Unknown CHAIN $CHAIN specified."
-                exit 1
-                ;;
-            esac
-
-            # Remove activation rules
-            if [ "$IPTABLES_ACTIVATION" -eq 1 ] || [ "$IPTABLES_ACTIVATION" -eq 2 ] ; then
-                for INTERFACE in $INTERFACES ; do
-                    if [ "$INTERFACE" = all ] ; then
-                        CMD_INTERFACE=""
-                    else
-                        case $CHAIN in
-                        INPUT)
-                            CMD_INTERFACE="-i $INTERFACE"
-                            ;;
-                        OUTPUT)
-                            CMD_INTERFACE="-o $INTERFACE"
-                            ;;
-                        FORWARD)
-                            CMD_INTERFACE="-i $INTERFACE -o $INTERFACE"
-                            ;;
-                        esac
-                    fi
-                    iptables -D $CHAIN $CMD_INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN || IPTABLES_DELETE="1"
-                done
-            fi
-
-            # Flush pgl_ chain
-            iptables -F $PGL_CHAIN || IPTABLES_DELETE="1"
-            # Delete pgl_ chain
-            iptables -X $PGL_CHAIN|| IPTABLES_DELETE="1"
-        done
-
-        log_end_msg $IPTABLES_DELETE
-
-        if [ "$IPTABLES_DELETE" = 1 ] ; then
-            echo "Some errors occured during the deletion of the iptables rules."
-            echo "If $NAME wasn't running before, no iptables rules existed and therefore you"
-            echo "don't have to worry about this message."
-            echo "But if $NAME was running there is some problem. Most probably you have installed"
-            echo "another firewall application that deleted the iptables rules. A"
-            echo "\"$(basename $0) restart\" fixes this situation."
-        fi
-
+    # Execute custom iptables removal scripts if configured
+    if [ "$IPTABLES_SETTINGS" -gt 0 ] ; then
         # If custom iptables removal scripts exist, execute them:
         CUSTOM_REMOVE_SCRIPTS="$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*remove.sh" -print0 | xargs -0r)"
         [ -z "$CUSTOM_REMOVE_SCRIPTS" ] || {
             for FILE in $CUSTOM_REMOVE_SCRIPTS ; do
-                echo -n "Executing $FILE ..."
+                echo -n "  Executing custom iptables removal script $FILE"
                 sh $FILE
-                log_end_msg "$?"
+                log_end_msg $?
             done
             }
-        ;;
-    '2')
-        CUSTOM_REMOVE_SCRIPTS="$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*remove.sh" -print0 | xargs -0r)"
-        [ -z "$CUSTOM_REMOVE_SCRIPTS" ] || {
-            echo -n "Executing custom iptables removal script(s) ..."
-            for FILE in $CUSTOM_REMOVE_SCRIPTS ; do
-                echo -n "Executing $FILE ..."
-                sh $FILE && log_end_msg $? || { log_end_msg $? ; exit $E_IPTABLES ; }
-            done
-            echo "$?"
-            }
-        ;;
-    esac
+    fi
+    # Delete previously inserted iptables rules in any case. REMOVE_SCRIPT is created in insert_iptables
+    if [ -f "$REMOVE_SCRIPT" ] ; then
+        echo -n "  Executing iptables remove script $REMOVE_SCRIPT and then removing it"
+        sh $REMOVE_SCRIPT
+        rm $REMOVE_SCRIPT
+        log_end_msg $?
+    fi
+    log_end_msg $?
 }
 
 set_md5sum () {
