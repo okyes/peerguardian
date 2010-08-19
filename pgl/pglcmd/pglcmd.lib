@@ -2251,7 +2251,7 @@ build_blocklist () {
             exit $E_XCD
         }
 
-        echo -n "Building blocklist... "
+        echo "Building blocklist... "
 
         BLOCKLISTSCAT=""
 
@@ -2334,7 +2334,8 @@ build_blocklist () {
                 tr -cd '[:alnum:][:space:]:\\\*\.\-,[]\n' | \
                 # Only keep the last occurence of :
                 sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | \
-                # Premerge the blocklist
+                # Premerge the blocklist, pgld's information is sent to STDERR
+                # and therefore ends in pglcmd.log
                 $DAEMON -m > $MASTER_BLOCKLIST && BUILT=1
             fi
 
