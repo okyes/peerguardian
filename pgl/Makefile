@@ -28,7 +28,7 @@ MAKE_PGLGUI ?= no
 DBUS ?= no
 
 # Set ZLIB to yes if you want pgld to be able to load compressed blocklists.
-ZLIB ?= no
+ZLIB ?= yes
 
 # LOWMEM disables storing of textual range descriptions in RAM.
 # Set to yes if you are building a version for embedded devices

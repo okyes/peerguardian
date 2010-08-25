@@ -5,6 +5,7 @@ pgl 2.0.3
 
   [ jre ]
   * Remember inserted iptables for later removal
+  * reenabled pgld's loading zip compressed blocklists
 
 -- jre <jre-phoenix@users.sourceforge.net>  WIP
 
