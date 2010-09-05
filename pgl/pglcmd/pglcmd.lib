@@ -1018,7 +1018,7 @@ insert_iptables () {
             # IP Whitelisting
             for IP in $WHITE_IP ; do
                 # Add whitelisting rule
-                # (in the FORWARD chain 2 rules rules: once for --source, once for --dst-range)
+                # (add 2 rules in the FORWARD chain: once for --source, once for --destination)
                 for CMD in $CMD_WHITE_IP ; do
                     iptables -I $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
                 done
@@ -1037,7 +1037,7 @@ insert_iptables () {
                     IFS=$STDIFS
                     for CMD in $CMD_ALLOW ; do
                         # Add whitelisting rule
-                        # (in the FORWARD chain 2 rules rules: once for --src-range, once for --destination)
+                        # (add 2 rules in the FORWARD chain: once for --src-range, once for --dst-range)
                         iptables -I $PGL_CHAIN -m iprange $CMD $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
                             # If iptables insertion failed assume that the line is malformed.
                             # Comment this line out.
