@@ -921,7 +921,7 @@ prepare_iptables_activation () {
 }
 
 # Set REMOVE_SCRIPT needed by insert_iptables and delete_iptables
-REMOVE_SCRIPT="$BLOCKLISTS_DIR/${CMD_NAME}.iptables.remove.sh"
+REMOVE_SCRIPT="$MASTER_BLOCKLIST_DIR/.${CMD_NAME}.iptables.remove.sh"
 
 # Function that inserts the iptables rules
 insert_iptables () {
