@@ -6,7 +6,7 @@ pgl 2.0.3
   [ jre ]
   * Remember inserted iptables for later removal
   * fixed iptables whitelisting of IP ranges in the FORWARD chain (incorrect IFS
-    setting)
+    setting). Closes SF Bug #3057107
   * reenabled pgld's loading zip compressed blocklists
 
 -- jre <jre-phoenix@users.sourceforge.net>  WIP
