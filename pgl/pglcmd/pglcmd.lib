@@ -1002,7 +1002,7 @@ insert_iptables () {
                 ;;
             esac
 
-            # Create new pgl_ chain and remember iptables removal rules
+            # Create new pgl_ chain and remember iptables remove rules
             ( iptables -N $PGL_CHAIN &&
                 echo "iptables -F $PGL_CHAIN" >> $REMOVE_SCRIPT &&
                 echo "iptables -X $PGL_CHAIN" >> $REMOVE_SCRIPT ) ||
@@ -1016,8 +1016,10 @@ insert_iptables () {
             white_port_prepare $PGL_CHAIN udp $WHITE_UDP
 
             # IP Whitelisting
-            for CMD in $CMD_WHITE_IP ; do
-                for IP in $WHITE_IP ; do
+            for IP in $WHITE_IP ; do
+                # Add whitelisting rule
+                # (in the FORWARD chain 2 rules rules: once for --source, once for --dst-range)
+                for CMD in $CMD_WHITE_IP ; do
                     iptables -I $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
                 done
             done
@@ -1119,7 +1121,7 @@ insert_iptables () {
                         # Valid CHAINs was already tested above. No test needed here.
                         esac
                     fi
-                    # Activate iptables chain and remember iptables removal rules
+                    # Activate iptables chain and remember iptables remove rules
                     ( iptables -I $CHAIN $CMD_INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
                         echo "iptables -D $CHAIN $CMD_INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp &&
                         cat $REMOVE_SCRIPT >> ${REMOVE_SCRIPT}.tmp &&
@@ -1153,13 +1155,13 @@ delete_iptables () {
     test_external iptables || exit $?
     echo "Deleting iptables ..."
 
-    # Execute custom iptables removal scripts if configured
+    # Execute custom iptables remove scripts if configured
     if [ "$IPTABLES_SETTINGS" -gt 0 ] ; then
-        # If custom iptables removal scripts exist, execute them:
+        # If custom iptables remove scripts exist, execute them:
         CUSTOM_REMOVE_SCRIPTS="$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*remove.sh" -print0 | xargs -0r)"
         [ -z "$CUSTOM_REMOVE_SCRIPTS" ] || {
             for FILE in $CUSTOM_REMOVE_SCRIPTS ; do
-                echo -n "  Executing custom iptables removal script $FILE"
+                echo -n "  Executing custom iptables remove script $FILE"
                 sh $FILE
                 log_end_msg $?
             done
