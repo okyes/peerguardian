@@ -1111,31 +1111,39 @@ insert_iptables () {
                         ;;
                     esac
 
+                    # Activate iptables chain and remember iptables remove rules
                     if [ "$INTERFACE" = all ] ; then
-                        CMD_INTERFACE=""
+                        iptables -I $CHAIN $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
+                        echo "iptables -D $CHAIN $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp
                     else
                         case $CHAIN in
                         INPUT)
-                            CMD_INTERFACE="-i $INTERFACE"
+                            iptables -I $CHAIN -i $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
+                            echo "iptables -D $CHAIN -i $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp
                             ;;
                         OUTPUT)
-                            CMD_INTERFACE="-o $INTERFACE"
+                            iptables -I $CHAIN -o $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
+                            echo "iptables -D $CHAIN -o $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp
                             ;;
                         FORWARD)
-                            CMD_INTERFACE="-i $INTERFACE -o $INTERFACE"
+                            iptables -I $CHAIN -i $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
+                            echo "iptables -D $CHAIN -i $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp &&
+                            iptables -I $CHAIN -o $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
+                            echo "iptables -D $CHAIN -o $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp
                             ;;
                         # Valid CHAINs was already tested above. No test needed here.
                         esac
                     fi
-                    # Activate iptables chain and remember iptables remove rules
-                    ( iptables -I $CHAIN $CMD_INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
-                        echo "iptables -D $CHAIN $CMD_INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp &&
-                        cat $REMOVE_SCRIPT >> ${REMOVE_SCRIPT}.tmp &&
-                        mv ${REMOVE_SCRIPT}.tmp $REMOVE_SCRIPT
-                        ) ||
-                        fail_insert_iptables
+                    RET=$?
+                    [ "$RET" -eq 0 ] || break 2
                 done
             done
+            # Try to build the REMOVE_SCRIPT in any way
+            cat $REMOVE_SCRIPT >> ${REMOVE_SCRIPT}.tmp &&
+            mv ${REMOVE_SCRIPT}.tmp $REMOVE_SCRIPT
+            # If anything went wrong (then we broke out of the loops), do the
+            # fail_insert_iptables with the REMOVE_SCRIPT as it is.
+            [ "$RET" -eq 0 ] || fail_insert_iptables
             ;;
         esac
         log_end_msg 0    # Complete iptables insertion went well.
