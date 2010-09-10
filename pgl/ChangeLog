@@ -4,14 +4,14 @@ ChangeLog PeerGuardian Linux (pgl)
 pgl 2.0.3
 
   [ jre ]
-  * Remember inserted iptables for later removal
+  * remember inserted iptables for later removal
   * fixed iptables whitelisting of IP ranges in the FORWARD chain (incorrect IFS
     setting). Closes SF Bug #3057107
   * fixed iptables chain activation for specified interfaces in the FORWARD
     chain. Closes SF Bug #3057110
   * reenabled pgld's loading zip compressed blocklists
 
--- jre <jre-phoenix@users.sourceforge.net>  WIP
+-- jre <jre-phoenix@users.sourceforge.net>  Fri, 10 Sep 2010 17:46:54 +0200
 
 
 pgl 2.0.2
