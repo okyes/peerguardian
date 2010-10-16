@@ -1185,10 +1185,12 @@ if [ "$INIT" -ne 0 ] && [ -x "/etc/init.d/pgl" ] ; then
     echo " tail -f $CMD_LOG"
     echo "The lists are saved to $BLOCKLISTS_DIR/."
     echo "The installation of $CMD_NAME will fail, if starting $NAME fails. So if"
-    echo "downloading the blocklists fails temporarily, the installation will fail."
-    echo "To workaround this, you can turn the automatic starting of $NAME off by setting"
-    echo "in $CMD_CONF:"
+    echo "downloading the blocklists fails temporarily, the installation will fail. In this"
+    echo "case you may turn the automatic starting off by setting in $CMD_CONF:"
     echo " INIT=\"0\""
+    echo "Then complete the installation. Afterwards you may turn the automatic start on"
+    echo "again:"
+    echo " sudo dpkg-reconfigure --force pglcmd"
     echo "Please be patient ..."
 fi
 
