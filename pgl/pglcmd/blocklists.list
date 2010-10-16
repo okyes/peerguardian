@@ -1,4 +1,4 @@
-# blocklists.list - lists the blocklists that are handled automatically by pglcmd
+# blocklists.list - lists the blocklists that pglcmd handles automatically
 
 # Place one URL per line for every blocklist.
 # Any line which starts with a # (hash) is a comment and is ignored.
