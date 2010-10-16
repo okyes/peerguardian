@@ -1,6 +1,14 @@
 ChangeLog PeerGuardian Linux (pgl)
 
 
+pgl 2.0.4~WIP
+
+  [ jre ]
+  * moved LIST_NAME2LIST_URL from pglcmd.lib to debian/postinst
+
+-- jre <jre-phoenix@users.sourceforge.net>  WIP
+
+
 pgl 2.0.3
 
   [ jre ]
