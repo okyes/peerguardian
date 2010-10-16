@@ -23,6 +23,8 @@ Depends: ${shlibs:Depends},
          iptables
 Breaks: moblock (<<2~)
 Replaces: moblock (<<2~)
+Conflicts: iplist,
+        nfblock
 Description: PeerGuardian Linux - pgld
  pgl blocks connections from and to hosts, that are listed in a very large
  blocklist (thousands or millions of IP ranges).
@@ -91,6 +93,8 @@ Description: PeerGuardian Linux - pglcmd
 #          pgld (>= ${source:Version}),
 #          pgld (<< ${source:Version}.1~),
 #          pglcmd (= ${source:Version})
+# Breaks: mobloquer
+# Replaces: mobloquer
 # Description: PeerGuardian Linux - pgl-gui
 #  pgl blocks connections from and to hosts, that are listed in a very large
 #  blocklist (thousands or millions of IP ranges).
