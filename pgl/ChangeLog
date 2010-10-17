@@ -6,6 +6,8 @@ pgl 2.0.4~WIP
   [ jre ]
   * extended kernel module loading
   * be more verbose on iptables insertion
+  * execute old iptables remove script on start in case it still exists (it
+    shouldn't!)
   * moved LIST_NAME2LIST_URL from pglcmd.lib to debian/postinst
 
 -- jre <jre-phoenix@users.sourceforge.net>  WIP

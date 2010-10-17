@@ -1416,7 +1416,14 @@ do_start () {
                 log_warning_msg "Warning: Could not load kernel module xt_iprange, continuing anyway."
                 }
 
-            # Assuming that iptables rules are not inserted yet since daemon was not running.
+            # Execute old REMOVE_SCRIPT if it still exists for any reason, because we may run into troubles
+            # if there are still old iptables
+            if [ -f "$REMOVE_SCRIPT" ] ; then
+                echo -n "  Old iptables remove script $REMOVE_SCRIPT still exists! Executing and then removing it"
+                sh $REMOVE_SCRIPT
+                rm $REMOVE_SCRIPT
+                log_end_msg $?
+            fi
             insert_iptables
             echo -n "Starting $NAME ..."
 
