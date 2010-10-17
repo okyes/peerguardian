@@ -944,6 +944,7 @@ insert_iptables () {
 
         # Prepare and issue iptables commands for every chain.
         for CHAIN in $CHAINS ; do
+            echo "  Setting up iptables for chain $CHAIN:"
             case $CHAIN in
             INPUT)
                 PGL_CHAIN="$IPTABLES_IN"
@@ -982,29 +983,38 @@ insert_iptables () {
             esac
 
             # Create new pgl_ chain and remember iptables remove rules
-            ( iptables -N $PGL_CHAIN &&
+            ( echo -n "    Creating chain" &&
+                iptables -N $PGL_CHAIN &&
                 echo "iptables -F $PGL_CHAIN" >> $REMOVE_SCRIPT &&
                 echo "iptables -X $PGL_CHAIN" >> $REMOVE_SCRIPT ) ||
                 fail_insert_iptables
 
-            # Insert block rule for matched packets.
-            iptables -I $PGL_CHAIN -j $IPTABLES_TARGET_BLOCK || fail_insert_iptables
+            # Insert NFQUEUE rule.
+            echo -n " and inserting NFQUEUE rule" &&
+                iptables -I $PGL_CHAIN -j $IPTABLES_TARGET_BLOCK &&
+                log_end_msg "$?" || fail_insert_iptables
 
             # Port Whitelisting
-            white_port_prepare $PGL_CHAIN tcp $WHITE_TCP
-            white_port_prepare $PGL_CHAIN udp $WHITE_UDP
+            ( [ -n "$WHITE_TCP" ] || [ -n "$WHITE_UDP" ] ) &&
+                echo -n "    Whitelisting ports" &&
+                white_port_prepare $PGL_CHAIN tcp $WHITE_TCP &&
+                white_port_prepare $PGL_CHAIN udp $WHITE_UDP &&
+                log_end_msg "$?"
 
             # IP Whitelisting
-            for IP in $WHITE_IP ; do
-                # Add whitelisting rule
-                # (add 2 rules in the FORWARD chain: once for --source, once for --destination)
-                for CMD in $CMD_WHITE_IP ; do
-                    iptables -I $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
-                done
-            done
+            [ -n "$WHITE_IP" ] && echo -n "    Whitelisting IPs" &&
+                for IP in $WHITE_IP ; do
+                    # Add whitelisting rule
+                    # (add 2 rules in the FORWARD chain: once for --source, once for --destination)
+                    for CMD in $CMD_WHITE_IP ; do
+                        iptables -I $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                    done
+                done &&
+                log_end_msg "$?"
 
             # IP ranges whitelisting
             if [ -f "$ALLOW_FILE" ] ; then
+                echo -n "    Whitelisting IP ranges"
                 # Read the non-comment|not-empty lines from the allow file:
                 ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOW_FILE)"
                 IFS=$'
@@ -1029,6 +1039,7 @@ insert_iptables () {
                 done
                 # Reset IFS
                 IFS=$STDIFS
+                log_end_msg "$?"
             fi
 
             # Block "Marked block" packages: "Marked block" packages are sent back
@@ -1039,13 +1050,16 @@ insert_iptables () {
             # keep those chains cleaner. It has to be made sure that the MARK of the
             # packets is not changed by other iptables rules.
             if [ "$REJECT" -eq 1 ] ; then
+                echo -n "    Inserting block rule"
                 iptables -I $PGL_CHAIN -m mark --mark $REJECT_MARK -j $REJECT_TARGET || fail_insert_iptables
                 # Log "Marked block" packages: The log-iptables-rules should be
                 # placed directly before the block-iptables-rules (i.e. Insert them
                 # directly after them)
                 if [ -n "$LOG_IPTABLES" ] ; then    # string is not empty
+                    echo -n " and log rule"
                     iptables -I $PGL_CHAIN -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || fail_insert_iptables
                 fi
+                log_end_msg "$?"
             fi
         done
 

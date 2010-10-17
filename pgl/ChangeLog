@@ -4,6 +4,7 @@ ChangeLog PeerGuardian Linux (pgl)
 pgl 2.0.4~WIP
 
   [ jre ]
+  * be more verbose on iptables insertion
   * moved LIST_NAME2LIST_URL from pglcmd.lib to debian/postinst
 
 -- jre <jre-phoenix@users.sourceforge.net>  WIP
