@@ -907,7 +907,7 @@ insert_iptables () {
     # test_IPTABLES_VARS # Already tested in do_start
     test_external iptables || exit $?
     if [ -f "$REMOVE_SCRIPT" ] ; then
-        echo -n "Old iptables remove script $REMOVE_SCRIPT exists. Executing now and then removing it"
+        echo -n "Old iptables remove script $REMOVE_SCRIPT exists. Strange. Executing now and then removing it"
         sh $REMOVE_SCRIPT
         rm $REMOVE_SCRIPT
         log_end_msg $?
@@ -1197,7 +1197,8 @@ delete_iptables () {
     fi
     # Delete previously inserted iptables rules in any case. REMOVE_SCRIPT is created in insert_iptables
     if [ -f "$REMOVE_SCRIPT" ] ; then
-        echo -n "  Executing iptables remove script $REMOVE_SCRIPT and then removing it"
+        echo "  Executing iptables remove script $REMOVE_SCRIPT"
+        echo -n "  and then removing it"
         sh $REMOVE_SCRIPT
         rm $REMOVE_SCRIPT
         log_end_msg $?
