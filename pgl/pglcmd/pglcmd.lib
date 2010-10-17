@@ -1301,9 +1301,14 @@ do_start () {
             test_IPTABLES_VARS
             test_LOG_SYSLOG
             test_PIDFILE
-            # Load kernel modules after checking with grep if they were compiled in the kernel directly.
-            # Note: I (jre) have not seen documentation how this works. E.g. loading (modprobe) a module does
-            # not give the specified entries in /proc/net. But once pgld was started they are there.
+
+            # Load kernel modules after checking if they are already loaded / were compiled in the kernel directly.
+            # Note 1: I (jre) have not seen documentation how this works. E.g. loading (modprobe) a module does
+            #         not give the specified entries in /proc/net. But once pgld was started they are there.
+            # Note 2: On a first glance some modules might be loaded conditional on some configuration. I decided
+            #         against that to allow for e.g, custom iptables rules.
+
+            # xt_NFQUEUE
             case "$IPTABLES_TARGET" in
                 NFQUEUE)
                     ( [ -f /proc/net/ip_tables_targets ] && grep -q NFQUEUE /proc/net/ip_tables_targets ) ||
@@ -1321,6 +1326,14 @@ do_start () {
                         }
                     ;;
             esac
+            # TODO: xt_tcpudp
+                # /proc/net/ip_tables_matches:
+                # udplite
+                # udp
+                # tcp
+            # TODO?: nfnetlink_queue
+            # TODO?: nf_conntrack_ipv4
+            # TODO?: iptable_filter
             # xt_mark
             ( [ -f /proc/net/ip_tables_matches ] && grep -q mark /proc/net/ip_tables_matches ) ||
                 modprobe -q xt_mark ||
@@ -1332,6 +1345,18 @@ do_start () {
                     exit $E_XEXTERNAL
                 else
                     log_warning_msg "Warning: Could not load kernel module xt_mark, continuing anyway."
+                fi
+            # ipt_REJECT
+            ( [ -f /proc/net/ip_tables_targets ] && grep -q REJECT /proc/net/ip_tables_targets ) ||
+                modprobe -q xt_REJECT ||
+                modprobe -q ipt_REJECT ||
+                if [ "$REJECT_OUT" = REJECT ] || [ "$REJECT_FWD" = REJECT ] || [ "$REJECT_IN" = REJECT ] ; then
+                    log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module ipt_REJECT, not starting $NAME!"
+                    log_failure_msg "Use a kernel with netfilter REJECT support or reconfigure $(basename $0)"
+                    log_failure_msg "to DROP instead of REJECT blocked packets."
+                    exit $E_XEXTERNAL
+                else
+                    log_warning_msg "Warning: Could not load kernel module ipt_REJECT, continuing anyway."
                 fi
             # xt_state
             ( [ -f /proc/net/ip_tables_matches ] && grep -q state /proc/net/ip_tables_matches ) ||
