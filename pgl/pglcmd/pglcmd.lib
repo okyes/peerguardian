@@ -1081,10 +1081,11 @@ insert_iptables () {
         case "$IPTABLES_ACTIVATION" in
         '0')
             if [ "$VERBOSITY" -eq 1 ] ; then
-                echo -n " - not activating the chains"
+                echo "  Not activating the chains."
             fi
             ;;
         '1'|'2')
+            echo -n "  Activating the chains."
             case "$IPTABLES_ACTIVATION" in
             '1')
                 CMD_STATE="-m state --state NEW"
@@ -1158,15 +1159,15 @@ insert_iptables () {
             # If anything went wrong (then we broke out of the loops), do the
             # fail_insert_iptables with the REMOVE_SCRIPT as it is.
             [ "$RET" -eq 0 ] || fail_insert_iptables
+            log_end_msg $?
             ;;
         esac
-        log_end_msg 0    # Complete iptables insertion went well.
         ;;
     '2')
         CUSTOM_INSERT_SCRIPTS="$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*insert.sh" -print0 | xargs -0r)"
         [ -z "$CUSTOM_INSERT_SCRIPTS" ] || {
             for FILE in $CUSTOM_INSERT_SCRIPTS ; do
-                echo -n "Executing custom iptables insertion script $FILE ..."
+                echo -n "  Executing custom iptables insertion script $FILE ..."
                 sh $FILE && log_end_msg $? || fail_insert_iptables
                 log_end_msg $?
             done
