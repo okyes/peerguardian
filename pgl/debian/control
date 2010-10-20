@@ -55,13 +55,13 @@ Depends: ${misc:Depends},
          pgld (>= ${source:Version}),
          pgld (<< ${source:Version}.1~)
 Recommends: wget,
-            unzip,
-            p7zip | p7zip-full
+        unzip,
+        p7zip | p7zip-full
 Suggests: mail-transport-agent
 Breaks: moblock-control (<<2~),
-           blockcontrol (<<2~)
+        blockcontrol (<<2~)
 Replaces: moblock-control (<<2~),
-           blockcontrol (<<2~)
+        blockcontrol (<<2~)
 Description: PeerGuardian Linux - pglcmd
  pgl blocks connections from and to hosts, that are listed in a very large
  blocklist (thousands or millions of IP ranges).
@@ -93,8 +93,8 @@ Description: PeerGuardian Linux - pglcmd
 #          pgld (>= ${source:Version}),
 #          pgld (<< ${source:Version}.1~),
 #          pglcmd (= ${source:Version})
-# Breaks: mobloquer
-# Replaces: mobloquer
+# Breaks: mobloquer (<<2~)
+# Replaces: mobloquer (<<2~)
 # Description: PeerGuardian Linux - pgl-gui
 #  pgl blocks connections from and to hosts, that are listed in a very large
 #  blocklist (thousands or millions of IP ranges).

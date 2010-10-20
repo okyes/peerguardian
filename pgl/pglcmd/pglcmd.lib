@@ -1085,7 +1085,7 @@ insert_iptables () {
             fi
             ;;
         '1'|'2')
-            echo -n "  Activating the chains."
+            echo -n "  Activating the chains"
             case "$IPTABLES_ACTIVATION" in
             '1')
                 CMD_STATE="-m state --state NEW"
