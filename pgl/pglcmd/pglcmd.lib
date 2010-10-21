@@ -811,17 +811,55 @@ white_local () {
                     INPUT)
                         PGL_CHAIN="$IPTABLES_IN"
                         CMD_WHITE_IP="--source ${IP}/${SUBNETMASK}"
+                        DIRECTION=from
                         ;;
                     OUTPUT)
                         PGL_CHAIN="$IPTABLES_OUT"
                         CMD_WHITE_IP="--destination ${IP}/${SUBNETMASK}"
+                        DIRECTION=to
                         ;;
                     FORWARD)
                         PGL_CHAIN="$IPTABLES_FWD"
-                        CMD_WHITE_IP="--source ${IP}/${SUBNETMASK} --destination ${IP}/${SUBNETMASK}"
+                        # To whitelist all local FORWARD traffic add whitelisting rules from every single
+                        # interface to every other interface.
+                        for IP2 in $LOCAL_IPS ; do
+                            # Skip if interface is loopback.
+                            [ "$(echo "$IP2" | head -c 4)" = 127. ] && continue
+                            # Get the corresponding subnetmask
+                            # Use grep -F followed by a blank to match exactly a specific IP!
+                            SUBNETMASK2="$(ifconfig | grep -F "inet addr:${IP2} " | \
+                                grep -Eo "Mask:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | \
+                                grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" )"
+                            # Set the scope (IP/subnetmask) as it will be shown by iptables
+                            if [ "$SUBNETMASK2" = 255.255.255.0 ] ; then
+                                # Scope is X.X.X.0/24
+                                SCOPE2="$( echo $IP2 | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\." )0/24"
+                            elif [ "$SUBNETMASK2" = 255.255.0.0 ] ; then
+                                # Scope is X.X.0.0/16
+                                SCOPE2="$( echo $IP2 | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\." )0.0/16"
+                            else
+                                # TODO: Find a way to check for the real IP/SUBNETMASK pattern.
+                                # With an empty SCOPE the last grep command will just fail, so
+                                # the result is as if no whitelisting already occured.
+                                # So if the network is brought up several times there will be multiple identical rules,
+                                # but no real harm will be done.
+                                SCOPE2=""
+                            fi
+                            echo -n "  Allowing $CHAIN LAN traffic from ${IP}/${SUBNETMASK} to ${IP2}/${SUBNETMASK2}"
+                            if [ "$1" = start ] || [ "$1" = restart ] ||
+                            ! iptables -nv -L $PGL_CHAIN | grep "$IPTABLES_TARGET_WHITELISTING .* $SCOPE *$SCOPE2" > /dev/null 2>&1 ; then
+                                iptables -I $PGL_CHAIN --source ${IP}/${SUBNETMASK} --destination ${IP2}/${SUBNETMASK2} -j $IPTABLES_TARGET_WHITELISTING
+                                RETVAL=$?
+                                log_end_msg $RETVAL
+                                [ "$RETVAL" = 0 ] || exit $E_IPTABLES
+                            else
+                                echo ", already done."
+                            fi
+                        done
+                        continue
                         ;;
                     esac
-                    echo -n "  Allowing $CHAIN LAN traffic for $IP with subnetmask $SUBNETMASK"
+                    echo -n "  Allowing $CHAIN LAN traffic "$DIRECTION" ${IP}/${SUBNETMASK}"
                     # Whitelist LAN, if we do an inital start/restart (quick
                     # test of $1) or if the LAN is not already whitelisted
                     # (time-consuming test of iptables output).
@@ -829,7 +867,7 @@ white_local () {
                     # pglcmd start/restart: always whitelist LAN
                     # if-up: first check iptables output if LAN is already whitelisted.
                     if [ "$1" = start ] || [ "$1" = restart ] ||
-                    ! iptables -nv -L $PGL_CHAIN | grep $IPTABLES_TARGET_WHITELISTING | grep -F "$SCOPE" > /dev/null 2>&1 ; then
+                    ! iptables -nv -L $PGL_CHAIN | grep "$IPTABLES_TARGET_WHITELISTING .* $SCOPE" > /dev/null 2>&1 ; then
                         iptables -I $PGL_CHAIN $CMD_WHITE_IP -j $IPTABLES_TARGET_WHITELISTING
                         RETVAL=$?
                         log_end_msg $RETVAL
