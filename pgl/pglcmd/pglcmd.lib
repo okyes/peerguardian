@@ -405,6 +405,9 @@ log_end_msg () {
 # End of modified Debian /lib/lsb/init-functions.
 ################################################################################
 
+# Remember the pglcmd option (necessary for functions that use the original $1)
+CMD_OPTION="$1"
+
 # Function to test if an external application exists.
 # Usage: test_external basename_of_the_application
 # Returns 0 if base is installed and executable in PATH
@@ -698,7 +701,7 @@ white_local () {
         # TODO: Only do this if checking the loopback interface is enabled
         # (although otherwise just no traffic will ever get to the pgl_ chain were this rule is placed).
         # Do this only once on (re)start
-        if [ "$1" = start ] || [ "$1" = restart ] ; then
+        if [ "$CMD_OPTION" = start ] || [ "$CMD_OPTION" = restart ] ; then
             for CHAIN in $CHAINS ; do
                 case $CHAIN in
                 INPUT)
@@ -749,12 +752,12 @@ white_local () {
                 for IP in $DNS_IPS ; do
                     echo -n "  Allowing $CHAIN traffic to DNS server $IP"
                     # Whitelist DNS server, if we do an inital start/restart (quick
-                    # test of $1) or if the DNS server is not already whitelisted
+                    # test of $CMD_OPTION) or if the DNS server is not already whitelisted
                     # (time-consuming test of iptables output).
                     # With other words:
                     # pglcmd start/restart: always whitelist DNS server
                     # if-up: first check if DNS server is already whitelisted.
-                    if [ "$1" = start ] || [ "$1" = restart ] ||
+                    if [ "$CMD_OPTION" = start ] || [ "$CMD_OPTION" = restart ] ||
                     ! iptables -nv -L $PGL_CHAIN | grep -F "$IP " | grep $IPTABLES_TARGET_WHITELISTING > /dev/null 2>&1 ; then
                         iptables -I $PGL_CHAIN --destination $IP -j $IPTABLES_TARGET_WHITELISTING
                         RETVAL=$?
@@ -846,7 +849,7 @@ white_local () {
                                 SCOPE2=""
                             fi
                             echo -n "  Allowing $CHAIN LAN traffic from ${IP}/${SUBNETMASK} to ${IP2}/${SUBNETMASK2}"
-                            if [ "$1" = start ] || [ "$1" = restart ] ||
+                            if [ "$CMD_OPTION" = start ] || [ "$CMD_OPTION" = restart ] ||
                             ! iptables -nv -L $PGL_CHAIN | grep "$IPTABLES_TARGET_WHITELISTING .* $SCOPE *$SCOPE2" > /dev/null 2>&1 ; then
                                 iptables -I $PGL_CHAIN --source ${IP}/${SUBNETMASK} --destination ${IP2}/${SUBNETMASK2} -j $IPTABLES_TARGET_WHITELISTING
                                 RETVAL=$?
@@ -866,7 +869,7 @@ white_local () {
                     # With other words:
                     # pglcmd start/restart: always whitelist LAN
                     # if-up: first check iptables output if LAN is already whitelisted.
-                    if [ "$1" = start ] || [ "$1" = restart ] ||
+                    if [ "$CMD_OPTION" = start ] || [ "$CMD_OPTION" = restart ] ||
                     ! iptables -nv -L $PGL_CHAIN | grep "$IPTABLES_TARGET_WHITELISTING .* $SCOPE" > /dev/null 2>&1 ; then
                         iptables -I $PGL_CHAIN $CMD_WHITE_IP -j $IPTABLES_TARGET_WHITELISTING
                         RETVAL=$?
@@ -1606,7 +1609,7 @@ do_reload () {
         0)  # Daemon is running
             # Build blocklist if necessary to make sure pglcmd's settings are taken.
             # Force to build it, if started with force-update.
-            [ "$1" = reload ] &&
+            [ "$CMD_OPTION" = reload ] &&
             [ -e "$MD5SUM_FILE" ] && set_md5sum && [ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ] || build_blocklist
             # TODO: Note that pgld reloads successfully even if a blocklist is missing.
             # TODO: There should be a check to see whether all blocklists pgld was started with, are available.

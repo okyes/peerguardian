@@ -10,6 +10,7 @@ pgl 2.0.4~WIP
   * be more verbose on iptables insertion
   * execute old iptables remove script on start in case it still exists (it
     shouldn't!)
+  * fixed use of pglcmd option #1 ($1) in pglcmd.lib
   * moved LIST_NAME2LIST_URL from pglcmd.lib to debian/postinst
 
 -- jre <jre-phoenix@users.sourceforge.net>  WIP
