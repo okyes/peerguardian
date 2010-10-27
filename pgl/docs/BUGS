@@ -2,15 +2,6 @@ BUGS of pgl:
 
 ################################## Open bugs: ##################################
 
-- "reload" doesn't check whether a master blocklist was added.
-   pgld reloads successfully even if a blocklist is missing. There should be
-   a check to see whether all blocklists pgld was started with, are available.
-   Even better would be to check which master blocklists are available and to
-   tell pgld to use those blocklists. But I think this requires a restart
-   instead of the reload.
-   --
-   2010-06-10, jre <jre-phoenix@users.sourceforge.net>
-
 - "update" doesn't work with OpenDNS
   see e.g. here:
   http://forums.phoenixlabs.org/showpost.php?p=127410&postcount=7

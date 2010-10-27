@@ -95,7 +95,7 @@ case "$1" in
         date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
         [ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
         ;;
-    'restart')
+    'restart'|'force-restart')
         test_CMD_LOG
         [ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Restarting $DESC" "$NAME"
         date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
@@ -247,7 +247,8 @@ case "$1" in
         echo
         echo "The following blocklists are configured to be used:"
         set_LISTS_URL
-        for LIST in $LISTS_URL ; do
+        set_BLOCKLISTS_LOCAL
+        for LIST in $LISTS_URL $BLOCKLISTS_LOCAL ; do
             echo "$LIST"
         done
         ;;
@@ -274,6 +275,8 @@ case "$1" in
         echo "    restart"
         echo "    reload"
         echo "    update"
+        echo "    force-restart"
+        echo "    force-reload"
         echo "    force-update"
         echo "    status"
         echo "    test"

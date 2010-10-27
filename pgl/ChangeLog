@@ -8,6 +8,15 @@ pgl 2.0.4~WIP
     Bug #3057107. Thx athanasius!
   * extended kernel module loading
   * improved logging, be more verbose on iptables insertion, minor bugfixes
+  * blocklist management:
+    - also merge the local blocklists in MASTER_BLOCKLIST (next to the
+      automatically handled remote blocklists). pgld only loads this list.
+      - Fixes problems with removed/added local blocklists on "reload".
+      - Quicker "reload", but excess usage of harddisk space
+      - simplified code and output of test_ipblocking
+    - local blocklists mustn't have space in their names any more!
+    - added option force-restart, that forces to rebuild master blocklist. Added
+      documentation for force-reload and force-update.
   * execute old iptables remove script on start in case it still exists (it
     shouldn't!)
   * fixed use of pglcmd option #1 ($1) in pglcmd.lib

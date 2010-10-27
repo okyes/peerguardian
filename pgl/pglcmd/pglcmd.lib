@@ -1263,19 +1263,29 @@ delete_iptables () {
     echo "Iptables deleted."
 }
 
+# md5sum of all relevant parts for building the MASTER_BLOCKLIST
 set_md5sum () {
-    SUM="$( echo $IP_REMOVE ; [ -f "$BLOCKLISTS_LIST" ] && md5sum $BLOCKLISTS_LIST ; [ -f "$MASTER_BLOCKLIST" ] && md5sum $MASTER_BLOCKLIST )"
+    SUM="$(
+        echo $IP_REMOVE
+        [ -f "$BLOCKLISTS_LIST" ] && md5sum $BLOCKLISTS_LIST
+        [ -f "$MASTER_BLOCKLIST" ] && md5sum $MASTER_BLOCKLIST
+        set_BLOCKLISTS_LOCAL
+        for LIST in $BLOCKLISTS_LOCAL ; do
+            [ -f "$LIST" ] && md5sum $LIST
+        done
+        )"
     MD5SUM="$(echo $SUM | md5sum | cut -c -32)"
 }
 
-# All blocklists in the MASTER_BLOCKLIST_DIR directory, except those which end in "~", are used by pgld.
-# Place "quotes" around every list. So spaces in listnames are allowed.
-set_MASTER_BLOCKLISTS () {
-    MASTER_BLOCKLISTS="$(find $MASTER_BLOCKLIST_DIR -maxdepth 1 -type f ! -name "*~" ! -name ".*" | sed -e 's|.*|\"&\"|' | tr "\n" " ")"
-    [ -n "$MASTER_BLOCKLISTS" ] || {
-        log_failure_msg "Error $E_BLOCKLIST: No master blocklist found in $MASTER_BLOCKLIST_DIR."
-        exit $E_BLOCKLIST
-        }
+# All blocklists in the MASTER_BLOCKLIST_DIR directory (except the MASTER_BLOCKLIST itself,
+# those which end in "~" or are hidden) are merged in the MASTER_BLOCKLIST and thus used by pgld.
+# Spaces in listnames are not allowed.
+set_BLOCKLISTS_LOCAL () {
+    BLOCKLISTS_LOCAL="$(find $MASTER_BLOCKLIST_DIR -maxdepth 1 -type f \
+        ! -name "*~" \
+        ! -name ".*" \
+        ! -name "$(basename $MASTER_BLOCKLIST)" | \
+        tr "\n" " ")"
 }
 
 # Function that starts the watchdog
@@ -1344,9 +1354,10 @@ do_start () {
             ;;
         3)  # Daemon is not running.
             # Build blocklist if necessary to make sure pglcmd's settings are taken.
-            [ -e "$MD5SUM_FILE" ] && set_md5sum && [ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ] || build_blocklist
-            # All blocklists in the MASTER_BLOCKLIST_DIR directory, except those which end in "~", are used by pgld.
-            set_MASTER_BLOCKLISTS
+            # Force to build it, if started with force-restart.
+            [ ! "$CMD_OPTION" = force-restart ] &&
+                [ -f "$MD5SUM_FILE" ] && set_md5sum && [ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ] ||
+                build_blocklist
             # Notify users of possible excess blocklists:
             [ -f "$MASTER_BLOCKLIST" ] && [ -f ${MASTER_BLOCKLIST_DIR}/guarding.p2p ] &&
                 echo "WARNING: You are using the old ${MASTER_BLOCKLIST_DIR}/guarding.p2p which has been replaced by the new $MASTER_BLOCKLIST."
@@ -1530,7 +1541,7 @@ do_start () {
             fi
 
             # Set the options the daemon is started with
-            DAEMON_OPTS="$LOG_SYSLOG_OPT $LOG_LOGFILE_OPT $DBUS_OPT -p $PIDFILE $NFQUEUE_NUMBER_OPT $REJECT_OPT $ACCEPT_OPT $MASTER_BLOCKLISTS"
+            DAEMON_OPTS="$LOG_SYSLOG_OPT $LOG_LOGFILE_OPT $DBUS_OPT -p $PIDFILE $NFQUEUE_NUMBER_OPT $REJECT_OPT $ACCEPT_OPT $MASTER_BLOCKLIST"
 
             # Test NICE_LEVEL setting.
             [ "$NICE_LEVEL" -ge -20 ] && [ "$NICE_LEVEL" -le 19 ] || {
@@ -1539,10 +1550,10 @@ do_start () {
                 }
 
             # Start daemon
-            # eval is needed because blocklist names are "quoted" (in order to allow spaces in the name).
-            eval start_daemon -n $NICE_LEVEL -p $PIDFILE $DAEMON $DAEMON_OPTS
+            start_daemon -n $NICE_LEVEL -p $PIDFILE $DAEMON $DAEMON_OPTS
             RETVAL=$?
             log_end_msg $RETVAL
+
             if [ "$RETVAL" = 0 ] ; then
                 if [ "$WD" = 1 ] ; then
                     # Start pglcmd.wd.
@@ -1623,14 +1634,11 @@ do_reload () {
     case "$RETVAL" in
         0)  # Daemon is running
             # Build blocklist if necessary to make sure pglcmd's settings are taken.
-            # Force to build it, if started with force-update.
-            [ "$CMD_OPTION" = reload ] &&
-            [ -e "$MD5SUM_FILE" ] && set_md5sum && [ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ] || build_blocklist
-            # TODO: Note that pgld reloads successfully even if a blocklist is missing.
-            # TODO: There should be a check to see whether all blocklists pgld was started with, are available.
-            # TODO: Even better would be to check which master blocklists are available and to tell pgld to
-            # TODO: use those blocklists. But I think this requires a restart instead of the reload.
-            echo -n "Reloading $NAME... "
+            # Force to build it, if started with force-reload.
+            [ ! "$CMD_OPTION" = force-reload ] &&
+                [ -f "$MD5SUM_FILE" ] && set_md5sum && [ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ] ||
+                build_blocklist
+            echo -n "Reloading $NAME"
             kill -s HUP "$(pidofproc $DAEMON)"
             RETVAL=$?
             log_end_msg $RETVAL
@@ -2069,8 +2077,11 @@ get_blocklist () {
 
 # Function that updates blocklists and reloads daemon
 update_blocklists () {
-    # Remove the old MD5SUM file now, so that if anything goes wrong it's clear we have to rebuild the blocklist:
-    [ -e "$MD5SUM_FILE" ] && { rm "$MD5SUM_FILE" || { log_failure_msg " Error: rm exited with $?" ; exit 1; } ; }
+    # Remove the old MD5SUM file now, so that if anything goes wrong,
+    # it's clear we have to rebuild the blocklist:
+    [ -f "$MD5SUM_FILE" ] &&
+        { rm "$MD5SUM_FILE" ||
+        { log_failure_msg " Error: rm exited with $?" ; exit 1; } ; }
 
     UPDATE_FAIL=""          # Lists failed blocklist updates
     UPDATE_403=""           # Lists failed blocklist updates with "access forbidden"
@@ -2097,45 +2108,50 @@ update_blocklists () {
     fi
 }
 
-# Function that builds the blocklist
+# Function that builds the MASTER_BLOCKLIST from all remote blocklists (configured
+# in BLOCKLISTS_LIST) and all local blocklists (all other lists in MASTER_BLOCKLIST_DIR).
+# pgld is started with just this list.
+# Ratio: We want to reload the daemon as fast as possible. Therefore do the whole
+# blocklist management separately and save one premerged MASTER_BLOCKLIST to harddisk.
+# Bad: for large local blocklists this means excess usage of harddisk space.
 build_blocklist () {
+    echo "Building blocklist ... "
+
+    # DAEMON is needed to merge the single blocklists.
+    test_DAEMON
+
+    [ -d "$MASTER_BLOCKLIST_DIR" ] || {
+        echo -n "Creating missing directory $MASTER_BLOCKLIST_DIR ..."
+        mkdir -p "$MASTER_BLOCKLIST_DIR" && echo "."
+        } || {
+        log_failure_msg "Error $E_XCD: Missing directory $MASTER_BLOCKLIST_DIR."
+        log_failure_msg "Check the $MASTER_BLOCKLIST_DIR setting."
+        exit $E_XCD
+    }
+    BLOCKLISTSCAT=""
+
+    # Remove the old MD5SUM file now, so that if anything goes wrong,
+    # it's clear we have to rebuild the blocklist:
+    [ -f "$MD5SUM_FILE" ] &&
+        { rm "$MD5SUM_FILE" ||
+        { log_failure_msg " Error: rm exited with $?" ; exit 1; } ; }
+
     # Move master blocklist to backup position. This way it is also removed,
     # in case the configuartion changed in that way, that no blocklists are
     # configured for the automatic blocklist management.
     [ -f "$MASTER_BLOCKLIST" ] &&
         mv $MASTER_BLOCKLIST ${MASTER_BLOCKLIST}~
 
+    # Prepare removing lines from the blocklist:
+    # replace in IP_REMOVE all semicolons with pipe character
+    SINGLE_REMOVE="$(echo $IP_REMOVE | sed "s/;/|/g")"
+
     # Read the non-comment|not-empty lines from BLOCKLISTS_LIST.
     # Ignore all entries after # (comments).
     # LISTS_URL are all blocklists that are configured to be handled automatically.
     set_LISTS_URL
-
-    # Only build a master blocklist, if any blocklist is configured to be handled automatically.
     if [ -n "$LISTS_URL" ] ; then
         test_BLOCKLISTS_DIR
-        test_DAEMON
-        [ -d "$MASTER_BLOCKLIST_DIR" ] || {
-            echo -n "Creating missing directory $MASTER_BLOCKLIST_DIR ..."
-            mkdir -p "$MASTER_BLOCKLIST_DIR" && echo "."
-            } || {
-            log_failure_msg "Error $E_XCD: Missing directory $MASTER_BLOCKLIST_DIR."
-            log_failure_msg "Check the $MASTER_BLOCKLIST_DIR setting."
-            exit $E_XCD
-        }
-
-        echo "Building blocklist... "
-
-        BLOCKLISTSCAT=""
-
-        # Prepare removing lines from the blocklist:
-        # replace in IP_REMOVE all semicolons with pipe character
-        SINGLE_REMOVE="$(echo $IP_REMOVE | sed "s/;/|/g")"
-
-        # Remove the old MD5SUM file now, so that if anything goes wrong,
-        # it's clear we have to rebuild the blocklist:
-        [ -e "$MD5SUM_FILE" ] &&
-            { rm "$MD5SUM_FILE" ||
-            { log_failure_msg " Error: rm exited with $?" ; exit 1; } ; }
 
         for LIST in $LISTS_URL ; do
             # This function depends on LIST:
@@ -2162,72 +2178,86 @@ build_blocklist () {
             # Remember all used lists
             BLOCKLISTSCAT="$BLOCKLISTSCAT $BLOCKLIST_EXTRACTED"
         done
+    fi
 
-        if [ -z "$BLOCKLISTSCAT" ] ; then
-            log_failure_msg "Error $E_BLOCKLIST: Strange! There are no blocklists available, although some are configured and seemed to be available! Aborting."
-            exit $E_BLOCKLIST
-        else
-            # Tells whether blocklist was built successfully
-            BUILT=0
-
-            # Build blocklist and remove some lines from the blocklists
+    set_BLOCKLISTS_LOCAL
+    if [ -n "$BLOCKLISTS_LOCAL" ] ; then
+        for LIST in $BLOCKLISTS_LOCAL ; do
+            # Log which lines will be removed later
             if [ -n "$IP_REMOVE" ] ; then
-                # Cat together all single blocklists
-                cat --squeeze-blank $BLOCKLISTSCAT | \
-                # Ignore comment lines
-                grep -Ev "^[[:space:]]*#" | \
-                # Remove lines from IP_REMOVE (case-insensitive)
-                grep -Eiv "$SINGLE_REMOVE" | \
-                # Replace repeated whitespace with a single occurence
-                tr -s [:space:] | \
-                # Delete everything complimentary to the following characters/regex
-                # alphanumeric
-                # space
-                # :\*.-,[]
-                # newline (return gets removed, so CR+LF gets LF)
-                tr -cd '[:alnum:][:space:]:\\\*\.\-,[]\n' | \
-                # Only keep the last occurence of :
-                sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | \
-                # Premerge the blocklist
-                $DAEMON -m > $MASTER_BLOCKLIST && BUILT=1
-            # Build blocklist without removing some lines from the blocklists
-            else
-                # Cat together all single blocklists
-                cat --squeeze-blank $BLOCKLISTSCAT | \
-                # Ignore comment lines
-                grep -Ev "^[[:space:]]*#" | \
-                # Replace repeated whitespace with a single occurence
-                tr -s [:space:] | \
-                # Delete everything complimentary to the following characters/regex
-                # alphanumeric
-                # space
-                # :\*.-,[]
-                # newline (return gets removed, so CR+LF gets LF)
-                tr -cd '[:alnum:][:space:]:\\\*\.\-,[]\n' | \
-                # Only keep the last occurence of :
-                sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | \
-                # Premerge the blocklist, pgld's information is sent to STDERR
-                # and therefore ends in pglcmd.log
-                $DAEMON -m > $MASTER_BLOCKLIST && BUILT=1
+                echo "Removing the following lines from $LIST:"
+                grep -Ei "$SINGLE_REMOVE" "$LIST" | sort
             fi
 
-            [ "$BUILT" -eq 1 ] &&
-                log_end_msg 0 ||
-                    {
-                        log_failure_msg "Error: build_blocklist failed."
-                        if [ -f ${MASTER_BLOCKLIST}~ ] ; then
-                            echo -n "Restoring $MASTER_BLOCKLIST ..."
-                            mv ${MASTER_BLOCKLIST}~ $MASTER_BLOCKLIST ||
-                                { log_failure_msg " Error: mv exited with $?" ; exit 1 ; }
-                            log_end_msg 0
-                        else
-                            exit $E_BLOCKLIST
-                        fi
-                    }
-        fi
-    else
-        echo "No blocklists are configured in $BLOCKLISTS_LIST."
+            # Remember all used lists
+            BLOCKLISTSCAT="$BLOCKLISTSCAT $LIST"
+        done
     fi
+
+
+    if [ -z "$BLOCKLISTSCAT" ] ; then
+        log_failure_msg "Error $E_BLOCKLIST: No blocklists configured or available."
+        exit $E_BLOCKLIST
+    else
+        # Tells whether blocklist was built successfully
+        BUILT=0
+
+        # Build blocklist and remove some lines from the blocklists
+        if [ -n "$IP_REMOVE" ] ; then
+            # Cat together all single blocklists
+            cat --squeeze-blank $BLOCKLISTSCAT | \
+            # Ignore comment lines
+            grep -Ev "^[[:space:]]*#" | \
+            # Remove lines from IP_REMOVE (case-insensitive)
+            grep -Eiv "$SINGLE_REMOVE" | \
+            # Replace repeated whitespace with a single occurence
+            tr -s [:space:] | \
+            # Delete everything complimentary to the following characters/regex
+            # alphanumeric
+            # space
+            # :\*.-,[]
+            # newline (return gets removed, so CR+LF gets LF)
+            tr -cd '[:alnum:][:space:]:\\\*\.\-,[]\n' | \
+            # Only keep the last occurence of :
+            sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | \
+            # Premerge the blocklist
+            $DAEMON -m > $MASTER_BLOCKLIST && BUILT=1
+        # Build blocklist without removing some lines from the blocklists
+        else
+            # Cat together all single blocklists
+            cat --squeeze-blank $BLOCKLISTSCAT | \
+            # Ignore comment lines
+            grep -Ev "^[[:space:]]*#" | \
+            # Replace repeated whitespace with a single occurence
+            tr -s [:space:] | \
+            # Delete everything complimentary to the following characters/regex
+            # alphanumeric
+            # space
+            # :\*.-,[]
+            # newline (return gets removed, so CR+LF gets LF)
+            tr -cd '[:alnum:][:space:]:\\\*\.\-,[]\n' | \
+            # Only keep the last occurence of :
+            sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | \
+            # Premerge the blocklist, pgld's information is sent to STDERR
+            # and therefore ends in pglcmd.log
+            $DAEMON -m > $MASTER_BLOCKLIST && BUILT=1
+        fi
+
+        [ "$BUILT" -eq 1 ] &&
+            echo "Blocklist built." ||
+                {
+                    log_failure_msg "Error: build_blocklist failed."
+                    if [ -f ${MASTER_BLOCKLIST}~ ] ; then
+                        echo -n "Restoring $MASTER_BLOCKLIST ..."
+                        mv ${MASTER_BLOCKLIST}~ $MASTER_BLOCKLIST ||
+                            { log_failure_msg " Error: mv exited with $?" ; exit 1 ; }
+                        log_end_msg 0
+                    else
+                        exit $E_BLOCKLIST
+                    fi
+                }
+    fi
+
     # Save configuration settings on which this blocklist bases:
     set_md5sum
     echo "$MD5SUM" > "$MD5SUM_FILE"
@@ -2239,13 +2269,8 @@ test_ipblocking () {
     test_DAEMON
     test_REJECT
 
-    # All blocklists in the MASTER_BLOCKLIST_DIR directory, except those which end in "~", are used by pgld.
-    set_MASTER_BLOCKLISTS
-    # Use the last master blocklist as test list.
-    TEST_LIST="$(echo $MASTER_BLOCKLISTS | sed "s|.*\(\".*\"\)|\1|")"
-    # eval is needed because blocklist names are "quoted" (in order to allow spaces in the name).
-    eval [ -f "$TEST_LIST" ] || {
-        log_failure_msg " Error $E_BLOCKLIST: $TEST_LIST not available."
+    [ -f "$MASTER_BLOCKLIST" ] || {
+        log_failure_msg " Error $E_BLOCKLIST: $MASTER_BLOCKLIST not available."
         exit $E_BLOCKLIST
         }
 
@@ -2284,10 +2309,9 @@ test_ipblocking () {
     # Pick TEST_IP. Assume blocklist in text (not binary) format.
     TESTLINE="$(expr $$ % 100 + 10)"
 
-    # Pick the last IP address from a random line in BLOCKLIST file (earlier IPs often result in problems with ping)
+    # Pick the last IP address from a random line in the MASTER_BLOCKLIST (earlier IPs often result in problems with ping)
     # Remove the leading zeros in the IPs.
-    # eval is needed because blocklist names are "quoted" (in order to allow spaces in the name).
-    TEST_IP="$(eval head -n$TESTLINE $TEST_LIST | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1 )"
+    TEST_IP="$(head -n$TESTLINE $MASTER_BLOCKLIST | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | tail -n1 )"
     echo "CAUTION: This is just a simple test to check if $DESC blocks"
     echo "outgoing connections. For this, an IP from the blocklist will be pinged. Then "
     echo "the test checks if this IP appears in $TEST_LOG."
@@ -2297,15 +2321,14 @@ test_ipblocking () {
         echo "are using the default configuration and $NAME is started after other firewalls"
         echo "this will be the case."
     fi
-    echo "This test does not check if you have sane iptables rules or if your complete"
-    echo "blocklist is in the correct format. Therefore success doesn't imply that"
-    echo "everything is working as you expect it."
+    echo "This test does not check if you have sane iptables rules. Therefore success"
+    echo "doesn't imply that everything is working as you expect it."
     echo ""
     echo "Also have a look at \"$(basename $0) status\"."
     echo ""
 
     echo "Trying to ping $TEST_IP from $MASTER_BLOCKLIST ..."
-    LOG_LENGTH="$(wc -l ${TEST_LOG} | awk '{ print $1 }')"    # remember log length before test
+    LOG_LENGTH="$(wc -l $TEST_LOG | awk '{ print $1 }')"    # remember log length before test
     ping -c1 -W2 $TEST_IP > /dev/null 2>&1
     RETVAL_PING=$? # the ping exit code
     # The ping exit status is 0 if ping succeeds and 1 if ping does not receive any reply packets.
@@ -2313,10 +2336,10 @@ test_ipblocking () {
 
     # Wait a second to give the daemon time to log the current block
     sleep 1
-    LOG_LENGTH_NEW="$(wc -l ${TEST_LOG} | awk '{ print $1 }')" # new log length
+    LOG_LENGTH_NEW="$(wc -l $TEST_LOG | awk '{ print $1 }')" # new log length
 
     if [ "$LOG_LENGTH" -ne "$LOG_LENGTH_NEW" ] ; then    # log length changed
-        tail -n$(($LOG_LENGTH_NEW-$LOG_LENGTH)) $TEST_LOG | \
+        tail -n$((${LOG_LENGTH_NEW}-${LOG_LENGTH})) $TEST_LOG | \
             grep -q $TEST_IP
         RETVAL=$? # the grep exit status
         # The grep exit status is 0 if selected lines are found and 1 otherwise.
@@ -2358,7 +2381,7 @@ test_ipblocking () {
         elif [ "$RETVAL_PING" -eq 1 ] ; then    # No reply to ping
             echo "$TEST_IP did not answer the ping."
             echo ""
-            echo "No clear test result! Trying \"traceroute -n -m 2 $TEST_IP\" now:"
+            echo "No clear test result! Trying \"traceroute -n -m 2 ${TEST_IP}\" now:"
             TRACE_LOG="${TMPDIR}/$(basename $0).test.log"
             traceroute -n -m 2 $TEST_IP > $TRACE_LOG 2>&1
             RETVAL_TRACEROUTE=$?    # the traceroute exit status
@@ -2371,7 +2394,7 @@ test_ipblocking () {
             elif [ "$RETVAL_TRACEROUTE" -eq 0 ] && [ "$(wc -l $TRACE_LOG | awk '{ print $1 }')" -eq 2 ] ; then
                 # Wait a second to give the daemon time to log the current block
                 sleep 1
-                LOG_LENGTH_NEW="$(wc -l ${TEST_LOG} | awk '{ print $1 }')" # new log length
+                LOG_LENGTH_NEW="$(wc -l $TEST_LOG | awk '{ print $1 }')" # new log length
                 if [ "$LOG_LENGTH" -ne "$LOG_LENGTH_NEW" ] ; then    # log length changed
                     tail -n$(($LOG_LENGTH_NEW-$LOG_LENGTH)) $TEST_LOG | \
                         grep -q $TEST_IP
