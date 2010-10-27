@@ -51,6 +51,8 @@ test_external iptables || exit $?
 
 # Automatically whitelist LAN of all up interfaces, loopback interface
 # and DNS server(s) (if configured)
+date +%F" "%X" "%Z" Begin: $0 whitelisting LAN" >> $CMD_LOG 2>&1
 white_local >> $CMD_LOG 2>&1
+date +%F" "%X" "%Z" End: $0 whitelisting LAN" >> $CMD_LOG 2>&1
 
 exit 0

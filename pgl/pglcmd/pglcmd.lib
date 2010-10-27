@@ -702,6 +702,7 @@ white_local () {
         # (although otherwise just no traffic will ever get to the pgl_ chain were this rule is placed).
         # Do this only once on (re)start
         if [ "$CMD_OPTION" = start ] || [ "$CMD_OPTION" = restart ] ; then
+            echo -n "  Allowing loopback traffic:"
             for CHAIN in $CHAINS ; do
                 case $CHAIN in
                 INPUT)
@@ -716,17 +717,15 @@ white_local () {
                     continue
                     ;;
                 *)
-                    echo "Unknown CHAIN $CHAIN specified."
+                    echo " Unknown CHAIN $CHAIN specified."
                     exit 1
                     ;;
                 esac
-                echo -n "  Allowing loopback traffic in $CHAIN"
+                echo -n " $CHAIN"
                 # Insert whitelisting rules for whole loopback interface
-                iptables -I $PGL_CHAIN $CMD_LOOP -j $IPTABLES_TARGET_WHITELISTING
-                RETVAL=$?
-                log_end_msg $RETVAL
-                [ "$RETVAL" = 0 ] || exit $E_IPTABLES
+                iptables -I $PGL_CHAIN $CMD_LOOP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
             done
+            log_end_msg 0
         fi
 
         # Whitelist the DNS server(s).
@@ -772,6 +771,7 @@ white_local () {
     fi
 
     if [ "$WHITE_LOCAL" -eq 1 ] ; then
+        echo "  Allowing LAN traffic ..."
         # Automatically whitelist LAN of all up interfaces
         # TODO: Only do this if checking the corresponding interface is enabled
         # For this the output of "ifconfig" and "iptables -L -nv" is scanned for certain patterns
@@ -814,12 +814,12 @@ white_local () {
                     INPUT)
                         PGL_CHAIN="$IPTABLES_IN"
                         CMD_WHITE_IP="--source ${IP}/${SUBNETMASK}"
-                        DIRECTION=from
+                        DIRECTION="from"
                         ;;
                     OUTPUT)
                         PGL_CHAIN="$IPTABLES_OUT"
                         CMD_WHITE_IP="--destination ${IP}/${SUBNETMASK}"
-                        DIRECTION=to
+                        DIRECTION="to"
                         ;;
                     FORWARD)
                         PGL_CHAIN="$IPTABLES_FWD"
@@ -848,7 +848,7 @@ white_local () {
                                 # but no real harm will be done.
                                 SCOPE2=""
                             fi
-                            echo -n "  Allowing $CHAIN LAN traffic from ${IP}/${SUBNETMASK} to ${IP2}/${SUBNETMASK2}"
+                            echo -n "    $CHAIN from ${IP}/${SUBNETMASK} to ${IP2}/${SUBNETMASK2}"
                             if [ "$CMD_OPTION" = start ] || [ "$CMD_OPTION" = restart ] ||
                             ! iptables -nv -L $PGL_CHAIN | grep "$IPTABLES_TARGET_WHITELISTING .* $SCOPE *$SCOPE2" > /dev/null 2>&1 ; then
                                 iptables -I $PGL_CHAIN --source ${IP}/${SUBNETMASK} --destination ${IP2}/${SUBNETMASK2} -j $IPTABLES_TARGET_WHITELISTING
@@ -862,9 +862,9 @@ white_local () {
                         continue
                         ;;
                     esac
-                    echo -n "  Allowing $CHAIN LAN traffic "$DIRECTION" ${IP}/${SUBNETMASK}"
+                    echo -n "    $CHAIN $DIRECTION ${IP}/${SUBNETMASK}"
                     # Whitelist LAN, if we do an inital start/restart (quick
-                    # test of $1) or if the LAN is not already whitelisted
+                    # test of $CMD_OPTION) or if the LAN is not already whitelisted
                     # (time-consuming test of iptables output).
                     # With other words:
                     # pglcmd start/restart: always whitelist LAN
@@ -882,6 +882,7 @@ white_local () {
                 ;;
             esac
         done
+    echo "  LAN traffic allowed."
     fi
 }
 
@@ -936,6 +937,9 @@ white_port_prepare () {
 # removes all iptables rules again and aborts
 fail_insert_iptables () {
     log_end_msg $?
+    # Try to build the REMOVE_SCRIPT in any case
+    cat $REMOVE_SCRIPT >> ${REMOVE_SCRIPT}.tmp &&
+    mv ${REMOVE_SCRIPT}.tmp $REMOVE_SCRIPT
     delete_iptables
     exit $E_IPTABLES
 }
@@ -985,7 +989,7 @@ insert_iptables () {
 
         # Prepare and issue iptables commands for every chain.
         for CHAIN in $CHAINS ; do
-            echo "  Setting up iptables for chain $CHAIN:"
+            echo "  Setting up iptables for $CHAIN:"
             case $CHAIN in
             INPUT)
                 PGL_CHAIN="$IPTABLES_IN"
@@ -1018,32 +1022,37 @@ insert_iptables () {
                 REJECT_TARGET="$REJECT_FWD"
                 ;;
             *)
-                echo "Unknown CHAIN $CHAIN specified."
+                echo " Unknown CHAIN $CHAIN specified."
                 exit 1
                 ;;
             esac
 
             # Create new pgl_ chain and remember iptables remove rules
-            ( echo -n "    Creating chain" &&
+            echo -n "    Creating chain" &&
                 iptables -N $PGL_CHAIN &&
                 echo "iptables -F $PGL_CHAIN" >> $REMOVE_SCRIPT &&
-                echo "iptables -X $PGL_CHAIN" >> $REMOVE_SCRIPT ) ||
+                echo "iptables -X $PGL_CHAIN" >> $REMOVE_SCRIPT ||
                 fail_insert_iptables
 
             # Insert NFQUEUE rule.
-            echo -n " and inserting NFQUEUE rule" &&
+            echo -n " and inserting $IPTABLES_TARGET rule" &&
                 iptables -I $PGL_CHAIN -j $IPTABLES_TARGET_BLOCK &&
-                log_end_msg "$?" || fail_insert_iptables
+                log_end_msg "$?" ||
+                fail_insert_iptables
 
             # Port Whitelisting
-            ( [ -n "$WHITE_TCP" ] || [ -n "$WHITE_UDP" ] ) &&
+            ( [ -z "$WHITE_TCP" ] && [ -z "$WHITE_UDP" ] ) ||
+                (
                 echo -n "    Whitelisting ports" &&
                 white_port_prepare $PGL_CHAIN tcp $WHITE_TCP &&
                 white_port_prepare $PGL_CHAIN udp $WHITE_UDP &&
-                log_end_msg "$?"
+                log_end_msg "$?" ||
+                fail_insert_iptables
+                )
 
             # IP Whitelisting
-            [ -n "$WHITE_IP" ] && echo -n "    Whitelisting IPs" &&
+            [ -n "$WHITE_IP" ] && 
+                echo -n "    Whitelisting IPs" &&
                 for IP in $WHITE_IP ; do
                     # Add whitelisting rule
                     # (add 2 rules in the FORWARD chain: once for --source, once for --destination)
@@ -1073,6 +1082,7 @@ insert_iptables () {
                             # Comment this line out.
                             sed -i "s|^$LINE$|# Malformed line commented out by $(basename $0): &|" $ALLOW_FILE
                             log_failure_msg "Commented out malformed line \"$LINE\" in $ALLOW_FILE."
+                            fail_insert_iptables
                             }
                     done
                     IFS=$'
@@ -1122,11 +1132,11 @@ insert_iptables () {
         case "$IPTABLES_ACTIVATION" in
         '0')
             if [ "$VERBOSITY" -eq 1 ] ; then
-                echo "  Not activating the chains."
+                echo "  Not activating chains."
             fi
             ;;
         '1'|'2')
-            echo -n "  Activating the chains"
+            echo "  Activating chains:"
             case "$IPTABLES_ACTIVATION" in
             '1')
                 CMD_STATE="-m state --state NEW"
@@ -1169,40 +1179,43 @@ insert_iptables () {
 
                     # Activate iptables chain and remember iptables remove rules
                     if [ "$INTERFACE" = all ] ; then
+                        echo  "    $CHAIN"
                         iptables -I $CHAIN $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
-                        echo "iptables -D $CHAIN $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp
+                        echo "iptables -D $CHAIN $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp ||
+                        fail_insert_iptables
                     else
+                        echo  "    $CHAIN on $INTERFACE"
                         case $CHAIN in
                         INPUT)
                             iptables -I $CHAIN -i $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
-                            echo "iptables -D $CHAIN -i $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp
+                            echo "iptables -D $CHAIN -i $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp ||
+                            fail_insert_iptables
                             ;;
                         OUTPUT)
                             iptables -I $CHAIN -o $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
-                            echo "iptables -D $CHAIN -o $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp
+                            echo "iptables -D $CHAIN -o $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp ||
+                            fail_insert_iptables
                             ;;
                         FORWARD)
                             iptables -I $CHAIN -i $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
                             echo "iptables -D $CHAIN -i $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp &&
                             iptables -I $CHAIN -o $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
-                            echo "iptables -D $CHAIN -o $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp
+                            echo "iptables -D $CHAIN -o $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp ||
+                            fail_insert_iptables
                             ;;
                         # Valid CHAINs was already tested above. No test needed here.
                         esac
                     fi
-                    RET=$?
-                    [ "$RET" -eq 0 ] || break 2
                 done
             done
-            # Try to build the REMOVE_SCRIPT in any way
+            echo "  Chains activated."
+            # Build the REMOVE_SCRIPT
             cat $REMOVE_SCRIPT >> ${REMOVE_SCRIPT}.tmp &&
-            mv ${REMOVE_SCRIPT}.tmp $REMOVE_SCRIPT
-            # If anything went wrong (then we broke out of the loops), do the
-            # fail_insert_iptables with the REMOVE_SCRIPT as it is.
-            [ "$RET" -eq 0 ] || fail_insert_iptables
-            log_end_msg $?
+                mv ${REMOVE_SCRIPT}.tmp $REMOVE_SCRIPT ||
+                ( echo "Error: Could not build the iptables remove script!" ; fail_insert_iptables ; )
             ;;
         esac
+        echo "Iptables inserted."
         ;;
     '2')
         CUSTOM_INSERT_SCRIPTS="$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*insert.sh" -print0 | xargs -0r)"
@@ -1237,15 +1250,17 @@ delete_iptables () {
             done
             }
     fi
-    # Delete previously inserted iptables rules in any case. REMOVE_SCRIPT is created in insert_iptables
     if [ -f "$REMOVE_SCRIPT" ] ; then
-        echo "  Executing iptables remove script $REMOVE_SCRIPT"
-        echo -n "  and then removing it"
+        # Delete previously inserted iptables rules in any case. REMOVE_SCRIPT is created in insert_iptables
+        echo -n "  Executing iptables remove script $REMOVE_SCRIPT"
         sh $REMOVE_SCRIPT
+        log_end_msg $?
+        # Remove REMOVE_SCRIPT in any case! It's not meant to be used several times.
+        echo -n "  Removing iptables remove script $REMOVE_SCRIPT"
         rm $REMOVE_SCRIPT
         log_end_msg $?
     fi
-    log_end_msg $?
+    echo "Iptables deleted."
 }
 
 set_md5sum () {
@@ -1266,13 +1281,13 @@ set_MASTER_BLOCKLISTS () {
 # Function that starts the watchdog
 do_start_wd () {
     # Start pglcmd.wd.
-    echo -n "Starting $(basename $WD_PATHNAME) ..."
+    echo -n "Starting $(basename $WD_PATHNAME)"
     test_WD_PATHNAME
     test_WD_PID
 
     # Test WD_NICE setting.
     [ "$WD_NICE" -ge -20 ] && [ "$WD_NICE" -le 19 ] || {
-        log_failure_msg "Error $E_CONFIG: Check the WD_NICE setting."
+        log_failure_msg " Error $E_CONFIG: Check the WD_NICE setting."
         exit $E_CONFIG
         }
 
@@ -1461,13 +1476,13 @@ do_start () {
             # Execute old REMOVE_SCRIPT if it still exists for any reason, because we may run into troubles
             # if there are still old iptables
             if [ -f "$REMOVE_SCRIPT" ] ; then
-                echo -n "  Old iptables remove script $REMOVE_SCRIPT still exists! Executing and then removing it"
+                echo -n "Old iptables remove script $REMOVE_SCRIPT still exists! Executing and then removing it"
                 sh $REMOVE_SCRIPT
                 rm $REMOVE_SCRIPT
                 log_end_msg $?
             fi
             insert_iptables
-            echo -n "Starting $NAME ..."
+            echo -n "Starting $NAME"
 
             # Set the log to syslog option
             if [ "$LOG_SYSLOG" -eq 1 ] ; then
@@ -1519,7 +1534,7 @@ do_start () {
 
             # Test NICE_LEVEL setting.
             [ "$NICE_LEVEL" -ge -20 ] && [ "$NICE_LEVEL" -le 19 ] || {
-                log_failure_msg "Error $E_CONFIG: Check the NICE_LEVEL setting."
+                log_failure_msg " Error $E_CONFIG: Check the NICE_LEVEL setting."
                 exit $E_CONFIG
                 }
 
@@ -1558,7 +1573,7 @@ do_stop () {
     # Remove iptables rules/chains
     delete_iptables
     # As per LSB don't test if daemon is installed on stop!
-    echo -n "Stopping $NAME ..."
+    echo -n "Stopping $NAME"
     PID_OPT=""
     [ -z "$PIDFILE" ] || PID_OPT="-p $PIDFILE"
     killproc "$PID_OPT" "$DAEMON"
