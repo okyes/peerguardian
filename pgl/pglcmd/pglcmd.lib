@@ -2460,16 +2460,19 @@ reset_stats () {
 
 email_stats () {
     # Check if daemon is running, otherwise stats are not available!
-    if status_of_proc $DAEMON $NAME > /dev/null 2>&1 ; then
+    if [ $STATS_MAILTO ] && status_of_proc $DAEMON $NAME > /dev/null 2>&1 ; then
+        echo -n "Emailing stats"
         # Find sendmail
         if [ -x /usr/sbin/sendmail ] ; then
             SENDMAIL="/usr/sbin/sendmail"
         elif [ -x /usr/lib/sendmail ] ; then
             SENDMAIL="/usr/lib/sendmail"
+        else
+            echo " Error: sendmail not found."
         fi
-        SUBJECT="$NAME hit statistics"
         # Check if pgl is configured to send email stats and if sendmail is available
-        if [ $STATS_MAILTO ] && [ $SENDMAIL ] ; then
+        if [ $SENDMAIL ] ; then
+            SUBJECT="$NAME hit statistics"
             cat<<EOF | $SENDMAIL -t
 To: $STATS_MAILTO
 Subject: $SUBJECT
@@ -2477,6 +2480,7 @@ Subject: $SUBJECT
 $(reset_stats)
 
 EOF
+        log_end_msg "$?"
         fi
     fi
 }
