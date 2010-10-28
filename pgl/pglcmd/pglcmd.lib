@@ -702,7 +702,7 @@ white_local () {
         # (although otherwise just no traffic will ever get to the pgl_ chain were this rule is placed).
         # Do this only once on (re)start
         if [ "$CMD_OPTION" = start ] || [ "$CMD_OPTION" = restart ] ; then
-            echo -n "  Allowing loopback traffic:"
+            echo -n "..Allowing loopback traffic:"
             for CHAIN in $CHAINS ; do
                 case $CHAIN in
                 INPUT)
@@ -749,7 +749,7 @@ white_local () {
                 esac
 
                 for IP in $DNS_IPS ; do
-                    echo -n "  Allowing $CHAIN traffic to DNS server $IP"
+                    echo -n "..Allowing $CHAIN traffic to DNS server $IP"
                     # Whitelist DNS server, if we do an inital start/restart (quick
                     # test of $CMD_OPTION) or if the DNS server is not already whitelisted
                     # (time-consuming test of iptables output).
@@ -771,7 +771,7 @@ white_local () {
     fi
 
     if [ "$WHITE_LOCAL" -eq 1 ] ; then
-        echo "  Allowing LAN traffic ..."
+        echo "..Allowing LAN traffic ..."
         # Automatically whitelist LAN of all up interfaces
         # TODO: Only do this if checking the corresponding interface is enabled
         # For this the output of "ifconfig" and "iptables -L -nv" is scanned for certain patterns
@@ -848,7 +848,7 @@ white_local () {
                                 # but no real harm will be done.
                                 SCOPE2=""
                             fi
-                            echo -n "    $CHAIN from ${IP}/${SUBNETMASK} to ${IP2}/${SUBNETMASK2}"
+                            echo -n "....$CHAIN from ${IP}/${SUBNETMASK} to ${IP2}/${SUBNETMASK2}"
                             if [ "$CMD_OPTION" = start ] || [ "$CMD_OPTION" = restart ] ||
                             ! iptables -nv -L $PGL_CHAIN | grep "$IPTABLES_TARGET_WHITELISTING .* $SCOPE *$SCOPE2" > /dev/null 2>&1 ; then
                                 iptables -I $PGL_CHAIN --source ${IP}/${SUBNETMASK} --destination ${IP2}/${SUBNETMASK2} -j $IPTABLES_TARGET_WHITELISTING
@@ -862,7 +862,7 @@ white_local () {
                         continue
                         ;;
                     esac
-                    echo -n "    $CHAIN $DIRECTION ${IP}/${SUBNETMASK}"
+                    echo -n "....$CHAIN $DIRECTION ${IP}/${SUBNETMASK}"
                     # Whitelist LAN, if we do an inital start/restart (quick
                     # test of $CMD_OPTION) or if the LAN is not already whitelisted
                     # (time-consuming test of iptables output).
@@ -882,7 +882,7 @@ white_local () {
                 ;;
             esac
         done
-    echo "  LAN traffic allowed."
+    echo "..LAN traffic allowed."
     fi
 }
 
@@ -989,7 +989,7 @@ insert_iptables () {
 
         # Prepare and issue iptables commands for every chain.
         for CHAIN in $CHAINS ; do
-            echo "  Setting up iptables for $CHAIN:"
+            echo "..Setting up iptables for $CHAIN:"
             case $CHAIN in
             INPUT)
                 PGL_CHAIN="$IPTABLES_IN"
@@ -1028,7 +1028,7 @@ insert_iptables () {
             esac
 
             # Create new pgl_ chain and remember iptables remove rules
-            echo -n "    Creating chain" &&
+            echo -n "....Creating chain" &&
                 iptables -N $PGL_CHAIN &&
                 echo "iptables -F $PGL_CHAIN" >> $REMOVE_SCRIPT &&
                 echo "iptables -X $PGL_CHAIN" >> $REMOVE_SCRIPT ||
@@ -1043,7 +1043,7 @@ insert_iptables () {
             # Port Whitelisting
             ( [ -z "$WHITE_TCP" ] && [ -z "$WHITE_UDP" ] ) ||
                 (
-                echo -n "    Whitelisting ports" &&
+                echo -n "....Whitelisting ports" &&
                 white_port_prepare $PGL_CHAIN tcp $WHITE_TCP &&
                 white_port_prepare $PGL_CHAIN udp $WHITE_UDP &&
                 log_end_msg "$?" ||
@@ -1052,7 +1052,7 @@ insert_iptables () {
 
             # IP Whitelisting
             [ -n "$WHITE_IP" ] && 
-                echo -n "    Whitelisting IPs" &&
+                echo -n "....Whitelisting IPs" &&
                 for IP in $WHITE_IP ; do
                     # Add whitelisting rule
                     # (add 2 rules in the FORWARD chain: once for --source, once for --destination)
@@ -1064,7 +1064,7 @@ insert_iptables () {
 
             # IP ranges whitelisting
             if [ -f "$ALLOW_FILE" ] ; then
-                echo -n "    Whitelisting IP ranges"
+                echo -n "....Whitelisting IP ranges"
                 # Read the non-comment|not-empty lines from the allow file:
                 ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOW_FILE)"
                 IFS=$'
@@ -1101,7 +1101,7 @@ insert_iptables () {
             # keep those chains cleaner. It has to be made sure that the MARK of the
             # packets is not changed by other iptables rules.
             if [ "$REJECT" -eq 1 ] ; then
-                echo -n "    Inserting block rule"
+                echo -n "....Inserting block rule"
                 iptables -I $PGL_CHAIN -m mark --mark $REJECT_MARK -j $REJECT_TARGET || fail_insert_iptables
                 # Log "Marked block" packages: The log-iptables-rules should be
                 # placed directly before the block-iptables-rules (i.e. Insert them
@@ -1122,7 +1122,7 @@ insert_iptables () {
         CUSTOM_INSERT_SCRIPTS="$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*insert.sh" -print0 | xargs -0r)"
         [ -z "$CUSTOM_INSERT_SCRIPTS" ] || {
             for FILE in $CUSTOM_INSERT_SCRIPTS ; do
-                echo -n "  Executing custom iptables insertion script $FILE"
+                echo -n "..Executing custom iptables insertion script $FILE"
                 sh $FILE
                 log_end_msg "$?"
             done
@@ -1132,11 +1132,11 @@ insert_iptables () {
         case "$IPTABLES_ACTIVATION" in
         '0')
             if [ "$VERBOSITY" -eq 1 ] ; then
-                echo "  Not activating chains."
+                echo "..Not activating chains."
             fi
             ;;
         '1'|'2')
-            echo "  Activating chains:"
+            echo "..Activating chains:"
             case "$IPTABLES_ACTIVATION" in
             '1')
                 CMD_STATE="-m state --state NEW"
@@ -1179,12 +1179,12 @@ insert_iptables () {
 
                     # Activate iptables chain and remember iptables remove rules
                     if [ "$INTERFACE" = all ] ; then
-                        echo  "    $CHAIN"
+                        echo  "....$CHAIN"
                         iptables -I $CHAIN $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
                         echo "iptables -D $CHAIN $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp ||
                         fail_insert_iptables
                     else
-                        echo  "    $CHAIN on $INTERFACE"
+                        echo  "....$CHAIN on $INTERFACE"
                         case $CHAIN in
                         INPUT)
                             iptables -I $CHAIN -i $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
@@ -1208,7 +1208,7 @@ insert_iptables () {
                     fi
                 done
             done
-            echo "  Chains activated."
+            echo "..Chains activated."
             # Build the REMOVE_SCRIPT
             cat $REMOVE_SCRIPT >> ${REMOVE_SCRIPT}.tmp &&
                 mv ${REMOVE_SCRIPT}.tmp $REMOVE_SCRIPT ||
@@ -1244,7 +1244,7 @@ delete_iptables () {
         CUSTOM_REMOVE_SCRIPTS="$(find $IPTABLES_CUSTOM_DIR -maxdepth 1 -type f -name "*remove.sh" -print0 | xargs -0r)"
         [ -z "$CUSTOM_REMOVE_SCRIPTS" ] || {
             for FILE in $CUSTOM_REMOVE_SCRIPTS ; do
-                echo -n "  Executing custom iptables remove script $FILE"
+                echo -n "..Executing custom iptables remove script $FILE"
                 sh $FILE
                 log_end_msg $?
             done
@@ -1252,11 +1252,11 @@ delete_iptables () {
     fi
     if [ -f "$REMOVE_SCRIPT" ] ; then
         # Delete previously inserted iptables rules in any case. REMOVE_SCRIPT is created in insert_iptables
-        echo -n "  Executing iptables remove script $REMOVE_SCRIPT"
+        echo -n "..Executing iptables remove script $REMOVE_SCRIPT"
         sh $REMOVE_SCRIPT
         log_end_msg $?
         # Remove REMOVE_SCRIPT in any case! It's not meant to be used several times.
-        echo -n "  Removing iptables remove script $REMOVE_SCRIPT"
+        echo -n "..Removing iptables remove script $REMOVE_SCRIPT"
         rm $REMOVE_SCRIPT
         log_end_msg $?
     fi
