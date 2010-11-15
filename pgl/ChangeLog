@@ -8,6 +8,7 @@ pgl 2.0.4~WIP
     Bug #3057107. Thx athanasius!
   * extended kernel module loading
   * iptables handling:
+    - fixed: check for already whitelisted LAN now copes with all subnetmasks
     - improved logging
     - be more verbose on iptables insertion
     - minor bugfixes

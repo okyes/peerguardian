@@ -694,6 +694,65 @@ test_net () {
     fi
 }
 
+# Calculate the routing prefix and its bits length for a given IP and subnetmask
+# (convert ifconfig output to iptables output)
+# e.g. IP=192.168.178.21 and SUBNETMASK=255.255.255.0 get 192.168.178.0/24
+set_NETWORK () {
+    local NETIP1 NETIP2 NETIP3 NETIP4 MASK1 MASK2 MASK3 MASK4 BITS
+    [ $# -eq 2 ] || { echo "Internal error: Usage set_NETWORK IP SUBNETMASK" ; exit 1 ; }
+    echo $1 | grep -Eq "$IPv4_REGEX" || { echo "Internal error: $1 is not a valid IP!" ; exit 1 ; }
+    echo $2 | grep -Eq "$IPv4_REGEX" || { echo "Internal error: $2 is not a valid SUBNETMASK!" ; exit 1 ; }
+
+    IFS=.
+    i=1
+    for OCTET in $1 ; do
+        # Don't know why eval is necessary, but it is.
+        eval NETIP${i}="${OCTET}"
+        i=$(($i+1))
+    done
+    i=1
+    for OCTET in $2 ; do
+        eval MASK${i}="${OCTET}"
+        i=$(($i+1))
+    done
+    IFS=$STDIFS
+
+    # Use bitwise ANDing for the routing prefix
+    NET1=$(( $NETIP1 & $MASK1 ))
+    NET2=$(( $NETIP2 & $MASK2 ))
+    NET3=$(( $NETIP3 & $MASK3 ))
+    NET4=$(( $NETIP4 & $MASK4 ))
+
+    # Haven't found a way to calculate this in a shell script. So using this table
+    # for the bits length
+    case $2 in
+        255.0.0.0)        BITS="8" ;;
+        255.128.0.0)      BITS="9" ;;
+        255.192.0.0)      BITS="10" ;;
+        255.224.0.0)      BITS="11" ;;
+        255.240.0.0)      BITS="12" ;;
+        255.248.0.0)      BITS="13" ;;
+        255.252.0.0)      BITS="14" ;;
+        255.254.0.0)      BITS="15" ;;
+        255.255.0.0)      BITS="16" ;;
+        255.255.128.0)    BITS="17" ;;
+        255.255.192.0)    BITS="18" ;;
+        255.255.224.0)    BITS="19" ;;
+        255.255.240.0)    BITS="20" ;;
+        255.255.248.0)    BITS="21" ;;
+        255.255.252.0)    BITS="22" ;;
+        255.255.254.0)    BITS="23" ;;
+        255.255.255.0)    BITS="24" ;;
+        255.255.255.128)  BITS="25" ;;
+        255.255.255.192)  BITS="26" ;;
+        255.255.255.224)  BITS="27" ;;
+        255.255.255.240)  BITS="28" ;;
+        255.255.255.248)  BITS="29" ;;
+        255.255.255.252)  BITS="30" ;;
+    esac
+    echo ${NET1}.${NET2}.${NET3}.${NET4}/${BITS}
+}
+
 white_local () {
     # If CHAINS is empty/not set, then set it to "all". Replace all with the single names.
     CHAINS=${CHAINS:-all}
@@ -796,21 +855,8 @@ white_local () {
                     grep -F "inet addr:${IP} " |
                     grep -Eo "Mask:${IPv4_REGEX}" |
                     grep -Eo "$IPv4_REGEX" )"
-                # Set the scope (IP/subnetmask) as it will be shown by iptables
-                if [ "$SUBNETMASK" = 255.255.255.0 ] ; then
-                    # Scope is X.X.X.0/24
-                    SCOPE="$( echo $IP | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\." )0/24"
-                elif [ "$SUBNETMASK" = 255.255.0.0 ] ; then
-                    # Scope is X.X.0.0/16
-                    SCOPE="$( echo $IP | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\." )0.0/16"
-                else
-                    # TODO: Find a way to check for the real IP/SUBNETMASK pattern.
-                    # With an empty SCOPE the last grep command will just fail, so
-                    # the result is as if no whitelisting already occured.
-                    # So if the network is brought up several times there will be multiple identical rules,
-                    # but no real harm will be done.
-                    SCOPE=""
-                fi
+                # Set NETWORK as it will be shown by iptables
+                NETWORK="$(set_NETWORK $IP $SUBNETMASK)"
 
                 # Insert whitelisting rules for LAN with SUBNETMASK.
                 for CHAIN in $CHAINS ; do
@@ -838,24 +884,12 @@ white_local () {
                                 grep -F "inet addr:${IP2} " |
                                 grep -Eo "Mask:$IPv4_REGEX" |
                                 grep -Eo "$IPv4_REGEX" )"
-                            # Set the scope (IP/subnetmask) as it will be shown by iptables
-                            if [ "$SUBNETMASK2" = 255.255.255.0 ] ; then
-                                # Scope is X.X.X.0/24
-                                SCOPE2="$( echo $IP2 | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\." )0/24"
-                            elif [ "$SUBNETMASK2" = 255.255.0.0 ] ; then
-                                # Scope is X.X.0.0/16
-                                SCOPE2="$( echo $IP2 | grep -Eo "[0-9]{1,3}\.[0-9]{1,3}\." )0.0/16"
-                            else
-                                # TODO: Find a way to check for the real IP/SUBNETMASK pattern.
-                                # With an empty SCOPE the last grep command will just fail, so
-                                # the result is as if no whitelisting already occured.
-                                # So if the network is brought up several times there will be multiple identical rules,
-                                # but no real harm will be done.
-                                SCOPE2=""
-                            fi
-                            echo -n "....$CHAIN from ${IP}/${SUBNETMASK} to ${IP2}/${SUBNETMASK2}"
+                            # Set NETWORK2 as it will be shown by iptables
+                            NETWORK2="$(set_NETWORK $IP2 $SUBNETMASK2)"
+
+                            echo -n "....$CHAIN from $NETWORK to $NETWORK2"
                             if [ "$CMD_OPTION" = start ] || [ "$CMD_OPTION" = restart ] ||
-                            ! iptables -nv -L $PGL_CHAIN | grep "$IPTABLES_TARGET_WHITELISTING .* $SCOPE *$SCOPE2" > /dev/null 2>&1 ; then
+                            ! iptables -nv -L $PGL_CHAIN | grep "$IPTABLES_TARGET_WHITELISTING .* $NETWORK *$NETWORK2" > /dev/null 2>&1 ; then
                                 iptables -I $PGL_CHAIN --source ${IP}/${SUBNETMASK} --destination ${IP2}/${SUBNETMASK2} -j $IPTABLES_TARGET_WHITELISTING
                                 RETVAL=$?
                                 log_end_msg $RETVAL
@@ -867,7 +901,7 @@ white_local () {
                         continue
                         ;;
                     esac
-                    echo -n "....$CHAIN $DIRECTION ${IP}/${SUBNETMASK}"
+                    echo -n "....$CHAIN $DIRECTION $NETWORK"
                     # Whitelist LAN, if we do an inital start/restart (quick
                     # test of $CMD_OPTION) or if the LAN is not already whitelisted
                     # (time-consuming test of iptables output).
@@ -875,7 +909,7 @@ white_local () {
                     # pglcmd start/restart: always whitelist LAN
                     # if-up: first check iptables output if LAN is already whitelisted.
                     if [ "$CMD_OPTION" = start ] || [ "$CMD_OPTION" = restart ] ||
-                    ! iptables -nv -L $PGL_CHAIN | grep "$IPTABLES_TARGET_WHITELISTING .* $SCOPE" > /dev/null 2>&1 ; then
+                    ! iptables -nv -L $PGL_CHAIN | grep "$IPTABLES_TARGET_WHITELISTING .* $NETWORK" > /dev/null 2>&1 ; then
                         iptables -I $PGL_CHAIN $CMD_WHITE_IP -j $IPTABLES_TARGET_WHITELISTING
                         RETVAL=$?
                         log_end_msg $RETVAL

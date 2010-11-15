@@ -8,15 +8,6 @@ BUGS of pgl:
   http://forums.phoenixlabs.org/showthread.php?t=18045
   http://ubuntuforums.org/showthread.php?t=1189320
 
-- blockcontrol (1.3) if-up:
-  check for already whitelisted LAN does not work for all subnetmasks
-  -
-  The check if a LAN is already whitelisted, will only work for the subnetmasks
-  255.255.255.0 and 255.255.0.0. Else a new whitelisting rule will be inserted
-  in any case, so there may be multiple identical rules.
-  --
-  2009-03-21, jre <jre-phoenix@users.sourceforge.net>
-
 - pglcmd only monitors if pgld starts successfully until pgld forks
   (daemonizes). Everything that happens after the fork doesn't get catched.
   - Therefore move as much as possible of the pgld start code before the fork.
