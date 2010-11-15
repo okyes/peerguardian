@@ -24,6 +24,7 @@ pgl 2.0.4~WIP
       documentation for force-reload and force-update.
   * fixed use of pglcmd option #1 ($1) in pglcmd.lib
   * code cleanups:
+    - use a separate variable for the IPv4 regular expression
     - moved LIST_NAME2LIST_URL from pglcmd.lib to debian/postinst
     - replaced ( ... ) command grouping with { ... ; } or omitted it completely
       for efficieny issues
