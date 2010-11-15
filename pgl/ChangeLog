@@ -7,7 +7,12 @@ pgl 2.0.4~WIP
   * fixed automatic whitelisting of local FORWARD traffic. Now really Closes SF
     Bug #3057107. Thx athanasius!
   * extended kernel module loading
-  * improved logging, be more verbose on iptables insertion, minor bugfixes
+  * iptables handling:
+    - improved logging
+    - be more verbose on iptables insertion
+    - minor bugfixes
+    - execute old iptables remove script on start in case it still exists (it
+      shouldn't!)
   * blocklist management:
     - also merge the local blocklists in MASTER_BLOCKLIST (next to the
       automatically handled remote blocklists). pgld only loads this list.
@@ -17,10 +22,11 @@ pgl 2.0.4~WIP
     - local blocklists mustn't have space in their names any more!
     - added option force-restart, that forces to rebuild master blocklist. Added
       documentation for force-reload and force-update.
-  * execute old iptables remove script on start in case it still exists (it
-    shouldn't!)
   * fixed use of pglcmd option #1 ($1) in pglcmd.lib
-  * moved LIST_NAME2LIST_URL from pglcmd.lib to debian/postinst
+  * code cleanups:
+    - moved LIST_NAME2LIST_URL from pglcmd.lib to debian/postinst
+    - replaced ( ... ) command grouping with { ... ; } or omitted it completely
+      for efficieny issues
 
 -- jre <jre-phoenix@users.sourceforge.net>  WIP
 

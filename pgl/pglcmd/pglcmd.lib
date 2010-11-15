@@ -891,8 +891,8 @@ white_local () {
 #        $CHAIN, $PROTO and $MULTIPORT have to be set.
 white_port_iptables () {
     PORTS="$( echo $MULTIPORT | sed "s|\(.*\),$|\1|" )"
-    iptables -I $CHAIN -p $PROTO -m multiport --ports $PORTS -j $IPTABLES_TARGET_WHITELISTING \
-        || fail_insert_iptables
+    iptables -I $CHAIN -p $PROTO -m multiport --ports $PORTS -j $IPTABLES_TARGET_WHITELISTING ||
+        fail_insert_iptables
 }
 
 # Function to construct $MULTIPORT variable as iptables accepts it (ports
@@ -1041,14 +1041,14 @@ insert_iptables () {
                 fail_insert_iptables
 
             # Port Whitelisting
-            ( [ -z "$WHITE_TCP" ] && [ -z "$WHITE_UDP" ] ) ||
-                (
+            [ -z "$WHITE_TCP" ] && [ -z "$WHITE_UDP" ] ||
+                {
                 echo -n "....Whitelisting ports" &&
                 white_port_prepare $PGL_CHAIN tcp $WHITE_TCP &&
                 white_port_prepare $PGL_CHAIN udp $WHITE_UDP &&
                 log_end_msg "$?" ||
                 fail_insert_iptables
-                )
+                }
 
             # IP Whitelisting
             [ -n "$WHITE_IP" ] && 
@@ -1212,7 +1212,7 @@ insert_iptables () {
             # Build the REMOVE_SCRIPT
             cat $REMOVE_SCRIPT >> ${REMOVE_SCRIPT}.tmp &&
                 mv ${REMOVE_SCRIPT}.tmp $REMOVE_SCRIPT ||
-                ( echo "Error: Could not build the iptables remove script!" ; fail_insert_iptables ; )
+                { echo "Error: Could not build the iptables remove script!" ; fail_insert_iptables ; }
             ;;
         esac
         echo "Iptables inserted."
@@ -1284,7 +1284,7 @@ set_BLOCKLISTS_LOCAL () {
     BLOCKLISTS_LOCAL="$(find $MASTER_BLOCKLIST_DIR -maxdepth 1 -type f \
         ! -name "*~" \
         ! -name ".*" \
-        ! -name "$(basename $MASTER_BLOCKLIST)" | \
+        ! -name "$(basename $MASTER_BLOCKLIST)" |
         tr "\n" " ")"
 }
 
@@ -1379,7 +1379,7 @@ do_start () {
             # xt_NFQUEUE
             case "$IPTABLES_TARGET" in
                 NFQUEUE)
-                    ( [ -f /proc/net/ip_tables_targets ] && grep -q NFQUEUE /proc/net/ip_tables_targets ) ||
+                    [ -f /proc/net/ip_tables_targets ] && grep -q NFQUEUE /proc/net/ip_tables_targets ||
                         modprobe -q xt_NFQUEUE ||
                         modprobe -q ipt_NFQUEUE || {
                         log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_NFQUEUE, not starting $NAME!"
@@ -1403,7 +1403,7 @@ do_start () {
             # TODO?: nf_conntrack_ipv4
             # TODO?: iptable_filter
             # xt_mark
-            ( [ -f /proc/net/ip_tables_matches ] && grep -q mark /proc/net/ip_tables_matches ) ||
+            [ -f /proc/net/ip_tables_matches ] && grep -q mark /proc/net/ip_tables_matches ||
                 modprobe -q xt_mark ||
                 modprobe -q ipt_mark ||
                 if [ "$REJECT" = 1 ] || [ "$ACCEPT" = 1 ] ; then
@@ -1415,7 +1415,7 @@ do_start () {
                     log_warning_msg "Warning: Could not load kernel module xt_mark, continuing anyway."
                 fi
             # ipt_REJECT
-            ( [ -f /proc/net/ip_tables_targets ] && grep -q REJECT /proc/net/ip_tables_targets ) ||
+            [ -f /proc/net/ip_tables_targets ] && grep -q REJECT /proc/net/ip_tables_targets ||
                 modprobe -q xt_REJECT ||
                 modprobe -q ipt_REJECT ||
                 if [ "$REJECT_OUT" = REJECT ] || [ "$REJECT_FWD" = REJECT ] || [ "$REJECT_IN" = REJECT ] ; then
@@ -1427,7 +1427,7 @@ do_start () {
                     log_warning_msg "Warning: Could not load kernel module ipt_REJECT, continuing anyway."
                 fi
             # xt_state
-            ( [ -f /proc/net/ip_tables_matches ] && grep -q state /proc/net/ip_tables_matches ) ||
+            [ -f /proc/net/ip_tables_matches ] && grep -q state /proc/net/ip_tables_matches ||
                 modprobe -q xt_state ||
                 modprobe -q ipt_state ||
                 if [ "$IPTABLES_ACTIVATION" = 1 ] ; then
@@ -1440,7 +1440,7 @@ do_start () {
                 fi
             # xt_multiport
             ALL_WHITE_PORTS="$WHITE_TCP_IN $WHITE_UDP_IN $WHITE_TCP_OUT $WHITE_UDP_OUT $WHITE_TCP_FWD $WHITE_UDP_FWD"
-            ( [ -f /proc/net/ip_tables_matches ] && grep -q multiport /proc/net/ip_tables_matches ) ||
+            [ -f /proc/net/ip_tables_matches ] && grep -q multiport /proc/net/ip_tables_matches ||
                 modprobe -q xt_multiport ||
                 modprobe -q ipt_multiport ||
                 if [ "$IPTABLES_SETTINGS" = 1 ] && [ -n "$ALL_WHITE_PORTS" ] ; then
@@ -1613,7 +1613,7 @@ do_stop () {
         fi
     done
     # If pidfile still exists (stop failed), force pgld to quit.
-    [ ! -f "$PIDFILE" ] || ( kill -9 "$(pidof $DAEMON)" && rm -f $PIDFILE )
+    [ ! -f "$PIDFILE" ] || { kill -9 "$(pidof $DAEMON)" && rm -f $PIDFILE ; }
     RETVAL=$?
 
     log_end_msg $RETVAL
@@ -1905,7 +1905,7 @@ get_blocklist () {
         test_external 7za > /dev/null 2>&1 ||
         test_external 7z > /dev/null 2>&1 ||
         test_external p7zip > /dev/null 2>&1 ||
-        WGET_OPTS="$(echo $WGET_OPTS | \
+        WGET_OPTS="$(echo $WGET_OPTS |
             sed "s|--user-agent=${CMD_NAME}/${VERSION}|--user-agent=${CMD_NAME}_x7z/${VERSION}|")"
     $WGET_OPTS -N "$LIST_URL"
     WGET_RET=$?
@@ -1915,12 +1915,12 @@ get_blocklist () {
         403)
             echo -n "... Access denied!"
             rm -Rf $BLOCKLIST_DIR/download/* ||
-                { log_failure_msg " Error: rm exited with $?" ; exit 1; }
+                { log_failure_msg " Error: rm exited with $?" ; exit 1 ; }
             ;;
         *)
             echo -n "... failed!"
             rm -Rf $BLOCKLIST_DIR/download/* ||
-                { log_failure_msg " Error: rm exited with $?" ; exit 1; }
+                { log_failure_msg " Error: rm exited with $?" ; exit 1 ; }
             echo -n " Trying without timestamping ..."
             $WGET_OPTS "$LIST_URL"
             WGET_RET=$?
@@ -1965,10 +1965,10 @@ get_blocklist () {
         log_failure_msg " Error: $LIST_URL was downloaded successfully but $BLOCKLIST_DOWNLOAD doesn't exist! Strange, aborting!"
         exit 1
     # Download was successful, old blocklist is not available or older than the new one:
-    elif ( [ ! -f "$BLOCKLIST_DOWNLOADED" ] || [ "$BLOCKLIST_DOWNLOAD" -nt "$BLOCKLIST_DOWNLOADED" ] ) ; then
+    elif [ ! -f "$BLOCKLIST_DOWNLOADED" ] || [ "$BLOCKLIST_DOWNLOAD" -nt "$BLOCKLIST_DOWNLOADED" ] ; then
         cp -f --preserve=timestamps $BLOCKLIST_DOWNLOAD $BLOCKLIST_DOWNLOADED &&
             echo "done." ||
-            { log_failure_msg " Error: cp exited with $?"; exit 1; }
+            { log_failure_msg " Error: cp exited with $?"; exit 1 ; }
         [ -f "$BLOCKLIST_DOWNLOADED" ] &&
             UPDATE_SUCCESS="$UPDATE_SUCCESS $LIST_NAME (last modified: $(stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16));" ||
             { log_failure_msg " Error: $LIST_URL exists, but $BLOCKLIST_DOWNLOADED doesn't exist! Strange, aborting!" ; exit 1 ; }
@@ -1989,7 +1989,7 @@ get_blocklist () {
         { log_failure_msg " Error: mkdir -p exited with $?" ; exit 1 ; }
 
     # This should not happen, just for debugging:
-    [ -f "$BLOCKLIST_DOWNLOADED" ] || { \
+    [ -f "$BLOCKLIST_DOWNLOADED" ] || {
         log_failure_msg " D'oh, why does $BLOCKLIST_DOWNLOADED not exist? Strange, aborting!" ; exit 1 ; }
 
     # General: To analyze the file header check
@@ -2050,7 +2050,7 @@ get_blocklist () {
         *)
             echo -n "not packed... "
             ln -fs $BLOCKLIST_DOWNLOADED ${BLOCKLIST_EXTRACTED}.tmp ||
-                { log_failure_msg " Error: ln exited with $?"; exit 1; }
+                { log_failure_msg " Error: ln exited with $?"; exit 1 ; }
             ;;
     esac
     # Count the lines in the list
@@ -2079,9 +2079,9 @@ get_blocklist () {
 update_blocklists () {
     # Remove the old MD5SUM file now, so that if anything goes wrong,
     # it's clear we have to rebuild the blocklist:
-    [ -f "$MD5SUM_FILE" ] &&
-        { rm "$MD5SUM_FILE" ||
-        { log_failure_msg " Error: rm exited with $?" ; exit 1; } ; }
+    [ -f "$MD5SUM_FILE" ] && {
+    rm "$MD5SUM_FILE" || { log_failure_msg " Error: rm exited with $?" ; exit 1 ; }
+    }
 
     UPDATE_FAIL=""          # Lists failed blocklist updates
     UPDATE_403=""           # Lists failed blocklist updates with "access forbidden"
@@ -2132,9 +2132,9 @@ build_blocklist () {
 
     # Remove the old MD5SUM file now, so that if anything goes wrong,
     # it's clear we have to rebuild the blocklist:
-    [ -f "$MD5SUM_FILE" ] &&
-        { rm "$MD5SUM_FILE" ||
-        { log_failure_msg " Error: rm exited with $?" ; exit 1; } ; }
+    [ -f "$MD5SUM_FILE" ] && {
+    rm "$MD5SUM_FILE" || { log_failure_msg " Error: rm exited with $?" ; exit 1 ; }
+    }
 
     # Move master blocklist to backup position. This way it is also removed,
     # in case the configuartion changed in that way, that no blocklists are
@@ -2205,39 +2205,39 @@ build_blocklist () {
         # Build blocklist and remove some lines from the blocklists
         if [ -n "$IP_REMOVE" ] ; then
             # Cat together all single blocklists
-            cat --squeeze-blank $BLOCKLISTSCAT | \
+            cat --squeeze-blank $BLOCKLISTSCAT |
             # Ignore comment lines
-            grep -Ev "^[[:space:]]*#" | \
+            grep -Ev "^[[:space:]]*#" |
             # Remove lines from IP_REMOVE (case-insensitive)
-            grep -Eiv "$SINGLE_REMOVE" | \
+            grep -Eiv "$SINGLE_REMOVE" |
             # Replace repeated whitespace with a single occurence
-            tr -s [:space:] | \
+            tr -s [:space:] |
             # Delete everything complimentary to the following characters/regex
             # alphanumeric
             # space
             # :\*.-,[]
             # newline (return gets removed, so CR+LF gets LF)
-            tr -cd '[:alnum:][:space:]:\\\*\.\-,[]\n' | \
+            tr -cd '[:alnum:][:space:]:\\\*\.\-,[]\n' |
             # Only keep the last occurence of :
-            sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | \
+            sed 's/.*:/&|/' | tr -d : | tr "\|" ":" |
             # Premerge the blocklist
             $DAEMON -m > $MASTER_BLOCKLIST && BUILT=1
         # Build blocklist without removing some lines from the blocklists
         else
             # Cat together all single blocklists
-            cat --squeeze-blank $BLOCKLISTSCAT | \
+            cat --squeeze-blank $BLOCKLISTSCAT |
             # Ignore comment lines
-            grep -Ev "^[[:space:]]*#" | \
+            grep -Ev "^[[:space:]]*#" |
             # Replace repeated whitespace with a single occurence
-            tr -s [:space:] | \
+            tr -s [:space:] |
             # Delete everything complimentary to the following characters/regex
             # alphanumeric
             # space
             # :\*.-,[]
             # newline (return gets removed, so CR+LF gets LF)
-            tr -cd '[:alnum:][:space:]:\\\*\.\-,[]\n' | \
+            tr -cd '[:alnum:][:space:]:\\\*\.\-,[]\n' |
             # Only keep the last occurence of :
-            sed 's/.*:/&|/' | tr -d : | tr "\|" ":" | \
+            sed 's/.*:/&|/' | tr -d : | tr "\|" ":" |
             # Premerge the blocklist, pgld's information is sent to STDERR
             # and therefore ends in pglcmd.log
             $DAEMON -m > $MASTER_BLOCKLIST && BUILT=1
@@ -2339,7 +2339,7 @@ test_ipblocking () {
     LOG_LENGTH_NEW="$(wc -l $TEST_LOG | awk '{ print $1 }')" # new log length
 
     if [ "$LOG_LENGTH" -ne "$LOG_LENGTH_NEW" ] ; then    # log length changed
-        tail -n$((${LOG_LENGTH_NEW}-${LOG_LENGTH})) $TEST_LOG | \
+        tail -n$((${LOG_LENGTH_NEW}-${LOG_LENGTH})) $TEST_LOG |
             grep -q $TEST_IP
         RETVAL=$? # the grep exit status
         # The grep exit status is 0 if selected lines are found and 1 otherwise.
@@ -2396,7 +2396,7 @@ test_ipblocking () {
                 sleep 1
                 LOG_LENGTH_NEW="$(wc -l $TEST_LOG | awk '{ print $1 }')" # new log length
                 if [ "$LOG_LENGTH" -ne "$LOG_LENGTH_NEW" ] ; then    # log length changed
-                    tail -n$(($LOG_LENGTH_NEW-$LOG_LENGTH)) $TEST_LOG | \
+                    tail -n$(($LOG_LENGTH_NEW-$LOG_LENGTH)) $TEST_LOG |
                         grep -q $TEST_IP
                     RETVAL=$? # the grep exit status
                     # The grep exit status is 0 if selected lines are found and 1 otherwise.
