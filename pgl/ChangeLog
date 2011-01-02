@@ -1,5 +1,12 @@
 ChangeLog PeerGuardian Linux (pgl)
 
+pgl 2.1~WIP The GUI release
+
+  [jre]
+  * moved old unfinished Qt GUI to pgl-gui.qt
+
+-- jre <jre-phoenix@users.sourceforge.net>  Sun, 02 Jan 2011 19:09:53 +0100
+
 
 pgl 2.0.4~WIP
 
