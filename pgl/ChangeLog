@@ -12,6 +12,10 @@ pgl 2.1~WIP The GUI release
 pgl 2.0.4~WIP
 
   [ jre ]
+  * internal LSB init-functions:
+    - updated based on Debian's 3.2-27
+    - use start-stop-daemon if available
+    - removed obsolete check for -p --> -p guarding p2p
   * Makefile:
     - removed "clean" from "dist" target - unnecessary
     - only add GUI code to dist, if MAKE_PGLGUI is yes
