@@ -12,6 +12,10 @@ pgl 2.1~WIP The GUI release
 pgl 2.0.4~WIP
 
   [ jre ]
+  * Makefile:
+    - removed "clean" from "dist" target - unnecessary
+    - only add GUI code to dist, if MAKE_PGLGUI is yes
+    - use generic RELEASEFILE name, depending on MAKE_PGLGUI
   * fixed automatic whitelisting of local FORWARD traffic. Now really Closes SF
     Bug #3057107. Thx athanasius!
   * extended kernel module loading

@@ -75,24 +75,24 @@ MODULES_ALL+=pgld_all
 MODULES_INSTALL+=pgld_install
 MODULES_INSTALLSTRIP+=pgld_install-strip
 MODULES_CLEAN+=pgld_clean
+MODULES_DIST+=pgld_dist
 endif
 ifeq ($(MAKE_PGLCMD),yes)
 MODULES_ALL+=pglcmd_all
 MODULES_INSTALL+=pglcmd_install
 MODULES_CLEAN+=pglcmd_clean
+MODULES_DIST+=pglcmd_dist
 endif
 ifeq ($(MAKE_PGLGUI),yes)
 MODULES_ALL+=pgl-gui_all
 MODULES_INSTALL+=pgl-gui_install
 MODULES_INSTALLSTRIP+=pgl-gui_install-strip
 MODULES_CLEAN+=pgl-gui_clean
+MODULES_DIST+=pgl-gui_dist
+RELEASEFILE:=$(PKGNAME)-$(VERSION).tar.gz
+else
+RELEASEFILE:=$(PKGNAME)_no-GUI-$(VERSION).tar.gz
 endif
-
-# Add all modules to the dist.
-MODULES_DIST = \
-	pgld_dist \
-	pglcmd_dist \
-	pgl-gui_dist
 
 DISTDIR = $(PKGNAME)-$(VERSION)
 
@@ -145,11 +145,11 @@ install-strip: $(MODULES_INSTALLSTRIP)
 clean: $(MODULES_CLEAN)
 	rm -rf *~ debian/*~ docs/*~ $(DISTDIR)
 
-dist: clean $(MODULES_DIST)
+dist: $(MODULES_DIST)
 	mkdir -p $(DISTDIR) $(DISTDIR)/debian $(DISTDIR)/debian/po $(DISTDIR)/debian/source $(DISTDIR)/docs
 	for I in $(DISTFILES) ; do cp "$$I" $(DISTDIR)/$$I ; done
 	chmod +x debian/rules
-	tar cvzf $(PKGNAME)-$(VERSION).tgz $(PKGNAME)-$(VERSION)
+	tar cvzf $(RELEASEFILE) $(DISTDIR)
 	rm -rf $(DISTDIR)
 
 $(MODULES_ALL):
