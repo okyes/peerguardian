@@ -1,15 +1,6 @@
 ChangeLog PeerGuardian Linux (pgl)
 
-pgl 2.1~WIP The GUI release
-
-  [jre]
-  * started work on a new GUI (C++, Gtk, glade, dbus)
-  * moved old unfinished Qt GUI to pgl-gui.qt
-
--- jre <jre-phoenix@users.sourceforge.net>  Sun, 02 Jan 2011 19:09:53 +0100
-
-
-pgl 2.0.4~WIP
+pgl 2.0.4
 
   [ jre ]
   * internal LSB init-functions:
@@ -45,8 +36,12 @@ pgl 2.0.4~WIP
     - moved LIST_NAME2LIST_URL from pglcmd.lib to debian/postinst
     - replaced ( ... ) command grouping with { ... ; } or omitted it completely
       for efficieny issues
+  * pgl-gui:
+    - started work on a new GUI (C++, Gtk, glade, dbus), no code in this release
+      yet!
+    - moved old unfinished Qt GUI to pgl-gui.qt
 
--- jre <jre-phoenix@users.sourceforge.net>  WIP
+-- jre <jre-phoenix@users.sourceforge.net>  Sun, 23 Jan 2011 15:50:44 +0100
 
 
 pgl 2.0.3
