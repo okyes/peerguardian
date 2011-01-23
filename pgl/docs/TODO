@@ -9,8 +9,34 @@ pgld:
   - add search option that gives all single blocklists (not master blocklist)
     with the range and description that contain a specified IP.
 
+  - make length of range description configurable (with LOWMEM:=range=0)
+
 
 pglcmd:
+
+  - blockers release pgl-gui:
+    - add blockcontrol-pgl configuration transition script
+        (http://ubuntuforums.org/showthread.php?p=9981209)
+        - add it to packaging
+    - transition VERBOSITY-->VERBOSE?
+        ... or other changes (STDERR, ...)
+        See Debian /etc/init.d/skeleton and /etc/default/rcS
+        or perhaps: INIT_VERBOSE=$VERBOSITY
+
+  - send error messages to console (STDERR 1>&2) and logfile. [Jo?o]
+    Completely rework the logging part, and check if all messages go where they
+    should.
+    Add dbus support.
+
+  - add pidfile for pglcmd (e.g. to prevent 2 starts at nearly the same time.
+    How to handle "update"? - this does not conflict with start.
+
+  - add possibility to shut off cron mails, even if CRON_MAILTO is empty.
+    [http://forums.phoenixlabs.org/showthread.php?p=131335]
+
+  - speed up email_stats
+    firing up sendmail takes way too long for e.g. "stop". So make this quicker,
+    or do it in the background (what happens then on shutdown?)
 
   - Send traffic to several NFQUEUE nums with --queue-balance and run multiple
     pgld instances for these nums. This might help on heavy load.
@@ -26,11 +52,6 @@ pglcmd:
     dino's synology packaging
     http://forums.phoenixlabs.org/showpost.php?p=128371&postcount=20). Probably
     disable this per default, to avoid problems.
-
-  - send error messages to console (STDERR 1>&2) and logfile. [João]
-    Completely rework the logging part, and check if all messages go where they
-    should.
-    Add dbus support.
 
   - fix debconf to use debian/config again.
     This stuff is currently in postinst, because otherwise debconf doesn't work
@@ -58,9 +79,20 @@ pgl-gui:
   - add whitelisting per IP (normal pglcmd variables), and per IP/port/proto
     (pgl-gui-custom-iptables-insert.sh)
 
+
+all components:
+
+  - use dbus for communication between components. Especially for logging
+    events, instead of parsing the logfiles.
+
+  - use inotify (available since Linux kernel 2.6.13) to reload after
+    configuration change.
+
+
 Packaging:
 
   - Debian:
+    - add packages to lenny with backports (http://forums.phoenixlabs.org/showthread.php?p=131481)
     - add LOWMEM flavor
     - add debtags
 
@@ -72,3 +104,7 @@ Packaging:
 
   - Slackware hints:
     http://forums.phoenixlabs.org/showthread.php?p=123198
+
+Web:
+  - Update phoenixlabs.org
+  - update wiki.phoenixlabs.org

@@ -502,12 +502,16 @@ IPv4_REGEX="[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"
 # Usage: test_external basename_of_the_application
 # Returns 0 if base is installed and executable in PATH
 # Otherwise returns E_XEXTERNAL
-# NOTE: "which" should not be used, because it is not available on all systems,
-# e.g. routers.
+# NOTE 1: "which" should not be used, because it is not available on all
+#         systems, e.g. routers.
+# NOTE 2: if the application is available externally and as shell builtin,
+#         the builtin will be used. This may lead to undefined behaviour.
 test_external () {
     IFS=":"
     for PATH_I in $PATH ; do
-        [ -x "$PATH_I"/"$1" ] && IFS=$STDIFS && return 0
+        [ -x "$PATH_I"/"$1" ] &&
+            IFS=$STDIFS &&
+            return 0
     done
     IFS=$STDIFS
     log_failure_msg "Error $E_XEXTERNAL: $1 not installed."
@@ -1770,7 +1774,7 @@ do_reload () {
             log_end_msg $RETVAL
             ;;
         3)  # Daemon is not running
-            log_success_msg "$NAME is not running, doing nothing."
+            echo "$NAME is not running, doing nothing."
             RETVAL=0
             ;;
         # Problematic daemon status. Be verbose and exit!

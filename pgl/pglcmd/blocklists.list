@@ -10,8 +10,7 @@
 # you can manually put lists in MASTER_BLOCKLIST_DIR (/var/lib/pgl).
 # All blocklists in that directory (except those which end in "~" or have a "."
 # prefix) are used by pgld. They may be in any supported format and have to be
-# either unpacked or gzip'ped. Note that these manually installed blocklists are
-# neither updated automatically, nore does IP_REMOVE work for them.
+# either unpacked or gzip'ped.
 
 # Do a "pglcmd reload" (or "restart" or "update") when you have edited
 # this file.

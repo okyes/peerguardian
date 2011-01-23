@@ -33,8 +33,8 @@ pgl 2.0.4~WIP
   * blocklist management:
     - also merge the local blocklists in MASTER_BLOCKLIST (next to the
       automatically handled remote blocklists). pgld only loads this list.
-      - Fixes problems with removed/added local blocklists on "reload".
-      - Quicker "reload", but excess usage of harddisk space
+      - fixes handling of removed/added/changed local blocklists
+      - quicker "reload", but excess usage of harddisk space
       - simplified code and output of test_ipblocking
     - local blocklists mustn't have space in their names any more!
     - added option force-restart, that forces to rebuild master blocklist. Added
