@@ -1,0 +1,256 @@
+<ui version="4.0" >
+ <class>IpWhiteListDialog</class>
+ <widget class="QDialog" name="IpWhiteListDialog" >
+  <property name="windowModality" >
+   <enum>Qt::ApplicationModal</enum>
+  </property>
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>530</width>
+    <height>610</height>
+   </rect>
+  </property>
+  <property name="minimumSize" >
+   <size>
+    <width>430</width>
+    <height>535</height>
+   </size>
+  </property>
+  <property name="windowTitle" >
+   <string>Whitelist IPs</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="../images/images.qrc" >:/images/mobloquer.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" >
+   <item>
+    <widget class="QFrame" name="frame" >
+     <property name="frameShape" >
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" >
+      <item>
+       <widget class="QGroupBox" name="groupBox" >
+        <property name="title" >
+         <string>Add IP Address/Range</string>
+        </property>
+        <layout class="QVBoxLayout" >
+         <item>
+          <layout class="QHBoxLayout" >
+           <item>
+            <widget class="QLineEdit" name="m_AddEdit" />
+           </item>
+           <item>
+            <widget class="QComboBox" name="m_AddTypeCombo" >
+             <item>
+              <property name="text" >
+               <string>Outgoing</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>Incoming</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>Forward</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" >
+           <item>
+            <widget class="QPushButton" name="m_AddButton" >
+             <property name="text" >
+              <string>Add </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="m_ResolveButton" >
+             <property name="text" >
+              <string>Resolve</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QLabel" name="label" >
+           <property name="font" >
+            <font>
+             <pointsize>8</pointsize>
+             <italic>true</italic>
+            </font>
+           </property>
+           <property name="text" >
+            <string>Type an IP address (optionally with a subnetmask) in the field above, select the connection type you want to allow and click "Add" to add in into the Whitelist. Multiple entries can be added seperated with a semicolon. This tool can be also used to whitelist hostnames. Just type the hostname you want to add and click "Resolve" to resolve it before adding in into the Whitelist. Please note that resolving a hostname may take several seconds.</string>
+           </property>
+           <property name="alignment" >
+            <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+           </property>
+           <property name="wordWrap" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_3" >
+        <property name="title" >
+         <string>Currently WhiteListed IPs</string>
+        </property>
+        <layout class="QVBoxLayout" >
+         <item>
+          <layout class="QHBoxLayout" >
+           <item>
+            <widget class="QTreeWidget" name="m_WhiteTreeWidget" >
+             <property name="autoExpandDelay" >
+              <number>-1</number>
+             </property>
+             <property name="rootIsDecorated" >
+              <bool>false</bool>
+             </property>
+             <property name="uniformRowHeights" >
+              <bool>true</bool>
+             </property>
+             <property name="wordWrap" >
+              <bool>false</bool>
+             </property>
+             <column>
+              <property name="text" >
+               <string>IP</string>
+              </property>
+             </column>
+             <column>
+              <property name="text" >
+               <string>Connection Type</string>
+              </property>
+             </column>
+            </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" >
+             <item>
+              <widget class="QPushButton" name="m_RemoveButton" >
+               <property name="enabled" >
+                <bool>false</bool>
+               </property>
+               <property name="text" >
+                <string>Remove</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="m_WhoisButton" >
+               <property name="enabled" >
+                <bool>false</bool>
+               </property>
+               <property name="text" >
+                <string>Whois</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer>
+               <property name="orientation" >
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" >
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QLabel" name="m_HelpTextLabel" >
+           <property name="font" >
+            <font>
+             <pointsize>8</pointsize>
+             <italic>true</italic>
+            </font>
+           </property>
+           <property name="text" >
+            <string>You can see the currently whitelisted IP addresses and ranges above. Select an entry and click "Remove" to remove it from the whitelist. Use the "Whois" button to get additional information about the currently selected IP address.</string>
+           </property>
+           <property name="alignment" >
+            <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+           </property>
+           <property name="wordWrap" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../images/images.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>IpWhiteListDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>IpWhiteListDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

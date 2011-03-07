@@ -1,0 +1,81 @@
+Version 0.6
+----
+jimtb:
+ADDED: getValueFromBashVar() function which replaces the bash variables in moblock.conf with their values. As a result, the number of file paths which the user will be able to configure will be greatly reduced in the next version of mobloquer and it will become much easier to use more configuration files if needed.
+FIXED: Added Q_FUNC_INFO in all qDebug(), qWarning() and qCritical() messages.
+FIXED: Small changes in debugging information so that they include the function name too (not fully implemented yet).
+FIXED: Changed the project file to enable debugging.
+jre:
+FIXED: adapted to support and use blockcontrol (previously moblock-control), save all changes in blockcontrol.conf.
+FIXED: adapted to new master blocklist place
+FIXED: Don't create lockfile. Previously it was in /tmpmobloquer.lock instead of /tmp/mobloquer.lock.
+FIXED: added hint that notimestamp is no more used by "blockcontrol notimestamp"
+
+Version 0.5
+----
+ADDED: Multithreading support. From now on, when mobloquer executes a shell command it uses a separate thread to do so. As a result the GUI will no longer freeze when doing specific tasks such as saving the settings or resolving a host.
+ADDED: "WhiteList IPs" dialog which allows the user to easily add IP addresses/ranges or hostnames into the whitelist or remove any whitelisted entry.
+ADDED: "Remove IPs" dialog which allows the user remove IP ranges with specific names/addresses from the blocklist.
+ADDED: The ability change the default front-end for sudo through the GUI.
+FIXED: Improvements in the way the program reacts when various tasks are taking place. When moblock-control executes a task the widgets which allow the user to change settings will be temporarily disabled and vice versa.
+FIXED: Improved documentation withing the program to help new users understand what each option does.
+FIXED: Reduced CPU usage by changing the way mobloquer checks if the moblock daemon is running.
+FIXED: Changed the date's format in the moblock-control log to be easier to read.
+FIXED: A bug which caused moblock log entries containing the pipe character in their "name" section to be ignored.
+
+Version 0.4.1
+----
+FIXED: A bug which caused invalid values to appear in the "Time" column of the "Logs" tab when using moblock 0.9.
+FIXED: Improved the way the number of the currently loaded ranges is updated. Now, if the value does not exist in moblock's log, mobloquer will search for the value when moblock is started/restarted.
+FIXED: A bug in the way moblock's settings were exported which caused the IP_REMOVE function of the moblock-control script not to work.
+FIXED: Improved the mobloquer's behaviour when the temporary files used to store settings and lists are not writable by the program.
+
+Version 0.4
+----
+ADDED: Settings now are saved in moblock's default configuration file(/etc/default/moblock) instead of moblock.conf. This way it is easier to keep special configurations after updating/restoring the original file.
+ADDED: Moblock 0.9rc2 support.
+ADDED: "Details" button next to moblock's status which shows the current iptables rules so that the user can easily check if they are correct.
+FIXED: Changed the way the settings are applied. The new configuration files are applied every second if there are any changes and not exactly when those changes were made. This way only one kdesu/gksu window appears, no matter how many changes the user has made.
+FIXED: Changed the information displayed in the "Manage" tab. Now the number of the blocked ranges, the number of the blocked connections, as well as the date and time of the last update are displayed.
+FIXED: Mobloquer now works if it is started with super user rights. In that case it will just apply the changes without calling kdesu or gksu.
+FIXED: Improved the way mobloquer searches for moblock's cron script so that the update frequency now works both with moblock 0.8(ipq/nfq) and 0.9.
+FIXED: A bug when restoring column widths in the "Logs" tab which caused wrong column sizes to be applied.
+FIXED: A bug which caused the last item in moblock.log to appear as a new item when "Clear Log" button was used.
+FIXED: Use a message box instead of a status bar notification to tell the user when moblock needs to be restarted.
+FIXED: Replaced tooltips with status tips in various parts of the program so the user can easily understand what each setting does.
+FIXED: Fixed a bug which caused mobloquer to use too many resources when the "manage" tab was active.
+FIXED: A bug due to which the moblock-control log would not appear at all in the "manage" tab.
+FIXED: Improved the formating of the console output.
+FIXED: Added the ability to change the default timers' intervals through mobloquer's configuration file(~/.config/mobloquer/mobloquer.conf").
+REMOVED: The "Enable IPTABLES_SETTINGS" checkbox. The option is now silently enabled if the user wants to whitelist an IP.
+REMOVED: The "Save changes" and the "automatically save changes" actions from the program's menus. The settings now are automatically saved by default.
+
+Version 0.3
+----
+ADDED: Partial moblock 0.9 support.
+ADDED: Replaced the "entry information" group box and the Log List Widget with a tree Widget, which provides a column based view. Now the user can easily review the latest blocked entries, their name, type, IP and time, without having to select each of them to get more information.
+ADDED: "Clear Log" button in the "Logs" tab.
+ADDED: "Add entry" button in the "Blocklists" tab which allows the user to easily add new blocklists.
+ADDED: Session saving support. Window size, state and place are now saved. The width of each column in the "Logs" tab is also saved.
+FIXED: Improved the behaviour of the "blocklists" tab when changing a blocklist's settings.
+FIXED: Update frequency now automatically updates if the script is moved to another location from another program.
+FIXED: A bug which caused changes to blocklists not to be saved at all.
+FIXED: Window minimze/restore bug. Credit goes to Art_Fowl from e-pcmag.gr for submiting the patches. The window now is restored back to its original position every time.
+FIXED: A bug due to which changes would not be reloaded at all if the moblock configuration/blocklists file was externally changed.
+FIXED: A bug in the search algorithm for log items which caused problems when items with the same IP but different types appeared in the list.
+FIXED: Many memory leaks from object pointers which were never deleted.
+
+
+Version 0.2
+----
+ADDED: Mobloquer settings dialog.
+ADDED: Whois dialog, which allows the user to easily learn more about the remote location which was blocked.
+ADDED: A better way to check if backups were really created.
+ADDED: Fully documented the code using doxygen.
+FIXED: A bug due to which the actions in the tray context menu would not update in some cases.
+FIXED: The "whitelist" button in the log tab now updates if the IP is blocked again due to an external change in moblock.conf.
+
+
+Version 0.1
+----
+Initial release

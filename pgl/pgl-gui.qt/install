@@ -1,0 +1,11 @@
+Installation instructions:
+----
+* First of all make sure that all required dependencies are installed(see README).
+
+* Open a terminal and execute the following commands in the directory where you saved mobloquer:
+
+tar -xvf mobloquer-xx.tar.gz
+cd mobloquer
+qmake-qt4
+make
+sudo make install

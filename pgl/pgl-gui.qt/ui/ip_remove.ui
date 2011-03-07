@@ -1,0 +1,193 @@
+<ui version="4.0" >
+ <class>IpRemoveDialog</class>
+ <widget class="QDialog" name="IpRemoveDialog" >
+  <property name="windowModality" >
+   <enum>Qt::WindowModal</enum>
+  </property>
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>688</width>
+    <height>617</height>
+   </rect>
+  </property>
+  <property name="minimumSize" >
+   <size>
+    <width>570</width>
+    <height>450</height>
+   </size>
+  </property>
+  <property name="windowTitle" >
+   <string>Remove IPs</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="../images/images.qrc" >:/images/mobloquer.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" >
+   <item>
+    <widget class="QFrame" name="frame" >
+     <property name="minimumSize" >
+      <size>
+       <width>290</width>
+       <height>370</height>
+      </size>
+     </property>
+     <property name="frameShape" >
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" >
+      <item>
+       <layout class="QHBoxLayout" >
+        <item>
+         <layout class="QVBoxLayout" >
+          <item>
+           <widget class="QGroupBox" name="groupBox" >
+            <property name="title" >
+             <string>Add New Entry</string>
+            </property>
+            <layout class="QVBoxLayout" >
+             <item>
+              <widget class="QLineEdit" name="m_AddEdit" />
+             </item>
+             <item>
+              <layout class="QHBoxLayout" >
+               <item>
+                <widget class="QPushButton" name="m_AddButton" >
+                 <property name="text" >
+                  <string>Add</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="m_PreviewButton" >
+                 <property name="text" >
+                  <string>Preview</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_2" >
+            <property name="title" >
+             <string>Currently Removed Entries</string>
+            </property>
+            <layout class="QVBoxLayout" >
+             <item>
+              <widget class="QListWidget" name="m_RemovedListWidget" />
+             </item>
+             <item>
+              <widget class="QPushButton" name="m_RemoveButton" >
+               <property name="text" >
+                <string>Remove</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_3" >
+          <property name="minimumSize" >
+           <size>
+            <width>290</width>
+            <height>370</height>
+           </size>
+          </property>
+          <property name="title" >
+           <string>Preview</string>
+          </property>
+          <layout class="QVBoxLayout" >
+           <item>
+            <widget class="QListWidget" name="m_PreviewListWidget" >
+             <property name="font" >
+              <font>
+               <pointsize>8</pointsize>
+               <italic>true</italic>
+              </font>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="label" >
+        <property name="font" >
+         <font>
+          <pointsize>8</pointsize>
+          <italic>true</italic>
+         </font>
+        </property>
+        <property name="text" >
+         <string>This dialog can be used to remove entries which contain a specific string from the blocklist. Just type a string and click "Add" to do so. Using the "Preview" button you can see which entries are going to be removed if you add the current string. Depending on the size of your blocklist, this may take a while.The values are not case sensitive. Click on any existing entry and remove it with the "Remove" button if you don't need it. Please note that if you know the hostname/IP it is safer to use the "Whitelist IPs" dialog. </string>
+        </property>
+        <property name="wordWrap" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../images/images.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>IpRemoveDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>IpRemoveDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

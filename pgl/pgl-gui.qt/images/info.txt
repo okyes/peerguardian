@@ -1,0 +1,5 @@
+Mobloquer is using the crystal icon theme, released under the LGPL licence. Some icons may have been modified. 
+
+More information:
+http://www.everaldo.com/
+http://www.yellowicon.com/

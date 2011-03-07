@@ -1,0 +1,35 @@
+Mobloquer is a graphical user interface for MoBlock, developed in C++ and Qt4.
+
+Features:
+	* View the IPs which MoBlock blocks in realtime as well as some information about each one.
+	* Easily view whois information for each IP blocked.
+	* Easily configure moblock to stop blocking an IP.
+	* Add/Remove/Enable/Disable blocklists and tweak their settings.
+	* Quickly tweak moblock's settings such as automatic startup, blocklist format, automatic updates etc.
+	* Whitelist specific ports.
+	* Whitelist IPs/hostnames.
+	* Remove entries from the blocklists.
+	* View the state of moblock daemon.
+	* View some information about moblock such as the number of the loaded ranges, the last time the blocklists were updated etc.
+	* View the log produced by the blockcontrol script in real time.
+	* View the current iptables rules to determine if moblock is working.
+	* Start/Restart/Stop/Reload/Update MoBlock with just one click.
+
+Dependencies:
+	*libc-dev/libc6-dev
+	*g++
+	*make
+	*libqt4-core (>=4.3.0)
+	*libqt4-gui (>=4.3.0)
+	*libqt4-dev (>=4.3.0)
+	*moblock-nfq ( version 0.8/0.9 )
+	*blockcontrol (http://moblock-deb.sourceforge.net/)
+
+See INSTALL for installation instructions.
+
+Common problems:
+	* If mobloquer stops working properly, the first thing you should try to do is delete its configuration file.
+	  Just run "rm ~/.config/mobloquer/mobloquer.conf" in a terminal to do so.
+	* If you can not connect to the internet after starting moblock, it is probably blocking your LAN/router. 
+	  Use the "stop blocking this IP" button to whitelist your local network IP addresses which are being blocked.
+	* Launch Mobloquer with the argument --tray if you want it to start minimzed in the tray.
