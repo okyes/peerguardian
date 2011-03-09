@@ -28,7 +28,7 @@
 
 #include "pgl_settings.h"
 
-#define BLOCKCONTROL_CONF_PATH "/etc/blockcontrol/blockcontrol.conf"
+#define BLOCKCONTROL_CONF_PATH "/etc/pgl/pglcmd.conf"
 
 /**
 *

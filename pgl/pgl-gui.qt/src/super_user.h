@@ -27,7 +27,7 @@
 #include <QStringList>
 #include <QFile>
 #include <QFileInfo>
-#include <QtDebug>
+#include <QDebug>
 #include <QSettings>
 
 #include "proc_thread.h"
@@ -37,7 +37,7 @@
 #define KDESU "kdesu"
 #define GKSU "gksu"
 
-#define TEST_FILE_PATH "/etc/blockcontrol/blockcontrol.conf"
+#define TEST_FILE_PATH "/etc/pgl/pglcmd.conf"
 
 /**
 *
