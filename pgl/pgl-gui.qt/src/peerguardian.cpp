@@ -89,14 +89,14 @@ void Peerguardian::g_MakeConnections()
     if ( m_Log != NULL )
         connect( m_Log, SIGNAL( newItem( LogItem ) ), this, SLOT( addLogItem( LogItem ) ) );
         
-	connect( m_LogTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( logTab_HandleLogChange() ) );
+	//connect( m_LogTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( logTab_HandleLogChange() ) );
 	connect( m_LogClearButton, SIGNAL( clicked() ), m_LogTreeWidget, SLOT( clear() ) );
 	connect( m_LogClearButton, SIGNAL( clicked() ), m_Log, SLOT( clear() ) );
 	
     connect( m_addExceptionButton, SIGNAL(clicked()), this, SLOT(g_ShowAddExceptionDialog()) );
     connect( m_addBlockListButton, SIGNAL(clicked()), this, SLOT(g_ShowAddBlockListDialog()) );
     
-    connect( m_Log, SIGNAL( newItem( LogItem ) ), this, SLOT( logTab_AddLogItem( LogItem ) ) );
+    connect( m_Log, SIGNAL( newItem( LogItem ) ), this, SLOT( addLogItem( LogItem ) ) );
     
     //Menu related
     connect( a_Exit, SIGNAL( triggered() ), qApp, SLOT( quit() ) );
@@ -169,7 +169,8 @@ void Peerguardian::inicializeSettings()
 
 void Peerguardian::g_SetRoot( ) {
 
-    QString filepath = PeerguardianLog::getFilePath(m_ProgramSettings->value( "paths/super_user" ).toString());
+    QString filepath = SuperUser::getFilePath(m_ProgramSettings->value( "paths/super_user" ).toString());
+    qDebug() << "superuser file: " << filepath;
     
     if ( ! filepath.isEmpty() )
     {
