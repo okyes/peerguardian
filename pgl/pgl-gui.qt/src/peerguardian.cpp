@@ -1,7 +1,10 @@
  
-#include "peerguardian.h"
 #include <QDebug>
+#include <QMultiMap>
+
+#include "peerguardian.h"
 #include "file_transactions.h"
+
 
 Peerguardian::Peerguardian( QWidget *parent ) :
 	QMainWindow( parent ) 
@@ -17,6 +20,8 @@ Peerguardian::Peerguardian( QWidget *parent ) :
     g_MakeTray();
     g_MakeMenus();
     updateInfo();
+    
+    m_BlocklistItemPressed = false;
     
 	/*
 	//Restore the window's previous state
@@ -59,6 +64,8 @@ Peerguardian::~Peerguardian() {
         delete m_Info;
     if ( m_List != NULL )
         delete m_List;
+    if ( m_Whitelist != NULL )
+		delete m_Whitelist;
     if ( m_Control != NULL )
         delete m_Control;
     
@@ -87,8 +94,11 @@ void Peerguardian::g_MakeConnections()
 {
 	//Log tab connections
     if ( m_Log != NULL )
+    {
         connect( m_Log, SIGNAL( newItem( LogItem ) ), this, SLOT( addLogItem( LogItem ) ) );
-        
+        connect( m_FastTimer, SIGNAL( timeout() ), m_Log, SLOT( update() ) );
+    }
+       
 	//connect( m_LogTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( logTab_HandleLogChange() ) );
 	connect( m_LogClearButton, SIGNAL( clicked() ), m_LogTreeWidget, SLOT( clear() ) );
 	connect( m_LogClearButton, SIGNAL( clicked() ), m_Log, SLOT( clear() ) );
@@ -109,10 +119,6 @@ void Peerguardian::g_MakeConnections()
         connect( m_stopPglButton, SIGNAL( clicked() ), m_Control, SLOT( stop() ) );
         connect( m_restartPglButton, SIGNAL( clicked() ), m_Control, SLOT( restart() ) );
     }
-    
-    //Timers
-    //if ( m_Log != NULL )
-        //connect( m_FastTimer, SIGNAL( timeout() ), m_Log, SLOT( update() ) );
         
     connect( m_MediumTimer, SIGNAL( timeout() ), this, SLOT( g_UpdateDaemonStatus() ) );
 	connect( m_MediumTimer, SIGNAL( timeout() ), this, SLOT( updateInfo() ) );
@@ -120,8 +126,58 @@ void Peerguardian::g_MakeConnections()
     //status bar
 	connect( m_Control, SIGNAL( actionMessage( QString, int ) ), m_StatusBar, SLOT( showMessage( QString, int ) ) );
 	connect( m_Control, SIGNAL( finished() ), this, SLOT( switchButtons() ) );
+	
+	//Blocklist and Whitelist Tree Widgets
+	connect(m_WhitelistTreeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(whitelistItemChanged(QTreeWidgetItem*, int)));
+	connect(m_BlocklistTreeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(blocklistItemChanged(QTreeWidgetItem*, int)));
+	connect(m_WhitelistTreeWidget, SIGNAL(itemPressed(QTreeWidgetItem*, int)), this, SLOT(whitelistItemPressed(QTreeWidgetItem*, int)));
+	connect(m_BlocklistTreeWidget, SIGNAL(itemPressed(QTreeWidgetItem*, int)), this, SLOT(blocklistItemPressed(QTreeWidgetItem*, int)));	
+	
+	connect(m_ApplyButton, SIGNAL(clicked()), this, SLOT(applyChanges()));
 }
 
+
+void Peerguardian::applyChanges()
+{
+	m_Whitelist->disableItems(getTreeItems(m_WhitelistTreeWidget, UNCHECKED));
+	m_ApplyButton->setEnabled(false);
+}
+
+QList<QTreeWidgetItem*> Peerguardian::getTreeItems(QTreeWidget *tree, int checkState)
+{
+	QList<QTreeWidgetItem*> items;
+	
+	for (int i=0; i < tree->topLevelItemCount(); i++ )
+		if ( tree->topLevelItem(i)->checkState(0) == checkState || checkState == -1)
+			items << tree->topLevelItem(i);
+			
+	return items;
+}
+
+void Peerguardian::whitelistItemChanged(QTreeWidgetItem* item, int column)
+{
+	if ( ! m_WhitelistItemPressed )
+		return;
+		
+	int index = m_WhitelistTreeWidget->indexOfTopLevelItem(item);
+	if ( m_WhitelistInicialState[index] != item->checkState(0) )
+		m_ApplyButton->setEnabled(true);
+		
+	m_WhitelistItemPressed = false;
+}
+
+void Peerguardian::blocklistItemChanged(QTreeWidgetItem* item, int column)
+{
+	if ( ! m_BlocklistItemPressed ) 
+		return;
+	
+	int index = m_BlocklistTreeWidget->indexOfTopLevelItem(item);
+	
+	if ( m_BlocklistInicialState[index] != item->checkState(0) )
+		m_ApplyButton->setEnabled(true);
+	
+	m_BlocklistItemPressed = false;
+}
 
 void Peerguardian::getLists()
 {
@@ -130,20 +186,37 @@ void Peerguardian::getLists()
  
     QStringList item_info;
 
-    //get information about the lists being used
-    foreach(ListItem* log_item, m_List->getItems()){
-        item_info << log_item->name() << "BlockList";
+    //get information about the blocklists being used
+    foreach(ListItem* log_item, m_List->getValidItems())
+    {
+        item_info << log_item->name();
         
-        QTreeWidgetItem * tree_item = new QTreeWidgetItem(m_ListTreeWidget, item_info);
+        QTreeWidgetItem * tree_item = new QTreeWidgetItem(m_BlocklistTreeWidget, item_info);
         
         if ( log_item->isEnabled() )
             tree_item->setCheckState(0, Qt::Checked);
-        else if ( log_item->isDisabled() )
+        else 
             tree_item->setCheckState(0, Qt::Unchecked);
             
-        m_ListTreeWidget->addTopLevelItem( tree_item );
+        m_BlocklistTreeWidget->addTopLevelItem( tree_item );
         item_info.clear();
+        
+        m_BlocklistInicialState.push_back(tree_item->checkState(0));
     }
+    
+    
+    //get whitelisted IPs and ports
+    QList<WhitelistItem> whitelistedItems = m_Whitelist->getWhitelistedItems();
+    foreach(WhitelistItem item, whitelistedItems)
+    {
+		QTreeWidgetItem * tree_item = new QTreeWidgetItem(m_WhitelistTreeWidget, item.getAsStringList());
+		if ( item.isEnabled() )
+			tree_item->setCheckState(0, Qt::Checked );
+		else
+			tree_item->setCheckState(0, Qt::Unchecked );
+		m_WhitelistTreeWidget->addTopLevelItem(tree_item);
+		m_WhitelistInicialState.push_back(tree_item->checkState(0));
+	}
 }
 
 void Peerguardian::inicializeSettings()
@@ -152,6 +225,7 @@ void Peerguardian::inicializeSettings()
 	/*
 	m_Settings = NULL;*/
     m_List = NULL;
+    m_Whitelist = NULL;
 	m_Log = NULL;
 	m_Info = NULL;
 	m_Root = NULL;
@@ -192,8 +266,10 @@ void Peerguardian::g_SetLogPath() {
     if ( ! filepath.isEmpty() )
     {
         if ( m_Log == NULL )
-            m_Log = new PeerguardianLog(filepath);
-            
+        {
+            m_Log = new PeerguardianLog();
+			m_Log->setFilePath(filepath, true);
+        }    
         //Save the new path to the QSettings object.
         if ( m_ProgramSettings->value( "paths/log" ).toString() != m_Log->getLogPath() )
             m_ProgramSettings->setValue( "paths/log", m_Log->getLogPath() );
@@ -220,11 +296,14 @@ void Peerguardian::g_SetListPath()
         if ( m_ProgramSettings->value( "paths/list" ).toString() != m_List->getListPath() )
             m_ProgramSettings->setValue( "paths/list", m_List->getListPath() );
     }
+    
+    //whitelisted Ips and ports - /etc/pgl/pglcmd.conf and /etc/pgl/allow.p2p and 
+    //$HOME/.config/PeerGuardian/peerguardian.ini for disabled items
+    m_Whitelist = new PglWhitelist(m_ProgramSettings);
 
 	//listTab_Init();
     
 }
-
 
 void Peerguardian::g_SetControlPath() 
 {
@@ -248,6 +327,13 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
 	AddExceptionDialog *dialog = new AddExceptionDialog( this, openmode );
     
     dialog->exec();
+    
+    if ( openmode == (ADD_MODE | EXCEPTION_MODE) )
+		foreach(QTreeWidgetItem * item, dialog->getTreeItems(m_WhitelistTreeWidget))
+		{
+			m_WhitelistTreeWidget->addTopLevelItem(item);
+		}
+    else if (  openmode == (ADD_MODE | BLOCKLIST_MODE) );
     
 	/*if ( dialog->exec() == QDialog::Accepted && dialog->isSettingChanged() ) {
 		emit g_SettingChanged();
@@ -332,7 +418,7 @@ void Peerguardian::g_ShowAboutDialog() {
     QString message;
     message += QString("<b><i>Peerguardian Qt version %1</b><br>A graphical user interface for Peerguardian<br><br>").arg( VERSION_NUMBER );
     message += "Copyright (C) 2007-2008 Dimitris Palyvos-Giannas<br>";
-    message += "Copyright (C) 2011 Carlos Pais (freemind@lavabit.com) <br><br>";
+    message += "Copyright (C) 2011 Carlos Pais <br><br>";
     message += "This program is licenced under the GNU General Public Licence v3<br><br><font size=2>";
     message +="Using modified version of the crystal icon theme:<br>http://www.everaldo.com/<br>http://www.yellowicon.com/<br><br>";
     message += "Credits go to Morpheus, jre, TheBlackSun, Pepsi_One and siofwolves from phoenixlabs.org for their help and suggestions. <br>";
@@ -398,8 +484,18 @@ void Peerguardian::addLogItem( LogItem item ) {
 		itemTypeStr = tr( FWD_STR );
 	}
 
-	QTreeWidgetItem *newItem = new QTreeWidgetItem; 
-	newItem->setText( LOG_TIME_COLUMN, item.blockTime() );
+	
+	QStringList item_info;
+	item_info << item.blockTime();
+	item_info << item.name();
+	item_info << item.getIpSource();
+	item_info << item.getIpDest();
+	item_info << "TCP (change)";
+	item_info << "Blocked";
+	
+	QTreeWidgetItem *newItem = new QTreeWidgetItem(m_LogTreeWidget, item_info); 
+	
+	/*newItem->setText( LOG_TIME_COLUMN, item.blockTime() );
 	newItem->setToolTip( LOG_TIME_COLUMN, item.blockTime() );
 	newItem->setText( LOG_NAME_COLUMN, item.name() );
 	newItem->setToolTip( LOG_NAME_COLUMN, item.name() );
@@ -407,7 +503,7 @@ void Peerguardian::addLogItem( LogItem item ) {
 	newItem->setToolTip( LOG_IP_COLUMN, item.IP() );
 	newItem->setText( LOG_TYPE_COLUMN, itemTypeStr );
 	newItem->setToolTip( LOG_TYPE_COLUMN, itemTypeStr );
-	newItem->setIcon( LOG_TYPE_COLUMN, QIcon( iconPath ) );
+	newItem->setIcon( LOG_TYPE_COLUMN, QIcon( iconPath ) );*/
 	m_LogTreeWidget->addTopLevelItem( newItem );
 		
 	//Don't let the list become too big
@@ -419,7 +515,7 @@ void Peerguardian::addLogItem( LogItem item ) {
 	}
 
 	//if ( m_ListAutoScroll == true ) 
-		m_LogTreeWidget->scrollToBottom();
+	m_LogTreeWidget->scrollToBottom();
 
 	//++m_BlockedConnections;
 

@@ -59,9 +59,9 @@
 #include "whois.h"
 #include "list_add.h"
 #include "status_dialog.h"
-#include "ip_whitelist.h" 
 #include "ip_remove.h"
 #include "add_exception_dialog.h"
+#include "pgl_whitelist.h"
 
 
 #define VERSION_NUMBER "0.1"
@@ -99,6 +99,9 @@
 #define MAINWINDOW_WIDTH 480
 #define MAINWINDOW_HEIGHT 600
 
+#define UNCHECKED 0
+#define CHECKED 2
+
 typedef enum { LOG_TIME_COLUMN, 
 	LOG_NAME_COLUMN, 
 	LOG_IP_COLUMN,	
@@ -123,6 +126,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     PeerguardianInfo *m_Info;
     PeerguardianLog *m_Log;
     PeerguardianList *m_List;
+    PglWhitelist *m_Whitelist;
     PglCmd *m_Control;
     QSystemTrayIcon *m_Tray;
     QMenu *m_TrayMenu;
@@ -130,6 +134,17 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     QTimer *m_FastTimer;
     QTimer *m_MediumTimer;
     QTimer *m_SlowTimer;
+    
+    //QList of integers with the original states for each blocklist 
+    //so it's easier to track which blocklists need to be disabled or enabled
+    //when the user applies the changes.
+    QList<int> m_BlocklistInicialState;
+    QList<int> m_WhitelistInicialState;
+    
+    QList<bool> m_NewWhitelistItems;
+    QList<bool> m_NewBlocklistItems;
+    bool m_WhitelistItemPressed;
+    bool m_BlocklistItemPressed;
     
 	public:
 		/**
@@ -158,7 +173,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void g_MakeMenus();
         void g_ShowAddDialog(int);
         void startTimers();
-
+        QList<QTreeWidgetItem*> getTreeItems(QTreeWidget *tree, int checkState=-1);
         
     public slots:
         void g_ShowAddExceptionDialog() { g_ShowAddDialog(ADD_MODE | EXCEPTION_MODE); };
@@ -168,6 +183,11 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void g_UpdateDaemonStatus();
         void switchButtons();
         void addLogItem( LogItem item );
+        void whitelistItemChanged(QTreeWidgetItem*, int);
+        void blocklistItemChanged(QTreeWidgetItem*, int);
+        inline void whitelistItemPressed(QTreeWidgetItem* item, int column){ m_WhitelistItemPressed = true; }
+        inline void blocklistItemPressed(QTreeWidgetItem* item, int column){ m_BlocklistItemPressed = true; }
+        void applyChanges();
 
 };	
 
