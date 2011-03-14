@@ -24,6 +24,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QVector>
+#include <QStringList>
 #include <QString>
 #include <QtDebug>
 
@@ -40,14 +41,14 @@
  * @param path The path to the file you want to get the data from.
  * @return A vector containing the - trimmed - file lines as QStrings.
  */
-QVector< QString > getFileData( const QString &path );
+QStringList getFileData( const QString &path );
 /**
  * Save the data from a vector containing QSrings to a text file.
  * @param data The vector containing the lines of text which will be saved.
  * @param path The path to the file where the data will be written.
  * @return True if the file was saved successfully, otherwise false.
  */
-bool saveFileData( const QVector< QString > &data, const QString &path );
+bool saveFileData( const QStringList &data, const QString &path );
 /**
  * Compare the data from two different text files.
  * @param pathA The path to the first file.
@@ -55,6 +56,8 @@ bool saveFileData( const QVector< QString > &data, const QString &path );
  * @return True if the file data are the same, otherwise false
  */
 bool compareFileData( const QString &pathA, const QString &pathB );
+
+
 
 
 #endif

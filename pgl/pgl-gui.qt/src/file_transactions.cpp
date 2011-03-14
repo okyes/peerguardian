@@ -22,20 +22,21 @@
 
 
 
-QVector< QString > getFileData( const QString &path ) {
+QStringList getFileData( const QString &path ) {
 
-	QVector< QString > fileContents;
+	QStringList fileContents;
 	QFile file( path );
 	if ( path.isEmpty() ) {
 		qWarning() << Q_FUNC_INFO << "Empty file path given, doing nothing";
 		return fileContents;
 	}
-	else if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
+	else if ( ! file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
 		qWarning() << Q_FUNC_INFO << "Could not read from file" << path;
 		return fileContents;
 	}
+	
 	QTextStream in( &file );
-	while ( !in.atEnd() ) {
+	while ( ! in.atEnd() ) {
 		QString line = in.readLine();
 		line = line.trimmed();
 		fileContents.push_back(line);
@@ -45,7 +46,7 @@ QVector< QString > getFileData( const QString &path ) {
 
 }
 
-bool saveFileData( const QVector< QString > &data, const QString &path ) {
+bool saveFileData( const QStringList &data, const QString &path ) {
 
 	QFile file( path );
 	if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
@@ -53,7 +54,7 @@ bool saveFileData( const QVector< QString > &data, const QString &path ) {
 		return false;
 	}
 	QTextStream out(&file);
-	for ( QVector< QString >::const_iterator s = data.begin(); s != data.end(); s++ ) {
+	for ( QStringList::const_iterator s = data.begin(); s != data.end(); s++ ) {
 		out << *s << "\n";
 	}
 	return true;
@@ -61,8 +62,8 @@ bool saveFileData( const QVector< QString > &data, const QString &path ) {
 
 bool compareFileData( const QString &pathA, const QString &pathB ) {
 
-	QVector< QString > fileA = getFileData( pathA );
-	QVector< QString> fileB = getFileData( pathB );
+	QStringList fileA = getFileData( pathA );
+	QStringList fileB = getFileData( pathB );
 
 	if ( fileA.isEmpty() || fileB.isEmpty() ) {
 		return false;	
@@ -75,3 +76,5 @@ bool compareFileData( const QString &pathA, const QString &pathB ) {
 	return false;
 
 }
+
+
