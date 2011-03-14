@@ -49,7 +49,7 @@ void MoblockSettings::setFilePath( const QString &configPath ) {
 	}
 	//Cleanup
 	m_FileLoaded = false;
-	m_FileContents = QVector<QString>();
+	m_FileContents = QStringList();
 	m_PlacesMap = QMap< QString, int >();
 	m_SettingsMap = QMap< QString, QVector<QString> >();
 	//Load file

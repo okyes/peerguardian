@@ -142,7 +142,7 @@ class MoblockSettings {
 		void processSettings();
 		bool checkSetting( const QString &setting );
 		//The lines of the configuration file
-		QVector< QString > m_FileContents;
+		QStringList m_FileContents;
 		//The line numbers in the file where each setting is saved
 		QMap< QString, int > m_PlacesMap;
 		QMap< QString, QString > m_Formats;
