@@ -31,15 +31,20 @@ class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
 	Q_OBJECT
     
     QMap<QString, int> ports;
+    int mode;
 	
 	public:
-        AddExceptionDialog(QWidget *parent = 0, int mode=0);
+        AddExceptionDialog(QWidget *p = 0, int mode=0);
         ~AddExceptionDialog();
         int getPort(const QString&);
         bool isValidIp(const QString &)const;
+        QStringList getBlocklistInfo(QString&);
+        QStringList getExceptionInfo(QString&);
+        QVector<QTreeWidgetItem*> getTreeItems(QTreeWidget *);
     
     public slots:
         void addEntry();
+        void addBlocklist();
     
     protected:
         void keyPressEvent ( QKeyEvent * e );
