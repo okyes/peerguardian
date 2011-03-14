@@ -24,122 +24,97 @@
 
 ListItem::ListItem( const QString &itemRawLine ) {
 
-	QString itemLine = itemRawLine.trimmed();
-	
-	mode = ENABLED_ITEM;
-	option = NONE;
-	//In order to export it later if it's a comment
-
-	if ( itemLine.isEmpty() ) {
-		mode = COMMENT_ITEM;
-	}
-	//Check if the line is a comment or just a disabled entry
-	else if ( itemLine.startsWith( "#" ) ) {
-		
-		//Assume it's a comment for now
-		mode = COMMENT_ITEM;
-		itemLine.remove( "#" );
-		m_Name = m_Location = itemLine;
-		//Check it the end of the line is a valid blocklist file extension
-		if ( itemLine.endsWith( ".gz" ) )
-			mode = DISABLED_ITEM;
-		else if ( itemLine.endsWith( ".zip" ) )
-			mode = DISABLED_ITEM;
-		else if ( itemLine.endsWith( ".7z" ) )
-			mode = DISABLED_ITEM;
-		else if ( itemLine.endsWith( ".dat" ) )
-			mode = DISABLED_ITEM;
-		else if ( itemLine.endsWith( ".p2b" ) )
-			mode = DISABLED_ITEM;
-		else if ( itemLine.endsWith( ".p2p" ) )
-			mode = DISABLED_ITEM;
-	}
-	if ( mode != COMMENT_ITEM ) {
-
-		QVector<QString > spaceSplit = QVector< QString >::fromList( itemLine.split(" ") );
-		//One more check for comments/invalid entries, just in case
-		if ( spaceSplit.size() > 2 ) {
-			qWarning() << Q_FUNC_INFO << "Ignoring possibly invalid blocklist entry, " << itemRawLine;
-			mode = COMMENT_ITEM;
-		}
-		//Get the item's Option if it there is one
-		else if ( spaceSplit.size() == 2 ) {
-			
-			if ( spaceSplit[0] == "locallist" ) {
-				option = LOCAL;
-				m_Location = spaceSplit[1].trimmed();
-			}
-			else if ( spaceSplit[0] == "notimestamp" ) {
-				option = NO_TIME_STAMP;
-				m_Location = spaceSplit[1].trimmed();
-			}
-			else {
-				qWarning() << Q_FUNC_INFO << "Ignoring possibly invalid blocklist entry, " << itemRawLine;
-				mode = COMMENT_ITEM;
-			}
-		}
-		//If the item contains only the location
-		else if ( spaceSplit.size() == 1 ) {
-			option = NONE;
-			m_Location = spaceSplit[0].trimmed();
-		}
-	}
-	//May have changed after the last check
-	if ( mode != COMMENT_ITEM ) {
-		//Get the filename and its extension from the item's location
-		QVector< QString > slashSplit = QVector< QString >::fromList( m_Location.split( "/" ) );
-		QVector< QString > adrSplit = QVector< QString >::fromList( slashSplit[ slashSplit.size() - 1 ].split( "." ) );
-		m_Name = adrSplit[0];
-		for ( int i = 1; i < adrSplit.size(); i++ ) {
-			m_Format += adrSplit[i];
-		}
-		m_Format.remove( m_Format.indexOf( "." ) );
-
-	}
+    QString itemLine = itemRawLine.trimmed();
+    
+    option = NONE;
+    m_Location = "";
+    
+    if ( itemLine.isEmpty() ) {
+        mode = COMMENT_ITEM;
+    }
+    else if (itemLine.startsWith('#'))
+    {
+        if ( isValidBlockList(itemLine) )
+        {
+            mode = DISABLED_ITEM;
+            m_Name = getListName(itemLine);
+        }
+        else
+            mode = COMMENT_ITEM;
+    }
+    else if( isValidBlockList(itemLine) )
+    {
+        mode = ENABLED_ITEM;
+        m_Name = getListName(itemLine);
+    }
 
 }
 
-bool ListItem::isDisabled() {
-	if ( mode == DISABLED_ITEM )
-		return true;
+bool ListItem::isValidBlockList(const QString & line)
+{
+    QStringList formats;
+    formats << "7z" << "dat" << "gz" << "p2p" << "zip";
+    
+    if ( line.contains("list.iblocklist.com") )
+        return true;
+    
+    if ( QFile::exists(line) )
+        foreach(QString format, formats)
+            if ( line.endsWith(format) )
+                return true;
 
-	return false;
+    return false;
+}
+
+QString ListItem::getListName(const QString& line)
+{
+    if ( line.contains("/") )
+        return line.split("/").last();
+    else
+        return line;
+}
+
+bool ListItem::isDisabled() {
+    if ( mode == DISABLED_ITEM )
+        return true;
+
+    return false;
 }
 
 bool ListItem::isEnabled() {
 
-	if ( mode == ENABLED_ITEM )
-		return true;
+    if ( mode == ENABLED_ITEM )
+        return true;
 
-	return false;
+    return false;
 
 }
 
 bool ListItem::operator==( const ListItem &other ) {
 
-	if ( location() != other.location() )
-		return false;
+    if ( location() != other.location() )
+        return false;
 
-	return true;
+    return true;
 
 }
 
 QString ListItem::exportItem() const {
-	
-	QString finalOut;
-			
-	if ( mode != ENABLED_ITEM ) {
-		finalOut += "#";
-	}
-	if ( option == NO_TIME_STAMP ) {
-	 	finalOut += "notimestamp ";
-	}
-	else if ( option == LOCAL ) {
-		finalOut += "locallist ";
-	}
+    
+    QString finalOut;
+            
+    if ( mode != ENABLED_ITEM ) {
+        finalOut += "#";
+    }
+    if ( option == NO_TIME_STAMP ) {
+        finalOut += "notimestamp ";
+    }
+    else if ( option == LOCAL ) {
+        finalOut += "locallist ";
+    }
 
-	finalOut += m_Location;
-	return finalOut;
+    finalOut += m_Location;
+    return finalOut;
 
 }
 
@@ -147,8 +122,8 @@ QString ListItem::exportItem() const {
 PeerguardianList::PeerguardianList( const QString &path ) 
 {
 
-	setFilePath(path, true);
-	
+    setFilePath(path, true);
+    
 }
 
 QString PeerguardianList::getListPath()
@@ -164,142 +139,126 @@ void PeerguardianList::setFilePath( const QString &path, bool verified ) {
     else
         m_FileName = getValidPath(path, PGL_LIST_PATH);
     
-    if ( m_FileName.isEmpty() )
+    if ( m_FileName.isEmpty() ){
         qWarning() << Q_FUNC_INFO << "Empty path given, doing nothing";
-
-	m_ListsFile = QVector< ListItem >();
-
-	QVector< QString > tempFileData = getFileData( m_FileName );
-	for ( QVector< QString >::const_iterator s = tempFileData.begin(); s != tempFileData.end(); s++ ) {
-		ListItem tItem( *s );
-		m_ListsFile.push_back( tItem );
-	}
+        return;
+    }
+        
+    m_ListsFile = QVector< ListItem >();
     
-	//Check for double entries and delete them to prevent strange behaviour
-	//If there are two same urls and the one has the notimestamp attribute, we keep this instead of the other
-	for ( int i = 0; i < m_ListsFile.size(); i++ ) {
-		
-		ListItem tempItem = m_ListsFile[i];
-
-		if ( tempItem.mode == COMMENT_ITEM )
-			continue;
-
-		int j = m_ListsFile.indexOf( tempItem );
-		while ( j != -1 ) {
-			if ( tempItem.mode == DISABLED_ITEM && m_ListsFile[j].mode == ENABLED_ITEM ) 
-				tempItem = m_ListsFile[j];
-			
-			if ( m_ListsFile[j].option == NO_TIME_STAMP && m_ListsFile[j].mode == ENABLED_ITEM ) 
-				tempItem = m_ListsFile[j];
-			
-			m_ListsFile.remove( j );	
-			j = m_ListsFile.indexOf( tempItem );
-		}
-		m_ListsFile.insert( i, tempItem );
-
-	}
-
-
+    QStringList tempFileData = getFileData( m_FileName );
+    
+    
+    for( int i=0; i < tempFileData.size(); i++)
+    {
+        ListItem tempItem(tempFileData[i]);
+        
+        if ( tempItem.mode == COMMENT_ITEM )
+            continue;
+        
+        m_ListsFile.push_back(tempItem);
+    }
+    
 }
 
-	
+    
 
 int PeerguardianList::indexOfName( const QString &name ) {
 
-		for ( int i = 0; i < m_ListsFile.size(); i++ ) {
-			if ( m_ListsFile[i].name() == name ) {
-				return i;
-			}
-		}
+        for ( int i = 0; i < m_ListsFile.size(); i++ ) {
+            if ( m_ListsFile[i].name() == name ) {
+                return i;
+            }
+        }
 
-	return -1;
+    return -1;
 
 }
 
-	
+    
 
 
 void PeerguardianList::addItem( const ListItem &newItem ) {
 
-	if ( newItem.mode == COMMENT_ITEM ) {
+    if ( newItem.mode == COMMENT_ITEM ) {
 
-		qWarning() << Q_FUNC_INFO << "Inserting COMMENT_ITEM into the blocklist vector.";
+        qWarning() << Q_FUNC_INFO << "Inserting COMMENT_ITEM into the blocklist vector.";
 
-	}
-	m_ListsFile.push_back( newItem );
-	
+    }
+    m_ListsFile.push_back( newItem );
+    
 
 }
 
 void PeerguardianList::addItem( const QString &line ) {
 
-	ListItem newItem( line );
+    ListItem newItem( line );
 
-	addItem( newItem );
+    addItem( newItem );
 
 }
 
 void PeerguardianList::addItem( const QString &location, listOption opt ) {
 
-	ListItem newItem( location );
+    ListItem newItem( location );
 
-	newItem.option = opt;
+    newItem.option = opt;
 
-	addItem( newItem );
+    addItem( newItem );
 
 }
 
 void PeerguardianList::setMode( const ListItem &item, const itemMode &mode ) {
 
-	int i = m_ListsFile.indexOf( item );
-	if ( i >= 0 ) {
-		m_ListsFile[i].mode = mode;
-	}
+    int i = m_ListsFile.indexOf( item );
+    if ( i >= 0 ) {
+        m_ListsFile[i].mode = mode;
+    }
 
 }
 
 void PeerguardianList::setModeByLocation( const QString &location, const itemMode &mode ) {
 
-	ListItem *item = getItemByLocation( location );
-	if ( item != NULL ) {
-		setMode( *item, mode );
-	}
+    ListItem *item = getItemByLocation( location );
+    if ( item != NULL ) {
+        setMode( *item, mode );
+    }
 
 }
 
 void PeerguardianList::setModeByName( const QString &name, const itemMode &mode ) {
 
-	ListItem *item = getItemByName( name );
-	if ( item != NULL ) {
-		setMode( *item, mode );
-	}
+    ListItem *item = getItemByName( name );
+    if ( item != NULL ) {
+        setMode( *item, mode );
+    }
 
 }
-		
+        
 void PeerguardianList::removeItem( const ListItem &item ) {
 
-	int i = m_ListsFile.indexOf( item );
-	if ( i >= 0 ) {
-		m_ListsFile.remove( i );
-	}
-	
+    int i = m_ListsFile.indexOf( item );
+    if ( i >= 0 ) {
+        m_ListsFile.remove( i );
+    }
+    
 }
 
 void PeerguardianList::removeItemByLocation( const QString &location ) {
 
-	ListItem *item = getItemByLocation( location );
-	if ( item != NULL ) {
-		removeItem( *item );
-	}
+    ListItem *item = getItemByLocation( location );
+    if ( item != NULL ) {
+        removeItem( *item );
+    }
 
 }
 
 void PeerguardianList::removeItemByName( const QString &name) {
 
-	ListItem *item = getItemByName( name );
-	if ( item != NULL ) {
-		removeItem( *item );
-	}
+    ListItem *item = getItemByName( name );
+    if ( item != NULL ) {
+        removeItem( *item );
+    }
 
 
 }
@@ -307,64 +266,64 @@ void PeerguardianList::removeItemByName( const QString &name) {
 ListItem *PeerguardianList::getItemByName( const QString &name  ) {
 
 
-	for ( QVector< ListItem >::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ ) {
-		if ( s->name() == name )
-			return s;
-	}
+    for ( QVector< ListItem >::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ ) {
+        if ( s->name() == name )
+            return s;
+    }
 
 
-	return NULL;
+    return NULL;
 
 }
 
 ListItem *PeerguardianList::getItemByLocation( const QString &location ) {
 
 
-	for ( QVector< ListItem >::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ ) {
-		if ( s->location() == location )
-			return s;
-	}
-	
-	return NULL;
+    for ( QVector< ListItem >::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ ) {
+        if ( s->location() == location )
+            return s;
+    }
+    
+    return NULL;
 }
 
 QVector< ListItem *> PeerguardianList::getItems( const itemMode &mode ) {
 
-	QVector< ListItem * > result;
+    QVector< ListItem * > result;
 
-	for ( QVector< ListItem >::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ )
-		if ( s->mode == mode ) 
-			result.push_back(s);
-	
-	
-	return result;
+    for ( QVector< ListItem >::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ )
+        if ( s->mode == mode ) 
+            result.push_back(s);
+    
+    
+    return result;
 
 }
 
-QVector< ListItem * > PeerguardianList::getItems() {
-	
-	QVector< ListItem * > result;
-	for ( QVector< ListItem >::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ ) 
-		if ( s->mode != COMMENT_ITEM ) 
-			result.push_back(s);
-		
-	
-	return result;
+QVector< ListItem * > PeerguardianList::getValidItems() {
+    
+    QVector< ListItem * > result;
+    for ( QVector< ListItem >::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ ) 
+        if ( s->mode != COMMENT_ITEM ) 
+            result.push_back(s);
+        
+    
+    return result;
 }
-	
+    
 bool PeerguardianList::exportToFile( const QString &filename ) {
 
-	QVector< QString > tempFile;
-	for ( QVector< ListItem >::const_iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ ) 
-		tempFile.push_back( s->exportItem() );
+    QStringList tempFile;
+    for ( QVector< ListItem >::const_iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ ) 
+        tempFile.push_back( s->exportItem() );
 
-	return saveFileData( tempFile, filename );
+    return saveFileData( tempFile, filename );
 
 }
 
 
 QVector< ListItem * >  PeerguardianList::getEnabledItems()
-{	
+{   
     return getItems(ENABLED_ITEM);
 }
 

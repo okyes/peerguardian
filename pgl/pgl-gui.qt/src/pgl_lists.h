@@ -24,12 +24,11 @@
 #include <QVector>
 #include <QString>
 #include <QStringList>
-
+#include <QDebug>
 
 #include "file_transactions.h"
 
 #define PGL_LIST_PATH "/etc/pgl/blocklists.list"
-#define PGL_LIST_PATH "/etc/blockcontrol/blocklists.list" //temporary
 
 typedef enum listOption { NO_TIME_STAMP, LOCAL, NONE };
 
@@ -101,6 +100,9 @@ class ListItem {
         
         bool isEnabled();
         bool isDisabled();
+        
+		bool isValidBlockList(const QString&);
+		QString getListName(const QString& );
     
 	private:
 		QString m_Name;
@@ -221,7 +223,7 @@ class PeerguardianList {
  		 * Items with mode COMMENT_ITEM are not returned by this function.
  		 * @return A vector of pointers containing the ListItems requested.
  		 */
- 		QVector< ListItem * > getItems();
+ 		QVector< ListItem * > getValidItems();
         QVector< ListItem * > getEnabledItems();
         QVector< ListItem * > getDisabledItems();
 		/**
