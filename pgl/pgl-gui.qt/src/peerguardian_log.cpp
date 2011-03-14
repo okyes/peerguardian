@@ -21,6 +21,7 @@
 
 #include "peerguardian_log.h"
 #include "utils.h"
+#include "pgl_settings.h"
 
 LogItem::LogItem( const QString &entry ) {
 
@@ -30,7 +31,24 @@ LogItem::LogItem( const QString &entry ) {
 	if ( entry.isEmpty() ) {
 		qWarning() << Q_FUNC_INFO << "Emtpy log item entry given. Doing nothing";	
 	}
-	else {
+	else 
+    {
+        if ( entry.contains("||") )
+        {
+            QStringList entryParts(entry.split( " ", QString::SkipEmptyParts) );
+            QStringList names(entry.split( "||", QString::SkipEmptyParts) );
+            m_Name = names[1];
+            
+            m_BlockTime = entryParts[2].trimmed();
+            m_ipSource = entryParts[4];
+            m_ipDest = entryParts[5];
+            m_Hits = 1;
+            return;
+        }
+    }
+        
+        type = IGNORE;
+        /*
 		QVector< QString > entryParts = QVector< QString >::fromList( entry.split( "|" ) );
 		if ( entryParts.size() == 1 ) {
 			entryContents = entryParts[0];
@@ -66,7 +84,7 @@ LogItem::LogItem( const QString &entry ) {
 	else {
 		type = IGNORE;
 		m_Name = entryContents;
-	}
+	}*/
 
 }
 
@@ -151,32 +169,35 @@ void LogItem::importEntry( const QString &entry ) {
 	//Set the variables
 	m_Name = entryPartName.trimmed();
 	m_Hits = entryPartHits.trimmed();
-	m_IP = entryPartIP.trimmed();
+	//m_IP = entryPartIP.trimmed();
 
 }
 
 
 bool LogItem::operator==( const LogItem &other ) {
 
-	bool test = true;
-	if ( name() != other.name() ) {
-		test = false;
-	}
-	if ( type != other.type ) {
-		test = false;
-	}
-	if ( IP() != other.IP() ) {
-		test = false;
-	}
+	bool equal = true;
+    
+	if ( m_Name != other.name() ) 
+		equal = false;
+	
+	if ( type != other.type ) 
+		equal = false;
+	
+	if ( m_ipSource != other.getIpSource() ) 
+		equal = false;
+	
+    if ( m_ipDest != other.getIpDest() ) 
+		equal = false;
+	
 
-	return test;
+	return equal;
 
 }
 
-PeerguardianLog::PeerguardianLog(const QString& path, QObject *parent ) :
+PeerguardianLog::PeerguardianLog(QObject *parent ) :
 	QObject( parent )
 {
-    setFilePath(path, true);
 }
 
 
@@ -185,11 +206,10 @@ void PeerguardianLog::setFilePath( const QString &path, bool verified) {
 	//Empty the list and intiallize the variables
 	clear();
     
-    
     if ( verified )
          m_LogPath = path;
     else{
-        m_LogPath = getValidPath(path, PGL_LOG_PATH);
+        m_LogPath = PeerguardianLog::getFilePath(path);
         if ( m_LogPath.isEmpty() )
             qWarning() << Q_FUNC_INFO << "PeerguardianLog: No valid path was found, doing nothing";
     }
@@ -221,7 +241,7 @@ QString PeerguardianLog::getNewItem() const {
 	QString entry;
 	QStringList args;
 	
-	//Use tail /var/log/moblock.log -n 1 to get the last log entry
+	//Use tail /var/log/pgl/pgld.log -n 1 to get the last log entry
 	command = "tail";
 	args << m_LogPath;
 	args << "-n" << "1";
@@ -246,7 +266,7 @@ void PeerguardianLog::update() {
 
 
 	QString lItem = getNewItem();
-	if ( lItem.isEmpty() ) {
+	if ( lItem.isEmpty() ) { 
 		return;
 	}
 	//We don't want the last item in the list to appear as a recently blocked entry
@@ -255,12 +275,15 @@ void PeerguardianLog::update() {
 		firstTime =  false;
 	}
 	if ( firstItem == lItem ) {
+        qDebug() << lItem;
+        //qDebug() << "equal items";
 		return;
 	}
 
 	LogItem freshItem( lItem );
 
 	if ( freshItem.type == IGNORE  ) {
+        qDebug() << "ignore items";
 		return;
 	}
 	LogItem prevItem = m_ItemsList.last();
@@ -311,7 +334,7 @@ LogItem PeerguardianLog::getItemByIP( const QString &IP, const itemType &type ) 
 	result.type = IGNORE;
 
 	for ( QList< LogItem >::const_iterator s = m_ItemsList.constBegin(); s != m_ItemsList.constEnd(); s++ ) {
-		if ( s->IP() == IP && s->type == type ) {
+		if ( s->getIpSource() == IP && s->type == type ) {
 			result = *s;
 		}
 	}
@@ -341,10 +364,10 @@ LogItem PeerguardianLog::getItemByName( const QString &name ) const {
 QString PeerguardianLog::getFilePath()
 {
     QString path("");
-    return getValidPath(path, PGL_LOG_PATH);
+    return getValidPath(path, getVariable(PGLCMD_DEFAULTS_PATH, "LOGDIR"));
 }
 
 QString PeerguardianLog::getFilePath(const QString &path)
 {
-    return getValidPath(path, PGL_LOG_PATH);
+    return getValidPath(path, getVariable(PGLCMD_DEFAULTS_PATH, "LOGDIR"));
 }

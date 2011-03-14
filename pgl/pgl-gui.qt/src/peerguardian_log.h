@@ -30,10 +30,7 @@
 #include <QTime>
 #include <QDate>
 
-
-
 #define MAX_LOG_SIZE 1000
-#define PGL_LOG_PATH "/var/log/pgl/pglcmd.log"
 
 #define IN_STR "Incoming"
 #define OUT_STR "Outgoing"
@@ -77,7 +74,8 @@ class LogItem {
 		/**
 		 * @return The IP of the entry in the moblock log.
 		 */
-		inline QString IP() const { return m_IP; }
+		inline QString getIpSource() const { return m_ipSource; }
+        inline QString getIpDest() const { return m_ipDest; }
 		/**
 		 * @return The date the item was created.
 		 */
@@ -106,7 +104,8 @@ class LogItem {
 		QString m_BlockTime;
 		QString m_Name;
 		QString m_Hits;
-		QString m_IP;
+		QString m_ipSource;
+        QString m_ipDest;
 
 };
 
@@ -137,7 +136,7 @@ class PeerguardianLog : public QObject {
 		 * @param path The path to the moblock log file.
 		 * @param parent The QObject parent of this object.
 		 */
-		PeerguardianLog(const QString &path, QObject *parent = 0 );
+         
 		/**
 		 * Sets the path to the moblock log file.
 		 * If the path is invalid and no path is already set, MOBLOCK_LOG_PATH is used instead.
