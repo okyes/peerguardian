@@ -49,7 +49,7 @@
        <enum>Qt::DefaultContextMenu</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_ControlPanel">
        <attribute name="title">
@@ -57,26 +57,154 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QGroupBox" name="m_ControlInfoGroup_2">
-          <property name="title">
-           <string>Manage</string>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_12">
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_9">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QGroupBox" name="m_ControlInfoGroup_2">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="title">
+             <string>Manage</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_7">
              <item>
-              <layout class="QVBoxLayout" name="verticalLayout_11">
+              <layout class="QHBoxLayout" name="horizontalLayout_9">
                <item>
-                <layout class="QHBoxLayout" name="_4">
+                <widget class="QStackedWidget" name="m_controlPglButtons">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>70</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>90</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="layoutDirection">
+                  <enum>Qt::LeftToRight</enum>
+                 </property>
+                 <property name="lineWidth">
+                  <number>1</number>
+                 </property>
+                 <property name="currentIndex">
+                  <number>0</number>
+                 </property>
+                 <widget class="QWidget" name="page">
+                  <layout class="QVBoxLayout" name="verticalLayout_2">
+                   <item>
+                    <widget class="QPushButton" name="m_startPglButton">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>92</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="layoutDirection">
+                      <enum>Qt::LeftToRight</enum>
+                     </property>
+                     <property name="text">
+                      <string>Start</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../images/images.qrc">
+                       <normaloff>:/images/play.png</normaloff>:/images/play.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="page_2">
+                  <layout class="QVBoxLayout" name="verticalLayout">
+                   <item>
+                    <widget class="QPushButton" name="m_stopPglButton">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>86</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>16777215</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>Stop</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../images/images.qrc">
+                       <normaloff>:/images/stop.png</normaloff>:/images/stop.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout">
+                 <item>
+                  <spacer name="horizontalSpacer_7">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeType">
+                    <enum>QSizePolicy::Fixed</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>42</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
                  <item>
                   <widget class="QLabel" name="statusLabel1">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
                    <property name="text">
-                    <string>PGLD status:</string>
+                    <string>Pgld status:</string>
                    </property>
                   </widget>
                  </item>
                  <item>
                   <widget class="QLabel" name="m_StatusIcon">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
                    <property name="text">
                     <string/>
                    </property>
@@ -92,25 +220,103 @@
                    </property>
                   </widget>
                  </item>
-                 <item>
-                  <spacer>
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
                 </layout>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_3">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::MinimumExpanding</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_11">
+               <item>
+                <widget class="QStackedWidget" name="stackedWidget">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="currentIndex">
+                  <number>0</number>
+                 </property>
+                 <widget class="QWidget" name="page_3">
+                  <layout class="QHBoxLayout" name="horizontalLayout_7">
+                   <item>
+                    <widget class="QPushButton" name="m_restartPglButton">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>94</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="layoutDirection">
+                      <enum>Qt::LeftToRight</enum>
+                     </property>
+                     <property name="text">
+                      <string>Restart</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../images/images.qrc">
+                       <normaloff>:/images/reload.png</normaloff>:/images/reload.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_4">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
                </item>
                <item>
                 <widget class="QLabel" name="m_LoadedRangesLabel">
                  <property name="enabled">
                   <bool>true</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
                  </property>
                  <property name="text">
                   <string>Blocked IP ranges: Unknown</string>
@@ -119,6 +325,66 @@
                   <number>2</number>
                  </property>
                 </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_12">
+               <item>
+                <widget class="QStackedWidget" name="stackedWidget_2">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="currentIndex">
+                  <number>0</number>
+                 </property>
+                 <widget class="QWidget" name="page_5">
+                  <layout class="QHBoxLayout" name="horizontalLayout_8">
+                   <item>
+                    <widget class="QPushButton" name="m_updatePglButton">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>94</width>
+                       <height>0</height>
+                      </size>
+                     </property>
+                     <property name="text">
+                      <string>Update</string>
+                     </property>
+                     <property name="icon">
+                      <iconset resource="../images/images.qrc">
+                       <normaloff>:/images/incoming.png</normaloff>:/images/incoming.png</iconset>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_5">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
                </item>
                <item>
                 <widget class="QLabel" name="m_LastUpdateLabel">
@@ -135,182 +401,18 @@
                </item>
               </layout>
              </item>
-             <item>
-              <layout class="QVBoxLayout" name="verticalLayout_2">
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_2">
-                 <item>
-                  <spacer name="horizontalSpacer_3">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <widget class="QStackedWidget" name="m_controlPglButtons">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>70</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>80</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="currentIndex">
-                    <number>0</number>
-                   </property>
-                   <widget class="QWidget" name="page">
-                    <layout class="QVBoxLayout" name="verticalLayout">
-                     <item>
-                      <widget class="QPushButton" name="m_startPglButton">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="minimumSize">
-                        <size>
-                         <width>87</width>
-                         <height>0</height>
-                        </size>
-                       </property>
-                       <property name="text">
-                        <string>Start</string>
-                       </property>
-                       <property name="icon">
-                        <iconset resource="../images/images.qrc">
-                         <normaloff>:/images/play.png</normaloff>:/images/play.png</iconset>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </widget>
-                   <widget class="QWidget" name="page_2">
-                    <layout class="QHBoxLayout" name="horizontalLayout">
-                     <item>
-                      <widget class="QPushButton" name="m_stopPglButton">
-                       <property name="text">
-                        <string>Stop</string>
-                       </property>
-                       <property name="icon">
-                        <iconset resource="../images/images.qrc">
-                         <normaloff>:/images/stop.png</normaloff>:/images/stop.png</iconset>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </widget>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_7">
-                 <item>
-                  <spacer name="horizontalSpacer_4">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="m_restartPglButton">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>90</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>Restart</string>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="../images/images.qrc">
-                     <normaloff>:/images/reload.png</normaloff>:/images/reload.png</iconset>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_8">
-                 <item>
-                  <spacer name="horizontalSpacer_5">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeType">
-                    <enum>QSizePolicy::MinimumExpanding</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <widget class="QPushButton" name="m_updatePglButton">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>90</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>Update</string>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="../images/images.qrc">
-                     <normaloff>:/images/incoming.png</normaloff>:/images/incoming.png</iconset>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </item>
             </layout>
-           </item>
-          </layout>
-         </widget>
+            <zorder></zorder>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <widget class="QGroupBox" name="groupBox_4">
           <property name="title">
            <string>Last blocks</string>
           </property>
-          <layout class="QVBoxLayout" name="_5">
+          <layout class="QVBoxLayout" name="verticalLayout_9">
            <item>
             <widget class="QTreeWidget" name="m_LogTreeWidget">
              <property name="mouseTracking">
@@ -335,34 +437,59 @@
              </column>
              <column>
               <property name="text">
-               <string>Name</string>
+               <string>Range</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>IP address</string>
+               <string>Source</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>Connection type</string>
+               <string>Destination</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Protocol</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Action</string>
               </property>
              </column>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="m_LogClearButton">
-             <property name="statusTip">
-              <string>Clear the log</string>
-             </property>
-             <property name="text">
-              <string>Clear Log</string>
-             </property>
-             <property name="icon">
-              <iconset resource="../images/images.qrc">
-               <normaloff>:/images/log.png</normaloff>:/images/log.png</iconset>
-             </property>
-            </widget>
+            <layout class="QHBoxLayout" name="horizontalLayout_13">
+             <item>
+              <widget class="QPushButton" name="pushButton">
+               <property name="text">
+                <string>Stop Logging</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../images/images.qrc">
+                 <normaloff>:/images/cancel.png</normaloff>:/images/cancel.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="m_LogClearButton">
+               <property name="statusTip">
+                <string>Clear the log</string>
+               </property>
+               <property name="text">
+                <string>Clear Log</string>
+               </property>
+               <property name="icon">
+                <iconset resource="../images/images.qrc">
+                 <normaloff>:/images/log.png</normaloff>:/images/log.png</iconset>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>
@@ -501,7 +628,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QTreeWidget" name="m_ListTreeWidget">
+              <widget class="QTreeWidget" name="m_BlocklistTreeWidget">
                <property name="rootIsDecorated">
                 <bool>false</bool>
                </property>
@@ -517,11 +644,6 @@
                <column>
                 <property name="text">
                  <string>ID</string>
-                </property>
-               </column>
-               <column>
-                <property name="text">
-                 <string>Description</string>
                 </property>
                </column>
               </widget>
@@ -575,7 +697,7 @@
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_4">
              <item>
-              <widget class="QTreeWidget" name="m_ListTreeWidget_2">
+              <widget class="QTreeWidget" name="m_WhitelistTreeWidget">
                <property name="rootIsDecorated">
                 <bool>false</bool>
                </property>
@@ -596,11 +718,6 @@
                <column>
                 <property name="text">
                  <string>Type</string>
-                </property>
-               </column>
-               <column>
-                <property name="text">
-                 <string>Description</string>
                 </property>
                </column>
               </widget>
@@ -659,7 +776,10 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_6">
+           <widget class="QPushButton" name="m_ApplyButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -667,7 +787,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Restart</string>
+             <string>Apply</string>
             </property>
            </widget>
           </item>
@@ -686,7 +806,7 @@
      <x>0</x>
      <y>0</y>
      <width>642</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -987,8 +1107,7 @@
   <action name="a_CreateBackups">
    <property name="icon">
     <iconset>
-     <normaloff/>
-    </iconset>
+     <normaloff>Programas/peerguardian/pgl/pgl-gui.qt/ui</normaloff>Programas/peerguardian/pgl/pgl-gui.qt/ui</iconset>
    </property>
    <property name="text">
     <string>Create Backups</string>
@@ -997,8 +1116,7 @@
   <action name="a_RestoreSettings">
    <property name="icon">
     <iconset>
-     <normaloff/>
-    </iconset>
+     <normaloff>Programas/peerguardian/pgl/pgl-gui.qt/ui</normaloff>Programas/peerguardian/pgl/pgl-gui.qt/ui</iconset>
    </property>
    <property name="text">
     <string>Restore Settings</string>
@@ -1007,8 +1125,7 @@
   <action name="a_RestoreList">
    <property name="icon">
     <iconset>
-     <normaloff/>
-    </iconset>
+     <normaloff>Programas/peerguardian/pgl/pgl-gui.qt/ui</normaloff>Programas/peerguardian/pgl/pgl-gui.qt/ui</iconset>
    </property>
    <property name="text">
     <string>Restore Blocklists</string>
@@ -1017,8 +1134,7 @@
   <action name="a_SettingsDialog">
    <property name="icon">
     <iconset>
-     <normaloff/>
-    </iconset>
+     <normaloff>Programas/peerguardian/pgl/pgl-gui.qt/ui</normaloff>Programas/peerguardian/pgl/pgl-gui.qt/ui</iconset>
    </property>
    <property name="text">
     <string>Settings</string>
