@@ -106,9 +106,6 @@ class PeerguardianInfo : public QObject {
 		 * @return The contents of the blockcontrol log with slightly changed format.
 		 */
 		inline QVector< QString > controlLog() const { return m_LastUpdateLog; }
-        
-        static QString getFilePath();
-        static QString getFilePath(const QString &path);
 
 	public slots:
 		/**

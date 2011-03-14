@@ -138,7 +138,7 @@ void PeerguardianInfo::updateDaemonState() {
 void PeerguardianInfo::updateCLogData() {
 
 
-	QVector< QString > fileData = getFileData( m_FileNames[BLOCKCONTROL_LOG_FILENAME_PLACE] );
+	QStringList fileData = getFileData( m_FileNames[BLOCKCONTROL_LOG_FILENAME_PLACE] );
 
 	m_LastUpdateLog = QVector<QString>();
 	bool inLog = false;
@@ -189,7 +189,7 @@ void PeerguardianInfo::updateCLogData() {
 
 void PeerguardianInfo::updateLogData() {
 
-	QVector< QString > fileData = getFileData( m_FileNames[MOBLOCK_LOG_FILENAME_PLACE] );
+	QStringList fileData = getFileData( m_FileNames[MOBLOCK_LOG_FILENAME_PLACE] );
 	m_LoadedRanges = QString();
 	m_SkippedRanges = QString();
 	m_MergedRanges = QString();
@@ -236,20 +236,6 @@ void PeerguardianInfo::processDate( QString &date ) {
 	date = tr( "%1/%2/%3" ).arg(day).arg(month).arg(year);
 	prevResult = date;
 
-}
-
-
-/*** Static methods ***/
-
-QString PeerguardianInfo::getFilePath()
-{
-    QString path("");
-    return getValidPath(path, PGL_LOG_PATH);
-}
-
-QString PeerguardianInfo::getFilePath(const QString &path)
-{
-    return getValidPath(path, PGL_LOG_PATH);
 }
 
 
