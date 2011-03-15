@@ -205,18 +205,31 @@ void Peerguardian::getLists()
     }
     
     
-    //get whitelisted IPs and ports
-    QList<WhitelistItem> whitelistedItems = m_Whitelist->getWhitelistedItems();
-    foreach(WhitelistItem item, whitelistedItems)
+    //get enabled whitelisted IPs and ports
+    foreach(QStringList values, m_Whitelist->getEnabledWhitelistedItems())
     {
-		QTreeWidgetItem * tree_item = new QTreeWidgetItem(m_WhitelistTreeWidget, item.getAsStringList());
-		if ( item.isEnabled() )
-			tree_item->setCheckState(0, Qt::Checked );
-		else
-			tree_item->setCheckState(0, Qt::Unchecked );
-		m_WhitelistTreeWidget->addTopLevelItem(tree_item);
-		m_WhitelistInicialState.push_back(tree_item->checkState(0));
-	}
+        foreach( QString value, values )
+        {
+            QStringList info (value);
+            QTreeWidgetItem * tree_item = new QTreeWidgetItem(m_WhitelistTreeWidget, info);
+            tree_item->setCheckState(0, Qt::Checked );
+            m_WhitelistTreeWidget->addTopLevelItem(tree_item);
+            m_WhitelistInicialState.push_back(tree_item->checkState(0));
+        }
+    }
+    
+    //get disabled whitelisted IPs and ports
+    foreach(QStringList values, m_Whitelist->getDisabledWhitelistedItems())
+    {
+        foreach( QString value, values )
+        {
+            QStringList info (value);
+            QTreeWidgetItem * tree_item = new QTreeWidgetItem(m_WhitelistTreeWidget, info);
+            tree_item->setCheckState(0, Qt::Unchecked );
+            m_WhitelistTreeWidget->addTopLevelItem(tree_item);
+            m_WhitelistInicialState.push_back(tree_item->checkState(0));
+        }
+    }
 }
 
 void Peerguardian::inicializeSettings()

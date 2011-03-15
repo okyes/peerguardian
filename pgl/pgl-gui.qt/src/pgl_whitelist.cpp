@@ -77,15 +77,12 @@ PglWhitelist::PglWhitelist(QSettings* settings)
             if ( line.contains(key) )
             {
                 QString variable = getVariable(line);
-                m_Whitelist[key] = variable.split(" ", QString::SkipEmptyParts);
+                m_WhitelistEnabled[key] = variable.split(" ", QString::SkipEmptyParts);
                 
-                foreach( QString value, variable.split(" ", QString::SkipEmptyParts))
-                    m_WhitelistedItems << WhitelistItem(value, m_WhitelistConnection[key], true, key);
+                break;
             }
         }
     }
-    
-    qDebug() << m_Whitelist;
     
     //Since disabled whitelisted items (IPs or Ports) can't be easily stored
     //in /etc/plg/pglcmd.conf, the best option is to store them on the GUI settings file
@@ -94,9 +91,7 @@ PglWhitelist::PglWhitelist(QSettings* settings)
     foreach ( QString key, m_WhitelistConnection.keys() )
     {
         disabled_items = settings->value(QString("whitelist/%1").arg(key)).toString();
-        if ( ! disabled_items.isEmpty() )
-            foreach( QString value, disabled_items.split(" ", QString::SkipEmptyParts) )
-                m_WhitelistedItems << WhitelistItem(value, m_WhitelistConnection[key], false, key);
+        m_WhitelistDisabled[key] = disabled_items.split(" ", QString::SkipEmptyParts);
     }
 }
 
@@ -131,13 +126,13 @@ void PglWhitelist::disableItems(QList<QTreeWidgetItem*> treeItems)
     
     foreach(QString key, m_WhitelistConnection.keys())
     {
-        values = m_Whitelist[key];
+        values = m_WhitelistEnabled[key];
         
         foreach ( QString valueToDelete, valuesToDelete )
             if ( values.contains(valueToDelete) )
                 values.removeAll(valueToDelete);
         
-        m_Whitelist[key] = values;
+        m_WhitelistEnabled[key] = values;
     }
     
     
@@ -149,10 +144,10 @@ void PglWhitelist::disableItems(QList<QTreeWidgetItem*> treeItems)
             continue;
         }
         
-        foreach(QString key, m_Whitelist.keys())
+        foreach(QString key, m_WhitelistEnabled.keys())
         {
             if ( line.contains( key ) )
-                newData << key + "=\"" + m_Whitelist[key].join(" ") + "\""; 
+                newData << key + "=\"" + m_WhitelistEnabled[key].join(" ") + "\""; 
         }        
         
     }

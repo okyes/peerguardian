@@ -69,8 +69,9 @@ class PglWhitelist
     QString m_WhitelistFile;
     QMap<QString, int> m_WhitelistConnection;
     QSettings * m_Settings;
-    QMap<QString, QStringList> m_Whitelist;
-
+    QMap<QString, QStringList> m_WhitelistEnabled;
+    QMap<QString, QStringList> m_WhitelistDisabled;
+    
 	public:
 		/**
 		 * Constructor. Creates an emtpy PglWhitelist object with no data loaded.
@@ -85,6 +86,8 @@ class PglWhitelist
         void loadDisabledItems(QSettings*);
         void disableItems(QList<QTreeWidgetItem*>);
         QList<WhitelistItem> getWhitelistItems(QList<QTreeWidgetItem*>);
+        QList<QStringList> getEnabledWhitelistedItems() { return m_WhitelistEnabled.values(); }
+        QList<QStringList> getDisabledWhitelistedItems(){ return m_WhitelistDisabled.values(); }
         
 };
 
