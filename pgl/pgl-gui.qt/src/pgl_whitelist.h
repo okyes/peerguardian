@@ -86,8 +86,9 @@ class PglWhitelist
         void loadDisabledItems(QSettings*);
         void disableItems(QList<QTreeWidgetItem*>);
         QList<WhitelistItem> getWhitelistItems(QList<QTreeWidgetItem*>);
-        QList<QStringList> getEnabledWhitelistedItems() { return m_WhitelistEnabled.values(); }
-        QList<QStringList> getDisabledWhitelistedItems(){ return m_WhitelistDisabled.values(); }
+        QMap<QString, QStringList> getEnabledWhitelistedItems() { return m_WhitelistEnabled; }
+        QMap<QString, QStringList> getDisabledWhitelistedItems(){ return m_WhitelistDisabled; }
+        QString getTypeAsString(QString&);
         
 };
 

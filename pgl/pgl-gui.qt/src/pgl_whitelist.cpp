@@ -35,16 +35,6 @@ QString WhitelistItem::getConnectionAsString()
     }
 }
 
-QString WhitelistItem::getTypeAsString()
-{
-    switch(m_Connection)
-    {
-        case IP: return QString("IP");
-        case PORT: return QString("Port");
-        default: return QString("");
-    }
-}
-
 PglWhitelist::PglWhitelist(QSettings* settings)
 {
     m_WhitelistFile = getVariable(PGLCMD_DEFAULTS_PATH, "CONFDIR") + QString("/");
@@ -95,24 +85,22 @@ PglWhitelist::PglWhitelist(QSettings* settings)
     }
 }
 
-QList<WhitelistItem> PglWhitelist::getWhitelistItems(QList<QTreeWidgetItem*> treeItems)
+QString PglWhitelist::getTypeAsString(QString& key)
 {
-    QList<WhitelistItem> disabledItems;
+    switch(m_WhitelistConnection[key])
+    {
+        case TYPE_INCOMING: return QString("Incoming");
+        case TYPE_OUTGOING: return QString("Outgoing");
+        case TYPE_FORWARD: return QString("Forward"); 
+        default: return QString("");
+    }
     
-    foreach(QTreeWidgetItem* treeItem, treeItems)
-        foreach(WhitelistItem whiteItem, m_WhitelistedItems)
-            if ( whiteItem.value() == treeItem->text(0) )
-                disabledItems << whiteItem;
-
-    return disabledItems;
 }
 
 void PglWhitelist::disableItems(QList<QTreeWidgetItem*> treeItems)
 {
     if ( m_WhitelistFile.isEmpty() )    
         return;
-    
-    QList<WhitelistItem> disabledItems = getWhitelistItems(treeItems);
     
     
     QStringList valuesToDelete;
@@ -159,6 +147,5 @@ void PglWhitelist::disableItems(QList<QTreeWidgetItem*> treeItems)
     /*foreach( WhitelistItem, items )
         if ( ! item.isEnabled() )
             m_Settings->setValue("whitelist/");*/
-    
 }
 
