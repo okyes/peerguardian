@@ -644,6 +644,11 @@
                <attribute name="headerMinimumSectionSize">
                 <number>40</number>
                </attribute>
+               <column>
+                <property name="text">
+                 <string notr="true">1</string>
+                </property>
+               </column>
               </widget>
              </item>
              <item>
@@ -703,14 +708,24 @@
                 <bool>false</bool>
                </property>
                <property name="headerHidden">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
                <attribute name="headerDefaultSectionSize">
-                <number>90</number>
+                <number>130</number>
                </attribute>
                <attribute name="headerMinimumSectionSize">
                 <number>40</number>
                </attribute>
+               <column>
+                <property name="text">
+                 <string>Value</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Connection</string>
+                </property>
+               </column>
               </widget>
              </item>
              <item>
