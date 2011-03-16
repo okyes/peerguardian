@@ -97,32 +97,38 @@ QString PglWhitelist::getTypeAsString(QString& key)
     
 }
 
-void PglWhitelist::disableItems(QList<QTreeWidgetItem*> treeItems)
+QString PglWhitelist::getGroup(QStringList& info)
 {
-    if ( m_WhitelistFile.isEmpty() )    
-        return;
+    /*info should contain the value (a port or an ip address) and the connection type (in, out or fwd)*/
+    if ( info.size() != 2 )
+        return "";
+        
+    QMap<QString, QString> connection;
+    connection["Incoming"] = "IN";
+    connection["Outgoing"] = "OUT";
+    connection["Forward"] = "FWD";
     
+    QString value = info[0];
+    QString conn_type = info[1];
+    QString key = "WHITE_";
     
-    QStringList valuesToDelete;
-    foreach(QTreeWidgetItem* treeItem, treeItems)
-        valuesToDelete << treeItem->text(0);
+    if ( isPort(value) )
+        key += "TCP_"; //FIXME: UDP support missing
+    else
+        key += "IP_";
     
-    //Remove data from pglcmd.conf
-    QStringList fileData = getFileData(m_WhitelistFile);
+    key += connection[conn_type];
+    
+    return key;
+    
+}
+
+void PglWhitelist::updateFile(QStringList fileData)
+{
+    if ( fileData.isEmpty() )
+        fileData = getFileData(m_WhitelistFile);
+        
     QStringList newData;
-    QStringList values;
-    
-    foreach(QString key, m_WhitelistConnection.keys())
-    {
-        values = m_WhitelistEnabled[key];
-        
-        foreach ( QString valueToDelete, valuesToDelete )
-            if ( values.contains(valueToDelete) )
-                values.removeAll(valueToDelete);
-        
-        m_WhitelistEnabled[key] = values;
-    }
-    
     
     foreach(QString line, fileData)
     {
@@ -133,17 +139,56 @@ void PglWhitelist::disableItems(QList<QTreeWidgetItem*> treeItems)
         }
         
         foreach(QString key, m_WhitelistEnabled.keys())
-        {
             if ( line.contains( key ) )
                 newData << key + "=\"" + m_WhitelistEnabled[key].join(" ") + "\""; 
-        }        
-        
     }
     
     //FIXME: Needs sudo rights to write back to /etc/pgl/pglcmd.conf
     saveFileData(newData, "/tmp/pglcmd.conf");
+}
+
+
+void PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
+{
+    if ( m_WhitelistFile.isEmpty() )    
+        return;
+    
+    //Remove data from pglcmd.conf
+    QStringList fileData = getFileData(m_WhitelistFile);
+    QStringList info;
+    QString group;
+    
+    //set only the active (checked) into pglcmd.conf
+            
+    m_WhitelistEnabled.clear();
+    
+    foreach(QTreeWidgetItem* treeItem, treeItems)
+    {
+        if ( treeItem->checkState(0) == Qt::Unchecked )
+            continue;
+        
+        info << treeItem->text(0) << treeItem->text(1);
+        
+        group = getGroup(info);
+        if ( m_WhitelistConnection.contains(group) )
+            m_WhitelistEnabled[group] << treeItem->text(0);
+        
+        info.clear();
+    }
+    
+    updateFile(fileData);
+    
+    qDebug() << m_WhitelistEnabled;
+    
     
     //Add data to peerguardian.ini
+    
+    /*foreach ( QString key, m_WhitelistConnection.keys() )
+    {
+        disabled_items = settings->value(QString("whitelist/%1").arg(key)).toString();
+        m_WhitelistDisabled[key] = disabled_items.split(" ", QString::SkipEmptyParts);
+    }*/
+    
     /*foreach( WhitelistItem, items )
         if ( ! item.isEnabled() )
             m_Settings->setValue("whitelist/");*/
