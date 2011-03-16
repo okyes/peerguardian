@@ -140,7 +140,6 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     //when the user applies the changes.
     QList<int> m_BlocklistInicialState;
     QList<int> m_WhitelistInicialState;
-    
     QList<bool> m_NewWhitelistItems;
     QList<bool> m_NewBlocklistItems;
     bool m_WhitelistItemPressed;

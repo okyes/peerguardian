@@ -139,7 +139,7 @@ void Peerguardian::g_MakeConnections()
 
 void Peerguardian::applyChanges()
 {
-	m_Whitelist->disableItems(getTreeItems(m_WhitelistTreeWidget, UNCHECKED));
+	m_Whitelist->update(getTreeItems(m_WhitelistTreeWidget));
 	m_ApplyButton->setEnabled(false);
 }
 
