@@ -711,7 +711,7 @@
                 <bool>false</bool>
                </property>
                <attribute name="headerDefaultSectionSize">
-                <number>130</number>
+                <number>90</number>
                </attribute>
                <attribute name="headerMinimumSectionSize">
                 <number>40</number>
@@ -724,6 +724,11 @@
                <column>
                 <property name="text">
                  <string>Connection</string>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Protocol</string>
                 </property>
                </column>
               </widget>
