@@ -67,7 +67,7 @@ class PglWhitelist
 {
     QList<WhitelistItem> m_WhitelistedItems;
     QString m_WhitelistFile;
-    QMap<QString, int> m_WhitelistConnection;
+    QMap<QString, int> m_Group;
     QSettings * m_Settings;
     QMap<QString, QStringList> m_WhitelistEnabled;
     QMap<QString, QStringList> m_WhitelistDisabled;
@@ -90,8 +90,10 @@ class PglWhitelist
         QMap<QString, QStringList> getDisabledWhitelistedItems(){ return m_WhitelistDisabled; }
         QString getTypeAsString(QString&);
         QString getGroup(QStringList&);
-        void updateFile(QStringList data=QStringList());
-        
+        void updateWhitelistFile();
+        void updateSettings();
+        QString getWhitelistFile(){ return m_WhitelistFile; };
+        QString getProtocol(QString& key);
 };
 
 #endif

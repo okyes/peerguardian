@@ -139,7 +139,11 @@ void Peerguardian::g_MakeConnections()
 
 void Peerguardian::applyChanges()
 {
+    //Update will generate /tmp/pglcmd.conf
 	m_Whitelist->update(getTreeItems(m_WhitelistTreeWidget));
+    QString filepath = "/tmp/" + m_Whitelist->getWhitelistFile().split("/").last();
+    if ( QFile::exists(filepath ) )
+        m_Root->moveFile(filepath, m_Whitelist->getWhitelistFile() );
 	m_ApplyButton->setEnabled(false);
 }
 
@@ -206,6 +210,7 @@ void Peerguardian::getLists()
     
     QMap<QString, QStringList> items;
     QStringList values;
+    QStringList info;
     
     //get enabled whitelisted IPs and ports
     items = m_Whitelist->getEnabledWhitelistedItems();
@@ -214,11 +219,12 @@ void Peerguardian::getLists()
         values = items[key];
         foreach( QString value, values )
         {
-            QStringList info; info << value << m_Whitelist->getTypeAsString(key);
+            info << value << m_Whitelist->getTypeAsString(key) << m_Whitelist->getProtocol(key);
             QTreeWidgetItem * tree_item = new QTreeWidgetItem(m_WhitelistTreeWidget, info);
             tree_item->setCheckState(0, Qt::Checked );
             m_WhitelistTreeWidget->addTopLevelItem(tree_item);
             m_WhitelistInicialState.push_back(tree_item->checkState(0));
+            info.clear();
         }
     }
     
@@ -227,14 +233,14 @@ void Peerguardian::getLists()
     foreach(QString key, items.keys())
     {
         values = items[key];
-        
         foreach( QString value, values )
         {
-            QStringList info; info << value << m_Whitelist->getTypeAsString(key);
+            info << value << m_Whitelist->getTypeAsString(key) << m_Whitelist->getProtocol(key);
             QTreeWidgetItem * tree_item = new QTreeWidgetItem(m_WhitelistTreeWidget, info);
             tree_item->setCheckState(0, Qt::Unchecked );
             m_WhitelistTreeWidget->addTopLevelItem(tree_item);
             m_WhitelistInicialState.push_back(tree_item->checkState(0));
+            info.clear();
         }
     }
 }
