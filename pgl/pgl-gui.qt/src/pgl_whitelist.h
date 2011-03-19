@@ -28,6 +28,11 @@ typedef enum {
 typedef enum {
     IP,
     PORT,
+};
+
+typedef enum {
+    ENABLED,
+    DISABLED,
     INVALID
 };
 
@@ -41,25 +46,30 @@ class WhitelistItem
 {
     
     QString m_Value;
-    int m_Connection; //Incoming, Outgoing or Forward
+    QString m_Connection; //Incoming, Outgoing or Forward
     int m_Type; //Ip or Port
-    int m_Transport; //TCP or UDP
+    QString m_Protocol; //TCP, UDP or IP
     QString m_Group;
     bool m_Enabled;
+    bool m_Valid;
 
     public:
         WhitelistItem();
         WhitelistItem(QString&, int, bool, QString&);
+        WhitelistItem(QString value, QString connType, QString prot, int type=ENABLED);
         ~WhitelistItem(){};
         QString value() { return m_Value; }
-        int connection() { return m_Connection; }
+        bool valid () { return m_Valid; }
+        void setValid (bool valid) { m_Valid = valid; }
+        QString connection() { return m_Connection; }
         int type() { return m_Type; }
-        int transport() { return m_Transport; }
+        QString protocol() { return m_Protocol; }
         QString group() { return m_Group; }
         bool isEnabled(){ return m_Enabled; }
-        QString getConnectionAsString();
+
         QString getTypeAsString();
         QStringList getAsStringList(){ return QStringList() << m_Value << getTypeAsString(); }
+        bool operator==(WhitelistItem & otherItem);
         
 };
 

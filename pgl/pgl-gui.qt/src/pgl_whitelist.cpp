@@ -18,21 +18,40 @@ WhitelistItem::WhitelistItem(QString& value, int connection, bool enabled, QStri
     else
         m_Type = INVALID;*/
     
-    m_Transport = TCP;
+    m_Protocol = TCP;
     m_Connection = connection;
     m_Group = group;
     m_Enabled = enabled;
 }
 
-QString WhitelistItem::getConnectionAsString()
+WhitelistItem::WhitelistItem(QString value, QString connType, QString prot, int type)
 {
-    switch(m_Connection)
-    {
-        case TYPE_INCOMING: return QString("Incoming");
-        case TYPE_OUTGOING: return QString("Outgoing");
-        case TYPE_FORWARD: return QString("Forward"); 
-        default: return QString("");
-    }
+    m_Value = value;
+    m_Protocol = prot;
+    m_Connection = connType;
+    m_Valid = true;
+    
+    if ( type == ENABLED )
+        m_Enabled = true;
+    else if ( type == DISABLED )
+        m_Enabled = false;
+    else
+        m_Valid = false;
+        
+}
+
+bool WhitelistItem::operator==(WhitelistItem& otherItem)
+{
+        if ( m_Value != otherItem.value() )
+            return false;
+            
+        if ( m_Protocol != otherItem.protocol() )
+            return false;
+            
+        if ( m_Connection != otherItem.connection() )
+            return false;
+            
+    return true;
 }
 
 PglWhitelist::PglWhitelist(QSettings* settings)
