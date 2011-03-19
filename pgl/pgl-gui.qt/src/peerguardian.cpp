@@ -350,15 +350,24 @@ void Peerguardian::g_SetControlPath()
 }
 
 void Peerguardian::g_ShowAddDialog(int openmode) {
-	AddExceptionDialog *dialog = new AddExceptionDialog( this, openmode );
+	AddExceptionDialog *dialog = new AddExceptionDialog( this, openmode, getTreeItems(m_WhitelistTreeWidget));
     
     dialog->exec();
     
     if ( openmode == (ADD_MODE | EXCEPTION_MODE) )
-		foreach(QTreeWidgetItem * item, dialog->getTreeItems(m_WhitelistTreeWidget))
-		{
-			m_WhitelistTreeWidget->addTopLevelItem(item);
-		}
+    {
+        foreach(WhitelistItem whiteItem, dialog->getItems())
+        {
+            QStringList info; info << whiteItem.value() << whiteItem.connection() << whiteItem.protocol();
+            QTreeWidgetItem * treeItem = new QTreeWidgetItem(m_WhitelistTreeWidget, info);
+            treeItem->setCheckState(0, Qt::Checked);
+            m_WhitelistTreeWidget->addTopLevelItem(treeItem);
+        }
+        
+        if ( dialog->getItems().size() > 0 )
+            m_ApplyButton->setEnabled(true);
+            
+	}		
     else if (  openmode == (ADD_MODE | BLOCKLIST_MODE) );
     
 	/*if ( dialog->exec() == QDialog::Accepted && dialog->isSettingChanged() ) {
