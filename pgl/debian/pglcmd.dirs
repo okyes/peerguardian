@@ -1,3 +1,3 @@
-var/lib/blockcontrol/
-var/spool/blockcontrol/
+var/lib/pgl
+var/spool/pgl
 var/log/pgl
