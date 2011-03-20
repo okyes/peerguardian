@@ -14,6 +14,8 @@ pgld:
 
 pglcmd:
 
+  - document reference for port service names: /etc/aliases
+
   - blockers release pgl-gui:
     - add blockcontrol-pgl configuration transition script
         (http://ubuntuforums.org/showthread.php?p=9981209)
@@ -22,6 +24,9 @@ pglcmd:
         ... or other changes (STDERR, ...)
         See Debian /etc/init.d/skeleton and /etc/default/rcS
         or perhaps: INIT_VERBOSE=$VERBOSITY
+
+  - improve use of traceroute in "pglcmd test":
+    - test whether it is installed, use tcptraceroute etc. alternatively
 
   - send error messages to console (STDERR 1>&2) and logfile. [Jo?o]
     Completely rework the logging part, and check if all messages go where they
