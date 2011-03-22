@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>513</width>
-    <height>403</height>
+    <height>444</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -71,7 +71,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
-         <widget class="QGroupBox" name="groupBox_4">
+         <widget class="QGroupBox" name="m_ConnectionGroup">
           <property name="title">
            <string>Connection</string>
           </property>
@@ -104,7 +104,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox_3">
+         <widget class="QGroupBox" name="m_ProtocolGroup">
           <property name="title">
            <string>Protocol</string>
           </property>
