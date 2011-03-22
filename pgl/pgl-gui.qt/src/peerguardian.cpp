@@ -350,25 +350,51 @@ void Peerguardian::g_SetControlPath()
 }
 
 void Peerguardian::g_ShowAddDialog(int openmode) {
-	AddExceptionDialog *dialog = new AddExceptionDialog( this, openmode, getTreeItems(m_WhitelistTreeWidget));
-    
-    dialog->exec();
+    AddExceptionDialog *dialog = NULL;
+    bool newItems = false;
     
     if ( openmode == (ADD_MODE | EXCEPTION_MODE) )
     {
+        dialog = new AddExceptionDialog( this, openmode, getTreeItems(m_WhitelistTreeWidget));
+        dialog->exec();
+        
         foreach(WhitelistItem whiteItem, dialog->getItems())
         {
             QStringList info; info << whiteItem.value() << whiteItem.connection() << whiteItem.protocol();
             QTreeWidgetItem * treeItem = new QTreeWidgetItem(m_WhitelistTreeWidget, info);
             treeItem->setCheckState(0, Qt::Checked);
             m_WhitelistTreeWidget->addTopLevelItem(treeItem);
+            newItems = true;
+        }
+                     
+	}		
+    else if (  openmode == (ADD_MODE | BLOCKLIST_MODE) )
+    {
+        
+        dialog = new AddExceptionDialog( this, openmode, getTreeItems(m_BlocklistTreeWidget));
+        dialog->exec();
+        QString name;
+        
+        foreach(QString blocklist, dialog->getBlocklists())
+        {
+            if ( QFile::exists(blocklist) )
+                name = blocklist.split("/").last();
+            else
+                name = blocklist;
+            
+            QStringList info; info << name <<  blocklist;
+            QTreeWidgetItem * treeItem = new QTreeWidgetItem(m_BlocklistTreeWidget, info);
+            treeItem->setCheckState(0, Qt::Checked);
+            m_BlocklistTreeWidget->addTopLevelItem(treeItem);
+            newItems = true;
         }
         
-        if ( dialog->getItems().size() > 0 )
-            m_ApplyButton->setEnabled(true);
-            
-	}		
-    else if (  openmode == (ADD_MODE | BLOCKLIST_MODE) );
+        m_BlocklistTreeWidget->scrollToBottom();
+    
+    }
+    
+    if ( newItems )
+        m_ApplyButton->setEnabled(true);   
     
 	/*if ( dialog->exec() == QDialog::Accepted && dialog->isSettingChanged() ) {
 		emit g_SettingChanged();
@@ -378,7 +404,8 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
 		m_SettingChanged = false;
 	}*/
 
-	delete dialog;
+    if ( dialog != NULL )
+        delete dialog;
 }
 
 
