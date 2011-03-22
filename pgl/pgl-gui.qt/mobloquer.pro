@@ -5,6 +5,7 @@ INCLUDEPATH += . src
 OBJECTS_DIR = ./build/obj/
 UI_DIR = ./ui
 MOC_DIR = ./build/moc/
+QT += network \
 
 # Input
 SOURCES += src/file_transactions.cpp \
