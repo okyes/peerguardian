@@ -19,12 +19,8 @@ QString getValidPath(const QString &path, const QString &defaultPath )
     return new_path;
 }
 
-QStringList selectFiles(QWidget * parent, QString title, QString startPath)
-{
-    QString filter;
-    filter += "All Suported files  (*.p2p *.gz *.7z *.zip *.dat );;";
-    filter += "Peerguardian P2P format (*.p2p);;zip (*.zip);; 7z (*.7z);;GNU zip (*.gz);;dat (*.dat)";
-    
+QStringList selectFiles(QWidget * parent, QString filter, QString title, QString startPath)
+{    
      QStringList files = QFileDialog::getOpenFileNames(
                          parent,
                          title,
