@@ -2,6 +2,10 @@
 #include "add_exception_dialog.h" 
 #include "utils.h"
 #include <QEvent>
+#include <QUrl>
+#include <QFile>
+
+#include <QNetworkRequest>
 
 
 AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetItem*> treeItems) :
@@ -16,28 +20,53 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
     ports["SMTP"] = 587;
     ports["IMAP"] = 143;
     ports["SSH"] = 22;
+    
+    m_validExtensions << ".p2p" << ".zip" << ".7z" << ".gzip" << ".dat";
+    
+    m_manager = NULL;
 
     if ( mode == (ADD_MODE | EXCEPTION_MODE) )
     {       
         
-        QString help = "Valid Inputs: You can enter an IP Address with";
-        help +=  " or without mask and a port number or name (eg. http, ftp, etc).\n";
-        help += "You can enter multiple items separated by ';' or ',' .";
+        QString help = QObject::tr("Valid Inputs: You can enter an IP Address with");
+        help +=  QObject::tr(" or without mask and a port number or name (eg. http, ftp, etc).") + "\n";
+        help += QObject::tr("You can enter multiple items separated by ; or ,");
                     
             m_helpLabel->setText(QObject::tr(help.toUtf8 ()));
             m_browseButton->hide();
             
             foreach(QTreeWidgetItem *treeItem, treeItems)
                 m_Items.push_back(WhitelistItem(treeItem->text(0), treeItem->text(1), treeItem->text(2)));
+                
+        connect(m_addEdit, SIGNAL(returnPressed()), this, SLOT(addEntry()));
+        connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(addEntry()));
     }
     else if ( mode == (ADD_MODE | BLOCKLIST_MODE) )
-    {
-            m_helpLabel->setText(QObject::tr("Valid Inputs: You can enter a local path or an address to a valid blocklist."));
+    {       
+            QString help = QObject::tr("Valid Inputs: You can enter a local path or an address to a valid blocklist.") + "\n";
+            help += QObject::tr("You can enter multiple items separated by ; or ,");
+            m_helpLabel->setText(help);
+            
             setWindowTitle("Add BlockLists");
             groupBox->setTitle("Add one or more BlockLists");
-            connect(m_browseButton, SIGNAL(clicked()), this, SLOT(addBlocklist()));
+            m_ConnectionGroup->hide();
+            m_ProtocolGroup->hide();
+            connect(m_browseButton, SIGNAL(clicked()), this, SLOT(selectLocalBlocklist()));
+            
+            //to test if the urls are at least working
+            m_manager = new QNetworkAccessManager(this);
+            connect(m_manager, SIGNAL(finished(QNetworkReply*)),
+                 this, SLOT(replyFinished(QNetworkReply*)));
+                 
+            m_notValidTreeWidget->header()->hideSection(1);
+            m_notValidTreeWidget->header()->hideSection(2);
+                 
+        connect(m_addEdit, SIGNAL(returnPressed()), this, SLOT(addBlocklist()));
+        connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(addBlocklist()));
+            
     }
     
+
     /*else if ( mode == (EDIT_MODE | EXCEPTION_MODE) )
     {
             m_exceptionTreeWidget->hide();
@@ -49,39 +78,56 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
     }*/
     
     this->mode = mode;
-    connect(m_addEdit, SIGNAL(returnPressed()), this, SLOT(addEntry()));
-    connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(addEntry()));
-    
+
     resize(width(), height()/2);
     groupBox_2->hide();
 }
 
 AddExceptionDialog::~AddExceptionDialog()
 {
+    if ( m_manager != NULL )
+        delete m_manager;
 }
 
-bool AddExceptionDialog::event( QEvent * event )
+void AddExceptionDialog::replyFinished(QNetworkReply* reply)
 {
-    if( event->type() == QEvent::Close )
-        qDebug() << "Close event!";
-    
-    /*if ( event->type() == QEvent::Hide || event->type() == QEvent::HideToParent || event->type() == QEvent::WindowDeactivate)
+    if ( reply->error() == QNetworkReply::NoError )
+        m_blocklists.push_back(reply->url().toString());
+    else
     {
-        event->ignore();
-        qDebug() << event->type();
-        return true;
-    }*/
-    //qDebug() << event->type();
-    QDialog::event(event);
+        QStringList info; info << reply->url().toString() << "" << "" << "Not a filepath neither a working URL to a blocklist";
+        QTreeWidgetItem *item = new QTreeWidgetItem(m_notValidTreeWidget, info);
+        qDebug() << item->text(4);
+        m_notValidTreeWidget->addTopLevelItem(item);
+        
+        if ( ! groupBox_2->isVisible() )
+        {
+            groupBox_2->setVisible(true);
+            m_notValidTreeWidget->setMinimumSize(m_notValidTreeWidget->width(), m_notValidTreeWidget->topLevelItemCount()*17 + 17);
+        }
+    }
     
+    if ( m_urls.contains(reply->url()))
+        m_urls.removeOne(reply->url());
     
+    //If we searched all urls and there is no errors, emit the accept signal
+    if ( m_urls.size() == 0 && m_notValidTreeWidget->topLevelItemCount() == 0)
+        emit(accept());
 }
 
-
-void AddExceptionDialog::addBlocklist()
+void AddExceptionDialog::selectLocalBlocklist()
 {
-    QStringList files = selectFiles(this);
-    m_addEdit->setText(files.join(QString(" , ")));
+    QString filter;
+    filter += "All Supported files  (*.p2p *.gz *.7z *.zip *.dat );;";
+    filter += "P2P (*.p2p);;Zip (*.zip);; 7z (*.7z);;Gzip (*.gz);;Dat (*.dat)";
+    
+    QStringList files = selectFiles(this, filter);
+    
+    QString text = m_addEdit->text();
+    text += files.join(QString(", "));
+    if ( files.size() == 1 )
+        text += ", ";
+    m_addEdit->setText(text);
 }
 
 bool AddExceptionDialog::isValidException(QString& text)
@@ -96,10 +142,9 @@ bool AddExceptionDialog::isValidException(QString& text)
 
 bool AddExceptionDialog::isValidBlocklist(QString& text)
 {
-    //FIXME: Needs to check the file extension
-    if ( QFile::exists(text) )
-        return true;
-    //FIXME: Needs to test if is an URL and if it's valid
+    //Don't check for file extension, for now, although this may change in the future.
+
+    return false;
 }
 
 bool AddExceptionDialog::isNew(WhitelistItem& whiteItem)
@@ -167,6 +212,55 @@ QStringList AddExceptionDialog::getProtocols(bool isIp)
     return protocols;
 }
 
+void AddExceptionDialog::addBlocklist()
+{   
+    QString text = m_addEdit->text();
+    QStringList params = getParams(text);
+    
+    m_notValidTreeWidget->clear();
+    m_urls.clear();
+    
+    foreach(QString param, params)
+    {
+        param = param.trimmed();
+        
+        if ( param.isEmpty() )
+            continue;
+        
+        //If Blocklist window
+        if ( QFile::exists(param) )
+            m_blocklists.push_back(param);
+        else
+        {
+            //we save each possible url in a QList to test it later on
+            QUrl url = QUrl(param);
+            m_urls.push_back(url);
+        }
+    }
+    
+    if ( m_urls.isEmpty() )
+        emit(accept());
+    else  
+        //test each url to see if, at least, is a working URL
+        foreach( QUrl url, m_urls )
+            m_manager->get(QNetworkRequest(url));
+}
+
+QStringList AddExceptionDialog::getParams(QString& text)
+{
+    
+    QStringList params;
+    
+    if ( text.indexOf(',') != -1)
+        params = text.split(',');
+    else if ( text.indexOf(';') != -1 )
+        params = text.split(',');
+    else 
+        params << text;
+        
+    return params;
+}
+
 void AddExceptionDialog::addEntry()
 {
     if ( m_addEdit->text().isEmpty() )
@@ -186,19 +280,18 @@ void AddExceptionDialog::addEntry()
     bool port = false;
     QString protocol, comboText;
     
-    if ( text.indexOf(',') != -1)
-        params = text.split(',');
-    else if ( text.indexOf(';') != -1 )
-        params = text.split(',');
-    else 
-        params << text;
-        
+    
+    params = getParams(text);
+    
     foreach(QString param, params)
     {
         param = param.trimmed();
 
+        if ( param.isEmpty() )
+            continue;
+
         //If Exception window
-        if ( mode == ADD_MODE | EXCEPTION_MODE )
+        if ( mode == (ADD_MODE | EXCEPTION_MODE) )
         {
             if ( isPort(param) )
                 ip = false;
@@ -219,18 +312,7 @@ void AddExceptionDialog::addEntry()
                 errors[param] = "This item is already on the main list";
                 valueIsIp[param] = ip;
             }    
-
         }
-        //If Blocklist window
-        else if ( mode == ADD_MODE | BLOCKLIST_MODE )
-        {
-            //FIXME: Needs to be updated to work with the current code
-            if ( isValidBlocklist(param) )
-                values << param;
-            else
-                errors[param] = "Not a filepath neither a URL to a valid blocklist";
-        }
-        
     }
     
     m_notValidTreeWidget->clear();
@@ -240,10 +322,7 @@ void AddExceptionDialog::addEntry()
          QStringList connections, protocols;
         
         if ( ! groupBox_2->isVisible() )
-        {
             groupBox_2->setVisible(true);
-            //resize(width(), height() * 2);
-        }
         
         connections = getConnections();
         

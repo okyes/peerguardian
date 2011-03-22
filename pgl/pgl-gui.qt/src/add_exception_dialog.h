@@ -16,6 +16,8 @@
 #include <QKeyEvent>
 #include <QObject>
 #include <QList>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 #include "ui_add_exception.h"
 #include "pgl_whitelist.h"
@@ -36,6 +38,10 @@ class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
     QList<WhitelistItem> m_NewItems;
     QList<WhitelistItem> m_Items;
     int mode;
+    QStringList m_validExtensions;
+    QNetworkAccessManager *m_manager;
+    QList<QUrl> m_urls;
+    QStringList m_blocklists;
 	
 	public:
         AddExceptionDialog(QWidget *p = 0, int mode=0);
@@ -48,18 +54,21 @@ class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
         bool isValidBlocklist(QString&);
         bool isValidException(QString&);
         QList<WhitelistItem> getItems(){ return m_NewItems; }
+        QStringList getBlocklists() { return m_blocklists; }
         bool isNew(WhitelistItem& whiteItem);
         QList<WhitelistItem> getWhitelistItems(QString&, bool);
         QStringList getConnections();
         QStringList getProtocols(bool);
+        QStringList getParams(QString& text);
         
     public slots:
         void addEntry();
+        void selectLocalBlocklist();
+        void replyFinished(QNetworkReply* reply);
         void addBlocklist();
     
     protected:
         void keyPressEvent ( QKeyEvent * e );
-        bool event ( QEvent * event );
         
 };
 
