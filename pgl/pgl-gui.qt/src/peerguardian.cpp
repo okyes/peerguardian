@@ -118,6 +118,7 @@ void Peerguardian::g_MakeConnections()
         connect( m_startPglButton, SIGNAL( clicked() ), m_Control, SLOT( start() ) );
         connect( m_stopPglButton, SIGNAL( clicked() ), m_Control, SLOT( stop() ) );
         connect( m_restartPglButton, SIGNAL( clicked() ), m_Control, SLOT( restart() ) );
+        connect( m_updatePglButton, SIGNAL( clicked() ), m_Control, SLOT( update() ) );
     }
         
     connect( m_MediumTimer, SIGNAL( timeout() ), this, SLOT( g_UpdateDaemonStatus() ) );
