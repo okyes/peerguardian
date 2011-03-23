@@ -124,7 +124,7 @@ QString PglWhitelist::getTypeAsString(QString& key)
 QString PglWhitelist::getGroup(QStringList& info)
 {
     /*info should contain the value (a port or an ip address) and the connection type (in, out or fwd)*/
-    if ( info.size() != 2 )
+    if ( info.size() != 3 )
         return "";
         
     QMap<QString, QString> connection;
@@ -161,11 +161,10 @@ void PglWhitelist::updateWhitelistFile()
             newData << line;
             continue;
         }
-        
-        foreach(QString key, m_WhitelistEnabled.keys())
-            if ( line.contains( key ) )
-                newData << key + "=\"" + m_WhitelistEnabled[key].join(" ") + "\""; 
     }
+    
+    foreach(QString key, m_WhitelistEnabled.keys())
+            newData << key + "=\"" + m_WhitelistEnabled[key].join(" ") + "\"";
     
     QString filepath = "/tmp/" + m_WhitelistFile.split("/").last();
     saveFileData(newData, filepath);
@@ -197,6 +196,7 @@ void PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
         info << treeItem->text(0) << treeItem->text(1) << treeItem->text(2);
         
         group = getGroup(info);
+        qDebug() << info;
         if ( m_Group.contains(group) )
             m_WhitelistEnabled[group] << treeItem->text(0);
         
