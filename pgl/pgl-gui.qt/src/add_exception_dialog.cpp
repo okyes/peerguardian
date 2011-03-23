@@ -262,6 +262,7 @@ QStringList AddExceptionDialog::getParams(QString& text)
 }
 
 void AddExceptionDialog::addEntry()
+//Used by exception (whitelist) window
 {
     if ( m_addEdit->text().isEmpty() )
         return;
@@ -286,33 +287,29 @@ void AddExceptionDialog::addEntry()
     foreach(QString param, params)
     {
         param = param.trimmed();
-
+        
         if ( param.isEmpty() )
             continue;
 
-        //If Exception window
-        if ( mode == (ADD_MODE | EXCEPTION_MODE) )
+        if ( isPort(param) )
+            ip = false;
+        else if ( isValidIp(param ) )
+            ip = true;
+        else
         {
-            if ( isPort(param) )
-                ip = false;
-            else if ( isValidIp(param ) )
-                ip = true;
-            else
-            {
-                errors[param] = "Not a valid IP address nor a Port";
-                valueIsIp[param] = ip;
-                continue;
-            }
-            
-            newItems = getWhitelistItems(param, ip);
-            
-            //it could be a valid item but already on main list
-            if ( newItems.isEmpty() )
-            {
-                errors[param] = "This item is already on the main list";
-                valueIsIp[param] = ip;
-            }    
+            errors[param] = "Not a valid IP address nor a Port";
+            valueIsIp[param] = ip;
+            continue;
         }
+        
+        newItems += getWhitelistItems(param, ip);
+        
+        //it could be a valid item but already on main list
+        if ( newItems.isEmpty() )
+        {
+            errors[param] = "This item is already on the main list";
+            valueIsIp[param] = ip;
+        }    
     }
     
     m_notValidTreeWidget->clear();
@@ -342,7 +339,7 @@ void AddExceptionDialog::addEntry()
     }
     else
     {
-        m_NewItems += newItems;
+        m_NewItems = newItems;
         emit( accept() );
     }        
     
