@@ -153,6 +153,7 @@ void PglWhitelist::updateWhitelistFile()
 
     QStringList fileData = getFileData(m_WhitelistFile);
     QStringList newData;
+    QString containsGroup = false;
     
     foreach(QString line, fileData)
     {
@@ -161,6 +162,19 @@ void PglWhitelist::updateWhitelistFile()
             newData << line;
             continue;
         }
+        
+        containsGroup = false;
+        
+        foreach(QString key, m_WhitelistEnabled.keys())
+            if ( line.contains(key) )
+            {
+                containsGroup = true;
+                break;
+            }
+                
+        if ( ! containsGroup ) 
+            newData << line;
+                
     }
     
     foreach(QString key, m_WhitelistEnabled.keys())
