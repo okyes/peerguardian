@@ -144,6 +144,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     QList<bool> m_NewBlocklistItems;
     bool m_WhitelistItemPressed;
     bool m_BlocklistItemPressed;
+    bool m_treeItemPressed;
     
 	public:
 		/**
@@ -182,10 +183,8 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void g_UpdateDaemonStatus();
         void switchButtons();
         void addLogItem( LogItem item );
-        void whitelistItemChanged(QTreeWidgetItem*, int);
-        void blocklistItemChanged(QTreeWidgetItem*, int);
-        inline void whitelistItemPressed(QTreeWidgetItem* item, int column){ m_WhitelistItemPressed = true; }
-        inline void blocklistItemPressed(QTreeWidgetItem* item, int column){ m_BlocklistItemPressed = true; }
+        void treeItemChanged(QTreeWidgetItem*, int);
+        void treeItemPressed(QTreeWidgetItem* item, int column){ m_treeItemPressed = true; }
         void applyChanges();
 
 };	

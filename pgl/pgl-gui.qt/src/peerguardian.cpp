@@ -21,7 +21,7 @@ Peerguardian::Peerguardian( QWidget *parent ) :
     g_MakeMenus();
     updateInfo();
     
-    m_BlocklistItemPressed = false;
+    m_treeItemPressed = false;
     
 	/*
 	//Restore the window's previous state
@@ -129,10 +129,10 @@ void Peerguardian::g_MakeConnections()
 	connect( m_Control, SIGNAL( finished() ), this, SLOT( switchButtons() ) );
 	
 	//Blocklist and Whitelist Tree Widgets
-	connect(m_WhitelistTreeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(whitelistItemChanged(QTreeWidgetItem*, int)));
-	connect(m_BlocklistTreeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(blocklistItemChanged(QTreeWidgetItem*, int)));
-	connect(m_WhitelistTreeWidget, SIGNAL(itemPressed(QTreeWidgetItem*, int)), this, SLOT(whitelistItemPressed(QTreeWidgetItem*, int)));
-	connect(m_BlocklistTreeWidget, SIGNAL(itemPressed(QTreeWidgetItem*, int)), this, SLOT(blocklistItemPressed(QTreeWidgetItem*, int)));	
+	connect(m_WhitelistTreeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(treeItemChanged(QTreeWidgetItem*, int)));
+	connect(m_BlocklistTreeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(treeItemChanged(QTreeWidgetItem*, int)));
+	connect(m_WhitelistTreeWidget, SIGNAL(itemPressed(QTreeWidgetItem*, int)), this, SLOT(treeItemPressed(QTreeWidgetItem*, int)));
+	connect(m_BlocklistTreeWidget, SIGNAL(itemPressed(QTreeWidgetItem*, int)), this, SLOT(treeItemPressed(QTreeWidgetItem*, int)));	
 	
 	connect(m_ApplyButton, SIGNAL(clicked()), this, SLOT(applyChanges()));
 }
@@ -144,7 +144,8 @@ void Peerguardian::applyChanges()
 	m_Whitelist->update(getTreeItems(m_WhitelistTreeWidget));
     QString filepath = "/tmp/" + m_Whitelist->getWhitelistFile().split("/").last();
     if ( QFile::exists(filepath ) )
-        m_Root->moveFile(filepath, m_Whitelist->getWhitelistFile() );
+        m_Root->copyFile(filepath, m_Whitelist->getWhitelistFile() );
+        
 	m_ApplyButton->setEnabled(false);
 }
 
@@ -159,29 +160,43 @@ QList<QTreeWidgetItem*> Peerguardian::getTreeItems(QTreeWidget *tree, int checkS
 	return items;
 }
 
-void Peerguardian::whitelistItemChanged(QTreeWidgetItem* item, int column)
-{
-	if ( ! m_WhitelistItemPressed )
-		return;
-		
-	int index = m_WhitelistTreeWidget->indexOfTopLevelItem(item);
-	if ( m_WhitelistInicialState[index] != item->checkState(0) )
-		m_ApplyButton->setEnabled(true);
-		
-	m_WhitelistItemPressed = false;
-}
 
-void Peerguardian::blocklistItemChanged(QTreeWidgetItem* item, int column)
+void Peerguardian::treeItemChanged(QTreeWidgetItem* item, int column)
 {
-	if ( ! m_BlocklistItemPressed ) 
+	if ( ! m_treeItemPressed ) 
 		return;
+        
+    QTreeWidget * treeWidget = item->treeWidget();
+    int index = treeWidget->indexOfTopLevelItem(item);
+    QList<int> inicialState;
+    
+    if (treeWidget == m_WhitelistTreeWidget )
+        inicialState = m_WhitelistInicialState;
+    else
+        inicialState = m_BlocklistInicialState;
+    
 	
-	int index = m_BlocklistTreeWidget->indexOfTopLevelItem(item);
-	
-	if ( m_BlocklistInicialState[index] != item->checkState(0) )
+	if ( inicialState[index] != item->checkState(0) )
 		m_ApplyButton->setEnabled(true);
-	
-	m_BlocklistItemPressed = false;
+    else
+    {
+        QList<QTreeWidgetItem*> items = getTreeItems(treeWidget);
+        bool changed = false;
+        
+        foreach(QTreeWidgetItem *item, items)
+        {
+            index =  treeWidget->indexOfTopLevelItem(item);
+            if ( inicialState[index] != item->checkState(0) )
+            {
+                changed = true;
+                break;
+            }
+        }
+        
+        m_ApplyButton->setEnabled(changed);
+    }
+
+    m_treeItemPressed = false;
 }
 
 void Peerguardian::getLists()
