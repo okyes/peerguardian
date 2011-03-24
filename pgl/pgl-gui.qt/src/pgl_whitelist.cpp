@@ -153,7 +153,7 @@ void PglWhitelist::updateWhitelistFile()
 
     QStringList fileData = getFileData(m_WhitelistFile);
     QStringList newData;
-    QString containsGroup = false;
+    bool containsGroup = false;
     
     foreach(QString line, fileData)
     {
