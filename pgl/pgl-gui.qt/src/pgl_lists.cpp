@@ -68,10 +68,13 @@ bool ListItem::isValidBlockList(const QString & line)
 
 QString ListItem::getListName(const QString& line)
 {
+    if ( line.contains("list.iblocklist.com/lists/") )
+        return line.split("list.iblocklist.com/lists/").last();
+        
     if ( line.contains("/") )
         return line.split("/").last();
-    else
-        return line;
+    
+    return line;
 }
 
 bool ListItem::isDisabled() {
