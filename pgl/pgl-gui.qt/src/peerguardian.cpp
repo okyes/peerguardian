@@ -1,10 +1,12 @@
  
 #include <QDebug>
 #include <QMultiMap>
+#include <QHash>
+
 
 #include "peerguardian.h"
 #include "file_transactions.h"
-
+#include "utils.h"
 
 Peerguardian::Peerguardian( QWidget *parent ) :
 	QMainWindow( parent ) 
@@ -145,7 +147,41 @@ void Peerguardian::applyChanges()
     QString filepath = "/tmp/" + m_Whitelist->getWhitelistFile().split("/").last();
     if ( QFile::exists(filepath ) )
         m_Root->copyFile(filepath, m_Whitelist->getWhitelistFile() );
+    
+    //update /etc/pgl/blocklists.list
+    m_List->update(getTreeItems(m_BlocklistTreeWidget));
+    filepath = "/tmp/" + m_List->getListPath().split("/").last();    
+    if ( QFile::exists(filepath) ) //update the blocklists.list file
+        m_Root->copyFile( filepath, m_List->getListPath() );
+    
+    //manage the local blocklists
+    QHash<QString, bool> localFiles = m_List->getLocalLists();
+    QString masterBlocklistDir = m_List->getMasterBlocklistDir();
+    
+    foreach(QString filepath, localFiles.keys())
+    {
+        //if local blocklist is active
+        if( localFiles[filepath] )
+        {
+            QString symFilepath = "/tmp/" + filepath.split("/").last();
+            
+            //if symlink to the file doesn't exist, create it
+            if ( ! isPointingTo(masterBlocklistDir, filepath) )
+            {
+                QFile::link(filepath, symFilepath);
+                m_Root->copyFile(symFilepath, masterBlocklistDir);
+            }
+        }
+        else
+        {
+            QString symFilepath = getPointer(masterBlocklistDir, filepath);           
         
+            if ( ! symFilepath.isEmpty() ) //if symlink exists, delete it
+                m_Root->removeFile(symFilepath);
+        }
+    }
+    
+    
 	m_ApplyButton->setEnabled(false);
 }
 
@@ -209,7 +245,7 @@ void Peerguardian::getLists()
     //get information about the blocklists being used
     foreach(ListItem* log_item, m_List->getValidItems())
     {
-        item_info << log_item->name();
+        item_info << log_item->name() << log_item->location();
         
         QTreeWidgetItem * tree_item = new QTreeWidgetItem(m_BlocklistTreeWidget, item_info);
         
@@ -381,6 +417,8 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
             treeItem->setCheckState(0, Qt::Checked);
             m_WhitelistTreeWidget->addTopLevelItem(treeItem);
             newItems = true;
+            
+            m_WhitelistInicialState.push_back(treeItem->checkState(0));
         }
                      
 	}		
@@ -402,11 +440,14 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
             QTreeWidgetItem * treeItem = new QTreeWidgetItem(m_BlocklistTreeWidget, info);
             treeItem->setCheckState(0, Qt::Checked);
             m_BlocklistTreeWidget->addTopLevelItem(treeItem);
+            m_BlocklistInicialState.push_back(treeItem->checkState(0));
+            
             newItems = true;
+            
+            qDebug() << blocklist;
         }
         
         m_BlocklistTreeWidget->scrollToBottom();
-    
     }
     
     if ( newItems )
