@@ -37,7 +37,7 @@
 #define KDESU "kdesu"
 #define GKSU "gksu"
 
-#define TEST_FILE_PATH "/etc/pgl/pglcmd.conf"
+#define TEST_FILE_PATH "/etc/pgl/blocklists.list"
 
 /**
 *

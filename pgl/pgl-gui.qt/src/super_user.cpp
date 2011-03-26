@@ -96,14 +96,14 @@ void SuperUser::execute( const QStringList &command ) {
 		return;
 	}
 
-
 	//Check if mobloquer was started with root privilleges
 	QFileInfo test( m_TestFile );
 	if ( !test.exists() ) {
 		qDebug() << Q_FUNC_INFO << "Could not use test file" << m_TestFile << "as it does not exist.";
 	}
 	if ( test.isReadable() && test.isWritable() ) { //If the program is run by root
-		QString cmd = command.first();
+		qDebug() << "readable: " <<  test.isReadable() << "writable:" <<  test.isWritable();
+        QString cmd = command.first();
 		QStringList newCommand = command;
 		newCommand.removeFirst();
 		qDebug() << cmd << newCommand;
