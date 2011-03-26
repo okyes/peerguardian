@@ -25,6 +25,9 @@
 #include <QString>
 #include <QStringList>
 #include <QDebug>
+#include <QTreeWidgetItem>
+#include <QFileInfo>
+#include <QHash>
 
 #include "file_transactions.h"
 
@@ -235,13 +238,17 @@ class PeerguardianList {
     
         static QString getFilePath();
         static QString getFilePath(const QString &path);
-        
+        void update(QList<QTreeWidgetItem*>);
+        QHash<QString, bool> getLocalLists(){ return m_localLists; }
+        QString getMasterBlocklistDir(){ return m_masterBlocklistDir; }
         
 
 	private:
 		int indexOfName( const QString &name );
 		QVector< ListItem > m_ListsFile;
 		QString m_FileName;
+        QHash<QString, bool> m_localLists;
+        QString m_masterBlocklistDir;
 
 };
 

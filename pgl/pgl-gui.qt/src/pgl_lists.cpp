@@ -20,6 +20,7 @@
 
 #include "pgl_lists.h"
 #include "utils.h"
+#include "pgl_settings.h"
 
 
 ListItem::ListItem( const QString &itemRawLine ) {
@@ -38,6 +39,7 @@ ListItem::ListItem( const QString &itemRawLine ) {
         {
             mode = DISABLED_ITEM;
             m_Name = getListName(itemLine);
+            m_Location = itemLine.split("#")[1];
         }
         else
             mode = COMMENT_ITEM;
@@ -46,6 +48,7 @@ ListItem::ListItem( const QString &itemRawLine ) {
     {
         mode = ENABLED_ITEM;
         m_Name = getListName(itemLine);
+        m_Location = itemLine;
     }
 
 }
@@ -126,6 +129,7 @@ PeerguardianList::PeerguardianList( const QString &path )
 {
 
     setFilePath(path, true);
+    m_masterBlocklistDir = getVariable(PGLCMD_DEFAULTS_PATH, "MASTER_BLOCKLIST_DIR") + "/";
     
 }
 
@@ -333,6 +337,54 @@ QVector< ListItem * >  PeerguardianList::getEnabledItems()
 QVector< ListItem * >  PeerguardianList::getDisabledItems()
 {
     return getItems(DISABLED_ITEM);
+}
+
+void PeerguardianList::update(QList<QTreeWidgetItem*> treeItems)
+{
+    
+    QStringList fileData = getFileData(m_FileName);
+    QStringList newFileData;
+    QString line;
+    bool state;
+    
+    m_localLists.clear();
+    
+    foreach(QString line, fileData)
+    {
+        ListItem listItem = ListItem(line);
+        
+        if ( listItem.mode == COMMENT_ITEM )
+            newFileData << line;
+    }
+    
+    
+    foreach(QTreeWidgetItem * treeItem, treeItems)
+    {
+        //if it's a filepath
+        if ( QFile::exists( treeItem->text(1) ) )
+        {
+            state = true;
+            if ( treeItem->checkState(0) == Qt::Unchecked )
+                state = false;
+            
+            m_localLists.insert(treeItem->text(1), state);
+            
+        }
+        else //if it's an URL
+        {
+            if ( treeItem->checkState(0) == Qt::Unchecked )
+                line = "# ";
+        
+            line += treeItem->text(1);
+            
+            newFileData << line;
+            
+            line.clear();
+        }
+    }
+
+    QString filepath = "/tmp/" + m_FileName.split("/").last();
+    saveFileData(newFileData, filepath);
 }
 
 /*** Static methods ***/
