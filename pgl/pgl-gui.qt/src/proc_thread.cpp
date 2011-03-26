@@ -55,6 +55,8 @@ void ProcessT::run() {
 	
 	m_Output = proc.readAll().trimmed();
 
+    qDebug() << m_Output;
+
 	emit commandOutput( m_Output );
 	qDebug() << Q_FUNC_INFO << "Command execution finished.";	
 
@@ -77,13 +79,12 @@ void ProcessT::execute( const QString &name, const QStringList &args, const QPro
 
 	setCommand( name, args, mode );
 	
-	if ( !isRunning() ) {
+    qDebug() << isRunning();
+    
+	if ( ! isRunning() ) 
 		start();
-	}
-	else {
+	else 
 		qWarning() << Q_FUNC_INFO << "Thread already running, doing nothing.";
-		return;
-	}
 
 }
 
