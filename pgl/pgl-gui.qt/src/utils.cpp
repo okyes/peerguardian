@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QMap>
 #include <QVariant>
+#include <QDir>
 
 QString getValidPath(const QString &path, const QString &defaultPath )
 {
@@ -156,4 +157,29 @@ bool isPort(const QString & p )
         return true;
     
     return false;
+}
+
+QFileInfoList getFilesInfo(QString & dir)
+{
+    QDir directory(dir);
+    
+    return directory.entryInfoList(QDir::Files);
+}
+
+QString getPointer(QString & dir, QString & filepathPointed)
+{
+    foreach(QFileInfo fileInfo, getFilesInfo(dir) )
+        if ( fileInfo.isSymLink() )
+            if ( fileInfo.symLinkTarget() == filepathPointed )
+                return fileInfo.absoluteFilePath();
+    
+    return "";
+}
+
+bool isPointingTo(QString & dir, QString & filepathPointed)
+{
+        if ( ! getPointer(dir, filepathPointed).isEmpty() )
+            return true;
+        
+        return false;
 }
