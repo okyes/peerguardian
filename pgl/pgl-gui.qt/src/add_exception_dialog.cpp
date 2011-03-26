@@ -51,6 +51,8 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
             groupBox->setTitle("Add one or more BlockLists");
             m_ConnectionGroup->hide();
             m_ProtocolGroup->hide();
+            m_ipRadio->hide();
+            m_portRadio->hide();
             connect(m_browseButton, SIGNAL(clicked()), this, SLOT(selectLocalBlocklist()));
             
             //to test if the urls are at least working
@@ -60,6 +62,7 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
                  
             m_notValidTreeWidget->header()->hideSection(1);
             m_notValidTreeWidget->header()->hideSection(2);
+            
                  
         connect(m_addEdit, SIGNAL(returnPressed()), this, SLOT(addBlocklist()));
         connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(addBlocklist()));
