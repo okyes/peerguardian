@@ -617,7 +617,7 @@
              </sizepolicy>
             </property>
             <property name="title">
-             <string>BlockLists</string>
+             <string>Blocklists</string>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_5">
              <item>
@@ -817,7 +817,7 @@
      <x>0</x>
      <y>0</y>
      <width>642</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
