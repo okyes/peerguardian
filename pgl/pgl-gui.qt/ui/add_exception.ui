@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>513</width>
-    <height>444</height>
+    <height>458</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -63,6 +63,30 @@
           </property>
           <property name="text">
            <string>Browse</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="QRadioButton" name="m_portRadio">
+          <property name="text">
+           <string>Port</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="m_ipRadio">
+          <property name="text">
+           <string>IP</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -268,6 +292,38 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_ipRadio</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_ProtocolGroup</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>48</x>
+     <y>99</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>418</x>
+     <y>173</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>m_portRadio</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_ProtocolGroup</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>107</x>
+     <y>99</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>418</x>
+     <y>173</y>
     </hint>
    </hints>
   </connection>
