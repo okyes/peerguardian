@@ -22,26 +22,37 @@
 #include "utils.h"
 
 
-QString SuperUser::m_TestFile = TEST_FILE_PATH;
-
 QString SuperUser::m_SudoCmd = "";
 
-SuperUser::SuperUser( QObject *parent ) :
-	ProcessT( parent )
+
+
+SuperUser::SuperUser( QObject *parent ):
+    QObject(parent)
 {
+    m_parent = parent;
 }
 
-SuperUser::SuperUser( QString& rootpath,  QObject *parent ) :
-	ProcessT( parent )
+SuperUser::SuperUser( QString& rootpath,  QObject *parent ):
+    QObject(parent)
 {
     setRootPath(rootpath, true);
+    m_parent = parent;
 }
 
 SuperUser::~SuperUser() {
 
 	QSettings tempSettings;
 	tempSettings.setValue( "paths/super_user", m_SudoCmd );
-
+    
+    foreach(ProcessT *t, m_threads)
+    {
+        if ( t->isRunning() )
+        {
+            t->quit();
+            t->wait();
+        }
+        t->deleteLater();
+    }
 }
 
 void SuperUser::setRootPath(QString& path, bool verified)
@@ -58,64 +69,83 @@ QString SuperUser::getRootPath()
 }
 
 void SuperUser::setFilePath( const QString &path ) {
+    
 
-
-	if ( !path.isEmpty() ) {
-		if ( QFile::exists( path ) ) {
+	if ( !path.isEmpty() ) 
+    {
+		if ( QFile::exists( path ) ) 
 			m_SudoCmd = path;
-		}
-		else {
+		else 
 			qCritical() << Q_FUNC_INFO << "Could not set sudo front-end path to:" << path << "as the file does not exist.";
-		}
+
 	}
-	else {
+	else 
 		qCritical() << Q_FUNC_INFO <<  "Could not change sudo front-end's path. Empty path given.";
-	}
-
-		
-
+	
 }
 	
 
-void SuperUser::setTestFile( const QString &path ) {
-
-	if ( QFile::exists( path ) ) {
-		m_TestFile = path;
-	}
-	else {
-		qDebug() << Q_FUNC_INFO << "Could not set SuperUser test file to:" << path << "as this file does not exist.";
-	}
-
-}
-	
 
 void SuperUser::execute( const QStringList &command ) {
 
-	if ( m_SudoCmd.isEmpty() ) {
+	if ( m_SudoCmd.isEmpty() ) 
+    {
 		qCritical() << Q_FUNC_INFO << "Could not use either kdesu or gksu to execute the command requested.\nIf neither of those executables exist in /usr/bin/ you can set the path of the one you prefer in mobloquer's configuration file, usually found in ~/.config/mobloquer/mobloquer.conf.\nThe path can be changed by changing the value of the super_user key, or creating a new one if it doesn't already exist.";
 		return;
 	}
+    
+    QString firstCmd = m_SudoCmd;
+    QStringList newCommands = command;
 
-	//Check if mobloquer was started with root privilleges
-	QFileInfo test( m_TestFile );
-	if ( !test.exists() ) {
-		qDebug() << Q_FUNC_INFO << "Could not use test file" << m_TestFile << "as it does not exist.";
-	}
-	if ( test.isReadable() && test.isWritable() ) { //If the program is run by root
-		qDebug() << "readable: " <<  test.isReadable() << "writable:" <<  test.isWritable();
-        QString cmd = command.first();
-		QStringList newCommand = command;
-		newCommand.removeFirst();
-		qDebug() << cmd << newCommand;
-		ProcessT::execute( cmd, newCommand, QProcess::MergedChannels );
-		return; 
+	if ( hasPermissions("/etc") ) //If the program is run by root
+    { 
+        if ( ! newCommands.isEmpty() )
+        {
+            firstCmd = newCommands.first();
+            newCommands.removeFirst();
+        }
 	}
 
-	ProcessT::execute( m_SudoCmd, command, QProcess::MergedChannels );
-
-	return; 
+	startThread( firstCmd, newCommands, QProcess::MergedChannels );
 
 }
+
+void SuperUser::startThread(const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode )
+{
+    //Although it could use several ProcessT instances at the same time,
+    //the way it works now will only allow to have one ProcessT instance at a time,
+    //because if we had several, each one of them would pop-up a dialog asking for
+    //the root password and that would be very annoying to the user.
+    
+    bool executing = false;
+    qDebug() << "start thread";
+    foreach(ProcessT *t, m_threads)
+    {
+        if ( t->isFinished() )
+        {
+            t->execute(name, args, mode);
+            executing = true;
+            break;
+        }
+    }
+    
+    if ( ! executing )
+    {
+        ProcessT *t = new ProcessT(m_parent);
+        m_threads.push_back(t);
+        t->execute(name, args, mode);
+        connect(t, SIGNAL(finished()), this, SLOT(processFinished()));
+    }
+    
+    
+}
+
+void SuperUser::processFinished()
+{
+    if ( ! m_filesToMove.isEmpty() )
+        moveFiles(m_filesToMove);
+}
+    
 
 void SuperUser::moveFile( const QString &source, const QString &dest ) {
 
@@ -126,13 +156,28 @@ void SuperUser::moveFile( const QString &source, const QString &dest ) {
 void SuperUser::copyFile( const QString &source, const QString &dest ) {
 
 	execute( QStringList() << "cp" << source << dest );
-
+    
 }
 
 void SuperUser::removeFile( const QString &source ) {
-
 	moveFile( source, "/dev/null" );
+}
 
+
+void SuperUser::moveFiles( const QMap<QString, QString> files ) 
+{
+    if ( ! files.isEmpty() )
+    {
+        if ( m_filesToMove.isEmpty() )
+            m_filesToMove = files;
+            
+        QString source = m_filesToMove.keys()[0];
+        QString dest =  m_filesToMove[source];
+        m_filesToMove.remove(source);
+        
+        execute( QStringList() << "mv" << source << dest );
+    }
+    
 }
 
 /*** Static methods ***/
@@ -152,3 +197,6 @@ QString SuperUser::getFilePath(const QString &path)
     return p;
 }
 
+
+
+ 
