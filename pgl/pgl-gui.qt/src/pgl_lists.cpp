@@ -317,6 +317,18 @@ QVector< ListItem * > PeerguardianList::getValidItems() {
     
     return result;
 }
+
+QFileInfoList PeerguardianList::getLocalBlocklists()
+{
+    QFileInfoList localBlocklists;
+    QDir defaultDir (m_masterBlocklistDir);
+    
+    foreach(QFileInfo fileInfo, defaultDir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files) )
+        if ( fileInfo.isSymLink() )
+            localBlocklists << QFileInfo(fileInfo.symLinkTarget());
+    
+    return localBlocklists;
+}
     
 bool PeerguardianList::exportToFile( const QString &filename ) {
 

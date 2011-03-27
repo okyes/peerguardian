@@ -241,6 +241,7 @@ class PeerguardianList {
         void update(QList<QTreeWidgetItem*>);
         QHash<QString, bool> getLocalLists(){ return m_localLists; }
         QString getMasterBlocklistDir(){ return m_masterBlocklistDir; }
+        QFileInfoList getLocalBlocklists();
         
 
 	private:
