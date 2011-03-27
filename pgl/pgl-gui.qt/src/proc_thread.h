@@ -48,6 +48,7 @@ class ProcessT : public QThread {
 		 * @param parent The QObject parent of this object.
 		 */
 		ProcessT( QObject *parent = 0 );
+        ProcessT(ProcessT const& other) { *this = other; }
 		/**
 		 * Destructor.
 		 */
@@ -72,6 +73,8 @@ class ProcessT : public QThread {
 		 * @param mode The process channel modes of the command which will be executed.
 		 */
 		void execute( const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels );
+        
+        void operator=(const ProcessT& p){ *this = p;}
 
 	signals:
 		/**

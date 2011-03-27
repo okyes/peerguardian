@@ -24,11 +24,9 @@
 ProcessT::ProcessT( QObject *parent ) :
 	QThread( parent )
 {
-
-
 	m_ChanMode = QProcess::SeparateChannels;
-
 }
+
 
 ProcessT::~ProcessT() {
 
@@ -78,8 +76,6 @@ void ProcessT::setCommand( const QString &name, const QStringList &args, const Q
 void ProcessT::execute( const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode ) {
 
 	setCommand( name, args, mode );
-	
-    qDebug() << isRunning();
     
 	if ( ! isRunning() ) 
 		start();
