@@ -254,7 +254,7 @@ QString PeerguardianLog::getNewItem() const {
 	entry = tail.readAll().trimmed();
 	
 	if ( entry.isEmpty() ) {
-		qWarning() << Q_FUNC_INFO << "Failed to retreive data from" << m_LogPath;
+		//qWarning() << Q_FUNC_INFO << "Failed to retreive data from" << m_LogPath;
 		return QString();
 	}
 
