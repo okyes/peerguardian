@@ -90,6 +90,8 @@ void Peerguardian::startTimers()
 	m_SlowTimer = new QTimer;
 	m_SlowTimer->setInterval( m_ProgramSettings->value("settings/slow_timer", SLOW_TIMER_INTERVAL ).toInt() );
 	m_SlowTimer->start();
+    
+    
 }
 
 void Peerguardian::g_MakeConnections()
@@ -142,17 +144,21 @@ void Peerguardian::g_MakeConnections()
 
 void Peerguardian::applyChanges()
 {
+    QMap<QString, QString> filesToMove;
+
     //Update will generate /tmp/pglcmd.conf
 	m_Whitelist->update(getTreeItems(m_WhitelistTreeWidget));
     QString filepath = "/tmp/" + m_Whitelist->getWhitelistFile().split("/").last();
     if ( QFile::exists(filepath ) )
-        m_Root->copyFile(filepath, m_Whitelist->getWhitelistFile() );
+        filesToMove[filepath] = m_Whitelist->getWhitelistFile();
+        //m_Root->copyFile(filepath, m_Whitelist->getWhitelistFile() );
     
     //update /etc/pgl/blocklists.list
     m_List->update(getTreeItems(m_BlocklistTreeWidget));
     filepath = "/tmp/" + m_List->getListPath().split("/").last();    
     if ( QFile::exists(filepath) ) //update the blocklists.list file
-        m_Root->copyFile( filepath, m_List->getListPath() );
+        filesToMove[filepath] = m_List->getListPath();
+        //m_Root->moveFile( filepath, m_List->getListPath() );
     
     //manage the local blocklists
     QHash<QString, bool> localFiles = m_List->getLocalLists();
@@ -169,7 +175,8 @@ void Peerguardian::applyChanges()
             if ( ! isPointingTo(masterBlocklistDir, filepath) )
             {
                 QFile::link(filepath, symFilepath);
-                m_Root->copyFile(symFilepath, masterBlocklistDir);
+                filesToMove[symFilepath] = masterBlocklistDir;
+                //m_Root->moveFile(symFilepath, masterBlocklistDir);
             }
         }
         else
@@ -177,10 +184,12 @@ void Peerguardian::applyChanges()
             QString symFilepath = getPointer(masterBlocklistDir, filepath);           
         
             if ( ! symFilepath.isEmpty() ) //if symlink exists, delete it
-                m_Root->removeFile(symFilepath);
+                filesToMove[symFilepath] = "/dev/null"; //temporary hack
+                //m_Root->removeFile(symFilepath);
         }
     }
     
+    m_Root->moveFiles(filesToMove);
     
 	m_ApplyButton->setEnabled(false);
 }
@@ -246,7 +255,6 @@ void Peerguardian::getLists()
     foreach(ListItem* log_item, m_List->getValidItems())
     {
         item_info << log_item->name() << log_item->location();
-        
         QTreeWidgetItem * tree_item = new QTreeWidgetItem(m_BlocklistTreeWidget, item_info);
         
         if ( log_item->isEnabled() )
@@ -257,6 +265,16 @@ void Peerguardian::getLists()
         m_BlocklistTreeWidget->addTopLevelItem( tree_item );
         item_info.clear();
         
+        m_BlocklistInicialState.push_back(tree_item->checkState(0));
+    }
+    
+    //get local blocklists
+    foreach(QFileInfo blocklist, m_List->getLocalBlocklists())
+    {
+        item_info << blocklist.fileName() << blocklist.absoluteFilePath();
+        QTreeWidgetItem * tree_item = new QTreeWidgetItem(m_BlocklistTreeWidget, item_info);
+        tree_item->setCheckState(0, Qt::Checked);
+        item_info.clear();
         m_BlocklistInicialState.push_back(tree_item->checkState(0));
     }
     
