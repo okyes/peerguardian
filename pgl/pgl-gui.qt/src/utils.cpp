@@ -5,6 +5,7 @@
 #include <QMap>
 #include <QVariant>
 #include <QDir>
+#include <QDebug>
 
 QString getValidPath(const QString &path, const QString &defaultPath )
 {
@@ -163,7 +164,7 @@ QFileInfoList getFilesInfo(QString & dir)
 {
     QDir directory(dir);
     
-    return directory.entryInfoList(QDir::Files);
+    return directory.entryInfoList(QDir::NoDotAndDotDot | QDir::Files);
 }
 
 QString getPointer(QString & dir, QString & filepathPointed)
@@ -183,3 +184,68 @@ bool isPointingTo(QString & dir, QString & filepathPointed)
         
         return false;
 }
+
+QString getNewFileName(QString dir, const QString name)
+{
+    if ( dir.isEmpty() )
+        return dir;
+    
+    QDir directory(dir);
+    if ( ! directory.exists() )
+        return QString();
+        
+    
+    int counter = 0;
+    QString temp_name = name;
+    
+    while(1)
+    {
+        if ( ! directory.exists(temp_name) )
+            return dir + "/" + temp_name;
+        
+        counter++;
+        temp_name = name + "_" + QString::number(counter);
+    }
+    
+    return QString();
+    
+}
+
+bool hasPermissions(const QString & filepath)
+{
+    
+    if ( filepath.isEmpty() ) {
+		qWarning() << Q_FUNC_INFO << "Empty file path given, doing nothing";
+		return false;
+	}
+ 
+    QFileInfo fileInfo (filepath);
+    QString path = fileInfo.absolutePath() + "/";
+    QFile file(path + "test_file");
+    
+    qDebug() << file.fileName();
+    
+    if ( ! file.open( QIODevice::ReadWrite | QIODevice::Text ) ) {
+		qWarning() << Q_FUNC_INFO << "Could not read from file" << file.fileName();
+		return false;
+	}
+    
+    file.close();
+    
+    return true;
+}
+
+QString joinPath(const QString & dir, const QString & file)
+{
+    if ( dir.isEmpty() )
+        return file;
+    
+    QString directory = dir.trimmed();
+    
+    if (directory[directory.size()-1] != '/')
+        directory += "/";
+        
+    return directory + file;
+    
+}
+

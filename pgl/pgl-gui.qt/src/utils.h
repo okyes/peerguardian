@@ -19,5 +19,8 @@ bool isPort(const QString & );
 QFileInfoList getFilesInfo(QString &);
 bool isPointingTo(QString &, QString &);
 QString getPointer(QString &, QString &);
+bool hasPermissions(const QString&);
+QString getNewFileName(QString dir, const QString name);
+QString joinPath(const QString& dir, const QString& file);
 
 #endif
