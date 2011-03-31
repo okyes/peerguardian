@@ -119,7 +119,7 @@ void SettingsDialog::file_SetDefaults() {
 	file_SetLogPath( PeerguardianLog::getFilePath() );
 	file_SetListsPath( PGL_LIST_PATH );
 	file_SetDefaultsPath( PGLCMD_DEFAULTS_PATH );
-	file_SetConfPath( BLOCKCONTROL_CONF_PATH );
+	file_SetConfPath( PGLCMD_CONF_PATH );
 	file_SetControlPath( PGLCMD_PATH );
 	file_SetControlLogPath( PeerguardianLog::getFilePath() );
 	file_SetRootPath( KDESU_PATH );
