@@ -186,6 +186,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void treeItemChanged(QTreeWidgetItem*, int);
         void treeItemPressed(QTreeWidgetItem* item, int column){ m_treeItemPressed = true; }
         void applyChanges();
+        void startAtBoot(int);
 
 };	
 

@@ -139,6 +139,18 @@ void Peerguardian::g_MakeConnections()
 	connect(m_BlocklistTreeWidget, SIGNAL(itemPressed(QTreeWidgetItem*, int)), this, SLOT(treeItemPressed(QTreeWidgetItem*, int)));	
 	
 	connect(m_ApplyButton, SIGNAL(clicked()), this, SLOT(applyChanges()));
+    
+    connect(m_StartAtBootBox, SIGNAL(stateChanged(int)), this, SLOT(startAtBoot(int)));
+}
+
+void Peerguardian::startAtBoot(int state)
+{
+    if ( state )
+        replaceValueInFile(PGLCMD_CONF_PATH, "INIT", "1");
+    else
+        replaceValueInFile(PGLCMD_CONF_PATH, "INIT", "0");
+        
+    m_Root->moveFile("/tmp/" + getFileName(PGLCMD_CONF_PATH), PGLCMD_CONF_PATH);
 }
 
 
