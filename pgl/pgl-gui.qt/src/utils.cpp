@@ -1,5 +1,6 @@
 
 #include "utils.h"
+#include "file_transactions.h"
 #include <QFile>
 #include <QFileDialog>
 #include <QMap>
@@ -57,6 +58,7 @@ QString getLineWith(const QString& path, const QString& search)
 {	
     QFile file( path );
     QString line ("");
+    QString searchLine("");
 	if ( path.isEmpty() ) {
 		qWarning() << Q_FUNC_INFO << "Empty file path given, doing nothing";
 		return line;
@@ -72,10 +74,14 @@ QString getLineWith(const QString& path, const QString& search)
     {
         line = in.readLine().trimmed();
         if ( line.contains(search) )
-            return line;
+        {
+            searchLine = line;
+            break;
+        }
 	}
     
-    return QString("");
+    file.close();
+    return searchLine;
 }
 
 bool isValidIp( const QString &text ){
@@ -223,8 +229,6 @@ bool hasPermissions(const QString & filepath)
     QString path = fileInfo.absolutePath() + "/";
     QFile file(path + "test_file");
     
-    qDebug() << file.fileName();
-    
     if ( ! file.open( QIODevice::ReadWrite | QIODevice::Text ) ) {
 		qWarning() << Q_FUNC_INFO << "Could not read from file" << file.fileName();
 		return false;
@@ -247,5 +251,52 @@ QString joinPath(const QString & dir, const QString & file)
         
     return directory + file;
     
+}
+
+
+void replaceValueInFile(const QString& path, const QString & variable, const QString & value)
+{
+    
+    QFile file( path );
+    QStringList newData;
+    QString line("");
+    
+    if ( path.isEmpty() ) {
+		qWarning() << Q_FUNC_INFO << "Empty file path given, doing nothing";
+		return;
+	}
+    else if ( ! file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
+		qWarning() << Q_FUNC_INFO << "Could not read from file" << path;
+		return;
+	}
+    
+    QTextStream in( &file );
+    QFileInfo fileInfo( path );
+    bool found = false;
+    
+    while ( ! in.atEnd() ) 
+    {
+        line = in.readLine().trimmed();
+        if ( line.contains(variable) )
+        {
+            found = true;
+            newData << variable + QString("=\"") + value + QString('"');
+        }
+        else
+            newData << line;
+	}
+    
+    if ( ! found )
+        newData << variable + QString("=\"") + value + QString('"');
+    
+    saveFileData(newData, "/tmp/" + fileInfo.fileName());
+    
+    file.close();
+}
+
+
+QString getFileName(const QString& path)
+{  
+    return path.split("/").last();
 }
 
