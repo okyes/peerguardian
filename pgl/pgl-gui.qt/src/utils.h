@@ -15,7 +15,6 @@ QString getVariable(QString&);
 QString getVariable(const QString&, const QString&);
 QString getLineWith(const QString&, const QString&);
 bool isValidIp(const QString &text );
-bool isPort(const QString & );
 QFileInfoList getFilesInfo(QString &);
 bool isPointingTo(QString &, QString &);
 QString getPointer(QString &, QString &);

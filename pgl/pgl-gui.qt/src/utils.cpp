@@ -145,27 +145,6 @@ bool isValidIp( const QString &text ){
 
 }
 
-bool isPort(const QString & p )
-{
-
-    if ( p == QString::number(p.toInt()) )
-        return true;
-        
-    QMap<QString, int> ports;
-    ports["HTTP"] = 80;
-    ports["HTTPS"] = 443;
-    ports["FTP"] = 21;
-    ports["POP"] = 110;
-    ports["SMTP"] = 587;
-    ports["IMAP"] = 143;
-    ports["SSH"] = 22;
-    
-    if ( ports.contains(p.toUpper()) )
-        return true;
-    
-    return false;
-}
-
 QFileInfoList getFilesInfo(QString & dir)
 {
     QDir directory(dir);
