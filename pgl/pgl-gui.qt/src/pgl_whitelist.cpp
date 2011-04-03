@@ -137,10 +137,11 @@ QString PglWhitelist::getGroup(QStringList& info)
     QString protocol = info[2];
     QString key = "WHITE_";
     
-    if ( isPort(value) )
-        key += protocol + "_";
-    else
+    if ( isValidIp(value) )
         key += "IP_";
+    else
+        key += protocol + "_";
+        
     
     key += connection[conn_type];
     
