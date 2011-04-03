@@ -4,7 +4,8 @@
 #include <QEvent>
 #include <QUrl>
 #include <QFile>
-
+#include "file_transactions.h"
+#include <QCompleter>
 #include <QNetworkRequest>
 
 
@@ -13,13 +14,11 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
 {
 	setupUi( this );
     
-    ports["HTTP"] = 80;
-    ports["HTTPS"] = 443;
-    ports["FTP"] = 21;
-    ports["POP"] = 110;
-    ports["SMTP"] = 587;
-    ports["IMAP"] = 143;
-    ports["SSH"] = 22;
+    setPortsFromFile();
+    
+    //completer for the ports' names
+    QCompleter * completer = new QCompleter(ports.keys(), m_addEdit); 
+    m_addEdit->setCompleter(completer);
     
     m_validExtensions << ".p2p" << ".zip" << ".7z" << ".gzip" << ".dat";
     
@@ -86,10 +85,34 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
     groupBox_2->hide();
 }
 
+
 AddExceptionDialog::~AddExceptionDialog()
 {
     if ( m_manager != NULL )
         delete m_manager;
+}
+
+void AddExceptionDialog::setPortsFromFile()
+{
+    QStringList fileData = getFileData("/etc/services");
+    QStringList elements;
+    
+    foreach(QString line, fileData)
+    {
+        if ( line.isEmpty() || line.startsWith("#") )
+            continue;
+        
+        line = line.simplified ();    
+        elements = line.split(" ");
+        
+        //check for alternative names
+        if ( elements.size() >= 3 && (! elements[2].startsWith("#")) )
+            ports[elements[2]] = elements[1].split("/")[0].toInt();
+            
+        //qDebug() << line.split(" ")[1].split("/")[0];
+        ports[elements[0]] = elements[1].split("/")[0].toInt();
+    }
+
 }
 
 void AddExceptionDialog::replyFinished(QNetworkReply* reply)
@@ -127,9 +150,9 @@ void AddExceptionDialog::selectLocalBlocklist()
     QStringList files = selectFiles(this, filter);
     
     QString text = m_addEdit->text();
-    text += files.join(QString(", "));
+    text += files.join(QString(" ; "));
     if ( files.size() == 1 )
-        text += ", ";
+        text += "; ";
     m_addEdit->setText(text);
 }
 
@@ -230,7 +253,6 @@ void AddExceptionDialog::addBlocklist()
         if ( param.isEmpty() )
             continue;
         
-        //If Blocklist window
         if ( QFile::exists(param) )
             m_blocklists.push_back(param);
         else
@@ -255,13 +277,24 @@ QStringList AddExceptionDialog::getParams(QString& text)
     QStringList params;
     
     if ( text.indexOf(',') != -1)
-        params = text.split(',');
+        params = text.split(',', QString::SkipEmptyParts);
     else if ( text.indexOf(';') != -1 )
-        params = text.split(',');
-    else 
-        params << text;
+        params = text.split(',', QString::SkipEmptyParts);
+    else
+        params << text.split(' ', QString::SkipEmptyParts);
         
     return params;
+}
+
+bool AddExceptionDialog::isPort(QString & p)
+{
+    if ( p == QString::number(p.toInt()) )
+        return true;
+    
+    if ( ports.contains(p.toLower()) )
+        return true;
+    
+    return false;
 }
 
 void AddExceptionDialog::addEntry()
@@ -358,7 +391,6 @@ int AddExceptionDialog::getPort(const QString& p)
         return p.toInt();
     
     return -1;
-    
 }
 
 void AddExceptionDialog::keyPressEvent ( QKeyEvent * e )

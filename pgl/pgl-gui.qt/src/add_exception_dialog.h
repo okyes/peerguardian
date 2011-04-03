@@ -60,6 +60,8 @@ class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
         QStringList getConnections();
         QStringList getProtocols(bool);
         QStringList getParams(QString& text);
+        void setPortsFromFile();
+        bool isPort(QString &);
         
     public slots:
         void addEntry();
