@@ -15,7 +15,9 @@ Peerguardian::Peerguardian( QWidget *parent ) :
 
 	setupUi( this );
 
+    inicializeVariables();
     inicializeSettings();
+    updateGUI();
     startTimers();
     g_MakeConnections();
     getLists();
@@ -74,6 +76,37 @@ Peerguardian::~Peerguardian() {
     delete m_FastTimer;
     delete m_MediumTimer;
     delete m_SlowTimer;
+}
+
+void Peerguardian::updateGUI()
+{
+    QString path("/etc/cron.");
+    QString script ("pglcmd");
+    QString frequency("");
+    QStringList times; 
+    times << "daily/" << "weekly/" << "monthly/";;
+   
+    
+    foreach(QString time, times)
+        if ( QFile::exists(path + time + script ) )
+        {
+            frequency = time;
+            break;
+        }
+        
+           
+    if ( ! frequency.isEmpty() )
+    { 
+        m_AutoListUpdateBox->setChecked(true);
+        if (frequency == "daily/")
+            m_AutoListUpdateDailyRadio->setChecked(true);
+        else if ( frequency == "weekly/")
+            m_AutoListUpdateWeeklyRadio->setChecked(true);
+        else if ( frequency == "monthly/")
+            m_AutoListUpdateMonthlyRadio->setChecked(true);
+            
+        updateFrequency.insert(times.indexOf(frequency), true);
+    }
 }
 
 void Peerguardian::startTimers()
@@ -138,9 +171,38 @@ void Peerguardian::g_MakeConnections()
 	connect(m_WhitelistTreeWidget, SIGNAL(itemPressed(QTreeWidgetItem*, int)), this, SLOT(treeItemPressed(QTreeWidgetItem*, int)));
 	connect(m_BlocklistTreeWidget, SIGNAL(itemPressed(QTreeWidgetItem*, int)), this, SLOT(treeItemPressed(QTreeWidgetItem*, int)));	
 	
+    /*Configure tab*/
 	connect(m_ApplyButton, SIGNAL(clicked()), this, SLOT(applyChanges()));
-    
     connect(m_StartAtBootBox, SIGNAL(stateChanged(int)), this, SLOT(startAtBoot(int)));
+    
+    //connect update frequency radio buttons
+    connect(m_AutoListUpdateDailyRadio, SIGNAL(toggled(bool)), this, SLOT(updateRadioButtonToggled(bool)));
+    connect(m_AutoListUpdateWeeklyRadio, SIGNAL(toggled(bool)), this, SLOT(updateRadioButtonToggled(bool)));
+    connect(m_AutoListUpdateMonthlyRadio, SIGNAL(toggled(bool)), this, SLOT(updateRadioButtonToggled(bool)));
+    
+}
+
+void Peerguardian::updateRadioButtonToggled(bool toggled)
+{
+    if ( toggled )
+    {
+        QRadioButton * r = qobject_cast<QRadioButton*>(sender());
+        QString objName =  r->objectName();
+        
+        qDebug() << objName;
+        int pos;
+        
+        if ( objName.contains("daily", Qt::CaseInsensitive) )
+            pos = 0;
+        else if ( objName.contains("weekly", Qt::CaseInsensitive) )
+            pos = 1;
+        else if ( objName.contains("monthly", Qt::CaseInsensitive) )
+            pos = 2;
+            
+        //if ( updateFrequency[pos] )
+            //FIXME: probably disable Apply button, but other changes could have been made
+            //so is not right to disable the Apply button.
+    }
 }
 
 void Peerguardian::startAtBoot(int state)
@@ -160,6 +222,7 @@ void Peerguardian::applyChanges()
 
     //Update will generate /tmp/pglcmd.conf
 	m_Whitelist->update(getTreeItems(m_WhitelistTreeWidget));
+    
     QString filepath = "/tmp/" + m_Whitelist->getWhitelistFile().split("/").last();
     if ( QFile::exists(filepath ) )
         filesToMove[filepath] = m_Whitelist->getWhitelistFile();
@@ -223,6 +286,8 @@ void Peerguardian::treeItemChanged(QTreeWidgetItem* item, int column)
 	if ( ! m_treeItemPressed ) 
 		return;
         
+    
+        
     QTreeWidget * treeWidget = item->treeWidget();
     int index = treeWidget->indexOfTopLevelItem(item);
     QList<int> inicialState;
@@ -232,6 +297,8 @@ void Peerguardian::treeItemChanged(QTreeWidgetItem* item, int column)
     else
         inicialState = m_BlocklistInicialState;
     
+    if ( index > inicialState.size() - 1 )
+        return;
 	
 	if ( inicialState[index] != item->checkState(0) )
 		m_ApplyButton->setEnabled(true);
@@ -349,6 +416,11 @@ void Peerguardian::inicializeSettings()
     
 }
 
+void Peerguardian::inicializeVariables()
+{
+    updateFrequency << false << false << false;
+}
+
 void Peerguardian::g_SetRoot( ) {
 
     QString filepath = SuperUser::getFilePath(m_ProgramSettings->value( "paths/super_user" ).toString());
@@ -445,10 +517,10 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
             QStringList info; info << whiteItem.value() << whiteItem.connection() << whiteItem.protocol();
             QTreeWidgetItem * treeItem = new QTreeWidgetItem(m_WhitelistTreeWidget, info);
             treeItem->setCheckState(0, Qt::Checked);
+            treeItem->setDisabled(true);
             m_WhitelistTreeWidget->addTopLevelItem(treeItem);
             newItems = true;
             
-            m_WhitelistInicialState.push_back(treeItem->checkState(0));
         }
                      
 	}		
@@ -469,12 +541,10 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
             QStringList info; info << name <<  blocklist;
             QTreeWidgetItem * treeItem = new QTreeWidgetItem(m_BlocklistTreeWidget, info);
             treeItem->setCheckState(0, Qt::Checked);
+            treeItem->setDisabled(true);
             m_BlocklistTreeWidget->addTopLevelItem(treeItem);
-            m_BlocklistInicialState.push_back(treeItem->checkState(0));
-            
             newItems = true;
             
-            qDebug() << blocklist;
         }
         
         m_BlocklistTreeWidget->scrollToBottom();

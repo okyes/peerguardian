@@ -145,6 +145,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     bool m_WhitelistItemPressed;
     bool m_BlocklistItemPressed;
     bool m_treeItemPressed;
+    QList <bool> updateFrequency; // 0 - daily, 1 - weekly, 2 - monthly
     
 	public:
 		/**
@@ -173,7 +174,9 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void g_MakeMenus();
         void g_ShowAddDialog(int);
         void startTimers();
+        void updateGUI();
         QList<QTreeWidgetItem*> getTreeItems(QTreeWidget *tree, int checkState=-1);
+        void inicializeVariables();
         
     public slots:
         void g_ShowAddExceptionDialog() { g_ShowAddDialog(ADD_MODE | EXCEPTION_MODE); };
@@ -187,6 +190,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void treeItemPressed(QTreeWidgetItem* item, int column){ m_treeItemPressed = true; }
         void applyChanges();
         void startAtBoot(int);
+        void updateRadioButtonToggled(bool);
 
 };	
 
