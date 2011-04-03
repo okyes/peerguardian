@@ -576,19 +576,6 @@
               </widget>
              </item>
              <item>
-              <widget class="QRadioButton" name="m_AutoListUpdateMonthlyRadio">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="statusTip">
-                <string>Update the blocklists every month</string>
-               </property>
-               <property name="text">
-                <string>Every month</string>
-               </property>
-              </widget>
-             </item>
-             <item>
               <widget class="QRadioButton" name="m_AutoListUpdateWeeklyRadio">
                <property name="enabled">
                 <bool>false</bool>
@@ -598,6 +585,19 @@
                </property>
                <property name="text">
                 <string>Every week</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="m_AutoListUpdateMonthlyRadio">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="statusTip">
+                <string>Update the blocklists every month</string>
+               </property>
+               <property name="text">
+                <string>Every month</string>
                </property>
               </widget>
              </item>
@@ -660,6 +660,9 @@
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
+                 </property>
+                 <property name="statusTip">
+                  <string>Add a remote or local blocklist</string>
                  </property>
                  <property name="text">
                   <string>Add BlockList</string>
@@ -743,6 +746,9 @@
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
+                 <property name="statusTip">
+                  <string>Whitelist an IP address or a Port</string>
+                 </property>
                  <property name="text">
                   <string>Add Exception</string>
                  </property>
@@ -817,7 +823,7 @@
      <x>0</x>
      <y>0</y>
      <width>642</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
