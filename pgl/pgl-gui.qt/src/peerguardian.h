@@ -110,6 +110,10 @@ typedef enum { LOG_TIME_COLUMN,
 typedef enum { SETTINGS_IPFILTER_DAT,
 	SETTINGS_P2B,
 	SETTINGS_P2P };
+    
+
+class GuiOptions;
+    
 /**
 *
 * @short Class representing the main window of the program. Handles everything that has to do with the GUI.
@@ -145,7 +149,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     bool m_WhitelistItemPressed;
     bool m_BlocklistItemPressed;
     bool m_treeItemPressed;
-    QList <bool> updateFrequency; // 0 - daily, 1 - weekly, 2 - monthly
+    GuiOptions *guiOptions;
     
 	public:
 		/**
@@ -177,6 +181,15 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void updateGUI();
         QList<QTreeWidgetItem*> getTreeItems(QTreeWidget *tree, int checkState=-1);
         void inicializeVariables();
+        QRadioButton * getAutoListUpdateDailyRadio() {return m_AutoListUpdateDailyRadio;}
+        QRadioButton * getAutoListUpdateWeeklyRadio() {return m_AutoListUpdateWeeklyRadio;}
+        QRadioButton * getAutoListUpdateMonthlyRadio() {return m_AutoListUpdateMonthlyRadio;}
+        QCheckBox * getAutoListUpdateBox() { return m_AutoListUpdateBox; }
+        QCheckBox * getStartAtBootBox() { return m_StartAtBootBox; }
+        QTreeWidget * getBlocklistTreeWidget() { return m_BlocklistTreeWidget; }
+        QTreeWidget * getWhitelistTreeWidget() { return m_WhitelistTreeWidget; }
+        QString getUpdateFrequencyPath();
+        QString getUpdateFrequencyCurrentPath();
         
     public slots:
         void g_ShowAddExceptionDialog() { g_ShowAddDialog(ADD_MODE | EXCEPTION_MODE); };
