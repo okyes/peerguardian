@@ -28,6 +28,7 @@ SOURCES += src/file_transactions.cpp \
  src/utils.cpp \
  src/add_exception_dialog.cpp\
  src/pgl_whitelist.cpp\
+ src/gui_options.cpp
 
 HEADERS += src/file_transactions.h \
 	src/pglcmd.h \
@@ -48,6 +49,7 @@ HEADERS += src/file_transactions.h \
  src/utils.h\
  src/add_exception_dialog.h\
  src/pgl_whitelist.h\
+ src/gui_options.h
 
 FORMS += ui/main_window.ui \
 	ui/settings.ui \
