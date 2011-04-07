@@ -793,6 +793,13 @@
            </spacer>
           </item>
           <item>
+           <widget class="QPushButton" name="pushButton_2">
+            <property name="text">
+             <string>Undo All</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="m_ApplyButton">
             <property name="enabled">
              <bool>false</bool>
