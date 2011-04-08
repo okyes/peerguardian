@@ -144,6 +144,8 @@ void SuperUser::processFinished()
 {
     if ( ! m_filesToMove.isEmpty() )
         moveFiles(m_filesToMove);
+    else
+        emit(finished());
 }
     
 

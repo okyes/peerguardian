@@ -97,8 +97,12 @@ class SuperUser : public QObject
         void startThread(const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode );
         void moveFiles( const QMap<QString, QString>);
         void operator=(const SuperUser& su);
+        
     public slots:
         void processFinished();
+        
+    signals:
+        void finished();
         
 	private:
         SuperUser(const SuperUser& other);
