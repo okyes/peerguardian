@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QMultiMap>
 #include <QHash>
+#include <QRegExp>
 
 
 #include "peerguardian.h"
@@ -20,17 +21,14 @@ Peerguardian::Peerguardian( QWidget *parent ) :
 
     inicializeVariables();
     inicializeSettings();
-    updateGUI();
     startTimers();
     g_MakeConnections();
-    getLists();
     g_MakeTray();
     g_MakeMenus();
     updateInfo();
+    updateGUI();
     
     m_treeItemPressed = false;
-    
-    guiOptions->update();
 
 	/*
 	//Restore the window's previous state
@@ -86,6 +84,14 @@ Peerguardian::~Peerguardian() {
 
 void Peerguardian::updateGUI()
 {
+    
+    QString init = getVariable(PGLCMD_CONF_PATH, "INIT");
+    
+    if ( init.isEmpty() || init == "0" )
+        m_StartAtBootBox->setChecked(false);
+    else
+        m_StartAtBootBox->setChecked(true);
+    
     QString frequency = getUpdateFrequencyCurrentPath();
 
     if ( ! frequency.isEmpty() )
@@ -99,6 +105,10 @@ void Peerguardian::updateGUI()
             m_AutoListUpdateMonthlyRadio->setChecked(true);
     }
     
+    getLists();
+    
+    
+    guiOptions->update();
 }
 
 void Peerguardian::startTimers()
@@ -168,10 +178,20 @@ void Peerguardian::g_MakeConnections()
     connect(m_StartAtBootBox, SIGNAL(stateChanged(int)), this, SLOT(startAtBoot(int)));
     
     //connect update frequency radio buttons
-    connect(m_AutoListUpdateDailyRadio, SIGNAL(toggled(bool)), this, SLOT(updateRadioButtonToggled(bool)));
-    connect(m_AutoListUpdateWeeklyRadio, SIGNAL(toggled(bool)), this, SLOT(updateRadioButtonToggled(bool)));
-    connect(m_AutoListUpdateMonthlyRadio, SIGNAL(toggled(bool)), this, SLOT(updateRadioButtonToggled(bool)));
+    connect(m_AutoListUpdateDailyRadio, SIGNAL(clicked(bool)), this, SLOT(updateRadioButtonToggled(bool)));
+    connect(m_AutoListUpdateWeeklyRadio, SIGNAL(clicked(bool)), this, SLOT(updateRadioButtonToggled(bool)));
+    connect(m_AutoListUpdateMonthlyRadio, SIGNAL(clicked(bool)), this, SLOT(updateRadioButtonToggled(bool)));
     
+    if ( m_Root )
+        connect(m_Root, SIGNAL(finished()), this, SLOT(rootFinished()));
+    
+}
+
+void Peerguardian::rootFinished()
+{
+    //updateGUI();
+    //guiOptions->update();
+    m_ApplyButton->setEnabled(guiOptions->isChanged());
 }
 
 void Peerguardian::updateRadioButtonToggled(bool toggled)
@@ -219,26 +239,21 @@ QString Peerguardian::getUpdateFrequencyCurrentPath()
 
 void Peerguardian::applyChanges()
 {
-    //FIXME: This is very unoptimized.
-    //pglcmd.conf is read and written 3 times unnecessarily
     
     QMap<QString, QString> filesToMove;
+    QStringList pglcmdConf;
 
-    //Update will generate /tmp/pglcmd.conf
-	m_Whitelist->update(getTreeItems(m_WhitelistTreeWidget));
-    
+    /***************** update /etc/pgl/pglcmd.conf *****************/
+	pglcmdConf = m_Whitelist->update(getTreeItems(m_WhitelistTreeWidget));
     QString filepath = "/tmp/" + m_Whitelist->getWhitelistFile().split("/").last();
     
-    if ( QFile::exists(filepath ) )
-        filesToMove[filepath] = m_Whitelist->getWhitelistFile();
-    
-    //update /etc/pgl/blocklists.list
+    /***************** update /etc/pgl/blocklists.list *****************/
     m_List->update(getTreeItems(m_BlocklistTreeWidget));
     filepath = "/tmp/" + m_List->getListPath().split("/").last();    
     if ( QFile::exists(filepath) ) //update the blocklists.list file
         filesToMove[filepath] = m_List->getListPath();
     
-    //manage the local blocklists
+    /***************** manage the local blocklists ********************/
     QHash<QString, bool> localFiles = m_List->getLocalLists();
     QString masterBlocklistDir = m_List->getMasterBlocklistDir();
     
@@ -264,33 +279,23 @@ void Peerguardian::applyChanges()
                 filesToMove[symFilepath] = "/dev/null"; //temporary hack
         }
     }
-
     
-    /********start at boot option***********/
+    /********start at boot option ( pglcmd.conf )***********/
+    pglcmdConf = replaceValueInData(pglcmdConf, "INIT", QString::number(int(m_StartAtBootBox->isChecked())));
     
-    if ( m_StartAtBootBox->isChecked() )
-        //generates a /tmp/pglcmd.conf
-        replaceValueInFile(PGLCMD_CONF_PATH, "INIT", "1");
-    else
-        replaceValueInFile(PGLCMD_CONF_PATH, "INIT", "0");
-    
-    filesToMove["/tmp/" + getFileName(PGLCMD_CONF_PATH)] = PGLCMD_CONF_PATH;
-    
-    /******* update  frequency check box **********/
-    if ( m_AutoListUpdateBox->isChecked() )
-        replaceValueInFile(PGLCMD_CONF_PATH, "CRON", "1");
-    else
-        replaceValueInFile(PGLCMD_CONF_PATH, "CRON", "0");
-    
-    filesToMove["/tmp/" + getFileName(PGLCMD_CONF_PATH)] = PGLCMD_CONF_PATH;
-
-        
+    /******* update  frequency check box ( pglcmd.conf ) **********/
+    pglcmdConf = replaceValueInData(pglcmdConf, "CRON", QString::number(int(m_AutoListUpdateBox->isChecked())));
+            
     /******* update  frequency radio buttons **********/
     filepath = getUpdateFrequencyPath();
     
     if ( ! QFile::exists(filepath) )
         filesToMove[getUpdateFrequencyCurrentPath()] = filepath;
     
+    
+    //add /tmp/pglcmd.conf to the filesToMove
+    filesToMove["/tmp/" + getFileName(PGLCMD_CONF_PATH)] = PGLCMD_CONF_PATH;
+    saveFileData(pglcmdConf, "/tmp/" + getFileName(PGLCMD_CONF_PATH));
     
     m_Root->moveFiles(filesToMove);
 
@@ -312,23 +317,8 @@ void Peerguardian::treeItemChanged(QTreeWidgetItem* item, int column)
 {
 	if ( ! m_treeItemPressed ) 
 		return;
-        
-    QTreeWidget * treeWidget = item->treeWidget();
-    int index = treeWidget->indexOfTopLevelItem(item);
-    QList<int> inicialState;
     
-    if (treeWidget == m_WhitelistTreeWidget )
-        inicialState = m_WhitelistInicialState;
-    else
-        inicialState = m_BlocklistInicialState;
-    
-    if ( index > inicialState.size() - 1 )
-        return;
-	
-	if ( inicialState[index] != item->checkState(0) )
-		m_ApplyButton->setEnabled(true);
-    else
-        m_ApplyButton->setEnabled(guiOptions->isChanged());
+    m_ApplyButton->setEnabled(guiOptions->isChanged());
     
     m_treeItemPressed = false;
 }
@@ -337,6 +327,11 @@ void Peerguardian::getLists()
 {
     if ( m_List == NULL )
         return;
+ 
+    if ( m_BlocklistTreeWidget->topLevelItemCount() > 0 )
+        m_BlocklistTreeWidget->clear();
+    if ( m_WhitelistTreeWidget->topLevelItemCount() > 0 )
+        m_WhitelistTreeWidget->clear();
  
     QStringList item_info;
 
@@ -353,8 +348,6 @@ void Peerguardian::getLists()
             
         m_BlocklistTreeWidget->addTopLevelItem( tree_item );
         item_info.clear();
-        
-        m_BlocklistInicialState.push_back(tree_item->checkState(0));
     }
     
     //get local blocklists
@@ -364,7 +357,6 @@ void Peerguardian::getLists()
         QTreeWidgetItem * tree_item = new QTreeWidgetItem(m_BlocklistTreeWidget, item_info);
         tree_item->setCheckState(0, Qt::Checked);
         item_info.clear();
-        m_BlocklistInicialState.push_back(tree_item->checkState(0));
     }
     
     QMap<QString, QStringList> items;
@@ -382,7 +374,6 @@ void Peerguardian::getLists()
             QTreeWidgetItem * tree_item = new QTreeWidgetItem(m_WhitelistTreeWidget, info);
             tree_item->setCheckState(0, Qt::Checked );
             m_WhitelistTreeWidget->addTopLevelItem(tree_item);
-            m_WhitelistInicialState.push_back(tree_item->checkState(0));
             info.clear();
         }
     }
@@ -398,7 +389,6 @@ void Peerguardian::getLists()
             QTreeWidgetItem * tree_item = new QTreeWidgetItem(m_WhitelistTreeWidget, info);
             tree_item->setCheckState(0, Qt::Unchecked );
             m_WhitelistTreeWidget->addTopLevelItem(tree_item);
-            m_WhitelistInicialState.push_back(tree_item->checkState(0));
             info.clear();
         }
     }

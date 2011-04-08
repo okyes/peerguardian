@@ -142,10 +142,6 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     //QList of integers with the original states for each blocklist 
     //so it's easier to track which blocklists need to be disabled or enabled
     //when the user applies the changes.
-    QList<int> m_BlocklistInicialState;
-    QList<int> m_WhitelistInicialState;
-    QList<bool> m_NewWhitelistItems;
-    QList<bool> m_NewBlocklistItems;
     bool m_WhitelistItemPressed;
     bool m_BlocklistItemPressed;
     bool m_treeItemPressed;
@@ -204,6 +200,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void applyChanges();
         void startAtBoot(int);
         void updateRadioButtonToggled(bool);
+        void rootFinished();
 
 };	
 
