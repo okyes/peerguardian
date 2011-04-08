@@ -97,7 +97,10 @@ void SuperUser::execute( const QStringList &command ) {
     QString firstCmd = m_SudoCmd;
     QStringList newCommands = command;
 
-	if ( hasPermissions("/etc") ) //If the program is run by root
+
+    QFileInfo destfile(command.last());
+
+	if ( hasPermissions(destfile.absolutePath()) )//If the program is run by root
     { 
         if ( ! newCommands.isEmpty() )
         {
@@ -139,6 +142,7 @@ void SuperUser::startThread(const QString &name, const QStringList &args, const 
     
     
 }
+
 
 void SuperUser::processFinished()
 {
