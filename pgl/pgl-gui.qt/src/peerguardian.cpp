@@ -189,9 +189,14 @@ void Peerguardian::g_MakeConnections()
 
 void Peerguardian::rootFinished()
 {
-    //updateGUI();
-    //guiOptions->update();
-    m_ApplyButton->setEnabled(guiOptions->isChanged());
+    
+    if ( QFile::exists("/tmp/pglcmd.conf") || QFile::exists("/tmp/blocklists.list") )
+        m_ApplyButton->setEnabled(true);
+    else
+    {
+        updateGUI();
+        m_ApplyButton->setEnabled(false);
+    }
 }
 
 void Peerguardian::updateRadioButtonToggled(bool toggled)
