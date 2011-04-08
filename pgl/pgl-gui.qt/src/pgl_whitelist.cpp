@@ -149,7 +149,7 @@ QString PglWhitelist::getGroup(QStringList& info)
     
 }
 
-void PglWhitelist::updateWhitelistFile()
+QStringList PglWhitelist::updateWhitelistFile()
 {
 
     QStringList fileData = getFileData(m_WhitelistFile);
@@ -181,8 +181,10 @@ void PglWhitelist::updateWhitelistFile()
     foreach(QString key, m_WhitelistEnabled.keys())
             newData << key + "=\"" + m_WhitelistEnabled[key].join(" ") + "\"";
     
-    QString filepath = "/tmp/" + m_WhitelistFile.split("/").last();
-    saveFileData(newData, filepath);
+    
+    return newData;
+    //QString filepath = "/tmp/" + m_WhitelistFile.split("/").last();
+    //saveFileData(newData, filepath);
 }
 
 
@@ -192,16 +194,16 @@ void PglWhitelist::updateSettings()
         m_Settings->setValue(QString("whitelist/%1").arg(key), m_WhitelistDisabled[key].join(" "));
 }
 
-void PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
+QStringList PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
 {
     if ( m_WhitelistFile.isEmpty() )    
-        return;
+        return QStringList();
     
-    QStringList fileData = getFileData(m_WhitelistFile);
+    QStringList fileData;
     QStringList info;
     QString group;
 
-    //Update the Enabled Whitelist
+    /*********** Update the Enabled Whitelist ***************/
     m_WhitelistEnabled.clear();
     foreach(QTreeWidgetItem* treeItem, treeItems)
     {
@@ -211,17 +213,21 @@ void PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
         info << treeItem->text(0) << treeItem->text(1) << treeItem->text(2);
         
         group = getGroup(info);
-        qDebug() << info;
+
         if ( m_Group.contains(group) )
             m_WhitelistEnabled[group] << treeItem->text(0);
         
         info.clear();
     }
     
-    updateWhitelistFile();
     
     
-    //Update the Disabled Whitelist
+    fileData = updateWhitelistFile();
+    
+    qDebug() << fileData; 
+    
+    
+    /*********** Update the Disabled Whitelist ***************/
     m_WhitelistDisabled.clear();
     foreach(QTreeWidgetItem* treeItem, treeItems)
     {
@@ -238,5 +244,8 @@ void PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
     }
     
     updateSettings();
+    
+    
+    return fileData; 
 }
 
