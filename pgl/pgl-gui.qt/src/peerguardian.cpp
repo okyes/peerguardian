@@ -4,11 +4,13 @@
 #include <QHash>
 #include <QRegExp>
 
-
 #include "peerguardian.h"
 #include "file_transactions.h"
 #include "utils.h"
 #include "gui_options.h"
+
+
+
 
 Peerguardian::Peerguardian( QWidget *parent ) :
 	QMainWindow( parent ) 
@@ -213,13 +215,14 @@ void Peerguardian::startAtBoot(int state)
 QString Peerguardian::getUpdateFrequencyPath()
 {
     QString path("/etc/cron.");
+    QString script ("pglcmd");
     
     if ( m_AutoListUpdateDailyRadio->isChecked() )
-        return path += "daily";
+        return path += "daily/" + script;
     else if ( m_AutoListUpdateWeeklyRadio->isChecked() )
-        return path += "weekly";
+        return path += "weekly/" + script;
     else if ( m_AutoListUpdateMonthlyRadio->isChecked() )
-        return path += "monthly";
+        return path += "monthly/" + script;
         
     return QString("");
 }
@@ -680,9 +683,6 @@ void Peerguardian::updateInfo() {
 
 void Peerguardian::switchButtons()
 {
-    int i = m_controlPglButtons->currentIndex();
-    //i+1-i*2: returns 0 if 'i' is 1 or the reverse
-    m_controlPglButtons->setCurrentIndex(i+1-i*2);
     m_StatusBar->clearMessage();
 }
 
