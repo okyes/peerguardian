@@ -250,18 +250,38 @@ void Peerguardian::applyChanges()
     
     QMap<QString, QString> filesToMove;
     QStringList pglcmdConf;
-
-    /***************** update /etc/pgl/pglcmd.conf *****************/
-	pglcmdConf = m_Whitelist->update(getTreeItems(m_WhitelistTreeWidget));
-    QString filepath = "/tmp/" + m_Whitelist->getWhitelistFile().split("/").last();
+    bool updatePglcmdConf = guiOptions->hasToUpdatePglcmdConf();
+    bool updateBlocklistsList = guiOptions->hasToUpdateBlocklistList();
+    QString filepath;
     
-    /***************** update /etc/pgl/blocklists.list *****************/
-    m_List->update(getTreeItems(m_BlocklistTreeWidget));
-    filepath = "/tmp/" + m_List->getListPath().split("/").last();    
-    if ( QFile::exists(filepath) ) //update the blocklists.list file
-        filesToMove[filepath] = m_List->getListPath();
+    //================ update /etc/pgl/pglcmd.conf ================/
+	if ( updatePglcmdConf )
+    {
+        //======== Whitelisted IPs are stored in pglcmd.conf too ==========/
+        pglcmdConf = m_Whitelist->update(getTreeItems(m_WhitelistTreeWidget));
+        filepath = "/tmp/" + m_Whitelist->getWhitelistFile().split("/").last();
+        
+        //========start at boot option ( pglcmd.conf )==========/
+        pglcmdConf = replaceValueInData(pglcmdConf, "INIT", QString::number(int(m_StartAtBootBox->isChecked())));
     
-    /***************** manage the local blocklists ********************/
+        //====== update  frequency check box ( pglcmd.conf ) ==========/
+        pglcmdConf = replaceValueInData(pglcmdConf, "CRON", QString::number(int(m_AutoListUpdateBox->isChecked())));
+        
+        //add /tmp/pglcmd.conf to the filesToMove
+        filesToMove["/tmp/" + getFileName(PGLCMD_CONF_PATH)] = PGLCMD_CONF_PATH;
+        saveFileData(pglcmdConf, "/tmp/" + getFileName(PGLCMD_CONF_PATH));
+    }
+    
+    //================ update /etc/pgl/blocklists.list ================/
+    if ( updateBlocklistsList )
+    {
+        m_List->update(getTreeItems(m_BlocklistTreeWidget));
+        filepath = "/tmp/" + m_List->getListPath().split("/").last();    
+        if ( QFile::exists(filepath) ) //update the blocklists.list file
+            filesToMove[filepath] = m_List->getListPath();
+    }
+    
+    //================ manage the local blocklists ====================/
     QHash<QString, bool> localFiles = m_List->getLocalLists();
     QString masterBlocklistDir = m_List->getMasterBlocklistDir();
     
@@ -288,22 +308,11 @@ void Peerguardian::applyChanges()
         }
     }
     
-    /********start at boot option ( pglcmd.conf )***********/
-    pglcmdConf = replaceValueInData(pglcmdConf, "INIT", QString::number(int(m_StartAtBootBox->isChecked())));
     
-    /******* update  frequency check box ( pglcmd.conf ) **********/
-    pglcmdConf = replaceValueInData(pglcmdConf, "CRON", QString::number(int(m_AutoListUpdateBox->isChecked())));
-            
-    /******* update  frequency radio buttons **********/
+    //====== update  frequency radio buttons ==========/
     filepath = getUpdateFrequencyPath();
-    
     if ( ! QFile::exists(filepath) )
         filesToMove[getUpdateFrequencyCurrentPath()] = filepath;
-    
-    
-    //add /tmp/pglcmd.conf to the filesToMove
-    filesToMove["/tmp/" + getFileName(PGLCMD_CONF_PATH)] = PGLCMD_CONF_PATH;
-    saveFileData(pglcmdConf, "/tmp/" + getFileName(PGLCMD_CONF_PATH));
     
     m_Root->moveFiles(filesToMove);
 
@@ -404,7 +413,7 @@ void Peerguardian::getLists()
 
 void Peerguardian::inicializeSettings()
 {
-	//Intiallize all pointers to NULL before creating the objects with g_Set**Path
+	//Intiallize all pointers to NULL before creating the objects with g_Set==Path
 	/*
 	m_Settings = NULL;*/
     m_List = NULL;
