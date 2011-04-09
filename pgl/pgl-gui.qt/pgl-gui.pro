@@ -63,7 +63,7 @@ FORMS += ui/main_window.ui \
 RESOURCES += images/images.qrc
 
 icon.path = /usr/share/pixmaps/
-icon.files = ./images/mobloquer.png
+icon.files = ./images/pgl-gui.qt.png
 
 desktop.path = /usr/share/applications/
 desktop.files = ./other/*.desktop

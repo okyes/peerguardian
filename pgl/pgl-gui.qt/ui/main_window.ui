@@ -33,7 +33,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../images/images.qrc">
-    <normaloff>:/images/mobloquer.png</normaloff>:/images/mobloquer.png</iconset>
+    <normaloff>:/images/pgl-gui.qt.png</normaloff>:/images/pgl-gui.qt.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_8">

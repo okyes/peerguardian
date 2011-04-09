@@ -190,7 +190,7 @@ void MoblockSettings::formatsInit() {
 	m_Formats.insert( "IPTABLES_CUSTOM_DELETE", SINGLE_STR );
 	m_Formats.insert( "MD5SUM_FILE", SINGLE_STR );
 	m_Formats.insert( "LSB", SINGLE_STR );
-	m_Formats.insert( "STDIFS", SINGLE_STR ); //FIXME: Contains the shell's internal field separator. Probably never used by mobloquer. Don't know if this would work. (jre)
+	m_Formats.insert( "STDIFS", SINGLE_STR ); //FIXME: Contains the shell's internal field separator. Probably never used by pgl-gui. Don't know if this would work. (jre)
 	m_Formats.insert( "BLOCKLIST_FORMAT", SINGLE_STR );
 	m_Formats.insert( "INIT", SINGLE_STR );
 	m_Formats.insert( "CRON", SINGLE_STR );

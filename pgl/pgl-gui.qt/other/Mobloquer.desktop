@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=Mobloquer
-Type=Application
-Exec=/usr/bin/mobloquer
-Icon=mobloquer.png
-Comment=A graphical user interface for MoBlock.
-StartupNotify=true
-Terminal=false
-Categories=Application;Network;

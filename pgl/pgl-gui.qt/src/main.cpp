@@ -37,13 +37,13 @@ int main(int argc, char *argv[])
 	qInstallMsgHandler( customOutput );
 
 	//Stolen from qgrubeditor :-P
-	//Check if mobloquer is already running
+	//Check if pgl-gui is already running
 	//NOTE jre: Instead of tempPath (usually /tmp), /var/lock should be used.
-	//The lockfile is always created on start - but it is not removed, when mobloquer is quit.
-	//(mobloquer can still be started again, as long as the old pid is not yet assigned to another process).
+	//The lockfile is always created on start - but it is not removed, when pgl-gui is quit.
+	//(pgl-gui can still be started again, as long as the old pid is not yet assigned to another process).
 	//Therefore commented the lock part, because I think it's not necessary at all.
 
-// 	QFile lockFile( QDir::tempPath() + "/mobloquer.lock" );
+// 	QFile lockFile( QDir::tempPath() + "/pgl-gui.lock" );
 // 	if ( lockFile.open( QIODevice::ReadOnly ) )
 // 	{
 // 		QTextStream lockStream( &lockFile );
@@ -65,9 +65,9 @@ int main(int argc, char *argv[])
 	//Start the real application
 	QApplication app(argc, argv);
 	//Set the application information here so QSettings objects can be easily used later.
-	QCoreApplication::setOrganizationName( "mobloquer" );
-	QCoreApplication::setOrganizationDomain( "https://sourceforge.net/projects/mobloquer" );
-	QCoreApplication::setApplicationName( "mobloquer" );
+	QCoreApplication::setOrganizationName( "PeerGuardian" );
+	QCoreApplication::setOrganizationDomain( "https://sourceforge.net/projects/peerguardian" );
+	QCoreApplication::setApplicationName( "pgl-gui" );
 
 
 	Peerguardian pgWindow;

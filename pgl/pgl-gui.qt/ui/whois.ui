@@ -28,7 +28,7 @@
    <string>Whois Information</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../images/images.qrc" >:/images/mobloquer.png</iconset>
+   <iconset resource="../images/images.qrc" >:/images/pgl-gui.qt.png</iconset>
   </property>
   <layout class="QVBoxLayout" >
    <item>

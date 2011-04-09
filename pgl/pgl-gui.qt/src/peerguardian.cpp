@@ -423,7 +423,7 @@ void Peerguardian::inicializeSettings()
 	m_Root = NULL;
     m_Control = NULL;
 
-    m_ProgramSettings = new QSettings(QSettings::IniFormat, QSettings::UserScope, "PeerGuardian", "peerguardian"); 
+    m_ProgramSettings = new QSettings(QSettings::IniFormat, QSettings::UserScope, "pgl", "pgl-gui.qt");
     
     g_SetRoot();
     g_SetLogPath();
@@ -451,7 +451,7 @@ void Peerguardian::g_SetRoot( ) {
             m_ProgramSettings->setValue( "paths/super_user", m_Root->getRootPath() );
     }
     else
-        QMessageBox::warning( this, tr( "Could not locate sudo front-end" ), tr( "Could not find gksu or kdesu executable. The program will not be able to perform any operation which requires super user privilleges.\n\nYou can manually change the path for the sudo front-end through mobloquer's settings dialog." ), QMessageBox::Ok );
+        QMessageBox::warning( this, tr( "Could not locate sudo front-end" ), tr( "Could not find gksu or kdesu executable. The program will not be able to perform any operation which requires super user privilleges.\n\nYou can manually change the path for the sudo front-end through the settings dialog." ), QMessageBox::Ok );
             
 }
 
@@ -494,7 +494,7 @@ void Peerguardian::g_SetListPath()
     }
     
     //whitelisted Ips and ports - /etc/pgl/pglcmd.conf and /etc/pgl/allow.p2p and 
-    //$HOME/.config/PeerGuardian/peerguardian.ini for disabled items
+    //$HOME/.config/pgl/pgl-gui.qt.ini for disabled items
     m_Whitelist = new PglWhitelist(m_ProgramSettings);
 
 	//listTab_Init();
@@ -659,9 +659,9 @@ void Peerguardian::g_ShowAboutDialog() {
     message +="Using modified version of the crystal icon theme:<br>http://www.everaldo.com/<br>http://www.yellowicon.com/<br><br>";
     message += "Credits go to Morpheus, jre, TheBlackSun, Pepsi_One and siofwolves from phoenixlabs.org for their help and suggestions. <br>";
     message += "I would also like to thank Art_Fowl from e-pcmag.gr for providing valuable help with Qt4 and for helping me with the project's development. <br>";
-    message += "Special credit goes to Evangelos Foutras for developing the project's website, <a href=http://mobloquer.sourceforge.net>mobloquer.foutrelis.com</a></font></i>";
+    message += "Special credit goes to Evangelos Foutras for developing the old project's website, <a href=http://mobloquer.sourceforge.net>mobloquer.foutrelis.com</a></font></i>";
     
-	QMessageBox::about( this, tr( "About Peerguardian Qt" ), tr( message.toUtf8() ));
+	QMessageBox::about( this, tr( "About PeerGuardian Linux GUI" ), tr( message.toUtf8() ));
 
 }
 

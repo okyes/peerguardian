@@ -1,11 +1,11 @@
 Installation instructions:
 ----
-* First of all make sure that all required dependencies are installed(see README).
+* First of all make sure that all required dependencies are installed (see
+  README).
 
-* Open a terminal and execute the following commands in the directory where you saved mobloquer:
+* Open a terminal and execute the following commands in the directory
+  pgl/pgl-gui.qt:
 
-tar -xvf mobloquer-xx.tar.gz
-cd mobloquer
 qmake-qt4
 make
 sudo make install

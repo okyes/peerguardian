@@ -37,7 +37,7 @@ class QString;
 
 /**
  *
- * @short Class representing the mobloquer settings dialog.
+ * @short Class representing the pgl-gui settings dialog.
  *
  */
 
