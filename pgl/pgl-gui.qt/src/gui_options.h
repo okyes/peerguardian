@@ -33,6 +33,8 @@ class GuiOptions
         QString getActiveUpdateRadioButton();
         bool listStateChanged(QTreeWidget * tree);
         void updateList(QTreeWidget * tree);
+        bool hasToUpdatePglcmdConf();
+        bool hasToUpdateBlocklistList();
 };
 
 

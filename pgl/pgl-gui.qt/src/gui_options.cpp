@@ -21,6 +21,28 @@ bool GuiOptions::isChanged()
     return false;
 }
 
+bool GuiOptions::hasToUpdatePglcmdConf()
+{
+    if (startAtBoot != m_Window->getStartAtBootBox()->isChecked() )
+        return true;
+        
+    if (updateBlocklistsAutomatically != m_Window->getAutoListUpdateBox()->isChecked() )
+        return true;
+    
+    if ( listStateChanged(m_Window->getWhitelistTreeWidget()) )
+        return true;
+
+    return false;
+}
+
+bool GuiOptions::hasToUpdateBlocklistList()
+{
+    if ( listStateChanged(m_Window->getBlocklistTreeWidget()) )
+        return true;
+        
+    return false;
+}
+
 bool GuiOptions::listStateChanged(QTreeWidget * tree)
 {
     QList<int> listState;
@@ -90,7 +112,7 @@ void GuiOptions::updateList(QTreeWidget * tree)
 }
 
 void GuiOptions::update()
-{
+{    
     updateStartAtBoot();
     updateUpdateRadioBtn();
     updateList(m_Window->getBlocklistTreeWidget());
