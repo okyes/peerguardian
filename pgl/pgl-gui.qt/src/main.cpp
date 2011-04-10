@@ -65,9 +65,9 @@ int main(int argc, char *argv[])
 	//Start the real application
 	QApplication app(argc, argv);
 	//Set the application information here so QSettings objects can be easily used later.
-	QCoreApplication::setOrganizationName( "PeerGuardian" );
+	QCoreApplication::setOrganizationName( "pgl" );
 	QCoreApplication::setOrganizationDomain( "https://sourceforge.net/projects/peerguardian" );
-	QCoreApplication::setApplicationName( "pgl-gui" );
+	QCoreApplication::setApplicationName( "pgl-gui.qt" );
 
 
 	Peerguardian pgWindow;
