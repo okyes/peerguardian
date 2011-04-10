@@ -14,6 +14,11 @@ pgld:
 
 pglcmd:
 
+  - replace multiport port whitelisting with single port whitelisting again
+
+  - uncomment code for automatic start on system initialization in
+    pglcmd/Makefileand. Add checks whether the needed tools exist.
+
   - document reference for port service names: /etc/aliases
 
   - blockers release pgl-gui:
