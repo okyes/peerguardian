@@ -65,14 +65,13 @@ int main(int argc, char *argv[])
 	//Start the real application
 	QApplication app(argc, argv);
 	//Set the application information here so QSettings objects can be easily used later.
-	QCoreApplication::setOrganizationName( "pgl" );
-	QCoreApplication::setOrganizationDomain( "https://sourceforge.net/projects/peerguardian" );
-	QCoreApplication::setApplicationName( "pgl-gui.qt" );
-
+	QApplication::setOrganizationName( "pgl" );
+	QApplication::setOrganizationDomain( "https://sourceforge.net/projects/peerguardian" );
+	QApplication::setApplicationName( "pgl-gui.qt" );
 
 	Peerguardian pgWindow;
 
-	QStringList args = QCoreApplication::arguments();
+	QStringList args = QApplication::arguments();
 	//If tray argument was not given show the window normally
 	//Otherwise show minimized in tray
 	pgWindow.setVisible( !args.contains( "--tray" ) );
