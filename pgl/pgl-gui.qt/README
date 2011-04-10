@@ -32,6 +32,6 @@ See "install" for installation instructions.
 Common problems:
 * If pgl-gui stops working properly, the first thing you should try to do is
   delete its configuration file.
-  Just run "rm ~/.config/pgl/pgl-gui.qt.ini" in a terminal to do so.
+  Just run "rm ~/.config/pgl/pgl-gui.qt.conf" in a terminal to do so.
 * Launch pgl-gui with the argument --tray if you want it to start minimized in
   the tray.

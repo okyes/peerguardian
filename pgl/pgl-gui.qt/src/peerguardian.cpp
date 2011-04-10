@@ -423,8 +423,8 @@ void Peerguardian::inicializeSettings()
 	m_Root = NULL;
     m_Control = NULL;
 
-    m_ProgramSettings = new QSettings(QSettings::IniFormat, QSettings::UserScope, "pgl", "pgl-gui.qt");
-    
+    m_ProgramSettings = new QSettings(QSettings::UserScope, "pgl", "pgl-gui.qt");
+
     g_SetRoot();
     g_SetLogPath();
     g_SetListPath();
@@ -492,9 +492,9 @@ void Peerguardian::g_SetListPath()
         if ( m_ProgramSettings->value( "paths/list" ).toString() != m_List->getListPath() )
             m_ProgramSettings->setValue( "paths/list", m_List->getListPath() );
     }
-    
-    //whitelisted Ips and ports - /etc/pgl/pglcmd.conf and /etc/pgl/allow.p2p and 
-    //$HOME/.config/pgl/pgl-gui.qt.ini for disabled items
+
+    //whitelisted Ips and ports - /etc/pgl/pglcmd.conf and /etc/pgl/allow.p2p and
+    //$HOME/.config/pgl/pgl-gui.qt.conf for disabled items
     m_Whitelist = new PglWhitelist(m_ProgramSettings);
 
 	//listTab_Init();
