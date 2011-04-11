@@ -33,17 +33,32 @@ QStringList selectFiles(QWidget * parent, QString filter, QString title, QString
     return files;
 }
 
+QString getValue(QString& line)
+{
+    QString value("");
+    
+    if ( line.contains("=") )
+    {
+        value = line.split("=", QString::SkipEmptyParts)[1];
+        
+        if ( value.size() > 2 && value.contains('"') )
+            return value.split('"', QString::SkipEmptyParts)[0];
+
+    }
+    
+    return value;
+}
+
+
 QString getVariable(QString& line)
 {
     if ( line.contains("=") )
-        line = line.split("=", QString::SkipEmptyParts)[1];
-    if ( line.contains('"') )
-        line = line.split('"', QString::SkipEmptyParts)[0];
+         return line.split("=", QString::SkipEmptyParts)[0];
     
-    return line;
+    return QString("");
 }
 
-QString getVariable(const QString& path, const QString& search)
+QString getValue(const QString& path, const QString& search)
 {
     QString line = getLineWith(path, search);
     if ( line.contains("=") )
