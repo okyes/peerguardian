@@ -56,8 +56,8 @@ bool WhitelistItem::operator==(WhitelistItem& otherItem)
 
 PglWhitelist::PglWhitelist(QSettings* settings)
 {
-    m_WhitelistFile = getVariable(PGLCMD_DEFAULTS_PATH, "CONFDIR") + QString("/");
-    m_WhitelistFile += getVariable(PGLCMD_DEFAULTS_PATH, "CMD_NAME") + QString(".conf");
+    m_WhitelistFile = getValue(PGLCMD_DEFAULTS_PATH, "CONFDIR") + QString("/");
+    m_WhitelistFile += getValue(PGLCMD_DEFAULTS_PATH, "CMD_NAME") + QString(".conf");
     
     m_Settings = settings;
     
@@ -85,7 +85,7 @@ PglWhitelist::PglWhitelist(QSettings* settings)
         {
             if ( line.contains(key) )
             {
-                QString variable = getVariable(line);
+                QString variable = getValue(line);
                 m_WhitelistEnabled[key] = variable.split(" ", QString::SkipEmptyParts);
                 
                 break;

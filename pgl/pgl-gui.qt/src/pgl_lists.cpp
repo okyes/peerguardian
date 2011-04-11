@@ -129,7 +129,7 @@ PeerguardianList::PeerguardianList( const QString &path )
 {
 
     setFilePath(path, true);
-    m_masterBlocklistDir = getVariable(PGLCMD_DEFAULTS_PATH, "MASTER_BLOCKLIST_DIR") + "/";
+    m_masterBlocklistDir = getValue(PGLCMD_DEFAULTS_PATH, "MASTER_BLOCKLIST_DIR") + "/";
     
 }
 
