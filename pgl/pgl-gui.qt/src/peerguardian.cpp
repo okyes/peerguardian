@@ -8,7 +8,7 @@
 #include "file_transactions.h"
 #include "utils.h"
 #include "gui_options.h"
-
+#include "pgl_settings.h"
 
 
 
@@ -29,6 +29,7 @@ Peerguardian::Peerguardian( QWidget *parent ) :
     g_MakeMenus();
     updateInfo();
     updateGUI();
+    PglSettings::loadSettings();
     
     m_treeItemPressed = false;
 
@@ -87,7 +88,7 @@ Peerguardian::~Peerguardian() {
 void Peerguardian::updateGUI()
 {
     
-    QString init = getVariable(PGLCMD_CONF_PATH, "INIT");
+    QString init = getValue(PGLCMD_CONF_PATH, "INIT");
     
     if ( init.isEmpty() || init == "0" )
         m_StartAtBootBox->setChecked(false);
