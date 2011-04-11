@@ -14,6 +14,7 @@ SOURCES += src/file_transactions.cpp \
            src/pgl_lists.cpp \
            src/peerguardian_log.cpp \
            src/pgl_settings.cpp \
+           src/moblock_settings.cpp\
            src/peerguardian.cpp \
            src/super_user.cpp \
            src/pglcmd.cpp \
@@ -28,7 +29,7 @@ SOURCES += src/file_transactions.cpp \
            src/utils.cpp \
            src/add_exception_dialog.cpp \
            src/pgl_whitelist.cpp \
-           src/gui_options.cpp
+           src/gui_options.cpp\
 
 HEADERS += src/file_transactions.h \
            src/pglcmd.h \
@@ -36,6 +37,7 @@ HEADERS += src/file_transactions.h \
            src/pgl_lists.h \
            src/peerguardian_log.h \
            src/pgl_settings.h \
+           src/moblock_settings.h\
            src/peerguardian.h \
            src/super_user.h \
            src/settings.h \
@@ -49,7 +51,8 @@ HEADERS += src/file_transactions.h \
            src/utils.h \
            src/add_exception_dialog.h \
            src/pgl_whitelist.h \
-           src/gui_options.h
+           src/gui_options.h\
+
 
 FORMS += ui/main_window.ui \
          ui/settings.ui \
