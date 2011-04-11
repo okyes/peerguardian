@@ -26,7 +26,7 @@
 #include <QVector>
 #include <QMap>
 
-#include "pgl_settings.h"
+#include "moblock_settings.h"
 
 #define PGLCMD_CONF_PATH "/etc/pgl/pglcmd.conf"
 
