@@ -88,29 +88,32 @@ Peerguardian::~Peerguardian() {
 void Peerguardian::updateGUI()
 {
     
-    QString init = getValue(PGLCMD_CONF_PATH, "INIT");
-    
-    if ( init.isEmpty() || init == "0" )
+    if ( PglSettings::getStoredValue("INIT") == "0" )
         m_StartAtBootBox->setChecked(false);
     else
         m_StartAtBootBox->setChecked(true);
     
-    QString frequency = getUpdateFrequencyCurrentPath();
+    
+    
+    if ( PglSettings::getStoredValue("CRON") == "0" )
+        m_AutoListUpdateBox->setChecked(false);
+    else
+    {
+        QString frequency = getUpdateFrequencyCurrentPath();
 
-    if ( ! frequency.isEmpty() )
-    { 
-        m_AutoListUpdateBox->setChecked(true);
-        if (frequency.contains("daily/", Qt::CaseInsensitive))
-            m_AutoListUpdateDailyRadio->setChecked(true);
-        else if ( frequency.contains("weekly/", Qt::CaseInsensitive))
-            m_AutoListUpdateWeeklyRadio->setChecked(true);
-        else if ( frequency.contains("monthly/", Qt::CaseInsensitive))
-            m_AutoListUpdateMonthlyRadio->setChecked(true);
+        if ( ! frequency.isEmpty() )
+        { 
+            m_AutoListUpdateBox->setChecked(true);
+            if (frequency.contains("daily/", Qt::CaseInsensitive))
+                m_AutoListUpdateDailyRadio->setChecked(true);
+            else if ( frequency.contains("weekly/", Qt::CaseInsensitive))
+                m_AutoListUpdateWeeklyRadio->setChecked(true);
+            else if ( frequency.contains("monthly/", Qt::CaseInsensitive))
+                m_AutoListUpdateMonthlyRadio->setChecked(true);
+        }
     }
     
     getLists();
-    
-    
     guiOptions->update();
 }
 
@@ -230,7 +233,7 @@ QString Peerguardian::getUpdateFrequencyPath()
 
 
 QString Peerguardian::getUpdateFrequencyCurrentPath()
-{
+{    
     QString path("/etc/cron.");
     QString script ("pglcmd");
     QStringList times; 
