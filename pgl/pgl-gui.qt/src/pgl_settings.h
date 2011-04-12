@@ -39,7 +39,7 @@ class PglSettings
         ~PglSettings();
         static void loadSettings();
         static QHash<QString, QString> getVariables(){ return variables; }
-        static QString getStoredValue(QString &variable){ return variables[variable]; }
+        static QString getStoredValue(const QString &variable){ return variables[variable]; }
         static QString getValueInLine(QString&);
         static QString getVariableInValue(QString &);
 };
