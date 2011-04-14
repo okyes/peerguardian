@@ -364,10 +364,10 @@ LogItem PeerguardianLog::getItemByName( const QString &name ) const {
 QString PeerguardianLog::getFilePath()
 {
     QString path("");
-    return getValidPath(path, getValue(PGLCMD_DEFAULTS_PATH, "LOGDIR"));
+    return getValidPath(path, PglSettings::getStoredValue("LOGDIR"));
 }
 
 QString PeerguardianLog::getFilePath(const QString &path)
 {
-    return getValidPath(path, getValue(PGLCMD_DEFAULTS_PATH, "LOGDIR"));
+    return getValidPath(path, PglSettings::getStoredValue("LOGDIR"));
 }
