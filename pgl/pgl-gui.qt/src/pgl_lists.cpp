@@ -129,7 +129,7 @@ PeerguardianList::PeerguardianList( const QString &path )
 {
 
     setFilePath(path, true);
-    m_masterBlocklistDir = getValue(PGLCMD_DEFAULTS_PATH, "MASTER_BLOCKLIST_DIR") + "/";
+    m_masterBlocklistDir = PglSettings::getStoredValue("MASTER_BLOCKLIST_DIR") + "/";
     
 }
 
@@ -404,12 +404,12 @@ void PeerguardianList::update(QList<QTreeWidgetItem*> treeItems)
 QString PeerguardianList::getFilePath()
 {
     QString path("");
-    return getValidPath(path, PGL_LIST_PATH);
+    return getValidPath(path, PglSettings::getStoredValue("BLOCKLISTS_LIST"));
 }
 
 QString PeerguardianList::getFilePath(const QString &path)
 {
-    return getValidPath(path, PGL_LIST_PATH);
+    return getValidPath(path, PglSettings::getStoredValue("BLOCKLISTS_LIST"));
 }
 
 
