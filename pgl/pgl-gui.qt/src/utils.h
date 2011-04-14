@@ -25,6 +25,6 @@ QString joinPath(const QString& dir, const QString& file);
 void replaceValueInFile(const QString& path, const QString & variable, const QString & value);
 QStringList replaceValueInData(QStringList data, const QString & variable, const QString & value);
 QString getFileName(const QString& path);
-
+bool hasValueInData(const QString&, const QStringList&);
 
 #endif

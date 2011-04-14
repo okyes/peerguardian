@@ -317,3 +317,12 @@ QString getFileName(const QString& path)
     return path.split("/").last();
 }
 
+bool hasValueInData(const QString& value, const QStringList& data)
+{
+    foreach(QString line, data)
+        if ( line.contains(value) )
+            return true;
+    
+    return false;
+}
+
