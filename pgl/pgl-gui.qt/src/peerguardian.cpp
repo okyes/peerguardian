@@ -19,8 +19,9 @@ Peerguardian::Peerguardian( QWidget *parent ) :
 
 	setupUi( this );
 
+    
+    PglSettings::loadSettings();
     guiOptions = new GuiOptions(this);
-
     inicializeVariables();
     inicializeSettings();
     startTimers();
@@ -29,7 +30,7 @@ Peerguardian::Peerguardian( QWidget *parent ) :
     g_MakeMenus();
     updateInfo();
     updateGUI();
-    PglSettings::loadSettings();
+    
     
     m_treeItemPressed = false;
 
@@ -263,13 +264,16 @@ void Peerguardian::applyChanges()
     {
         //======== Whitelisted IPs are stored in pglcmd.conf too ==========/
         pglcmdConf = m_Whitelist->update(getTreeItems(m_WhitelistTreeWidget));
-        filepath = "/tmp/" + m_Whitelist->getWhitelistFile().split("/").last();
         
         //========start at boot option ( pglcmd.conf )==========/
-        pglcmdConf = replaceValueInData(pglcmdConf, "INIT", QString::number(int(m_StartAtBootBox->isChecked())));
+        QString value (QString::number(int(m_StartAtBootBox->isChecked())));
+        if ( hasValueInData("INIT", pglcmdConf) || PglSettings::getStoredValue("INIT") != value )
+            pglcmdConf = replaceValueInData(pglcmdConf, "INIT", value);
     
         //====== update  frequency check box ( pglcmd.conf ) ==========/
-        pglcmdConf = replaceValueInData(pglcmdConf, "CRON", QString::number(int(m_AutoListUpdateBox->isChecked())));
+        value = QString::number(int(m_AutoListUpdateBox->isChecked()));
+        if ( hasValueInData("CRON", pglcmdConf) || PglSettings::getStoredValue("CRON") != value )
+            pglcmdConf = replaceValueInData(pglcmdConf, "CRON", value);
         
         //add /tmp/pglcmd.conf to the filesToMove
         filesToMove["/tmp/" + getFileName(PGLCMD_CONF_PATH)] = PGLCMD_CONF_PATH;
@@ -461,24 +465,20 @@ void Peerguardian::g_SetRoot( ) {
 
 void Peerguardian::g_SetLogPath() {
 
-    QString filepath = PeerguardianLog::getFilePath(m_ProgramSettings->value( "paths/log" ).toString());
+    QString filepath = PeerguardianLog::getFilePath();
+    
+    qDebug() << filepath;
 
-    if ( ! filepath.isEmpty() )
+    if ( ! filepath.isEmpty() && m_Log == NULL )
     {
-        if ( m_Log == NULL )
-        {
             m_Log = new PeerguardianLog();
 			m_Log->setFilePath(filepath, true);
-        }    
-        //Save the new path to the QSettings object.
-        if ( m_ProgramSettings->value( "paths/log" ).toString() != m_Log->getLogPath() )
-            m_ProgramSettings->setValue( "paths/log", m_Log->getLogPath() );
             
         if ( m_Info == NULL )
             m_Info = new PeerguardianInfo(m_Log->getLogPath());
     }
-    //else
-    //    QMessageBox::warning( this, tr( "Log file not found!" ), tr( "Peerguardian's log file was NOT found." ), QMessageBox::Ok );
+    else
+        QMessageBox::warning( this, tr( "Log file not found!" ), tr( "Peerguardian's log file was NOT found." ), QMessageBox::Ok );
 
 	//logTab_Init();
 	//manageTab_Init();
@@ -486,41 +486,27 @@ void Peerguardian::g_SetLogPath() {
 
 void Peerguardian::g_SetListPath() 
 {
-    QString filepath = PeerguardianList::getFilePath(m_ProgramSettings->value( "paths/list" ).toString());
+    QString filepath = PeerguardianList::getFilePath();
 
-    if ( ! filepath.isEmpty() )
-    {
-        if ( m_List == NULL ) 
+    if ( ! filepath.isEmpty() && m_List == NULL )
             m_List = new PeerguardianList(filepath);
-
-        if ( m_ProgramSettings->value( "paths/list" ).toString() != m_List->getListPath() )
-            m_ProgramSettings->setValue( "paths/list", m_List->getListPath() );
-    }
 
     //whitelisted Ips and ports - /etc/pgl/pglcmd.conf and /etc/pgl/allow.p2p and
     //$HOME/.config/pgl/pgl-gui.qt.conf for disabled items
     m_Whitelist = new PglWhitelist(m_ProgramSettings);
-
-	//listTab_Init();
     
 }
 
 void Peerguardian::g_SetControlPath() 
 {
-    QString filepath = PglCmd::getFilePath(m_ProgramSettings->value( "paths/control" ).toString());
+    QString filepath = PglCmd::getFilePath();
 
-    if ( ! filepath.isEmpty() )
+    if ( ! filepath.isEmpty() && m_Control == NULL )
     {
-        if ( m_Control == NULL ){
 			m_Control = new PglCmd;
             m_Control->setFilePath(filepath, true);
-        }
-            
-        if ( m_ProgramSettings->value( "paths/control" ).toString() != m_Control->getPath() ) 
-			m_ProgramSettings->setValue( "paths/control", m_Control->getPath() );
     }
 
-	//manageTab_Init();
 }
 
 void Peerguardian::g_ShowAddDialog(int openmode) {
