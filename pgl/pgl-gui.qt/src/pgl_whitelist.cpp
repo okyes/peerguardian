@@ -56,8 +56,7 @@ bool WhitelistItem::operator==(WhitelistItem& otherItem)
 
 PglWhitelist::PglWhitelist(QSettings* settings)
 {
-    m_WhitelistFile = PglSettings::getStoredValue("CONFDIR") + QString("/");
-    m_WhitelistFile += PglSettings::getStoredValue("CMD_NAME") + QString(".conf");
+    m_WhitelistFile = PglSettings::getStoredValue("CMD_CONF");
     
     m_Settings = settings;
     
@@ -85,9 +84,7 @@ PglWhitelist::PglWhitelist(QSettings* settings)
         {
             if ( line.contains(key) )
             {
-                QString variable = getValue(line);
-                m_WhitelistEnabled[key] = variable.split(" ", QString::SkipEmptyParts);
-                
+                m_WhitelistEnabled[key] = getValue(line).split(" ", QString::SkipEmptyParts);
                 break;
             }
         }
@@ -166,7 +163,7 @@ QStringList PglWhitelist::updateWhitelistFile()
         
         containsGroup = false;
         
-        foreach(QString key, m_WhitelistEnabled.keys())
+        foreach(QString key, m_Group.keys())
             if ( line.contains(key) )
             {
                 containsGroup = true;
@@ -207,6 +204,7 @@ QStringList PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
     m_WhitelistEnabled.clear();
     foreach(QTreeWidgetItem* treeItem, treeItems)
     {
+        
         if ( treeItem->checkState(0) == Qt::Unchecked )
             continue;
         
@@ -224,8 +222,7 @@ QStringList PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
     
     fileData = updateWhitelistFile();
     
-    qDebug() << fileData; 
-    
+    qDebug() << fileData;
     
     /*********** Update the Disabled Whitelist ***************/
     m_WhitelistDisabled.clear();
@@ -237,6 +234,7 @@ QStringList PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
         info << treeItem->text(0) << treeItem->text(1) << treeItem->text(2);
         
         group = getGroup(info);
+        
         if ( m_Group.contains(group) )
             m_WhitelistDisabled[group] << treeItem->text(0);
         
