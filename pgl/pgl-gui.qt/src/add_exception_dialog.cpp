@@ -279,7 +279,7 @@ QStringList AddExceptionDialog::getParams(QString& text)
     if ( text.indexOf(',') != -1)
         params = text.split(',', QString::SkipEmptyParts);
     else if ( text.indexOf(';') != -1 )
-        params = text.split(',', QString::SkipEmptyParts);
+        params = text.split(';', QString::SkipEmptyParts);
     else
         params << text.split(' ', QString::SkipEmptyParts);
         
