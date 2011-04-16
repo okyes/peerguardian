@@ -193,7 +193,6 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void g_ShowAboutDialog();
         void updateInfo();
         void g_UpdateDaemonStatus();
-        void switchButtons();
         void addLogItem( LogItem item );
         void treeItemChanged(QTreeWidgetItem*, int);
         void treeItemPressed(QTreeWidgetItem* item, int column){ m_treeItemPressed = true; }

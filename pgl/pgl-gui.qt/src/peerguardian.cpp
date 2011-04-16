@@ -31,9 +31,8 @@ Peerguardian::Peerguardian( QWidget *parent ) :
     updateInfo();
     updateGUI();
     
-    
     m_treeItemPressed = false;
-
+    
 	/*
 	//Restore the window's previous state
 	resize( m_ProgramSettings->value( "window/size", QSize( MAINWINDOW_WIDTH, MAINWINDOW_HEIGHT ) ).toSize() ); 
@@ -93,7 +92,6 @@ void Peerguardian::updateGUI()
         m_StartAtBootBox->setChecked(false);
     else
         m_StartAtBootBox->setChecked(true);
-    
     
     
     if ( PglSettings::getStoredValue("CRON") == "0" )
@@ -172,7 +170,7 @@ void Peerguardian::g_MakeConnections()
     
     //status bar
 	connect( m_Control, SIGNAL( actionMessage( QString, int ) ), m_StatusBar, SLOT( showMessage( QString, int ) ) );
-	connect( m_Control, SIGNAL( finished() ), this, SLOT( switchButtons() ) );
+	connect( m_Control, SIGNAL( finished() ), m_StatusBar, SLOT( clearMessage() ) );
 	
 	//Blocklist and Whitelist Tree Widgets
 	connect(m_WhitelistTreeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(treeItemChanged(QTreeWidgetItem*, int)));
@@ -201,6 +199,7 @@ void Peerguardian::rootFinished()
         m_ApplyButton->setEnabled(true);
     else
     {
+        PglSettings::loadSettings();
         updateGUI();
         m_ApplyButton->setEnabled(false);
     }
@@ -353,13 +352,15 @@ void Peerguardian::getLists()
     if ( m_List == NULL )
         return;
  
+    m_List->updateListsFromFile();
+ 
     if ( m_BlocklistTreeWidget->topLevelItemCount() > 0 )
         m_BlocklistTreeWidget->clear();
     if ( m_WhitelistTreeWidget->topLevelItemCount() > 0 )
         m_WhitelistTreeWidget->clear();
  
     QStringList item_info;
-
+    
     //get information about the blocklists being used
     foreach(ListItem* log_item, m_List->getValidItems())
     {
@@ -522,9 +523,9 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
         {
             QStringList info; info << whiteItem.value() << whiteItem.connection() << whiteItem.protocol();
             QTreeWidgetItem * treeItem = new QTreeWidgetItem(m_WhitelistTreeWidget, info);
-            //treeItem->setCheckState(0, Qt::Checked);
-            //treeItem->setDisabled(true);
-            qDebug() << treeItem->checkState(0);
+            treeItem->setCheckState(0, Qt::Checked);
+            treeItem->setIcon(0, QIcon(":/images/warning.png"));
+            treeItem->setStatusTip(0, tr("You need to click the Apply button so the changes take effect"));
             m_WhitelistTreeWidget->addTopLevelItem(treeItem);
             newItems = true;
             
@@ -547,8 +548,9 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
             
             QStringList info; info << name <<  blocklist;
             QTreeWidgetItem * treeItem = new QTreeWidgetItem(m_BlocklistTreeWidget, info);
-            //treeItem->setCheckState(0, Qt::Checked);
-            //treeItem->setDisabled(true);
+            treeItem->setCheckState(0, Qt::Checked);
+            treeItem->setIcon(0, QIcon(":/images/warning.png"));
+            treeItem->setStatusTip(0, tr("You need to click the Apply button so the changes take effect"));
             m_BlocklistTreeWidget->addTopLevelItem(treeItem);
             newItems = true;
             
@@ -677,12 +679,6 @@ void Peerguardian::updateInfo() {
 	m_LoadedRangesLabel->setText( tr( "Blocked IP ranges: %1" ).arg( lRanges ) );
 	m_LastUpdateLabel->setText( tr( "Last blocklist update: %1" ).arg( dTime ) );
 
-}
-
-
-void Peerguardian::switchButtons()
-{
-    m_StatusBar->clearMessage();
 }
 
 
