@@ -144,15 +144,19 @@ void PeerguardianList::setFilePath( const QString &path, bool verified ) {
     if ( verified )
         m_FileName = path;
     else
-        m_FileName = getValidPath(path, PGL_LIST_PATH);
+        m_FileName = getValidPath(path, PglSettings::getStoredValue("BLOCKLISTS_LIST"));
     
-    if ( m_FileName.isEmpty() ){
+    if ( m_FileName.isEmpty() )
         qWarning() << Q_FUNC_INFO << "Empty path given, doing nothing";
-        return;
-    }
-        
-    m_ListsFile = QVector< ListItem >();
     
+}
+
+void PeerguardianList::updateListsFromFile()
+{
+    if ( m_FileName.isEmpty() )
+        return;
+    
+    m_ListsFile = QVector< ListItem >();
     QStringList tempFileData = getFileData( m_FileName );
     
     
@@ -165,9 +169,7 @@ void PeerguardianList::setFilePath( const QString &path, bool verified ) {
         
         m_ListsFile.push_back(tempItem);
     }
-    
 }
-
     
 
 int PeerguardianList::indexOfName( const QString &name ) {
@@ -307,8 +309,8 @@ QVector< ListItem *> PeerguardianList::getItems( const itemMode &mode ) {
 
 }
 
-QVector< ListItem * > PeerguardianList::getValidItems() {
-    
+QVector< ListItem * > PeerguardianList::getValidItems() 
+{
     QVector< ListItem * > result;
     for ( QVector< ListItem >::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ ) 
         if ( s->mode != COMMENT_ITEM ) 

@@ -242,7 +242,7 @@ class PeerguardianList {
         QHash<QString, bool> getLocalLists(){ return m_localLists; }
         QString getMasterBlocklistDir(){ return m_masterBlocklistDir; }
         QFileInfoList getLocalBlocklists();
-        
+        void updateListsFromFile();
 
 	private:
 		int indexOfName( const QString &name );
