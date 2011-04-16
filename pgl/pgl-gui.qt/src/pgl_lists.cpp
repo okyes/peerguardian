@@ -361,6 +361,7 @@ void PeerguardianList::update(QList<QTreeWidgetItem*> treeItems)
     
     m_localLists.clear();
     
+    //load comments to newFileData
     foreach(QString line, fileData)
     {
         ListItem listItem = ListItem(line);
@@ -369,7 +370,7 @@ void PeerguardianList::update(QList<QTreeWidgetItem*> treeItems)
             newFileData << line;
     }
     
-    
+    //load lists to newFileData
     foreach(QTreeWidgetItem * treeItem, treeItems)
     {
         //if it's a filepath
@@ -387,7 +388,7 @@ void PeerguardianList::update(QList<QTreeWidgetItem*> treeItems)
             if ( treeItem->checkState(0) == Qt::Unchecked )
                 line = "# ";
         
-            line += treeItem->text(1);
+            line += treeItem->text(1).trimmed();
             
             newFileData << line;
             
