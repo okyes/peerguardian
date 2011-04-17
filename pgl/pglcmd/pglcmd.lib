@@ -1486,7 +1486,7 @@ do_start () {
                 # udp
                 # tcp
             # TODO?: nfnetlink_queue
-            # TODO?: nf_conntrack_ipv4
+            # TODO?: nf_conntrack/nf_conntrack_ipv4 depended on by xt_state
             # TODO?: iptable_filter
             # xt_mark
             [ -f /proc/net/ip_tables_matches ] && grep -q mark /proc/net/ip_tables_matches ||

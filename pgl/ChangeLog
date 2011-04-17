@@ -2,6 +2,11 @@ ChangeLog PeerGuardian Linux (pgl)
 
 pgl 2.1.0~pre1
 
+  [freemind]
+  * added new pgl-gui (C++, Qt)
+    partly based on old mobloquer/pgl-gui.qt
+    moved old code to pgl-gui.qt-old
+
   [ jre ]
   * pglcmd: returned to using single port whitelisting (--dport), instead of
     using netfilter multiport module.
