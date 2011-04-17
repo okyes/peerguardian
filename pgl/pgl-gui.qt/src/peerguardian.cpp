@@ -87,10 +87,12 @@ Peerguardian::~Peerguardian() {
 
 void Peerguardian::updateGUI()
 {
+    qDebug() << "INIT: " << PglSettings::getStoredValue("INIT");
+    
     
     if ( PglSettings::getStoredValue("INIT") == "0" )
         m_StartAtBootBox->setChecked(false);
-    else
+    else if ( PglSettings::getStoredValue("INIT") == "1" )
         m_StartAtBootBox->setChecked(true);
     
     
@@ -341,10 +343,15 @@ void Peerguardian::treeItemChanged(QTreeWidgetItem* item, int column)
 {
 	if ( ! m_treeItemPressed ) 
 		return;
-    
-    m_ApplyButton->setEnabled(guiOptions->isChanged());
-    
+        
     m_treeItemPressed = false;
+     
+    m_ApplyButton->setEnabled(guiOptions->isChanged());
+    if ( guiOptions->isChanged(item) )
+        item->setIcon(0, QIcon(":/images/warning.png"));
+    else
+        item->setIcon(0, QIcon());
+
 }
 
 void Peerguardian::getLists()
