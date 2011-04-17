@@ -348,9 +348,15 @@ void Peerguardian::treeItemChanged(QTreeWidgetItem* item, int column)
      
     m_ApplyButton->setEnabled(guiOptions->isChanged());
     if ( guiOptions->isChanged(item) )
+    {
         item->setIcon(0, QIcon(":/images/warning.png"));
+        item->setStatusTip(0, tr("You need to click the Apply button so the changes take effect"));
+    }
     else
+    {
         item->setIcon(0, QIcon());
+        item->setStatusTip(0, "");
+    }
 
 }
 
@@ -485,8 +491,8 @@ void Peerguardian::g_SetLogPath() {
         if ( m_Info == NULL )
             m_Info = new PeerguardianInfo(m_Log->getLogPath());
     }
-    else
-        QMessageBox::warning( this, tr( "Log file not found!" ), tr( "Peerguardian's log file was NOT found." ), QMessageBox::Ok );
+    //else
+        //QMessageBox::warning( this, tr( "Log file not found!" ), tr( "Peerguardian's log file was NOT found." ), QMessageBox::Ok );
 
 	//logTab_Init();
 	//manageTab_Init();
