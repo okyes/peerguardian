@@ -4,28 +4,27 @@
 #include <QEvent>
 #include <QUrl>
 #include <QFile>
+#include <QDir>
 #include "file_transactions.h"
 #include <QCompleter>
 #include <QNetworkRequest>
+#include <QFileSystemModel>
 
 
 AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetItem*> treeItems) :
 	QDialog( p )
 {
 	setupUi( this );
-    
-    setPortsFromFile();
-    
-    //completer for the ports' names
-    QCompleter * completer = new QCompleter(ports.keys(), m_addEdit); 
-    m_addEdit->setCompleter(completer);
-    
+
     m_validExtensions << ".p2p" << ".zip" << ".7z" << ".gzip" << ".dat";
-    
     m_manager = NULL;
 
     if ( mode == (ADD_MODE | EXCEPTION_MODE) )
-    {       
+    {      
+        setPortsFromFile();
+        //completer for the ports' names
+        QCompleter * completer = new QCompleter(ports.keys(), m_addEdit); 
+        m_addEdit->setCompleter(completer);
         
         QString help = QObject::tr("Valid Inputs: You can enter an IP Address with");
         help +=  QObject::tr(" or without mask and a port number or name (eg. http, ftp, etc).") + "\n";
@@ -42,6 +41,13 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
     }
     else if ( mode == (ADD_MODE | BLOCKLIST_MODE) )
     {       
+        
+            QFileSystemModel * model = new QFileSystemModel(m_addEdit);
+            model->setRootPath(QDir::homePath());
+            //completer for the ports' names
+            QCompleter * completer = new QCompleter(model, m_addEdit); 
+            m_addEdit->setCompleter(completer);
+            
             QString help = QObject::tr("Valid Inputs: You can enter a local path or an address to a valid blocklist.") + "\n";
             help += QObject::tr("You can enter multiple items separated by ; or ,");
             m_helpLabel->setText(help);
