@@ -255,17 +255,16 @@ QString joinPath(const QString & dir, const QString & file)
 
 QStringList replaceValueInData(QStringList data, const QString & variable, const QString & value)
 {
-    
-    QRegExp re(QString("^%1=\".*\"").arg(variable));
+    QRegExp re(QString("^%1=.*").arg(variable));
     int pos = data.indexOf(re);
     
-    if ( pos == -1 )
-        data << variable + QString("=\"") + value + QString('"');
-    else
+    while ( pos != -1 )
     {
-        data.takeAt(pos);
-        data.insert(pos, variable + QString("=\"") + value + QString('"'));
+        data.removeAt(pos);
+        pos = data.indexOf(re);
     }
+    
+    data << variable + QString("=\"") + value + QString('"');
         
     return data;
 }
