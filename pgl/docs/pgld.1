@@ -293,8 +293,8 @@ incoming and forwarded packets, if they were "marked block". If they were
 "marked allow", pglcmd's iptables setup just ignores them, so other iptables
 rules decide what happens to them.
 .PP
-It is strongly recommended to use the MARKing feature, because this allows to
-integrate pgl with other firewalls.
+It is strongly recommended to use the MARKing feature, because this allows one
+to integrate pgl with other firewalls.
 .PP
 A packet may only bear one mark, so there mustn't be any other applications or
 iptables rules that mark packets. Otherwise the setup will not work and the
