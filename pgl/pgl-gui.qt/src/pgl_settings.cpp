@@ -105,16 +105,9 @@ void PglSettings::loadSettings()
             
     }
     
-    QString pglcmdConfPath(""); 
     
-    foreach(QString value, variables.values() )
-    {
-        if ( value.contains("pglcmd.conf") )
-        {
-            pglcmdConfPath = value;
-            break;
-        }
-    }
+    //Overwrite the variables' values with the values from pglcmd.conf
+    QString pglcmdConfPath(PglSettings::getStoredValue("CMD_CONF")); 
     
     if ( pglcmdConfPath.isEmpty() )
         return;
