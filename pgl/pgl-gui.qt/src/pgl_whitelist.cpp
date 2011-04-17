@@ -169,7 +169,10 @@ QStringList PglWhitelist::updateWhitelistFile()
 void PglWhitelist::updateSettings()
 {
     foreach(QString key, m_WhitelistDisabled.keys() )
-        m_Settings->setValue(QString("whitelist/%1").arg(key), m_WhitelistDisabled[key].join(" "));
+        if ( m_WhitelistDisabled[key].isEmpty() )
+             m_Settings->remove(QString("whitelist/%1").arg(key));
+        else
+            m_Settings->setValue(QString("whitelist/%1").arg(key), m_WhitelistDisabled[key].join(" "));
 }
 
 QStringList PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
@@ -203,7 +206,9 @@ QStringList PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
     fileData = updateWhitelistFile();
     
     /*********** Update the Disabled Whitelist ***************/
-    m_WhitelistDisabled.clear();
+    foreach ( QString key, m_WhitelistDisabled.keys() )
+        m_WhitelistDisabled[key] = QStringList();
+        
     foreach(QTreeWidgetItem* treeItem, treeItems)
     {
         if ( treeItem->checkState(0) == Qt::Checked )
@@ -220,7 +225,6 @@ QStringList PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
     }
     
     updateSettings();
-    
     
     return fileData; 
 }
