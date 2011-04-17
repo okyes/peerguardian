@@ -150,36 +150,17 @@ QStringList PglWhitelist::updateWhitelistFile()
 {
 
     QStringList fileData = getFileData(m_WhitelistFile);
-    QStringList newData;
-    bool containsGroup = false;
-    
-    foreach(QString line, fileData)
+    QString value;
+
+    foreach(QString key, m_WhitelistEnabled.keys())
     {
-        if ( line.startsWith("#") || line.isEmpty() )
-        {
-            newData << line;
-            continue;
-        }
+        value = m_WhitelistEnabled[key].join(" ");
         
-        containsGroup = false;
-        
-        foreach(QString key, m_Group.keys())
-            if ( line.contains(key) )
-            {
-                containsGroup = true;
-                break;
-            }
-                
-        if ( ! containsGroup ) 
-            newData << line;
-                
+        if ( hasValueInData(key, fileData) || value != PglSettings::getStoredValue(key) )
+            replaceValueInData(fileData, key, m_WhitelistEnabled[key].join(" "));
     }
     
-    foreach(QString key, m_WhitelistEnabled.keys())
-            newData << key + "=\"" + m_WhitelistEnabled[key].join(" ") + "\"";
-    
-    
-    return newData;
+    return fileData;
     //QString filepath = "/tmp/" + m_WhitelistFile.split("/").last();
     //saveFileData(newData, filepath);
 }
@@ -201,13 +182,14 @@ QStringList PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
     QString group;
 
     /*********** Update the Enabled Whitelist ***************/
-    m_WhitelistEnabled.clear();
+    foreach ( QString key, m_WhitelistEnabled.keys() )
+        m_WhitelistEnabled[key] = QStringList();
+ 
     foreach(QTreeWidgetItem* treeItem, treeItems)
     {
-        
         if ( treeItem->checkState(0) == Qt::Unchecked )
             continue;
-        
+            
         info << treeItem->text(0) << treeItem->text(1) << treeItem->text(2);
         
         group = getGroup(info);
@@ -218,11 +200,7 @@ QStringList PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
         info.clear();
     }
     
-    
-    
     fileData = updateWhitelistFile();
-    
-    qDebug() << fileData;
     
     /*********** Update the Disabled Whitelist ***************/
     m_WhitelistDisabled.clear();
