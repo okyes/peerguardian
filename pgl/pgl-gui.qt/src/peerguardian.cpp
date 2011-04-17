@@ -87,9 +87,7 @@ Peerguardian::~Peerguardian() {
 
 void Peerguardian::updateGUI()
 {
-    qDebug() << "INIT: " << PglSettings::getStoredValue("INIT");
-    
-    
+ 
     if ( PglSettings::getStoredValue("INIT") == "0" )
         m_StartAtBootBox->setChecked(false);
     else if ( PglSettings::getStoredValue("INIT") == "1" )
@@ -182,7 +180,9 @@ void Peerguardian::g_MakeConnections()
 	
     /*Configure tab*/
 	connect(m_ApplyButton, SIGNAL(clicked()), this, SLOT(applyChanges()));
-    connect(m_StartAtBootBox, SIGNAL(stateChanged(int)), this, SLOT(startAtBoot(int)));
+    connect(m_StartAtBootBox, SIGNAL(clicked(bool)), this, SLOT(startAtBoot(bool)));
+    connect(m_AutoListUpdateBox, SIGNAL(clicked(bool)), this, SLOT(autoListupdate(bool)));
+    
     
     //connect update frequency radio buttons
     connect(m_AutoListUpdateDailyRadio, SIGNAL(clicked(bool)), this, SLOT(updateRadioButtonToggled(bool)));
@@ -213,7 +213,12 @@ void Peerguardian::updateRadioButtonToggled(bool toggled)
             m_ApplyButton->setEnabled(guiOptions->isChanged());
 }
 
-void Peerguardian::startAtBoot(int state)
+void Peerguardian::autoListupdate(bool toggled)
+{
+    m_ApplyButton->setEnabled(guiOptions->isChanged());
+}
+
+void Peerguardian::startAtBoot(bool state)
 {
     m_ApplyButton->setEnabled(guiOptions->isChanged());
 }

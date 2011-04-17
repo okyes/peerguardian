@@ -197,9 +197,10 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void treeItemChanged(QTreeWidgetItem*, int);
         void treeItemPressed(QTreeWidgetItem* item, int column){ m_treeItemPressed = true; }
         void applyChanges();
-        void startAtBoot(int);
+        void startAtBoot(bool);
         void updateRadioButtonToggled(bool);
         void rootFinished();
+        void autoListupdate(bool toggled);
 
 };	
 
