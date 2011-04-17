@@ -41,6 +41,9 @@ QString getValue(QString& line)
     {
         value = line.split("=", QString::SkipEmptyParts)[1];
         
+        if ( value == "\"\"" )
+            return QString("");
+        
         if ( value.size() > 2 && value.contains('"') )
             return value.split('"', QString::SkipEmptyParts)[0];
 
@@ -253,10 +256,15 @@ QString joinPath(const QString & dir, const QString & file)
 }
 
 
-QStringList replaceValueInData(QStringList data, const QString & variable, const QString & value)
+QStringList replaceValueInData(QStringList& data, const QString & variable, const QString & value)
 {
+    //this function is usually used to receive pglcmd.conf and check for variables and values there
     QRegExp re(QString("^%1=.*").arg(variable));
     int pos = data.indexOf(re);
+    
+    //Usual case: if the variable doesn't exist in pglcmd.conf and it's the same as in pglcmd.defaults
+    //if ( pos == -1 && value == PglSetting::getStoredValue(variable))
+        //return data;
     
     while ( pos != -1 )
     {
