@@ -118,3 +118,31 @@ void GuiOptions::update()
     updateList(m_Window->getBlocklistTreeWidget());
     updateList(m_Window->getWhitelistTreeWidget());
 }
+
+
+bool GuiOptions::isChanged(QTreeWidgetItem * item)
+{
+    QTreeWidget * treeWidget = item->treeWidget();
+    int index = treeWidget->indexOfTopLevelItem(item);
+    QList<int> listState;
+    
+    //this shouldn't happen, but just in case
+    if ( index == -1 )
+        return false;
+    
+    if ( treeWidget->objectName().contains("block", Qt::CaseInsensitive) )
+        listState =  m_BlocklistState;
+    else
+        listState =  m_WhitelistState;
+    
+    //if the item has not yet been added to the listState, it means it's a new item
+    if ( index > listState.size() - 1 )
+        return true;
+    
+    //if the item's state is different from the original state, it's changed
+    if ( item->checkState(0) != listState[index] )
+        return true;
+        
+    return false;
+    
+}

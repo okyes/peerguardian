@@ -27,6 +27,7 @@ class GuiOptions
         ~GuiOptions(){ qDebug() << "~GuiOptions()"; }
         void addWindow(Peerguardian * gui) { m_Window = gui; }
         bool isChanged();
+        bool isChanged(QTreeWidgetItem *);
         void updateUpdateRadioBtn();
         void updateStartAtBoot();
         void update();
