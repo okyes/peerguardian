@@ -1,5 +1,15 @@
 ChangeLog PeerGuardian Linux (pgl)
 
+pgl 2.1.0~pre1
+
+  [ jre ]
+  * pglcmd: returned to using single port whitelisting (--dport), instead of
+    using netfilter multiport module.
+    Reason: Allow pgl-gui to *instantly* add/remove single ports to the
+    whitelisting.
+
+-- jre <jre-phoenix@users.sourceforge.net>  Sun, 17 Apr 2011 18:14:45 +0200
+
 pgl 2.0.4
 
   [ jre ]

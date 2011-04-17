@@ -1016,53 +1016,6 @@ white_local () {
     fi
 }
 
-# Function to insert whitelisting iptables rules for ports with the module multiport
-# Usage: white_port_iptables
-#        $CHAIN, $PROTO and $MULTIPORT have to be set.
-white_port_iptables () {
-    PORTS="$( echo $MULTIPORT | sed "s|\(.*\),$|\1|" )"
-    iptables -I $CHAIN -p $PROTO -m multiport --ports $PORTS -j $IPTABLES_TARGET_WHITELISTING ||
-        fail_insert_iptables
-}
-
-# Function to construct $MULTIPORT variable as iptables accepts it (ports
-# separated by ",", max 15 ports, port ranges (port:port) count as 2 ports) and
-# call white_port_iptables
-# Usage: white_port_prepare CHAIN PROTO PORTS
-white_port_prepare () {
-    local CHAIN PROTO MULTIPORT
-    CHAIN=$1
-    PROTO=$2
-    shift 2
-    COUNT=0
-    MULTIPORT=""
-    for PORT in $@ ; do
-        # Count all ports (max 15 allowed in multiport)
-        COUNT=$(($COUNT+1))
-        # Port ranges count as 2 ports
-        echo $PORT | grep -qv ":" || COUNT=$(($COUNT+1))
-        if [ "$COUNT" -lt 15 ] ; then
-            # Just continue to add ports, while less than 15
-            MULTIPORT="$PORT,$MULTIPORT"
-        elif [ "$COUNT" -eq 15 ] ; then
-            # Whitelist 15 ports
-            MULTIPORT="$PORT,$MULTIPORT"
-            white_port_iptables
-            # and then continue with a clean new run
-            MULTIPORT=""
-            COUNT=0
-        elif [ "$COUNT" -gt 15 ] ; then
-            # This happens if the 15th port is a port range
-            # So whitelist the first 14 ports
-            white_port_iptables
-            # And then continue with the port range
-            MULTIPORT="$PORT"
-            COUNT=2
-        fi
-    done
-    [ -z "$MULTIPORT" ] || white_port_iptables
-}
-
 # Function to be executed if iptables insert command fails:
 # removes all iptables rules again and aborts
 fail_insert_iptables () {
@@ -1174,10 +1127,13 @@ insert_iptables () {
             [ -z "$WHITE_TCP" ] && [ -z "$WHITE_UDP" ] ||
                 {
                 echo -n "....Whitelisting ports" &&
-                white_port_prepare $PGL_CHAIN tcp $WHITE_TCP &&
-                white_port_prepare $PGL_CHAIN udp $WHITE_UDP &&
-                log_end_msg "$?" ||
-                fail_insert_iptables
+                for PORT in $WHITE_TCP ; do
+                    iptables -I ${PGL_CHAIN} -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                done &&
+                for PORT in $WHITE_UDP ; do
+                    iptables -I ${PGL_CHAIN} -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                done &&
+                log_end_msg "$?"
                 }
 
             # IP Whitelisting
@@ -1567,19 +1523,6 @@ do_start () {
                     exit $E_XEXTERNAL
                 else
                     log_warning_msg "Warning: Could not load kernel module xt_state, continuing anyway."
-                fi
-            # xt_multiport
-            ALL_WHITE_PORTS="$WHITE_TCP_IN $WHITE_UDP_IN $WHITE_TCP_OUT $WHITE_UDP_OUT $WHITE_TCP_FWD $WHITE_UDP_FWD"
-            [ -f /proc/net/ip_tables_matches ] && grep -q multiport /proc/net/ip_tables_matches ||
-                modprobe -q xt_multiport ||
-                modprobe -q ipt_multiport ||
-                if [ "$IPTABLES_SETTINGS" = 1 ] && [ -n "$ALL_WHITE_PORTS" ] ; then
-                    log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_multiport, not starting $NAME!"
-                    log_failure_msg "Use a kernel with netfilter MULTIPORT support or reconfigure $(basename $0)"
-                    log_failure_msg "to not whitelist any ports."
-                    exit $E_XEXTERNAL
-                else
-                    log_warning_msg "Warning: Could not load kernel module xt_multiport, continuing anyway."
                 fi
             # xt_iprange
             [ -f /proc/net/ip_tables_matches ] && grep -q iprange /proc/net/ip_tables_matches ||
