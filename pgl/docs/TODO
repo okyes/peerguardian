@@ -14,8 +14,6 @@ pgld:
 
 pglcmd:
 
-  - replace multiport port whitelisting with single port whitelisting again
-
   - uncomment code for automatic start on system initialization in
     pglcmd/Makefileand. Add checks whether the needed tools exist.
 
@@ -102,9 +100,10 @@ all components:
 Packaging:
 
   - Debian:
-    - add packages to lenny with backports (http://forums.phoenixlabs.org/showthread.php?p=131481)
-    - add LOWMEM flavor
+    - add LOWMEM flavor packages
     - add debtags
+    - add packages to lenny with backports
+      (http://forums.phoenixlabs.org/showthread.php?p=131481)
 
   - make rpms
     http://forums.phoenixlabs.org/showthread.php?p=123060
@@ -114,6 +113,12 @@ Packaging:
 
   - Slackware hints:
     http://forums.phoenixlabs.org/showthread.php?p=123198
+
+  - synology:
+    SPK's are packages that You can install via DiskStationManager. Its easy,
+    its via GUI. Its Fast. No terminal/ssh is needed. its the only way for
+    people without knowledge to install any packages on Synology server.
+    http://forums.phoenixlabs.org/thread-1622-post-119717.html#pid119717
 
 Web:
   - Update phoenixlabs.org
