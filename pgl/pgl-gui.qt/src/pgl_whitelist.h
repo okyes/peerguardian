@@ -52,6 +52,7 @@ class WhitelistItem
     QString m_Group;
     bool m_Enabled;
     bool m_Valid;
+    QStringList m_Aliases;
 
     public:
         WhitelistItem();
@@ -66,6 +67,8 @@ class WhitelistItem
         QString protocol() { return m_Protocol; }
         QString group() { return m_Group; }
         bool isEnabled(){ return m_Enabled; }
+        QStringList aliases() { return m_Aliases; }
+        void addAlias(const QString &);
 
         QString getTypeAsString();
         QStringList getAsStringList(){ return QStringList() << m_Value << getTypeAsString(); }

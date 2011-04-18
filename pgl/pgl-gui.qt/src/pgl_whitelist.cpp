@@ -9,6 +9,7 @@
 WhitelistItem::WhitelistItem(QString& value, int connection, bool enabled, QString& group)
 {
     m_Value = value;
+    m_Aliases << value;
     
     m_Type = PORT;
     /*if ( isValidIp(value) )
@@ -22,6 +23,7 @@ WhitelistItem::WhitelistItem(QString& value, int connection, bool enabled, QStri
     m_Connection = connection;
     m_Group = group;
     m_Enabled = enabled;
+    
 }
 
 WhitelistItem::WhitelistItem(QString value, QString connType, QString prot, int type)
@@ -42,16 +44,28 @@ WhitelistItem::WhitelistItem(QString value, QString connType, QString prot, int 
 
 bool WhitelistItem::operator==(WhitelistItem& otherItem)
 {
-        if ( m_Value != otherItem.value() )
-            return false;
-            
-        if ( m_Protocol != otherItem.protocol() )
-            return false;
-            
-        if ( m_Connection != otherItem.connection() )
-            return false;
+        
+    if ( m_Protocol != otherItem.protocol() )
+        return false;
+        
+    if ( m_Connection != otherItem.connection() )
+        return false;
+    
+    //the aliases also contain the value
+    foreach(QString alias, m_Aliases)
+        foreach(QString other_alias, otherItem.aliases())
+            if ( alias == other_alias )
+                return true;
             
     return true;
+}
+
+void WhitelistItem::addAlias(const QString & alias )
+{
+    if ( alias.isEmpty() )
+        return;
+        
+    m_Aliases << alias;
 }
 
 PglWhitelist::PglWhitelist(QSettings* settings)
