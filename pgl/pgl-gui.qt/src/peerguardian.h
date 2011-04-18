@@ -195,7 +195,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void g_UpdateDaemonStatus();
         void addLogItem( LogItem item );
         void treeItemChanged(QTreeWidgetItem*, int);
-        void treeItemPressed(QTreeWidgetItem* item, int column){ m_treeItemPressed = true; }
+        void treeItemPressed(QTreeWidgetItem* item, int column);
         void applyChanges();
         void startAtBoot(bool);
         void updateRadioButtonToggled(bool);

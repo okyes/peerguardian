@@ -365,6 +365,24 @@ void Peerguardian::treeItemChanged(QTreeWidgetItem* item, int column)
 
 }
 
+void Peerguardian::treeItemPressed(QTreeWidgetItem* item, int column)
+{ 
+    
+    m_treeItemPressed = true; 
+    
+    if ( item->treeWidget()->objectName().contains("block", Qt::CaseInsensitive) )
+    {
+        m_rmExceptionButton->setEnabled(false);
+        m_rmBlockListButton->setEnabled(true);
+    }
+    else
+    {
+        m_rmExceptionButton->setEnabled(true);
+        m_rmBlockListButton->setEnabled(false);
+    }
+
+}
+
 void Peerguardian::getLists()
 {
     if ( m_List == NULL )
