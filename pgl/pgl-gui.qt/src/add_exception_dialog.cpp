@@ -18,23 +18,37 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
 
     m_validExtensions << ".p2p" << ".zip" << ".7z" << ".gzip" << ".dat";
     m_manager = NULL;
+    QString help;
+    
 
     if ( mode == (ADD_MODE | EXCEPTION_MODE) )
-    {      
+    {   
+        bool ok;
+        int i;
+        
         setPortsFromFile();
         //completer for the ports' names
         QCompleter * completer = new QCompleter(ports.keys(), m_addEdit); 
         m_addEdit->setCompleter(completer);
+        m_browseButton->hide();
+        QString value;
         
-        QString help = QObject::tr("Valid Inputs: You can enter an IP Address with");
+        help = QObject::tr("Valid Inputs: You can enter an IP Address with");
         help +=  QObject::tr(" or without mask and a port number or name (eg. http, ftp, etc).") + "\n";
         help += QObject::tr("You can enter multiple items separated by ; or ,");
-                    
-            m_helpLabel->setText(QObject::tr(help.toUtf8 ()));
-            m_browseButton->hide();
+
+        foreach(QTreeWidgetItem *treeItem, treeItems)
+        {
+            value = treeItem->text(0);
+            WhitelistItem item = WhitelistItem(value, treeItem->text(1), treeItem->text(2));
+            item.addAlias(QString::number(ports[value]));
             
-            foreach(QTreeWidgetItem *treeItem, treeItems)
-                m_Items.push_back(WhitelistItem(treeItem->text(0), treeItem->text(1), treeItem->text(2)));
+            i = value.toInt(&ok);
+            if ( ok )
+                item.addAlias(ports.key(i));
+            
+            m_Items.push_back(item);
+        }
                 
         connect(m_addEdit, SIGNAL(returnPressed()), this, SLOT(addEntry()));
         connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(addEntry()));
@@ -50,7 +64,6 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
             
             QString help = QObject::tr("Valid Inputs: You can enter a local path or an address to a valid blocklist.") + "\n";
             help += QObject::tr("You can enter multiple items separated by ; or ,");
-            m_helpLabel->setText(help);
             
             setWindowTitle("Add BlockLists");
             groupBox->setTitle("Add one or more BlockLists");
@@ -73,7 +86,7 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
         connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(addBlocklist()));
             
     }
-    
+    m_helpLabel->setText(QObject::tr(help.toUtf8 ()));
 
     /*else if ( mode == (EDIT_MODE | EXCEPTION_MODE) )
     {
@@ -96,6 +109,8 @@ AddExceptionDialog::~AddExceptionDialog()
 {
     if ( m_manager != NULL )
         delete m_manager;
+        
+    qDebug() << "~AddExceptionDialog()";
 }
 
 void AddExceptionDialog::setPortsFromFile()
