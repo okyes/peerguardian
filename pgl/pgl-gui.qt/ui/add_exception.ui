@@ -46,7 +46,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Valid inputs: IP addresses with or without masks, port numbers or names,  local paths or urls.</string>
+         <string/>
         </property>
         <property name="wordWrap">
          <bool>true</bool>

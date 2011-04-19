@@ -10,6 +10,7 @@
 #include <QNetworkRequest>
 #include <QFileSystemModel>
 
+class WhitelistItem;
 
 AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetItem*> treeItems) :
 	QDialog( p )
@@ -20,7 +21,6 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
     m_manager = NULL;
     QString help;
     
-
     if ( mode == (ADD_MODE | EXCEPTION_MODE) )
     {   
         bool ok;
@@ -35,17 +35,16 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
         
         help = QObject::tr("Valid Inputs: You can enter an IP Address with");
         help +=  QObject::tr(" or without mask and a port number or name (eg. http, ftp, etc).") + "\n";
-        help += QObject::tr("You can enter multiple items separated by ; or ,");
+        help += QObject::tr("You can enter multiple items separated by spaces, commas or semicolons");
 
         foreach(QTreeWidgetItem *treeItem, treeItems)
         {
             value = treeItem->text(0);
             WhitelistItem item = WhitelistItem(value, treeItem->text(1), treeItem->text(2));
-            item.addAlias(QString::number(ports[value]));
             
-            i = value.toInt(&ok);
-            if ( ok )
-                item.addAlias(ports.key(i));
+            foreach(Port port, m_ports)
+                if ( port == item )
+                    item.addAliases(port.values());
             
             m_Items.push_back(item);
         }
@@ -63,10 +62,10 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
             m_addEdit->setCompleter(completer);
             
             QString help = QObject::tr("Valid Inputs: You can enter a local path or an address to a valid blocklist.") + "\n";
-            help += QObject::tr("You can enter multiple items separated by ; or ,");
+            help += QObject::tr("You can enter multiple items separated by spaces, commas or semicolons");
             
-            setWindowTitle("Add BlockLists");
-            groupBox->setTitle("Add one or more BlockLists");
+            setWindowTitle("Add Blocklists");
+            groupBox->setTitle("Add one or more Blocklists");
             m_ConnectionGroup->hide();
             m_ProtocolGroup->hide();
             m_ipRadio->hide();
@@ -113,25 +112,77 @@ AddExceptionDialog::~AddExceptionDialog()
     qDebug() << "~AddExceptionDialog()";
 }
 
+Port AddExceptionDialog::getPortFromLine(QString line)
+{
+    QStringList elements;
+    int port_num;
+    QString protocol;
+    Port port;
+    
+    line = line.simplified(); 
+    
+    if ( line.isEmpty() || line.startsWith("#") )
+        return Port();
+    
+    elements = line.split(" ");
+    
+    port_num = elements[1].split("/")[0].toInt();
+    protocol = elements[1].split("/")[1];
+    
+    port = Port(elements[0], protocol, port_num);
+    
+    if ( elements.size() >= 3 && ( ! elements[2].startsWith("#")) )
+        port.addAlias(elements[2]);
+    
+    return port;
+}
+
 void AddExceptionDialog::setPortsFromFile()
 {
     QStringList fileData = getFileData("/etc/services");
     QStringList elements;
+    int port_num;
+    QString protocol;
+    Port port1, port2;
     
+    //old way for backwards compatibility
     foreach(QString line, fileData)
     {
+        line = line.simplified(); 
+        
         if ( line.isEmpty() || line.startsWith("#") )
             continue;
-        
-        line = line.simplified ();    
+          
         elements = line.split(" ");
         
+        port_num = elements[1].split("/")[0].toInt();
+        protocol = elements[1].split("/")[1];
+                
+        ports[elements[0]] = port_num;
+        
         //check for alternative names
-        if ( elements.size() >= 3 && (! elements[2].startsWith("#")) )
-            ports[elements[2]] = elements[1].split("/")[0].toInt();
-            
-        //qDebug() << line.split(" ")[1].split("/")[0];
-        ports[elements[0]] = elements[1].split("/")[0].toInt();
+        if ( elements.size() >= 3 && ( ! elements[2].startsWith("#")) )
+            ports[elements[2]] = port_num;
+    }
+    
+    for ( int i=0; i < fileData.size(); i++ )
+    {
+        
+        port1 = getPortFromLine(fileData[i]); 
+
+        if ( i < fileData.size()-1 )
+        {
+            //get next line
+            port2 = getPortFromLine(fileData[i+1]);
+        
+            if ( port1.value() == port2.value() )
+            {
+                port1.addProtocols(port2.protocols());
+                ++i; //ignores next line
+            }
+        }
+        
+        m_ports.push_back(port1);
     }
 
 }
@@ -194,37 +245,6 @@ bool AddExceptionDialog::isValidBlocklist(QString& text)
     return false;
 }
 
-bool AddExceptionDialog::isNew(WhitelistItem& whiteItem)
-{
-    //checks if the new item doesn't already exist
-    foreach(WhitelistItem tempItem, m_Items)
-        if ( tempItem == whiteItem )
-            return false;
-            
-    return true;
-}
-
-QList<WhitelistItem> AddExceptionDialog::getWhitelistItems(QString& param, bool isIp)
-{
-    QList<WhitelistItem> items;
-    QStringList protocols, connections;
-    
-    protocols = getProtocols(isIp);
-    connections = getConnections();
-    
-    foreach(QString protocol, protocols)
-    {
-        foreach(QString connection, connections)
-        {
-            WhitelistItem item = WhitelistItem(param, connection, protocol);
-            if ( isNew(item) )
-                items.push_back(item);
-        }
-        
-    }
-
-    return items;
-}
 
 QStringList AddExceptionDialog::getConnections()
 {
@@ -262,12 +282,12 @@ QStringList AddExceptionDialog::getProtocols(bool isIp)
 void AddExceptionDialog::addBlocklist()
 {   
     QString text = m_addEdit->text();
-    QStringList params = getParams(text);
+    QStringList values = getParams(text);
     
     m_notValidTreeWidget->clear();
     m_urls.clear();
     
-    foreach(QString param, params)
+    foreach(QString param, values)
     {
         param = param.trimmed();
         
@@ -292,19 +312,19 @@ void AddExceptionDialog::addBlocklist()
             m_manager->get(QNetworkRequest(url));
 }
 
-QStringList AddExceptionDialog::getParams(QString& text)
+QStringList AddExceptionDialog::getParams(const QString& text)
 {
     
-    QStringList params;
+    QStringList values;
     
     if ( text.indexOf(',') != -1)
-        params = text.split(',', QString::SkipEmptyParts);
+        values = text.split(',', QString::SkipEmptyParts);
     else if ( text.indexOf(';') != -1 )
-        params = text.split(';', QString::SkipEmptyParts);
+        values = text.split(';', QString::SkipEmptyParts);
     else
-        params << text.split(' ', QString::SkipEmptyParts);
+        values = text.split(' ', QString::SkipEmptyParts);
         
-    return params;
+    return values;
 }
 
 bool AddExceptionDialog::isPort(QString & p)
@@ -318,30 +338,80 @@ bool AddExceptionDialog::isPort(QString & p)
     return false;
 }
 
+
+bool AddExceptionDialog::isValidWhitelistItem(WhitelistItem& whiteItem, QString& reason)
+{
+    reason = "";
+    
+    //checks if the new item doesn't already exist
+    foreach(WhitelistItem tempItem, m_Items)
+        if ( tempItem == whiteItem )
+        {
+            qDebug() << tempItem.value() << whiteItem.value();
+            reason = QObject::tr("It's already added");
+            return false;
+        }
+        
+    foreach(Port port, m_ports)
+        if ( port == whiteItem )
+            if ( ! port.hasProtocol(whiteItem.protocol()) )
+            {
+                reason += whiteItem.value();
+                reason += QObject::tr(" doesn't work over ") + whiteItem.protocol();
+                return false;
+            }
+            
+    return true;
+}
+
+void AddExceptionDialog::setWhitelistItems(QString& value, bool isIp)
+{
+    QList<WhitelistItem> items;
+    QStringList protocols, connections;
+    
+    protocols = getProtocols(isIp);
+    connections = getConnections();
+    
+    QString reason;
+    
+    foreach(QString protocol, protocols)
+    {
+        foreach(QString connection, connections)
+        {
+            WhitelistItem item = WhitelistItem(value, connection, protocol);
+            
+            if ( isValidWhitelistItem(item, reason) )
+                m_validItems << item;
+            else
+            {
+                m_invalidItems << item;
+                reasons << reason;
+            }
+        }
+        
+    }
+}
+
 void AddExceptionDialog::addEntry()
 //Used by exception (whitelist) window
 {
     if ( m_addEdit->text().isEmpty() )
         return;
         
-    m_NewItems.clear();
+    m_invalidItems.clear();
+    m_validItems.clear();
+    reasons.clear();
 
-    QString text = m_addEdit->text();
-    QStringList params, info, values;
-    QTreeWidgetItem * item = NULL;
-    QVector<QTreeWidgetItem*> items;
-    QList<WhitelistItem> newItems;
+    QStringList values, info;
     bool valid = false;
-    QMap<QString, QString> errors;
-    QMap<QString, bool> valueIsIp;
     bool ip = false;
     bool port = false;
-    QString protocol, comboText;
+    QStringList unrecognizedValues;
     
     
-    params = getParams(text);
+    values = getParams(m_addEdit->text());
     
-    foreach(QString param, params)
+    foreach(QString param, values)
     {
         param = param.trimmed();
         
@@ -354,51 +424,40 @@ void AddExceptionDialog::addEntry()
             ip = true;
         else
         {
-            errors[param] = "Not a valid IP address nor a Port";
-            valueIsIp[param] = ip;
+            unrecognizedValues << param;
             continue;
         }
         
-        newItems += getWhitelistItems(param, ip);
-        
-        //it could be a valid item but already on main list
-        if ( newItems.isEmpty() )
-        {
-            errors[param] = "This item is already on the main list";
-            valueIsIp[param] = ip;
-        }    
+        setWhitelistItems(param, ip);
     }
     
     m_notValidTreeWidget->clear();
        
-    if ( ! errors.isEmpty() )
+    if ( ! unrecognizedValues.isEmpty() || ! m_invalidItems.isEmpty() )
     {
          QStringList connections, protocols;
         
         if ( ! groupBox_2->isVisible() )
             groupBox_2->setVisible(true);
         
-        connections = getConnections();
-        
-        foreach(QString key, errors.keys())
+        foreach(QString value, unrecognizedValues)
         {
-            protocols = getProtocols(valueIsIp[key]);
-            foreach(QString protocol, protocols)
-            {
-                foreach(QString connection, connections)
-                {
-                    QStringList info; info << key << connection << protocol << errors[key];
-                    QTreeWidgetItem *item = new QTreeWidgetItem(m_notValidTreeWidget, info);
-                    m_notValidTreeWidget->addTopLevelItem(item); 
-                }
-            }
+            QStringList info; info << value << "ANY" << "ANY" << "Not a valid IP nor a Port";
+            QTreeWidgetItem *item = new QTreeWidgetItem(m_notValidTreeWidget, info);
+            m_notValidTreeWidget->addTopLevelItem(item);
         }
+        
+        for(int i=0; i < m_invalidItems.size(); i++)
+        {
+            WhitelistItem whiteItem = m_invalidItems[i];
+            QStringList info; info << whiteItem.value() << whiteItem.connection() << whiteItem.protocol() << reasons[i];
+            QTreeWidgetItem *item = new QTreeWidgetItem(m_notValidTreeWidget, info);
+            m_notValidTreeWidget->addTopLevelItem(item);
+        }
+        
     }
     else
-    {
-        m_NewItems = newItems;
         emit( accept() );
-    }        
     
 }
 
