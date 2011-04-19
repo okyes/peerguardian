@@ -42,38 +42,66 @@ typedef enum {
 };
 
 
+
 class WhitelistItem
 {
     
     QString m_Value;
+    QStringList m_values;
     QString m_Connection; //Incoming, Outgoing or Forward
     int m_Type; //Ip or Port
     QString m_Protocol; //TCP, UDP or IP
     QString m_Group;
     bool m_Enabled;
     bool m_Valid;
-    QStringList m_Aliases;
 
     public:
         WhitelistItem();
-        WhitelistItem(QString&, int, bool, QString&);
-        WhitelistItem(QString value, QString connType, QString prot, int type=ENABLED);
+        WhitelistItem(const QString&, const QString&, const QString&, int type=ENABLED);
+        WhitelistItem(const QString&, const QString&, int type=ENABLED);
         ~WhitelistItem(){};
         QString value() { return m_Value; }
+        QStringList values() { return m_values; }
         bool valid () { return m_Valid; }
         void setValid (bool valid) { m_Valid = valid; }
-        QString connection() { return m_Connection; }
+        QString connection() const { return m_Connection; }
         int type() { return m_Type; }
-        QString protocol() { return m_Protocol; }
+        QString protocol() const { return m_Protocol; }
         QString group() { return m_Group; }
         bool isEnabled(){ return m_Enabled; }
-        QStringList aliases() { return m_Aliases; }
+        QStringList values() const { return m_values; }
         void addAlias(const QString &);
+        void addAliases(const QStringList& );
 
         QString getTypeAsString();
         QStringList getAsStringList(){ return QStringList() << m_Value << getTypeAsString(); }
-        bool operator==(WhitelistItem & otherItem);
+        bool operator==(const WhitelistItem & otherItem);
         
+};
+
+
+
+class Port
+{
+    int m_number;
+    QStringList m_protocols;
+    QStringList m_values;
+
+    public:
+        Port();
+        Port(const Port& other);
+        Port(QString desig, QString prot, int n=0);
+        ~Port(){};
+        void addProtocols(const QStringList&);
+        void addAlias(const QString&);
+        int number() const { return m_number;}
+        QStringList values() const { return m_values; }
+        QString value();
+        QStringList protocols() const { return m_protocols; }
+        Port& operator=(const Port& other);
+        bool hasProtocol(const QString& protocol) { return m_protocols.contains(protocol, Qt::CaseInsensitive); }
+        bool operator==(WhitelistItem& item);
+        bool operator==(const Port& );
 };
 
 class PglWhitelist 

@@ -6,29 +6,12 @@
 #include <QDebug>
 
 
-WhitelistItem::WhitelistItem(QString& value, int connection, bool enabled, QString& group)
-{
-    m_Value = value;
-    m_Aliases << value;
-    
-    m_Type = PORT;
-    /*if ( isValidIp(value) )
-        m_Type = IP;
-    else if ( getPort(value)  != -1 )
-        m_Type = PORT;
-    else
-        m_Type = INVALID;*/
-    
-    m_Protocol = TCP;
-    m_Connection = connection;
-    m_Group = group;
-    m_Enabled = enabled;
-    
-}
 
-WhitelistItem::WhitelistItem(QString value, QString connType, QString prot, int type)
+
+WhitelistItem::WhitelistItem(const QString& value, const QString& connType, const QString& prot, int type)
 {
     m_Value = value;
+    m_values << value;
     m_Protocol = prot;
     m_Connection = connType;
     m_Valid = true;
@@ -42,7 +25,7 @@ WhitelistItem::WhitelistItem(QString value, QString connType, QString prot, int 
         
 }
 
-bool WhitelistItem::operator==(WhitelistItem& otherItem)
+bool WhitelistItem::operator==(const WhitelistItem& otherItem)
 {
         
     if ( m_Protocol != otherItem.protocol() )
@@ -51,13 +34,15 @@ bool WhitelistItem::operator==(WhitelistItem& otherItem)
     if ( m_Connection != otherItem.connection() )
         return false;
     
+    bool equal = false;
+    
     //the aliases also contain the value
-    foreach(QString alias, m_Aliases)
-        foreach(QString other_alias, otherItem.aliases())
-            if ( alias == other_alias )
-                return true;
-            
-    return true;
+    foreach(QString value, m_values)
+        foreach(QString other_value, otherItem.values())
+            if ( value == other_value )
+                equal = true;
+                
+    return equal;
 }
 
 void WhitelistItem::addAlias(const QString & alias )
@@ -65,8 +50,78 @@ void WhitelistItem::addAlias(const QString & alias )
     if ( alias.isEmpty() )
         return;
         
-    m_Aliases << alias;
+    m_values << alias;
 }
+
+void WhitelistItem::addAliases(const QStringList & aliases)
+{
+    foreach(QString alias, aliases)
+        if ( ! m_values.contains(alias, Qt::CaseInsensitive) )
+            m_values << alias;
+    
+}
+
+
+Port::Port(QString desig, QString prot, int n)
+{
+    m_values << desig;
+    
+    //the port number can be consider an alias too
+    if ( n > 0 )
+        m_values << QString::number(n);
+        
+    m_protocols << prot;
+    m_number = n;
+}
+
+Port::Port()
+{
+    m_number = 0;
+}
+
+QString Port::value()
+{
+    if ( ! m_values.isEmpty() ) 
+        return m_values[0];
+    else
+        return QString("");
+}
+
+
+Port::Port(const Port& other)
+{
+    *this = other;
+}
+
+void Port::addProtocols(const QStringList& protocols)
+{
+    m_protocols << protocols;
+    m_protocols.removeDuplicates(); 
+}
+
+void Port::addAlias(const QString& alias)
+{
+    if ( ! m_values.contains(alias) )
+        m_values << alias;
+}
+
+Port& Port::operator=(const Port& other)
+{
+    m_number = other.number();
+    m_protocols = other.protocols();
+    m_values = other.values();
+}
+
+bool Port::operator==( WhitelistItem& item)
+{
+
+    foreach(QString value, m_values)
+        if ( value == item.value() )
+            return true;
+    
+    return false;
+}
+
 
 PglWhitelist::PglWhitelist(QSettings* settings)
 {
