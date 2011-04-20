@@ -201,6 +201,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void updateRadioButtonToggled(bool);
         void rootFinished();
         void autoListupdate(bool toggled);
+        void removeListItems();
 
 };	
 

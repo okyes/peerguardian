@@ -191,7 +191,32 @@ void Peerguardian::g_MakeConnections()
     
     if ( m_Root )
         connect(m_Root, SIGNAL(finished()), this, SLOT(rootFinished()));
+        
+    //connect the remove buttons
+    connect(m_rmBlockListButton, SIGNAL(clicked()), this, SLOT(removeListItems()));
+    connect(m_rmExceptionButton, SIGNAL(clicked()), this, SLOT(removeListItems()));
     
+}
+
+
+void Peerguardian::removeListItems()
+{
+    QList<QTreeWidgetItem *> treeItems;
+    QTreeWidget * tree;
+    int i;
+    
+    if ( sender()->objectName().contains("block", Qt::CaseInsensitive) )
+       tree  = m_BlocklistTreeWidget;
+    else
+        tree  = m_WhitelistTreeWidget;
+    
+    foreach(QTreeWidgetItem *item, tree->selectedItems())
+    {
+        i = tree->indexOfTopLevelItem(item);
+        tree->takeTopLevelItem(i);
+    }
+    
+    m_ApplyButton->setEnabled(guiOptions->isChanged());
 }
 
 void Peerguardian::rootFinished()
