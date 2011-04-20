@@ -1,0 +1,45 @@
+<!--
+    Copyright 2005,2006 Brian Bergstrand
+
+    This program is free software; you can redistribute it and/or modify it under the terms of the
+    GNU General Public License as published by the Free Software Foundation;
+    either version 2 of the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+    without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along with this program;
+    if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+-->
+<html>
+<head>
+<title>PeerProtector Statistics</title>
+<style type="text/css">
+	@import "PeerProtector.css";
+</style>
+
+<script type='text/javascript' src='PeerProtector.js' charset='utf-8'/>
+</head>
+
+<body onload="setup();">
+	
+	<!-- The output of the statistics method - modified in our JavaScript -->
+	<div>
+	<span id="totalText" style="text-align:right">Blocked Addresses</span>: <span id="totalAddresses"><i>Retrieving...</i></span>
+	</div>
+	<hr width="90%" align:"center">
+	
+	<div><span id="inBlkText" style="text-align:right">Incoming Blocks</span>: <span id="incomingBlocks"><i>Retrieving...</i></span></div>
+	<div><span id="outBlkText" style="text-align:right">Outgoing Blocks</span>: <span id="outgoingBlocks"><i>Retrieving...</i></span></div>
+	<div><span id="totalBlkText" style="text-align:right">Total Blocks</span>: <span id="totalBlocks"><i>Retrieving...</i></span></div>
+	
+	<div><span id="inAllowText" style="text-align:right">Incoming Allows</span>: <span id="incomingAllows"><i>Retrieving...</i></span></div>
+	<div><span id="outAllowText" style="text-align:right">Outgoing Allows</span>: <span id="outgoingAllows"><i>Retrieving...</i></span></div>
+	<div><span id="totalAllowText" style="text-align:right">Total Allows</span>: <span id="totalAllows"><i>Retrieving...</i></span></div>
+	
+    <hr width="90%" align:"center">
+    <div><span id="connPerSecText" style="text-align:right">Connections / sec</span>: <span id="connPerSec"><i>Retrieving...</i></span></div>
+    <div><span id="blockPerSecText" style="text-align:right">Blocks / sec</span>: <span id="blockPerSec"><i>Retrieving...</i></span></div>
+</body>
+</html>

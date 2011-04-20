@@ -1,0 +1,13 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {peformAction = id; }; 
+            CLASS = PPAddrActionAskController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {appIcon = id; expireTimePopup = id; labelText = id; }; 
+            SUPERCLASS = NSWindowController; 
+        }
+    ); 
+    IBVersion = 1; 
+}

@@ -1,0 +1,473 @@
+ %&program=pdflatex
+ 
+\documentclass[12pt]{article}
+\usepackage{palatino} % book font
+\usepackage{geometry} % see geometry.pdf on how to lay out the page. There's lots.
+\geometry{a4paper} % or letterpaper or a5paper or ... etc
+% \geometry{landscape} % rotated page geometry
+\usepackage{booktabs} % for much better looking tables
+\usepackage{paralist} % very flexible & customisable lists (eg. enumerate/itemize, etc.)
+\usepackage{verbatim} % adds environment for commenting out blocks of text & for better verbatim
+\usepackage[pdftex,bookmarks=true,urlcolor=blue,linktocpage,colorlinks=true]{hyperref}
+\usepackage{fancyhdr}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+ % See the ``Article customise'' template for come common customisations
+ 
+\hypersetup{
+pdfauthor = {Brian Bergstrand},
+pdftitle = {PeerGuardian User Guide},
+pdfkeywords = {peerguardian, IP, address, blocker, blocking, os x, p2p, security, phoenixlabs}
+}
+ 
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyhf{}
+\fancyhead[LE,RO]{\sffamily\bfseries\thepage}
+ 
+ \newcommand{\pgver}{1.5.1}
+ 
+\title{PeerGuardian \pgver~User Guide}
+\author{Brian Bergstrand}
+% \date{} % enable this line to set a custom date
+ 
+%%% BEGIN DOCUMENT
+\begin{document}
+ 
+\maketitle
+
+\clearpage
+\thispagestyle{empty}
+\begin{center}
+Copyright \copyright~2005-2009 Brian Bergstrand\par
+This document may be freely translated into other languages or media.
+\end{center}
+\clearpage
+
+\thispagestyle{empty}
+\tableofcontents
+\clearpage
+ 
+\section{License}
+PeerGuardian for OS X\\Copyright \copyright~2005-2009 Brian Bergstrand.
+
+This program is free software; you can redistribute it and/or modify it under the terms of the
+GNU General Public License as published by the Free Software Foundation;
+either version 2 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program;
+if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+
+\section{About}
+
+PeerGuardian is Phoenix LabsÕ premier IP blocker for OS X. PeerGuardian integrates support for multiple lists, list editing, automatic updates, and blocking all of IPv4 (TCP, UDP, ICMP, etc), making it the safest and easiest way to protect your privacy on the Internet.
+
+\section{Credits}
+
+\begin{itemize}
+\item Thanks to M. Uli Kusterer for UKKQueue: \url{http://www.zathras.de/programming/sourcecode.htm}
+\item 7za binary from the p7zip project: \url{http://p7zip.sourceforge.net/}
+\item S2DMGraphView from Snowmint Creative Solutions LLC: \url{http://developer.snowmintcs.com/frameworks/sm2dgraphview/index.html}
+\item Portions of Theodore Ts'o's uuid library: \url{http://e2fsprogs.sourceforge.net/}.
+\item Application icon from Phoenix Labs: \url{http://www.phoenixlabs.org/}
+\end{itemize}
+
+\section{Requirements}
+
+\begin{itemize}
+\item Mac OS X 10.4.9 or greater (Intel or PPC) --- older versions will not be supported.
+\item Growl (\url{http://growl.info}) is required for the Temporary Allow feature.
+\item Beginning with version 1.4, PG is only supported when running from an Admin account.
+\end{itemize}
+
+\section{Installation}
+
+\subsection{First Install}
+
+\begin{enumerate}
+\item Open the PeerGuardian installation package and complete the installation process.
+\item Launch the PeerGuardian application.
+\item Relaunch any running P2P applications so PeerGuardian is activated for their connections.
+\end{enumerate}
+
+\subsection{Upgrading}
+
+If you are upgrading from a previous version of PeerGuardian (\textbf{not PeerProtector!}), follow these steps:
+
+\begin{enumerate}
+\item Quit your P2P applications.
+\item Launch PeerGuardian (if not already running) and select Quit Helpers from the PeerGuardian menu.
+\item Quit PeerGuardian.
+\item Open the PeerGuardian installation package and complete the installation process. This will install and activate the new kernel filter.
+\item Launch the new  version of PeerGuardian.
+\item Relaunch your P2P applications so PeerGuardian is re-activated for their connections.
+\end{enumerate}
+
+There is no need to reboot your machine to activate the new version.
+
+\subsection{Upgrading from PeerProtector}
+
+\begin{enumerate}
+\item Launch PeerProtector (if not already running) and select Quit Helpers from the PeerProtector menu.
+\item Quit PeerProtector.
+\item Quit your P2P applications.
+\item Open the PeerGuardian installation package. This will remove all PeerProtector files that have been renamed.
+\item Launch PeerGuardian.
+\item Relaunch your P2P applications.
+\end{enumerate}
+
+There is no need to reboot your machine to activate the new version.
+
+\section{Configuration}
+
+\subsection{Internal PeerGuardian Lists}
+
+PeerGuardian creates several automatically maintained internal lists and stores them in sub-folders created in the  \~{}/Library folder. In addition internet list caches are stored in the Library folder. All of these lists and any folders created by PeerGuardian are considered a private implementation detail and you should not rely on their location or even their existence; especially when creating your own custom lists.
+
+\subsection{Creating a Custom List}
+
+To create a custom list, open the List Manager window and click the Add button. A sheet will appear allowing you to specify the list details. For an Allow list, check Allow All. For a block list, uncheck both Allow All Ranges and Allow Standard Ports.
+
+Next, enter a description for the list. This is just to help you identify the list, so it can contain anything you like.
+
+Now you need to specify the list URL(s). If the list will be stored on your computer, you can click the Choose File button and select a location for the file using the standard OS X Save panel. For a file downloaded from the Internet, you must click the plus (+) button and then type the full URL (including the resource specifier --- http://, ftp://, etc) into the URL text field. \emph{Very Important: In order for the change to be recognized, you must hit the return key}. Repeat this for every URL you want to add.
+
+For lists stored on your computer, you need to enter IP address ranges. To do this, click the Add button (in the editing sheet, not the List Manager) and enter a description for the range and the starting and ending IP addresses. If the ending IP address is left empty, the starting address will be used to fill it in thereby creating a range of one address. However, if the ending IP address is smaller than the starting address an error will occur. Repeat this for every range you want to add. To remove a range, select it and click the Remove button.
+
+Finally, click the OK button and your new custom list will be saved and automatically loaded into the filters.
+
+\subsection{Editing a List's Properties}
+
+To edit a list, open the List Manager window and click the Edit button. A sheet will appear allowing you to change the list details.
+
+To edit a URL, select the URL from the drop down menu and make your changes. When done, make sure to hit the return key so the change is recognized.
+
+To remove a URL, select the URL from the drop down menu, and click the minus (-) button next to the URL text field.
+
+\subsection{Exporting/Merging/Converting Lists}
+\label{export_ref}
+
+To export or merge one or more lists, open the List Manager window, select the list(s) you wish to merge and then choose Export from the File menu. In the resulting Save panel, you can select the new list format --- binary or text. The binary format results in smaller files at the expense of human readability. The text format allows readability at the expense of larger file sizes.
+
+If you want to merge list files not managed by PeerGuardian, a command line tool, pgmerge, is included in the PeerGuardian bundle. If PeerGuardian is located in your Applications folder, you would access pgmerge as follows:
+
+/Applications/PeerGuardian.app/Contents/Resources/pgmerge
+
+\subsection{Temporarily Allowing an Address}
+
+This feature requires Growl. When an address is blocked, you can click on the corresponding Growl notification window and a PeerGuardian window will appear front and center permitting you to temporarily allow the address for a certain time period. You can also permanently allow the address if you have previously created a custom allow. Once allowed, it may take a couple of seconds for the address change to take effect (you will see a Growl notification that the ``Temporary Allow'' list has been loaded/reloaded) --- you can then access the previously blocked address.
+
+According to the Growl documentation, some themes do not support notification clicks, so be aware of that if it doesn't work for you.
+
+\subsection{Finding the Address Associated with a Domain Name}
+\label{lookup_ref}
+
+PeerGuardian includes an integrated name lookup utility. Simply select ``Name Lookup'' from the file menu, enter the name and press the \emph{return} key. Addresses associated with the name will be displayed in  the ``Addresses'' field and can automatically be added to an existing allow/block list using the provided buttons.
+
+\subsection{Allow Standard Ports and Its Implications on Security}
+
+When ``Allow Standard Ports'' (HTTP and FTP) is turned on for any list and you use local server applications, you run the risk of companies getting through PeerGuardian's filters. To allow the convenience of ``Allow Standard Ports'' (particularly when browsing the web) and still protect yourself from companies in the block lists, PeerGuardian provides a way to filter remote connections using any Standard Port based on the local port they are connecting to.
+
+Example:
+
+You are downloading a Bit Torrent file (using the default local port 6881), and a peer at address 192.168.1.254 using port 80 (the HTTP port) tries to connect to your machine. This peer is run by a company in the block list. The peer is allowed to connect even though they are in the block list because port 80 is an allowed Standard Port.
+
+To prevent this problem, PeerGuardian offers a way to specify local ports that Standard Ports are not allowed to connect to without going through the normal filters first.
+
+Open PeerGuardian's preferences (cmd-,) and enter the local ports you wish to filter in the ``Filter remote std. port access to these local ports'' field. You can enter individual ports and port ranges. Each port or range must be separated by a comma (',') and ranges are specified by a starting port and ending port separated by a dash ('-'). The ports do not have be in numerical order, and spaces are allowed. Negative numbers and numbers larger than 65535 are not allowed.
+
+Example:
+
+4662,6881-6889,5534
+
+This rule would apply PeerGuardian's filters to any remote peer trying to connect using a Standard Port to any of the following local ports: 4662, 6881, 6882, 6883, 6884, 6885, 6886, 6887, 6888, 6889, and 5534.
+
+Now, going back to our initial example, when peer 192.168.1.254 using port 80 tries to connect to your Bit Torrent client (on port 6881), PeerGuardian applies the block list filters and the peer is blocked from connecting.
+
+It is up to you to find out the local ports that your applications are using and enter them into PeerGuardian's port list.
+
+In addition to the above, it is recommended that you use any port blocking feature of your applications to block connections initiated from your client to a peer using one of the standard ports. PeerGuardian can only apply the port filters when peers connect to you, not when you connect to other peers (which is less likely, but can still occur). For instance, the Azureus BitTorrent client can block incoming and outgoing connections to any peers using specified data ports (Preferences-$>$Transfer-$>$Ignore peers with these data ports). If your application offers this option, you should enter the following ports: 20, 21, 80, 443.
+
+\section{Applescript Support}
+ 
+pploader (\ref{pploader_ref}) supports basic Applescript commands that can enable/disable the filters and update Internet based lists.
+
+Examples:
+
+\begin{verbatim}
+-- Get the current filter state
+tell application "pploader"
+set fstate to filters enabled
+end tell
+\end{verbatim}
+
+\begin{verbatim}
+-- Disable the filters -- use true to enable them
+tell application "pploader"
+set filters enabled to false
+end tell
+\end{verbatim}
+
+\begin{verbatim}
+-- Check for Internet list updates
+tell application "pploader" to update lists
+\end{verbatim}
+
+\section{Why is Apple.com Blocked?}
+
+Since Apple is a software company and a member of the Business Software Alliance (BSA), the list maintainers include Apple's address ranges in the block lists. However, PeerGuardian, ships with HTTP and FTP (PeerGuardian defines these as ``standard ports'') access enabled for the P2P list (which is where the Apple range is defined). This should allow most Apple services to work (.Mac web services, Software Update, iCal updates, etc).
+
+There are a few services that are known not to work:
+
+\begin{enumerate}
+\item iChat Video behind a Network Address Translation (NAT) router. iChat needs to make a connection on a non-standard port to \emph{snatmap.mac.com} in order to create a video connection through a NAT router. To allow iChat Video to work, you will have to create a custom allow list and and add the IP address(s) for \emph{snatmap.mac.com} to the custom list.
+
+To find the address(s) for any domain name and automatically add them to a custom list, use the method outlined in Section \ref{lookup_ref}.
+
+\item Network Time Protocol (NTP) time sync service. The default Mac OS X time server is \emph{time.apple.com} and is blocked because it also relies on a non-standard port. To get around this problem, it is recommended that you use an open access educational time server from this list: \url{http://www.eecis.udel.edu/~mills/ntp/clock2a.html}
+
+Educational addresses are not blocked unless you have the EDU list active (which it should not be unless you are on a University network). Government and corporate addresses have a higher chance of being blocked by the P2P block list.
+
+You could also add the \emph{time.apple.com} address to a custom allow list using the method defined in (\ref{lookup_ref}), but when an alternate address is available for a server, it should be preferred over a custom allow.
+
+\item .Mac POP/IMAP access. While .Mac WebMail works, POP/IMAP access does not. You will have to follow the procedure outlined in (\ref{lookup_ref}) to create a custom allow entry for the .Mac mail servers.
+\end{enumerate}
+
+\section{Uninstall}
+\label{uninstall_ref}
+
+Launch the PeerGuardian Uninstaller application and enter your admin password. The uninstaller will only remove PeerGuardian.app if it's installed in /Applications. If you chose to install the application in a custom location, you will need to manually drag it to the Trash.
+
+Do not attempt to uninstall PeerGuardian by any other means.
+
+\section{Components}
+
+\subsection{PeerGuardian.kext}
+
+The kernel extension that does the actual packet filtering. Located in /Library/Extensions.
+
+\subsection{PeerGuardian.app}
+
+The main application that you interact with. It allows you to view log entries, manage and create lists, view statistics and enable/disable the filters. This application does not have to be running for normal operation of PeerGuardian, you may quit it at anytime. You may place this application anywhere you wish.
+
+Please note that the log window only shows events added while the application is running. If you wish to view older events, open \~{}/Library/Logs/PeerGuardian.log using Console or your favorite text editor.
+
+NOTE: Quitting the background applications must be done when upgrading PeerGuardian.app. Select Quit Helpers from the PeerGuardian menu. Alternatively, you may open Activity Viewer and quit pploader and pplogger using it. Using kill from the command line is not recommended, as the applications may not shutdown correctly. If you choose to use the latter method, make sure PeerGuardian.app has been quit first, otherwise it will re-launch pploader. The background applications should be manually quit only when performing an upgrade, as they are vital to the proper operation of PeerGuardian.
+
+\subsection{pgagent.app}
+\label{pgagent_ref}
+
+A background helper application that displays the statistics window and the PG global menu bar item. This application is contained within PeerGuardian.app and is added to your Login Items list the first time PeerGuardian.app is launched.
+
+\subsection{pploader.app}
+\label{pploader_ref}
+
+A background helper application that handles list management, including updating lists from the Internet and loading them into the kernel filter. A check for list updates is performed every three hours. This application is contained within PeerGuardian.app and is added to your Login Items list the first time PeerGuardian.app is launched.
+
+pploader caches lists it downloads in \~{}/Library/Caches/xxx.qnation.PeerGuardian. pploader loads these cache files first and then looks for updates. That way you are protected even if the lists are not currently accessible via the Internet. File names in this folder may not correspond to URLs in the List Manager --- this is normal.
+
+\subsection{pplogger.app}
+
+A background helper application that handles logging events received from the kernel filter. All events are written to \~{}/Library/Logs/PeerGuardian.log and the binary file \~{}/Library/Caches/xxx.qnation.pghistory (used for statistical graphing). The PeerGuardian.log file is automatically archived and rotated out when it reachs 128MB in size. The binary history file is automatically truncated to half its size when it reaches 512MB in size.
+
+In addition to logging, this application notifies Growl when block and list events occur. This application is contained within PeerGuardian.app and is added to your Login Items list the first time PeerGuardian.app is launched.
+
+\subsection{PeerGuardian.wdgt}
+
+A Dashboard widget that displays block/allow statistics.
+
+\subsection{pgstart}
+
+A utility used to load/unload the kernel extension as necessary. Located in /Library/Application Support/PeerGuardian/
+
+\subsection{pgmerge}
+
+A command line utility that can convert/merge lists. See the Export section (\ref{export_ref}) for more information.
+
+\subsection{xxx.qnation.PeerGuardian.kextload.plist}
+
+The Launchd configuration file used to auto-load the kernel extension at boot time. Auto-loading the extension before login prevents pploader.app from asking for your password. Located in /Library/LaunchDaemons/
+
+\subsection{PeerGuardian Uninstaller.app}
+
+See section the Uninstall section (\ref{uninstall_ref}) for details. This application is part of the distribution archive only.
+
+\section{Release History}
+
+\subsection*{1.5.1}
+\begin{itemize}
+\item Bug Fix: Missing lists in  global status app and/or the main GUI app.
+\item Bug Fix: possibility of allow lists to being ignored in the kernel filter (dependent on load order).
+\item Other minor bug fixes.
+\end{itemize}
+
+\subsection*{1.5}
+\begin{itemize}
+\item Historical and Real-Time graphing of all connections.
+\item New global status item that allows quick access to Enable/Disable global and per-list filters.
+\item  Auto-allow of local network configuration addresses, including DNS servers, routers and assigned interface addresses. Any changes made to the system are automatically detected.
+\item Stats now update once per second.
+\item Increased size of kernel log buffer for large memory machines.
+\item More text list parsing enhancements to recognize more badly formatted entries in the Bluetack lists.
+\item Removed blocklist.org lists from the list defaults as the domain no longer belongs to Phoenix Labs.
+\item Leopard compatibility.
+\item GUI uninstaller.
+\item Bug Fix: Files that downloaded correctly but were actually corrupted were being cached locally. If the same file was corrupted the next time it was downloaded, then the corrupted local cache file also failed and so a huge range of addresses could be "lost". Corrupted files are no longer cached locally.
+\item Bug Fix: OS 9 binary names were not being logged properly on Leopard.
+\item Bug Fix: Allowed native IPv6 addresses would be logged with junk for the '(name:list)' portion of the log entry.
+\item Bug Fix: Rare memory leak in pplogger when detaching from the kernel.
+\item Bug Fix: Corrupt editing session if a list updated while editing another list.
+\end{itemize}
+
+\subsection*{1.4.2}
+\begin{itemize}
+\item Text list parsing enhancements to recognize some badly formatted entries in the Bluetack lists.
+\item Bug Fix: (Regression) The text list parser would always set the ending address to the start address, thus severely truncating the number of addresses that were actually loaded.
+\end{itemize}
+
+\subsection*{1.4.1}
+\begin{itemize}
+\item The PG version checker now verifies the hash of any downloaded updates.
+\item Bug Fix: (Regression) Inability of pploader to load KEXT.
+\item Bug Fix: Spurious Installer error for new installs.
+\end{itemize}
+
+\subsection*{1.4}
+\begin{itemize}
+\item Intel Macs are now fully supported.
+\item New statistics: Connections / Blocks per second.
+\item Internet based lists support multiple URLs per list. These are combined into one list before loading.
+\item Security: Only the user (or root) who originally loaded a list can unload/reload it.
+\item Removed delay (by design) that could occur when creating a new temporary allow.
+\item The List Manager window now displays extra list info in place of the URL.
+\item Blocklist.org lists are back, along with all new list definitions (new installs only).
+\item Bluetack lists changed to zip variants.
+\item pplogger will try to log the real name of CFM (OS 9 format) apps instead of the wrapper used to launch them (LaunchCFMApp).
+\item Bug Fix: pplogger crash if the application involved in the log event was no longer running when the event was processed.
+\item Bug Fix: Address "255.255.255.255" was treated as invalid in some circumstances.
+\item Bug Fix: (Intel Only) Wrong port numbers in the log file.
+\item Bug Fix: (Intel Only) Backwards IP addresses displayed in the PG range editor window.
+\item Bug Fix: Multiple unnecessary list reloads after a restart.
+\end{itemize}
+
+\subsection*{1.3.2}
+\begin{itemize}
+\item Added version checker.
+\item Bug Fix: Another possible panic when disabling the filters.
+\item Bug Fix: pploader crash when adding a custom Internet based list.
+\item Bug Fix: Error merging lists that contained an empty range description.
+\item Bug Fix: The Name Lookup window replaced (instead of merging) existing entries with the found addresses.
+\item Bug Fix: A click on OK in the prefs window with an empty port rule caused a spurious error.
+\end{itemize}
+
+\subsection*{1.3.1}
+\begin{itemize}
+\item Integrated name lookup utility with the ability to automatically add found addresses to a custom allow/block list.
+\item Automatic list updates can be disabled.
+\item pplogger limits Growl notifications to five (5) per second.
+\item Bug Fix: Possible kernel panic when disabling the filters (most likely on a dual-cpu when the network was very busy).
+\item Bug Fix: Errant error 22 when merging some lists (such as bogon).
+\item Bug Fix: Ranges that had a starting address of 0 were being ignored.
+\end{itemize}
+
+\subsection*{1.3}
+\begin{itemize}
+\item PeerGuardian supports list export/merge/conversion. A comand line tool, pgmerge, is also included in the PeerGuardian bundle.
+\item pplogger coalesces duplicate entries.
+\item Growl notifications for list load/unload/reload.
+\item The icon for Growl block notifications contains a disabled badge symbol.
+\item pplogger will compress the current log file and create a new one whenever the file becomes larger than 128MB. This is a hard runtime limit and does not affect the (smaller) launch time compression limit.
+\item pplogger throttles Growl notifications if Growl stops responding in a timely manner.
+\item Related to the above, log file entries are now near real time even if Growl becomes stalled. In previous versions, a Growl stall would also stall writing events to the log file.
+\item The ``Temporary Address Action'' window buttons respond to keyboard shortcuts.
+\item The ``Display Blocked Addresses With Growl'' option has been removed due to Growl being required for temp allow. If you don't want to see blocked notifications, you can still turn them off in Growl itself.
+\item Reduced shared memory usage for p2p and p2b(v2) lists.
+\item Bug Fix: Parsing bug that could allow invalid ranges from text files, which in turn could block 90\% of the IP4 address space.
+\item Bug Fix: Blocked address count was lower than the actual number being blocked (cosmetic only).
+\end{itemize}
+
+\subsection*{1.2}
+
+\begin{itemize}
+\item Re-branded to PeerGuardian. First official PhoenixLabs release.
+\item Temporary Allow support. Requires Growl. See the ``Temporarily Allowing an Address'' section.
+\item The filters can now be enabled/disabled from the PeerGuardian dock menu.
+\item PeerGuardian widget (statistics only).
+\item The log format now includes both the port number and port name (where possible) instead of one or the other.
+\item New application icon.
+\item PeerGuardian.app now displays a disabled symbol in its dock icon when the filters are disabled.
+\end{itemize}
+
+\subsection*{1.1}
+
+\begin{itemize}
+\item Added new port rules support. See the ``Allow Standard Ports Security'' section.
+\item Added AppleScript support to pploader. The filters can now be enabled/disabled with an AppleScript.
+\item The checkboxes in the List Manager window are now disabled to provide visual feedback that they are for status purposes only.
+\item Renamed ``Block Standard Ports'' to ``Allow Standard Ports''. This is more inline with PG2's ``Allow HTTP''. This is just a name change, there is no need to change the actual setting.
+\item Removed port 8080 (alternate HTTP) from the Standard Ports list. It's rarely used by actual HTTP servers and is more likely to be used by Anti-P2P companies.
+\item The log format has changed to put the year after the month/day and include a timezone.
+\item Included PeerProtectorUninstall.sh script.
+\item Bug Fix: UDP sockets that did not ``connect'' were not being filtered.
+\item Bug Fix: Another parsing bug that could cause some addresses to slip through the filter.
+\item Bug Fix: pplogger hang during quit --- when upgrading from a previous version, you will have to Force Quit pplogger using Activity Monitor.
+\item Bug Fix: In certain situations, it was possible for list changes to be lost when pploader was quit.
+\end{itemize}
+
+\subsection*{1.0}
+
+\begin{itemize}
+\item Unloading the kernel filter is now possible on 10.4.3. pploader will automatically recognize when a new version is installed and unload the current version then load the new one --- there is no longer a need to reboot. Since there is still a bug preventing unloading on 10.4.2, it is no longer supported.
+\item When possible, log entries now contain the process name and process id of the application that attempted the connection.
+\item Bug Fix: Kernel panic that occurred when the internal log event buffer became full (which would only occur if pplogger was not running).
+\item Bug Fix: Possible infinite loop during file parsing (specifically if PP somehow tried to parse a binary file).
+\item Bug Fix: On wake from sleep, pploader would continually attempt to download the active lists causing high CPU usage.
+\item Bug Fix: Rare hang during loading of lists that would cause all connection attempts to be blocked.
+\item Bug Fix: pplogger memory leak and two cases of lost entries (both occurring only when the kernel msg buffer was full ---  which is quite rare).
+\item Bug Fix: Possible permanent reduction of kernel log buffer.
+\end{itemize}
+
+\subsection*{0.3.5}
+
+\begin{itemize}
+\item Added ``Display Blocked Addresses Only'' pref to PeerProtector's log window. If checked, allow events will no longer be displayed in the log window. They will still be in the log file though.
+\item Minor change in the way pplogger caches port names to reduce memory usage.
+\item Fixed bug in pplogger that caused the log file to be compressed and re-created every time pplogger was launched instead of waiting for the size to reach 2MB. 
+\item Bug Fix: If a list is deactivated, it will now be unloaded from the kernel filter list, this was not done in previous versions.
+\item Bug Fix: If you deactivate the filters, quit PeerProtector and re-launch it, PeerProtector will now have the correct state instead of assuming the filters are enabled.
+\item Bug Fix: Parsing bug with Bluetack lists that caused some blocked ranges to be ignored (about 500 out of the 86000 in the level1 list).
+\end{itemize}
+
+\subsection*{0.3}
+
+\begin{itemize}
+\item Filter events are now logged with the names of ports where it makes sense (e.g., http instead of 80).
+\item Block HTTP has been changed to ``Block Standard Ports'' as FTP is now included in the ports to allow/block.
+\item pplogger will create a new log file during launch if the current one is 2MB or larger. The old file is moved to a date based name and then compressed with bzip2.
+\item Fixed a bug in PeerProtector that caused a new entry to be added to your Login Items for both pploader and pplogger every time PeerProtector was launched. You should open your Login Items and remove all of the duplicate entries.
+\end{itemize}
+
+\subsection*{0.2}
+
+\begin{itemize}
+\item All new GUI, including support for custom lists (allow or block), Growl block display and other goodies.
+\item The kernel filter now blocks ICMP in addition to UDP and TCP.
+\item PP can now parse p2p text files in the following format (Bluetack.co.uk uses this):
+	name/description:ipstart-ipend$\backslash$n
+\item Substituted Bluetack.co.uk lists for blocklist.org ones until the whole methlabs incident is resolved.
+\end{itemize}
+
+\subsection*{0.1}
+
+\begin{itemize}
+\item First release.
+\end{itemize}
+
+\end{document}
+\endinput

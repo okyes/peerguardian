@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>Hash</key>
+        <dict>
+        	<key>SHA1</key>
+        	<string></string>
+        </dict>
+        <key>Version</key>
+        <string>1.5.1</string>
+        <key>File</key>
+        <string>http://easynews.dl.sourceforge.net/sourceforge/peerguardian/PeerGuardian_1.5.1.zip</string>
+        <key>Notes</key>
+        <dict>
+                <key>English</key>
+                <string>- Historical and Real-Time graphing of all connections.
+- New global status item that allows quick access to Enable/Disable global and per-list filters.
+- Auto-allow of local network configuration addresses, including DNS servers, routers and assigned interface addresses.
+- More text list parsing enhancements to recognize more badly formatted entries in the Bluetack lists.
+- Leopard compatibility.
+- GUI uninstaller.
+- Bug fixes.
+                </string>
+        </dict>
+</dict>
+</plist>

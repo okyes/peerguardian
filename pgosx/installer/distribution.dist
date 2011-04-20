@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<installer-gui-script minSpecVersion='1.0040'>
+	<welcome file='Welcome.rtf'/>
+	<readme file="ReadMe.rtf"></readme>
+	<license file="License.rtf"></license>
+    <title>PeerGuardian</title>
+    <options allow-external-scripts="no" customize="allow"></options>
+    <installation-check script="installCheck()"></installation-check>
+    <script> 
+function checkForRunning() {
+	if (system.applications.fromIdentifier('xxx.qnation.PeerProtectorApp').length > 0) {
+		my.result.type = 'Fatal';
+		my.result.title =  'Please Quit PeerGuardian';
+		my.result.message = 'Please quit PeerGuardian in all logged in accounts before continuing.';
+		return false;
+	}
+	
+	if (system.applications.fromIdentifier('xxx.qnation.pgagent').length > 0) {
+		my.result.type = 'Fatal';
+		my.result.title =  'Please Quit PeerGuardian';
+		my.result.message = 'Please quit the PeerGuardian menu status item (pgagent) in all logged in accounts before continuing.';
+		return false;
+	}
+	
+	if (system.applications.fromIdentifier('xxx.qnation.pploader').length > 0 || system.applications.fromIdentifier('xxx.qnation.pplogger').length > 0) {
+		my.result.type = 'Fatal';
+		my.result.title =  'Please Quit PeerGuardian';
+		my.result.message = 'Please quit the PeerGuardian background helpers (pploader, pplogger) in all logged in accounts before continuing.';
+		return false;
+	}
+	
+	return true;
+}
+
+function installCheck() {
+	if (system.compareVersions(system.version.ProductVersion, '10.4.9') == -1) {
+		my.result.type = 'Fatal';
+		my.result.title =  'System Software is Not Supported';
+		my.result.message = 'PeerGuardian requires Mac OS X 10.4.9 or later.';
+		return false;
+	}
+	
+	return checkForRunning();
+}
+    </script>
+    <choices-outline>
+        <line choice="PG.support">
+        	<line choice="PG.kext"></line>
+        	<line choice="PG.kextload"></line>
+        	<line choice="PG.usupport"></line>
+        </line>
+        <line choice="PG.app"></line>
+        <line choice="PG.widget"></line>
+    </choices-outline>
+    <choice id="PG.app" title="PeerGuardian Application" description="Application used to configure PeerGuardian." customLocation="/Applications" customLocationAllowAlternateVolumes="yes" start_selected="true" start_enabled="false" start_visible="true">
+        <pkg-ref id="xxx.qnation.PeerGuardian.app" version="1.0.0.0.0" installKBytes="416" auth="Admin" onConclusion="None">file:./Contents/Packages/PeerGuardianApp.pkg</pkg-ref>
+    </choice>
+    <choice id="PG.widget" title="PeerGuardian Widget" description="Dashboard Widget to display PeerGuardian statistics." customLocation="/Library/Widgets" customLocationAllowAlternateVolumes="no" start_selected="true" start_enabled="true" start_visible="true">
+        <pkg-ref id="xxx.qnation.PeerGuardian.widget" version="1.0.0.0.0" installKBytes="416" auth="Admin" onConclusion="None">file:./Contents/Packages/PeerGuardianWidget.pkg</pkg-ref>
+    </choice>
+    <choice id="PG.support" title="PeerGuardian Support" description="Required PeerGuardian components." start_selected="true" start_enabled="false" start_visible="true">
+    </choice>
+    <choice id="PG.usupport" title="PeerGuardian User Support" description="Required PeerGuardian components." start_selected="true" start_enabled="false" start_visible="false">
+    	<pkg-ref id="xxx.qnation.PeerGuardian.support" version="1.0.0.0.0" installKBytes="4588" auth="Root" onConclusion="None">file:./Contents/Packages/PeerGuardianSupport.pkg</pkg-ref>
+    </choice>
+    <choice id="PG.kext" title="PeerGuardian Kernel Support" description="Required PeerGuardian components." start_selected="true" start_enabled="false" start_visible="false">
+    	<pkg-ref id="xxx.qnation.PeerGuardian.kext" version="1.0.0.0.0" installKBytes="4588" auth="Root" onConclusion="None">file:./Contents/Packages/PeerGuardianKext.pkg</pkg-ref>
+    </choice>
+    <choice id="PG.kextload" title="PeerGuardian Boot-time Loading Support" description="Required PeerGuardian components." start_selected="true" start_enabled="false" start_visible="false">
+    	<pkg-ref id="xxx.qnation.PeerGuardian.kextload" version="1.0.0.0.0" installKBytes="4588" auth="Root" onConclusion="None">file:./Contents/Packages/PeerGuardianLaunchDaemon.pkg</pkg-ref>
+    </choice>
+</installer-gui-script>

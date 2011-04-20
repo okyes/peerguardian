@@ -1,0 +1,59 @@
+#! /bin/sh
+PATH="/usr/bin:/bin:/usr/sbin:/sbin"
+
+# uninstall pre-1.5 support
+cd /Library/
+
+if [ -f ./LaunchDaemons/xxx.qnation.PeerProtector.kextload.plist ]; then
+	echo "Removing Launch Daemon plist..."
+	rm ./LaunchDaemons/xxx.qnation.PeerProtector.kextload.plist 
+fi
+
+if [ -d ./Extensions/PeerProtector.kext ]; then
+	echo "Unloading kext..."
+	/Library/Application\ Support/ppktool -u
+	echo "Removing PP kext..."
+	rm -rf ./Extensions/PeerProtector.kext
+fi
+
+if [ -d ./Receipts/PeerProtector.pkg ]; then
+	echo "Removing Install receipt..."
+	rm -rf ./Receipts/PeerProtector.pkg
+fi
+
+
+if [ -d ./Widgets/PeerProtector.wdgt ]; then
+	echo "Removing widget..."
+	rm -rf ./WidgetsPeerProtector.wdgt
+fi
+
+if [ -f ./Application\ Support/ppktool ]; then
+	echo "Removing ppktool..."
+	rm -rf ./Application\ Support/ppktool
+fi
+
+if [ -f ./Application\ Support/pgstart ]; then
+	echo "Removing pgstart..."
+	rm -rf ./Application\ Support/pgstart
+fi
+
+# User specific
+cd "${HOME}"/Library/Caches
+if [ -d xxx.qnation.PeerProtector ]; then
+	echo "Renaming list cache"
+	mv ./xxx.qnation.PeerProtector ./xxx.qnation.PeerGuardian
+fi
+
+if [ -d ../Widgets ]; then
+	cd ../Widgets
+	if [ -d ./PeerProtector.wdgt ]; then
+		echo "Removing PP widget..."
+		rm -rf ./PeerProtector.wdgt
+	fi
+	
+	if [ -d ./PeerGuardian.wdgt ]; then
+		echo "Removing PG widget..."
+		rm -rf ./PeerGuardian.wdgt
+	fi
+fi
+
