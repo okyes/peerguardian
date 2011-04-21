@@ -93,7 +93,7 @@
             </font>
            </property>
            <property name="text" >
-            <string>Type an IP address (optionally with a subnetmask) in the field above, select the connection type you want to allow and click "Add" to add in into the Whitelist. Multiple entries can be added seperated with a semicolon. This tool can be also used to whitelist hostnames. Just type the hostname you want to add and click "Resolve" to resolve it before adding in into the Whitelist. Please note that resolving a hostname may take several seconds.</string>
+            <string>Type an IP address (optionally with a subnetmask) in the field above, select the connection type you want to allow and click "Add" to add in into the Whitelist. Multiple entries can be added separated with a semicolon. This tool can be also used to whitelist hostnames. Just type the hostname you want to add and click "Resolve" to resolve it before adding in into the Whitelist. Please note that resolving a hostname may take several seconds.</string>
            </property>
            <property name="alignment" >
             <set>Qt::AlignJustify|Qt::AlignVCenter</set>
