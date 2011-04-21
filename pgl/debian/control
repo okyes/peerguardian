@@ -6,7 +6,7 @@ Uploaders: jre <jre-phoenix@users.sourceforge.net>
 Bugs: mailto:peerguardian-devel@lists.sourceforge.net
 Build-Depends: debhelper (>= 7.0.50~),
                po-debconf,
-#               libqt4-dev,
+               libqt4-dev,
 #               libdbus-1-dev
                zlib1g-dev,
                libnetfilter-queue-dev,
@@ -21,6 +21,8 @@ Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          iptables
+Recommends: pglcmd,
+        pgl-gui
 Breaks: moblock (<<2~)
 Replaces: moblock (<<2~)
 Conflicts: iplist,
@@ -45,7 +47,7 @@ Description: PeerGuardian Linux - pgld (debug)
  This is the pgl daemon pgld. It uses the netfilter xt_NFQUEUE kernel module
  (available since kernel 2.6.13).
  .
- This package contains the debugging symbols.
+ This package contains the debugging symbols for pgld.
 
 Package: pglcmd
 Architecture: all
@@ -54,7 +56,8 @@ Depends: ${misc:Depends},
          lsb-base,
          pgld (>= ${source:Version}),
          pgld (<< ${source:Version}.1~)
-Recommends: wget,
+Recommends: pgl-gui,
+        wget,
         unzip,
         p7zip | p7zip-full
 Suggests: mail-transport-agent
@@ -86,29 +89,31 @@ Description: PeerGuardian Linux - pglcmd
   - Provides LSB 3.1 compatible init script.
   - Daily rotation of the logfiles.
 
-# Package: pgl-gui
-# Architecture: any
-# Depends: ${shlibs:Depends},
-#          ${misc:Depends},
-#          pgld (>= ${source:Version}),
-#          pgld (<< ${source:Version}.1~),
-#          pglcmd (= ${source:Version})
-# Breaks: mobloquer (<<2~)
-# Replaces: mobloquer (<<2~)
-# Description: PeerGuardian Linux - pgl-gui
-#  pgl blocks connections from and to hosts, that are listed in a very large
-#  blocklist (thousands or millions of IP ranges).
-#  .
-#  This is the pgl GUI (Qt).
+Package: pgl-gui
+Architecture: any
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         pgld (>= ${source:Version}),
+         pgld (<< ${source:Version}.1~),
+         pglcmd (= ${source:Version})
+Breaks: mobloquer (<<2~)
+Replaces: mobloquer (<<2~)
+Description: PeerGuardian Linux GUI - pgl-gui
+ pgl blocks connections from and to hosts, that are listed in a very large
+ blocklist (thousands or millions of IP ranges).
+ .
+ This is the pgl Graphical User Interface pgl-gui (C++, Qt).
 
-# Package: pgl-gui-dbg
-# Architecture: any
-# Section: debug
-# Priority: extra
-# Depends: ${misc:Depends},
-#          pgl-gui (= ${binary:Version})
-# Description: PeerGuardian Linux - pgl-gui (debug)
-#  pgl blocks connections from and to hosts, that are listed in a very large
-#  blocklist (thousands or millions of IP ranges).
-#  .
-#  This package contains the debugging symbols for the pgl GUI (Qt).
+Package: pgl-gui-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends: ${misc:Depends},
+         pgl-gui (= ${binary:Version})
+Description: PeerGuardian Linux GUI - pgl-gui (debug)
+ pgl blocks connections from and to hosts, that are listed in a very large
+ blocklist (thousands or millions of IP ranges).
+ .
+ This is the pgl Graphical User Interface pgl-gui (C++, Qt).
+ .
+ This package contains the debugging symbols for pgl-gui.
