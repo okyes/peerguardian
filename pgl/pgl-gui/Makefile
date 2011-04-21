@@ -242,7 +242,7 @@ DISTFILES = \
 
 
 install:
-	install -D -m 755 src/pgl-gui $(DESTDIR)/$(BINDIR)/pgl-gui
+	install -D -m 755 pgl-gui $(DESTDIR)/$(BINDIR)/pgl-gui
 	install -D -m 644 other/pgl-gui.desktop $(DESTDIR)/$(prefix)/share/applications/pgl-gui.desktop
 	install -D -m 644 images/pgl-gui.png $(DESTDIR)/$(prefix)/share/pixmaps/pgl-gui.png
 
@@ -259,7 +259,7 @@ clean:
 	qrc_images.o
 
 dist:
-	mkdir -p $(DISTDIR) $(DISTDIR)/images $(DISTDIR)/src $(DISTDIR)/ui
+	mkdir -p $(DISTDIR) $(DISTDIR)/images $(DISTDIR)/other $(DISTDIR)/src $(DISTDIR)/ui
 	for I in $(DISTFILES) ; do cp "$$I" $(DISTDIR)/$$I ; done
 
 .PHONY: all install install-strip clean dist
