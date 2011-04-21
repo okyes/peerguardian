@@ -17,8 +17,7 @@ OPTFLAGS=-Os
 #
 MAKE_PGLD ?= yes
 MAKE_PGLCMD ?= yes
-# NOTE: currently pgl-gui compiles, but is not usable yet.
-MAKE_PGLGUI ?= no
+MAKE_PGLGUI ?= yes
 
 #
 # Configuration settings
@@ -89,10 +88,9 @@ MODULES_INSTALL+=pgl-gui_install
 MODULES_INSTALLSTRIP+=pgl-gui_install-strip
 MODULES_CLEAN+=pgl-gui_clean
 MODULES_DIST+=pgl-gui_dist
-RELEASEFILE:=$(PKGNAME)-$(VERSION).tar.gz
-else
-RELEASEFILE:=$(PKGNAME)_no-GUI-$(VERSION).tar.gz
 endif
+
+RELEASEFILE:=$(PKGNAME)-$(VERSION).tar.gz
 
 DISTDIR = $(PKGNAME)-$(VERSION)
 
