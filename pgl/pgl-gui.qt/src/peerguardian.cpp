@@ -493,7 +493,7 @@ void Peerguardian::inicializeSettings()
 	m_Root = NULL;
     m_Control = NULL;
 
-    m_ProgramSettings = new QSettings(QSettings::UserScope, "pgl", "pgl-gui.qt");
+    m_ProgramSettings = new QSettings(QSettings::UserScope, "pgl", "pgl-gui");
 
     g_SetRoot();
     g_SetLogPath();
@@ -554,7 +554,7 @@ void Peerguardian::g_SetListPath()
             m_List = new PeerguardianList(filepath);
 
     //whitelisted Ips and ports - /etc/pgl/pglcmd.conf and /etc/pgl/allow.p2p and
-    //$HOME/.config/pgl/pgl-gui.qt.conf for disabled items
+    //$HOME/.config/pgl/pgl-gui.conf for disabled items
     m_Whitelist = new PglWhitelist(m_ProgramSettings);
     
 }
@@ -705,7 +705,7 @@ void Peerguardian::g_MakeMenus() {
 void Peerguardian::g_ShowAboutDialog() {
 
     QString message;
-    message += QString("<b><i>Peerguardian Qt version %1</b><br>A graphical user interface for Peerguardian<br><br>").arg( VERSION_NUMBER );
+    message += QString("<b><i>PeerGuardian Linux version %1</b><br>A Graphical User Interface for PeerGuardian Linux<br><br>").arg( VERSION_NUMBER );
     message += "Copyright (C) 2007-2008 Dimitris Palyvos-Giannas<br>";
     message += "Copyright (C) 2011 Carlos Pais <br><br>";
     message += "This program is licenced under the GNU General Public Licence v3<br><br><font size=2>";

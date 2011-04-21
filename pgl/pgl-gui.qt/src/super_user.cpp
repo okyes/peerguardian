@@ -90,7 +90,7 @@ void SuperUser::execute( const QStringList &command ) {
 
 	if ( m_SudoCmd.isEmpty() ) 
     {
-		qCritical() << Q_FUNC_INFO << "Could not use either kdesu or gksu to execute the command requested.\nIf neither of those executables exist in /usr/bin/ you can set the path of the one you prefer in pgl-gui's configuration file, usually found in ~/.config/pgl/pgl-gui.qt.conf.\nThe path can be changed by changing the value of the super_user key, or creating a new one if it doesn't already exist.";
+		qCritical() << Q_FUNC_INFO << "Could not use either kdesu or gksu to execute the command requested.\nIf neither of those executables exist in /usr/bin/ you can set the path of the one you prefer in pgl-gui's configuration file, usually found in ~/.config/pgl/pgl-gui.conf.\nThe path can be changed by changing the value of the super_user key, or creating a new one if it doesn't already exist.";
 		return;
 	}
     

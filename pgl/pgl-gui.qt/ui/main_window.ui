@@ -29,11 +29,11 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Peerguardian Qt</string>
+   <string>PeerGuardian Linux</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../images/images.qrc">
-    <normaloff>:/images/pgl-gui.qt.png</normaloff>:/images/pgl-gui.qt.png</iconset>
+    <normaloff>:/images/pgl-gui.png</normaloff>:/images/pgl-gui.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -1144,7 +1144,7 @@
   <action name="a_CreateBackups">
    <property name="icon">
     <iconset>
-     <normaloff>Programas/peerguardian/pgl/pgl-gui.qt/ui</normaloff>Programas/peerguardian/pgl/pgl-gui.qt/ui</iconset>
+     <normaloff>Programas/peerguardian/pgl/pgl-gui/ui</normaloff>Programas/peerguardian/pgl/pgl-gui/ui</iconset>
    </property>
    <property name="text">
     <string>Create Backups</string>
@@ -1153,7 +1153,7 @@
   <action name="a_RestoreSettings">
    <property name="icon">
     <iconset>
-     <normaloff>Programas/peerguardian/pgl/pgl-gui.qt/ui</normaloff>Programas/peerguardian/pgl/pgl-gui.qt/ui</iconset>
+     <normaloff>Programas/peerguardian/pgl/pgl-gui/ui</normaloff>Programas/peerguardian/pgl/pgl-gui/ui</iconset>
    </property>
    <property name="text">
     <string>Restore Settings</string>
@@ -1162,7 +1162,7 @@
   <action name="a_RestoreList">
    <property name="icon">
     <iconset>
-     <normaloff>Programas/peerguardian/pgl/pgl-gui.qt/ui</normaloff>Programas/peerguardian/pgl/pgl-gui.qt/ui</iconset>
+     <normaloff>Programas/peerguardian/pgl/pgl-gui/ui</normaloff>Programas/peerguardian/pgl/pgl-gui/ui</iconset>
    </property>
    <property name="text">
     <string>Restore Blocklists</string>
@@ -1171,7 +1171,7 @@
   <action name="a_SettingsDialog">
    <property name="icon">
     <iconset>
-     <normaloff>Programas/peerguardian/pgl/pgl-gui.qt/ui</normaloff>Programas/peerguardian/pgl/pgl-gui.qt/ui</iconset>
+     <normaloff>Programas/peerguardian/pgl/pgl-gui/ui</normaloff>Programas/peerguardian/pgl/pgl-gui/ui</iconset>
    </property>
    <property name="text">
     <string>Settings</string>
