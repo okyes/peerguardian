@@ -87,7 +87,7 @@ void IpWhiteList::updateData() {
 
 	m_WhiteTreeWidget->clear();
 
-	for ( int i = 0; i < whiteOUT.size(); i++) { 
+	for ( int i = 0; i < whiteOUT.size(); i++) {
 		whiteOUT[i] = whiteOUT[i].trimmed();
 
 		if ( !whiteOUT[i].isEmpty() ) {
@@ -195,7 +195,7 @@ void IpWhiteList::displayResolvedEntry( const QString &output ) {
 	if ( output.isEmpty() ) {
 		QMessageBox::warning( this, tr( "Could not resolve hostname" ), tr( "Failed to resolve hostname."), QMessageBox::Ok );
 		return;
-	} 
+	}
 
 	QVector<QString> testRes = QVector<QString>::fromList( output.split( "\n" ) );
 	for ( int i = 0; i < testRes.size(); i++ ) {
@@ -281,7 +281,7 @@ bool IpWhiteList::isValidIp( const QString &text ) const {
 		}
 		QString mainIp = ipSections[0];
 		QString range = ( ipSections.size() == 2 ) ? ipSections[1] : QString();
-		//Split the IP address 
+		//Split the IP address
 		//E.g. split 127.0.0.1 to "127", "0", "0", "1"
 		QVector< QString > ipParts = QVector<QString>::fromList( mainIp.split( "." ) );
 		//If size != 4 then it's not an IP
@@ -309,7 +309,7 @@ bool IpWhiteList::isValidIp( const QString &text ) const {
 			if ( QVariant( range ).toInt() <= 24 && QVariant( range ).toInt() >= 0 ) {
 				for ( int i = 0; i < range.length(); i++ ) {
 					if ( !range[i].isNumber() ) {
-						return false; 
+						return false;
 					}
 			}
 		}

@@ -36,9 +36,9 @@
 #include "ui_ip_remove.h"
 
 /**
-* 
+*
 * @short Class representing the "Remove IPs" dialog.
-* 
+*
 */
 
 class IpRemove : public QDialog, private Ui::IpRemoveDialog {
@@ -76,7 +76,7 @@ class IpRemove : public QDialog, private Ui::IpRemoveDialog {
 		 */
 		void removeEntry();
 		/**
-		 * Called when a setting is changed. 
+		 * Called when a setting is changed.
 		 * After calling this function, isSettingChanged() returns true.
 		 */
 		void setSettingChanged();

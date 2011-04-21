@@ -43,7 +43,7 @@ typedef enum {BLOCKCONTROL_LOG_FILENAME_PLACE,
 /**
 *
 * @short Simple class which loads data from the blockcontrol log and moblock's main log to display information about moblock. This class is also used to check the state of the moblock daemon.
-* 
+*
 */
 
 class PeerguardianInfo : public QObject {
@@ -88,7 +88,7 @@ class PeerguardianInfo : public QObject {
 		inline QString mergedRanges() const { return m_MergedRanges; }
 		/**
 		 * Get the date/time of the last update of the blocklists.
-		 * @return 
+		 * @return
 		 */
 		inline QString lastUpdateTime() const { return m_LastUpdateTime; }
 		/**
@@ -148,7 +148,7 @@ class PeerguardianInfo : public QObject {
 		 * Emited when there is a change in the blockcontrol log.
 		 */
 		void logChanged();
-        
+
 
 	
 	private:	

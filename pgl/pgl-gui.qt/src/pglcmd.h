@@ -68,7 +68,7 @@ class PglCmd : public SuperUser {
 		 * @param path The path to the blockcontrol script file.
 		 */
 		void setFilePath( const QString &path, bool verified=false );
-        
+
         QString getPath();
         static QString getFilePath();
         static QString getFilePath(const QString &path);
@@ -98,7 +98,7 @@ class PglCmd : public SuperUser {
 		 * Get the blockcontrol status.
 		 */
 		void status();
-        
+
 
 	signals:
 		/**

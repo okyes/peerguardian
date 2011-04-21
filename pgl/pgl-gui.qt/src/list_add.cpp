@@ -21,7 +21,7 @@
 #include "list_add.h"
 
 ListAddDialog::ListAddDialog( QWidget *parent ) :
-	QDialog( parent ) 
+	QDialog( parent )
 {
 
 	setupUi( this );

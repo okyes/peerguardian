@@ -47,9 +47,9 @@ typedef enum { TYPE_OUTGOING,
 	TYPE_FORWARD };
 
 /**
-* 
+*
 * @short Class represeting the WhiteList IP dialog
-* 
+*
 */
 
 

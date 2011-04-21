@@ -55,7 +55,7 @@ void IpRemove::makeConnections() {
 
 void IpRemove::updateData() {
 
-	if ( m_Settings == NULL ) { 
+	if ( m_Settings == NULL ) {
 		qWarning() << Q_FUNC_INFO << "Null SettingsManager object";
 		qWarning() << Q_FUNC_INFO << "The Remove IPs dialog will not work";
 		return;
@@ -95,7 +95,7 @@ void IpRemove::updateBlocklistDir() {
 	else if ( bType == "p" ) {
 		bName = "guarding.p2p";
 	}
-	else if ( bType == "n" ) { 
+	else if ( bType == "n" ) {
 		bName = "guarding.p2b";
 	}
 	else {

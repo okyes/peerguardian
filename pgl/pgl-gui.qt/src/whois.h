@@ -65,4 +65,4 @@ class WhoisDialog : public QDialog, private Ui::WhoisDialog {
 
 };
 
-#endif 
+#endif

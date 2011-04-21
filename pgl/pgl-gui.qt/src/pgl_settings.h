@@ -31,9 +31,9 @@
 
 class PglSettings
 {
-    
+
     static QHash<QString, QString> variables;
-    
+
     public:
         PglSettings();
         ~PglSettings();

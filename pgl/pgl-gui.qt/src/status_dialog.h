@@ -31,8 +31,8 @@
 #include "ui_status_dialog.h"
 
 /**
-* 
-* 
+*
+*
 * @short Simple class representing the dialog which shows the output of blockcontrol status.
 *
 */

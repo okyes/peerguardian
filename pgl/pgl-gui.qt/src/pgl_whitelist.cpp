@@ -15,33 +15,33 @@ WhitelistItem::WhitelistItem(const QString& value, const QString& connType, cons
     m_Protocol = prot;
     m_Connection = connType;
     m_Valid = true;
-    
+
     if ( type == ENABLED )
         m_Enabled = true;
     else if ( type == DISABLED )
         m_Enabled = false;
     else
         m_Valid = false;
-        
+
 }
 
 bool WhitelistItem::operator==(const WhitelistItem& otherItem)
 {
-        
+
     if ( m_Protocol != otherItem.protocol() )
         return false;
-        
+
     if ( m_Connection != otherItem.connection() )
         return false;
-    
+
     bool equal = false;
-    
+
     //the aliases also contain the value
     foreach(QString value, m_values)
         foreach(QString other_value, otherItem.values())
             if ( value == other_value )
                 equal = true;
-                
+
     return equal;
 }
 
@@ -49,7 +49,7 @@ void WhitelistItem::addAlias(const QString & alias )
 {
     if ( alias.isEmpty() )
         return;
-        
+
     m_values << alias;
 }
 
@@ -58,18 +58,18 @@ void WhitelistItem::addAliases(const QStringList & aliases)
     foreach(QString alias, aliases)
         if ( ! m_values.contains(alias, Qt::CaseInsensitive) )
             m_values << alias;
-    
+
 }
 
 
 Port::Port(QString desig, QString prot, int n)
 {
     m_values << desig;
-    
+
     //the port number can be consider an alias too
     if ( n > 0 )
         m_values << QString::number(n);
-        
+
     m_protocols << prot;
     m_number = n;
 }
@@ -81,7 +81,7 @@ Port::Port()
 
 QString Port::value()
 {
-    if ( ! m_values.isEmpty() ) 
+    if ( ! m_values.isEmpty() )
         return m_values[0];
     else
         return QString("");
@@ -96,7 +96,7 @@ Port::Port(const Port& other)
 void Port::addProtocols(const QStringList& protocols)
 {
     m_protocols << protocols;
-    m_protocols.removeDuplicates(); 
+    m_protocols.removeDuplicates();
 }
 
 void Port::addAlias(const QString& alias)
@@ -118,7 +118,7 @@ bool Port::operator==( WhitelistItem& item)
     foreach(QString value, m_values)
         if ( value == item.value() )
             return true;
-    
+
     return false;
 }
 
@@ -126,12 +126,12 @@ bool Port::operator==( WhitelistItem& item)
 PglWhitelist::PglWhitelist(QSettings* settings)
 {
     m_WhitelistFile = PglSettings::getStoredValue("CMD_CONF");
-    
+
     m_Settings = settings;
-    
+
     if ( m_WhitelistFile.isEmpty() )
         return;
-        
+
     m_Group[WHITE_IP_IN] = TYPE_INCOMING;
     m_Group[WHITE_IP_OUT] = TYPE_OUTGOING;
     m_Group[WHITE_IP_FWD] = TYPE_FORWARD;
@@ -141,14 +141,14 @@ PglWhitelist::PglWhitelist(QSettings* settings)
     m_Group[WHITE_UDP_OUT] = TYPE_OUTGOING;
     m_Group[WHITE_TCP_FWD] = TYPE_FORWARD;
     m_Group[WHITE_UDP_FWD] = TYPE_FORWARD;
-    
+
     QStringList fileData = getFileData(m_WhitelistFile);
-    
+
     foreach(QString line, fileData)
     {
         if( line.startsWith("#") )
             continue;
-        
+
         foreach(QString key, m_Group.keys())
         {
             if ( line.contains(key) )
@@ -158,11 +158,11 @@ PglWhitelist::PglWhitelist(QSettings* settings)
             }
         }
     }
-    
+
     //Since disabled whitelisted items (IPs or Ports) can't be easily stored
     //in /etc/plg/pglcmd.conf, the best option is to store them on the GUI settings file
     QString disabled_items;
-    
+
     foreach ( QString key, m_Group.keys() )
     {
         disabled_items = settings->value(QString("whitelist/%1").arg(key)).toString();
@@ -181,10 +181,10 @@ QString PglWhitelist::getTypeAsString(QString& key)
     {
         case TYPE_INCOMING: return QString("Incoming");
         case TYPE_OUTGOING: return QString("Outgoing");
-        case TYPE_FORWARD: return QString("Forward"); 
+        case TYPE_FORWARD: return QString("Forward");
         default: return QString("");
     }
-    
+
 }
 
 QString PglWhitelist::getGroup(QStringList& info)
@@ -192,27 +192,27 @@ QString PglWhitelist::getGroup(QStringList& info)
     /*info should contain the value (a port or an ip address) and the connection type (in, out or fwd)*/
     if ( info.size() != 3 )
         return "";
-        
+
     QMap<QString, QString> connection;
     connection["Incoming"] = "IN";
     connection["Outgoing"] = "OUT";
     connection["Forward"] = "FWD";
-    
+
     QString value = info[0];
     QString conn_type = info[1];
     QString protocol = info[2];
     QString key = "WHITE_";
-    
+
     if ( isValidIp(value) )
         key += "IP_";
     else
         key += protocol + "_";
-        
-    
+
+
     key += connection[conn_type];
-    
+
     return key;
-    
+
 }
 
 QStringList PglWhitelist::updateWhitelistFile()
@@ -224,11 +224,11 @@ QStringList PglWhitelist::updateWhitelistFile()
     foreach(QString key, m_WhitelistEnabled.keys())
     {
         value = m_WhitelistEnabled[key].join(" ");
-        
+
         if ( hasValueInData(key, fileData) || value != PglSettings::getStoredValue(key) )
             replaceValueInData(fileData, key, m_WhitelistEnabled[key].join(" "));
     }
-    
+
     return fileData;
     //QString filepath = "/tmp/" + m_WhitelistFile.split("/").last();
     //saveFileData(newData, filepath);
@@ -246,9 +246,9 @@ void PglWhitelist::updateSettings()
 
 QStringList PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
 {
-    if ( m_WhitelistFile.isEmpty() )    
+    if ( m_WhitelistFile.isEmpty() )
         return QStringList();
-    
+
     QStringList fileData;
     QStringList info;
     QString group;
@@ -256,45 +256,45 @@ QStringList PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
     /*********** Update the Enabled Whitelist ***************/
     foreach ( QString key, m_WhitelistEnabled.keys() )
         m_WhitelistEnabled[key] = QStringList();
- 
+
     foreach(QTreeWidgetItem* treeItem, treeItems)
     {
         if ( treeItem->checkState(0) == Qt::Unchecked )
             continue;
-            
+
         info << treeItem->text(0) << treeItem->text(1) << treeItem->text(2);
-        
+
         group = getGroup(info);
 
         if ( m_Group.contains(group) )
             m_WhitelistEnabled[group] << treeItem->text(0);
-        
+
         info.clear();
     }
-    
+
     fileData = updateWhitelistFile();
-    
+
     /*********** Update the Disabled Whitelist ***************/
     foreach ( QString key, m_WhitelistDisabled.keys() )
         m_WhitelistDisabled[key] = QStringList();
-        
+
     foreach(QTreeWidgetItem* treeItem, treeItems)
     {
         if ( treeItem->checkState(0) == Qt::Checked )
             continue;
-        
+
         info << treeItem->text(0) << treeItem->text(1) << treeItem->text(2);
-        
+
         group = getGroup(info);
-        
+
         if ( m_Group.contains(group) )
             m_WhitelistDisabled[group] << treeItem->text(0);
-        
+
         info.clear();
     }
-    
+
     updateSettings();
-    
-    return fileData; 
+
+    return fileData;
 }
 

@@ -20,7 +20,7 @@
 #define WHITE_UDP_FWD "WHITE_UDP_FWD"
 
 
-typedef enum { 
+typedef enum {
     TYPE_INCOMING,
     TYPE_OUTGOING,
 	TYPE_FORWARD };
@@ -45,7 +45,7 @@ typedef enum {
 
 class WhitelistItem
 {
-    
+
     QString m_Value;
     QStringList m_values;
     QString m_Connection; //Incoming, Outgoing or Forward
@@ -76,7 +76,7 @@ class WhitelistItem
         QString getTypeAsString();
         QStringList getAsStringList(){ return QStringList() << m_Value << getTypeAsString(); }
         bool operator==(const WhitelistItem & otherItem);
-        
+
 };
 
 
@@ -104,7 +104,7 @@ class Port
         bool operator==(const Port& );
 };
 
-class PglWhitelist 
+class PglWhitelist
 {
     QList<WhitelistItem> m_WhitelistedItems;
     QString m_WhitelistFile;
@@ -112,7 +112,7 @@ class PglWhitelist
     QSettings * m_Settings;
     QMap<QString, QStringList> m_WhitelistEnabled;
     QMap<QString, QStringList> m_WhitelistDisabled;
-    
+
 	public:
 		/**
 		 * Constructor. Creates an emtpy PglWhitelist object with no data loaded.
@@ -122,7 +122,7 @@ class PglWhitelist
 		 * Destructor.
 		 */
 		~PglWhitelist() { }
-        
+
         QList<WhitelistItem> getWhitelistedItems(){ return m_WhitelistedItems; }
         void loadDisabledItems(QSettings*);
         QStringList update(QList<QTreeWidgetItem*>);

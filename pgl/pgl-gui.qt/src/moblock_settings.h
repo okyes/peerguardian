@@ -60,7 +60,7 @@ class MoblockSettings {
 		 */
 		~MoblockSettings();
 		/**
-		 * Add a setting at the end of the file. The setting has to be in the formats multimap. 
+		 * Add a setting at the end of the file. The setting has to be in the formats multimap.
 		 * If the setting is not recognised this function does nothing.
 		 * If the setting already exists, the function calls setValue() to change it.
 		 * @param setting The setting to be added.
@@ -75,7 +75,7 @@ class MoblockSettings {
 		void setFilePath( const QString &configPath );
 		inline QString getFilePath() const { return m_FileName; }
 		/**
-		 * Change the value of a setting with the new value provided. 
+		 * Change the value of a setting with the new value provided.
 		 * If the setting doesn't exist, this does nothing.
 		 * If the setting has more than one values, the first value is changed.
 		 * @param setting The setting the value of which you want to change.
@@ -101,7 +101,7 @@ class MoblockSettings {
 		 * @param setting The setting you want to remove a value from.
 		 * @param value The value you want to be removed.
 		 */
-		void removeValue( const QString &setting, const QString &value ); 
+		void removeValue( const QString &setting, const QString &value );
 		/**
 		 * Get a specific value from the setting's vector.
 		 * @param setting The setting you want to get the value from.

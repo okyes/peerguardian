@@ -1,7 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <QString> 
+#include <QString>
 #include <QDir>
 #include <QFile>
 #include <QTextStream>

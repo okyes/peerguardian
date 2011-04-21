@@ -1,4 +1,4 @@
- 
+
 /***************************************************************************
  *   Copyright (C) 2007-2008 by Dimitris Palyvos-Giannas   *
  *   jimaras@gmail.com   *
@@ -102,18 +102,18 @@
 #define UNCHECKED 0
 #define CHECKED 2
 
-typedef enum { LOG_TIME_COLUMN, 
-	LOG_NAME_COLUMN, 
+typedef enum { LOG_TIME_COLUMN,
+	LOG_NAME_COLUMN,
 	LOG_IP_COLUMN,	
 	LOG_TYPE_COLUMN };
 
 typedef enum { SETTINGS_IPFILTER_DAT,
 	SETTINGS_P2B,
 	SETTINGS_P2P };
-    
+
 
 class GuiOptions;
-    
+
 /**
 *
 * @short Class representing the main window of the program. Handles everything that has to do with the GUI.
@@ -138,23 +138,23 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     QTimer *m_FastTimer;
     QTimer *m_MediumTimer;
     QTimer *m_SlowTimer;
-    
-    //QList of integers with the original states for each blocklist 
+
+    //QList of integers with the original states for each blocklist
     //so it's easier to track which blocklists need to be disabled or enabled
     //when the user applies the changes.
     bool m_WhitelistItemPressed;
     bool m_BlocklistItemPressed;
     bool m_treeItemPressed;
     GuiOptions *guiOptions;
-    
+
 	public:
 		/**
-		 * Constructor. 
+		 * Constructor.
 		 * This function calls several other functions to do the following:
 		 * a)Setup the GUI.
 		 * b)Create objects of the main classes.
 		 * c)Create the connections between the objects.
-		 * @param parent The QWidget parent of the object. 
+		 * @param parent The QWidget parent of the object.
 		 */
 		Peerguardian( QWidget *parent = 0 );
 		/**
@@ -162,7 +162,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
 		 * Deletes object pointers and saves settings.
 		 */
 		virtual ~Peerguardian();
-        
+
         void getLists();
         void g_MakeConnections();
         void inicializeSettings();
@@ -186,7 +186,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         QTreeWidget * getWhitelistTreeWidget() { return m_WhitelistTreeWidget; }
         QString getUpdateFrequencyPath();
         QString getUpdateFrequencyCurrentPath();
-        
+
     public slots:
         void g_ShowAddExceptionDialog() { g_ShowAddDialog(ADD_MODE | EXCEPTION_MODE); };
         void g_ShowAddBlockListDialog() { g_ShowAddDialog(ADD_MODE | BLOCKLIST_MODE); };

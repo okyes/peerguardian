@@ -210,7 +210,7 @@ void SettingsManager::applyUpdateFrequency() {
 
 QString SettingsManager::getValueFromBashVar( const QString &setting, const int &place ) {
 
-	QString source; 
+	QString source;
 	QString result;
 	QString variable;
 	

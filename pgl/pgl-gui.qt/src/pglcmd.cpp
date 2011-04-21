@@ -23,7 +23,7 @@
 #include "super_user.h"
 #include "utils.h"
 
-PglCmd::PglCmd(  const QString &path, QObject *parent ) : 
+PglCmd::PglCmd(  const QString &path, QObject *parent ) :
 	SuperUser( parent )
 {	
 	setFilePath(path);
@@ -45,7 +45,7 @@ void PglCmd::setFilePath( const QString &path, bool verified) {
         m_FileName = path;
     else
         m_FileName = getFilePath(path);
-    
+
     if ( m_FileName.isEmpty() ){
         qCritical() << Q_FUNC_INFO << "File " << m_FileName << " could not be found.";
 		qCritical() << Q_FUNC_INFO << "PglCmd will probably not work";
@@ -69,7 +69,7 @@ void PglCmd::restart() {
 }
 
 void PglCmd::stop() {
-    
+
 	SuperUser::execute( QStringList() << m_FileName << "stop" );
 	emit actionMessage( tr( "Stopping Peerguardian..." ), MESSAGE_TIMEOUT );
 

@@ -31,14 +31,14 @@ LogItem::LogItem( const QString &entry ) {
 	if ( entry.isEmpty() ) {
 		qWarning() << Q_FUNC_INFO << "Emtpy log item entry given. Doing nothing";	
 	}
-	else 
+	else
     {
         if ( entry.contains("||") )
         {
             QStringList entryParts(entry.split( " ", QString::SkipEmptyParts) );
             QStringList names(entry.split( "||", QString::SkipEmptyParts) );
             m_Name = names[1];
-            
+
             m_BlockTime = entryParts[2].trimmed();
             m_ipSource = entryParts[4];
             m_ipDest = entryParts[5];
@@ -46,7 +46,7 @@ LogItem::LogItem( const QString &entry ) {
             return;
         }
     }
-        
+
         type = IGNORE;
         /*
 		QVector< QString > entryParts = QVector< QString >::fromList( entry.split( "|" ) );
@@ -126,7 +126,7 @@ void LogItem::importEntry( const QString &entry ) {
 	//Blocked OUT: INTERNET SOFTWARE CONSORTIUM, INC,hits: 22,DST: 204.152.184.64
 	namePlace = entryVector.size() - 3;
 	//Name
-	for ( int i = nameStart; i <= namePlace; i++ ) 
+	for ( int i = nameStart; i <= namePlace; i++ )
 		entryPartName += entryVector[i];
 	//Hits
 	entryPartHits = entryVector[namePlace + 1];
@@ -177,17 +177,17 @@ void LogItem::importEntry( const QString &entry ) {
 bool LogItem::operator==( const LogItem &other ) {
 
 	bool equal = true;
-    
-	if ( m_Name != other.name() ) 
+
+	if ( m_Name != other.name() )
 		equal = false;
 	
-	if ( type != other.type ) 
+	if ( type != other.type )
 		equal = false;
 	
-	if ( m_ipSource != other.getIpSource() ) 
+	if ( m_ipSource != other.getIpSource() )
 		equal = false;
 	
-    if ( m_ipDest != other.getIpDest() ) 
+    if ( m_ipDest != other.getIpDest() )
 		equal = false;
 	
 
@@ -205,7 +205,7 @@ void PeerguardianLog::setFilePath( const QString &path, bool verified) {
 
 	//Empty the list and intiallize the variables
 	clear();
-    
+
     if ( verified )
          m_LogPath = path;
     else{
@@ -266,7 +266,7 @@ void PeerguardianLog::update() {
 
 
 	QString lItem = getNewItem();
-	if ( lItem.isEmpty() ) { 
+	if ( lItem.isEmpty() ) {
 		return;
 	}
 	//We don't want the last item in the list to appear as a recently blocked entry
@@ -299,7 +299,7 @@ void PeerguardianLog::update() {
 			emit newItem( freshItem );
 			m_ItemsList.pop_back();
 			m_ItemsList.append( freshItem );
-		} 
+		}
 
 	}
 	//If the item has changed emit all the new values

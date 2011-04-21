@@ -43,7 +43,7 @@ SuperUser::~SuperUser() {
 
 	QSettings tempSettings;
 	tempSettings.setValue( "paths/super_user", m_SudoCmd );
-    
+
     foreach(ProcessT *t, m_threads)
     {
         if ( t->isRunning() )
@@ -69,17 +69,17 @@ QString SuperUser::getRootPath()
 }
 
 void SuperUser::setFilePath( const QString &path ) {
-    
 
-	if ( !path.isEmpty() ) 
+
+	if ( !path.isEmpty() )
     {
-		if ( QFile::exists( path ) ) 
+		if ( QFile::exists( path ) )
 			m_SudoCmd = path;
-		else 
+		else
 			qCritical() << Q_FUNC_INFO << "Could not set sudo front-end path to:" << path << "as the file does not exist.";
 
 	}
-	else 
+	else
 		qCritical() << Q_FUNC_INFO <<  "Could not change sudo front-end's path. Empty path given.";
 	
 }
@@ -88,18 +88,18 @@ void SuperUser::setFilePath( const QString &path ) {
 
 void SuperUser::execute( const QStringList &command ) {
 
-	if ( m_SudoCmd.isEmpty() ) 
+	if ( m_SudoCmd.isEmpty() )
     {
 		qCritical() << Q_FUNC_INFO << "Could not use either kdesu or gksu to execute the command requested.\nIf neither of those executables exist in /usr/bin/ you can set the path of the one you prefer in pgl-gui's configuration file, usually found in ~/.config/pgl/pgl-gui.conf.\nThe path can be changed by changing the value of the super_user key, or creating a new one if it doesn't already exist.";
 		return;
 	}
-    
+
     QString firstCmd = m_SudoCmd;
     QStringList newCommands = command;
 
 
 	if ( hasPermissions("/etc") )//If the program is run by root
-    { 
+    {
         if ( ! newCommands.isEmpty() )
         {
             firstCmd = newCommands.first();
@@ -117,7 +117,7 @@ void SuperUser::startThread(const QString &name, const QStringList &args, const 
     //the way it works now will only allow to have one ProcessT instance at a time,
     //because if we had several, each one of them would pop-up a dialog asking for
     //the root password and that would be very annoying to the user.
-    
+
     bool executing = false;
     qDebug() << "start thread";
     foreach(ProcessT *t, m_threads)
@@ -129,7 +129,7 @@ void SuperUser::startThread(const QString &name, const QStringList &args, const 
             break;
         }
     }
-    
+
     if ( ! executing )
     {
         ProcessT *t = new ProcessT(m_parent);
@@ -137,8 +137,8 @@ void SuperUser::startThread(const QString &name, const QStringList &args, const 
         t->execute(name, args, mode);
         connect(t, SIGNAL(finished()), this, SLOT(processFinished()));
     }
-    
-    
+
+
 }
 
 
@@ -149,7 +149,7 @@ void SuperUser::processFinished()
     else
         emit(finished());
 }
-    
+
 
 void SuperUser::moveFile( const QString &source, const QString &dest ) {
 
@@ -160,7 +160,7 @@ void SuperUser::moveFile( const QString &source, const QString &dest ) {
 void SuperUser::copyFile( const QString &source, const QString &dest ) {
 
 	execute( QStringList() << "cp" << source << dest );
-    
+
 }
 
 void SuperUser::removeFile( const QString &source ) {
@@ -168,20 +168,20 @@ void SuperUser::removeFile( const QString &source ) {
 }
 
 
-void SuperUser::moveFiles( const QMap<QString, QString> files ) 
+void SuperUser::moveFiles( const QMap<QString, QString> files )
 {
     if ( ! files.isEmpty() )
     {
         if ( m_filesToMove.isEmpty() )
             m_filesToMove = files;
-            
+
         QString source = m_filesToMove.keys()[0];
         QString dest =  m_filesToMove[source];
         m_filesToMove.remove(source);
-        
+
         execute( QStringList() << "mv" << source << dest );
     }
-    
+
 }
 
 /*** Static methods ***/
@@ -197,10 +197,10 @@ QString SuperUser::getFilePath(const QString &path)
     QString p = getValidPath(path, KDESU_PATH);
     if ( p.isEmpty() )
         p = getValidPath(path, GKSU_PATH);
-        
+
     return p;
 }
 
 
 
- 
+

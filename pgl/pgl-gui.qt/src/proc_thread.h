@@ -28,14 +28,14 @@
 #include <QString>
 #include <QStringList>
 #include <QProcess>
-#include <QtDebug> 
+#include <QtDebug>
 
 
 /**
-* 
-* 
+*
+*
 * @short Class which can execute a command as a seperate thread.
-* 
+*
 */
 
 class ProcessT : public QThread {
@@ -55,7 +55,7 @@ class ProcessT : public QThread {
 		virtual ~ProcessT();
 		/**
 		 * Reimplementation of QThread::run().
-		 * Executes the command which was set using setCommand(). 
+		 * Executes the command which was set using setCommand().
 		 * If no command was set, this function does nothing.
 		 */
 		void run();
@@ -73,12 +73,12 @@ class ProcessT : public QThread {
 		 * @param mode The process channel modes of the command which will be executed.
 		 */
 		void execute( const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels );
-        
+
         void operator=(const ProcessT& p){ *this = p;}
 
 	signals:
 		/**
-		 * Emitted when a command has finished running. 
+		 * Emitted when a command has finished running.
 		 * @param output The output of the command which was executed.
 		 */
 		void commandOutput( QString output );

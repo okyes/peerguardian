@@ -11,7 +11,7 @@
 #include "peerguardian.h"
 
 class Peerguardian;
- 
+
 class GuiOptions
 {
     Peerguardian * m_Window;
@@ -20,7 +20,7 @@ class GuiOptions
     bool updateBlocklistsAutomatically;
     QList<int> m_BlocklistState;
     QList<int> m_WhitelistState;
-    
+
     public:
         GuiOptions() { m_Window = NULL; }
         GuiOptions(Peerguardian * gui) { m_Window = gui; }

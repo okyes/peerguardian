@@ -29,12 +29,12 @@ QHash<QString, QString> PglSettings::variables = QHash<QString, QString>();
 
 QString PglSettings::getVariableInValue(QString & var)
 {
-    
+
     if ( var.contains("$") )
     {
         QString stripvar(var);
         int n = 0;
-        
+
         if ( var.contains("{") && var.contains("}") )
         {
             int pos1 = var.indexOf('{') + 1;
@@ -48,7 +48,7 @@ QString PglSettings::getVariableInValue(QString & var)
             stripvar = var.mid(pos1);
             n = 1;
         }
-        
+
         if ( PglSettings::variables.contains(stripvar) )
             return var.replace(var.indexOf("$"), stripvar.size()+n, variables[stripvar]);
     }
@@ -64,12 +64,12 @@ QString PglSettings::getValueInLine(QString& line)
 
     if ( ! value.contains("$") )
         return value;
-    
+
     QString newValue("");
-    
+
     if ( value.contains("/") )
     {
-        
+
         foreach(QString val, value.split("/", QString::SkipEmptyParts))
         {
             newValue += getVariableInValue(val);
@@ -78,11 +78,11 @@ QString PglSettings::getValueInLine(QString& line)
     }
     else
         newValue += getVariableInValue(value);
-        
+
     if ( newValue.endsWith("/") )
         newValue.remove(newValue.size()-1, 1);
-    
-    
+
+
     //qDebug() << line << "<<>>" <<newValue;
     return newValue;
 }
@@ -91,42 +91,42 @@ void PglSettings::loadSettings()
 {
     QStringList data = getFileData(PGLCMD_DEFAULTS_PATH);
     QString variable;
-    
+
     foreach (QString line, data)
     {
         line = line.trimmed();
         if ( line.startsWith('#') ) //ignore comments
             continue;
-        
+
         variable = getVariable(line);
-        
+
         if( ! variable.isEmpty() )
             variables[variable] = PglSettings::getValueInLine(line);
-            
+
     }
-    
-    
+
+
     //Overwrite the variables' values with the values from pglcmd.conf
-    QString pglcmdConfPath(PglSettings::getStoredValue("CMD_CONF")); 
-    
+    QString pglcmdConfPath(PglSettings::getStoredValue("CMD_CONF"));
+
     if ( pglcmdConfPath.isEmpty() )
         return;
-        
+
     data = getFileData(pglcmdConfPath);
     foreach(QString line, data)
     {
         line = line.trimmed();
         if ( line.startsWith('#') ) //ignore comments
             continue;
-        
+
         variable = getVariable(line);
-        
+
         if ( variables.contains(variable) )
             variables[variable] = getValue(line);
-        
+
     }
-    
+
     foreach(QString key, variables.keys() )
         qDebug() << key << ": " << variables[key];
-    
+
 }

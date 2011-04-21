@@ -280,7 +280,7 @@ bool MoblockSettings::checkSetting( const QString &setting ) {
 
 }
 
-void MoblockSettings::setValue( const QString &setting, const QString &value ) { 
+void MoblockSettings::setValue( const QString &setting, const QString &value ) {
 	
 	if ( !checkSetting(setting ) )
 		return;
@@ -292,7 +292,7 @@ void MoblockSettings::setValue( const QString &setting, const QString &value ) {
 
 void MoblockSettings::setValue( const QString &setting, const QVector< QString > &values ) {
 
-	if ( !checkSetting( setting ) ) 
+	if ( !checkSetting( setting ) )
 		return;
 	
 	m_SettingsMap[setting] = values;
@@ -301,7 +301,7 @@ void MoblockSettings::setValue( const QString &setting, const QVector< QString >
 
 void MoblockSettings::addValue( const QString &setting, const QString &value ) {
 
-	if ( !checkSetting( setting ) ) 
+	if ( !checkSetting( setting ) )
 		return;
 	if ( m_SettingsMap[setting].contains( value ) )
 		return;
@@ -364,7 +364,7 @@ bool MoblockSettings::exportToFile( const QString &filename ) {
 		int place = s.value();	
 		QString fileLine = m_FileContents[place];
 		QString newLine = exportSetting( setting );
-		if ( fileLine != newLine ) 
+		if ( fileLine != newLine )
 			m_FileContents[place] = newLine;
 
 	}

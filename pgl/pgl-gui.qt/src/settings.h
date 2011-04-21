@@ -48,7 +48,7 @@ class SettingsDialog : public QDialog, private Ui::SettingsDialog {
 
 	public:
 		/**
-		 * Constructor. 
+		 * Constructor.
 		 * Intiallizes the UI.
 		 * @param parent The QWidget parent of the this object.
 		 */

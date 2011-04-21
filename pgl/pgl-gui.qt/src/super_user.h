@@ -1,4 +1,4 @@
- 
+
 /***************************************************************************
  *   Copyright (C) 2007-2008 by Dimitris Palyvos-Giannas   *
  *   jimaras@gmail.com   *
@@ -47,14 +47,14 @@
 
 class SuperUser : public QObject
 {
-    
+
     Q_OBJECT
-    
+
 	public:
 		/**
-		 * Constructor. 
+		 * Constructor.
 		 */
-        
+
 		SuperUser(QObject *parent = 0 );
         SuperUser(QString& rootpath, QObject *parent = 0 );
 		/**
@@ -89,7 +89,7 @@ class SuperUser : public QObject
 		 * @param source The current path of the file.
 		 */
 		void removeFile( const QString &source );
-        
+
         void setRootPath(QString& path, bool verified=false);
         QString getRootPath();
         static QString getFilePath();
@@ -97,19 +97,19 @@ class SuperUser : public QObject
         void startThread(const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode );
         void moveFiles( const QMap<QString, QString>);
         void operator=(const SuperUser& su);
-        
+
     public slots:
         void processFinished();
-        
+
     signals:
         void finished();
-        
+
 	private:
         SuperUser(const SuperUser& other);
 		static QString m_SudoCmd;
 		static QString m_TestFile;
         QList<ProcessT*> m_threads;
-        QObject *m_parent; 
+        QObject *m_parent;
         QMap<QString, QString> m_filesToMove;
 
 };

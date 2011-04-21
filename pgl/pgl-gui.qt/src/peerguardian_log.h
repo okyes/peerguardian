@@ -39,7 +39,7 @@
 
 typedef enum itemType { BLOCK_IN, BLOCK_OUT, BLOCK_FWD, ERROR, IGNORE };
 
-typedef 
+typedef
 
 /**
 *
@@ -112,7 +112,7 @@ class LogItem {
 /**
 *
 * @short A class used to get new LogItems and search previously blocked entries from the moblock log file
-* 
+*
 **/
 		
 
@@ -128,25 +128,25 @@ class PeerguardianLog : public QObject {
 		PeerguardianLog( QObject *parent = 0 );
 		/**
 		 * Constructor. Creates a PeerguardianLog object and sets the log path.
-		 * NOTE: PeerguardianLog doesn't really load any log files. 
+		 * NOTE: PeerguardianLog doesn't really load any log files.
 		 * It just extracts the last blocks using the tail program.
-		 * However, it saves a number(MAX_LOG_SIZE) of LogItems which appear in the LogFile after this object has been created. 
+		 * However, it saves a number(MAX_LOG_SIZE) of LogItems which appear in the LogFile after this object has been created.
 		 * Those items are saved into a FIFO queue so they can be easily handled.
 		 * This way those items can be recalled later through the search functions.
 		 * @param path The path to the moblock log file.
 		 * @param parent The QObject parent of this object.
 		 */
-         
+
 		/**
 		 * Sets the path to the moblock log file.
 		 * If the path is invalid and no path is already set, MOBLOCK_LOG_PATH is used instead.
 		 * @param path The path to the moblock log file.
 		 */
-         
+
 		void setFilePath( const QString &path, bool verified=false);
 		QString getLogPath();
 		/**
-		 * Searches for a LogItem with the specific IP and type. 
+		 * Searches for a LogItem with the specific IP and type.
 		 * If no LogItem which matches the criteria is been found, an emtpy LogItem with type IGNORE is returned.
 		 * @param IP The IP of the LogItem.
 		 * @param type The type of the LogItem.
@@ -168,22 +168,22 @@ class PeerguardianLog : public QObject {
 		/**
 		 * Update the PeerguardianLog object with new data from the moblock log file.
 
-		 * This function uses tail to get the latest blocked entry from the moblock log file. 
+		 * This function uses tail to get the latest blocked entry from the moblock log file.
 		 * After this it checks if the the entry is similar to the last one saved.
 		 * If not, the new LogItem is saved and all signals are emited.
 		 * If it is the same but the hits number is different  newItemHits is emited.
-		 * 
+		 *
 		 * In each case, the function also handles the FIFO queue so that its size is always smalelr than MAX_LOG_SIZE.
 		 * If there are two matching LogItems with different hits, the function removes the older from the queue and pushes the other into the queue's end.
-		 * 
+		 *
 		 */
 		void update();
 		/**
 		 * Clears the QList containing the saved LogItems.
 		 */
 		void clear();
-        
-        
+
+
 	
 	signals:
 		/**

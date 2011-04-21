@@ -1,4 +1,4 @@
- 
+
 #ifndef ADD_EXCEPTION_DIALOG_H
 #define ADD_EXCEPTION_DIALOG_H
 
@@ -10,7 +10,7 @@
 #include <QString>
 #include <QVector>
 #include <QVariant>
-#include <QList> 
+#include <QList>
 #include <QDebug>
 #include <QAbstractButton>
 #include <QKeyEvent>
@@ -37,24 +37,24 @@ typedef enum openMode { ADD_MODE=0x000,
     QString m_desig;
     int m_number;
     QString m_protocol;
-    
+
     public:
         Port(){};
         Port(QString desig, QString prot, int n=0) { m_desig = desig; m_protocol = prot; m_number = n; }
         Port(int n) { m_number = n; }
         ~Port(){};
-        
+
         int number(){ return m_number;}
         QString desig(){ return m_desig; }
         QString protocol() { return m_protocol; }
         void addAlias(const QString& alias) {}
 };*/
-            
+
 
 class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
 
 	Q_OBJECT
-    
+
     QHash<QString, int> ports;
     QList<Port> m_ports;
     QList<WhitelistItem> m_Items;
@@ -66,7 +66,7 @@ class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
     QNetworkAccessManager *m_manager;
     QList<QUrl> m_urls;
     QStringList m_blocklists;
-    
+
 	
 	public:
         AddExceptionDialog(QWidget *p = 0, int mode=0);
@@ -88,16 +88,16 @@ class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
         void setPortsFromFile();
         bool isPort(QString &);
         Port getPortFromLine(QString);
-        
+
     public slots:
         void addEntry();
         void selectLocalBlocklist();
         void replyFinished(QNetworkReply* reply);
         void addBlocklist();
-    
+
     protected:
         void keyPressEvent ( QKeyEvent * e );
-        
+
 };
 
 

@@ -95,7 +95,7 @@ class SettingsManager : public QObject {
 		 * @return The value of the setting or a null QString if the setting/place is invalid.
 		 */
 		QString getValue( const QString &setting, const int &place = 0 );
-		/** 
+		/**
 		 * Some variables in the blockcontrol defaults configuration file contain bash variables which are set in there.
 		 * E.g. CONTROL_LOG="$LOG_DIR/$CONTROL_NAME.log"
 		 * This function replaces each bash variable found in the value requested with its real value.
@@ -127,7 +127,7 @@ class SettingsManager : public QObject {
 		QString getUpdateFrequency();
 		/**
 		 * Set the frequency of blocklist updates.
-		 * This function doesn't really apply anything. 
+		 * This function doesn't really apply anything.
 		 * applyUpdateFrequency() has to be called if you want the changes to be applied.
 		 * @param frequency The path where the blockcontrol cron script will be moved to.
 		 */

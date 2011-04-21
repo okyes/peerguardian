@@ -60,7 +60,7 @@ class ListItem {
 		 */
 		~ListItem() { }
 		/**
-		 * The option of the blocklist. 
+		 * The option of the blocklist.
 		 * NONE: The blocklist has no options.
 		 * NO_TIME_STAMP: The entry in the blocklists file begins with notimestamp.
 		 * LOCAL: The entry in the blocklists file begins with locallist.
@@ -79,12 +79,12 @@ class ListItem {
 		 */
 		inline QString name() const { return m_Name; }
 		/**
-		 * @return The blocklist's location. 
+		 * @return The blocklist's location.
 		 * Example: "www.bluetack.co.uk/config/nipfilter.dat.gz"
 		 */
 		inline QString location() const { return m_Location; }
-		/** 
-		 * @return The blocklist's format. 
+		/**
+		 * @return The blocklist's format.
 		 * Basically, returns the list's extension.
 		 */
 		inline QString fileFormat() const { return m_Format; }
@@ -100,13 +100,13 @@ class ListItem {
 		 * @return The QString representing this blocklist and it's options and mode.
 		 */
 		QString exportItem() const;
-        
+
         bool isEnabled();
         bool isDisabled();
-        
+
 		bool isValidBlockList(const QString&);
 		QString getListName(const QString& );
-    
+
 	private:
 		QString m_Name;
 		QString m_Location;
@@ -115,10 +115,10 @@ class ListItem {
 };
 
 /**
-* 
+*
 * @short Class representing the data in the blockcontrol blocklists file.
-* 
-*/ 
+*
+*/
 
 
 class PeerguardianList {
@@ -235,7 +235,7 @@ class PeerguardianList {
 		 * @return True if the file was exported, otherwise false.
 		 */
 		bool exportToFile( const QString &filename );
-    
+
         static QString getFilePath();
         static QString getFilePath(const QString &path);
         void update(QList<QTreeWidgetItem*>);

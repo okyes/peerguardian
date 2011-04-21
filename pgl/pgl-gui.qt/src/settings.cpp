@@ -102,7 +102,7 @@ void SettingsDialog::file_BrowseControlPath() {
 
 }
 
-void SettingsDialog::file_BrowseRootPath() { 
+void SettingsDialog::file_BrowseRootPath() {
 
 	QString path = QFileDialog::getOpenFileName( this, tr( "Choose the appropriate file" ), "/usr/bin" );
 

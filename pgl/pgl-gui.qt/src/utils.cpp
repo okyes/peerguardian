@@ -11,19 +11,19 @@
 QString getValidPath(const QString &path, const QString &defaultPath )
 {
     QString new_path;
-    
+
     if ( ! path.isEmpty() && QFile::exists(path) )
 		new_path = path;
 	else if ( QFile::exists(defaultPath) )
 		new_path = defaultPath;
-	else 
+	else
         new_path = "";
-    
+
     return new_path;
 }
 
 QStringList selectFiles(QWidget * parent, QString filter, QString title, QString startPath)
-{    
+{
      QStringList files = QFileDialog::getOpenFileNames(
                          parent,
                          title,
@@ -36,19 +36,19 @@ QStringList selectFiles(QWidget * parent, QString filter, QString title, QString
 QString getValue(QString& line)
 {
     QString value("");
-    
+
     if ( line.contains("=") )
     {
         value = line.split("=", QString::SkipEmptyParts)[1];
-        
+
         if ( value == "\"\"" )
             return QString("");
-        
+
         if ( value.size() > 2 && value.contains('"') )
             return value.split('"', QString::SkipEmptyParts)[0];
 
     }
-    
+
     return value;
 }
 
@@ -57,7 +57,7 @@ QString getVariable(QString& line)
 {
     if ( line.contains("=") )
          return line.split("=", QString::SkipEmptyParts)[0];
-    
+
     return QString("");
 }
 
@@ -68,7 +68,7 @@ QString getValue(const QString& path, const QString& search)
         line = line.split("=", QString::SkipEmptyParts)[1];
     if ( line.contains('"') )
         line = line.split('"', QString::SkipEmptyParts)[0];
-    
+
     return line;
 }
 
@@ -85,10 +85,10 @@ QString getLineWith(const QString& path, const QString& search)
 		qWarning() << Q_FUNC_INFO << "Could not read from file" << path;
 		return line;
 	}
-    
+
     QTextStream in( &file );
-    
-	while ( ! in.atEnd() ) 
+
+	while ( ! in.atEnd() )
     {
         line = in.readLine().trimmed();
         if ( line.contains(search) )
@@ -97,7 +97,7 @@ QString getLineWith(const QString& path, const QString& search)
             break;
         }
 	}
-    
+
     file.close();
     return searchLine;
 }
@@ -120,7 +120,7 @@ bool isValidIp( const QString &text ){
 		}
 		QString mainIp = ipSections[0];
 		QString range = ( ipSections.size() == 2 ) ? ipSections[1] : QString();
-		//Split the IP address 
+		//Split the IP address
 		//E.g. split 127.0.0.1 to "127", "0", "0", "1"
 		QVector< QString > ipParts = QVector<QString>::fromList( mainIp.split( "." ) );
 		//If size != 4 then it's not an IP
@@ -148,7 +148,7 @@ bool isValidIp( const QString &text ){
 			if ( QVariant( range ).toInt() <= 24 && QVariant( range ).toInt() >= 0 ) {
 				for ( int i = 0; i < range.length(); i++ ) {
 					if ( !range[i].isNumber() ) {
-						return false; 
+						return false;
 					}
 			}
 		}
@@ -166,7 +166,7 @@ bool isValidIp( const QString &text ){
 QFileInfoList getFilesInfo(QString & dir)
 {
     QDir directory(dir);
-    
+
     return directory.entryInfoList(QDir::NoDotAndDotDot | QDir::Files);
 }
 
@@ -176,7 +176,7 @@ QString getPointer(QString & dir, QString & filepathPointed)
         if ( fileInfo.isSymLink() )
             if ( fileInfo.symLinkTarget() == filepathPointed )
                 return fileInfo.absoluteFilePath();
-    
+
     return "";
 }
 
@@ -184,7 +184,7 @@ bool isPointingTo(QString & dir, QString & filepathPointed)
 {
         if ( ! getPointer(dir, filepathPointed).isEmpty() )
             return true;
-        
+
         return false;
 }
 
@@ -192,52 +192,52 @@ QString getNewFileName(QString dir, const QString name)
 {
     if ( dir.isEmpty() )
         return dir;
-    
+
     QDir directory(dir);
     if ( ! directory.exists() )
         return QString();
-        
-    
+
+
     int counter = 0;
     QString temp_name = name;
-    
+
     while(1)
     {
         if ( ! directory.exists(temp_name) )
             return dir + "/" + temp_name;
-        
+
         counter++;
         temp_name = name + "_" + QString::number(counter);
     }
-    
+
     return QString();
-    
+
 }
 
 bool hasPermissions(const QString & filepath)
 {
-    
+
     if ( filepath.isEmpty() ) {
 		qWarning() << Q_FUNC_INFO << "Empty file path given, doing nothing";
 		return false;
 	}
- 
-    
- 
+
+
+
     QFileInfo fileInfo (filepath);
     QFile file;
     if ( ! fileInfo.isDir() )
         file.setFileName(fileInfo.absolutePath() + "/test_file");
     else
         file.setFileName(fileInfo.filePath() + "/test_file");
-    
+
     if ( ! file.open( QIODevice::ReadWrite | QIODevice::Text ) ) {
 		qWarning() << Q_FUNC_INFO << "Could not read from file" << file.fileName();
 		return false;
 	}
-    
+
     file.close();
-    
+
     return true;
 }
 
@@ -245,14 +245,14 @@ QString joinPath(const QString & dir, const QString & file)
 {
     if ( dir.isEmpty() )
         return file;
-    
+
     QString directory = dir.trimmed();
-    
+
     if (directory[directory.size()-1] != '/')
         directory += "/";
-        
+
     return directory + file;
-    
+
 }
 
 
@@ -261,30 +261,30 @@ QStringList replaceValueInData(QStringList& data, const QString & variable, cons
     //this function is usually used to receive pglcmd.conf and check for variables and values there
     QRegExp re(QString("^%1=.*").arg(variable));
     int pos = data.indexOf(re);
-    
+
     //Usual case: if the variable doesn't exist in pglcmd.conf and it's the same as in pglcmd.defaults
     //if ( pos == -1 && value == PglSetting::getStoredValue(variable))
         //return data;
-    
+
     while ( pos != -1 )
     {
         data.removeAt(pos);
         pos = data.indexOf(re);
     }
-    
+
     data << variable + QString("=\"") + value + QString('"');
-        
+
     return data;
 }
 
 
 void replaceValueInFile(const QString& path, const QString & variable, const QString & value)
 {
-    
+
     QFile file( path );
     QStringList newData;
     QString line("");
-    
+
     if ( path.isEmpty() ) {
 		qWarning() << Q_FUNC_INFO << "Empty file path given, doing nothing";
 		return;
@@ -293,12 +293,12 @@ void replaceValueInFile(const QString& path, const QString & variable, const QSt
 		qWarning() << Q_FUNC_INFO << "Could not read from file" << path;
 		return;
 	}
-    
+
     QTextStream in( &file );
     QFileInfo fileInfo( path );
     bool found = false;
-    
-    while ( ! in.atEnd() ) 
+
+    while ( ! in.atEnd() )
     {
         line = in.readLine().trimmed();
         if ( line.contains(variable) )
@@ -309,18 +309,18 @@ void replaceValueInFile(const QString& path, const QString & variable, const QSt
         else
             newData << line;
 	}
-    
+
     if ( ! found )
         newData << variable + QString("=\"") + value + QString('"');
-    
+
     saveFileData(newData, "/tmp/" + fileInfo.fileName());
-    
+
     file.close();
 }
 
 
 QString getFileName(const QString& path)
-{  
+{
     return path.split("/").last();
 }
 
@@ -329,7 +329,7 @@ bool hasValueInData(const QString& value, const QStringList& data)
     foreach(QString line, data)
         if ( line.contains(value) )
             return true;
-    
+
     return false;
 }
 

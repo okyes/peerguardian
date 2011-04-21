@@ -7,7 +7,7 @@ pgl (2.1.0-1~pre1) UNRELEASED; urgency=low
 
 pgl (2.0.4-1) unstable; urgency=low
 
-  * new upstream release 
+  * new upstream release
   * moved LIST_NAME2LIST_URL from pglcmd.lib to debian/postinst
 
  -- jre <jre-phoenix@users.sourceforge.net>  Sun, 23 Jan 2011 15:50:44 +0100

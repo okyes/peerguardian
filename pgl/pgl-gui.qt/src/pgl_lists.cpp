@@ -26,10 +26,10 @@
 ListItem::ListItem( const QString &itemRawLine ) {
 
     QString itemLine = itemRawLine.trimmed();
-    
+
     option = NONE;
     m_Location = "";
-    
+
     if ( itemLine.isEmpty() ) {
         mode = COMMENT_ITEM;
     }
@@ -57,10 +57,10 @@ bool ListItem::isValidBlockList(const QString & line)
 {
     QStringList formats;
     formats << "7z" << "dat" << "gz" << "p2p" << "zip";
-    
+
     if ( line.contains("list.iblocklist.com") )
         return true;
-    
+
     if ( QFile::exists(line) )
         foreach(QString format, formats)
             if ( line.endsWith(format) )
@@ -73,10 +73,10 @@ QString ListItem::getListName(const QString& line)
 {
     if ( line.contains("list.iblocklist.com/lists/") )
         return line.split("list.iblocklist.com/lists/").last();
-        
+
     if ( line.contains("/") )
         return line.split("/").last();
-    
+
     return line;
 }
 
@@ -106,9 +106,9 @@ bool ListItem::operator==( const ListItem &other ) {
 }
 
 QString ListItem::exportItem() const {
-    
+
     QString finalOut;
-            
+
     if ( mode != ENABLED_ITEM ) {
         finalOut += "#";
     }
@@ -125,12 +125,12 @@ QString ListItem::exportItem() const {
 }
 
 
-PeerguardianList::PeerguardianList( const QString &path ) 
+PeerguardianList::PeerguardianList( const QString &path )
 {
 
     setFilePath(path, true);
     m_masterBlocklistDir = PglSettings::getStoredValue("MASTER_BLOCKLIST_DIR") + "/";
-    
+
 }
 
 QString PeerguardianList::getListPath()
@@ -145,32 +145,32 @@ void PeerguardianList::setFilePath( const QString &path, bool verified ) {
         m_FileName = path;
     else
         m_FileName = getValidPath(path, PglSettings::getStoredValue("BLOCKLISTS_LIST"));
-    
+
     if ( m_FileName.isEmpty() )
         qWarning() << Q_FUNC_INFO << "Empty path given, doing nothing";
-    
+
 }
 
 void PeerguardianList::updateListsFromFile()
 {
     if ( m_FileName.isEmpty() )
         return;
-    
+
     m_ListsFile = QVector< ListItem >();
     QStringList tempFileData = getFileData( m_FileName );
-    
-    
+
+
     for( int i=0; i < tempFileData.size(); i++)
     {
         ListItem tempItem(tempFileData[i]);
-        
+
         if ( tempItem.mode == COMMENT_ITEM )
             continue;
-        
+
         m_ListsFile.push_back(tempItem);
     }
 }
-    
+
 
 int PeerguardianList::indexOfName( const QString &name ) {
 
@@ -184,7 +184,7 @@ int PeerguardianList::indexOfName( const QString &name ) {
 
 }
 
-    
+
 
 
 void PeerguardianList::addItem( const ListItem &newItem ) {
@@ -195,7 +195,7 @@ void PeerguardianList::addItem( const ListItem &newItem ) {
 
     }
     m_ListsFile.push_back( newItem );
-    
+
 
 }
 
@@ -243,14 +243,14 @@ void PeerguardianList::setModeByName( const QString &name, const itemMode &mode 
     }
 
 }
-        
+
 void PeerguardianList::removeItem( const ListItem &item ) {
 
     int i = m_ListsFile.indexOf( item );
     if ( i >= 0 ) {
         m_ListsFile.remove( i );
     }
-    
+
 }
 
 void PeerguardianList::removeItemByLocation( const QString &location ) {
@@ -292,7 +292,7 @@ ListItem *PeerguardianList::getItemByLocation( const QString &location ) {
         if ( s->location() == location )
             return s;
     }
-    
+
     return NULL;
 }
 
@@ -301,22 +301,22 @@ QVector< ListItem *> PeerguardianList::getItems( const itemMode &mode ) {
     QVector< ListItem * > result;
 
     for ( QVector< ListItem >::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ )
-        if ( s->mode == mode ) 
+        if ( s->mode == mode )
             result.push_back(s);
-    
-    
+
+
     return result;
 
 }
 
-QVector< ListItem * > PeerguardianList::getValidItems() 
+QVector< ListItem * > PeerguardianList::getValidItems()
 {
     QVector< ListItem * > result;
-    for ( QVector< ListItem >::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ ) 
-        if ( s->mode != COMMENT_ITEM ) 
+    for ( QVector< ListItem >::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ )
+        if ( s->mode != COMMENT_ITEM )
             result.push_back(s);
-        
-    
+
+
     return result;
 }
 
@@ -324,18 +324,18 @@ QFileInfoList PeerguardianList::getLocalBlocklists()
 {
     QFileInfoList localBlocklists;
     QDir defaultDir (m_masterBlocklistDir);
-    
+
     foreach(QFileInfo fileInfo, defaultDir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files) )
         if ( fileInfo.isSymLink() )
             localBlocklists << QFileInfo(fileInfo.symLinkTarget());
-    
+
     return localBlocklists;
 }
-    
+
 bool PeerguardianList::exportToFile( const QString &filename ) {
 
     QStringList tempFile;
-    for ( QVector< ListItem >::const_iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ ) 
+    for ( QVector< ListItem >::const_iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ )
         tempFile.push_back( s->exportItem() );
 
     return saveFileData( tempFile, filename );
@@ -344,7 +344,7 @@ bool PeerguardianList::exportToFile( const QString &filename ) {
 
 
 QVector< ListItem * >  PeerguardianList::getEnabledItems()
-{   
+{
     return getItems(ENABLED_ITEM);
 }
 
@@ -355,23 +355,23 @@ QVector< ListItem * >  PeerguardianList::getDisabledItems()
 
 void PeerguardianList::update(QList<QTreeWidgetItem*> treeItems)
 {
-    
+
     QStringList fileData = getFileData(m_FileName);
     QStringList newFileData;
     QString line;
     bool state;
-    
+
     m_localLists.clear();
-    
+
     //load comments to newFileData
     foreach(QString line, fileData)
     {
         ListItem listItem = ListItem(line);
-        
+
         if ( listItem.mode == COMMENT_ITEM )
             newFileData << line;
     }
-    
+
     //load lists to newFileData
     foreach(QTreeWidgetItem * treeItem, treeItems)
     {
@@ -381,19 +381,19 @@ void PeerguardianList::update(QList<QTreeWidgetItem*> treeItems)
             state = true;
             if ( treeItem->checkState(0) == Qt::Unchecked )
                 state = false;
-            
+
             m_localLists.insert(treeItem->text(1), state);
-            
+
         }
         else //if it's an URL
         {
             if ( treeItem->checkState(0) == Qt::Unchecked )
                 line = "# ";
-        
+
             line += treeItem->text(1).trimmed();
-            
+
             newFileData << line;
-            
+
             line.clear();
         }
     }

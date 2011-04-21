@@ -30,7 +30,7 @@
 /**
 *
 * @short Simple class to allow the additions of new blocklist entries
-* 
+*
 */
 
 class ListAddDialog : public QDialog, private Ui::ListAddDialog {
@@ -40,7 +40,7 @@ class ListAddDialog : public QDialog, private Ui::ListAddDialog {
 	public:
 		/**
 		 * Constructor. Setups the user interface and intiallizes the variables.
-		 * @param parent 
+		 * @param parent
 		 */
 		ListAddDialog( QWidget *parent = 0 );
 		/**
