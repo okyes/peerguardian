@@ -2,7 +2,7 @@
 Name=pgl-gui
 Type=Application
 Exec=/usr/bin/pgl-gui
-Icon=pgl-gui.qt.png
+Icon=pgl-gui.png
 Comment=Graphical User Interface of PeerGuardian Linux
 StartupNotify=true
 Terminal=false

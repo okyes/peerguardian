@@ -95,10 +95,15 @@ RELEASEFILE:=$(PKGNAME)-$(VERSION).tar.gz
 DISTDIR = $(PKGNAME)-$(VERSION)
 
 DISTFILES = \
+	ChangeLog \
+	Makefile \
+	README \
 	debian/changelog \
 	debian/compat \
 	debian/control \
 	debian/copyright \
+	debian/patches/series \
+	debian/patches/use-systemwide-LSB-init-functions.patch \
 	debian/pglcmd.config \
 	debian/pglcmd.dirs \
 	debian/pglcmd.examples \
@@ -123,16 +128,15 @@ DISTFILES = \
 	docs/AUTHORS \
 	docs/BUGS \
 	docs/COPYING \
+	docs/GPL-3 \
 	docs/iptables-custom-insert.sh \
 	docs/iptables-custom-remove.sh \
 	docs/pgld.1 \
 	docs/README \
 	docs/README.blocklists \
+	docs/README.pgl-gui \
 	docs/THANKS \
-	docs/TODO \
-	ChangeLog \
-	INSTALL \
-	Makefile
+	docs/TODO
 
 all: $(MODULES_ALL)
 

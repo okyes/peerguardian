@@ -15,9 +15,7 @@ pgld:
 pglcmd:
 
   - uncomment code for automatic start on system initialization in
-    pglcmd/Makefileand. Add checks whether the needed tools exist.
-
-  - document reference for port service names: /etc/aliases
+    pglcmd/Makefile. Add checks whether the needed tools exist. Adapt INSTALL.
 
   - blockers release pgl-gui:
     - add blockcontrol-pgl configuration transition script
@@ -31,7 +29,7 @@ pglcmd:
   - improve use of traceroute in "pglcmd test":
     - test whether it is installed, use tcptraceroute etc. alternatively
 
-  - send error messages to console (STDERR 1>&2) and logfile. [Jo?o]
+  - send error messages to console (STDERR 1>&2) and logfile. [jpv]
     Completely rework the logging part, and check if all messages go where they
     should.
     Add dbus support.
@@ -81,8 +79,37 @@ pglcmd:
 
 pgl-gui:
 
+###############################################################################
+  [freemind]
+#13: enable "Undo All".
+
+#9: add option "Reset to default"
+
+#10: show blocklists like "example.com/list/list2" (I added this manually to blocklists.list, it downloads fine, but pgl-gui doesn't show it)
+
+#11: Remove test, whether blocklist is available
+
+#14: add "Warning" icon to INIT and CRON, if changes have not been applied yet.
+
+#15: warn on closing the window that there are unapplied changes. "Apply them? - Yes/No"
+
+#16: send pgl-gui to system-tray, add start with --tray option (like mobloquer)
+
+###############################################################################
+  [jre]
+  - relicense everything to GPL3, fix headers especially of pgl-gui, update
+
+  - Verify flags etc. in Makefile
+    verify where prerequisite FORMS_HEADERS is necessary
+
+###############################################################################
+
+  - policykit support (instead of kdesudo/gksu
+
+  - pop-up warning on errors in pglcmd.conf. Requires dbus logging.
+
   - add option to temp allow, which inserts the appropriate iptables rules
-    directly. (iptables --ctexpire )
+    directly. (iptables --ctexpire (really?))
 
   - add whitelisting per IP (normal pglcmd variables), and per IP/port/proto
     (pgl-gui-custom-iptables-insert.sh)
@@ -102,8 +129,6 @@ Packaging:
   - Debian:
     - add LOWMEM flavor packages
     - add debtags
-    - add packages to lenny with backports
-      (http://forums.phoenixlabs.org/showthread.php?p=131481)
 
   - make rpms
     http://forums.phoenixlabs.org/showthread.php?p=123060

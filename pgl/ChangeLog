@@ -3,8 +3,8 @@ ChangeLog PeerGuardian Linux (pgl)
 pgl 2.1.0~pre1
 
   [freemind]
-  * added new pgl-gui (C++, Qt)
-    partly based on old mobloquer/pgl-gui.qt
+  * added new GUI: pgl-gui (C++, Qt)
+    partly based on old mobloquer
     moved old code to pgl-gui.qt-old
 
   [ jre ]
@@ -13,7 +13,7 @@ pgl 2.1.0~pre1
     Reason: Allow pgl-gui to *instantly* add/remove single ports to the
     whitelisting.
 
--- jre <jre-phoenix@users.sourceforge.net>  Sun, 17 Apr 2011 18:14:45 +0200
+-- jre <jre-phoenix@users.sourceforge.net>  Wed, 20 Apr 2011 14:13:36 +0200
 
 pgl 2.0.4
 

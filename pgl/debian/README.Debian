@@ -9,22 +9,23 @@ http://wiki.debian.org/Projects/DebSrc3.0.
 Make Debian packages:
 
 Install the build requirements:
-  aptitude install devscripts \
-                   debhelper \
-                   po-debconf \
-                   zlib1g-dev \
-                   libnetfilter-queue-dev \
-                   libnfnetlink-dev \
-                   libdbus-1-dev
+  apt-get install devscripts \
+                    debhelper \
+                    po-debconf \
+                    zlib1g-dev \
+                    libnetfilter-queue-dev \
+                    libnfnetlink-dev \
+                    libdbus-1-dev \
+                    libqt4-dev
 
-Get the source (see INSTALL, Step 1: Get the source).
+Get the source (see pgl/README, Step 1: Get the source).
 
 Change to the source directory "peerguardian/pgl/".
 
 Then issue
   debuild --no-lintian -us -uc -tc -b
 
-You will get deb package called pglcmd, pgld and pgld-dbg in the "peerguardian/"
-directory.
+You will get deb packages called pgld, pglcmd, pgl-gui, pgld-dbg and pgl-gui-dbg
+in the "peerguardian/" directory.
 
- -- jre <jre-phoenix@users.sourceforge.net>  Wed, 02 Jun 2010 11:01:46 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 20 Apr 2011 22:41:53 +0200

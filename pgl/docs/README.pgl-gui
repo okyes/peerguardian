@@ -1,4 +1,4 @@
-pgl-gui                             draft                            2011-01-02
+pgl-gui                           draft                            2011-04-20
 
 
 PeerGuardian Linux consists of three components:
@@ -16,10 +16,8 @@ PeerGuardian Linux consists of three components:
 
 
 Utilized software:
-
 - C++
-- Gtk
-- glade
+- Qt
 - dbus
 
 
@@ -45,9 +43,6 @@ Main Window:
         - whitelist blocked IP permanently:
             entry to pglcmd's WHITE_IP_FWD, WHITE_IP_IN or WHITE_IP_OUT
             issue iptables command directly
-        - whitelist blocked IP+port+protocol combination permanently:
-            add iptables command to iptables-gui-insert.sh
-            issue iptables command directly
         - whitelist blocked IP's port permanently:
             issue warning that this is a security risk, explain why
             entry to pglcmd's WHITE_[TCP|UDP]_[IN|OUT|FWD]
@@ -58,7 +53,7 @@ Main Window:
 - Configure Panel:
     Allows to edit pglcmd's variables. Default values are in pglcmd.defaults.
     Other values are saved in pglcmd.conf.
-    Offer to "pglcmd restart" to apply changes for iptables rules or pgld's 
+    Offer to "pglcmd restart" to apply changes for iptables rules or pgld's
         options.
     "pglcmd reload" to apply changes for blocklists.
     - Main:
@@ -68,11 +63,49 @@ Main Window:
     - Logging
     - Paths
     - ...
-    - pgl-gui specific settings, saved in pgl-gui.conf (/etc/pgl/pgl-gui.conf
-        and/or ~/.pgl-gui.conf)
+    - pgl-gui specific settings, saved in ~/.config/pgl/pgl-gui.conf
 
 Dockable to system tray
     different icons for whether pgld process is running
     blink on block (make configurable)
 
-Some commands require root privileges. Gain them with gksu/kdesudo.
+Some commands require root privileges. Gain them with policykit (currently
+gksu/kdesudo)
+
+
+
+---------- old mobloquer -----------------
+
+Features:
+* [TODO] View the IPs which pgl blocks in realtime as well as some information about
+  each one.
+* [TODO] Easily view whois information for each IP blocked.
+* [TODO] Easily configure pgl to stop blocking an IP.
+* Add/Remove/Enable/Disable blocklists and tweak their settings.
+* Quickly tweak pgl's settings such as automatic startup, automatic updates etc.
+* Whitelist specific ports.
+* Whitelist IPs/hostnames.
+* [TODO] Remove entries from the blocklists.
+* View the state of pgld.
+* [TODO] View some information about moblock such as the number of the loaded ranges, the last time the blocklists were updated etc.
+* [TODO] View the log produced by pglcmd in real time.
+* [TODO] View the current iptables rules to determine if pgl is working.
+* Start/Restart/Stop/Reload/Update pgl with just one click.
+
+Dependencies:
+* libc-dev/libc6-dev
+* g++
+* make
+* libqt4-core (>=4.3.0)
+* libqt4-gui (>=4.3.0)
+* libqt4-dev (>=4.3.0)
+* pgld and pglcmd
+
+See "install" for installation instructions.
+
+Common problems:
+* If pgl-gui stops working properly, the first thing you should try to do is
+  delete its configuration file.
+  Just run "rm ~/.config/pgl/pgl-gui.conf" in a terminal to do so.
+* Launch pgl-gui with the argument --tray if you want it to start minimized in
+  the tray.

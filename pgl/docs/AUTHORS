@@ -10,9 +10,9 @@ Authors:
     jre <jre-phoenix@users.sourceforge.net>, created pglcmd, based on his
         previous blockcontrol, previously moblock-control. Based on init &
         update script from the forum at methlabs.org (predecessor of
-        phoenixlabs.org). Debian packager.
-    Dimitris Palyvos-Giannas <jimaras@gmail.com>, created pgl-gui and previously
-        mobloquer.
+        phoenixlabs.org). Debian packager. Project coordinator.
+    Dimitris Palyvos-Giannas <jimaras@gmail.com>, created mobloquer.
+    freemind <freemind@lavabit.com>, wrote pgl-gui, based on mobloquer.
 
 Contributors:
     jpv, initially implemented dbus support in nfblock

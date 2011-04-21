@@ -1,3 +1,10 @@
+pgl/README
+
+For a description of pgl and more information please have a look at
+pgl/docs/README.
+
+##############################################################################
+
 Table of Contents:
 
 Installation
@@ -26,7 +33,6 @@ pglcmd and the GUI pgl-gui. In the pgl/Makefile you can enable/disable these
 components and configure the paths pgl is installed to and uses. In the
 "install" stanza of the pgl/pglcmd/Makefile you can enable the init script
 activation, so that pgl starts automatically at system boot.
-Note (2010-08-09):  pgl-gui is not ready for usage, yet.
 
 Especially for embedded devices (like router or NAS box) you might set the
 LOWMEM option to yes. This disables storing of textual range descriptions.
@@ -72,6 +78,11 @@ pglcmd:
 /var/lib/blockcontrol
 /var/log/pgl
 /var/spool/blockcontrol
+
+pgl-gui:
+/usr/bin/pgl-gui
+/usr/share/applications/pgl-gui.desktop
+/usr/share/pixmaps/pgl-gui.png
 
 ##############################################################################
 
