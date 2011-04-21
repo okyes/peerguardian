@@ -1,3 +1,11 @@
+# pgl-gui.pro
+# It is recommended to install pgl-gui with the pgl/Makefile. This file calls
+# the pgl/pgl-gui/Makefile. Please have a look at pgl/README.
+
+# For testing purposes you may install pgl-gui separately, using a Makefile
+# created with qmake from pgl-gui.pro. WARNING: This will overwrite the
+# pgl/pgl-gui/Makefile! So pgl will not be installable afterwards.
+
 TEMPLATE = app
 TARGET = pgl-gui
 DEPENDPATH += . src
@@ -53,7 +61,6 @@ HEADERS += src/file_transactions.h \
            src/pgl_whitelist.h \
            src/gui_options.h\
 
-
 FORMS += ui/main_window.ui \
          ui/settings.ui \
          ui/whois.ui \
@@ -66,7 +73,7 @@ FORMS += ui/main_window.ui \
 RESOURCES += images/images.qrc
 
 icon.path = /usr/share/pixmaps /
-icon.files = ./images/pgl-gui.qt.png
+icon.files = ./images/pgl-gui.png
 
 desktop.path = /usr/share/applications /
 desktop.files = ./other/*.desktop
@@ -75,9 +82,6 @@ target.path = /usr/bin
 
 INSTALLS = icon desktop target
 
-DISTFILES += README \
-             ChangeLog \
-             INSTALL
+DISTFILES += INSTALL
 
 CONFIG += qt debug
-
