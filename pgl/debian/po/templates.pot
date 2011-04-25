@@ -186,7 +186,7 @@ msgstr ""
 #. Type: select
 #. Description
 #: ../pglcmd.templates:6001
-msgid "Configuration variable: VERBOSITY"
+msgid "Configuration variable: VERBOSE"
 msgstr ""
 
 #. Type: select

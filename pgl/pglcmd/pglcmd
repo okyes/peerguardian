@@ -53,7 +53,7 @@ case "$1" in
         # Define an exit function for trapped signals
         onexit () {
             RETVAL="$?"
-            [ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
+            [ "$VERBOSE" -gt 0 ] && log_end_msg $RETVAL
             exit $RETVAL
         }
 
@@ -66,66 +66,66 @@ esac
 case "$1" in
     'start')
         test_CMD_LOG
-        [ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Starting $DESC" "$NAME"
+        [ "$VERBOSE" -gt 0 ] && log_daemon_msg "Starting $DESC" "$NAME"
         date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
         do_start >> $CMD_LOG 2>&1
         date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
-        [ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
+        [ "$VERBOSE" -gt 0 ] && log_end_msg $RETVAL
         ;;
     'stop')
         test_CMD_LOG
-        [ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Stopping $DESC" "$NAME"
+        [ "$VERBOSE" -gt 0 ] && log_daemon_msg "Stopping $DESC" "$NAME"
         date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
         do_stop_wd >> $CMD_LOG 2>&1
         do_stop >> $CMD_LOG 2>&1
         date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
-        [ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
+        [ "$VERBOSE" -gt 0 ] && log_end_msg $RETVAL
         ;;
     'start_wd')
         test_CMD_LOG
-        [ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Starting $CMD_NAME watchdog" "$(basename $WD_PATHNAME)"
+        [ "$VERBOSE" -gt 0 ] && log_daemon_msg "Starting $CMD_NAME watchdog" "$(basename $WD_PATHNAME)"
         date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
         do_start_wd >> $CMD_LOG 2>&1
         date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
-        [ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
+        [ "$VERBOSE" -gt 0 ] && log_end_msg $RETVAL
         ;;
     'stop_wd')
         test_CMD_LOG
-        [ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Stopping $CMD_NAME watchdog" "$(basename $WD_PATHNAME)"
+        [ "$VERBOSE" -gt 0 ] && log_daemon_msg "Stopping $CMD_NAME watchdog" "$(basename $WD_PATHNAME)"
         date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
         do_stop_wd >> $CMD_LOG 2>&1
         date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
-        [ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
+        [ "$VERBOSE" -gt 0 ] && log_end_msg $RETVAL
         ;;
     'restart'|'force-restart')
         test_CMD_LOG
-        [ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Restarting $DESC" "$NAME"
+        [ "$VERBOSE" -gt 0 ] && log_daemon_msg "Restarting $DESC" "$NAME"
         date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
         do_stop_wd >> $CMD_LOG 2>&1
         do_restart >> $CMD_LOG 2>&1
         date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
-        [ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
+        [ "$VERBOSE" -gt 0 ] && log_end_msg $RETVAL
         ;;
     'restart_not_wd')
         test_CMD_LOG
-        [ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Restarting only $DESC" "$NAME"
+        [ "$VERBOSE" -gt 0 ] && log_daemon_msg "Restarting only $DESC" "$NAME"
         echo
         date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
         do_restart >> $CMD_LOG 2>&1
         date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
-        [ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
+        [ "$VERBOSE" -gt 0 ] && log_end_msg $RETVAL
         ;;
     'reload'|'force-reload')
         test_CMD_LOG
-        [ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Reloading $DESC" "$NAME"
+        [ "$VERBOSE" -gt 0 ] && log_daemon_msg "Reloading $DESC" "$NAME"
         date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
         do_reload >> $CMD_LOG 2>&1
         date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
-        [ "$VERBOSITY" -gt 0 ] && log_end_msg $RETVAL
+        [ "$VERBOSE" -gt 0 ] && log_end_msg $RETVAL
         ;;
     'update'|'force-update')
         test_CMD_LOG
-        [ "$VERBOSITY" -gt 0 ] && log_daemon_msg "Updating blocklists and reloading $DESC" "$NAME"
+        [ "$VERBOSE" -gt 0 ] && log_daemon_msg "Updating blocklists and reloading $DESC" "$NAME"
         date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
         if [ "$1" = "force-update" ] ; then
             echo -n "Forcing update of all lists. Removing $BLOCKLISTS_DIR" >> $CMD_LOG
@@ -136,7 +136,7 @@ case "$1" in
         update_blocklists >> $CMD_LOG 2>&1
         do_reload >> $CMD_LOG 2>&1
         date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
-        if [ "$VERBOSITY" -gt 0 ] ; then
+        if [ "$VERBOSE" -gt 0 ] ; then
             log_end_msg $RETVAL
             IFS=";"
             if [ -n "$UPDATE_FAIL" ] ; then

@@ -79,12 +79,12 @@ _Description: Turn on iptables logging of blocked packets to syslog?
  .
  The default is not to log blocked packets to syslog.
 
-Template: pglcmd/VERBOSITY
+Template: pglcmd/VERBOSE
 Type: select
 Choices: Output to STDOUT is off (only errors will be reported)., Output to STDOUT is on., Output to STDOUT is on but no warning will be shown if an operation is configured not to be executed.
 Default: Output to STDOUT is on.
 _Description: Set the verbosity of pglcmd:
- Configuration variable: VERBOSITY
+ Configuration variable: VERBOSE
  .
  This only affects the output to STDOUT by pglcmd, cron and init. But it does
  not affect logging or the output of pgld.

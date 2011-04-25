@@ -85,7 +85,7 @@ fi
 VARIABLES="
     LOG_SYSLOG
     LOG_IPTABLES
-    VERBOSITY
+    VERBOSE
     INIT
     CRON
     WD
@@ -426,7 +426,7 @@ for VAR in $VARIABLES ; do
             esac
             ;;
 
-        'VERBOSITY')
+        'VERBOSE')
             case "$VALUE" in
                 '0')
                     db_set pglcmd/$VAR 'Output to STDOUT is off (only errors will be reported).'
@@ -562,7 +562,7 @@ while true ; do
     '4')
         db_input low pglcmd/LOG_SYSLOG || true
         db_input low pglcmd/LOG_IPTABLES || true
-        db_input low pglcmd/VERBOSITY || true
+        db_input low pglcmd/VERBOSE || true
         ;;
     '5')
         db_input critical pglcmd/INIT || true
@@ -821,25 +821,25 @@ case "$RET" in
         ;;
 esac
 
-my_db_get VERBOSITY
+my_db_get VERBOSE
 case "$RET" in
     'Output to STDOUT is off (only errors will be reported).')
         if [ "$CONFFILE" = "$CMD_CONF" ] ; then
-            sed -i -r "s|^[[:space:]]*VERBOSITY=.*|VERBOSITY=\"0\"|" $CMD_CONF
+            sed -i -r "s|^[[:space:]]*VERBOSE=.*|VERBOSE=\"0\"|" $CMD_CONF
         else
-            echo "VERBOSITY=\"0\"" >> $CMD_CONF
+            echo "VERBOSE=\"0\"" >> $CMD_CONF
         fi
         ;;
     'Output to STDOUT is on.')  # Default
         if [ "$CONFFILE" = "$CMD_CONF" ] ; then
-            sed -i -r "s|^[[:space:]]*VERBOSITY=.*|VERBOSITY=\"1\"|" $CMD_CONF
+            sed -i -r "s|^[[:space:]]*VERBOSE=.*|VERBOSE=\"1\"|" $CMD_CONF
         fi
         ;;
     'Output to STDOUT is on but no warning will be shown if an operation is configured not to be executed.')
         if [ "$CONFFILE" = "$CMD_CONF" ] ; then
-            sed -i -r "s|^[[:space:]]*VERBOSITY=.*|VERBOSITY=\"2\"|" $CMD_CONF
+            sed -i -r "s|^[[:space:]]*VERBOSE=.*|VERBOSE=\"2\"|" $CMD_CONF
         else
-            echo "VERBOSITY=\"2\"" >> $CMD_CONF
+            echo "VERBOSE=\"2\"" >> $CMD_CONF
         fi
         ;;
 esac

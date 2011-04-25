@@ -542,13 +542,13 @@ test_CRON () {
     esac
 }
 
-test_VERBOSITY () {
-    case "$VERBOSITY" in
+test_VERBOSE () {
+    case "$VERBOSE" in
         '0'|'1'|'2')
             true
             ;;
         *)
-            log_failure_msg "Error $E_CONFIG: Check the VERBOSITY setting."
+            log_failure_msg "Error $E_CONFIG: Check the VERBOSE setting."
             exit $E_CONFIG
             ;;
     esac
@@ -1042,8 +1042,8 @@ insert_iptables () {
     fi
     case "$IPTABLES_SETTINGS" in
     '0')
-        test_VERBOSITY
-        if [ "$VERBOSITY" -eq 1 ] ; then
+        test_VERBOSE
+        if [ "$VERBOSE" -eq 1 ] ; then
             log_warning_msg "$(basename $0) is configured not to insert iptables rules."
         fi
         ;;
@@ -1217,7 +1217,7 @@ insert_iptables () {
         # Chain activation
         case "$IPTABLES_ACTIVATION" in
         '0')
-            if [ "$VERBOSITY" -eq 1 ] ; then
+            if [ "$VERBOSE" -eq 1 ] ; then
                 echo "..Not activating chains."
             fi
             ;;

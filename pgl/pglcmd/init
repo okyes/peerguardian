@@ -58,7 +58,7 @@ fi
 ################################################################################
 
 test_INIT
-test_VERBOSITY
+test_VERBOSE
 test_CMD_PATHNAME
 
 case "$1" in
@@ -66,10 +66,10 @@ case "$1" in
         case "$INIT" in
             # Automatic boot is off:
             0)
-                if [ "$VERBOSITY" -eq 1 ] ; then
+                if [ "$VERBOSE" -eq 1 ] ; then
                     log_warning_msg "$(basename $0) is configured not to start automatically at boot time."
                     log_warning_msg "To change this edit the INIT entry in $CMD_CONF."
-                    log_warning_msg "If you don't want to see this message set VERBOSITY=\"2\" there."
+                    log_warning_msg "If you don't want to see this message set VERBOSE=\"2\" there."
                 fi
                 exit 0
                 ;;

@@ -42,16 +42,16 @@ fi
 ################################################################################
 
 test_CRON
-test_VERBOSITY
+test_VERBOSE
 test_CMD_PATHNAME
 
 case "$CRON" in
     # Automatic update is off:
     0)
-        if [ "$VERBOSITY" -eq 1 ] ; then
+        if [ "$VERBOSE" -eq 1 ] ; then
             log_warning_msg "$(basename $0) is configured not to update the blocklists automatically."
             log_warning_msg "To change this edit the CRON entry in $CMD_CONF."
-            log_warning_msg "If you don't want to see this message set VERBOSITY=\"2\" there."
+            log_warning_msg "If you don't want to see this message set VERBOSE=\"2\" there."
         fi
         ;;
     # Automatic update is on:

@@ -341,7 +341,7 @@ LOG_IPTABLES=""
 # 1 - Output to STDOUT is on
 # 2 - Output to STDOUT is on, but no warning will be shown if an operation is
 #     configured not to be executed.
-VERBOSITY="1"
+VERBOSE="1"
 
 # Email the result of the automatic (cron) blocklist update.
 # Specify the mail recipient.

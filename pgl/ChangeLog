@@ -13,6 +13,7 @@ pgl 2.1.0~pre1 The GUI release!
     Reason: Allow pgl-gui to *instantly* add/remove single ports to the
     whitelisting.
   * added blockcontrol2pglcmd.sh configuration transition script
+  * renamed VERBOSITY variable to VERBOSE
 
 -- jre <jre-phoenix@users.sourceforge.net>  Wed, 20 Apr 2011 14:13:36 +0200
 

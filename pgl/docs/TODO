@@ -17,11 +17,6 @@ pglcmd:
   - uncomment code for automatic start on system initialization in
     pglcmd/Makefile. Add checks whether the needed tools exist. Adapt INSTALL.
 
-  - blockers release pgl-gui:
-    - transition VERBOSITY-->VERBOSE?
-        ... or other changes (STDERR, ...)
-        See Debian /etc/init.d/skeleton and /etc/default/rcS
-        or perhaps: INIT_VERBOSE=$VERBOSITY
 
   - improve use of traceroute in "pglcmd test":
     - test whether it is installed, use tcptraceroute etc. alternatively

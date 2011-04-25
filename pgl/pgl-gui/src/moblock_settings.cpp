@@ -223,7 +223,7 @@ void MoblockSettings::formatsInit() {
 	m_Formats.insert( "LOG_TIMESTAMP", SINGLE_STR );
 	m_Formats.insert( "LOG_SYSLOG", SINGLE_STR );
 	m_Formats.insert( "LOG_IPTABLES", SINGLE_STR );
-	m_Formats.insert( "VERBOSITY", SINGLE_STR );
+	m_Formats.insert( "VERBOSE", SINGLE_STR );
 	m_Formats.insert( "CRON_MAILTO", SINGLE_STR );
 	m_Formats.insert( "E_BADARGS", SINGLE_STR );
 	m_Formats.insert( "E_NOTROOT", SINGLE_STR );
