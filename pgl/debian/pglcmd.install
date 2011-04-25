@@ -6,3 +6,4 @@ usr/bin/pglcmd
 etc/pgl/pglcmd.conf
 etc/pgl/allow.p2p
 etc/pgl/blocklists.list
+usr/bin/blockcontrol2pglcmd.sh

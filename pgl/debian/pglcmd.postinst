@@ -60,12 +60,14 @@ esac
 
 ################################################################################
 # The following code is common between pglcmd, pglcmd.wd,
-# cron.daily, init and debian/postinst.
+# cron.daily, init, debian/pglcmd.postinst and blockcontrol2pglcmd.sh.
 
 # if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
 # This can happen in early boot stages before local file systems are mounted.
 
 # CONTROL_MAIN has to be set correctly in all just mentioned files.
+# This is done by the pgl/pglcmd/Makefile based on the settings in the
+# pgl/Makefile.
 CONTROL_MAIN="/usr/lib/pgl/pglcmd.main"
 
 # Configure pglcmd and load functions.
@@ -146,6 +148,9 @@ LISTS_POSSIBLE="
     TBG_Primary_Threats
     TBG_Search_Engines
     "
+
+# Transition some old blockcontrol configuration settings.
+[ -x /usr/bin/blockcontrol2pglcmd.sh ] && blockcontrol2pglcmd.sh || true
 
 # Translate human readable/debconf LIST_NAME to LIST_URL.
 # If you change this function also adapt the function LIST_URL2LIST_NAME in pglcmd.lib!

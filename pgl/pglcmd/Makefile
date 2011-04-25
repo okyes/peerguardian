@@ -7,6 +7,7 @@ DISTDIR = ../$(PKGNAME)-$(VERSION)/pglcmd
 
 DISTFILES = \
 	allow.p2p \
+	blockcontrol2pglcmd.sh \
 	blocklists.list \
 	cron.daily \
 	if-up \
@@ -37,7 +38,7 @@ all:
 	cat pglcmd.main | \
 	sed "s|^CMD_DEFAULTS=.*|CMD_DEFAULTS=\"$(LIBDIR)/pglcmd.defaults\"|" > pglcmd.main.install
 
-	for FILE in pglcmd pglcmd.wd cron.daily init ../debian/pglcmd.postinst if-up ; do \
+	for FILE in blockcontrol2pglcmd.sh pglcmd pglcmd.wd cron.daily init ../debian/pglcmd.postinst if-up ; do \
 		cat $$FILE | \
 		sed "s|^CONTROL_MAIN=.*|CONTROL_MAIN=\"$(LIBDIR)/pglcmd.main\"|" > $$FILE.install ; \
 	done
@@ -45,6 +46,7 @@ all:
 	# Just doing this here to avoid to forget this. Normally this file shouldn't change anyway.
 
 install:
+	install -D -m 755 blockcontrol2pglcmd.sh.install $(DESTDIR)/$(BINDIR)/blockcontrol2pglcmd.sh
 	install -D -m 755 pglcmd.install $(DESTDIR)/$(BINDIR)/pglcmd
 	install -D -m 644 pglcmd.main.install $(DESTDIR)/$(LIBDIR)/pglcmd.main
 	install -D -m 644 pglcmd.defaults.install $(DESTDIR)/$(LIBDIR)/pglcmd.defaults

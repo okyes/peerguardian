@@ -18,9 +18,6 @@ pglcmd:
     pglcmd/Makefile. Add checks whether the needed tools exist. Adapt INSTALL.
 
   - blockers release pgl-gui:
-    - add blockcontrol-pgl configuration transition script
-        (http://ubuntuforums.org/showthread.php?p=9981209)
-        - add it to packaging
     - transition VERBOSITY-->VERBOSE?
         ... or other changes (STDERR, ...)
         See Debian /etc/init.d/skeleton and /etc/default/rcS
