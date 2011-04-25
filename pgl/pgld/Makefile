@@ -13,8 +13,7 @@ OBJS = \
 	src/pgld.o \
 	src/stream.o \
 	src/blocklist.o \
-	src/parser.o \
-	src/dbus.o
+	src/parser.o 
 LIBS = \
 	-lnetfilter_queue \
 	-lnfnetlink
