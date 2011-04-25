@@ -75,14 +75,14 @@ void do_log(int priority, const char *format, ...)
         fflush(logfile);
         va_end(ap);
     }
-// #ifdef HAVE_DBUS
-//     if (use_dbus) {
-//         va_list ap;
-//         va_start(ap, format);
-//         pgl_dbus_send(format, ap);
-//         va_end(ap);
-//     }
-// #endif
+#ifdef HAVE_DBUS
+    if (use_dbus) {
+        va_list ap;
+        va_start(ap, format);
+        pgl_dbus_send(format, ap);
+        va_end(ap);
+    }
+#endif
 
     if (opt_merge) {
         va_list ap;

@@ -24,7 +24,7 @@ MAKE_PGLGUI ?= yes
 #
 
 # Set DBUS to yes if you want to be able to use DBUS.
-DBUS ?= no
+DBUS ?= yes
 
 # Set ZLIB to yes if you want pgld to be able to load compressed blocklists.
 ZLIB ?= yes
