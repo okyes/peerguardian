@@ -245,16 +245,17 @@ WHITE_LOCAL="1"
 
 ############################### Whitelist ports ###############################
 
-# Whitelist ports by port number or with the associated service name. Port
-# ranges are specified in the format "port:port".
-# Separate several entries with whitespace (" "). Be careful: senseless values
-# are also accepted.
-#
-# Common ports:
+# Whitelist ports (traffic on these ports will not be checked)
+# Valid values: port numbers or service names. Port ranges are specified in the
+# format "port:port".
+# Common ports - service names:
 #   80 - http
 #  443 - https
 #   22 - ssh
 #  993 - SSL IMAP
+# Separate several entries with whitespace (" ")
+# Technical implementation: iptables rules in the corresponding iptables chains,
+# matching protocol and --sport/dport PORT, target IPTABLES_TARGET_WHITELISTING.
 # This section works only for IPTABLES_SETTINGS="1"
 # Do a "pglcmd restart" when you have changed these settings.
 
@@ -272,20 +273,24 @@ WHITE_UDP_FWD=""
 ################################ Whitelist IPs ################################
 
 # Possibility 1:
-# You can specify IP ranges that shall not be checked by MoBlock in a separate
-# file. Per default this is /etc/pgl/allow.p2p. Change the
-# ALLOW_[IN|OUT|FWD] variables if you want to use different allow lists for
-# incoming, outgoing and forwarded traffic.
+# You can specify IP ranges that shall not be checked by pgl in a separate file.
+# Per default this is /etc/pgl/allow.p2p. Change the ALLOW_[IN|OUT|FWD]
+# variables if you want to use different allow lists for incoming, outgoing and
+# forwarded traffic.
+# DEPRECATION WARNING: This will be changed to use the same allow list for all
+# directions. The underlying technical change is that currently the IP ranges
+# from the allow lists get whitelisting iptables rules, but the planned new
+# implementation is that these IP ranges get removed from the blocklist.
 
 # Possibility 2:
-# Whitelist either a network name, a hostname (please note that specifying any
-# name to be resolved with a remote query such as DNS is a really bad idea), a
-# network IP address (with /mask), or a plain IP address.
-# (using iptables with the target IPTABLES_TARGET_WHITELISTING)
-# The mask can be either a network mask or a plain number, specifying the number
-# of 1's at the left side of the network mask. Thus, a mask of 24 is equivalent
-# to 255.255.255.0.
+# Whitelist IPs (traffic from/to these IPs will not be checked)
+# Valid values: plain IPs or network IP addresses (with /mask). The mask can
+# be either a network mask or a plain number, specifying the number of 1's at
+# the left side of the network  mask. Thus, a mask of 24 is equivalent to
+# 255.255.255.0.
 # Separate several entries with whitespace (" ")
+# Technical implementation: iptables rules in the corresponding iptables chains,
+# matching --source/destination IP, target IPTABLES_TARGET_WHITELISTING.
 # This section works only for IPTABLES_SETTINGS="1"
 # Do a "pglcmd restart" when you have changed these settings.
 

@@ -2,9 +2,13 @@ TODO
 
 pgld:
 
-  - fix logging to dbus
+  - fix/add dbus support, especially for logging. See below.
 
-  - use a real allowlist (instead of the iptables whitelisting)
+  - use a real allowlist (instead of the iptables whitelisting):
+    pgld [OPTIONS] [-A ALLOWLIST(s)] [-B BLOCKLISTS]
+    - check packets first against the allowlist, if match: do the same as for
+      non-matching against blocklist
+    - then check against blocklist (same behaviour as currently)
 
   - add search option that gives all single blocklists (not master blocklist)
     with the range and description that contain a specified IP.
@@ -17,14 +21,20 @@ pglcmd:
   - uncomment code for automatic start on system initialization in
     pglcmd/Makefile. Add checks whether the needed tools exist. Adapt INSTALL.
 
+  - allow lists:
+    requires allow lists in pgld, see above
+    - add support for remote allow lists (like remote blocklists)
+    - simply place local allow lists in a folder and detect them automatically
+      (like local blocklists)
 
   - improve use of traceroute in "pglcmd test":
     - test whether it is installed, use tcptraceroute etc. alternatively
 
-  - send error messages to console (STDERR 1>&2) and logfile. [jpv]
+  - send error messages to console (STDERR 1>&2) and logfile.
     Completely rework the logging part, and check if all messages go where they
     should.
-    Add dbus support.
+
+  - add dbus support, especially for logging. See below.
 
   - add pidfile for pglcmd (e.g. to prevent 2 starts at nearly the same time.
     How to handle "update"? - this does not conflict with start.
@@ -87,6 +97,12 @@ pgl-gui:
 
 #16: send pgl-gui to system-tray, add start with --tray option (like mobloquer)
 
+#17: whitelisting ports: allow port ranges "port:port"
+
+#18: whitelisting ports: separating several items e.g. this way
+     "125,126;127 128" does not work. Perhaps only use spaces (not comma or
+     semi-colon), for consistency with pglcmd.
+
 ###############################################################################
   [jre]
   - relicense everything to GPL3, fix headers especially of pgl-gui, update
@@ -96,9 +112,12 @@ pgl-gui:
 
 ###############################################################################
 
-  - policykit support (instead of kdesudo/gksu
+  - show pgld logfile. Allow right-click whitelisting of blocked IPs and/or
+    ports/protocol. Requires pgld dbus logging.
 
-  - pop-up warning on errors in pglcmd.conf. Requires dbus logging.
+  - pop-up warning on errors in pglcmd.conf. Requires pglcmd dbus logging.
+
+  - policykit support (instead of kdesudo/gksu)
 
   - add option to temp allow, which inserts the appropriate iptables rules
     directly. (iptables --ctexpire (really?))
