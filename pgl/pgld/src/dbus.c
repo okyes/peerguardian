@@ -45,19 +45,18 @@ int pgl_dbus_init() {
     }
     do_log(LOG_INFO, "INFO: Connected to system bus.");
 
-    /* need d-bus policy privileges for this to work */
-//     dbus_error_init (&dberr);
+    /* FIXME: need d-bus policy privileges for this to work, pgld has to get them! */
+//     dbus_error_init (&dberr); /* FIXME: Why commented out? */
     req = dbus_bus_request_name (dbconn, NFB_DBUS_PUBLIC_NAME,
-                                 DBUS_NAME_FLAG_DO_NOT_QUEUE, &dberr);
+                                 DBUS_NAME_FLAG_DO_NOT_QUEUE, &dberr); /* TODO: DBUS_NAME_FLAG_ALLOW_REPLACEMENT goes here */
     if (dbus_error_is_set (&dberr)) {
         do_log(LOG_ERR, "ERROR: requesting name: %s.", dberr.message);
         dbus_error_free(&dberr);
         return -1;
     }
     if (req == DBUS_REQUEST_NAME_REPLY_EXISTS) {
-        /* FIXME: replace the current name owner instead of giving up?
-         * Need to request name with DBUS_NAME_FLAG_ALLOW_REPLACEMENT
-         * in that case... */
+        /*TODO: req = dbus_bus_request_name (dbconn, NFB_DBUS_PUBLIC_NAME,
+                                 DBUS_NAME_FLAG_REPLACE_EXISTING, &dberr); */
         do_log(LOG_WARNING, "WARN: pgld is already running.");
         return -1;
     }
