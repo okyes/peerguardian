@@ -43,6 +43,7 @@ static const char **blocklist_charsets = 0;
 static FILE* pidfile = NULL;
 static char timestr[17];
 
+// Default is no dbus, enable it with "-d"
 #ifdef HAVE_DBUS
 static int use_dbus = 0;
 #endif
