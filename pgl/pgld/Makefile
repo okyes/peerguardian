@@ -13,8 +13,8 @@ OBJS = \
 	src/pgld.o \
 	src/stream.o \
 	src/blocklist.o \
-	src/parser.o \
-	src/dbus.o
+	src/parser.o
+
 LIBS = \
 	-lnetfilter_queue \
 	-lnfnetlink
@@ -32,6 +32,7 @@ endif
 ifeq ($(DBUS),yes)
 CFLAGS+=-DHAVE_DBUS `pkg-config dbus-1 --cflags` -fPIC
 LIBS+=-ldl
+OBJS+=src/dbus.o
 endif
 
 ifeq ($(PROFILE),yes)
@@ -56,7 +57,9 @@ DISTFILES = \
 	src/parser.c src/parser.h \
 	src/stream.c src/stream.h \
 	src/dbus.c src/dbus.h \
-	dbus-pgld.conf logrotate
+	dbus-pgld.conf \
+	logrotate \
+	org.netfilter.pgl.conf
 
 ifeq ($(DBUS),yes)
 all: src/pgld src/dbus.so
@@ -85,6 +88,7 @@ install:
 	install -D -m 755 src/pgld $(DESTDIR)/$(SBINDIR)/pgld
 ifeq ($(DBUS),yes)
 	install -D -m 644 dbus-pgld.conf $(DESTDIR)/$(DBUSCONFDIR)/pgld.conf
+	install -D -m 644 org.netfilter.pgl.conf $(DESTDIR)/$(DBUSCONFDIR)/pgld.conf
 	install -D -m 644 src/dbus.so $(DESTDIR)/$(LIBDIR)/dbus.so
 endif
 
