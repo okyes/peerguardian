@@ -35,7 +35,6 @@ CFLAGS+=-DHAVE_DBUS \
 	-fPIC \
 	-DPLUGINDIR=\"$(PLUGINDIR)\"
 LIBS+=-ldl
-OBJS+=src/dbus.o
 endif
 
 ifeq ($(PROFILE),yes)
