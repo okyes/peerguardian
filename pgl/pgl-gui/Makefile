@@ -29,7 +29,9 @@ endif
 
 # from pgld Makefile:
 # ifeq ($(DBUS),yes)
-# CFLAGS+=-DHAVE_DBUS `pkg-config dbus-1 --cflags` -fPIC
+# CFLAGS+=-DHAVE_DBUS \
+# 	`pkg-config dbus-1 --cflags --libs` \
+# 	-fPIC
 # LIBS+=-ldl
 # endif
 

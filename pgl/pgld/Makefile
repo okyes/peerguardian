@@ -31,7 +31,7 @@ endif
 
 ifeq ($(DBUS),yes)
 CFLAGS+=-DHAVE_DBUS \
-	`pkg-config dbus-1 --cflags` \
+	`pkg-config dbus-1 --cflags --libs` \
 	-fPIC \
 	-DPLUGINDIR=\"$(PLUGINDIR)\"
 LIBS+=-ldl
