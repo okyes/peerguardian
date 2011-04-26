@@ -30,7 +30,10 @@ LIBS+=-lz
 endif
 
 ifeq ($(DBUS),yes)
-CFLAGS+=-DHAVE_DBUS `pkg-config dbus-1 --cflags` -fPIC
+CFLAGS+=-DHAVE_DBUS \
+	`pkg-config dbus-1 --cflags` \
+	-fPIC \
+	-DPLUGINDIR=\"$(PLUGINDIR)\"
 LIBS+=-ldl
 OBJS+=src/dbus.o
 endif
@@ -89,13 +92,13 @@ install:
 ifeq ($(DBUS),yes)
 	install -D -m 644 dbus-pgld.conf $(DESTDIR)/$(DBUSCONFDIR)/pgld.conf
 	install -D -m 644 org.netfilter.pgl.conf $(DESTDIR)/$(DBUSCONFDIR)/pgld.conf
-	install -D -m 644 src/dbus.so $(DESTDIR)/$(LIBDIR)/dbus.so
+	install -D -m 644 src/dbus.so $(DESTDIR)/$(PLUGINDIR)/dbus.so
 endif
 
 install-strip: install
 	strip $(DESTDIR)/$(SBINDIR)/pgld
 ifeq ($(DBUS),yes)
-	strip $(DESTDIR)/$(LIBDIR)/dbus.so
+	strip $(DESTDIR)/$(PLUGINDIR)/dbus.so
 endif
 
 dist:

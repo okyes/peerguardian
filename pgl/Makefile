@@ -55,6 +55,7 @@ PIDDIR ?= /var/run
 LOGDIR ?= /var/log/pgl
 CONFDIR ?= /etc/pgl
 LIBDIR ?= $(prefix)/lib/pgl
+PLUGINDIR ?= $(prefix)/lib/pgl
 TMPDIR ?= /tmp
 BLOCKLISTS_DIR ?= /var/spool/pgl
 MASTER_BLOCKLIST_DIR ?= /var/lib/pgl
