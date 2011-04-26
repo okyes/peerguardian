@@ -7,7 +7,7 @@ Bugs: mailto:peerguardian-devel@lists.sourceforge.net
 Build-Depends: debhelper (>= 7.0.50~),
                po-debconf,
                libqt4-dev,
-#               libdbus-1-dev
+               libdbus-1-dev,
                zlib1g-dev,
                libnetfilter-queue-dev,
                libnfnetlink-dev
