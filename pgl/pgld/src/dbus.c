@@ -27,7 +27,6 @@
 // #include <syslog.h>
 // #include <stdio.h>
 #include "dbus.h"
-
 static DBusConnection *dbconn = NULL;
 
 int pgl_dbus_init() {
@@ -43,21 +42,22 @@ int pgl_dbus_init() {
     if (dbconn == NULL) {
       return -1;
     }
-    do_log(LOG_INFO, "INFO: Connected to system bus.");
-
+    //do_log(LOG_INFO, "INFO: Connected to system bus.") //FIXME: Can't use this due to undefined symbol
     /* FIXME: need d-bus policy privileges for this to work, pgld has to get them! */
 //     dbus_error_init (&dberr); /* FIXME: Why commented out? */
     req = dbus_bus_request_name (dbconn, NFB_DBUS_PUBLIC_NAME,
                                  DBUS_NAME_FLAG_DO_NOT_QUEUE, &dberr); /* TODO: DBUS_NAME_FLAG_ALLOW_REPLACEMENT goes here */
     if (dbus_error_is_set (&dberr)) {
-        do_log(LOG_ERR, "ERROR: requesting name: %s.", dberr.message);
+//        do_log(LOG_ERR, "ERROR: requesting name: %s.", dberr.message); FIXME
+	fprintf(stderr, "ERROR: requesting name %s.\n", dberr.message);
         dbus_error_free(&dberr);
         return -1;
     }
     if (req == DBUS_REQUEST_NAME_REPLY_EXISTS) {
         /*TODO: req = dbus_bus_request_name (dbconn, NFB_DBUS_PUBLIC_NAME,
                                  DBUS_NAME_FLAG_REPLACE_EXISTING, &dberr); */
-        do_log(LOG_WARNING, "WARN: pgld is already running.");
+//        do_log(LOG_WARNING, "WARN: pgld is already running."); //FIXME
+	fprintf(stderr, "WARN: pgld is already running.\n");
         return -1;
     }
     return 0;

@@ -120,19 +120,16 @@ static void *dbus_lh = NULL;
 
 static int open_dbus() {
 
-    printf( "DEBUG: Trying to open dbus...\n");
     char *err;
 
-    dbus_lh = dlopen(PLUGINDIR "/dbus.so", RTLD_NOW);
+//    dbus_lh = dlopen(PLUGINDIR "/dbus.so", RTLD_NOW);
+    dbus_lh = dlopen( "./dbus.so", RTLD_NOW); //FIXME: temporary fix for testing purposes, will not work for make install
     if (!dbus_lh) {
         do_log(LOG_ERR, "ERROR: dlopen() failed: %s", dlerror());
         return -1;
     }
     dlerror(); // clear the error flag
 
-//     FIXME: causes errors on compilation (if removed compilation works) (jre)
-//     src/pgld.c:132:5: error: lvalue required as left operand of assignment
-//     src/pgld.c:133:5: error: lvalue required as left operand of assignment
     do_dlsym(pgl_dbus_init);
     do_dlsym(pgl_dbus_send);
 
