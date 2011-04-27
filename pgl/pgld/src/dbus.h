@@ -32,7 +32,7 @@
 // #include <stdbool.h>
 // #include <inttypes.h>
 // #include <time.h>
-#include <dbus-1.0/dbus/dbus.h>
+#include <dbus/dbus.h>
 
 #include "blocklist.h"
 #include "pgld.h"
@@ -46,8 +46,8 @@
 // } dbus_log_message_t;
 
 // typedef int (*pgl_dbus_init_t)(log_func_t do_log);
-int pgl_dbus_init();
-void pgl_dbus_send(const char *format, va_list ap);
+//void pgl_dbus_init();
+//void pgl_dbus_send(const char *format, va_list ap);
 // typedef int (*pgl_dbus_send_blocked_t)(log_func_t do_log, time_t curtime,
 //                                            dbus_log_message_t signal,
 //                                            bool dropped, uint32_t addr,

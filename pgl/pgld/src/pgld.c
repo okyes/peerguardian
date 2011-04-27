@@ -104,9 +104,10 @@ void int2ip (uint32_t ipint, char *ipstr) {
 static void *dbus_lh = NULL;
 
 //FIXME: Defined in another way in dbus.h. Only keep the correct one. (jre)
-// static pgl_dbus_init_t pgl_dbus_init = NULL;
+//static pgl_dbus_init_t pgl_dbus_init = NULL;
 // static pgl_dbus_send_t pgl_dbus_send = NULL;
-
+static int (*pgl_dbus_init)(void) = NULL;
+static void (*pgl_dbus_send)(const char *, va_list) = NULL;
 #define do_dlsym(symbol)                                                \
     do {                                                                \
         symbol = dlsym(dbus_lh, # symbol);                              \
@@ -117,7 +118,7 @@ static void *dbus_lh = NULL;
         }                                                               \
     } while (0)
 
-static int
+static int 
 open_dbus() {
     char *err;
 
@@ -131,7 +132,7 @@ open_dbus() {
 //     FIXME: causes errors on compilation (if removed compilation works) (jre)
 //     src/pgld.c:132:5: error: lvalue required as left operand of assignment
 //     src/pgld.c:133:5: error: lvalue required as left operand of assignment
-//     do_dlsym(pgl_dbus_init);
+     do_dlsym(pgl_dbus_init);
 //     do_dlsym(pgl_dbus_send);
 
     return 0;
