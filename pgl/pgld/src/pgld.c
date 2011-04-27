@@ -132,7 +132,6 @@ static int open_dbus() {
 
     do_dlsym(pgl_dbus_init);
     do_dlsym(pgl_dbus_send);
-
     return 0;
 
 out_err:
@@ -681,15 +680,15 @@ int main(int argc, char *argv[]) {
     if (try_dbus) {
         if (open_dbus() < 0) {
             do_log(LOG_ERR, "ERROR: Cannot load D-Bus plugin");
+	    try_dbus = 0;
         }
-	else if (pgl_dbus_init() < 0) {
+	if (pgl_dbus_init() < 0) {
             fprintf(stderr, "Cannot initialize D-Bus");
+	    try_dbus = 0;
             exit(1);
         }
-	else {
-	    use_dbus = 1;
-	}
     }
+    use_dbus = try_dbus;
 #endif
 
     nfqueue_loop();

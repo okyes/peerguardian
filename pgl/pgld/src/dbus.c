@@ -30,6 +30,8 @@
 static DBusConnection *dbconn = NULL;
 
 int pgl_dbus_init() {
+
+    printf( "DEBUG: DBUS_INIT() CALLED\n" );
     DBusError dberr;
     int req;
 
@@ -64,6 +66,8 @@ int pgl_dbus_init() {
 }
 
 void pgl_dbus_send(const char *format, va_list ap) {
+
+    printf( "DEBUG: DBUS_SEND() CALLED.\n" );
     dbus_uint32_t serial = 0; // unique number to associate replies with requests
     DBusMessage *dbmsg = NULL;
     DBusMessageIter dbiter;
