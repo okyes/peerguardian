@@ -74,7 +74,7 @@ endif
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 src/pgld: $(OBJS)
-	$(CC) -o $@ $(LDFLAGS) $^ $(LIBS)
+	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(LIBS)
 
 src/dbus.so: src/dbus.o
 	$(CC) -shared -Wl `pkg-config dbus-1 --libs` -o $@ $^
