@@ -68,15 +68,8 @@ install:
 
 clean:
 	rm -f *~ \
-	pglcmd.defaults.install \
-	pglcmd.main.install \
-	pglcmd.install \
-	pglcmd.wd.install \
-	cron.daily.install \
-	init.install \
-	../debian/pglcmd.postinst.install \
-	if-up.install
-
+	*.install \
+	../debian/pglcmd.postinst.install
 dist:
 	mkdir -p $(DISTDIR)
 	for I in $(DISTFILES) ; do cp "$$I" $(DISTDIR)/$$I ; done

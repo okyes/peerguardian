@@ -31,9 +31,10 @@ endif
 
 ifeq ($(DBUS),yes)
 CFLAGS+=-DHAVE_DBUS \
-	`pkg-config dbus-1 --cflags` \
+	`pkg-config dbus-1 --cflags --libs` \
 	-fPIC \
 	-DPLUGINDIR=\"$(PLUGINDIR)\"
+OBJS+=src/dbus.o
 LIBS+=-ldl
 endif
 
@@ -60,8 +61,8 @@ DISTFILES = \
 	src/stream.c src/stream.h \
 	src/dbus.c src/dbus.h \
 	dbus-pgld.conf \
-	logrotate \
-	org.netfilter.pgl.conf
+# 	org.netfilter.pgl.conf \
+	logrotate
 
 ifeq ($(DBUS),yes)
 all: src/pgld src/dbus.so
@@ -73,7 +74,7 @@ endif
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 src/pgld: $(OBJS)
-	$(CC) -o $@ $(LDFLAGS) $^ $(LIBS)
+	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(LIBS)
 
 src/dbus.so: src/dbus.o
 	$(CC) -shared -Wl `pkg-config dbus-1 --libs` -o $@ $^
@@ -90,7 +91,7 @@ install:
 	install -D -m 755 src/pgld $(DESTDIR)/$(SBINDIR)/pgld
 ifeq ($(DBUS),yes)
 	install -D -m 644 dbus-pgld.conf $(DESTDIR)/$(DBUSCONFDIR)/pgld.conf
-	install -D -m 644 org.netfilter.pgl.conf $(DESTDIR)/$(DBUSCONFDIR)/pgld.conf
+# 	install -D -m 644 org.netfilter.pgl.conf $(DESTDIR)/$(DBUSCONFDIR)/pgld.conf
 	install -D -m 644 src/dbus.so $(DESTDIR)/$(PLUGINDIR)/dbus.so
 endif
 
