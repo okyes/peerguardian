@@ -99,11 +99,12 @@ void int2ip (uint32_t ipint, char *ipstr) {
     inet_ntop(AF_INET, &ipint, ipstr, INET_ADDRSTRLEN);
 }
 
-/*#ifdef HAVE_DBUS
+/*FIXME: Get dynamic linking to work*/
+#ifdef HAVE_DBUS
 static void *dbus_lh = NULL;
 
-// static pgl_dbus_init_t pgl_dbus_init = NULL;
-// static pgl_dbus_send_blocked_t pgl_dbus_send_blocked = NULL;
+static pgl_dbus_init_t pgl_dbus_init = NULL;
+static pgl_dbus_send_t pgl_dbus_send = NULL;
 
 #define do_dlsym(symbol)                                                \
     do {                                                                \
@@ -149,7 +150,7 @@ close_dbus() {
     return ret;
 }
 
-#endif*/
+#endif
 
 static FILE *create_pidfile(const char *name) {
     FILE *f;
