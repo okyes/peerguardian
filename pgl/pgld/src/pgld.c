@@ -46,6 +46,9 @@ static char timestr[17];
 // Default is no dbus, enable it with "-d"
 #ifdef HAVE_DBUS
 static int use_dbus = 0;
+//Declarations of dbus functions so that they can be dynamically loaded
+static int (*pgl_dbus_init)(void) = NULL;
+static void (*pgl_dbus_send)(const char *, va_list) = NULL;
 #endif
 
 
@@ -103,11 +106,8 @@ void int2ip (uint32_t ipint, char *ipstr) {
 #ifdef HAVE_DBUS
 static void *dbus_lh = NULL;
 
-//FIXME: Defined in another way in dbus.h. Only keep the correct one. (jre)
 //static pgl_dbus_init_t pgl_dbus_init = NULL;
-// static pgl_dbus_send_t pgl_dbus_send = NULL;
-static int (*pgl_dbus_init)(void) = NULL;
-static void (*pgl_dbus_send)(const char *, va_list) = NULL;
+//static pgl_dbus_send_t pgl_dbus_send = NULL;
 #define do_dlsym(symbol)                                                \
     do {                                                                \
         symbol = dlsym(dbus_lh, # symbol);                              \
@@ -118,8 +118,7 @@ static void (*pgl_dbus_send)(const char *, va_list) = NULL;
         }                                                               \
     } while (0)
 
-static int 
-open_dbus() {
+static int open_dbus() {
     char *err;
 
     dbus_lh = dlopen(PLUGINDIR "/dbus.so", RTLD_NOW);
@@ -133,7 +132,7 @@ open_dbus() {
 //     src/pgld.c:132:5: error: lvalue required as left operand of assignment
 //     src/pgld.c:133:5: error: lvalue required as left operand of assignment
      do_dlsym(pgl_dbus_init);
-//     do_dlsym(pgl_dbus_send);
+     do_dlsym(pgl_dbus_send);
 
     return 0;
 
@@ -143,8 +142,7 @@ out_err:
     return -1;
 }
 
-static int
-close_dbus() {
+static int close_dbus() {
     int ret = 0;
 
     if (dbus_lh) {
