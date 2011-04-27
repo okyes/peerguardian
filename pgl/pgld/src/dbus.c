@@ -62,36 +62,44 @@ int pgl_dbus_init() {
 	fprintf(stderr, "WARN: pgld is already running.\n");
         return -1;
     }
+    printf( "DEBUG: DBUS_INIT() SUCESSFUL!\n" );
     return 0;
 }
 
 void pgl_dbus_send(const char *format, va_list ap) {
+	
+    if (dbconn == NULL) {
+	fprintf( stderr, "ERROR: dbus_send() called with NULL connection!\n");
+	exit(1);
+    }
 
     printf( "DEBUG: DBUS_SEND() CALLED.\n" );
+
     dbus_uint32_t serial = 0; // unique number to associate replies with requests
     DBusMessage *dbmsg = NULL;
     DBusMessageIter dbiter;
     char msg[MSG_SIZE];
     vsnprintf(msg, sizeof msg, format, ap);
-
     /* create dbus signal */
     dbmsg = dbus_message_new_signal ("/org/netfilter/pgl",
                                          "org.netfilter.pgl",
                                          "pgld_message");
-//     if (!dbmsg)
-//         return -1;
+    if (dbmsg == NULL) {
+        fprintf(stderr, "ERROR: NULL dbus message!\n");
+	exit(1);	
+    }
 
     dbus_message_iter_init_append(dbmsg, &dbiter);
-    if (!dbus_message_iter_append_basic(&dbiter, DBUS_TYPE_STRING, &msg)) {
+    if (!dbus_message_iter_append_basic(&dbiter, DBUS_TYPE_STRING, &msg)) { //FIXME: Crashes here, WHY?
       fprintf(stderr, "Out Of Memory!\n");
 //       return -1;
-   }
+    }
     if (!dbus_connection_send (dbconn, dbmsg, &serial)) {
         fprintf(stderr, "Out Of Memory!\n");
 //         return -1;
     }
     dbus_connection_flush(dbconn);
     dbus_message_unref(dbmsg);
-
+    printf( "DEBUG: DBUS_SEND() SUCESSFUL!\n" );
 //     return 0;
 }
