@@ -24,14 +24,12 @@
   Boston, MA 02110-1301, USA.
 */
 
-// #include <syslog.h>
-// #include <stdio.h>
 #include "dbus.h"
+
 static DBusConnection *dbconn = NULL;
 
 int pgl_dbus_init() {
 
-    printf( "DEBUG: DBUS_INIT() CALLED\n" );
     DBusError dberr;
     int req;
 
@@ -44,13 +42,17 @@ int pgl_dbus_init() {
     if (dbconn == NULL) {
       return -1;
     }
-    //do_log(LOG_INFO, "INFO: Connected to system bus.") //FIXME: Can't use this due to undefined symbol
+    //FIXME: It will be difficult to use do_log() in dbus.c because
+    //            a) Of compiler errors(undefined symbols etc
+    //            b) do_log() calls pgl_dbus_send() 
+    //       Is fprintf(stderr,...) ok? (jimtb)
+    //do_log(LOG_INFO, "INFO: Connected to system bus.") 
     /* FIXME: need d-bus policy privileges for this to work, pgld has to get them! */
 //     dbus_error_init (&dberr); /* FIXME: Why commented out? */
-    req = dbus_bus_request_name (dbconn, NFB_DBUS_PUBLIC_NAME,
+    req = dbus_bus_request_name (dbconn, PGL_DBUS_PUBLIC_NAME,
                                  DBUS_NAME_FLAG_DO_NOT_QUEUE, &dberr); /* TODO: DBUS_NAME_FLAG_ALLOW_REPLACEMENT goes here */
     if (dbus_error_is_set (&dberr)) {
-//        do_log(LOG_ERR, "ERROR: requesting name: %s.", dberr.message); FIXME
+//        do_log(LOG_ERR, "ERROR: requesting name: %s.", dberr.message); 
 	fprintf(stderr, "ERROR: requesting name %s.\n", dberr.message);
         dbus_error_free(&dberr);
         return -1;
@@ -58,11 +60,10 @@ int pgl_dbus_init() {
     if (req == DBUS_REQUEST_NAME_REPLY_EXISTS) {
         /*TODO: req = dbus_bus_request_name (dbconn, NFB_DBUS_PUBLIC_NAME,
                                  DBUS_NAME_FLAG_REPLACE_EXISTING, &dberr); */
-//        do_log(LOG_WARNING, "WARN: pgld is already running."); //FIXME
+//        do_log(LOG_WARNING, "WARN: pgld is already running."); 
 	fprintf(stderr, "WARN: pgld is already running.\n");
         return -1;
     }
-    printf( "DEBUG: DBUS_INIT() SUCESSFUL!\n" );
     return 0;
 }
 
@@ -73,7 +74,6 @@ void pgl_dbus_send(const char *format, va_list ap) {
 	exit(1);
     }
 
-    printf( "DEBUG: DBUS_SEND() CALLED.\n" );
 
     dbus_uint32_t serial = 0; // unique number to associate replies with requests
     DBusMessage *dbmsg = NULL;
@@ -94,14 +94,12 @@ void pgl_dbus_send(const char *format, va_list ap) {
     dbus_message_iter_init_append(dbmsg, &dbiter);
     if (!dbus_message_iter_append_basic(&dbiter, DBUS_TYPE_STRING, &msgPtr)) { //The API needs a double pointer, otherwise causes seg. fault 
       fprintf(stderr, "Out Of Memory!\n");
-//       return -1;
     }
     if (!dbus_connection_send (dbconn, dbmsg, &serial)) {
         fprintf(stderr, "Out Of Memory!\n");
-//         return -1;
     }
     dbus_connection_flush(dbconn);
     dbus_message_unref(dbmsg);
     printf( "DEBUG: DBUS_SEND() SUCESSFUL!\n" );
-//     return 0;
+
 }

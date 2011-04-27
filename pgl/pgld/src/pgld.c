@@ -102,12 +102,9 @@ void int2ip (uint32_t ipint, char *ipstr) {
     inet_ntop(AF_INET, &ipint, ipstr, INET_ADDRSTRLEN);
 }
 
-/*FIXME: Get dynamic linking to work*/
 #ifdef HAVE_DBUS
 static void *dbus_lh = NULL;
 
-//static pgl_dbus_init_t pgl_dbus_init = NULL;
-//static pgl_dbus_send_t pgl_dbus_send = NULL;
 #define do_dlsym(symbol)                                                \
     do {                                                                \
         symbol = dlsym(dbus_lh, # symbol);                              \
@@ -576,7 +573,7 @@ void add_blocklist(const char *name, const char *charset) {
 
 int main(int argc, char *argv[]) {
     int opt, i;
-    int try_dbus = 0; //FIXME: Do we really need this?
+    int try_dbus = 0; 
     while ((opt = getopt(argc, argv, "q:a:r:dp:sl:mh"
 #ifndef LOWMEM
                               "c:"
