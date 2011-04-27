@@ -78,8 +78,10 @@ void pgl_dbus_send(const char *format, va_list ap) {
     dbus_uint32_t serial = 0; // unique number to associate replies with requests
     DBusMessage *dbmsg = NULL;
     DBusMessageIter dbiter;
+    char *msgPtr;
     char msg[MSG_SIZE];
     vsnprintf(msg, sizeof msg, format, ap);
+    msgPtr = msg;
     /* create dbus signal */
     dbmsg = dbus_message_new_signal ("/org/netfilter/pgl",
                                          "org.netfilter.pgl",
@@ -90,7 +92,7 @@ void pgl_dbus_send(const char *format, va_list ap) {
     }
 
     dbus_message_iter_init_append(dbmsg, &dbiter);
-    if (!dbus_message_iter_append_basic(&dbiter, DBUS_TYPE_STRING, &msg)) { //FIXME: Crashes here, WHY?
+    if (!dbus_message_iter_append_basic(&dbiter, DBUS_TYPE_STRING, &msgPtr)) { //The API needs a double pointer, otherwise causes seg. fault 
       fprintf(stderr, "Out Of Memory!\n");
 //       return -1;
     }
