@@ -80,12 +80,12 @@ void do_log(int priority, const char *format, ...)
         va_end(ap);
     }
 #ifdef HAVE_DBUS
-     if (use_dbus) {
-        va_list ap;
-        va_start(ap, format);
-        pgl_dbus_send(format, ap);
-        va_end(ap);
-    }
+    if (use_dbus) {
+       va_list ap;
+       va_start(ap, format);
+       pgl_dbus_send(format, ap);
+       va_end(ap);
+   }
 #endif
 
     if (opt_merge) {
@@ -119,6 +119,8 @@ static void *dbus_lh = NULL;
     } while (0)
 
 static int open_dbus() {
+
+    printf( "DEBUG: Trying to open dbus...\n");
     char *err;
 
     dbus_lh = dlopen(PLUGINDIR "/dbus.so", RTLD_NOW);
@@ -131,8 +133,8 @@ static int open_dbus() {
 //     FIXME: causes errors on compilation (if removed compilation works) (jre)
 //     src/pgld.c:132:5: error: lvalue required as left operand of assignment
 //     src/pgld.c:133:5: error: lvalue required as left operand of assignment
-     do_dlsym(pgl_dbus_init);
-     do_dlsym(pgl_dbus_send);
+    do_dlsym(pgl_dbus_init);
+    do_dlsym(pgl_dbus_send);
 
     return 0;
 
@@ -578,7 +580,7 @@ void add_blocklist(const char *name, const char *charset) {
 
 int main(int argc, char *argv[]) {
     int opt, i;
-
+    int try_dbus = 0; //FIXME: Do we really need this?
     while ((opt = getopt(argc, argv, "q:a:r:dp:sl:mh"
 #ifndef LOWMEM
                               "c:"
@@ -620,7 +622,7 @@ int main(int argc, char *argv[]) {
             exit(0);
 #ifdef HAVE_DBUS
         case 'd':
-            use_dbus = 1;
+            try_dbus = 1;
             break;
 #endif
         }
@@ -678,26 +680,27 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-// #ifdef HAVE_DBUS
-//     if (use_dbus) {
-//         if (open_dbus() < 0) {
-//             do_log(LOG_ERR, "ERROR: Cannot load D-Bus plugin");
-//             use_dbus = 0;
-//         }
-//
-//         if (pgl_dbus_init() < 0) {
-//             fprintf(stderr, "Cannot initialize D-Bus");
-//             exit(1);
-//         }
-//     }
-// #endif
+#ifdef HAVE_DBUS
+    if (try_dbus) {
+        if (open_dbus() < 0) {
+            do_log(LOG_ERR, "ERROR: Cannot load D-Bus plugin");
+        }
+	else if (pgl_dbus_init() < 0) {
+            fprintf(stderr, "Cannot initialize D-Bus");
+            exit(1);
+        }
+	else {
+	    use_dbus = 1;
+	}
+    }
+#endif
 
     nfqueue_loop();
     blocklist_stats(0);
-// #ifdef HAVE_DBUS
-//     if (use_dbus)
-//         close_dbus();
-// #endif
+#ifdef HAVE_DBUS
+    if (use_dbus)
+        close_dbus();
+#endif
     blocklist_clear(0);
     free(blocklist_filenames);
     free(blocklist_charsets);
