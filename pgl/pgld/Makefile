@@ -34,7 +34,6 @@ CFLAGS+=-DHAVE_DBUS \
 	`pkg-config dbus-1 --cflags --libs` \
 	-fPIC \
 	-DPLUGINDIR=\"$(PLUGINDIR)\"
-OBJS+=src/dbus.o
 LIBS+=-ldl
 endif
 
