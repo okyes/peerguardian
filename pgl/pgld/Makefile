@@ -60,8 +60,7 @@ DISTFILES = \
 	src/parser.c src/parser.h \
 	src/stream.c src/stream.h \
 	src/dbus.c src/dbus.h \
-	dbus-pgld.conf \
-# 	org.netfilter.pgl.conf \
+	org.netfilter.pgl.conf \
 	logrotate
 
 ifeq ($(DBUS),yes)
@@ -90,8 +89,7 @@ clean:
 install:
 	install -D -m 755 src/pgld $(DESTDIR)/$(SBINDIR)/pgld
 ifeq ($(DBUS),yes)
-	install -D -m 644 dbus-pgld.conf $(DESTDIR)/$(DBUSCONFDIR)/pgld.conf
-# 	install -D -m 644 org.netfilter.pgl.conf $(DESTDIR)/$(DBUSCONFDIR)/pgld.conf
+	install -D -m 644 org.netfilter.pgl.conf $(DESTDIR)/$(DBUSCONFDIR)/pgld.conf
 	install -D -m 644 src/dbus.so $(DESTDIR)/$(PLUGINDIR)/dbus.so
 endif
 
