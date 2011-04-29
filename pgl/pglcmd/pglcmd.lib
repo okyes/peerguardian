@@ -2546,7 +2546,7 @@ email_stats () {
         # Check if pgl is configured to send email stats and if sendmail is available
         if [ $SENDMAIL ] ; then
             SUBJECT="$NAME hit statistics"
-            cat<<EOF | $SENDMAIL -t
+            cat<<EOF | $SENDMAIL -t &
 To: $STATS_MAILTO
 Subject: $SUBJECT
 

@@ -42,10 +42,6 @@ pglcmd:
   - add possibility to shut off cron mails, even if CRON_MAILTO is empty.
     [http://forums.phoenixlabs.org/showthread.php?p=131335]
 
-  - speed up email_stats
-    firing up sendmail takes way too long for e.g. "stop". So make this quicker,
-    or do it in the background (what happens then on shutdown?)
-
   - Send traffic to several NFQUEUE nums with --queue-balance and run multiple
     pgld instances for these nums. This might help on heavy load.
 
