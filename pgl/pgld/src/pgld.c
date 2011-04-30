@@ -119,8 +119,7 @@ static int open_dbus() {
 
     char *err;
 
-//    dbus_lh = dlopen(PLUGINDIR "/dbus.so", RTLD_NOW);
-    dbus_lh = dlopen( "./dbus.so", RTLD_NOW); //FIXME: temporary fix for testing purposes, will not work for make install
+    dbus_lh = dlopen(PLUGINDIR "/dbus.so", RTLD_NOW);
     if (!dbus_lh) {
         do_log(LOG_ERR, "ERROR: dlopen() failed: %s", dlerror());
         return -1;
