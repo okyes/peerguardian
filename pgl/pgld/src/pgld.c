@@ -43,8 +43,12 @@ static const char **blocklist_charsets = 0;
 static FILE* pidfile = NULL;
 static char timestr[17];
 
+// Default is no dbus, enable it with "-d"
 #ifdef HAVE_DBUS
 static int use_dbus = 0;
+//Declarations of dbus functions so that they can be dynamically loaded
+static int (*pgl_dbus_init)(void) = NULL;
+static void (*pgl_dbus_send)(const char *, va_list) = NULL;
 #endif
 
 
@@ -77,11 +81,11 @@ void do_log(int priority, const char *format, ...)
     }
 #ifdef HAVE_DBUS
     if (use_dbus) {
-        va_list ap;
-        va_start(ap, format);
-        pgl_dbus_send(format, ap);
-        va_end(ap);
-    }
+       va_list ap;
+       va_start(ap, format);
+       pgl_dbus_send(format, ap);
+       va_end(ap);
+   }
 #endif
 
     if (opt_merge) {
@@ -98,11 +102,8 @@ void int2ip (uint32_t ipint, char *ipstr) {
     inet_ntop(AF_INET, &ipint, ipstr, INET_ADDRSTRLEN);
 }
 
-/*#ifdef HAVE_DBUS
+#ifdef HAVE_DBUS
 static void *dbus_lh = NULL;
-
-// static pgl_dbus_init_t pgl_dbus_init = NULL;
-// static pgl_dbus_send_blocked_t pgl_dbus_send_blocked = NULL;
 
 #define do_dlsym(symbol)                                                \
     do {                                                                \
@@ -114,8 +115,8 @@ static void *dbus_lh = NULL;
         }                                                               \
     } while (0)
 
-static int
-open_dbus() {
+static int open_dbus() {
+
     char *err;
 
     dbus_lh = dlopen(PLUGINDIR "/dbus.so", RTLD_NOW);
@@ -127,7 +128,6 @@ open_dbus() {
 
     do_dlsym(pgl_dbus_init);
     do_dlsym(pgl_dbus_send);
-
     return 0;
 
 out_err:
@@ -136,8 +136,7 @@ out_err:
     return -1;
 }
 
-static int
-close_dbus() {
+static int close_dbus() {
     int ret = 0;
 
     if (dbus_lh) {
@@ -148,7 +147,7 @@ close_dbus() {
     return ret;
 }
 
-#endif*/
+#endif
 
 static FILE *create_pidfile(const char *name) {
     FILE *f;
@@ -573,7 +572,7 @@ void add_blocklist(const char *name, const char *charset) {
 
 int main(int argc, char *argv[]) {
     int opt, i;
-
+    int try_dbus = 0;
     while ((opt = getopt(argc, argv, "q:a:r:dp:sl:mh"
 #ifndef LOWMEM
                               "c:"
@@ -615,7 +614,7 @@ int main(int argc, char *argv[]) {
             exit(0);
 #ifdef HAVE_DBUS
         case 'd':
-            use_dbus = 1;
+            try_dbus = 1;
             break;
 #endif
         }
@@ -673,26 +672,27 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-// #ifdef HAVE_DBUS
-//     if (use_dbus) {
-//         if (open_dbus() < 0) {
-//             do_log(LOG_ERR, "ERROR: Cannot load D-Bus plugin");
-//             use_dbus = 0;
-//         }
-//
-//         if (pgl_dbus_init() < 0) {
-//             fprintf(stderr, "Cannot initialize D-Bus");
-//             exit(1);
-//         }
-//     }
-// #endif
+#ifdef HAVE_DBUS
+    if (try_dbus) {
+        if (open_dbus() < 0) {
+            do_log(LOG_ERR, "ERROR: Cannot load D-Bus plugin");
+	    try_dbus = 0;
+        }
+	if (pgl_dbus_init() < 0) {
+            fprintf(stderr, "Cannot initialize D-Bus");
+	    try_dbus = 0;
+            exit(1);
+        }
+    }
+    use_dbus = try_dbus;
+#endif
 
     nfqueue_loop();
     blocklist_stats(0);
-// #ifdef HAVE_DBUS
-//     if (use_dbus)
-//         close_dbus();
-// #endif
+#ifdef HAVE_DBUS
+    if (use_dbus)
+        close_dbus();
+#endif
     blocklist_clear(0);
     free(blocklist_filenames);
     free(blocklist_charsets);

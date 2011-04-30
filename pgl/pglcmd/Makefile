@@ -33,7 +33,16 @@ all:
 	sed "s|^TMPDIR=.*|TMPDIR=\"$(TMPDIR)\"|" | \
 	sed "s|^BLOCKLISTS_DIR=.*|BLOCKLISTS_DIR=\"$(BLOCKLISTS_DIR)\"|" | \
 	sed "s|^MASTER_BLOCKLIST_DIR=.*|MASTER_BLOCKLIST_DIR=\"$(MASTER_BLOCKLIST_DIR)\"|" | \
-	sed "s|^LSB=.*|LSB=\"$(LSB)\"|" > pglcmd.defaults.install
+	sed "s|^LSB=.*|LSB=\"$(LSB)\"|" > pglcmd.defaults.install.tmp
+
+ifeq ($(DBUS),yes)
+	cat pglcmd.defaults.install.tmp | \
+	sed "s|^DBUS=.*|DBUS=\"1\"|" > pglcmd.defaults.install
+else
+	cat pglcmd.defaults.install.tmp | \
+	sed "s|^DBUS=.*|DBUS=\"0\"|" > pglcmd.defaults.install
+endif
+	rm pglcmd.defaults.install.tmp
 
 	cat pglcmd.main | \
 	sed "s|^CMD_DEFAULTS=.*|CMD_DEFAULTS=\"$(LIBDIR)/pglcmd.defaults\"|" > pglcmd.main.install

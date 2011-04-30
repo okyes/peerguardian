@@ -24,7 +24,7 @@ MAKE_PGLGUI ?= yes
 #
 
 # Set DBUS to yes if you want to be able to use DBUS.
-DBUS ?= no
+DBUS ?= yes
 
 # Set ZLIB to yes if you want pgld to be able to load compressed blocklists.
 ZLIB ?= yes
@@ -55,6 +55,7 @@ PIDDIR ?= /var/run
 LOGDIR ?= /var/log/pgl
 CONFDIR ?= /etc/pgl
 LIBDIR ?= $(prefix)/lib/pgl
+PLUGINDIR ?= $(prefix)/lib/pgl
 TMPDIR ?= /tmp
 BLOCKLISTS_DIR ?= /var/spool/pgl
 MASTER_BLOCKLIST_DIR ?= /var/lib/pgl

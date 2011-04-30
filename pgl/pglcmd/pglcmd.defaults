@@ -362,8 +362,7 @@ STATS_MAILTO=$CRON_MAILTO
 # Specify the mail recipient. If not set, no notification will be emailed.
 WD_MAILTO=$CRON_MAILTO
 
-# Use D-Bus
-# Currently disabled
+# Use D-Bus in pgld and pglcmd. Required for pgl-gui.
 # 0 - Do NOT use D-Bus
 # 1 - Use D-Bus
 DBUS="1"
