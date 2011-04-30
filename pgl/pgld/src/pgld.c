@@ -572,7 +572,7 @@ void add_blocklist(const char *name, const char *charset) {
 
 int main(int argc, char *argv[]) {
     int opt, i;
-    int try_dbus = 0; 
+    int try_dbus = 0;
     while ((opt = getopt(argc, argv, "q:a:r:dp:sl:mh"
 #ifndef LOWMEM
                               "c:"
