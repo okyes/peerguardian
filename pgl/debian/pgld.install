@@ -1,1 +1,3 @@
 usr/sbin/pgld
+usr/lib/pgl/dbus.so
+etc/dbus-1/system.d/org.netfilter.pgl.conf
