@@ -145,6 +145,9 @@ Packaging:
 
   - Slackware hints:
     http://forums.phoenixlabs.org/showthread.php?p=123198
+    slackbuild and txz package:
+    http://forums.phoenixlabs.org/thread-15882-post-120263.html#pid120263,
+    godmachine81
 
   - synology:
     SPK's are packages that You can install via DiskStationManager. Its easy,

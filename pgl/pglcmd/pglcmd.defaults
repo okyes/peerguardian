@@ -210,7 +210,7 @@ REJECT="1"
 REJECT_MARK="10"
 
 # Set the iptables target for "marked block" packets.
-# This section works only for IPTABLES_ACTIVATION="1"
+# This section works only for IPTABLES_ACTIVATION="1" and REJECT="1".
 # Valid values are all iptables targets. Be careful: senseless values are also
 # accepted.
 # REJECT: The sender of the packet is notified that the packet was blocked.

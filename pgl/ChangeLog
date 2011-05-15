@@ -3,7 +3,7 @@ ChangeLog PeerGuardian Linux (pgl)
 pgl 2.1.0~pre1 The GUI release!
 
   [ jimtb ]
-  * WIP: dbus
+  * fixed dbus implementation in pgld
 
   [freemind]
   * added new GUI: pgl-gui (C++, Qt)
@@ -11,14 +11,15 @@ pgl 2.1.0~pre1 The GUI release!
     moved old code to pgl-gui.qt-old
 
   [ jre ]
-  * pglcmd: returned to using single port whitelisting (--dport), instead of
-    using netfilter multiport module.
-    Reason: Allow pgl-gui to *instantly* add/remove single ports to the
-    whitelisting.
+  * pglcmd:
+    - returned to using single port whitelisting (--dport), instead of using
+      netfilter multiport module.
+      Reason: Allow pgl-gui to *instantly* add/remove single ports to the
+      whitelisting.
+    - email_stats: start sendmail in the background
+      speeds up stop/restart
   * added blockcontrol2pglcmd.sh configuration transition script
   * renamed VERBOSITY variable to VERBOSE
-  * email_stats: start sendmail in the background
-    speeds up stop/restart
 
 -- jre <jre-phoenix@users.sourceforge.net>  Wed, 20 Apr 2011 14:13:36 +0200
 

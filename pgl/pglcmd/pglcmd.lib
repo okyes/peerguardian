@@ -1137,7 +1137,7 @@ insert_iptables () {
                 }
 
             # IP Whitelisting
-            [ -n "$WHITE_IP" ] && 
+            [ -n "$WHITE_IP" ] &&
                 echo -n "....Whitelisting IPs" &&
                 for IP in $WHITE_IP ; do
                     # Add whitelisting rule
@@ -2527,7 +2527,7 @@ reset_stats () {
         sleep 5
         grep pgld: /var/log/syslog | tail -n+$(($CURLINE + 1)) | grep STATS:
     else
-        echo "Logging to logfile or syslog must be enabled to dump stats"
+        echo "Logging to logfile or syslog must be enabled to dump stats."
     fi
 }
 
