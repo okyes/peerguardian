@@ -2370,9 +2370,6 @@ test_ipblocking () {
         echo "Error: $NAME has to be started with either LOG_SYSLOG=\"1\" or LOG_LOGFILE=\"1\" for \"test\" to work."
         exit $E_CONFIG
     fi
-    # If logfile does not exist (for whatever reasons), just create a plain one.
-    # If it is missing this does not necessarily mean that the daemon is not running.
-    [ -f "$TEST_LOG" ] || touch $TEST_LOG
 
     echo "Testing $DESC:"
     # Check if daemon is running
@@ -2392,6 +2389,9 @@ test_ipblocking () {
             exit $?
             ;;
     esac
+
+    # If logfile does not exist, reload daemon to reopen a new one.
+    [ -f "$TEST_LOG" ] || kill -s HUP "$(pidofproc $DAEMON)"
 
     # Pick TEST_IP. Assume blocklist in text (not binary) format.
     TESTLINE="$(expr $$ % 100 + 10)"
@@ -2514,7 +2514,13 @@ test_ipblocking () {
 }
 
 dump_stats () {
+    status_of_proc $DAEMON $NAME > /dev/null 2>&1 || {
+        echo "$DAEMON is not running."
+        exit 1
+        }
     if [ "$LOG_LOGFILE" = 1 ] ; then
+        # If logfile does not exist, reload daemon to reopen a new one.
+        [ -f "$DAEMON_LOG" ] || kill -s HUP "$(pidofproc $DAEMON)"
         CURLINE="$(wc -l $DAEMON_LOG | awk '{print$1}')"
         kill -s USR2 "$(pidofproc $DAEMON)"
         sleep 5
@@ -2530,7 +2536,13 @@ dump_stats () {
 }
 
 reset_stats () {
+    status_of_proc $DAEMON $NAME > /dev/null 2>&1 || {
+        echo "$DAEMON is not running."
+        exit 1
+        }
     if [ "$LOG_LOGFILE" = 1 ] ; then
+        # If logfile does not exist, reload daemon to reopen a new one.
+        [ -f "$DAEMON_LOG" ] || kill -s HUP "$(pidofproc $DAEMON)"
         CURLINE="$(wc -l $DAEMON_LOG | awk '{print$1}')"
         kill -s USR1 "$(pidofproc $DAEMON)"
         sleep 5
