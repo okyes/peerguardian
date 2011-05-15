@@ -241,7 +241,7 @@ case "$1" in
         else
             echo "Using internal LSB init-functions."
         fi
-        if test_external start-stop-daemon > /dev/null 2>&1 ; then
+        if test_external start-stop-daemon ; then
             echo "Using start-stop-daemon."
         else
             echo "Not using start-stop-daemon."
