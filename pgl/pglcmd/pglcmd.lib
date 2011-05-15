@@ -76,7 +76,7 @@ start_daemon () {
     args="--start --nicelevel $nice --quiet --oknodo"
     if [ "$force" ]; then
       if test_external start-stop-daemon ; then
-        /sbin/start-stop-daemon $args \
+        start-stop-daemon $args \
             --chdir "$PWD" --startas $exec --pidfile /dev/null -- "$@"
       else
         exec $exec $@ &
@@ -91,7 +91,7 @@ start_daemon () {
       fi
     elif [ $pidfile ]; then
       if test_external start-stop-daemon ; then
-        /sbin/start-stop-daemon $args \
+        start-stop-daemon $args \
             --chdir "$PWD" --exec $exec --oknodo --pidfile "$pidfile" -- "$@"
       else
         # If daemon is already running, return 0.
@@ -108,7 +108,7 @@ start_daemon () {
       fi
     else
       if test_external start-stop-daemon ; then
-        /sbin/start-stop-daemon $args \
+        start-stop-daemon $args \
             --chdir "$PWD" --exec $exec -- "$@"
       else
         # If daemon is already running, return 0.
@@ -218,7 +218,7 @@ killproc () {
     if [ ! "$is_term_sig" ]; then
         if [ -n "$sig" ]; then
           if test_external start-stop-daemon ; then
-            /sbin/start-stop-daemon --stop --signal "$sig" \
+            start-stop-daemon --stop --signal "$sig" \
                 --quiet $name_param || status="$?"
           else
             PID="$(pidofproc $1)" &&
@@ -229,7 +229,7 @@ killproc () {
             # TODO: unnecessary, "if [ -n "$sig" ]" is always true above, because
             # if -z "$sig" then is_term_sig="terminate_signal"
           if test_external start-stop-daemon ; then
-            /sbin/start-stop-daemon --stop \
+            start-stop-daemon --stop \
                 --quiet $name_param || status="$?"
           else
             PID="$(pidofproc $1)" &&
@@ -239,7 +239,7 @@ killproc () {
         fi
     else
       if test_external start-stop-daemon ; then
-        /sbin/start-stop-daemon --stop --quiet \
+        start-stop-daemon --stop --quiet \
             --oknodo $name_param || status="$?"
       else
         # send TERM signal
