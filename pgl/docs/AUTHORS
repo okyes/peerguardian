@@ -12,9 +12,11 @@ Authors:
         update script from the forum at methlabs.org (predecessor of
         phoenixlabs.org). Debian packager. Project coordinator.
     Dimitris Palyvos-Giannas <jimaras@gmail.com>, created mobloquer.
+        Reimplemented dbus in gpld.
     freemind <freemind@lavabit.com>, wrote pgl-gui, based on mobloquer.
 
 Contributors:
+    godmachine81, slackware packager
     jpv, initially implemented dbus support in nfblock
     Santiago M. Mola, nfblock build fixes and cleanups
     uljanow <uljanow@users.sourceforge.net>, author of iplist

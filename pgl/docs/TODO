@@ -2,7 +2,11 @@ TODO
 
 pgld:
 
-  - fix/add dbus support, especially for logging. See below.
+  - fix dbus support, especially for logging:
+    The blocked IP logging messages should use separate objects for every item
+    (SOURCE_IP, DESTINATION_IP, SOURCE_PORT, DESTINATION_PORT, PROTOCOL,
+    TIMESTAMP) instead of a plain string, so that pgl-gui can easily use this
+    information. Remove this logging from the general do_log.
 
   - use a real allowlist (instead of the iptables whitelisting):
     pgld [OPTIONS] [-A ALLOWLIST(s)] [-B BLOCKLISTS]
@@ -10,10 +14,15 @@ pgld:
       non-matching against blocklist
     - then check against blocklist (same behaviour as currently)
 
-  - add search option that gives all single blocklists (not master blocklist)
-    with the range and description that contain a specified IP.
+  - add option to search for a specified IP in a blocklist:
+    pgld -f IP BLOCKLIST
+    if IP is found in the BLOCKLIST: return 0 and output the matching range(s).
+    if IP is not found: return 1
 
   - make length of range description configurable (with LOWMEM:=range=0)
+
+
+
 
 
 pglcmd:
@@ -21,14 +30,25 @@ pglcmd:
   - uncomment code for automatic start on system initialization in
     pglcmd/Makefile. Add checks whether the needed tools exist. Adapt INSTALL.
 
-  - allow lists:
+  - adapt to real allow lists:
     requires allow lists in pgld, see above
-    - add support for remote allow lists (like remote blocklists)
-    - simply place local allow lists in a folder and detect them automatically
-      (like local blocklists)
+    - add configuration file allowlists.lists to handle remote allowlists
+      (like blocklists.list for remote blocklists)
+    - load all allowlists in a specified folder "allowlists.local"
+    - remove variables ALLOW_[IN|OUT|FWD]
+    - change local blocklists the same way: load all blocklists in
+      "blocklists.local" (instead of MASTER_BLOCKLIST_DIR).
+      Needs fixing pgl-gui then!
+
+  - search function:
+    requires search function in pgld, see above.
+    Use this function instead of grep'ping for REGEX.
 
   - improve use of traceroute in "pglcmd test":
     - test whether it is installed, use tcptraceroute etc. alternatively
+
+  - use "ip addr" instead of "ifconfig":
+    see http://jengelh.medozas.de/2008/0219-ifconfig-sucks.php
 
   - send error messages to console (STDERR 1>&2) and logfile.
     Completely rework the logging part, and check if all messages go where they
@@ -75,6 +95,9 @@ pglcmd:
   - [DISCUSS] Block IPv6 completely because currently only IPv4 is checked?
 
 
+
+
+
 pgl-gui:
 
 ###############################################################################
@@ -83,15 +106,15 @@ pgl-gui:
 
 #9: add option "Reset to default"
 
-#10: show blocklists like "example.com/list/list2" (I added this manually to blocklists.list, it downloads fine, but pgl-gui doesn't show it)
+#10: show blocklists like "example.com/list/list2" (I added this manually to
+     blocklists.list, it downloads fine, but pgl-gui doesn't show it)
 
 #11: Remove test, whether blocklist is available
 
 #14: add "Warning" icon to INIT and CRON, if changes have not been applied yet.
 
-#15: warn on closing the window that there are unapplied changes. "Apply them? - Yes/No"
-
-#16: send pgl-gui to system-tray, add start with --tray option (like mobloquer)
+#15: warn on closing the window that there are unapplied changes:
+     "Apply them? - Yes/No"
 
 #17: whitelisting ports: allow port ranges "port:port"
 
@@ -99,14 +122,24 @@ pgl-gui:
      "125,126;127 128" does not work. Perhaps only use spaces (not comma or
      semi-colon), for consistency with pglcmd.
 
-###############################################################################
-  [jre]
-  - relicense everything to GPL3, fix headers especially of pgl-gui, update
+#19: add instant application of whitelisting rules:
+     also execute the iptables command on "Apply" (additionally to the permanent
+     addition of the values to the pglcmd variables):
+===============================================================================
+Port whitelisting for given $PORT. Other variables taken from pglcmd configuration:
+WHITE_TCP_IN:  iptables -I $IPTABLES_IN -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING
+WHITE_UDP_IN:  iptables -I $IPTABLES_IN -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING
+WHITE_TCP_OUT: iptables -I $IPTABLES_OUT -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING
+WHITE_UDP_OUT: iptables -I $IPTABLES_OUT -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING
+WHITE_TCP_FWD: iptables -I $IPTABLES_FWD -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING
+WHITE_UDP_FWD: iptables -I $IPTABLES_FWD -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING
 
-  - Verify flags etc. in Makefile
-    verify where prerequisite FORMS_HEADERS is necessary
-
-###############################################################################
+IP whitelisting for given $IP. Other variables taken from pglcmd configuration::
+WHITE_IP_IN:  iptables -I $IPTABLES_IN --source $IP -j $IPTABLES_TARGET_WHITELISTING
+WHITE_IP_OUT: iptables -I $IPTABLES_OUT --destination $IP -j $IPTABLES_TARGET_WHITELISTING
+WHITE_IP_FWD: iptables -I $IPTABLES_FWD --source $IP -j $IPTABLES_TARGET_WHITELISTING
+              iptables -I $IPTABLES_FWD --destination $IP -j $IPTABLES_TARGET_WHITELISTING
+===============================================================================
 
   - show pgld logfile. Allow right-click whitelisting of blocked IPs and/or
     ports/protocol. Requires pgld dbus logging.
@@ -118,8 +151,21 @@ pgl-gui:
   - add option to temp allow, which inserts the appropriate iptables rules
     directly. (iptables --ctexpire (really?))
 
-  - add whitelisting per IP (normal pglcmd variables), and per IP/port/proto
-    (pgl-gui-custom-iptables-insert.sh)
+  - add whitelisting per IP/port/proto (pgl-gui-iptables-insert.sh)
+
+  - send pgl-gui to system-tray, add start with --tray option (like mobloquer)
+
+###############################################################################
+
+  [jre]
+  - relicense everything to GPL3, fix headers especially of pgl-gui, update
+
+  - Verify flags etc. in Makefile, use variables where possible
+    verify where prerequisite FORMS_HEADERS is necessary
+
+###############################################################################
+
+
 
 
 all components:
@@ -143,11 +189,8 @@ Packaging:
   - make ARCH packages:
     http://forums.phoenixlabs.org/showpost.php?p=123175&postcount=8
 
-  - Slackware hints:
-    http://forums.phoenixlabs.org/showthread.php?p=123198
-    slackbuild and txz package:
-    http://forums.phoenixlabs.org/thread-15882-post-120263.html#pid120263,
-    godmachine81
+  - Slackware:
+    see branch "pgslack" in the git repository
 
   - synology:
     SPK's are packages that You can install via DiskStationManager. Its easy,
