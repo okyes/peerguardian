@@ -152,6 +152,8 @@ WHITE_IP_FWD: iptables -I $IPTABLES_FWD --source $IP -j $IPTABLES_TARGET_WHITELI
 
   - send pgl-gui to system-tray, add start with --tray option (like mobloquer)
 
+  - clean up code: get rid of all unused remnants of mobloquer
+
 ###############################################################################
 
   [jre]

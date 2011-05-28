@@ -157,10 +157,10 @@ search
   outputs the occurences of a keyword and the names of the single blocklists.
 
 stats
-  reports MoBlock's statistics.
+  reports pgld's statistics.
 
 reset_stats
-  resets MoBlock's statistics.
+  resets pgld's statistics.
 
 show_config
   shows the current configuration settings.

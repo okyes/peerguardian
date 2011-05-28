@@ -56,10 +56,12 @@ There is no UNINSTALL routine (yet). But for reference here is a file list as
 pgl is installed per default:
 
 pgld:
+/etc/dbus-1/system.d/org.netfilter.pgl.conf
+/usr/lib/pgl/dbus.so
 /etc/logrotate.d
 /etc/logrotate.d/pgld
 /usr/sbin/pgld
-/var/log/pgl
+/var/log/pgl/
 
 pglcmd:
 /etc/cron.daily/pglcmd
@@ -76,9 +78,9 @@ pglcmd:
 /usr/lib/pgl/pglcmd.lib
 /usr/lib/pgl/pglcmd.main
 /usr/sbin/pglcmd.wd
-/var/lib/blockcontrol
-/var/log/pgl
-/var/spool/blockcontrol
+/var/lib/pgl/
+/var/log/pgl/
+/var/spool/pgl/
 
 pgl-gui:
 /usr/bin/pgl-gui
