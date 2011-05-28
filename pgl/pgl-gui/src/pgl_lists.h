@@ -240,7 +240,7 @@ class PeerguardianList {
         static QString getFilePath(const QString &path);
         void update(QList<QTreeWidgetItem*>);
         QHash<QString, bool> getLocalLists(){ return m_localLists; }
-        QString getMasterBlocklistDir(){ return m_masterBlocklistDir; }
+        QString getLocalBlocklistDir(){ return m_localBlocklistDir; }
         QFileInfoList getLocalBlocklists();
         void updateListsFromFile();
 
@@ -249,7 +249,7 @@ class PeerguardianList {
 		QVector< ListItem > m_ListsFile;
 		QString m_FileName;
         QHash<QString, bool> m_localLists;
-        QString m_masterBlocklistDir;
+        QString m_localBlocklistDir;
 
 };
 

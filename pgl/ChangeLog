@@ -11,6 +11,8 @@ pgl 2.1.0~pre1 The GUI release!
     moved old code to pgl-gui.qt-old
 
   [ jre ]
+  * place local blocklists in LOCAL_BLOCKLIST_DIR (/etc/pgl/blocklists.local)
+    instead of MASTER_BLOCKLIST_DIR
   * pglcmd:
     - returned to using single port whitelisting (--dport), instead of using
       netfilter multiport module.

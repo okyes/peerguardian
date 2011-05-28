@@ -32,6 +32,7 @@ all:
 	sed "s|^LIBDIR=.*|LIBDIR=\"$(LIBDIR)\"|" | \
 	sed "s|^TMPDIR=.*|TMPDIR=\"$(TMPDIR)\"|" | \
 	sed "s|^BLOCKLISTS_DIR=.*|BLOCKLISTS_DIR=\"$(BLOCKLISTS_DIR)\"|" | \
+	sed "s|^LOCAL_BLOCKLIST_DIR=.*|LOCAL_BLOCKLIST_DIR=\"$(LOCAL_BLOCKLIST_DIR)\"|" | \
 	sed "s|^MASTER_BLOCKLIST_DIR=.*|MASTER_BLOCKLIST_DIR=\"$(MASTER_BLOCKLIST_DIR)\"|" | \
 	sed "s|^LSB=.*|LSB=\"$(LSB)\"|" > pglcmd.defaults.install.tmp
 
@@ -73,6 +74,7 @@ install:
 # 	update-rc.d pgl start 60 2 3 4 5 . stop 20 0 1 6 .
 	install -D -m 644 logrotate $(DESTDIR)/$(LOGROTATEDIR)/pglcmd
 	install -d $(DESTDIR)/$(MASTER_BLOCKLIST_DIR)
+	install -d $(DESTDIR)/$(LOCAL_BLOCKLIST_DIR)
 	install -d $(DESTDIR)/$(BLOCKLISTS_DIR)
 
 clean:

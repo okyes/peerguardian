@@ -322,7 +322,7 @@ void Peerguardian::applyChanges()
 
     //================ manage the local blocklists ====================/
     QHash<QString, bool> localFiles = m_List->getLocalLists();
-    QString masterBlocklistDir = m_List->getMasterBlocklistDir();
+    QString localBlocklistDir = m_List->getLocalBlocklistDir();
 
     foreach(QString filepath, localFiles.keys())
     {
@@ -332,15 +332,15 @@ void Peerguardian::applyChanges()
             QString symFilepath = "/tmp/" + filepath.split("/").last();
 
             //if symlink to the file doesn't exist, create it
-            if ( ! isPointingTo(masterBlocklistDir, filepath) )
+            if ( ! isPointingTo(localBlocklistDir, filepath) )
             {
                 QFile::link(filepath, symFilepath);
-                filesToMove[symFilepath] = masterBlocklistDir;
+                filesToMove[symFilepath] = localBlocklistDir;
             }
         }
         else
         {
-            QString symFilepath = getPointer(masterBlocklistDir, filepath);
+            QString symFilepath = getPointer(localBlocklistDir, filepath);
 
             if ( ! symFilepath.isEmpty() ) //if symlink exists, delete it
                 filesToMove[symFilepath] = "/dev/null"; //temporary hack

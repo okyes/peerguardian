@@ -59,6 +59,7 @@ PLUGINDIR ?= $(prefix)/lib/pgl
 TMPDIR ?= /tmp
 BLOCKLISTS_DIR ?= /var/spool/pgl
 MASTER_BLOCKLIST_DIR ?= /var/lib/pgl
+LOCAL_BLOCKLIST_DIR ?= $(CONFDIR)/blocklists.local
 DBUSCONFDIR ?= /etc/dbus-1/system.d
 IFUPDIR ?= /etc/network/if-up.d
 CRONDIR ?= /etc/cron.daily

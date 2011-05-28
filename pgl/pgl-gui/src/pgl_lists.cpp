@@ -129,7 +129,7 @@ PeerguardianList::PeerguardianList( const QString &path )
 {
 
     setFilePath(path, true);
-    m_masterBlocklistDir = PglSettings::getStoredValue("MASTER_BLOCKLIST_DIR") + "/";
+    m_localBlocklistDir = PglSettings::getStoredValue("LOCAL_BLOCKLIST_DIR") + "/";
 
 }
 
@@ -323,7 +323,7 @@ QVector< ListItem * > PeerguardianList::getValidItems()
 QFileInfoList PeerguardianList::getLocalBlocklists()
 {
     QFileInfoList localBlocklists;
-    QDir defaultDir (m_masterBlocklistDir);
+    QDir defaultDir (m_localBlocklistDir);
 
     foreach(QFileInfo fileInfo, defaultDir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files) )
         if ( fileInfo.isSymLink() )

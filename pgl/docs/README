@@ -174,7 +174,8 @@ blocklist fails to extract, it is deleted and the operation aborts.
 
 5.) Configuration pglcmd:
 
-Blocklists are configured in blocklists.list (/etc/pgl/blocklists.list).
+Remote blocklists are configured in BLOCKLISTS_LIST (/etc/pgl/blocklists.list).
+Local blocklists are placed in LOCAL_BLOCKLIST_DIR (/etc/pgl/blocklists.local/).
 
 Most things are done in pglcmd.conf (/etc/pgl/pglcmd.conf). Refer to
 pglcmd.defaults (/usr/lib/pgl/pglcmd.defaults) for the complete set of possible

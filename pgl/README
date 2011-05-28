@@ -69,6 +69,7 @@ pglcmd:
 /etc/network/if-up.d/pglcmd
 /etc/pgl/allow.p2p
 /etc/pgl/blocklists.list
+/etc/pgl/blocklists.local/
 /etc/pgl/pglcmd.conf
 /usr/bin/pglcmd
 /usr/lib/pgl/pglcmd.defaults

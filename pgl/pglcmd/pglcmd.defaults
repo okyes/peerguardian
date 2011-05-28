@@ -45,22 +45,27 @@ CMD_LIB="${LIBDIR}/${CMD_NAME}.lib"
 # The path to the user configuration
 CMD_CONF="${CONFDIR}/${CMD_NAME}.conf"
 
-# The path of blocklists.list. There you can specify URLs and paths of the
-# single blocklists that you want to use.
+# The path of the local blocklist dir.
+# All blocklists in the LOCAL_BLOCKLIST_DIR directory (except those in
+# subdirectories, or which end in "~" or start with ".") are used.
+# Spaces in listnames are not allowed.
+LOCAL_BLOCKLIST_DIR="${CONFDIR}/blocklists.local"
+
+# The path of blocklists.list.
+# There you can specify URLs and paths of the remote blocklists that you want to
+# use.
 BLOCKLISTS_LIST="${CONFDIR}/blocklists.list"
 
 # The path of the directory where the blocklists are downloaded and manipulated.
 BLOCKLISTS_DIR="/var/spool/pgl"
 
 # The path of the master blocklist dir.
-# All blocklists in this directory, except those which end in "~", are used by
-# pgld.
 MASTER_BLOCKLIST_DIR="/var/lib/pgl"
 
-# The pathname of the master blocklist that pglcmd builds automatically from
-# the single blocklists that are listed in BLOCKLISTS_LIST.
-# This has to be in MASTER_BLOCKLIST_DIR, otherwise the list will not be used.
-MASTER_BLOCKLIST="${MASTER_BLOCKLIST_DIR}/${CMD_NAME}_premerged_blocklist.p2p"
+# The pathname of the master blocklist.
+# All single local and remote blocklists are merged in this list by pglcmd. pgld
+# is then started with only this blocklist spcified.
+MASTER_BLOCKLIST="${MASTER_BLOCKLIST_DIR}/master_blocklist.p2p"
 
 # The path to the allow lists
 # Note that per default the same allow list is used for all input and output

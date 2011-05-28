@@ -36,9 +36,6 @@ pglcmd:
       (like blocklists.list for remote blocklists)
     - load all allowlists in a specified folder "allowlists.local"
     - remove variables ALLOW_[IN|OUT|FWD]
-    - change local blocklists the same way: load all blocklists in
-      "blocklists.local" (instead of MASTER_BLOCKLIST_DIR).
-      Needs fixing pgl-gui then!
 
   - search function:
     requires search function in pgld, see above.

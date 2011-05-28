@@ -1371,14 +1371,16 @@ set_md5sum () {
     MD5SUM="$(echo $SUM | md5sum | cut -c -32)"
 }
 
-# All blocklists in the MASTER_BLOCKLIST_DIR directory (except the MASTER_BLOCKLIST itself,
-# those which end in "~" or are hidden) are merged in the MASTER_BLOCKLIST and thus used by pgld.
+# All blocklists in the LOCAL_BLOCKLIST_DIR directory (except those in
+# subdirectories, or which end in "~" or start with ".") are merged in the
+# MASTER_BLOCKLIST and thus used by pgld.
 # Spaces in listnames are not allowed.
 set_BLOCKLISTS_LOCAL () {
-    BLOCKLISTS_LOCAL="$(find $MASTER_BLOCKLIST_DIR -maxdepth 1 -type f \
+    BLOCKLISTS_LOCAL=""
+    [ -d "$LOCAL_BLOCKLIST_DIR" ] &&
+    BLOCKLISTS_LOCAL="$(find -L $LOCAL_BLOCKLIST_DIR -maxdepth 1 -type f \
         ! -name "*~" \
-        ! -name ".*" \
-        ! -name "$(basename $MASTER_BLOCKLIST)" |
+        ! -name ".*" |
         tr "\n" " ")"
 }
 
@@ -1452,11 +1454,11 @@ do_start () {
             [ ! "$CMD_OPTION" = force-restart ] &&
                 [ -f "$MD5SUM_FILE" ] && set_md5sum && [ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ] ||
                 build_blocklist
-            # Notify users of possible excess blocklists:
-            [ -f "$MASTER_BLOCKLIST" ] && [ -f ${MASTER_BLOCKLIST_DIR}/guarding.p2p ] &&
-                echo "WARNING: You are using the old ${MASTER_BLOCKLIST_DIR}/guarding.p2p which has been replaced by the new $MASTER_BLOCKLIST."
-            [ -f ${MASTER_BLOCKLIST_DIR}/guarding.p2p.backup ] &&
-                echo "WARNING: You are using ${MASTER_BLOCKLIST_DIR}/guarding.p2p.backup. Probably you only want to use the new $MASTER_BLOCKLIST."
+            # TRANSITION 2011-05-28: remove old master blocklists:
+            for LIST in guarding.p2p.backup guarding.p2p ${CMD_NAME}_premerged_blocklist.p2p~ ${CMD_NAME}_premerged_blocklist.p2p ; do
+                [ -f "${MASTER_BLOCKLIST_DIR}/${LIST}" ] &&
+                mv "${MASTER_BLOCKLIST_DIR}/${LIST}" ${MASTER_BLOCKLIST}~
+            done
             test_IPTABLES_TARGET
             test_REJECT
             test_ACCEPT

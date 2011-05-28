@@ -189,8 +189,9 @@ Reopen the logfile and reload the blocklist.
 
 .SH CONFIGURATION pglcmd
 .P
-Blocklists are configured in \fIblocklists.list\fR
-(/etc/pgl/blocklists.list).
+Remote blocklists are configured in \fIBLOCKLISTS_LIST\fR
+(/etc/pgl/blocklists.list). Local blocklists are placed in
+\fILOCAL_BLOCKLIST_DIR\fR (/etc/pgl/blocklists.local/).
 .P
 The allow list is \fIallow.p2p\fR (/etc/pgl/allow.p2p). Per default,
 the allowlist is used for incoming and outgoing connections. If desired
@@ -351,6 +352,8 @@ Library for pglcmd.main.
 .IP /etc/pgl/blocklists.list
 Lists all blocklists that are used (and downloaded) by \fBpglcmd\fR for use by
 pgld.
+.IP /etc/pgl/blocklists.local/
+Local blocklists are placed here.
 .IP /etc/pgl/pglcmd.conf
 The user configuration file for \fBpglcmd\fR.
 .IP /etc/pgl/allow.p2p
@@ -374,15 +377,9 @@ Starts pgl automatically on every bootup.
 Updates the blocklists automatically.
 .IP /etc/logrotate.d/pglcmd
 Rotates the logfiles daily.
-.IP /var/lib/pgl/ipfilter.dat
-The master blocklist used by pgld if the blocklist is in eMule ipfilter.dat
-format.
-.IP /var/lib/pgl/guarding.p2b
-The master blocklist used by pgld if the blocklist is in peerguardian .p2b v2
-binary format.
-.IP /var/lib/pgl/guarding.p2p
-The master blocklist used by pgld if the blocklist is in peerguardian .p2p text
-format.
+.IP /var/lib/pgl/pglcmd_blocklist.p2p
+The master blocklist used by pgld, premerged from the single local and remote
+blocklists.
 .IP /var/log/pgl/pglcmd.log
 The log file of the \fBpglcmd\fR script. This file contains amongst other things
 about starting/stopping pgl and updating the blocklists.

@@ -124,7 +124,7 @@ if [ -f "$BLOCKCONTROL_LISTS" ] ; then
         if [ "$LOCALLIST" = 1 ] ; then
             # I don't want to do this automatically, just inform user.
             echo "Please copy or link your local list"
-            echo "$LIST to ${MASTER_BLOCKLIST_DIR}/."
+            echo "$LIST to ${LOCAL_BLOCKLIST_DIR}/."
             echo "Then it will be used automatically."
             LOCALLIST=0
             continue
