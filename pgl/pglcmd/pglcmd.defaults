@@ -11,6 +11,7 @@
 
 # PATH and paths.
 PATH="/usr/bin:/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
+export LD_LIBRARY_PATH="/usr/local/lib:/usr/lib:/lib"
 BINDIR="/usr/bin"
 SBINDIR="/usr/sbin"
 PIDDIR="/var/run"
