@@ -127,12 +127,12 @@ WD_SLEEP="300"
 # Set the nice level the watchdog is started with. Valid values are between -20
 # and 19. Higher values make the watchdog more friendly to other applications.
 # See nice(1).
-WD_NICE="19"
+WD_NICE="+19"
 
 # Set the nice level the daemon is started with. Valid values are between -20
 # and 19. Higher values make the daemon more friendly to other applications, but
 # might have drawbacks on its own functionality. See nice(1).
-NICE_LEVEL="5"
+NICE_LEVEL="+5"
 
 # You may specify additional options for wget for the blocklist download here.
 # Note: In this variable the download application (wget) must be contained! Some
