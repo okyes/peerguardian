@@ -70,6 +70,9 @@ install:
 	install -D -m 755 if-up.install $(DESTDIR)/$(IFUPDIR)/20pglcmd
 	install -D -m 755 cron.daily.install $(DESTDIR)/$(CRONDIR)/pglcmd
 	install -D -m 755 init.install $(DESTDIR)/$(INITDIR)/pgl
+# 	RedHat's system initialization:
+	chkconfig add pgl
+	chkconfig pgl on
 	install -D -m 644 logrotate $(DESTDIR)/$(LOGROTATEDIR)/pglcmd
 	install -d $(DESTDIR)/$(MASTER_BLOCKLIST_DIR)
 	install -d $(DESTDIR)/$(LOCAL_BLOCKLIST_DIR)
