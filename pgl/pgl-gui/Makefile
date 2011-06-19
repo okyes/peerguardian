@@ -4,8 +4,8 @@
 # TODO: check this: ifeq (0,${MAKELEVEL})
 
 CC=g++
-MOC=moc-qt4
-UIC=uic-qt4
+MOC=moc
+UIC=uic
 RCC=rcc
 
 # CFLAGS += \
