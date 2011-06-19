@@ -7,10 +7,9 @@ Table of contents:
 Introduction
 Note about different blocklist formats
 Lists from bluetack.co.uk
-Lists from The Blocklist Group
+Lists from The Blocklist Group (TBG)
 Lists from nexus23.org
 Lists from IBlocklist.com
-Lists from blocklist.org
 Lists from peerguardian.sourceforge.net
 Local (custom) blocklists
 
@@ -61,7 +60,7 @@ peerguardian .p2p text format, but without the description:
 
 ============================================================
 
-Lists from The Blocklist Group
+Lists from The Blocklist Group (TBG)
 
 For up to date information see here:
 http://tbg.iblocklist.com/pages/faq.html
@@ -420,26 +419,18 @@ Lists from IBlocklist.com
 
 I-Blocklist is a site dedicated to the creation and distribution of quality IP
 lists for use with IP blockers. It offers mirrors of all/most other blocklists,
-game allow lists, country lists and more.
+game allow lists, country lists and more. Some of these lists are available to
+subscribers only. If you have a valid update URL, you can use any of these
+blocklists.
 
-Per default, pgl uses these mirrored blocklists from iblocklist.com, instead of
-the original ones from bluetack.co.uk and tbg.iblocklist.com. Please don't use
-both!
+Per default, pgl uses mirrored blocklists from iblocklist.com, instead of the
+original ones from e.g. bluetack.co.uk and tbg.iblocklist.com. Please don't use
+both at the same time!
 
-At http://iblocklist.com/map.xls is a list of supported mappings from the 20
-character random list name URLs to human readable URLs in the format
-http://list.iblocklist.com/lists/LISTPROVIDER/LISTNAME
-These mappings are also hardcoded in pglcmd for e.g. the naming of the
+Some iblocklist update URLs are mapped from a 20 character random list name to
+human readable URLs in the format http://list.iblocklist.com/lists/LISTPROVIDER/
+LISTNAME. These mappings are also hardcoded in pglcmd for e.g. the naming of the
 /var/spool/pgl/LISTNAME folders.
-
-============================================================
-
-
-Lists from blocklist.org:
-
-Once there was a project by phoenixlabs.org to create their own blocklists.
-This project is currently dead and the domain blocklist.org is owned by someone
-else.
 
 
 ============================================================

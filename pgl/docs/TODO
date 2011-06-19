@@ -27,6 +27,9 @@ pgld:
 
 pglcmd:
 
+  - nice: on CentOS it is required to use e.g. "+5". Find solutions suiting all
+    distros.
+
   - uncomment code for automatic start on system initialization in
     pglcmd/Makefile. Add checks whether the needed tools exist. Adapt INSTALL.
 
@@ -187,11 +190,18 @@ Packaging:
   - make rpms
     http://forums.phoenixlabs.org/showthread.php?p=123060
 
+    CentOS:
+    http://forums.phoenixlabs.org/thread-16383-post-120468.html and branch
+    pgl_centos in the git repository.
+
+    openSUSE 11.3/x64:
+    http://forums.phoenixlabs.org/thread-15882-post-120482.html#pid120482
+
   - make ARCH packages:
     http://forums.phoenixlabs.org/showpost.php?p=123175&postcount=8
 
   - Slackware:
-    see branch "pgslack" in the git repository
+    branch "pgl_slackware" in the git repository, slack tar available.
 
   - synology:
     SPK's are packages that You can install via DiskStationManager. Its easy,
@@ -202,8 +212,6 @@ Packaging:
   - Gentoo:
     http://forums.gentoo.org/viewtopic-t-871027-start-0.html (details missing)
 
-  - CentOS:
-    http://forums.phoenixlabs.org/thread-16383-post-120468.html
 
 Web:
   - Update phoenixlabs.org

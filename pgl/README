@@ -161,5 +161,5 @@ Runtime environment pgl-gui:
 
 Supported systems:
 
-pgl was written and tested under Debian Squeeze. However it should run under
-every Linux distribution or other POSIX compliant systems.
+pgl was written and tested under Debian Gnu/Linux Squeeze. However it should run
+under every Linux system.
