@@ -17,6 +17,13 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+# If used with NetworkManager, then only continue if an interface is brought up
+# (not down). Ignored if this file is used otherwise (e.g. /etc/network/if-up.d
+# in Debian).
+if [ "$(dirname $0)" = /etc/NetworkManager/dispatcher.d ] ; then
+	[ "$2" = up ] || [ "$2" = vpn-up ] || exit 0
+fi
+
 ################################################################################
 # The following code is common between pglcmd, pglcmd.wd,
 # cron.daily, init and debian/postinst.

@@ -61,7 +61,8 @@ BLOCKLISTS_DIR ?= /var/spool/pgl
 MASTER_BLOCKLIST_DIR ?= /var/lib/pgl
 LOCAL_BLOCKLIST_DIR ?= $(CONFDIR)/blocklists.local
 DBUSCONFDIR ?= /etc/dbus-1/system.d
-IFUPDIR ?= /etc/network/if-up.d
+# Debian packaging uses /etc/network/if-up.d instead.
+IFUPDIR ?= /etc/NetworkManager/dispatcher.d
 CRONDIR ?= /etc/cron.daily
 INITDIR ?= /etc/init.d
 LOGROTATEDIR ?= /etc/logrotate.d

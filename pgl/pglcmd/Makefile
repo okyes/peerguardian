@@ -65,7 +65,9 @@ install:
 	install -D -m 644 allow.p2p $(DESTDIR)/$(CONFDIR)/allow.p2p
 	install -D -m 644 pglcmd.conf $(DESTDIR)/$(CONFDIR)/pglcmd.conf
 	install -D -m 644 blocklists.list $(DESTDIR)/$(CONFDIR)/blocklists.list
-	install -D -m 755 if-up.install $(DESTDIR)/$(IFUPDIR)/pglcmd
+	# if-up gets executed by Network Manager. Debian packaging installs to
+	# /etc/network/if-up.d/pglcmd instead (no NM needed.)
+	install -D -m 755 if-up.install $(DESTDIR)/$(IFUPDIR)/20pglcmd
 	install -D -m 755 cron.daily.install $(DESTDIR)/$(CRONDIR)/pglcmd
 	install -D -m 755 init.install $(DESTDIR)/$(INITDIR)/pgl
 # 	Uncomment if you want LSB 3.2 init script activation

@@ -68,7 +68,8 @@ pglcmd:
 /etc/init.d/pgl
  + links in /etc/rc?.d/
 /etc/logrotate.d/pglcmd
-/etc/network/if-up.d/pglcmd
+/etc/NetworkManager/dispatcher.d/20pglcmd
+ or in Debian: /etc/network/if-up.d/pglcmd
 /etc/pgl/allow.p2p
 /etc/pgl/blocklists.list
 /etc/pgl/blocklists.local/
@@ -148,6 +149,8 @@ Runtime environment pglcmd:
         - log_failure_msg
         - log_warning_msg
         - log_success_msg
+    - NetworkManager (optional, needed for automatic whitelisting of newly
+      brought up network interfaces. Not needed in Debian.)
 
 Runtime environment pgl-gui:
     - pgld
