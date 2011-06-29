@@ -47,6 +47,7 @@ Once you have adjusted the Makefile to your needs issue these commands:
   cd peerguardian/pgl
   make
   make install
+  /usr/lib/lsb/install_initd /etc/init.d/pgl
 
 ##############################################################################
 
@@ -66,7 +67,8 @@ pgld:
 pglcmd:
 /etc/cron.daily/pglcmd
 /etc/init.d/pgl
- + links in /etc/rc?.d/
+  If you activated the init script, first deactivate it with
+  /usr/lib/lsb/remove_initd /etc/init.d/pgl
 /etc/logrotate.d/pglcmd
 /etc/NetworkManager/dispatcher.d/20pglcmd
  or in Debian: /etc/network/if-up.d/pglcmd

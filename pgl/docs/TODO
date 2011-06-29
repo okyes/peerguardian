@@ -30,9 +30,6 @@ pglcmd:
   - nice: on CentOS it is required to use e.g. "+5". Find solutions suiting all
     distros.
 
-  - uncomment code for automatic start on system initialization in
-    pglcmd/Makefile. Add checks whether the needed tools exist. Adapt INSTALL.
-
   - adapt to real allow lists:
     requires allow lists in pgld, see above
     - add configuration file allowlists.lists to handle remote allowlists
