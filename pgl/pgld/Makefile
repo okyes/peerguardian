@@ -87,7 +87,7 @@ clean:
 
 install:
 	install -D -m 755 src/pgld $(DESTDIR)/$(SBINDIR)/pgld
-	install -D -m 644 logrotate $(DESTDIR)/$(LOGROTATEDIR)/pglcmd
+	install -D -m 644 logrotate $(DESTDIR)/$(LOGROTATEDIR)/pgld
 ifeq ($(DBUS),yes)
 	install -D -m 644 org.netfilter.pgl.conf $(DESTDIR)/$(DBUSCONFDIR)/org.netfilter.pgl.conf
 	install -D -m 644 src/dbus.so $(DESTDIR)/$(PLUGINDIR)/dbus.so
