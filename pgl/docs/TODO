@@ -59,6 +59,11 @@ pglcmd:
   - add possibility to shut off cron mails, even if CRON_MAILTO is empty.
     [http://forums.phoenixlabs.org/showthread.php?p=131335]
 
+  - replace some "echo" lines with
+      cat >> FILENAME <<END
+      [text]
+      END
+
   - Send traffic to several NFQUEUE nums with --queue-balance and run multiple
     pgld instances for these nums. This might help on heavy load.
 
@@ -90,8 +95,6 @@ pglcmd:
     other blocklists).
 
   - [DISCUSS] Block IPv6 completely because currently only IPv4 is checked?
-
-
 
 
 
@@ -168,8 +171,7 @@ WHITE_IP_FWD: iptables -I $IPTABLES_FWD --source $IP -j $IPTABLES_TARGET_WHITELI
 
 
 
-
-all components:
+All components:
 
   - use dbus for communication between components. Especially for logging
     events, instead of parsing the logfiles.
@@ -178,38 +180,17 @@ all components:
     configuration change.
 
 
+
 Packaging:
 
-  - Debian:
-    - add LOWMEM flavor packages
-    - add debtags
+  - add LOWMEM flavor packages
 
-  - make rpms
-    http://forums.phoenixlabs.org/showthread.php?p=123060
+  - add debtags to debian packages
 
-    CentOS:
-    http://forums.phoenixlabs.org/thread-16383-post-120468.html and branch
-    pgl_centos in the git repository.
-
-    openSUSE 11.3/x64:
-    http://forums.phoenixlabs.org/thread-15882-post-120482.html#pid120482
-
-  - make ARCH packages:
-    http://forums.phoenixlabs.org/showpost.php?p=123175&postcount=8
-
-  - Slackware:
-    branch "pgl_slackware" in the git repository, slack tar available.
-
-  - synology:
-    SPK's are packages that You can install via DiskStationManager. Its easy,
-    its via GUI. Its Fast. No terminal/ssh is needed. its the only way for
-    people without knowledge to install any packages on Synology server.
-    http://forums.phoenixlabs.org/thread-1622-post-119717.html#pid119717
-
-  - Gentoo:
-    http://forums.gentoo.org/viewtopic-t-871027-start-0.html (details missing)
 
 
 Web:
+
   - Update phoenixlabs.org
+
   - update wiki.phoenixlabs.org

@@ -71,7 +71,7 @@ pglcmd:
   /usr/lib/lsb/remove_initd /etc/init.d/pgl
 /etc/logrotate.d/pglcmd
 /etc/NetworkManager/dispatcher.d/20pglcmd
- or in Debian: /etc/network/if-up.d/pglcmd
+  or in Debian: /etc/network/if-up.d/pglcmd
 /etc/pgl/allow.p2p
 /etc/pgl/blocklists.list
 /etc/pgl/blocklists.local/

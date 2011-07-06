@@ -16,9 +16,12 @@ See also pgl/README for installation instruction and requirements.
 
 1.) Description:
 
-pgl checks internet traffic based on large lists of IP address ranges in order
-to protect your privacy. You can get it at
-http://sourceforge.net/projects/peerguardian/
+PeerGuardian Linux (pgl) is a privacy oriented firewall application. It blocks
+connections to and from hosts specified in huge blocklists (thousands or
+millions of IP ranges). pgl is based on the Linux kernel netfilter framework
+and iptables. 
+
+You can get it at http://sourceforge.net/projects/peerguardian/
 
 WARNING: pgl may block your complete network/internet access! Using too many
 and/or inappropriate lists may seriously degrade your internet service.

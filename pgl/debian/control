@@ -28,8 +28,10 @@ Replaces: moblock (<<2~)
 Conflicts: iplist,
         nfblock
 Description: PeerGuardian Linux - pgld
- pgl blocks connections from and to hosts, that are listed in a very large
- blocklist (thousands or millions of IP ranges).
+ PeerGuardian Linux (pgl) is a privacy oriented firewall application. It blocks
+ connections to and from hosts specified in huge blocklists (thousands or
+ millions of IP ranges). pgl is based on the Linux kernel netfilter framework
+ and iptables.
  .
  This is the pgl daemon pgld. It uses the netfilter xt_NFQUEUE kernel module
  (available since kernel 2.6.13).
@@ -41,8 +43,10 @@ Priority: extra
 Depends: ${misc:Depends},
          pgld (= ${binary:Version})
 Description: PeerGuardian Linux - pgld (debug)
- pgl blocks connections from and to hosts, that are listed in a very large
- blocklist (thousands or millions of IP ranges).
+ PeerGuardian Linux (pgl) is a privacy oriented firewall application. It blocks
+ connections to and from hosts specified in huge blocklists (thousands or
+ millions of IP ranges). pgl is based on the Linux kernel netfilter framework
+ and iptables.
  .
  This is the pgl daemon pgld. It uses the netfilter xt_NFQUEUE kernel module
  (available since kernel 2.6.13).
@@ -66,8 +70,10 @@ Breaks: moblock-control (<<2~),
 Replaces: moblock-control (<<2~),
         blockcontrol (<<2~)
 Description: PeerGuardian Linux - pglcmd
- pgl blocks connections from and to hosts, that are listed in a very large
- blocklist (thousands or millions of IP ranges).
+ PeerGuardian Linux (pgl) is a privacy oriented firewall application. It blocks
+ connections to and from hosts specified in huge blocklists (thousands or
+ millions of IP ranges). pgl is based on the Linux kernel netfilter framework
+ and iptables.
  .
  This is the pgl command line interface pglcmd. It provides easy ways to
  interact with the pgl daemon and does all common related tasks.
@@ -99,8 +105,10 @@ Depends: ${shlibs:Depends},
 Breaks: mobloquer (<<2~)
 Replaces: mobloquer (<<2~)
 Description: PeerGuardian Linux GUI - pgl-gui
- pgl blocks connections from and to hosts, that are listed in a very large
- blocklist (thousands or millions of IP ranges).
+ PeerGuardian Linux (pgl) is a privacy oriented firewall application. It blocks
+ connections to and from hosts specified in huge blocklists (thousands or
+ millions of IP ranges). pgl is based on the Linux kernel netfilter framework
+ and iptables.
  .
  This is the pgl Graphical User Interface pgl-gui (C++, Qt).
 
@@ -111,8 +119,10 @@ Priority: extra
 Depends: ${misc:Depends},
          pgl-gui (= ${binary:Version})
 Description: PeerGuardian Linux GUI - pgl-gui (debug)
- pgl blocks connections from and to hosts, that are listed in a very large
- blocklist (thousands or millions of IP ranges).
+ PeerGuardian Linux (pgl) is a privacy oriented firewall application. It blocks
+ connections to and from hosts specified in huge blocklists (thousands or
+ millions of IP ranges). pgl is based on the Linux kernel netfilter framework
+ and iptables.
  .
  This is the pgl Graphical User Interface pgl-gui (C++, Qt).
  .
