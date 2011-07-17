@@ -32,6 +32,7 @@ pgl 2.1.0~pre1 The GUI release!
     basis from iblocklist.com
   * pgl-gui/Makefile: use general moc and uic commands instead of special -qt4
     ones
+  * pglcmd cron and pgld logrotate: suppress STDOUT
 
 -- jre <jre-phoenix@users.sourceforge.net>  Wed, 20 Apr 2011 14:13:36 +0200
 

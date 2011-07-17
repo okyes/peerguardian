@@ -56,9 +56,6 @@ pglcmd:
   - add pidfile for pglcmd (e.g. to prevent 2 starts at nearly the same time.
     How to handle "update"? - this does not conflict with start.
 
-  - add possibility to shut off cron mails, even if CRON_MAILTO is empty.
-    [http://forums.phoenixlabs.org/showthread.php?p=131335]
-
   - replace some "echo" lines with
       cat >> FILENAME <<END
       [text]

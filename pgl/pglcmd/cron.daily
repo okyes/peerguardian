@@ -70,7 +70,7 @@ Subject: Results of $CMD_NAME blocklist update
 
 EOF
         else
-            $CMD_PATHNAME update
+            $CMD_PATHNAME update > /dev/null
         fi
         ;;
 esac
