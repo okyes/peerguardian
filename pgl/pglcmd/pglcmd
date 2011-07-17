@@ -48,7 +48,8 @@ RETVAL=0
 # Set a trap on exit for commands with log_end_msg.
 # Then on exit do log_end_msg. Fixes output for failed commands.
 case "$1" in
-    'start'|'stop'|'start_wd'|'stop_wd'|'restart'|'reload'|'force-reload'|'update'|'force-update')
+    'start'|'stop'|'start_wd'|'stop_wd'|'restart'|'reload'|'force-reload'|\
+    'update'|'force-update'|'stats'|'reset_stats'|'email_stats')
         test_root
         # Define an exit function for trapped signals
         onexit () {
@@ -284,6 +285,7 @@ case "$1" in
         echo "    test"
         echo "    stats"
         echo "    reset_stats"
+        echo "    email_stats"
         echo "    show_config"
         echo "    search"
         exit $E_BADARGS
