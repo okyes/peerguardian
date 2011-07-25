@@ -179,9 +179,9 @@ void Peerguardian::g_MakeConnections()
 	connect(m_BlocklistTreeWidget, SIGNAL(itemPressed(QTreeWidgetItem*, int)), this, SLOT(treeItemPressed(QTreeWidgetItem*, int)));
 
     /*Configure tab*/
-	connect(m_ApplyButton, SIGNAL(clicked()), this, SLOT(applyChanges()));
-    connect(m_StartAtBootBox, SIGNAL(clicked(bool)), this, SLOT(startAtBoot(bool)));
-    connect(m_AutoListUpdateBox, SIGNAL(clicked(bool)), this, SLOT(autoListupdate(bool)));
+    connect(m_ApplyButton, SIGNAL(clicked()), this, SLOT(applyChanges()));
+    connect(m_StartAtBootBox, SIGNAL(clicked(bool)), this, SLOT(checkboxChanged(bool)));
+    connect(m_AutoListUpdateBox, SIGNAL(clicked(bool)), this, SLOT(checkboxChanged(bool)));
 
 
     //connect update frequency radio buttons
@@ -243,19 +243,63 @@ void Peerguardian::rootFinished()
 
 void Peerguardian::updateRadioButtonToggled(bool toggled)
 {
-    if ( toggled )
-            m_ApplyButton->setEnabled(guiOptions->isChanged());
+    QRadioButton * item = qobject_cast<QRadioButton*>(sender());
+     
+    m_ApplyButton->setEnabled(guiOptions->isChanged());
+    
+    if ( guiOptions->hasRadioButtonChanged(item) )
+    {
+	item->setIcon(QIcon(WARNING_ICON));
+	item->setStatusTip(tr("You need to click the Apply button so the changes take effect"));
+    }
+    else
+    {    
+	item->setIcon(QIcon());
+	item->setStatusTip("");
+    }
+    
+    if ( item->objectName() != m_AutoListUpdateDailyRadio->objectName() )
+    {
+	m_AutoListUpdateDailyRadio->setIcon(QIcon());
+	m_AutoListUpdateDailyRadio->setStatusTip("");
+    }
+    	
+    if ( item->objectName() != m_AutoListUpdateWeeklyRadio->objectName() )
+    {
+	m_AutoListUpdateWeeklyRadio->setIcon(QIcon());
+	m_AutoListUpdateWeeklyRadio->setStatusTip("");
+    }
+	
+    if ( item->objectName() != m_AutoListUpdateMonthlyRadio->objectName() )
+    {
+	m_AutoListUpdateMonthlyRadio->setIcon(QIcon());
+	m_AutoListUpdateMonthlyRadio->setStatusTip("");
+    }
+	
+    
 }
 
-void Peerguardian::autoListupdate(bool toggled)
+
+void Peerguardian::checkboxChanged(bool state)
 {
     m_ApplyButton->setEnabled(guiOptions->isChanged());
+    
+    QCheckBox *item = qobject_cast<QCheckBox*>(sender());
+
+    
+    if ( guiOptions->hasCheckboxChanged(item) )
+    {
+        item->setIcon(QIcon(WARNING_ICON));
+        item->setStatusTip(tr("You need to click the Apply button so the changes take effect"));
+    }
+    else
+    {
+        item->setIcon(QIcon());
+        item->setStatusTip("");
+    }
 }
 
-void Peerguardian::startAtBoot(bool state)
-{
-    m_ApplyButton->setEnabled(guiOptions->isChanged());
-}
+
 
 QString Peerguardian::getUpdateFrequencyPath()
 {
@@ -380,15 +424,15 @@ QList<QTreeWidgetItem*> Peerguardian::getTreeItems(QTreeWidget *tree, int checkS
 
 void Peerguardian::treeItemChanged(QTreeWidgetItem* item, int column)
 {
-	if ( ! m_treeItemPressed )
-		return;
+    if ( ! m_treeItemPressed )
+	return;
 
     m_treeItemPressed = false;
 
     m_ApplyButton->setEnabled(guiOptions->isChanged());
     if ( guiOptions->isChanged(item) )
     {
-        item->setIcon(0, QIcon(":/images/warning.png"));
+        item->setIcon(0, QIcon(WARNING_ICON));
         item->setStatusTip(0, tr("You need to click the Apply button so the changes take effect"));
     }
     else
@@ -594,7 +638,7 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
             QStringList info; info << whiteItem.value() << whiteItem.connection() << whiteItem.protocol();
             QTreeWidgetItem * treeItem = new QTreeWidgetItem(m_WhitelistTreeWidget, info);
             treeItem->setCheckState(0, Qt::Checked);
-            treeItem->setIcon(0, QIcon(":/images/warning.png"));
+            treeItem->setIcon(0, QIcon(WARNING_ICON));
             treeItem->setStatusTip(0, tr("You need to click the Apply button so the changes take effect"));
             m_WhitelistTreeWidget->addTopLevelItem(treeItem);
             newItems = true;
@@ -619,7 +663,7 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
             QStringList info; info << name <<  blocklist;
             QTreeWidgetItem * treeItem = new QTreeWidgetItem(m_BlocklistTreeWidget, info);
             treeItem->setCheckState(0, Qt::Checked);
-            treeItem->setIcon(0, QIcon(":/images/warning.png"));
+            treeItem->setIcon(0, QIcon(WARNING_ICON));
             treeItem->setStatusTip(0, tr("You need to click the Apply button so the changes take effect"));
             m_BlocklistTreeWidget->addTopLevelItem(treeItem);
             newItems = true;

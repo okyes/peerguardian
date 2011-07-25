@@ -146,3 +146,23 @@ bool GuiOptions::isChanged(QTreeWidgetItem * item)
     return false;
 
 }
+
+bool GuiOptions::hasCheckboxChanged(QCheckBox * checkbox)
+{
+    if ( checkbox == m_Window->getStartAtBootBox()  && startAtBoot != m_Window->getStartAtBootBox()->isChecked())
+	return true;
+    else if ( checkbox == m_Window->getAutoListUpdateBox() && updateBlocklistsAutomatically != m_Window->getAutoListUpdateBox()->isChecked() )
+        return true;
+    
+    return false;
+}
+
+bool GuiOptions::hasRadioButtonChanged(QRadioButton * radio)
+{
+    if ( radio->objectName() !=  updateRadioBtn )
+        return true;
+    
+    return false;
+}
+
+

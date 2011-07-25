@@ -8,6 +8,7 @@
 #include <QTreeWidgetItem>
 #include <QString>
 #include <QDebug>
+#include <QCheckBox>
 #include "peerguardian.h"
 
 class Peerguardian;
@@ -36,6 +37,8 @@ class GuiOptions
         void updateList(QTreeWidget * tree);
         bool hasToUpdatePglcmdConf();
         bool hasToUpdateBlocklistList();
+	bool hasCheckboxChanged(QCheckBox*);
+	bool hasRadioButtonChanged(QRadioButton*);
 };
 
 
