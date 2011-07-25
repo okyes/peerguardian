@@ -202,6 +202,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void rootFinished();
         void autoListupdate(bool toggled);
         void removeListItems();
+	void onTrayIconClicked(QSystemTrayIcon::ActivationReason);
 
 };	
 

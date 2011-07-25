@@ -25,9 +25,9 @@ Peerguardian::Peerguardian( QWidget *parent ) :
     inicializeVariables();
     inicializeSettings();
     startTimers();
-    g_MakeConnections();
     g_MakeTray();
     g_MakeMenus();
+    g_MakeConnections();
     updateInfo();
     updateGUI();
 
@@ -195,6 +195,15 @@ void Peerguardian::g_MakeConnections()
     //connect the remove buttons
     connect(m_rmBlockListButton, SIGNAL(clicked()), this, SLOT(removeListItems()));
     connect(m_rmExceptionButton, SIGNAL(clicked()), this, SLOT(removeListItems()));
+    
+    //tray iconPath
+    connect(m_Tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(onTrayIconClicked(QSystemTrayIcon::ActivationReason)));
+
+}
+
+void Peerguardian::onTrayIconClicked(QSystemTrayIcon::ActivationReason reason)
+{
+    this->setVisible ( ! this->isVisible() );
 
 }
 
@@ -684,17 +693,18 @@ void Peerguardian::g_UpdateDaemonStatus() {
 void Peerguardian::g_MakeMenus() {
 
 
-	m_TrayMenu = new QMenu();
+	m_TrayMenu = new QMenu(this);
 	m_TrayMenu->addAction( a_Start );
 	m_TrayMenu->addAction( a_Stop );
 	m_TrayMenu->addAction( a_Restart );
-	m_TrayMenu->addSeparator();
+	/*m_TrayMenu->addSeparator();
 	m_TrayMenu->addAction( a_AllowHttp );
 	m_TrayMenu->addAction( a_AllowHttps );
-	m_TrayMenu->addAction( a_AllowFtp );
+	m_TrayMenu->addAction( a_AllowFtp );*/
 	m_TrayMenu->addSeparator();
 	m_TrayMenu->addAction( a_RestoreWindow );
 	m_TrayMenu->addAction( a_Exit );
+	m_Tray->setContextMenu(m_TrayMenu);
 
 	//g_UpdateTrayActions();
 
