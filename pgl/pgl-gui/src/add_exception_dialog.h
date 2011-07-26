@@ -16,8 +16,6 @@
 #include <QKeyEvent>
 #include <QObject>
 #include <QList>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
 #include <QHash>
 
 #include "ui_add_exception.h"
@@ -32,25 +30,6 @@ typedef enum openMode { ADD_MODE=0x000,
             };
 
 
-/*class Port
-{
-    QString m_desig;
-    int m_number;
-    QString m_protocol;
-
-    public:
-        Port(){};
-        Port(QString desig, QString prot, int n=0) { m_desig = desig; m_protocol = prot; m_number = n; }
-        Port(int n) { m_number = n; }
-        ~Port(){};
-
-        int number(){ return m_number;}
-        QString desig(){ return m_desig; }
-        QString protocol() { return m_protocol; }
-        void addAlias(const QString& alias) {}
-};*/
-
-
 class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
 
 	Q_OBJECT
@@ -63,8 +42,6 @@ class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
     QStringList reasons;
     int mode;
     QStringList m_validExtensions;
-    QNetworkAccessManager *m_manager;
-    QList<QUrl> m_urls;
     QStringList m_blocklists;
 
 	
@@ -76,7 +53,6 @@ class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
         QStringList getBlocklistInfo(QString&);
         QStringList getExceptionInfo(QString&);
         QVector<QTreeWidgetItem*> getTreeItems(QTreeWidget *);
-        bool isValidBlocklist(QString&);
         bool isValidException(QString&);
         QList<WhitelistItem> getItems(){ return m_validItems; }
         QStringList getBlocklists() { return m_blocklists; }
@@ -92,7 +68,6 @@ class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
     public slots:
         void addEntry();
         void selectLocalBlocklist();
-        void replyFinished(QNetworkReply* reply);
         void addBlocklist();
 
     protected:
