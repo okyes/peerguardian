@@ -109,13 +109,6 @@ pgl-gui:
 #10: show blocklists like "example.com/list/list2" (I added this manually to
      blocklists.list, it downloads fine, but pgl-gui doesn't show it)
 
-#11: Remove test, whether blocklist is available
-
-#14: add "Warning" icon to INIT and CRON, if changes have not been applied yet.
-
-#15: warn on closing the window that there are unapplied changes:
-     "Apply them? - Yes/No"
-
 #17: whitelisting ports: allow port ranges "port:port"
 
 #18: whitelisting ports: separating several items e.g. this way
@@ -154,8 +147,6 @@ WHITE_IP_FWD: iptables -I $IPTABLES_FWD --source $IP -j $IPTABLES_TARGET_WHITELI
     directly. (iptables --ctexpire (really?))
 
   - add whitelisting per IP/port/proto (pgl-gui-iptables-insert.sh)
-
-  - send pgl-gui to system-tray, add start with --tray option (like mobloquer)
 
   - clean up code: get rid of all unused remnants of mobloquer
 
