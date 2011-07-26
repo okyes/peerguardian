@@ -153,7 +153,8 @@ void Peerguardian::g_MakeConnections()
     connect( m_Log, SIGNAL( newItem( LogItem ) ), this, SLOT( addLogItem( LogItem ) ) );
 
     //Menu related
-    connect( a_Exit, SIGNAL( triggered() ), qApp, SLOT( quit() ) );
+    //connect( a_Exit, SIGNAL( triggered() ), qApp, SLOT( quit() ) );
+    connect( a_Exit, SIGNAL( triggered() ), this, SLOT( quit() ) );
     connect( a_AboutDialog, SIGNAL( triggered() ), this, SLOT( g_ShowAboutDialog() ) );
 
     //Control related
@@ -199,12 +200,40 @@ void Peerguardian::g_MakeConnections()
     //tray iconPath
     connect(m_Tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(onTrayIconClicked(QSystemTrayIcon::ActivationReason)));
 
+
+    
+}
+
+
+
+
+void Peerguardian::quit()
+{
+    int answer;
+    
+    if (m_ApplyButton->isEnabled())
+    {
+	answer = confirm(tr("Apply changes?"), tr("You have unapplied changes, do you wish to apply them permanently before exiting?"), this);
+	
+	if ( answer == QMessageBox::Yes )
+	    applyChanges();
+    }
+    
+    quitApp = true;
+    close();
+}
+
+void Peerguardian::closeEvent ( QCloseEvent * event )
+{
+    this->setVisible ( false );
+    if ( ! quitApp )
+	event->ignore();
 }
 
 void Peerguardian::onTrayIconClicked(QSystemTrayIcon::ActivationReason reason)
 {
-    this->setVisible ( ! this->isVisible() );
-
+    if ( reason == QSystemTrayIcon::Trigger )
+	this->setVisible ( ! this->isVisible() );
 }
 
 
@@ -541,10 +570,11 @@ void Peerguardian::inicializeSettings()
 	m_Settings = NULL;*/
     m_List = NULL;
     m_Whitelist = NULL;
-	m_Log = NULL;
-	m_Info = NULL;
-	m_Root = NULL;
+    m_Log = NULL;
+    m_Info = NULL;
+    m_Root = NULL;
     m_Control = NULL;
+    quitApp = false;
 
     m_ProgramSettings = new QSettings(QSettings::UserScope, "pgl", "pgl-gui");
 

@@ -139,6 +139,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     QTimer *m_FastTimer;
     QTimer *m_MediumTimer;
     QTimer *m_SlowTimer;
+    bool quitApp;
 
     //QList of integers with the original states for each blocklist
     //so it's easier to track which blocklists need to be disabled or enabled
@@ -204,6 +205,11 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
 	void onTrayIconClicked(QSystemTrayIcon::ActivationReason);
 	void checkboxChanged(bool);
 
+    protected:
+	void closeEvent ( QCloseEvent * event );
+
+    protected slots:
+	void quit();
 };	
 
 #endif //PEERGUARDIAN_H
