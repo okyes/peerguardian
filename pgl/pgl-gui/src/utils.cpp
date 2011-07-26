@@ -333,3 +333,15 @@ bool hasValueInData(const QString& value, const QStringList& data)
     return false;
 }
 
+
+int confirm(QString title, QString msg, QWidget *parent)
+{
+       int confirm = QMessageBox::warning( 
+        parent, 
+        title,
+	msg,
+	QMessageBox::Yes, QMessageBox::No
+        );
+       
+       return confirm;
+}

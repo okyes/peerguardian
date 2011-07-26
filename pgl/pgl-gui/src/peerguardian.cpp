@@ -25,9 +25,9 @@ Peerguardian::Peerguardian( QWidget *parent ) :
     inicializeVariables();
     inicializeSettings();
     startTimers();
-    g_MakeConnections();
     g_MakeTray();
     g_MakeMenus();
+    g_MakeConnections();
     updateInfo();
     updateGUI();
 
@@ -153,7 +153,8 @@ void Peerguardian::g_MakeConnections()
     connect( m_Log, SIGNAL( newItem( LogItem ) ), this, SLOT( addLogItem( LogItem ) ) );
 
     //Menu related
-    connect( a_Exit, SIGNAL( triggered() ), qApp, SLOT( quit() ) );
+    //connect( a_Exit, SIGNAL( triggered() ), qApp, SLOT( quit() ) );
+    connect( a_Exit, SIGNAL( triggered() ), this, SLOT( quit() ) );
     connect( a_AboutDialog, SIGNAL( triggered() ), this, SLOT( g_ShowAboutDialog() ) );
 
     //Control related
@@ -179,9 +180,9 @@ void Peerguardian::g_MakeConnections()
 	connect(m_BlocklistTreeWidget, SIGNAL(itemPressed(QTreeWidgetItem*, int)), this, SLOT(treeItemPressed(QTreeWidgetItem*, int)));
 
     /*Configure tab*/
-	connect(m_ApplyButton, SIGNAL(clicked()), this, SLOT(applyChanges()));
-    connect(m_StartAtBootBox, SIGNAL(clicked(bool)), this, SLOT(startAtBoot(bool)));
-    connect(m_AutoListUpdateBox, SIGNAL(clicked(bool)), this, SLOT(autoListupdate(bool)));
+    connect(m_ApplyButton, SIGNAL(clicked()), this, SLOT(applyChanges()));
+    connect(m_StartAtBootBox, SIGNAL(clicked(bool)), this, SLOT(checkboxChanged(bool)));
+    connect(m_AutoListUpdateBox, SIGNAL(clicked(bool)), this, SLOT(checkboxChanged(bool)));
 
 
     //connect update frequency radio buttons
@@ -195,7 +196,44 @@ void Peerguardian::g_MakeConnections()
     //connect the remove buttons
     connect(m_rmBlockListButton, SIGNAL(clicked()), this, SLOT(removeListItems()));
     connect(m_rmExceptionButton, SIGNAL(clicked()), this, SLOT(removeListItems()));
+    
+    //tray iconPath
+    connect(m_Tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(onTrayIconClicked(QSystemTrayIcon::ActivationReason)));
 
+
+    
+}
+
+
+
+
+void Peerguardian::quit()
+{
+    int answer;
+    
+    if (m_ApplyButton->isEnabled())
+    {
+	answer = confirm(tr("Apply changes?"), tr("You have unapplied changes, do you wish to apply them permanently before exiting?"), this);
+	
+	if ( answer == QMessageBox::Yes )
+	    applyChanges();
+    }
+    
+    quitApp = true;
+    close();
+}
+
+void Peerguardian::closeEvent ( QCloseEvent * event )
+{
+    this->setVisible ( false );
+    if ( ! quitApp )
+	event->ignore();
+}
+
+void Peerguardian::onTrayIconClicked(QSystemTrayIcon::ActivationReason reason)
+{
+    if ( reason == QSystemTrayIcon::Trigger )
+	this->setVisible ( ! this->isVisible() );
 }
 
 
@@ -234,19 +272,63 @@ void Peerguardian::rootFinished()
 
 void Peerguardian::updateRadioButtonToggled(bool toggled)
 {
-    if ( toggled )
-            m_ApplyButton->setEnabled(guiOptions->isChanged());
+    QRadioButton * item = qobject_cast<QRadioButton*>(sender());
+     
+    m_ApplyButton->setEnabled(guiOptions->isChanged());
+    
+    if ( guiOptions->hasRadioButtonChanged(item) )
+    {
+	item->setIcon(QIcon(WARNING_ICON));
+	item->setStatusTip(tr("You need to click the Apply button so the changes take effect"));
+    }
+    else
+    {    
+	item->setIcon(QIcon());
+	item->setStatusTip("");
+    }
+    
+    if ( item->objectName() != m_AutoListUpdateDailyRadio->objectName() )
+    {
+	m_AutoListUpdateDailyRadio->setIcon(QIcon());
+	m_AutoListUpdateDailyRadio->setStatusTip("");
+    }
+    	
+    if ( item->objectName() != m_AutoListUpdateWeeklyRadio->objectName() )
+    {
+	m_AutoListUpdateWeeklyRadio->setIcon(QIcon());
+	m_AutoListUpdateWeeklyRadio->setStatusTip("");
+    }
+	
+    if ( item->objectName() != m_AutoListUpdateMonthlyRadio->objectName() )
+    {
+	m_AutoListUpdateMonthlyRadio->setIcon(QIcon());
+	m_AutoListUpdateMonthlyRadio->setStatusTip("");
+    }
+	
+    
 }
 
-void Peerguardian::autoListupdate(bool toggled)
+
+void Peerguardian::checkboxChanged(bool state)
 {
     m_ApplyButton->setEnabled(guiOptions->isChanged());
+    
+    QCheckBox *item = qobject_cast<QCheckBox*>(sender());
+
+    
+    if ( guiOptions->hasCheckboxChanged(item) )
+    {
+        item->setIcon(QIcon(WARNING_ICON));
+        item->setStatusTip(tr("You need to click the Apply button so the changes take effect"));
+    }
+    else
+    {
+        item->setIcon(QIcon());
+        item->setStatusTip("");
+    }
 }
 
-void Peerguardian::startAtBoot(bool state)
-{
-    m_ApplyButton->setEnabled(guiOptions->isChanged());
-}
+
 
 QString Peerguardian::getUpdateFrequencyPath()
 {
@@ -371,15 +453,15 @@ QList<QTreeWidgetItem*> Peerguardian::getTreeItems(QTreeWidget *tree, int checkS
 
 void Peerguardian::treeItemChanged(QTreeWidgetItem* item, int column)
 {
-	if ( ! m_treeItemPressed )
-		return;
+    if ( ! m_treeItemPressed )
+	return;
 
     m_treeItemPressed = false;
 
     m_ApplyButton->setEnabled(guiOptions->isChanged());
     if ( guiOptions->isChanged(item) )
     {
-        item->setIcon(0, QIcon(":/images/warning.png"));
+        item->setIcon(0, QIcon(WARNING_ICON));
         item->setStatusTip(0, tr("You need to click the Apply button so the changes take effect"));
     }
     else
@@ -488,10 +570,11 @@ void Peerguardian::inicializeSettings()
 	m_Settings = NULL;*/
     m_List = NULL;
     m_Whitelist = NULL;
-	m_Log = NULL;
-	m_Info = NULL;
-	m_Root = NULL;
+    m_Log = NULL;
+    m_Info = NULL;
+    m_Root = NULL;
     m_Control = NULL;
+    quitApp = false;
 
     m_ProgramSettings = new QSettings(QSettings::UserScope, "pgl", "pgl-gui");
 
@@ -585,7 +668,7 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
             QStringList info; info << whiteItem.value() << whiteItem.connection() << whiteItem.protocol();
             QTreeWidgetItem * treeItem = new QTreeWidgetItem(m_WhitelistTreeWidget, info);
             treeItem->setCheckState(0, Qt::Checked);
-            treeItem->setIcon(0, QIcon(":/images/warning.png"));
+            treeItem->setIcon(0, QIcon(WARNING_ICON));
             treeItem->setStatusTip(0, tr("You need to click the Apply button so the changes take effect"));
             m_WhitelistTreeWidget->addTopLevelItem(treeItem);
             newItems = true;
@@ -610,7 +693,7 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
             QStringList info; info << name <<  blocklist;
             QTreeWidgetItem * treeItem = new QTreeWidgetItem(m_BlocklistTreeWidget, info);
             treeItem->setCheckState(0, Qt::Checked);
-            treeItem->setIcon(0, QIcon(":/images/warning.png"));
+            treeItem->setIcon(0, QIcon(WARNING_ICON));
             treeItem->setStatusTip(0, tr("You need to click the Apply button so the changes take effect"));
             m_BlocklistTreeWidget->addTopLevelItem(treeItem);
             newItems = true;
@@ -684,17 +767,18 @@ void Peerguardian::g_UpdateDaemonStatus() {
 void Peerguardian::g_MakeMenus() {
 
 
-	m_TrayMenu = new QMenu();
+	m_TrayMenu = new QMenu(this);
 	m_TrayMenu->addAction( a_Start );
 	m_TrayMenu->addAction( a_Stop );
 	m_TrayMenu->addAction( a_Restart );
-	m_TrayMenu->addSeparator();
+	/*m_TrayMenu->addSeparator();
 	m_TrayMenu->addAction( a_AllowHttp );
 	m_TrayMenu->addAction( a_AllowHttps );
-	m_TrayMenu->addAction( a_AllowFtp );
+	m_TrayMenu->addAction( a_AllowFtp );*/
 	m_TrayMenu->addSeparator();
 	m_TrayMenu->addAction( a_RestoreWindow );
 	m_TrayMenu->addAction( a_Exit );
+	m_Tray->setContextMenu(m_TrayMenu);
 
 	//g_UpdateTrayActions();
 

@@ -7,6 +7,7 @@
 #include <QTextStream>
 #include <QDebug>
 #include <QFileInfoList>
+#include <QMessageBox>
 
 
 QString getValidPath(const QString &path, const QString &defaultPath );
@@ -26,5 +27,6 @@ void replaceValueInFile(const QString& path, const QString & variable, const QSt
 QStringList replaceValueInData(QStringList& data, const QString & variable, const QString & value);
 QString getFileName(const QString& path);
 bool hasValueInData(const QString&, const QStringList&);
+int confirm(QString title, QString msg, QWidget *parent=NULL);
 
 #endif

@@ -93,6 +93,7 @@
 #define DISABLED_ICON ":/images/cancel.png"
 #define RUNNING_ICON ":/images/ok.png"
 #define NOT_RUNNING_ICON ":/images/cancel.png"
+#define WARNING_ICON ":/images/warning.png"
 #define ICON_WIDTH 24
 #define ICON_HEIGHT 24
 
@@ -138,6 +139,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     QTimer *m_FastTimer;
     QTimer *m_MediumTimer;
     QTimer *m_SlowTimer;
+    bool quitApp;
 
     //QList of integers with the original states for each blocklist
     //so it's easier to track which blocklists need to be disabled or enabled
@@ -197,12 +199,17 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void treeItemChanged(QTreeWidgetItem*, int);
         void treeItemPressed(QTreeWidgetItem* item, int column);
         void applyChanges();
-        void startAtBoot(bool);
         void updateRadioButtonToggled(bool);
         void rootFinished();
-        void autoListupdate(bool toggled);
         void removeListItems();
+	void onTrayIconClicked(QSystemTrayIcon::ActivationReason);
+	void checkboxChanged(bool);
 
+    protected:
+	void closeEvent ( QCloseEvent * event );
+
+    protected slots:
+	void quit();
 };	
 
 #endif //PEERGUARDIAN_H
