@@ -2520,6 +2520,7 @@ test_ipblocking () {
     return $RETVAL
 }
 
+# Just dump stats
 dump_stats () {
     status_of_proc $DAEMON $NAME > /dev/null 2>&1 || {
         echo "$DAEMON is not running."
@@ -2530,18 +2531,19 @@ dump_stats () {
         [ -f "$DAEMON_LOG" ] || kill -s HUP "$(pidofproc $DAEMON)"
         CURLINE="$(wc -l $DAEMON_LOG | awk '{print$1}')"
         kill -s USR2 "$(pidofproc $DAEMON)"
-        sleep 5
+        sleep 1
         tail -n+$(($CURLINE + 1)) $DAEMON_LOG | grep STATS:
     elif [ "$LOG_SYSLOG" = 1 ] ; then
         CURLINE=$(grep pgld: /var/log/syslog | wc -l | awk '{print$1}')
         kill -s USR2 "$(pidofproc $DAEMON)"
-        sleep 5
+        sleep 1
         grep pgld: /var/log/syslog | tail -n+$(($CURLINE + 1)) | grep STATS:
     else
         echo "Logging to logfile or syslog must be enabled to dump stats."
     fi
 }
 
+# Dump and reset stats
 reset_stats () {
     status_of_proc $DAEMON $NAME > /dev/null 2>&1 || {
         echo "$DAEMON is not running."
@@ -2552,12 +2554,12 @@ reset_stats () {
         [ -f "$DAEMON_LOG" ] || kill -s HUP "$(pidofproc $DAEMON)"
         CURLINE="$(wc -l $DAEMON_LOG | awk '{print$1}')"
         kill -s USR1 "$(pidofproc $DAEMON)"
-        sleep 5
+        sleep 1
         tail -n+$(($CURLINE + 1)) $DAEMON_LOG | grep STATS:
     elif [ "$LOG_SYSLOG" = 1 ] ; then
         CURLINE="$(grep pgld: /var/log/syslog | wc -l | awk '{print$1}')"
         kill -s USR1 "$(pidofproc $DAEMON)"
-        sleep 5
+        sleep 1
         grep pgld: /var/log/syslog | tail -n+$(($CURLINE + 1)) | grep STATS:
     else
         echo "Logging to logfile or syslog must be enabled to dump stats."
