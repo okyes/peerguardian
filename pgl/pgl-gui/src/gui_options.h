@@ -9,6 +9,7 @@
 #include <QString>
 #include <QDebug>
 #include <QCheckBox>
+#include <QRadioButton>
 #include "peerguardian.h"
 
 class Peerguardian;
@@ -16,7 +17,8 @@ class Peerguardian;
 class GuiOptions
 {
     Peerguardian * m_Window;
-    QString updateRadioBtn;
+    QString updateRadioBtnName;
+    QRadioButton * updateRadioBtn;
     bool startAtBoot;
     bool updateBlocklistsAutomatically;
     QList<int> m_BlocklistState;
@@ -32,13 +34,19 @@ class GuiOptions
         void updateUpdateRadioBtn();
         void updateStartAtBoot();
         void update();
-        QString getActiveUpdateRadioButton();
+        QRadioButton* getActiveUpdateRadioButton();
+        QString getActiveUpdateRadioButtonName();
         bool listStateChanged(QTreeWidget * tree);
         void updateList(QTreeWidget * tree);
         bool hasToUpdatePglcmdConf();
         bool hasToUpdateBlocklistList();
-	bool hasCheckboxChanged(QCheckBox*);
-	bool hasRadioButtonChanged(QRadioButton*);
+        bool hasCheckboxChanged(QCheckBox*);
+        bool hasRadioButtonChanged(QRadioButton*);
+        Qt::CheckState getState(int);
+        void undoBlocklist();
+        void undoWhitelist();
+        void undo();
+        
 };
 
 

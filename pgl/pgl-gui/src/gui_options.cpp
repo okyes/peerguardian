@@ -9,7 +9,7 @@ bool GuiOptions::isChanged()
     if (updateBlocklistsAutomatically != m_Window->getAutoListUpdateBox()->isChecked() )
         return true;
 
-    if ( updateRadioBtn != getActiveUpdateRadioButton() )
+    if ( updateRadioBtnName != getActiveUpdateRadioButtonName() )
         return true;
 
     if ( listStateChanged(m_Window->getBlocklistTreeWidget()) )
@@ -67,24 +67,36 @@ bool GuiOptions::listStateChanged(QTreeWidget * tree)
     return false;
 }
 
-QString GuiOptions::getActiveUpdateRadioButton()
+QRadioButton * GuiOptions::getActiveUpdateRadioButton()
 {
+    QRadioButton * radio = NULL;
 
     if ( m_Window->getAutoListUpdateDailyRadio()->isChecked() )
-        return m_Window->getAutoListUpdateDailyRadio()->objectName();
+        radio = m_Window->getAutoListUpdateDailyRadio();
     else if ( m_Window->getAutoListUpdateWeeklyRadio()->isChecked() )
-        return m_Window->getAutoListUpdateWeeklyRadio()->objectName();
+        radio = m_Window->getAutoListUpdateWeeklyRadio();
     else if ( m_Window->getAutoListUpdateMonthlyRadio()->isChecked() )
-        return m_Window->getAutoListUpdateMonthlyRadio()->objectName();
+        radio = m_Window->getAutoListUpdateMonthlyRadio();
+        
+    return radio;
+}
 
+QString GuiOptions::getActiveUpdateRadioButtonName()
+{
+    QRadioButton * radio = getActiveUpdateRadioButton();
+    if ( radio != NULL ) 
+        return radio->objectName();
     return QString("");
 }
+
+
 
 /********* Update methods ************/
 
 void GuiOptions::updateUpdateRadioBtn()
 {
     updateBlocklistsAutomatically = m_Window->getAutoListUpdateBox()->isChecked();
+    updateRadioBtnName = getActiveUpdateRadioButtonName();
     updateRadioBtn = getActiveUpdateRadioButton();
 }
 
@@ -159,10 +171,78 @@ bool GuiOptions::hasCheckboxChanged(QCheckBox * checkbox)
 
 bool GuiOptions::hasRadioButtonChanged(QRadioButton * radio)
 {
-    if ( radio->objectName() !=  updateRadioBtn )
+    if ( radio->objectName() !=  updateRadioBtnName )
         return true;
     
     return false;
 }
 
+Qt::CheckState GuiOptions::getState(int state)
+{
+    
+    switch(state)
+    {
+        case 0: return Qt::Unchecked;
+        break;
+        
+        case 1: return Qt::PartiallyChecked;
+        break;
+        
+        case 2: return Qt::Checked;
+        break;
+    }
+}
+
+void GuiOptions::undoBlocklist()
+{
+    //reset the blocklist and whitelist treewidgets
+    QTreeWidget * tree = m_Window->getBlocklistTreeWidget();
+    QTreeWidgetItem * item = NULL;
+    
+    for(int i = 0; i < m_BlocklistState.size() ; i++)
+    {
+        item = tree->topLevelItem(i);
+        item->setCheckState(0, getState(m_BlocklistState[i]));
+        item->setIcon(0, QIcon());
+    }
+    
+    //remove added blocklists
+    for(int i = m_BlocklistState.size(); i < tree->topLevelItemCount() ; i++)
+    {
+        tree->takeTopLevelItem(i);
+    }
+}
+
+void GuiOptions::undoWhitelist()
+{
+    //reset the blocklist and whitelist treewidgets
+    QTreeWidget * tree = m_Window->getWhitelistTreeWidget();
+    QTreeWidgetItem * item = NULL;
+    
+    for(int i = 0; i < m_WhitelistState.size(); i++)
+    {
+        item = tree->topLevelItem(i);
+        item->setCheckState(0, getState(m_WhitelistState[i]));
+        item->setIcon(0, QIcon());
+    }
+    
+    //remove added whitelist items
+    for(int i = m_WhitelistState.size(); i < tree->topLevelItemCount(); i++)
+        tree->takeTopLevelItem(i);
+}
+
+void GuiOptions::undo()
+{
+    m_Window->getStartAtBootBox()->setChecked(startAtBoot);
+    m_Window->getStartAtBootBox()->setIcon(QIcon());
+    m_Window->getAutoListUpdateBox()->setChecked(updateBlocklistsAutomatically);
+    m_Window->getAutoListUpdateBox()->setIcon(QIcon());
+
+    getActiveUpdateRadioButton()->setIcon(QIcon());
+    updateRadioBtn->setChecked(true);
+
+    undoBlocklist();
+    undoWhitelist();
+    
+}
 
