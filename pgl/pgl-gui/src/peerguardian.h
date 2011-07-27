@@ -202,8 +202,9 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void updateRadioButtonToggled(bool);
         void rootFinished();
         void removeListItems();
-	void onTrayIconClicked(QSystemTrayIcon::ActivationReason);
-	void checkboxChanged(bool);
+        void onTrayIconClicked(QSystemTrayIcon::ActivationReason);
+        void checkboxChanged(bool);
+        void undoGuiOptions();
 
     protected:
 	void closeEvent ( QCloseEvent * event );

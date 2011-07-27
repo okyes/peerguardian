@@ -113,7 +113,9 @@ void Peerguardian::updateGUI()
     }
 
     getLists();
+    qDebug() << "before guiOptions->update()";
     guiOptions->update();
+    qDebug() << "after guiOptions->update()";
 }
 
 void Peerguardian::startTimers()
@@ -179,7 +181,8 @@ void Peerguardian::g_MakeConnections()
 	connect(m_WhitelistTreeWidget, SIGNAL(itemPressed(QTreeWidgetItem*, int)), this, SLOT(treeItemPressed(QTreeWidgetItem*, int)));
 	connect(m_BlocklistTreeWidget, SIGNAL(itemPressed(QTreeWidgetItem*, int)), this, SLOT(treeItemPressed(QTreeWidgetItem*, int)));
 
-    /*Configure tab*/
+    /********************************Configure tab****************************/
+    connect(m_UndoButton, SIGNAL(clicked()), this, SLOT(undoGuiOptions()));
     connect(m_ApplyButton, SIGNAL(clicked()), this, SLOT(applyChanges()));
     connect(m_StartAtBootBox, SIGNAL(clicked(bool)), this, SLOT(checkboxChanged(bool)));
     connect(m_AutoListUpdateBox, SIGNAL(clicked(bool)), this, SLOT(checkboxChanged(bool)));
@@ -200,8 +203,6 @@ void Peerguardian::g_MakeConnections()
     //tray iconPath
     connect(m_Tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(onTrayIconClicked(QSystemTrayIcon::ActivationReason)));
 
-
-    
 }
 
 
@@ -255,18 +256,23 @@ void Peerguardian::removeListItems()
     }
 
     m_ApplyButton->setEnabled(guiOptions->isChanged());
+    m_UndoButton->setEnabled(m_ApplyButton->isEnabled());
 }
 
 void Peerguardian::rootFinished()
 {
 
     if ( QFile::exists("/tmp/pglcmd.conf") || QFile::exists("/tmp/blocklists.list") )
+    {
         m_ApplyButton->setEnabled(true);
+        m_UndoButton->setEnabled(m_ApplyButton->isEnabled());
+    }
     else
     {
         PglSettings::loadSettings();
         updateGUI();
         m_ApplyButton->setEnabled(false);
+        m_UndoButton->setEnabled(m_ApplyButton->isEnabled());
     }
 }
 
@@ -275,6 +281,7 @@ void Peerguardian::updateRadioButtonToggled(bool toggled)
     QRadioButton * item = qobject_cast<QRadioButton*>(sender());
      
     m_ApplyButton->setEnabled(guiOptions->isChanged());
+    m_UndoButton->setEnabled(m_ApplyButton->isEnabled());
     
     if ( guiOptions->hasRadioButtonChanged(item) )
     {
@@ -312,6 +319,7 @@ void Peerguardian::updateRadioButtonToggled(bool toggled)
 void Peerguardian::checkboxChanged(bool state)
 {
     m_ApplyButton->setEnabled(guiOptions->isChanged());
+    m_UndoButton->setEnabled(m_ApplyButton->isEnabled());
     
     QCheckBox *item = qobject_cast<QCheckBox*>(sender());
 
@@ -360,7 +368,6 @@ QString Peerguardian::getUpdateFrequencyCurrentPath()
 
     return QString("");
 }
-
 
 
 void Peerguardian::applyChanges()
@@ -459,6 +466,7 @@ void Peerguardian::treeItemChanged(QTreeWidgetItem* item, int column)
     m_treeItemPressed = false;
 
     m_ApplyButton->setEnabled(guiOptions->isChanged());
+    m_UndoButton->setEnabled(m_ApplyButton->isEnabled());
     if ( guiOptions->isChanged(item) )
     {
         item->setIcon(0, QIcon(WARNING_ICON));
@@ -604,7 +612,8 @@ void Peerguardian::g_SetRoot( ) {
             m_ProgramSettings->setValue( "paths/super_user", m_Root->getRootPath() );
     }
     else
-        QMessageBox::warning( this, tr( "Could not locate sudo front-end" ), tr( "Could not find gksu or kdesu executable. The program will not be able to perform any operation which requires super user privilleges.\n\nYou can manually change the path for the sudo front-end through the settings dialog." ), QMessageBox::Ok );
+        QMessageBox::warning( this, tr( "Could not locate sudo front-end" ), 
+        tr( "Could not find gksu or kdesu executable. The program will not be able to perform any operation which requires super user privilleges.\n\nYou can manually change the path for the sudo front-end through the settings dialog." ), QMessageBox::Ok );
 
 }
 
@@ -704,7 +713,10 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
     }
 
     if ( newItems )
+    {
         m_ApplyButton->setEnabled(true);
+        m_UndoButton->setEnabled(m_ApplyButton->isEnabled());
+    }
 
 	/*if ( dialog->exec() == QDialog::Accepted && dialog->isSettingChanged() ) {
 		emit g_SettingChanged();
@@ -883,4 +895,19 @@ void Peerguardian::addLogItem( LogItem item ) {
 
 	//++m_BlockedConnections;
 
+}
+
+
+void Peerguardian::undoGuiOptions() 
+{ 
+    int answer = 0;
+    
+    answer = confirm(tr("Really Undo?"), tr("Are you sure you want to ignore the unsaved changes?"), this);
+    
+    if ( answer == QMessageBox::Yes)
+    {
+        guiOptions->undo(); 
+        m_UndoButton->setEnabled(false);
+        m_ApplyButton->setEnabled(false);
+    }
 }
