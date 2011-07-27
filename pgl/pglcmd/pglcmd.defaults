@@ -93,6 +93,10 @@ MD5SUM_FILE="$BLOCKLISTS_DIR/MD5SUM"
 # LSB="/lib/lsb/init-functions"
 LSB=""
 
+# The path of the sendmail executable, a link pointing there, or any other
+# compatible mail transfer agent.
+SENDMAIL="/usr/sbin/sendmail"
+
 # Remember standard IFS (Internal Field Separator)
 STDIFS=$IFS
 
