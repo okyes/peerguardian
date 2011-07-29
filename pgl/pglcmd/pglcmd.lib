@@ -2142,9 +2142,8 @@ get_blocklist () {
                 { log_failure_msg " Error: ln exited with $?"; exit 1 ; }
             ;;
     esac
-    # Count the lines in the list
-    LIST_LINES="$( wc -l ${BLOCKLIST_EXTRACTED}.tmp | sed "s|${BLOCKLIST_EXTRACTED}.tmp||")"
-    if [ "$LIST_LINES" -gt 0 ] ; then
+    # Count the lines in the list and check if there are any lines.
+    if [ "$( wc -l < ${BLOCKLIST_EXTRACTED}.tmp )" -gt 0 ] ; then
         mv -f "${BLOCKLIST_EXTRACTED}.tmp" "${BLOCKLIST_EXTRACTED}" ||
             { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
         echo "done."
@@ -2417,7 +2416,7 @@ test_ipblocking () {
     echo ""
 
     echo "Trying to ping $TEST_IP from $MASTER_BLOCKLIST ..."
-    LOG_LENGTH="$(wc -l $TEST_LOG | awk '{ print $1 }')"    # remember log length before test
+    LOG_LENGTH="$( wc -l < $TEST_LOG )" # remember log length before test
     ping -c1 -W2 $TEST_IP > /dev/null 2>&1
     RETVAL_PING=$? # the ping exit code
     # The ping exit status is 0 if ping succeeds and 1 if ping does not receive any reply packets.
@@ -2425,7 +2424,7 @@ test_ipblocking () {
 
     # Wait a second to give the daemon time to log the current block
     sleep 1
-    LOG_LENGTH_NEW="$(wc -l $TEST_LOG | awk '{ print $1 }')" # new log length
+    LOG_LENGTH_NEW="$( wc -l < $TEST_LOG )" # new log length
 
     if [ "$LOG_LENGTH" -ne "$LOG_LENGTH_NEW" ] ; then    # log length changed
         tail -n$((${LOG_LENGTH_NEW}-${LOG_LENGTH})) $TEST_LOG |
@@ -2482,10 +2481,10 @@ test_ipblocking () {
                     echo "Probably the traceroute packet was blocked by another iptables rule on your"
                     echo "machine. Everything might be ok."
                     RETVAL=0
-                elif [ "$RETVAL_TRACEROUTE" -eq 0 ] && [ "$(wc -l $TRACE_LOG | awk '{ print $1 }')" -eq 2 ] ; then
+                elif [ "$RETVAL_TRACEROUTE" -eq 0 ] && [ "$( wc -l < $TRACE_LOG )" -eq 2 ] ; then
                     # Wait a second to give the daemon time to log the current block
                     sleep 1
-                    LOG_LENGTH_NEW="$(wc -l $TEST_LOG | awk '{ print $1 }')" # new log length
+                    LOG_LENGTH_NEW="$( wc -l < $TEST_LOG )" # new log length
                     if [ "$LOG_LENGTH" -ne "$LOG_LENGTH_NEW" ] ; then    # log length changed
                         tail -n$(($LOG_LENGTH_NEW-$LOG_LENGTH)) $TEST_LOG |
                             grep -q $TEST_IP
@@ -2500,7 +2499,7 @@ test_ipblocking () {
                         echo "The packet did not leave your machine, but wasn't blocked either. Confusing."
                         echo "Traceroute return code was $RETVAL_TRACEROUTE."
                     fi
-                elif [ "$RETVAL_TRACEROUTE" -eq 0 ] && [ "$(wc -l $TRACE_LOG | awk '{ print $1 }')" -eq 3 ] ; then
+                elif [ "$RETVAL_TRACEROUTE" -eq 0 ] && [ "$(wc -l < $TRACE_LOG )" -eq 3 ] ; then
                     echo "The traceroute packet was not blocked on your machine. There is a problem!"
                 else
                     echo "Probably $TEST_IP is down/doesn't answer to pings."
@@ -2529,12 +2528,12 @@ dump_stats () {
     if [ "$LOG_LOGFILE" = 1 ] ; then
         # If logfile does not exist, reload daemon to reopen a new one.
         [ -f "$DAEMON_LOG" ] || kill -s HUP "$(pidofproc $DAEMON)"
-        CURLINE="$(wc -l $DAEMON_LOG | awk '{print$1}')"
+        CURLINE="$(wc -l < $DAEMON_LOG )"
         kill -s USR2 "$(pidofproc $DAEMON)"
         sleep 1
         tail -n+$(($CURLINE + 1)) $DAEMON_LOG | grep STATS:
     elif [ "$LOG_SYSLOG" = 1 ] ; then
-        CURLINE=$(grep pgld: /var/log/syslog | wc -l | awk '{print$1}')
+        CURLINE="$( grep pgld: /var/log/syslog | wc -l )"
         kill -s USR2 "$(pidofproc $DAEMON)"
         sleep 1
         grep pgld: /var/log/syslog | tail -n+$(($CURLINE + 1)) | grep STATS:
@@ -2552,12 +2551,12 @@ reset_stats () {
     if [ "$LOG_LOGFILE" = 1 ] ; then
         # If logfile does not exist, reload daemon to reopen a new one.
         [ -f "$DAEMON_LOG" ] || kill -s HUP "$(pidofproc $DAEMON)"
-        CURLINE="$(wc -l $DAEMON_LOG | awk '{print$1}')"
+        CURLINE="$( wc -l < $DAEMON_LOG )"
         kill -s USR1 "$(pidofproc $DAEMON)"
         sleep 1
         tail -n+$(($CURLINE + 1)) $DAEMON_LOG | grep STATS:
     elif [ "$LOG_SYSLOG" = 1 ] ; then
-        CURLINE="$(grep pgld: /var/log/syslog | wc -l | awk '{print$1}')"
+        CURLINE="$( grep pgld: /var/log/syslog | wc -l )"
         kill -s USR1 "$(pidofproc $DAEMON)"
         sleep 1
         grep pgld: /var/log/syslog | tail -n+$(($CURLINE + 1)) | grep STATS:

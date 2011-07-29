@@ -27,6 +27,7 @@ pgl 2.1.0~pre1 The GUI release!
       speeds up stop/restart
     - removed hardcoded pathname of start-stop-daemon
     - added configuration variable for pathname of SENDMAIL
+    - rewrote "wc -l" calls for a little more efficiency
   * added blockcontrol2pglcmd.sh configuration transition script
   * renamed VERBOSITY variable to VERBOSE
   * removed nexus23/ipfilterx, this list is only available on a subscription
