@@ -285,6 +285,23 @@ QStringList AddExceptionDialog::getParams(const QString& text)
 
 bool AddExceptionDialog::isPort(QString & p)
 {
+    if ( p.contains(":") )
+    {
+        QStringList ports = p.split(":");
+        
+        qDebug() << ports;
+        
+        if ( ports.size() > 2 )
+            return false;
+        
+        foreach(QString port, ports)
+            if ( port != QString::number(port.toInt()) )
+                return false;
+                
+        return true;
+    }
+    
+    
     if ( p == QString::number(p.toInt()) )
         return true;
 
