@@ -32,6 +32,15 @@ Peerguardian::Peerguardian( QWidget *parent ) :
     updateGUI();
 
     m_treeItemPressed = false;
+    
+    /*QStringList chains;
+    chains << QString("IN") << QString("OUT") << QString("fwd");
+    QStringList prots;
+    prots << "tcp" << "udp";
+    QStringList commands = m_Whitelist->insertPort("192.168.1.1", prots, chains, true);
+
+    foreach(QString command, commands)
+        qDebug() << command;*/
 
 	/*
 	//Restore the window's previous state
@@ -113,9 +122,7 @@ void Peerguardian::updateGUI()
     }
 
     getLists();
-    qDebug() << "before guiOptions->update()";
     guiOptions->update();
-    qDebug() << "after guiOptions->update()";
 }
 
 void Peerguardian::startTimers()
@@ -265,15 +272,15 @@ void Peerguardian::rootFinished()
     if ( QFile::exists("/tmp/pglcmd.conf") || QFile::exists("/tmp/blocklists.list") )
     {
         m_ApplyButton->setEnabled(true);
-        m_UndoButton->setEnabled(m_ApplyButton->isEnabled());
     }
     else
     {
         PglSettings::loadSettings();
         updateGUI();
         m_ApplyButton->setEnabled(false);
-        m_UndoButton->setEnabled(m_ApplyButton->isEnabled());
     }
+    
+    m_UndoButton->setEnabled(m_ApplyButton->isEnabled());
 }
 
 void Peerguardian::updateRadioButtonToggled(bool toggled)
@@ -285,31 +292,31 @@ void Peerguardian::updateRadioButtonToggled(bool toggled)
     
     if ( guiOptions->hasRadioButtonChanged(item) )
     {
-	item->setIcon(QIcon(WARNING_ICON));
-	item->setStatusTip(tr("You need to click the Apply button so the changes take effect"));
+        item->setIcon(QIcon(WARNING_ICON));
+        item->setStatusTip(tr("You need to click the Apply button so the changes take effect"));
     }
     else
     {    
-	item->setIcon(QIcon());
-	item->setStatusTip("");
+        item->setIcon(QIcon());
+        item->setStatusTip("");
     }
     
     if ( item->objectName() != m_AutoListUpdateDailyRadio->objectName() )
     {
-	m_AutoListUpdateDailyRadio->setIcon(QIcon());
-	m_AutoListUpdateDailyRadio->setStatusTip("");
+        m_AutoListUpdateDailyRadio->setIcon(QIcon());
+        m_AutoListUpdateDailyRadio->setStatusTip("");
     }
     	
     if ( item->objectName() != m_AutoListUpdateWeeklyRadio->objectName() )
     {
-	m_AutoListUpdateWeeklyRadio->setIcon(QIcon());
-	m_AutoListUpdateWeeklyRadio->setStatusTip("");
+        m_AutoListUpdateWeeklyRadio->setIcon(QIcon());
+        m_AutoListUpdateWeeklyRadio->setStatusTip("");
     }
 	
     if ( item->objectName() != m_AutoListUpdateMonthlyRadio->objectName() )
     {
-	m_AutoListUpdateMonthlyRadio->setIcon(QIcon());
-	m_AutoListUpdateMonthlyRadio->setStatusTip("");
+        m_AutoListUpdateMonthlyRadio->setIcon(QIcon());
+        m_AutoListUpdateMonthlyRadio->setStatusTip("");
     }
 	
     
@@ -378,6 +385,9 @@ void Peerguardian::applyChanges()
     bool updatePglcmdConf = guiOptions->hasToUpdatePglcmdConf();
     bool updateBlocklistsList = guiOptions->hasToUpdateBlocklistList();
     QString filepath;
+    
+
+
 
     //================ update /etc/pgl/pglcmd.conf ================/
 	if ( updatePglcmdConf )
@@ -444,7 +454,41 @@ void Peerguardian::applyChanges()
 
     m_Root->moveFiles(filesToMove);
 
+
+    //apply new changes directly in iptables
+    addNewWhitelistItemsToIptables();
+    
 }
+
+void Peerguardian::addNewWhitelistItemsToIptables()
+{
+    QList<QTreeWidgetItem*> items = getTreeItems(m_WhitelistTreeWidget);
+    QList<QStringList> commands;
+    QStringList values, connections, protocols;
+    
+    foreach ( QTreeWidgetItem * item, items )
+    {
+        //if it has a warning icon, it means it has not been added yet.
+        if ( ! item->icon(0).isNull() )
+        {
+            values << item->text(0);
+            connections << item->text(1);
+            protocols << item->text(2);
+        }
+    }
+    
+    //foreach(QString cmd, m_Whitelist->getCommands(values, connections, protocols, true))
+     //   qDebug() << cmd;
+    m_Root->executeCommands(m_Whitelist->getCommands(values, connections, protocols, true));
+}
+
+
+/*void Peerguardian::allowIp(const QString& ip, const QStringList& chains )
+{
+
+    m_Root->execute(commands)
+    
+}*/
 
 QList<QTreeWidgetItem*> Peerguardian::getTreeItems(QTreeWidget *tree, int checkState)
 {
@@ -911,3 +955,4 @@ void Peerguardian::undoGuiOptions()
         m_ApplyButton->setEnabled(false);
     }
 }
+
