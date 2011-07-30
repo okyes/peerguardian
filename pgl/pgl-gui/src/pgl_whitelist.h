@@ -135,6 +135,10 @@ class PglWhitelist
         void updateSettings();
         QString getWhitelistFile(){ return m_WhitelistFile; };
         QString getProtocol(QString& key);
+        QString translateConnection(const QString&);
+        QStringList getDirections(const QString& chain);
+        QStringList getCommands(QStringList items, QStringList connections, QStringList protocols, bool allow);
+        
 };
 
 #endif

@@ -298,3 +298,111 @@ QStringList PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
     return fileData;
 }
 
+QString PglWhitelist::translateConnection(const QString& conn_type)
+{
+
+    QString conn(conn_type.toUpper());
+    
+    if ( conn == "INCOMING")
+        return "IN";
+    else if ( conn == "OUTGOING" )
+        return "OUT";
+    else if ( conn == "FORWARD" )
+        return "FWD";
+    
+    return conn;
+
+}
+
+QStringList PglWhitelist::getDirections(const QString& chain)
+{
+    QStringList directions;
+    
+    if ( chain == "IN" )
+        directions << QString("--source");
+    else if ( chain == "OUT")
+        directions << QString("--destination");
+    else if ( chain == "FWD" )
+        directions << QString("--source") << QString("--destination");
+        
+    return directions;
+
+}
+
+QStringList PglWhitelist::getCommands( QStringList items, QStringList connections, QStringList protocols, bool allow)
+{
+
+    QStringList commands;
+    QString option;
+    QString command_type("");
+    QString command;
+    QString chain, item, connection, protocol;
+    QStringList directions;
+    bool ip;
+    
+    
+    for (int i=0; i < items.size(); i++ )
+    {
+        item = items[i];
+        connection = connections[i];
+        protocol = protocols[i];
+        
+        
+        if ( isValidIp(item) )
+        {
+            command_type = "iptables $OPTION $IPTABLES_$CHAIN $FROM $IP -j $IPTABLES_TARGET_WHITELISTING";
+            ip = true;
+        }
+        else
+        {
+            command_type = "iptables $OPTION $IPTABLES_$CHAIN -p $PROT --dport $PORT -j $IPTABLES_TARGET_WHITELISTING";
+            ip = false;
+        }
+        
+        if ( allow )
+            option = "-I";
+        else
+            option = "-D";
+        
+        //convert incoming to in, outgoing to out, etc
+        chain = translateConnection(connection);
+        
+        //FWD needs --source and --destination
+        if ( ip )
+            directions = getDirections(chain);
+        else
+        {
+            protocol = protocol.toLower();
+            if ( protocol != "tcp" && protocol != "udp")
+                continue;
+        }
+        
+        
+        if ( ip )
+        {      
+            foreach( QString direction, directions )
+            {
+                command = QString(command_type);
+                command.replace(QString("$OPTION"), option);
+                command.replace(QString("$CHAIN"), chain);
+                command.replace(QString("$FROM"), direction);
+                command.replace(QString("$IP "), item + " ");
+            }
+        }
+        else
+        {
+            command = QString(command_type);
+            command.replace(QString("$OPTION"), option);
+            command.replace(QString("$CHAIN"), chain);
+            command.replace(QString("$PROT"), protocol);
+            command.replace(QString("$PORT"), item);
+        }
+        
+        commands << command;
+    }
+
+    
+    return commands;
+        
+}
+
