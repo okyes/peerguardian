@@ -126,7 +126,7 @@ void PglSettings::loadSettings()
 
     }
 
-    foreach(QString key, variables.keys() )
-        qDebug() << key << ": " << variables[key];
+    //foreach(QString key, variables.keys() )
+    //    qDebug() << key << ": " << variables[key];
 
 }
