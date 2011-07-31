@@ -34,6 +34,7 @@ Peerguardian::Peerguardian( QWidget *parent ) :
 
     m_treeItemPressed = false;
     
+    
     /*QStringList chains;
     chains << QString("IN") << QString("OUT") << QString("fwd");
     QStringList prots;
@@ -390,6 +391,8 @@ void Peerguardian::applyChanges()
     QString filepath;
     
 
+    //apply new changes directly in iptables
+    addNewWhitelistItemsToIptables();
 
 
     //================ update /etc/pgl/pglcmd.conf ================/
@@ -458,8 +461,6 @@ void Peerguardian::applyChanges()
     m_Root->moveFiles(filesToMove);
 
 
-    //apply new changes directly in iptables
-    addNewWhitelistItemsToIptables();
     
 }
 
