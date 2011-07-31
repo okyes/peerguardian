@@ -137,7 +137,7 @@ class PglWhitelist
         QString getProtocol(QString& key);
         QString translateConnection(const QString&);
         QStringList getDirections(const QString& chain);
-        QStringList getCommands(QStringList items, QStringList connections, QStringList protocols, bool allow);
+        QStringList getCommands(QStringList items, QStringList connections, QStringList protocols, QList<bool> allows);
         
 };
 

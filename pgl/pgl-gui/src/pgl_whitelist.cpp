@@ -329,7 +329,7 @@ QStringList PglWhitelist::getDirections(const QString& chain)
 
 }
 
-QStringList PglWhitelist::getCommands( QStringList items, QStringList connections, QStringList protocols, bool allow)
+QStringList PglWhitelist::getCommands( QStringList items, QStringList connections, QStringList protocols, QList<bool> allows)
 {
 
     QStringList commands;
@@ -360,7 +360,7 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
             ip = false;
         }
         
-        if ( allow )
+        if ( allows[i] )
             option = "-I";
         else
             option = "-D";
