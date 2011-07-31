@@ -71,12 +71,14 @@ class ProcessT : public QThread {
 
         void operator=(const ProcessT& p){ *this = p;}
         
+        void executeCommand(const QString command , const QProcess::ProcessChannelMode &mode );
         void executeCommands(const QStringList commands , const QProcess::ProcessChannelMode &mode );
         void execute(const QStringList command, const QProcess::ProcessChannelMode &mode );
         
-        //for backwards compatibility with the Mobloquer code
+        //for backwards compatibility with the old Mobloquer code
         void execute( const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels );
-              
+        bool allFinished() { return m_Commands.isEmpty() && (! this->isRunning()); }
+            
 	signals:
 		/**
 		 * Emitted when a command has finished running.
@@ -88,6 +90,7 @@ class ProcessT : public QThread {
 	private:
 		QString m_Command;
         QList<QStringList> m_commands;
+        QStringList m_Commands;
 		QStringList m_Args;
 		QProcess::ProcessChannelMode m_ChanMode;
 		QString m_Output;
