@@ -392,7 +392,7 @@ void Peerguardian::applyChanges()
     
 
     //apply new changes directly in iptables
-    addNewWhitelistItemsToIptables();
+    updateWhitelistItemsInIptables();
 
 
     //================ update /etc/pgl/pglcmd.conf ================/
@@ -464,10 +464,11 @@ void Peerguardian::applyChanges()
     
 }
 
-void Peerguardian::addNewWhitelistItemsToIptables()
+void Peerguardian::updateWhitelistItemsInIptables()
 {
     QList<QTreeWidgetItem*> items = getTreeItems(m_WhitelistTreeWidget);
     QStringList values, connections, protocols;
+    QList<bool> allows;
     
     foreach ( QTreeWidgetItem * item, items )
     {
@@ -477,10 +478,16 @@ void Peerguardian::addNewWhitelistItemsToIptables()
             values << item->text(0);
             connections << item->text(1);
             protocols << item->text(2);
+            
+            if ( item->checkState(0) == Qt::Checked )
+                allows << true;
+            else
+                allows << false;
         }
     }
     
-     QStringList commands = m_Whitelist->getCommands(values, connections, protocols, true);
+     QStringList commands = m_Whitelist->getCommands(values, connections, protocols, allows);
+     
      if ( ! commands.isEmpty() )
         m_Root->executeCommands(commands);
 }

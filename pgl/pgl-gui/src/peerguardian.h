@@ -205,7 +205,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void onTrayIconClicked(QSystemTrayIcon::ActivationReason);
         void checkboxChanged(bool);
         void undoGuiOptions();
-        void addNewWhitelistItemsToIptables();
+        void updateWhitelistItemsInIptables();
 
     protected:
 	void closeEvent ( QCloseEvent * event );
