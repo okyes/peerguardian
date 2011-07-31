@@ -146,8 +146,11 @@ NICE_LEVEL="5"
 # WGET_OPTS="http_proxy=URL wget -q -t 5 -T 120 -w 5 --user-agent=${CMD_NAME}/${VERSION}"
 WGET_OPTS="wget -q -t 5 -T 120 -w 5 --user-agent=${CMD_NAME}/${VERSION}"
 
-# Before updating the blocklists check if this host is reachable
-TESTHOST="iblocklist.com"
+# Try to download this site before blocklist updates.
+# If this fails, pglcmd assumes that there is no network available, and thus
+# aborts the update. The default configured site is also used to determine the
+# user friendly blocklist names for iblocklist.com URLs.
+TESTHOST="http://www.iblocklist.com/lists.xml"
 
 ################## Settings for the iptables firewall rules ###################
 

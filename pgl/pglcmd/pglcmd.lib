@@ -774,16 +774,22 @@ test_root () {
 ################################################################################
 # Functions
 
-# Function to test if there is an internet connection (currently: if testhost is reachable)
+# Try to download TESTHOST before blocklist updates.
+# If this fails, pglcmd assumes that there is no network available, and thus
+# aborts the update. The default configured site is also used to determine the
+# user friendly blocklist names for iblocklist.com URLs.
 test_net () {
     test_external wget || {
         log_failure_msg "Error $E_XEXTERNAL: wget not installed."
         exit $E_XEXTERNAL
         }
-    $WGET_OPTS -Q 1 -O /dev/null $TESTHOST    # Don't quote WGET_OPTS!
+    $WGET_OPTS -O "${BLOCKLISTS_DIR}/lists.xml~" $TESTHOST    # Don't quote WGET_OPTS!
     if [ "$?" -ne 0 ] ; then
         log_failure_msg "Error $E_NETWORK_DOWN: No connection to $TESTHOST. Aborting!"
         exit $E_NETWORK_DOWN
+    fi
+    if [ "$( wc -l < ${BLOCKLISTS_DIR}/lists.xml~ )" -gt 0 ] ; then
+        mv ${BLOCKLISTS_DIR}/lists.xml~ ${BLOCKLISTS_DIR}/lists.xml
     fi
 }
 
@@ -1762,183 +1768,41 @@ LIST_URL2LIST_NAME () {
 
     # Translate LIST_URL to human readable/debconf LIST_NAME.
     # Several LIST_URL may resolve to the same LIST_NAME, if alternative URLs are known for the same list.
-    case "$LIST_URL" in
-        list.iblocklist.com/lists/bluetack/level-1 | \
-        list.iblocklist.com/?list=bt_level1 | \
-        www.bluetack.co.uk/config/level1.gz)
-            LIST_NAME="Bluetack_level1"
-            ;;
-        list.iblocklist.com/lists/bluetack/level-2 | \
-        list.iblocklist.com/?list=bt_level2 | \
-        www.bluetack.co.uk/config/level2.gz)
-            LIST_NAME="Bluetack_level2"
-            ;;
-        list.iblocklist.com/lists/bluetack/level-3 | \
-        list.iblocklist.com/?list=bt_level3 | \
-        www.bluetack.co.uk/config/level3.gz)
-            LIST_NAME="Bluetack_level3"
-            ;;
-        list.iblocklist.com/lists/bluetack/edu | \
-        list.iblocklist.com/?list=bt_edu | \
-        www.bluetack.co.uk/config/edu.gz)
-            LIST_NAME="Bluetack_edu"
-            ;;
-        list.iblocklist.com/lists/bluetack/ads-trackers-and-bad-pr0n | \
-        list.iblocklist.com/?list=bt_ads | \
-        www.bluetack.co.uk/config/ads-trackers-and-bad-pr0n.gz)
-            LIST_NAME="Bluetack_ads"
-            ;;
-        list.iblocklist.com/lists/bluetack/bogon | \
-        list.iblocklist.com/?list=bt_bogon | \
-        www.bluetack.co.uk/config/bogon.gz)
-            LIST_NAME="Bluetack_bogon"
-            ;;
-        list.iblocklist.com/lists/bluetack/spyware | \
-        list.iblocklist.com/?list=bt_spyware | \
-        www.bluetack.co.uk/config/spyware.gz)
-            LIST_NAME="Bluetack_spyware"
-            ;;
-        list.iblocklist.com/lists/bluetack/spider | \
-        list.iblocklist.com/?list=bt_spider | \
-        www.bluetack.co.uk/config/spider.gz)
-            LIST_NAME="Bluetack_spider"
-            ;;
-        list.iblocklist.com/lists/bluetack/microsoft | \
-        list.iblocklist.com/?list=bt_microsoft | \
-        www.bluetack.co.uk/config/Microsoft.gz)
-            LIST_NAME="Bluetack_Microsoft"
-            ;;
-        list.iblocklist.com/lists/bluetack/proxy | \
-        list.iblocklist.com/?list=bt_proxy | \
-        www.bluetack.co.uk/config/proxy.gz)
-            LIST_NAME="Bluetack_proxy"
-            ;;
-        list.iblocklist.com/lists/bluetack/hijacked | \
-        list.iblocklist.com/?list=bt_hijacked | \
-        www.bluetack.co.uk/config/hijacked.gz)
-            LIST_NAME="Bluetack_hijacked"
-            ;;
-        # Bluetack badpeers (previously known as templist)
-        list.iblocklist.com/lists/bluetack/bad-peers | \
-        list.iblocklist.com/?list=bt_templist | \
-        www.bluetack.co.uk/config/badpeers.gz)
-            LIST_NAME="Bluetack_badpeers"
-            ;;
-        list.iblocklist.com/lists/bluetack/range-test | \
-        list.iblocklist.com/?list=bt_rangetest | \
-        www.bluetack.co.uk/config/rangetest.gz)
-            LIST_NAME="Bluetack_rangetest"
-            ;;
-        list.iblocklist.com/lists/bluetack/dshield | \
-        list.iblocklist.com/?list=bt_dshield | \
-        www.bluetack.co.uk/config/dshield.gz)
-            LIST_NAME="Bluetack_dshield"
-            ;;
-        list.iblocklist.com/lists/tbg/primary-threats | \
-        list.iblocklist.com/?list=ijfqtofzixtwayqovmxn | \
-        tbg.iblocklist.com/Lists/PrimaryThreats.zip)
-            LIST_NAME="TBG_Primary_Threats"
-            ;;
-        list.iblocklist.com/lists/tbg/general-corporate-ranges | \
-        list.iblocklist.com/?list=ecqbsykllnadihkdirsh | \
-        tbg.iblocklist.com/Lists/GeneralCorporateRanges.zip)
-            LIST_NAME="TBG_General_Corporate_Ranges"
-            ;;
-        list.iblocklist.com/lists/tbg/business-isps | \
-        list.iblocklist.com/?list=jcjfaxgyyshvdbceroxf | \
-        tbg.iblocklist.com/Lists/BusinessISPs.zip)
-            LIST_NAME="TBG_Business_ISPs"
-            ;;
-        list.iblocklist.com/lists/tbg/educational-institutions | \
-        list.iblocklist.com/?list=lljggjrpmefcwqknpalp | \
-        tbg.iblocklist.com/Lists/Educational-Institutions.zip)
-            LIST_NAME="TBG_Educational_Institutions"
-            ;;
-        list.iblocklist.com/lists/tbg/search-engines | \
-        list.iblocklist.com/?list=pfefqteoxlfzopecdtyw | \
-        tbg.iblocklist.com/Lists/SearchEngines.zip)
-            LIST_NAME="TBG_Search_Engines"
-            ;;
-        list.iblocklist.com/lists/tbg/hijacked | \
-        list.iblocklist.com/?list=tbnuqfclfkemqivekikv | \
-        tbg.iblocklist.com/Lists/Hijacked.zip)
-            LIST_NAME="TBG_Hijacked"
-            ;;
-        list.iblocklist.com/lists/tbg/bogon | \
-        list.iblocklist.com/?list=ewqglwibdgjttwttrinl | \
-        tbg.iblocklist.com/Lists/Bogon.zip)
-            LIST_NAME="TBG_Bogon"
-            ;;
-        list.iblocklist.com/lists/atma/atma | \
-        http://list.iblocklist.com/?list=tzmtqbbsgbtfxainogvm)
-            LIST_NAME="atma_atma"
-            ;;
-        list.iblocklist.com/lists/bluetack/for-non-lan-computers | \
-        list.iblocklist.com/?list=jhaoawihmfxgnvmaqffp)
-            LIST_NAME="Bluetack_for-non-lan-computers"
-            ;;
-        list.iblocklist.com/lists/bluetack/forum-spam | \
-        list.iblocklist.com/?list=ficutxiwawokxlcyoeye)
-            LIST_NAME="Bluetack_forum-spam"
-            ;;
-        list.iblocklist.com/lists/bluetack/iana-multicast | \
-        list.iblocklist.com/?list=pwqnlynprfgtjbgqoizj)
-            LIST_NAME="Bluetack_iana-multicast"
-            ;;
-        list.iblocklist.com/lists/bluetack/iana-private | \
-        list.iblocklist.com/?list=cslpybexmxyuacbyuvib)
-            LIST_NAME="Bluetack_iana-private"
-            ;;
-        list.iblocklist.com/lists/bluetack/iana-reserved | \
-        list.iblocklist.com/?list=bcoepfyewziejvcqyhqo)
-            LIST_NAME="Bluetack_iana-reserved"
-            ;;
-        list.iblocklist.com/lists/bluetack/web-exploit | \
-        list.iblocklist.com/?list=ghlzqtqxnzctvvajwwag)
-            LIST_NAME="Bluetack_web-exploit"
-            ;;
-        list.iblocklist.com/lists/bluetack/webexploit-forumspam | \
-        list.iblocklist.com/?list=ficutxiwawokxlcyoeye)
-            LIST_NAME="Bluetack_webexploit-forumspam"
-            ;;
-        list.iblocklist.com/lists/cidr-report/bogon | \
-        list.iblocklist.com/?list=cr_bogon)
-            LIST_NAME="cidr-report_bogon"
-            ;;
-        list.iblocklist.com/lists/dchubad/faker | \
-        list.iblocklist.com/?list=dcha_faker)
-            LIST_NAME="dchubad_faker"
-            ;;
-        list.iblocklist.com/lists/dchubad/hacker | \
-        list.iblocklist.com/?list=dcha_hacker)
-            LIST_NAME="dchubad_hacker"
-            ;;
-        list.iblocklist.com/lists/dchubad/pedophiles | \
-        list.iblocklist.com/?list=dcha_pedophiles)
-            LIST_NAME="dchubad_pedophiles"
-            ;;
-        list.iblocklist.com/lists/dchubad/spammer | \
-        list.iblocklist.com/?list=dcha_spammer)
-            LIST_NAME="dchubad_spammer"
-            ;;
-        list.iblocklist.com/lists/nexus23/ipfilterx | \
-        list.iblocklist.com/?list=nxs23_ipfilterx)
-            LIST_NAME="nexus23_ipfilterx"
-            ;;
-        list.iblocklist.com/lists/peerblock/rapidshare | \
-        list.iblocklist.com/?list=zfucwtjkfwkalytktyiw)
-            LIST_NAME="peerblock_rapidshare"
-            ;;
-        list.iblocklist.com/lists/spamhaus/drop | \
-        list.iblocklist.com/?list=sh_drop)
-            LIST_NAME="spamhaus_drop"
-            ;;
-        *)
-            # Otherwise, use LIST_URL. For file/directory operations problematic letters have to be replaced!
-            LIST_NAME="$LIST_URL"
-            ;;
+    case $LIST_URL in
+    list.iblocklist.com/?list=*)
+        # Strip iblocklist.com prefix and extensions like "&fileformat=p2p&archiveformat=gz"
+        LIST_URL_TRUNK="$( echo $LIST_URL | sed "s|list.iblocklist.com/?list=||;s|\&.*||" )"
+        # Grep LIST_URL_TRUNK drom lists.xml. If this file is missing, try to download it.
+        if ( [ -f ${BLOCKLISTS_DIR}/lists.xml ] || 
+        ( test_net && [ -f ${BLOCKLISTS_DIR}/lists.xml ] )
+        ) &&
+        grep -q "<list>${LIST_URL_TRUNK}</list>" ${BLOCKLISTS_DIR}/lists.xml ; then
+            LIST_AUTHOR="$( grep -A 2 "<list>${LIST_URL_TRUNK}</list>" ${BLOCKLISTS_DIR}/lists.xml | \
+                grep -o "<author>.*</author>" | \
+                sed "s|<author>\(.*\)</author>|\1|" )"
+            LIST_NAME1="$( grep -A 2 "<list>${LIST_URL_TRUNK}</list>" ${BLOCKLISTS_DIR}/lists.xml | \
+                grep -o "<name>.*</name>" | \
+                sed "s|<name>\(.*\)</name>|\1|" )"
+        else
+            LIST_AUTHOR="unknown_iblocklist"
+            LIST_NAME1="$LIST_URL_TRUNK"
+        fi
+        LIST_NAME=${LIST_AUTHOR}_${LIST_NAME1}
+        ;;
+    list.iblocklist.com/lists/*/*)
+        # Strip iblocklist.com prefix and extensions like "&fileformat=p2p&archiveformat=gz"
+        LIST_URL_TRUNK="$( echo $LIST_URL | sed "s|list.iblocklist.com/lists/||;s|\&.*||" )"
+        LIST_AUTHOR="$( echo $LIST_URL_TRUNK  | sed "s|\(.*\)/\(.*\)|\1|" )"
+        LIST_NAME1="$( echo $LIST_URL_TRUNK | sed "s|\(.*\)/\(.*\)|\2|" )"
+        LIST_NAME=${LIST_AUTHOR}_${LIST_NAME1}
+        ;;
+    *)
+        # Otherwise, use LIST_URL.
+        LIST_NAME="$LIST_URL"
+        ;;
     esac
-    LIST_NAME_FIX="$(echo $LIST_NAME | sed "s|.*://|_|" | sed "s|/|_|g" | sed "s/?/_/g" | sed "s/ /_/g")"
+    # Replace problematic letters for file/directory operations, make everything lowercase
+    LIST_NAME_FIX="$( echo $LIST_NAME | sed "s|.*://|_|;s|/|_|g;s/?/_/g;s/ /_/g;s/\(.\)/\L\1/g" )"
 }
 
 # Get blocklist.

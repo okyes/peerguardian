@@ -39,6 +39,8 @@ pgl 2.1.0~pre1 The GUI release!
     - only execute as root
     - shortened sleep time between signal and logfile parsing from 5 to 1
       seconds
+  * use http://www.iblocklist.com/lists.xml to determine the user friendly
+    blocklist names for iblocklist.com URLs instead of hardcoding them.
 
 -- jre <jre-phoenix@users.sourceforge.net>  Wed, 20 Apr 2011 14:13:36 +0200
 
