@@ -23,8 +23,6 @@ pgld:
 
 
 
-
-
 pglcmd:
 
   - nice: on CentOS it is required to use e.g. "+5". Find solutions suiting all
@@ -71,10 +69,9 @@ pglcmd:
     --
     peerguardian-devel@lists.sourceforge.net by dogg@retroject.net - 2010-04-20
 
-  - on "stop" remove kernel modules that were inserted by blockcontrol. (see
-    dino's synology packaging
-    http://forums.phoenixlabs.org/showpost.php?p=128371&postcount=20). Probably
-    disable this per default, to avoid problems.
+  - on "stop" remove kernel modules that were inserted by pglcmd. (see dino's
+    synology packaging http://forums.phoenixlabs.org/showpost.php?p=128371&postc
+    ount=20). Probably disable this per default, to avoid problems.
 
   - fix debconf to use debian/config again.
     This stuff is currently in postinst, because otherwise debconf doesn't work
