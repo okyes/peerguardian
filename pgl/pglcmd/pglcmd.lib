@@ -1461,7 +1461,7 @@ do_start () {
                 [ -f "$MD5SUM_FILE" ] && set_md5sum && [ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ] ||
                 build_blocklist
             # TRANSITION 2011-05-28: remove old master blocklists:
-            for LIST in guarding.p2p.backup guarding.p2p ${CMD_NAME}_premerged_blocklist.p2p~ ${CMD_NAME}_premerged_blocklist.p2p ; do
+            for LIST in guarding.p2p.backup guarding.p2p ${CMD_NAME}_premerged_blocklist.p2p~ ${CMD_NAME}_premerged_blocklist.p2p pglcmd_blocklist.p2p~ pglcmd_blocklist.p2p; do
                 [ -f "${MASTER_BLOCKLIST_DIR}/${LIST}" ] &&
                 mv "${MASTER_BLOCKLIST_DIR}/${LIST}" ${MASTER_BLOCKLIST}~
             done
