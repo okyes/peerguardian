@@ -91,6 +91,7 @@ void SuperUser::executeCommands(QStringList commands )
     QProcess::ProcessChannelMode mode = QProcess::MergedChannels;
     bool executing = false;
 
+
 	if ( m_SudoCmd.isEmpty() )
     {
 		qCritical() << Q_FUNC_INFO << "Could not use either kdesu or gksu to execute the command requested.\nIf neither of those executables exist in /usr/bin/ you can set the path of the one you prefer in pgl-gui's configuration file, usually found in ~/.config/pgl/pgl-gui.conf.\nThe path can be changed by changing the value of the super_user key, or creating a new one if it doesn't already exist.";
@@ -101,13 +102,18 @@ void SuperUser::executeCommands(QStringList commands )
 	if ( ! hasPermissions("/etc") )//If the program is not run by root, use kdesu or gksu as first argument
     {
         for (int i=0; i < commands.size(); i++)
-            commands[i].insert(0, m_SudoCmd + " ");
+        {
+            commands[i].insert(0, m_SudoCmd + " \"");
+            commands[i].append("\"");
+        }
 	}
+    
+    qDebug() << commands;
     
     qDebug() << "start thread";
     foreach(ProcessT *t, m_threads)
     {
-        if ( t->isFinished() )
+        if ( t->allFinished() )
         {
             t->executeCommands(commands, mode);
             executing = true;
