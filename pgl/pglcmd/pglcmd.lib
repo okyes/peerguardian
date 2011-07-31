@@ -1764,7 +1764,7 @@ LIST_URL2LIST_NAME () {
     # Since IFS now is standard IFS, separate words (not the complete lines from
     # blocklists.list) are used for LIST.
     # Assuming remote blocklists (supported through wget) for all blocklists in blocklists.list:
-    LIST_URL="$(echo $LIST | sed -r "s|http://||" | sed -r "s|https://||" | sed -r "s|ftp://||")"
+    LIST_URL="$( echo $LIST | sed -r "s|http://||;s|https://||;s|ftp://||" )"
 
     # Translate LIST_URL to human readable/debconf LIST_NAME.
     # Several LIST_URL may resolve to the same LIST_NAME, if alternative URLs are known for the same list.
