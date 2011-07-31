@@ -54,9 +54,14 @@ void ProcessT::run() {
 	m_Output = proc.readAll().trimmed();
 
     qDebug() << m_Output;
-
+        
 	emit commandOutput( m_Output );
-	qDebug() << Q_FUNC_INFO << "Command execution finished.";	
+	qDebug() << Q_FUNC_INFO << "Command execution finished.";
+    
+    if ( m_commands.isEmpty() )
+        emit allCmdsFinished();
+    else
+        execute(m_commands.takeFirst(), m_ChanMode);
 
 }
 
@@ -76,11 +81,34 @@ void ProcessT::setCommand( const QString &name, const QStringList &args, const Q
 void ProcessT::execute( const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode ) {
 
 	setCommand( name, args, mode );
+    
+	if ( ! isRunning() )
+		start();
+	else
+		qWarning() << Q_FUNC_INFO << "Thread already running, doing nothing.";
+
+}
+
+void ProcessT::execute(const QStringList command, const QProcess::ProcessChannelMode &mode ) {
+
+    QString name = command.first();
+    QStringList args = command.mid(1);
+
+	setCommand( name, args, mode );
 
 	if ( ! isRunning() )
 		start();
 	else
 		qWarning() << Q_FUNC_INFO << "Thread already running, doing nothing.";
+
+}
+
+void ProcessT::executeCommands(const QStringList commands , const QProcess::ProcessChannelMode &mode ) {
+
+    foreach(QString command, commands)
+        m_commands << command.split(" ", QString::SkipEmptyParts);
+    
+    execute(m_commands.takeFirst(), mode);
 
 }
 

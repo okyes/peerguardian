@@ -66,28 +66,31 @@ class ProcessT : public QThread {
 		 * @param mode The process channel modes of the command which will be executed.
 		 */
 		void setCommand( const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels );
-		/**
-		 * Execute the given command. Calls setCommand() first and then just starts the thread if it's not running.
-		 * @param name The name of the program.
-		 * @param args The command line arguments.
-		 * @param mode The process channel modes of the command which will be executed.
-		 */
-		void execute( const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels );
+
 
         void operator=(const ProcessT& p){ *this = p;}
-
+        
+        void executeCommands(const QStringList commands , const QProcess::ProcessChannelMode &mode );
+        void execute(const QStringList command, const QProcess::ProcessChannelMode &mode );
+        
+        //for backwards compatibility with the Mobloquer code
+        void execute( const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels );
+              
 	signals:
 		/**
 		 * Emitted when a command has finished running.
 		 * @param output The output of the command which was executed.
 		 */
 		void commandOutput( QString output );
+        void allCmdsFinished();
 		
 	private:
 		QString m_Command;
+        QList<QStringList> m_commands;
 		QStringList m_Args;
 		QProcess::ProcessChannelMode m_ChanMode;
 		QString m_Output;
+        QStringList commands;
 
 };
 
