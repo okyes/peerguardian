@@ -3,6 +3,7 @@
 #include <QMultiMap>
 #include <QHash>
 #include <QRegExp>
+#include <Action>
 
 #include "peerguardian.h"
 #include "file_transactions.h"
@@ -41,6 +42,8 @@ Peerguardian::Peerguardian( QWidget *parent ) :
 
     foreach(QString command, commands)
         qDebug() << command;*/
+        
+    //bt = new ActionButton(kickPB, "org.qt.policykit.examples.kick", this);
 
 	/*
 	//Restore the window's previous state
@@ -463,7 +466,6 @@ void Peerguardian::applyChanges()
 void Peerguardian::addNewWhitelistItemsToIptables()
 {
     QList<QTreeWidgetItem*> items = getTreeItems(m_WhitelistTreeWidget);
-    QList<QStringList> commands;
     QStringList values, connections, protocols;
     
     foreach ( QTreeWidgetItem * item, items )
@@ -477,9 +479,9 @@ void Peerguardian::addNewWhitelistItemsToIptables()
         }
     }
     
-    //foreach(QString cmd, m_Whitelist->getCommands(values, connections, protocols, true))
-     //   qDebug() << cmd;
-    m_Root->executeCommands(m_Whitelist->getCommands(values, connections, protocols, true));
+     QStringList commands = m_Whitelist->getCommands(values, connections, protocols, true);
+     if ( ! commands.isEmpty() )
+        m_Root->executeCommands(commands);
 }
 
 

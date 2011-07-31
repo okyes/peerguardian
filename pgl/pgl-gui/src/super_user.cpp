@@ -30,7 +30,6 @@ SuperUser::SuperUser( QObject *parent ):
     QObject(parent)
 {
     m_parent = parent;
-    connect(&m_timer, SIGNAL(timeout()), this, SLOT(executePendingCommands()));
 }
 
 SuperUser::SuperUser( QString& rootpath,  QObject *parent ):
@@ -38,7 +37,6 @@ SuperUser::SuperUser( QString& rootpath,  QObject *parent ):
 {
     setRootPath(rootpath, true);
     m_parent = parent;
-    connect(&m_timer, SIGNAL(timeout()), this, SLOT(executePendingCommands()));
 }
 
 SuperUser::~SuperUser() {
