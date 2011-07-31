@@ -339,6 +339,7 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
     QString chain, item, connection, protocol;
     QStringList directions;
     bool ip;
+    QString iptables_target_whitelisting = PglSettings::getStoredValue("IPTABLES_TARGET_WHITELISTING");
     
     
     for (int i=0; i < items.size(); i++ )
@@ -350,12 +351,12 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
         
         if ( isValidIp(item) )
         {
-            command_type = "iptables $OPTION $IPTABLES_$CHAIN $FROM $IP -j $IPTABLES_TARGET_WHITELISTING";
+            command_type = "iptables $OPTION $IPTABLES_CHAIN $FROM $IP -j " + iptables_target_whitelisting;
             ip = true;
         }
         else
         {
-            command_type = "iptables $OPTION $IPTABLES_$CHAIN -p $PROT --dport $PORT -j $IPTABLES_TARGET_WHITELISTING";
+            command_type = "iptables $OPTION $IPTABLES_CHAIN -p $PROT --dport $PORT -j " + iptables_target_whitelisting;
             ip = false;
         }
         
@@ -366,6 +367,7 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
         
         //convert incoming to in, outgoing to out, etc
         chain = translateConnection(connection);
+        chain = PglSettings::getStoredValue("IPTABLES_" + chain);
         
         //FWD needs --source and --destination
         if ( ip )
@@ -384,7 +386,7 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
             {
                 command = QString(command_type);
                 command.replace(QString("$OPTION"), option);
-                command.replace(QString("$CHAIN"), chain);
+                command.replace(QString("$IPTABLES_CHAIN"), chain);
                 command.replace(QString("$FROM"), direction);
                 command.replace(QString("$IP "), item + " ");
             }
@@ -393,7 +395,7 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
         {
             command = QString(command_type);
             command.replace(QString("$OPTION"), option);
-            command.replace(QString("$CHAIN"), chain);
+            command.replace(QString("$IPTABLES_CHAIN"), chain);
             command.replace(QString("$PROT"), protocol);
             command.replace(QString("$PORT"), item);
         }
