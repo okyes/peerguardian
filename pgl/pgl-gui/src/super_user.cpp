@@ -30,6 +30,7 @@ SuperUser::SuperUser( QObject *parent ):
     QObject(parent)
 {
     m_parent = parent;
+    connect(&m_timer, SIGNAL(timeout()), this, SLOT(executePendingCommands()));
 }
 
 SuperUser::SuperUser( QString& rootpath,  QObject *parent ):
@@ -37,6 +38,7 @@ SuperUser::SuperUser( QString& rootpath,  QObject *parent ):
 {
     setRootPath(rootpath, true);
     m_parent = parent;
+    connect(&m_timer, SIGNAL(timeout()), this, SLOT(executePendingCommands()));
 }
 
 SuperUser::~SuperUser() {
@@ -77,7 +79,6 @@ void SuperUser::setFilePath( const QString &path ) {
 			m_SudoCmd = path;
 		else
 			qCritical() << Q_FUNC_INFO << "Could not set sudo front-end path to:" << path << "as the file does not exist.";
-
 	}
 	else
 		qCritical() << Q_FUNC_INFO <<  "Could not change sudo front-end's path. Empty path given.";
@@ -86,7 +87,11 @@ void SuperUser::setFilePath( const QString &path ) {
 	
 
 
-void SuperUser::execute( const QStringList &command ) {
+void SuperUser::executeCommands(QStringList commands ) 
+{
+    
+    QProcess::ProcessChannelMode mode = QProcess::MergedChannels;
+    bool executing = false;
 
 	if ( m_SudoCmd.isEmpty() )
     {
@@ -94,24 +99,42 @@ void SuperUser::execute( const QStringList &command ) {
 		return;
 	}
 
-    QString firstCmd = m_SudoCmd;
-    QStringList newCommands = command;
 
-
-	if ( hasPermissions("/etc") )//If the program is run by root
+	if ( ! hasPermissions("/etc") )//If the program is not run by root, use kdesu or gksu as first argument
     {
-        if ( ! newCommands.isEmpty() )
-        {
-            firstCmd = newCommands.first();
-            newCommands.removeFirst();
-        }
+        for (int i=0; i < commands.size(); i++)
+            commands[i].insert(0, m_SudoCmd + " ");
 	}
+    
+    qDebug() << "start thread";
+    foreach(ProcessT *t, m_threads)
+    {
+        if ( t->isFinished() )
+        {
+            t->executeCommands(commands, mode);
+            executing = true;
+            break;
+        }
+    }
 
-	startThread( firstCmd, newCommands, QProcess::MergedChannels );
+    if ( ! executing )
+    {
+        ProcessT *t = new ProcessT(m_parent);
+        m_threads.push_back(t);
+        t->executeCommands(commands, mode);
+        connect(t, SIGNAL(allCmdsFinished()), this, SLOT(processFinished()));
+    }
 
 }
 
-void SuperUser::startThread(const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode )
+void SuperUser::execute(const QStringList& command ) 
+{
+    QStringList commands;
+    commands << command.join(" ");
+    executeCommands(commands);
+}
+
+/*void SuperUser::startThread(const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode )
 {
     //Although it could use several ProcessT instances at the same time,
     //the way it works now will only allow to have one ProcessT instance at a time,
@@ -135,32 +158,27 @@ void SuperUser::startThread(const QString &name, const QStringList &args, const 
         ProcessT *t = new ProcessT(m_parent);
         m_threads.push_back(t);
         t->execute(name, args, mode);
-        connect(t, SIGNAL(finished()), this, SLOT(processFinished()));
+        connect(t, SIGNAL(allCmdsFinished()), this, SLOT(processFinished()));
     }
 
 
-}
+}*/
 
 
 void SuperUser::processFinished()
 {
-    if ( ! m_filesToMove.isEmpty() )
-        moveFiles(m_filesToMove);
-    else
-        emit(finished());
+    emit(finished());
 }
 
 
-void SuperUser::moveFile( const QString &source, const QString &dest ) {
-
-	execute( QStringList() << "mv" << source << dest );
-
+void SuperUser::moveFile( const QString &source, const QString &dest ) 
+{
+	execute( QStringList() <<  "mv" << source << dest );
 }
 
-void SuperUser::copyFile( const QString &source, const QString &dest ) {
-
-	execute( QStringList() << "cp" << source << dest );
-
+void SuperUser::copyFile( const QString &source, const QString &dest ) 
+{
+	execute( QStringList() <<  "cp" << source << dest );
 }
 
 void SuperUser::removeFile( const QString &source ) {
@@ -172,17 +190,18 @@ void SuperUser::moveFiles( const QMap<QString, QString> files )
 {
     if ( ! files.isEmpty() )
     {
-        if ( m_filesToMove.isEmpty() )
-            m_filesToMove = files;
-
-        QString source = m_filesToMove.keys()[0];
-        QString dest =  m_filesToMove[source];
-        m_filesToMove.remove(source);
-
-        execute( QStringList() << "mv" << source << dest );
+        QStringList commands;
+        QString cmd;
+        foreach(QString key, files.keys())
+        {
+            cmd = QString("mv %1 %2").arg(key).arg(files[key]);
+            commands << cmd;
+        }
+        
+        executeCommands(commands);
     }
-
 }
+
 
 /*** Static methods ***/
 
