@@ -105,6 +105,10 @@ void ProcessT::execute(const QStringList command, const QProcess::ProcessChannel
 
 void ProcessT::executeCommands(const QStringList commands , const QProcess::ProcessChannelMode &mode ) {
 
+    if ( commands.isEmpty() )
+        return;
+
+    m_commands.clear();
     foreach(QString command, commands)
         m_commands << command.split(" ", QString::SkipEmptyParts);
     

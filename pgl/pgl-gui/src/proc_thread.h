@@ -29,6 +29,7 @@
 #include <QStringList>
 #include <QProcess>
 #include <QtDebug>
+#include <QList>
 
 
 /**
@@ -90,7 +91,6 @@ class ProcessT : public QThread {
 		QStringList m_Args;
 		QProcess::ProcessChannelMode m_ChanMode;
 		QString m_Output;
-        QStringList commands;
 
 };
 
