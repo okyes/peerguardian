@@ -3,7 +3,7 @@
 #include <QMultiMap>
 #include <QHash>
 #include <QRegExp>
-#include <Action>
+//#include <Action>
 
 #include "peerguardian.h"
 #include "file_transactions.h"
