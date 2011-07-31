@@ -2466,7 +2466,7 @@ search () {
     for LIST in $LISTS_URL ; do
         # This function depends on LIST:
         LIST_URL2LIST_NAME
-        BLOCKLIST="$BLOCKLISTS_DIR/$LIST_NAME_FIX/extracted/$LIST_NAME"
+        BLOCKLIST="$BLOCKLISTS_DIR/$LIST_NAME_FIX/extracted/$LIST_NAME_FIX"
         # Exit immediately with zero status if any match is found
         grep -qEi "$SEARCHPATTERN" "$BLOCKLIST" && {
             echo
