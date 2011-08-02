@@ -1,5 +1,23 @@
 #include "gui_options.h"
 
+GuiOptions::GuiOptions() 
+{ 
+    m_Window = NULL; 
+}
+
+GuiOptions::GuiOptions(Peerguardian * gui)
+{ 
+    m_Window = gui; 
+}
+
+GuiOptions::~GuiOptions(){ 
+    
+    deleteItems(m_Whitelist);
+    deleteItems(m_Blocklist);
+    qDebug() << "~GuiOptions()"; 
+    
+}
+
 bool GuiOptions::isChanged()
 {
 
@@ -106,20 +124,39 @@ void GuiOptions::updateStartAtBoot()
     startAtBoot = m_Window->getStartAtBootBox()->isChecked();
 }
 
-void GuiOptions::updateList(QTreeWidget * tree)
+void GuiOptions::deleteItems(QList<QTreeWidgetItem*> & list)
+{
+    foreach(QTreeWidgetItem * item, list)
+        if (item) delete item;
+    list.clear();
+}
+
+void GuiOptions::updateLists(QTreeWidget * tree)
 {
     QList<int> listState;
+    QList<QTreeWidgetItem*> items;
+    QTreeWidgetItem * item;
 
     for ( int i=0; i < tree->topLevelItemCount(); i++ )
     {
-        QTreeWidgetItem * item = tree->topLevelItem(i);
+        item = tree->topLevelItem(i);
+        QTreeWidgetItem * item2 = new QTreeWidgetItem(*item);
+        items << item2;
         listState.append(item->checkState(0));
     }
 
     if ( tree->objectName().contains("Blocklist", Qt::CaseInsensitive) )
+    {
         m_BlocklistState = listState;
+        deleteItems(m_Blocklist);
+        m_Blocklist = items;
+    }
     else
+    {
         m_WhitelistState = listState;
+        deleteItems(m_Whitelist);
+        m_Whitelist = items;
+    }
 
 }
 
@@ -127,8 +164,8 @@ void GuiOptions::update()
 {
     updateStartAtBoot();
     updateUpdateRadioBtn();
-    updateList(m_Window->getBlocklistTreeWidget());
-    updateList(m_Window->getWhitelistTreeWidget());
+    updateLists(m_Window->getBlocklistTreeWidget());
+    updateLists(m_Window->getWhitelistTreeWidget());
 }
 
 
@@ -193,7 +230,7 @@ Qt::CheckState GuiOptions::getState(int state)
     }
 }
 
-void GuiOptions::undoBlocklist()
+/*void GuiOptions::undoBlocklist()
 {
     //reset the blocklist and whitelist treewidgets
     QTreeWidget * tree = m_Window->getBlocklistTreeWidget();
@@ -211,15 +248,18 @@ void GuiOptions::undoBlocklist()
     {
         tree->takeTopLevelItem(i);
     }
-}
+}*/
 
-void GuiOptions::undoWhitelist()
+/*void GuiOptions::undoWhitelist()
 {
     //reset the blocklist and whitelist treewidgets
     QTreeWidget * tree = m_Window->getWhitelistTreeWidget();
     QTreeWidgetItem * item = NULL;
     
-    for(int i = 0; i < m_WhitelistState.size(); i++)
+    tree->clear();
+    tree = m_Whitelist;
+    
+    for(int i = 0; i < m_WhitelistState.size() && i < tree->topLevelItemCount(); i++)
     {
         item = tree->topLevelItem(i);
         item->setCheckState(0, getState(m_WhitelistState[i]));
@@ -229,10 +269,12 @@ void GuiOptions::undoWhitelist()
     //remove added whitelist items
     for(int i = m_WhitelistState.size(); i < tree->topLevelItemCount(); i++)
         tree->takeTopLevelItem(i);
-}
+}*/
 
 void GuiOptions::undo()
 {
+    QTreeWidget * tree;
+
     m_Window->getStartAtBootBox()->setChecked(startAtBoot);
     m_Window->getStartAtBootBox()->setIcon(QIcon());
     m_Window->getAutoListUpdateBox()->setChecked(updateBlocklistsAutomatically);
@@ -241,8 +283,22 @@ void GuiOptions::undo()
     getActiveUpdateRadioButton()->setIcon(QIcon());
     updateRadioBtn->setChecked(true);
 
-    undoBlocklist();
-    undoWhitelist();
-    
+    //undo whitelist
+    tree = m_Window->getWhitelistTreeWidget();
+    tree->clear();
+    foreach(QTreeWidgetItem *item, m_Whitelist)
+    {
+        QTreeWidgetItem * item2 = new QTreeWidgetItem(*item);
+        tree->addTopLevelItem(item2);
+    }
+      
+    //undo blocklists
+    tree = m_Window->getBlocklistTreeWidget();
+    tree->clear();
+    foreach(QTreeWidgetItem *item, m_Blocklist)
+    {
+        QTreeWidgetItem * item2 = new QTreeWidgetItem(*item);
+        tree->addTopLevelItem(item2);
+    }
 }
 

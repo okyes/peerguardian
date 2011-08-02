@@ -23,11 +23,13 @@ class GuiOptions
     bool updateBlocklistsAutomatically;
     QList<int> m_BlocklistState;
     QList<int> m_WhitelistState;
+    QList<QTreeWidgetItem*> m_Blocklist;
+    QList<QTreeWidgetItem*> m_Whitelist;
 
     public:
-        GuiOptions() { m_Window = NULL; }
-        GuiOptions(Peerguardian * gui) { m_Window = gui; }
-        ~GuiOptions(){ qDebug() << "~GuiOptions()"; }
+        GuiOptions();
+        GuiOptions(Peerguardian * gui);
+        ~GuiOptions();
         void addWindow(Peerguardian * gui) { m_Window = gui; }
         bool isChanged();
         bool isChanged(QTreeWidgetItem *);
@@ -37,14 +39,15 @@ class GuiOptions
         QRadioButton* getActiveUpdateRadioButton();
         QString getActiveUpdateRadioButtonName();
         bool listStateChanged(QTreeWidget * tree);
-        void updateList(QTreeWidget * tree);
+        void updateLists(QTreeWidget * tree);
         bool hasToUpdatePglcmdConf();
         bool hasToUpdateBlocklistList();
         bool hasCheckboxChanged(QCheckBox*);
         bool hasRadioButtonChanged(QRadioButton*);
         Qt::CheckState getState(int);
-        void undoBlocklist();
-        void undoWhitelist();
+        void deleteItems(QList<QTreeWidgetItem*>&);
+        /*void undoBlocklist();
+        void undoWhitelist();*/
         void undo();
         
 };
