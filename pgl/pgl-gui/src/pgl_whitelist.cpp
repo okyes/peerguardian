@@ -334,7 +334,7 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
     QString option;
     QString command_type("");
     QString command;
-    QString chain, item, connection, protocol;
+    QString chain, item, connection, protocol, conn;
     QStringList directions;
     bool ip;
     QString iptables_target_whitelisting = PglSettings::getStoredValue("IPTABLES_TARGET_WHITELISTING");
@@ -364,19 +364,18 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
             option = "-D";
         
         //convert incoming to in, outgoing to out, etc
-        chain = translateConnection(connection);
-        chain = PglSettings::getStoredValue("IPTABLES_" + chain);
+        conn = translateConnection(connection);
+        chain = PglSettings::getStoredValue("IPTABLES_" + conn);
         
         //FWD needs --source and --destination
         if ( ip )
-            directions = getDirections(chain);
+            directions = getDirections(conn);
         else
         {
             protocol = protocol.toLower();
             if ( protocol != "tcp" && protocol != "udp")
                 continue;
         }
-        
         
         if ( ip )
         {      
@@ -387,6 +386,7 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
                 command.replace(QString("$IPTABLES_CHAIN"), chain);
                 command.replace(QString("$FROM"), direction);
                 command.replace(QString("$IP "), item + " ");
+                commands << command;
             }
         }
         else
@@ -396,9 +396,10 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
             command.replace(QString("$IPTABLES_CHAIN"), chain);
             command.replace(QString("$PROT"), protocol);
             command.replace(QString("$PORT"), item);
+            commands << command;
         }
         
-        commands << command;
+        
     }
 
     
