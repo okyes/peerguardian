@@ -298,6 +298,7 @@ void Peerguardian::rootFinished()
     else
     {
         PglSettings::loadSettings();
+        m_Whitelist->updateSettings(); //update GUI settings' file
         updateGUI();
         m_ApplyButton->setEnabled(false);
     }
