@@ -293,8 +293,6 @@ QStringList PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
         info.clear();
     }
 
-    updateSettings();
-
     return fileData;
 }
 
