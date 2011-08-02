@@ -93,9 +93,16 @@ MD5SUM_FILE="$BLOCKLISTS_DIR/MD5SUM"
 # LSB="/lib/lsb/init-functions"
 LSB=""
 
-# The path of the sendmail executable, a link pointing there, or any other
+# The name of the sendmail executable, a link pointing there, or any other
 # compatible mail transfer agent.
-SENDMAIL="/usr/sbin/sendmail"
+SENDMAIL="sendmail"
+
+# The name of the traceroute executable, a link pointing there, or any other
+# compatible application.
+TRACEROUTE="tcptraceroute"
+
+# The port traceroute uses (leave empty if you use traditional traceroute)
+TRACEROUTE_PORT="12345"
 
 # Remember standard IFS (Internal Field Separator)
 STDIFS=$IFS
