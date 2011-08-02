@@ -4,6 +4,7 @@
 #include <QHash>
 #include <QRegExp>
 //#include <Action>
+//#include <ActionButton>
 
 #include "peerguardian.h"
 #include "file_transactions.h"
@@ -11,7 +12,8 @@
 #include "gui_options.h"
 #include "pgl_settings.h"
 
-
+//using namespace PolkitQt1;
+//using namespace PolkitQt1::Gui;
 
 Peerguardian::Peerguardian( QWidget *parent ) :
 	QMainWindow( parent )
@@ -43,8 +45,11 @@ Peerguardian::Peerguardian( QWidget *parent ) :
 
     foreach(QString command, commands)
         qDebug() << command;*/
-        
+      
+    
+    //ActionButton *bt;
     //bt = new ActionButton(kickPB, "org.qt.policykit.examples.kick", this);
+    //bt->setText("Kick... (long)");
 
 	/*
 	//Restore the window's previous state
@@ -254,16 +259,29 @@ void Peerguardian::removeListItems()
     QList<QTreeWidgetItem *> treeItems;
     QTreeWidget * tree;
     int i;
+    bool whitelist;
 
     if ( sender()->objectName().contains("block", Qt::CaseInsensitive) )
-       tree  = m_BlocklistTreeWidget;
+    {
+        tree  = m_BlocklistTreeWidget;
+        whitelist = false;
+    }
     else
+    {
         tree  = m_WhitelistTreeWidget;
+        whitelist = true;
+    }
 
     foreach(QTreeWidgetItem *item, tree->selectedItems())
     {
         i = tree->indexOfTopLevelItem(item);
         tree->takeTopLevelItem(i);
+        
+        if ( whitelist )
+        {
+            item->setIcon(0, QIcon(WARNING_ICON)); //so it gets checked when applying changes
+            removedWhitelistItems << item;
+        }
     }
 
     m_ApplyButton->setEnabled(guiOptions->isChanged());
@@ -394,7 +412,6 @@ void Peerguardian::applyChanges()
     //apply new changes directly in iptables
     updateWhitelistItemsInIptables();
 
-
     //================ update /etc/pgl/pglcmd.conf ================/
 	if ( updatePglcmdConf )
     {
@@ -470,8 +487,13 @@ void Peerguardian::updateWhitelistItemsInIptables()
     QStringList values, connections, protocols;
     QList<bool> allows;
     
+    if ( ! removedWhitelistItems.isEmpty() )
+        items += removedWhitelistItems;
+    
     foreach ( QTreeWidgetItem * item, items )
     {
+        
+        qDebug() << item->text(0);
         //if it has a warning icon, it means it has not been added yet.
         if ( ! item->icon(0).isNull() )
         {
@@ -485,10 +507,10 @@ void Peerguardian::updateWhitelistItemsInIptables()
                 allows << false;
         }
     }
-    
-     QStringList commands = m_Whitelist->getCommands(values, connections, protocols, allows);
-     
-     if ( ! commands.isEmpty() )
+
+    QStringList commands = m_Whitelist->getCommands(values, connections, protocols, allows);
+
+    if ( ! commands.isEmpty() )
         m_Root->executeCommands(commands);
 }
 

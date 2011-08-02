@@ -43,6 +43,8 @@
 #include <QTime>
 #include <QFileDialog>
 #include <QStringList>
+#include <QList>
+#include <QTreeWidgetItem>
 
 #include "ui_main_window.h"
 
@@ -114,6 +116,7 @@ typedef enum { SETTINGS_IPFILTER_DAT,
 
 
 class GuiOptions;
+class QTreeWidgetItem;
 
 /**
 *
@@ -140,14 +143,12 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     QTimer *m_MediumTimer;
     QTimer *m_SlowTimer;
     bool quitApp;
-
-    //QList of integers with the original states for each blocklist
-    //so it's easier to track which blocklists need to be disabled or enabled
-    //when the user applies the changes.
+    
     bool m_WhitelistItemPressed;
     bool m_BlocklistItemPressed;
     bool m_treeItemPressed;
     GuiOptions *guiOptions;
+    QList<QTreeWidgetItem*> removedWhitelistItems;
 
 	public:
 		/**
