@@ -89,8 +89,7 @@ void SuperUser::executeCommands(QStringList commands )
 {
     
     QProcess::ProcessChannelMode mode = QProcess::MergedChannels;
-    bool executing = false;
-
+    ProcessT *t;
 
 	if ( m_SudoCmd.isEmpty() )
     {
@@ -109,25 +108,18 @@ void SuperUser::executeCommands(QStringList commands )
 	}
     
     qDebug() << commands;
-    
     qDebug() << "start thread";
-    foreach(ProcessT *t, m_threads)
-    {
-        if ( t->allFinished() )
-        {
-            t->executeCommands(commands, mode);
-            executing = true;
-            break;
-        }
-    }
 
-    if ( ! executing )
-    {
-        ProcessT *t = new ProcessT(m_parent);
-        m_threads.push_back(t);
+    t = new ProcessT(m_parent);
+    m_threads.push_back(t);
+    
+    if ( m_threads.size() == 1 )
         t->executeCommands(commands, mode);
-        connect(t, SIGNAL(allCmdsFinished()), this, SLOT(processFinished()));
-    }
+    else
+        t->executeCommands(commands, mode, false);
+    
+        
+    connect(t, SIGNAL(allCmdsFinished(QStringList)), this, SLOT(processFinished(QStringList)));
 
 }
 
@@ -169,9 +161,17 @@ void SuperUser::execute(const QStringList& command )
 }*/
 
 
-void SuperUser::processFinished()
+void SuperUser::processFinished(const QStringList commands)
 {
     emit(finished());
+    
+    if ( ! m_threads.isEmpty() )
+    {
+        delete m_threads.takeFirst();
+        
+        if ( ! m_threads.isEmpty() )
+            m_threads.first()->start();
+    }
 }
 
 
