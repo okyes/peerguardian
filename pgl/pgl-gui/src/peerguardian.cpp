@@ -413,6 +413,7 @@ void Peerguardian::applyChanges()
     //apply new changes directly in iptables
     updateWhitelistItemsInIptables();
 
+
     //================ update /etc/pgl/pglcmd.conf ================/
 	if ( updatePglcmdConf )
     {
@@ -494,7 +495,6 @@ void Peerguardian::updateWhitelistItemsInIptables()
     foreach ( QTreeWidgetItem * item, items )
     {
         
-        qDebug() << item->text(0);
         //if it has a warning icon, it means it has not been added yet.
         if ( ! item->icon(0).isNull() )
         {
@@ -508,7 +508,7 @@ void Peerguardian::updateWhitelistItemsInIptables()
                 allows << false;
         }
     }
-
+    
     QStringList commands = m_Whitelist->getCommands(values, connections, protocols, allows);
 
     if ( ! commands.isEmpty() )
@@ -579,6 +579,8 @@ void Peerguardian::getLists()
 {
     if ( m_List == NULL )
         return;
+        
+    removedWhitelistItems.clear();
 
     m_List->updateListsFromFile();
 
