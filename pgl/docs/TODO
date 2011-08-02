@@ -39,9 +39,6 @@ pglcmd:
     requires search function in pgld, see above.
     Use this function instead of grep'ping for REGEX.
 
-  - improve use of traceroute in "pglcmd test":
-    - test whether it is installed, use tcptraceroute etc. alternatively
-
   - use "ip addr" instead of "ifconfig":
     see http://jengelh.medozas.de/2008/0219-ifconfig-sucks.php
 
