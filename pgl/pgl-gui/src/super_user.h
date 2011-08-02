@@ -101,7 +101,7 @@ class SuperUser : public QObject
         void operator=(const SuperUser& su);
 
     public slots:
-        void processFinished(QStringList);
+        void processFinished(QStringList commands);
 
     signals:
         void finished();

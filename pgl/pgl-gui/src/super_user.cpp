@@ -161,13 +161,16 @@ void SuperUser::execute(const QStringList& command )
 }*/
 
 
-void SuperUser::processFinished(const QStringList commands)
+void SuperUser::processFinished(QStringList commands)
 {
+    ProcessT * t;
+    
     emit(finished());
     
     if ( ! m_threads.isEmpty() )
     {
-        delete m_threads.takeFirst();
+        t = m_threads.takeFirst();
+        delete t;
         
         if ( ! m_threads.isEmpty() )
             m_threads.first()->start();
