@@ -277,7 +277,7 @@ void Peerguardian::removeListItems()
         i = tree->indexOfTopLevelItem(item);
         tree->takeTopLevelItem(i);
         
-        if ( whitelist )
+        if ( whitelist && item->checkState(0) == Qt::Checked )
         {
             item->setIcon(0, QIcon(WARNING_ICON)); //so it gets checked when applying changes
             removedWhitelistItems << item;
