@@ -71,8 +71,8 @@ class ProcessT : public QThread {
 
         void operator=(const ProcessT& p){ *this = p;}
         
-        void executeCommand(const QString command , const QProcess::ProcessChannelMode &mode );
-        void executeCommands(const QStringList commands , const QProcess::ProcessChannelMode &mode );
+        void executeCommand(const QString command , const QProcess::ProcessChannelMode &mode, bool startNow = true);
+        void executeCommands(const QStringList commands , const QProcess::ProcessChannelMode &mode, bool startNow=true);
         void execute(const QStringList command, const QProcess::ProcessChannelMode &mode );
         
         //for backwards compatibility with the old Mobloquer code
@@ -85,12 +85,13 @@ class ProcessT : public QThread {
 		 * @param output The output of the command which was executed.
 		 */
 		void commandOutput( QString output );
-        void allCmdsFinished();
+        void allCmdsFinished(QStringList);
 		
 	private:
 		QString m_Command;
         QList<QStringList> m_commands;
         QStringList m_Commands;
+        QStringList m_ExecutedCommands;
 		QStringList m_Args;
 		QProcess::ProcessChannelMode m_ChanMode;
 		QString m_Output;
