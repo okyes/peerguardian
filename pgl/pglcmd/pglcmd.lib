@@ -2434,12 +2434,10 @@ email_stats () {
     # (otherwise stats are not available).
     if [ $STATS_MAILTO ] && status_of_proc $DAEMON $NAME > /dev/null 2>&1 ; then
         # Check if sendmail is available
-        if [ -n "$SENDMAIL" ] && [ -x "$SENDMAIL" ] ; then
+        if [ $SENDMAIL ] && test_external $SENDMAIL ; then
             true
-        elif [ -x /usr/sbin/sendmail ] ; then
-            SENDMAIL="/usr/sbin/sendmail"
         elif [ -x /usr/lib/sendmail ] ; then
-            SENDMAIL="/usr/lib/sendmail"
+            local SENDMAIL="/usr/lib/sendmail"
         else
             echo "Warning: $SENDMAIL not found, not mailing stats."
             echo "Check the SENDMAIL setting."
