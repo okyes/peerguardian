@@ -188,7 +188,7 @@ static void daemonize() {
     close(fileno(stdin));
     close(fileno(stdout));
     close(fileno(stderr));
-    do_log(LOG_INFO, "INFO: Started");
+    do_log(LOG_INFO, "INFO: Started.");
 }
 
 static int load_all_lists() {
@@ -216,10 +216,10 @@ static void nfqueue_unbind() {
     if (!nfqueue_h)
         return;
 
-    do_log(LOG_INFO, "INFO: NFQUEUE: unbinding from queue 0");
+    do_log(LOG_INFO, "INFO: NFQUEUE: unbinding from queue 0.");
     nfq_destroy_queue(nfqueue_qh);
     if (nfq_unbind_pf(nfqueue_h, AF_INET) < 0) {
-        do_log(LOG_ERR, "ERROR: during nfq_unbind_pf(): %s", strerror(errno));
+        do_log(LOG_ERR, "ERROR: Error during nfq_unbind_pf(): %s", strerror(errno));
     }
     nfq_close(nfqueue_h);
 }
@@ -248,9 +248,9 @@ static void sighandler(int sig, siginfo_t *info, void *context) {
             }
         }
         if (load_all_lists() < 0) {
-            do_log(LOG_ERR, "ERROR: Cannot re-load the blocklist(s)");
+            do_log(LOG_ERR, "ERROR: Cannot reload the blocklist(s).");
         }
-        do_log(LOG_INFO, "INFO: Blocklist reloaded");
+        do_log(LOG_INFO, "INFO: Blocklist(s) reloaded.");
         break;
     case SIGTERM:
     case SIGINT:
@@ -493,19 +493,19 @@ static void nfqueue_loop () {
 //  struct pollfd fds[1];
 
     if (nfqueue_bind() < 0) {
-        do_log(LOG_ERR, "ERROR: ERROR binding to queue!");
+        do_log(LOG_ERR, "ERROR: Error binding to queue.");
         exit(1);
     }
     daemonize();
 
     if (install_sighandler() != 0) {
-        do_log(LOG_ERR, "ERROR: ERROR installing signal handlers");
+        do_log(LOG_ERR, "ERROR: Error installing signal handlers.");
         exit(1);
     }
 
     pidfile = create_pidfile(pidfile_name);
     if (!pidfile) {
-        do_log(LOG_ERR, "ERROR: ERROR creating pidfile %s", pidfile_name);
+        do_log(LOG_ERR, "ERROR: Error creating pidfile %s", pidfile_name);
         exit(1);
     }
 
@@ -516,7 +516,7 @@ static void nfqueue_loop () {
         nfq_handle_packet(nfqueue_h, buf, rv);
     }
     int err=errno;
-    do_log(LOG_ERR, "ERROR: unbinding from queue '%hd', recv returned %s", queue_num, strerror(err));
+    do_log(LOG_ERR, "ERROR: Unbinding from queue '%hd', recv returned %s", queue_num, strerror(err));
     if ( err == ENOBUFS ) {
         /* close and return, nfq_destroy_queue() won't work as we've no buffers */
         nfq_close(nfqueue_h);
