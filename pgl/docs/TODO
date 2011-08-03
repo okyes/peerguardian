@@ -94,19 +94,16 @@ pgl-gui:
 ###############################################################################
   [freemind]
 
+  pgl-gui only:
+
   - add option "Reset to default"
 
-  - show pgld logfile. Allow right-click whitelisting of blocked IPs and/or
-    ports/protocol. Requires pgld dbus logging.
+  - when you remove a unticked whitelisting in pgl-gui, there is a unnecessary
+    "mv pglcmd.conf" command.
 
-  - pop-up warning on errors in pglcmd.conf. Requires pglcmd dbus logging.
+  - issue a "pglcmd reload" after blocklist selection changes on "Apply".
 
   - policykit support (instead of kdesudo/gksu)
-
-  - add option to temp allow, which inserts the appropriate iptables rules
-    directly. (iptables --ctexpire (really?))
-
-  - add whitelisting per IP/port/proto (pgl-gui-iptables-insert.sh)
 
   - clean up code: get rid of all unused remnants of mobloquer
 
@@ -116,15 +113,26 @@ pgl-gui:
     Also use lists.xml to show the list description.
     Verify that lists like "example.com/list/list2" work.
 
-  - when you remove a whitelisting directly in pgl-gui (highlight it and click
-    on the big red "minus" sign), the "iptables -D" command is not executed.
-    This seems to be the case, independently of first unticking it or not.
-    But the variable is set correctly afterwards in pglcmd.conf.
-    If you just untick it, but do not remove it, everything is ok.
 
-  - add "pglcmd reload" to Control - Manage tab.
+  Requires pglcmd dbus:
 
-  - issue a pglcmd reload after blocklist selection changes.
+  - pop-up warning on errors from pglcmd (e.g. blocklist is not available).
+
+
+  Requires pgld dbus:
+
+  - show log of blocked items (IP/port/protocol). Requires pgld dbus logging.
+
+  - whitelisting with right-clicking in the log of blocked IPs window:
+
+    - add blocked item (IP or port) to whitelisting (like in "Configure -
+      Whitelist").
+
+    - add option to temp allow, which inserts the appropriate iptables rules
+      directly (but not to pglcmd.conf). (iptables --ctexpire (really?))
+
+    - add complete blocked item (combination of all IP, port and proto as
+      iptables rule to e.g. pgl-gui-iptables-insert.sh).
 
 ###############################################################################
 
