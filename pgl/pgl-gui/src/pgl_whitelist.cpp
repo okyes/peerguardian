@@ -235,8 +235,52 @@ QStringList PglWhitelist::updateWhitelistFile()
 }
 
 
-void PglWhitelist::updateSettings()
+void PglWhitelist::addTreeWidgetItemToWhitelist(QTreeWidgetItem* treeItem)
 {
+    QStringList info;
+    QString group;
+    info << treeItem->text(0) << treeItem->text(1) << treeItem->text(2);
+
+    group = getGroup(info);
+
+    if ( m_Group.contains(group) )
+        m_WhitelistDisabled[group] << treeItem->text(0);
+}
+
+
+
+void PglWhitelist::updateSettings(const QList<QTreeWidgetItem*>& treeItems, int firstAddedItemPos)
+{
+    int whitelistDisabledSize = m_WhitelistDisabled.keys().size();
+    
+    
+    foreach ( QString key, m_WhitelistDisabled.keys() )
+        m_WhitelistDisabled[key] = QStringList();
+        
+    foreach(QTreeWidgetItem* treeItem, treeItems)
+    {
+        //if icon is checked and the icon is null (no warning icon) it means
+        //it's an item to be ignored. Also if the item is unchecked but has a
+        //warning icon, which means it's in a state that has not been written to pglcmd.conf
+        if ( treeItem->checkState(0) == Qt::Checked  && treeItem->icon(0).isNull() ||
+            treeItem->checkState(0) == Qt::Unchecked && ( ! treeItem->icon(0).isNull()))
+            continue;
+        
+        addTreeWidgetItemToWhitelist(treeItem);
+    }
+    
+    //Special case for added items. Since they fail to be added in the cycle
+    //above, because only with the properties of a QTreeWidgetItem 
+    //there's no way to know if the item has just been added or just changed.
+    if ( firstAddedItemPos > 0 )
+    {
+        for(int i=firstAddedItemPos; i < treeItems.size(); i++)
+        {
+            if ( treeItems[i]->checkState(0) == Qt::Unchecked )
+                addTreeWidgetItemToWhitelist(treeItems[i]);
+        }
+    }
+    //write changes to settings' file
     foreach(QString key, m_WhitelistDisabled.keys() )
         if ( m_WhitelistDisabled[key].isEmpty() )
              m_Settings->remove(QString("whitelist/%1").arg(key));
@@ -244,7 +288,8 @@ void PglWhitelist::updateSettings()
             m_Settings->setValue(QString("whitelist/%1").arg(key), m_WhitelistDisabled[key].join(" "));
 }
 
-QStringList PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
+
+QStringList PglWhitelist::updatePglcmdConf(QList<QTreeWidgetItem*> treeItems)
 {
     if ( m_WhitelistFile.isEmpty() )
         return QStringList();
@@ -274,24 +319,6 @@ QStringList PglWhitelist::update(QList<QTreeWidgetItem*> treeItems)
 
     fileData = updateWhitelistFile();
 
-    /*********** Update the Disabled Whitelist ***************/
-    foreach ( QString key, m_WhitelistDisabled.keys() )
-        m_WhitelistDisabled[key] = QStringList();
-
-    foreach(QTreeWidgetItem* treeItem, treeItems)
-    {
-        if ( treeItem->checkState(0) == Qt::Checked )
-            continue;
-
-        info << treeItem->text(0) << treeItem->text(1) << treeItem->text(2);
-
-        group = getGroup(info);
-
-        if ( m_Group.contains(group) )
-            m_WhitelistDisabled[group] << treeItem->text(0);
-
-        info.clear();
-    }
 
     return fileData;
 }

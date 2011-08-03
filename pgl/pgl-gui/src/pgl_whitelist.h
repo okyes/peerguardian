@@ -125,19 +125,20 @@ class PglWhitelist
 
         QList<WhitelistItem> getWhitelistedItems(){ return m_WhitelistedItems; }
         void loadDisabledItems(QSettings*);
-        QStringList update(QList<QTreeWidgetItem*>);
+        QStringList updatePglcmdConf(QList<QTreeWidgetItem*>);
         QList<WhitelistItem> getWhitelistItems(QList<QTreeWidgetItem*>);
         QMap<QString, QStringList> getEnabledWhitelistedItems() { return m_WhitelistEnabled; }
         QMap<QString, QStringList> getDisabledWhitelistedItems(){ return m_WhitelistDisabled; }
         QString getTypeAsString(QString&);
         QString getGroup(QStringList&);
         QStringList updateWhitelistFile();
-        void updateSettings();
+        void updateSettings(const QList<QTreeWidgetItem*>& treeItems, int firstAddedItemPos);
         QString getWhitelistFile(){ return m_WhitelistFile; };
         QString getProtocol(QString& key);
         QString translateConnection(const QString&);
         QStringList getDirections(const QString& chain);
         QStringList getCommands(QStringList items, QStringList connections, QStringList protocols, QList<bool> allows);
+        void addTreeWidgetItemToWhitelist(QTreeWidgetItem* item);
         
 };
 
