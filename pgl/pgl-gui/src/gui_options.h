@@ -25,6 +25,8 @@ class GuiOptions
     QList<int> m_WhitelistState;
     QList<QTreeWidgetItem*> m_Blocklist;
     QList<QTreeWidgetItem*> m_Whitelist;
+    QList<QTreeWidgetItem*> m_WhitelistItemsForIptablesRemoval;
+    int m_WhitelistItemsRemoved;
 
     public:
         GuiOptions();
@@ -38,7 +40,8 @@ class GuiOptions
         void update();
         QRadioButton* getActiveUpdateRadioButton();
         QString getActiveUpdateRadioButtonName();
-        bool listStateChanged(QTreeWidget * tree);
+        bool whitelistStateChanged(bool anyChange = true);
+        bool blocklistStateChanged();
         void updateLists(QTreeWidget * tree);
         bool hasToUpdatePglcmdConf();
         bool hasToUpdateBlocklistList();
@@ -49,7 +52,10 @@ class GuiOptions
         /*void undoBlocklist();
         void undoWhitelist();*/
         void undo();
-        
+        int getPositionFirstAddedWhitelistItem();
+        void addWhitelistItemForIptablesRemoval(QTreeWidgetItem* item);
+        void addRemovedWhitelistItem(QTreeWidgetItem *);
+        QList<QTreeWidgetItem*>& getRemovedWhitelistItemsForIptablesRemoval(){ return m_WhitelistItemsForIptablesRemoval; }
 };
 
 

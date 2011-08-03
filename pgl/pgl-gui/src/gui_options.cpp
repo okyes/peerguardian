@@ -3,11 +3,13 @@
 GuiOptions::GuiOptions() 
 { 
     m_Window = NULL; 
+    m_WhitelistItemsRemoved = 0;
 }
 
 GuiOptions::GuiOptions(Peerguardian * gui)
 { 
     m_Window = gui; 
+    m_WhitelistItemsRemoved = 0;
 }
 
 GuiOptions::~GuiOptions(){ 
@@ -30,10 +32,10 @@ bool GuiOptions::isChanged()
     if ( updateRadioBtnName != getActiveUpdateRadioButtonName() )
         return true;
 
-    if ( listStateChanged(m_Window->getBlocklistTreeWidget()) )
+    if ( blocklistStateChanged() )
         return true;
 
-    if ( listStateChanged(m_Window->getWhitelistTreeWidget()) )
+    if ( whitelistStateChanged() )
         return true;
 
     return false;
@@ -47,7 +49,7 @@ bool GuiOptions::hasToUpdatePglcmdConf()
     if (updateBlocklistsAutomatically != m_Window->getAutoListUpdateBox()->isChecked() )
         return true;
 
-    if ( listStateChanged(m_Window->getWhitelistTreeWidget()) )
+    if ( whitelistStateChanged(false) )
         return true;
 
     return false;
@@ -55,35 +57,71 @@ bool GuiOptions::hasToUpdatePglcmdConf()
 
 bool GuiOptions::hasToUpdateBlocklistList()
 {
-    if ( listStateChanged(m_Window->getBlocklistTreeWidget()) )
-        return true;
-
-    return false;
+    return blocklistStateChanged();
 }
 
-bool GuiOptions::listStateChanged(QTreeWidget * tree)
+bool GuiOptions::whitelistStateChanged(bool anyChange)
 {
-    QList<int> listState;
+    QTreeWidget *tree = m_Window->getWhitelistTreeWidget();
+    
+    if ( anyChange )
+    {
+        if ( m_WhitelistItemsRemoved )
+            return true;
+        
+        if ( tree->topLevelItemCount() != m_WhitelistState.size() )
+            return true;
+    }
+    else //Used to check if pglcmd.conf needs to be updated
+    {
+        //if these items need to be removed from iptables, they also need to be removed
+        //from pglcmd.conf
+        if ( ! m_WhitelistItemsForIptablesRemoval.isEmpty() )
+            return true;
+        
+        //Check if there were added items
+        int firstPos = getPositionFirstAddedWhitelistItem();
+        if ( firstPos > 0 )
+        {
+            for(int i = firstPos; i < tree->topLevelItemCount(); i++)
+                //Since this is to test if we need to update pglcmd.conf
+                //it only interests us the ones that are checked 
+                if ( tree->topLevelItem(i)->checkState(0) == Qt::Checked )  
+                    return true;
+        }
+    }
+    
 
-    if ( tree->objectName().contains("Blocklist", Qt::CaseInsensitive) )
-        listState = m_BlocklistState;
-    else
-        listState = m_WhitelistState;
-
-    //test if new items were added
-    if ( tree->topLevelItemCount() != listState.size() )
-        return true;
-
-    for ( int i=0; i < tree->topLevelItemCount(); i++ )
+    for ( int i=0; i < tree->topLevelItemCount() && i < m_WhitelistState.size(); i++ )
     {
         QTreeWidgetItem * item = tree->topLevelItem(i);
 
-        if ( item->checkState(0) != listState[i] )
+        if ( item->checkState(0) != m_WhitelistState[i] )
             return true;
     }
 
     return false;
 }
+
+bool GuiOptions::blocklistStateChanged()
+{
+    
+    QTreeWidget *tree = m_Window->getBlocklistTreeWidget();
+
+    if ( tree->topLevelItemCount() != m_BlocklistState.size() )
+            return true;
+    
+    for ( int i=0; i < tree->topLevelItemCount(); i++ )
+    {
+        QTreeWidgetItem * item = tree->topLevelItem(i);
+
+        if ( item->checkState(0) != m_BlocklistState[i] )
+            return true;
+    }
+
+    return false;
+}
+
 
 QRadioButton * GuiOptions::getActiveUpdateRadioButton()
 {
@@ -107,6 +145,26 @@ QString GuiOptions::getActiveUpdateRadioButtonName()
     return QString("");
 }
 
+int GuiOptions::getPositionFirstAddedWhitelistItem()
+{
+    int nItems = m_Window->getWhitelistTreeWidget()->topLevelItemCount();
+    int prevNItems = m_WhitelistState.size();
+    int added = nItems - ( prevNItems - m_WhitelistItemsRemoved );
+    int pos = m_Window->getWhitelistTreeWidget()->topLevelItemCount() - added;
+    
+    return pos;
+}
+
+void GuiOptions::addRemovedWhitelistItem(QTreeWidgetItem * item)
+{
+    if (  item->checkState(0) == Qt::Checked && item->icon(0).isNull() )
+    {
+        m_WhitelistItemsForIptablesRemoval << item;
+        item->setIcon(0, QIcon(WARNING_ICON));
+    }
+       
+    m_WhitelistItemsRemoved++;
+}
 
 
 /********* Update methods ************/
@@ -162,6 +220,8 @@ void GuiOptions::updateLists(QTreeWidget * tree)
 
 void GuiOptions::update()
 {
+    m_WhitelistItemsRemoved = 0;
+    m_WhitelistItemsForIptablesRemoval.clear();
     updateStartAtBoot();
     updateUpdateRadioBtn();
     updateLists(m_Window->getBlocklistTreeWidget());
