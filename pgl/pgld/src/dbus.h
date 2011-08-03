@@ -24,7 +24,6 @@
    Boston, MA 02110-1301, USA.
 */
 
-
 #ifndef INC_DBUS_H
 #define INC_DBUS_H
 
@@ -35,6 +34,5 @@
 #include "pgld.h"
 
 #define PGL_DBUS_PUBLIC_NAME "org.netfilter.pgl"
-
 
 #endif /* INC_DBUS_H */

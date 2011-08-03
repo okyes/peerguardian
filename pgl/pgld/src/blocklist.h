@@ -33,7 +33,6 @@
 #include <errno.h>
 #include <netinet/in.h>
 
-
 /* iconv is not needed in LOWMEM mode (no strings handled) */
 #ifndef LOWMEM
 #include <iconv.h>

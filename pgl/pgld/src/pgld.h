@@ -26,7 +26,6 @@
 #ifndef INC_PGLD_H
 #define INC_PGLD_H
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
@@ -68,18 +67,16 @@
 ((unsigned char *)&addr)[2], \
 ((unsigned char *)&addr)[3]
 
-#define CHECK_OOM(ptr)                                                  \
-    do {                                                                \
-        if (!ptr) {                                                     \
-            do_log(LOG_CRIT, "Out of memory in %s (%s:%d)",             \
-                   __func__, __FILE__, __LINE__);                       \
-            exit (-1);                                                  \
-        }                                                               \
-    } while(0);                                                         \
-
+#define CHECK_OOM(ptr)                                      \
+    do {                                                    \
+        if (!ptr) {                                         \
+            do_log(LOG_CRIT, "Out of memory in %s (%s:%d)", \
+            __func__, __FILE__, __LINE__);                  \
+            exit (-1);                                      \
+        }                                                   \
+    } while(0);                                             \
 
 void do_log(int priority, const char *format, ...);
 void int2ip (uint32_t ipint, char *ipstr);
 
 #endif /* INC_PGLD_H */
-

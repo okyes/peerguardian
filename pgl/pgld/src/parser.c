@@ -75,30 +75,30 @@ static int loadlist_ascii(const char *filename, const char *charset) {
         memset(name, 0, sizeof(name));
         // try the line as a p2p line
         if (sscanf(buf, "%299[^:]:%d.%d.%d.%d-%d.%d.%d.%d",
-                        name, &ip1[0], &ip1[1], &ip1[2], &ip1[3],
-                        &ip2[0], &ip2[1], &ip2[2], &ip2[3]) == 9) {
+            name, &ip1[0], &ip1[1], &ip1[2], &ip1[3],
+            &ip2[0], &ip2[1], &ip2[2], &ip2[3]) == 9) {
             blocklist_append(ip2int(ip1), ip2int(ip2), name, ic);
             ok++;
-        }
+            }
         // else try the line as a ipfilter.dat line
         else if (sscanf(buf, "%d.%d.%d.%d %*[-,] %d.%d.%d.%d , %d , %299s",
-                   &ip1[0], &ip1[1], &ip1[2], &ip1[3],
-                   &ip2[0], &ip2[1], &ip2[2], &ip2[3],
-                   &filter_level, name) == 10){
+            &ip1[0], &ip1[1], &ip1[2], &ip1[3],
+            &ip2[0], &ip2[1], &ip2[2], &ip2[3],
+            &filter_level, name) == 10){
             // .DAT spec if 3rd entry on line is <=127, the IP is blocked else >=128 it is allowed.
             if ( filter_level <= 127 ) {
                 blocklist_append(ip2int(ip1), ip2int(ip2), name, ic);
                 ok++;
+                }
             }
-        }
         // just a range if in LOWMEM
         else if (sscanf(buf, "%d.%d.%d.%d-%d.%d.%d.%d",
-                   &ip1[0], &ip1[1], &ip1[2], &ip1[3],
-                   &ip2[0], &ip2[1], &ip2[2], &ip2[3]) == 8){
+            &ip1[0], &ip1[1], &ip1[2], &ip1[3],
+            &ip2[0], &ip2[1], &ip2[2], &ip2[3]) == 8){
             name[0]='\0';
             blocklist_append(ip2int(ip1), ip2int(ip2), name, ic);
             ok++;
-        }
+            }
         // could add more tests for other ASCII formats here.
         // else the line is invalid
         else {
@@ -162,9 +162,9 @@ static int loadlist_binary(const char *filename) {
         || header[4] != 'P'
         || header[5] != '2'
         || header[6] != 'B')
-    {
-        goto err;
-    }
+        {
+            goto err;
+        }
 
     version = header[7];
 

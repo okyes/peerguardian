@@ -30,4 +30,3 @@
 int load_list(const char *filename, const char *charset);
 
 #endif /* INC_PARSER_H */
-

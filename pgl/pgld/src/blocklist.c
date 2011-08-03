@@ -118,7 +118,7 @@ void blocklist_merge () {
     blocklist.numips = 0;
 
     if (blocklist.count == 0) {
-         return;
+        return;
     }
 
     for (i = 0; i < blocklist.count; i++) {
@@ -173,10 +173,10 @@ void blocklist_merge () {
 #endif
             i = j - 1;
         } //end if j
-            blocklist.numips += (blocklist.entries[i].ip_max - blocklist.entries[i].ip_min);
-            if (blocklist.numips < 4294967295UL) {
-                blocklist.numips++;
-            }
+        blocklist.numips += (blocklist.entries[i].ip_max - blocklist.entries[i].ip_min);
+        if (blocklist.numips < 4294967295UL) {
+            blocklist.numips++;
+        }
     } //end for i
     if (merged) {
         do_log(LOG_INFO, "INFO: Merged %u of %u entries.", merged, blocklist.count);

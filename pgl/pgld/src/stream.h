@@ -51,4 +51,3 @@ int stream_close(stream_t *stream);
 char * stream_getline(char *buf, int max, stream_t *stream);
 
 #endif /* INC_STREAM_H */
-

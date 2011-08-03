@@ -23,8 +23,6 @@
    Boston, MA 02110-1301, USA.
 */
 
-
-
 #include "pgld.h"
 
 static int opt_merge = 0;
@@ -51,9 +49,9 @@ static int (*pgl_dbus_init)(void) = NULL;
 static void (*pgl_dbus_send)(const char *, va_list) = NULL;
 #endif
 
-
 struct nfq_handle *nfqueue_h = 0;
 struct nfq_q_handle *nfqueue_qh = 0;
+
 
 void do_log(int priority, const char *format, ...)
 {
@@ -105,14 +103,14 @@ void int2ip (uint32_t ipint, char *ipstr) {
 #ifdef HAVE_DBUS
 static void *dbus_lh = NULL;
 
-#define do_dlsym(symbol)                                                \
-    do {                                                                \
-        symbol = dlsym(dbus_lh, # symbol);                              \
-        err = dlerror();                                                \
-        if (err) {                                                      \
+#define do_dlsym(symbol)                                                       \
+    do {                                                                       \
+        symbol = dlsym(dbus_lh, # symbol);                                     \
+        err = dlerror();                                                       \
+        if (err) {                                                             \
             do_log(LOG_ERR, "ERROR: Cannot get symbol %s: %s", # symbol, err); \
-            goto out_err;                                               \
-        }                                                               \
+            goto out_err;                                                      \
+        }                                                                      \
     } while (0)
 
 static int open_dbus() {
@@ -192,7 +190,6 @@ static void daemonize() {
     close(fileno(stderr));
     do_log(LOG_INFO, "INFO: Started");
 }
-
 
 static int load_all_lists() {
     int i, ret = 0;
@@ -321,28 +318,28 @@ static void setipinfo (char *src, char *dst, char *proto, struct iphdr *ip, char
     struct udphdr *udp;
     struct tcphdr *tcp;
     switch (ip->protocol) {
-        case TCP:
-            strcpy(proto, "TCP");
-            tcp     = (struct tcphdr*) (payload + (4 * ip->ihl));
-            sprintf(src, "%u.%u.%u.%u:%u",NIPQUAD(ip->saddr),ntohs(tcp->source));
-            sprintf(dst, "%u.%u.%u.%u:%u",NIPQUAD(ip->daddr),ntohs(tcp->dest));
-            break;
-        case UDP:
-            strcpy(proto, "UDP");
-            udp     = (struct udphdr*) (payload + (4 * ip->ihl));
-            sprintf(src, "%u.%u.%u.%u:%u",NIPQUAD(ip->saddr),ntohs(udp->source));
-            sprintf(dst, "%u.%u.%u.%u:%u",NIPQUAD(ip->daddr),ntohs(udp->dest));
-            break;
-        case ICMP:
-            strcpy(proto, "ICMP");\
-            sprintf(src, "%u.%u.%u.%u",NIPQUAD(ip->saddr));
-            sprintf(dst, "%u.%u.%u.%u",NIPQUAD(ip->daddr));
-            break;
-        default:
-            sprintf(proto, "%d", ip->protocol);
-            sprintf(src, "%u.%u.%u.%u",NIPQUAD(ip->saddr));
-            sprintf(dst, "%u.%u.%u.%u",NIPQUAD(ip->daddr));
-            break;
+    case TCP:
+        strcpy(proto, "TCP");
+        tcp     = (struct tcphdr*) (payload + (4 * ip->ihl));
+        sprintf(src, "%u.%u.%u.%u:%u",NIPQUAD(ip->saddr),ntohs(tcp->source));
+        sprintf(dst, "%u.%u.%u.%u:%u",NIPQUAD(ip->daddr),ntohs(tcp->dest));
+        break;
+    case UDP:
+        strcpy(proto, "UDP");
+        udp     = (struct udphdr*) (payload + (4 * ip->ihl));
+        sprintf(src, "%u.%u.%u.%u:%u",NIPQUAD(ip->saddr),ntohs(udp->source));
+        sprintf(dst, "%u.%u.%u.%u:%u",NIPQUAD(ip->daddr),ntohs(udp->dest));
+        break;
+    case ICMP:
+        strcpy(proto, "ICMP");\
+        sprintf(src, "%u.%u.%u.%u",NIPQUAD(ip->saddr));
+        sprintf(dst, "%u.%u.%u.%u",NIPQUAD(ip->daddr));
+        break;
+    default:
+        sprintf(proto, "%d", ip->protocol);
+        sprintf(src, "%u.%u.%u.%u",NIPQUAD(ip->saddr));
+        sprintf(dst, "%u.%u.%u.%u",NIPQUAD(ip->daddr));
+        break;
     }
 }
 
@@ -493,7 +490,7 @@ static void nfqueue_loop () {
     struct nfnl_handle *nh;
     int fd, rv;
     char buf[RECVBUFFSIZE];
-//     struct pollfd fds[1];
+//  struct pollfd fds[1];
 
     if (nfqueue_bind() < 0) {
         do_log(LOG_ERR, "ERROR: ERROR binding to queue!");
@@ -575,9 +572,9 @@ int main(int argc, char *argv[]) {
     int try_dbus = 0;
     while ((opt = getopt(argc, argv, "q:a:r:dp:sl:mh"
 #ifndef LOWMEM
-                              "c:"
+        "c:"
 #endif
-                              )) != -1) {
+        )) != -1) {
         switch (opt) {
         case 'q':
             queue_num = htons((uint16_t)atoi(optarg));
@@ -676,11 +673,11 @@ int main(int argc, char *argv[]) {
     if (try_dbus) {
         if (open_dbus() < 0) {
             do_log(LOG_ERR, "ERROR: Cannot load D-Bus plugin");
-	    try_dbus = 0;
+            try_dbus = 0;
         }
-	if (pgl_dbus_init() < 0) {
+        if (pgl_dbus_init() < 0) {
             fprintf(stderr, "Cannot initialize D-Bus");
-	    try_dbus = 0;
+            try_dbus = 0;
             exit(1);
         }
     }
@@ -696,7 +693,6 @@ int main(int argc, char *argv[]) {
     blocklist_clear(0);
     free(blocklist_filenames);
     free(blocklist_charsets);
-
     // close syslog
     if (use_syslog) {
         closelog();

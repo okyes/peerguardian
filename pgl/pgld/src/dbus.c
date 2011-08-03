@@ -31,16 +31,18 @@ static DBusConnection *dbconn = NULL;
 int pgl_dbus_init() {
 
     DBusError dberr;
+
     int req;
 
     dbus_error_init (&dberr);
+
     dbconn = dbus_bus_get (DBUS_BUS_SYSTEM, &dberr);
     if (dbus_error_is_set (&dberr)) {
         fprintf(stderr, "Connection Error (%s)\n", dberr.message);
         dbus_error_free(&dberr);
     }
     if (dbconn == NULL) {
-      return -1;
+        return -1;
     }
     //FIXME: It will be difficult to use do_log() in dbus.c because
     //            a) Of compiler errors(undefined symbols etc
@@ -50,7 +52,7 @@ int pgl_dbus_init() {
     /* FIXME: need d-bus policy privileges for this to work, pgld has to get them! */
 //     dbus_error_init (&dberr); /* FIXME: Why commented out? */
     req = dbus_bus_request_name (dbconn, PGL_DBUS_PUBLIC_NAME,
-                                 DBUS_NAME_FLAG_DO_NOT_QUEUE, &dberr); /* TODO: DBUS_NAME_FLAG_ALLOW_REPLACEMENT goes here */
+        DBUS_NAME_FLAG_DO_NOT_QUEUE, &dberr); /* TODO: DBUS_NAME_FLAG_ALLOW_REPLACEMENT goes here */
     if (dbus_error_is_set (&dberr)) {
 //        do_log(LOG_ERR, "ERROR: requesting name: %s.", dberr.message); 
 	fprintf(stderr, "ERROR: requesting name %s.\n", dberr.message);
@@ -59,7 +61,7 @@ int pgl_dbus_init() {
     }
     if (req == DBUS_REQUEST_NAME_REPLY_EXISTS) {
         /*TODO: req = dbus_bus_request_name (dbconn, NFB_DBUS_PUBLIC_NAME,
-                                 DBUS_NAME_FLAG_REPLACE_EXISTING, &dberr); */
+            DBUS_NAME_FLAG_REPLACE_EXISTING, &dberr); */
 //        do_log(LOG_WARNING, "WARN: pgld is already running."); 
 	fprintf(stderr, "WARN: pgld is already running.\n");
         return -1;
@@ -68,12 +70,11 @@ int pgl_dbus_init() {
 }
 
 void pgl_dbus_send(const char *format, va_list ap) {
-	
+
     if (dbconn == NULL) {
 	fprintf( stderr, "ERROR: dbus_send() called with NULL connection!\n");
-	exit(1);
+        exit(1);
     }
-
 
     dbus_uint32_t serial = 0; // unique number to associate replies with requests
     DBusMessage *dbmsg = NULL;
@@ -84,11 +85,11 @@ void pgl_dbus_send(const char *format, va_list ap) {
     msgPtr = msg;
     /* create dbus signal */
     dbmsg = dbus_message_new_signal ("/org/netfilter/pgl",
-                                         "org.netfilter.pgl",
-                                         "pgld_message");
+                                     "org.netfilter.pgl",
+                                     "pgld_message");
     if (dbmsg == NULL) {
         fprintf(stderr, "ERROR: NULL dbus message!\n");
-	exit(1);	
+        exit(1);
     }
 
     dbus_message_iter_init_append(dbmsg, &dbiter);
