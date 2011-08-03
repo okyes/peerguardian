@@ -148,7 +148,6 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     bool m_BlocklistItemPressed;
     bool m_treeItemPressed;
     GuiOptions *guiOptions;
-    QList<QTreeWidgetItem*> removedWhitelistItems;
 
 	public:
 		/**
