@@ -34,6 +34,7 @@ CFLAGS+=-DHAVE_DBUS \
 	`pkg-config dbus-1 --cflags --libs` \
 	-fPIC \
 	-DPLUGINDIR=\"$(PLUGINDIR)\"
+LDFLAGS+=-Wl,-export-dynamic
 LIBS+=-ldl
 endif
 
@@ -75,7 +76,7 @@ src/pgld: $(OBJS)
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $(LIBS) $^
 
 src/dbus.so: src/dbus.o
-	$(CC) -o $@ -shared -Wl `pkg-config dbus-1 --libs` $^
+	$(CC) -o $@ -shared `pkg-config dbus-1 --libs` $^
 
 clean:
 	rm -rf *~ \
