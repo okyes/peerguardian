@@ -94,37 +94,7 @@ pgl-gui:
 ###############################################################################
   [freemind]
 
-#9: add option "Reset to default"
-
-#10: show blocklists like "example.com/list/list2" (I added this manually to
-     blocklists.list, it downloads fine, but pgl-gui doesn't show it)
-
-#17: whitelisting ports: allow port ranges "port:port"
-
-#18: whitelisting ports: separating several items e.g. this way
-     "125,126;127 128" does not work. Perhaps only use spaces (not comma or
-     semi-colon), for consistency with pglcmd.
-
-#19: add instant application of whitelisting rules:
-     also execute the iptables command on "Apply" (additionally to the permanent
-     addition of the values to the pglcmd variables, which requires a "pglcmd
-     restart" for the application of the new iptables rules). For instant removal
-     replace "-I" with "-D":
-===============================================================================
-Port whitelisting for given $PORT. Other variables taken from pglcmd configuration:
-WHITE_TCP_IN:  iptables -I $IPTABLES_IN -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING
-WHITE_UDP_IN:  iptables -I $IPTABLES_IN -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING
-WHITE_TCP_OUT: iptables -I $IPTABLES_OUT -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING
-WHITE_UDP_OUT: iptables -I $IPTABLES_OUT -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING
-WHITE_TCP_FWD: iptables -I $IPTABLES_FWD -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING
-WHITE_UDP_FWD: iptables -I $IPTABLES_FWD -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING
-
-IP whitelisting for given $IP. Other variables taken from pglcmd configuration::
-WHITE_IP_IN:  iptables -I $IPTABLES_IN --source $IP -j $IPTABLES_TARGET_WHITELISTING
-WHITE_IP_OUT: iptables -I $IPTABLES_OUT --destination $IP -j $IPTABLES_TARGET_WHITELISTING
-WHITE_IP_FWD: iptables -I $IPTABLES_FWD --source $IP -j $IPTABLES_TARGET_WHITELISTING
-              iptables -I $IPTABLES_FWD --destination $IP -j $IPTABLES_TARGET_WHITELISTING
-===============================================================================
+  - add option "Reset to default"
 
   - show pgld logfile. Allow right-click whitelisting of blocked IPs and/or
     ports/protocol. Requires pgld dbus logging.
@@ -139,6 +109,22 @@ WHITE_IP_FWD: iptables -I $IPTABLES_FWD --source $IP -j $IPTABLES_TARGET_WHITELI
   - add whitelisting per IP/port/proto (pgl-gui-iptables-insert.sh)
 
   - clean up code: get rid of all unused remnants of mobloquer
+
+  - use ${BLOCKLISTS_DIR}/lists.xml to determine human friendly blocklist names
+    for URLs like this: http://list.iblocklist.com/?list=ewqglwibdgjttwttrinl&fi
+    leformat=p2p&archiveformat=gz
+    Also use lists.xml to show the list description.
+    Verify that lists like "example.com/list/list2" work.
+
+  - when you remove a whitelisting directly in pgl-gui (highlight it and click
+    on the big red "minus" sign), the "iptables -D" command is not executed.
+    This seems to be the case, independently of first unticking it or not.
+    But the variable is set correctly afterwards in pglcmd.conf.
+    If you just untick it, but do not remove it, everything is ok.
+
+  - add "pglcmd reload" to Control - Manage tab.
+
+  - issue a pglcmd reload after blocklist selection changes.
 
 ###############################################################################
 

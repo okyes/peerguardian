@@ -44,18 +44,18 @@ You can monitor the pgl interface on the system dbus:
 bus: system bus
 
 bus names (address of the connection on the system bus):
-    org.peerguardian.pgld
-    org.peerguardian.pglcmd
+    org.netfilter.pgl
 
-object path:
-    org/peerguardian/pgld/...
-    org/peerguardian/pglcmd/...
+object path (name of the object):
+    org/netfilter/pgl
+
+interface (can usually be omitted)
+    org/netfilter/pgl
 
 Logging is done with signals (broadcasting, "1:n publish-subscribe" coming from
 an object)
-
-interface (can usually be omitted)
-
+member (=signal) if pgld blocks an IP (IP matches blocklist):
+    IPMatch
 
 
 How to use dbus to log in pgld:
