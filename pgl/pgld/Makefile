@@ -69,13 +69,13 @@ all: src/pgld
 endif
 
 .c.o:
-	$(CC) $(CFLAGS) -o $@ -c $<
+	$(CC) -o $@ $(CFLAGS) -c $<
 
 src/pgld: $(OBJS)
-	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(LIBS)
+	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $(LIBS) $^
 
 src/dbus.so: src/dbus.o
-	$(CC) -shared -Wl `pkg-config dbus-1 --libs` -o $@ $^
+	$(CC) -o $@ -shared -Wl `pkg-config dbus-1 --libs` $^
 
 clean:
 	rm -rf *~ \
