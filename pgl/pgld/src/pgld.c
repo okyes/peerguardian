@@ -134,6 +134,7 @@ static void *dbus_lh = NULL;
 
 #define do_dlsym(symbol)                                                       \
     do {                                                                       \
+        dlerror(); /*clear error code*/                                        \
         symbol = dlsym(dbus_lh, # symbol);                                     \
         err = dlerror();                                                       \
         if (err) {                                                             \
