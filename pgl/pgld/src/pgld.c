@@ -653,7 +653,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (!queue_num) {
-        queue_num = htons(92);
+        queue_num = htons(0);
     }
 
     if ((ntohs(queue_num) < 0 || ntohs(queue_num) > 65535) && !opt_merge) {
