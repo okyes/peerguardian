@@ -85,11 +85,15 @@ void SuperUser::setFilePath( const QString &path ) {
 	
 
 
-void SuperUser::executeCommands(QStringList commands ) 
+void SuperUser::executeCommands(QStringList commands, bool wait) 
 {
+    
     
     QProcess::ProcessChannelMode mode = QProcess::MergedChannels;
     ProcessT *t;
+
+    if ( wait )
+        m_Commands << commands;
 
 	if ( m_SudoCmd.isEmpty() )
     {
@@ -160,10 +164,16 @@ void SuperUser::execute(const QStringList& command )
 
 }*/
 
+void SuperUser::executeAll()
+{
+    executeCommands(m_Commands, false);
+}
 
 void SuperUser::processFinished(QStringList commands)
 {
     ProcessT * t;
+    
+    m_Commands.clear();
     
     emit(finished());
     
@@ -193,7 +203,7 @@ void SuperUser::removeFile( const QString &source ) {
 }
 
 
-void SuperUser::moveFiles( const QMap<QString, QString> files )
+void SuperUser::moveFiles( const QMap<QString, QString> files, bool wait)
 {
     if ( ! files.isEmpty() )
     {
@@ -205,7 +215,7 @@ void SuperUser::moveFiles( const QMap<QString, QString> files )
             commands << cmd;
         }
         
-        executeCommands(commands);
+        executeCommands(commands, wait);
     }
 }
 

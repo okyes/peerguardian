@@ -72,7 +72,7 @@ class SuperUser : public QObject
 		 * @param command QStringList containing the command to be executed.
 		 * @param detached Execute the command either detached or start it normally and wait for it to be finished. This is ingored if pgl-gui was started with sudo rights.
 		 */
-		void executeCommands( QStringList commands );
+		void executeCommands( QStringList commands, bool wait = false );
         void execute( const QStringList& command);
 		/**
 		 * Move a file from one place of the filesystem to another, using the mv command.
@@ -97,7 +97,8 @@ class SuperUser : public QObject
         static QString getFilePath();
         static QString getFilePath(const QString &path);
         void startThread(const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode );
-        void moveFiles( const QMap<QString, QString>);
+        void moveFiles( const QMap<QString, QString>, bool wait=false);
+        void executeAll();
         void operator=(const SuperUser& su);
 
     public slots:
@@ -113,9 +114,8 @@ class SuperUser : public QObject
         QList<ProcessT*> m_threads;
         QObject *m_parent;
         QMap<QString, QString> m_filesToMove;
-        QList<QStringList> cmdsToExec;
-        QList<QStringList> pendingCmds;
         QTimer m_timer;
+        QStringList m_Commands;
 
 };
 
