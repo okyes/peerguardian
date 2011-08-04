@@ -712,7 +712,7 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
         if (pgl_dbus_init() < 0) {
-            fprintf(stderr, "Cannot initialize D-Bus");
+            do_log(LOG_ERR, "ERROR: Cannot initialize D-Bus");
             try_dbus = 0;
             exit(1);
         }
