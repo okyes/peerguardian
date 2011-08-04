@@ -25,7 +25,6 @@ Peerguardian::Peerguardian( QWidget *parent ) :
 
     PglSettings::loadSettings();
     guiOptions = new GuiOptions(this);
-    inicializeVariables();
     inicializeSettings();
     startTimers();
     g_MakeTray();
@@ -36,16 +35,6 @@ Peerguardian::Peerguardian( QWidget *parent ) :
 
     m_treeItemPressed = false;
     
-    
-    /*QStringList chains;
-    chains << QString("IN") << QString("OUT") << QString("fwd");
-    QStringList prots;
-    prots << "tcp" << "udp";
-    QStringList commands = m_Whitelist->insertPort("192.168.1.1", prots, chains, true);
-
-    foreach(QString command, commands)
-        qDebug() << command;*/
-      
     
     //ActionButton *bt;
     //bt = new ActionButton(kickPB, "org.qt.policykit.examples.kick", this);
@@ -130,7 +119,8 @@ void Peerguardian::updateGUI()
         }
     }
 
-    getLists();
+    updateBlocklist();
+    updateWhitelist();
     guiOptions->update();
 }
 
@@ -296,6 +286,7 @@ void Peerguardian::rootFinished()
     }
     else
     {
+        m_Whitelist->updateSettings(getTreeItems(m_WhitelistTreeWidget), guiOptions->getPositionFirstAddedWhitelistItem());
         PglSettings::loadSettings();
         updateGUI();
         m_ApplyButton->setEnabled(false);
@@ -407,11 +398,8 @@ void Peerguardian::applyChanges()
     bool updateBlocklistsList = guiOptions->hasToUpdateBlocklistList();
     QString filepath;
     
-
     //apply new changes directly in iptables
     updateWhitelistItemsInIptables();
-    
-    m_Whitelist->updateSettings(getTreeItems(m_WhitelistTreeWidget), guiOptions->getPositionFirstAddedWhitelistItem());
 
     //================ update /etc/pgl/pglcmd.conf ================/
 	if ( updatePglcmdConf )
@@ -478,10 +466,9 @@ void Peerguardian::applyChanges()
 
     if ( ! filesToMove.isEmpty() )
         m_Root->moveFiles(filesToMove);
-    else
-        rootFinished();
 
-    
+    m_Whitelist->updateSettings(getTreeItems(m_WhitelistTreeWidget), guiOptions->getPositionFirstAddedWhitelistItem(), false);
+    guiOptions->updateWhitelist(guiOptions->getPositionFirstAddedWhitelistItem());
 }
 
 void Peerguardian::updateWhitelistItemsInIptables()
@@ -498,7 +485,7 @@ void Peerguardian::updateWhitelistItemsInIptables()
         items += removedItems;
         
     //if the item has just been added, there's no point in removing it
-    //from iptables, since i isn't even there yet
+    //from iptables, since it isn't even there yet
     if ( firstPos > 0 )
         for(int i=firstPos; i < items.size(); i++)
             if ( items[i]->checkState(0) == Qt::Unchecked  )
@@ -553,7 +540,7 @@ QList<QTreeWidgetItem*> Peerguardian::getTreeItems(QTreeWidget *tree, int checkS
 void Peerguardian::treeItemChanged(QTreeWidgetItem* item, int column)
 {
     if ( ! m_treeItemPressed )
-	return;
+        return;
 
     m_treeItemPressed = false;
 
@@ -574,7 +561,6 @@ void Peerguardian::treeItemChanged(QTreeWidgetItem* item, int column)
 
 void Peerguardian::treeItemPressed(QTreeWidgetItem* item, int column)
 {
-
     m_treeItemPressed = true;
 
     if ( item->treeWidget()->objectName().contains("block", Qt::CaseInsensitive) )
@@ -590,18 +576,15 @@ void Peerguardian::treeItemPressed(QTreeWidgetItem* item, int column)
 
 }
 
-void Peerguardian::getLists()
+void Peerguardian::updateBlocklist()
 {
     if ( m_List == NULL )
         return;
-
 
     m_List->updateListsFromFile();
 
     if ( m_BlocklistTreeWidget->topLevelItemCount() > 0 )
         m_BlocklistTreeWidget->clear();
-    if ( m_WhitelistTreeWidget->topLevelItemCount() > 0 )
-        m_WhitelistTreeWidget->clear();
 
     QStringList item_info;
 
@@ -628,11 +611,18 @@ void Peerguardian::getLists()
         tree_item->setCheckState(0, Qt::Checked);
         item_info.clear();
     }
+}
 
+void Peerguardian::updateWhitelist()
+{
+    
     QMap<QString, QStringList> items;
     QStringList values;
     QStringList info;
-
+    
+    if ( m_WhitelistTreeWidget->topLevelItemCount() > 0 )
+        m_WhitelistTreeWidget->clear();
+    
     //get enabled whitelisted IPs and ports
     items = m_Whitelist->getEnabledWhitelistedItems();
     foreach(QString key, items.keys())
@@ -685,10 +675,6 @@ void Peerguardian::inicializeSettings()
     g_SetControlPath();
 
 
-}
-
-void Peerguardian::inicializeVariables()
-{
 }
 
 void Peerguardian::g_SetRoot( ) {
@@ -774,7 +760,6 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
             treeItem->setStatusTip(0, tr("You need to click the Apply button so the changes take effect"));
             m_WhitelistTreeWidget->addTopLevelItem(treeItem);
             newItems = true;
-
         }
 
 	}

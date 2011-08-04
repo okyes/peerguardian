@@ -165,7 +165,6 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
 		 */
 		virtual ~Peerguardian();
 
-        void getLists();
         void g_MakeConnections();
         void inicializeSettings();
 		void g_SetRoot();
@@ -178,7 +177,6 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void startTimers();
         void updateGUI();
         QList<QTreeWidgetItem*> getTreeItems(QTreeWidget *tree, int checkState=-1);
-        void inicializeVariables();
         QRadioButton * getAutoListUpdateDailyRadio() {return m_AutoListUpdateDailyRadio;}
         QRadioButton * getAutoListUpdateWeeklyRadio() {return m_AutoListUpdateWeeklyRadio;}
         QRadioButton * getAutoListUpdateMonthlyRadio() {return m_AutoListUpdateMonthlyRadio;}
@@ -188,6 +186,8 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         QTreeWidget * getWhitelistTreeWidget() { return m_WhitelistTreeWidget; }
         QString getUpdateFrequencyPath();
         QString getUpdateFrequencyCurrentPath();
+        void updateWhitelist();
+        void updateBlocklist();
 
     public slots:
         void g_ShowAddExceptionDialog() { g_ShowAddDialog(ADD_MODE | EXCEPTION_MODE); };
