@@ -568,30 +568,25 @@ static void nfqueue_loop () {
 static void print_usage() {
     fprintf(stderr, PACKAGE_NAME " " VERSION "\n\n");
     fprintf(stderr, "Usage:\n");
-    fprintf(stderr, "  pgld ");
+    fprintf(stderr, "  pgld [-s] [-l LOGFILE]");
 #ifdef HAVE_DBUS
-    fprintf(stderr, "[-d] ");
+    fprintf(stderr, " [-d]");
 #endif
-    fprintf(stderr, "[-s] [-l LOGFILE] ");
-#ifndef LOWMEM
-    fprintf(stderr, "[-c CHARSET] ");
-#endif
-    fprintf(stderr, "[-p PIDFILE] [-a MARK] [-r MARK] [-q 0-65535] BLOCKLIST(S)\n");
-    fprintf(stderr, "  pgld -m [BLOCKLIST(S)]\n\n");
-#ifdef HAVE_DBUS
-    fprintf(stderr, "        -d            Enable D-Bus support.\n");
-#endif
-    fprintf(stderr, "        -s            Enable logging to syslog.\n");
-    fprintf(stderr, "        -l LOGFILE    Enable logging to LOGFILE.\n");
-#ifndef LOWMEM
-    fprintf(stderr, "        -c CHARSET    Specify blocklist file CHARSET.\n");
-#endif
-    fprintf(stderr, "        -p PIDFILE    Use a PIDFILE.\n");
-    fprintf(stderr, "        -a MARK       Place a 32-bit MARK on accepted packets.\n");
-    fprintf(stderr, "        -r MARK       Place a 32-bit MARK on rejected packets.\n");
-    fprintf(stderr, "        -q 0-65535    Specify a 16-bit NFQUEUE number.\n");
-    fprintf(stderr, "                      Must match --queue-num used in iptables rules.\n");
-    fprintf(stderr, "        -m [BLOCKLIST(S)] Load, sort, merge, and dump blocklist(s) specified or piped from stdin.\n");
+    fprintf(stderr, " [-c CHARSET] [-p PIDFILE] [-a MARK] [-r MARK] [-q 0-65535] BLOCKLIST(S)\n");
+    fprintf(stderr, "  pgld [-c CHARSET] -m [BLOCKLIST(S)]\n\n");
+    fprintf(stderr, "Options:\n");
+    fprintf(stderr, "  -s                Enable logging to syslog.\n");
+    fprintf(stderr, "  -l LOGFILE        Enable logging to LOGFILE.\n");
+    fprintf(stderr, "  -d                Enable D-Bus support.\n");
+    fprintf(stderr, "  -c CHARSET        Specify blocklist file CHARSET.\n");
+    fprintf(stderr, "  -p PIDFILE        Use a PIDFILE.\n");
+    fprintf(stderr, "  -q 0-65535        Specify a 16-bit NFQUEUE number.\n");
+    fprintf(stderr, "                    Must match --queue-num used in iptables rules.\n");
+    fprintf(stderr, "  -r MARK           Place a 32-bit MARK on rejected packets.\n");
+    fprintf(stderr, "  -a MARK           Place a 32-bit MARK on accepted packets.\n");
+    fprintf(stderr, "  -m [BLOCKLIST(S)] Load, sort, merge, and dump blocklist(s) to stdout.\n");
+    fprintf(stderr, "                    Specify blocklists or pipe from stdin.\n");
+    fprintf(stderr, "  -h                Print this help.\n");
 }
 
 void add_blocklist(const char *name, const char *charset) {
@@ -607,12 +602,34 @@ void add_blocklist(const char *name, const char *charset) {
 int main(int argc, char *argv[]) {
     int opt, i;
     int try_dbus = 0;
-    while ((opt = getopt(argc, argv, "q:a:r:dp:sl:mh"
-#ifndef LOWMEM
-        "c:"
+
+    while ((opt = getopt(argc, argv, "sl:"
+#ifdef HAVE_DBUS
+        "d"
 #endif
-        )) != -1) {
+        "c:p:q:r:a:mh" )) != -1) {
         switch (opt) {
+        case 's':
+            use_syslog = 1;
+            break;
+        case 'l':
+            logfile_name=malloc(strlen(optarg)+1);
+            CHECK_OOM(logfile_name);
+            strcpy(logfile_name,optarg);
+            break;
+#ifdef HAVE_DBUS
+        case 'd':
+            try_dbus = 1;
+            break;
+#endif
+        case 'c':
+            current_charset = optarg;
+            break;
+        case 'p':
+            pidfile_name=malloc(strlen(optarg)+1);
+            CHECK_OOM(pidfile_name);
+            strcpy(pidfile_name,optarg);
+            break;
         case 'q':
             queue_num = htons((uint16_t)atoi(optarg));
             break;
@@ -622,35 +639,12 @@ int main(int argc, char *argv[]) {
         case 'a':
             accept_mark = htonl((uint32_t)atoi(optarg));
             break;
-        case 'p':
-            pidfile_name=malloc(strlen(optarg)+1);
-            CHECK_OOM(pidfile_name);
-            strcpy(pidfile_name,optarg);
-            break;
-#ifndef LOWMEM
-        case 'c':
-            current_charset = optarg;
-            break;
-#endif
-        case 's':
-            use_syslog = 1;
-            break;
         case 'm':
             opt_merge = 1;
-            break;
-        case 'l':
-            logfile_name=malloc(strlen(optarg)+1);
-            CHECK_OOM(logfile_name);
-            strcpy(logfile_name,optarg);
             break;
         case 'h':
             print_usage();
             exit(0);
-#ifdef HAVE_DBUS
-        case 'd':
-            try_dbus = 1;
-            break;
-#endif
         }
     }
 
