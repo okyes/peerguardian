@@ -53,8 +53,8 @@ struct nfq_handle *nfqueue_h = 0;
 struct nfq_q_handle *nfqueue_qh = 0;
 
 
-void do_log(int priority, const char *format, ...)
-{
+// General logging function
+void do_log(int priority, const char *format, ...) {
     if (use_syslog) {
         va_list ap;
         va_start(ap, format);
@@ -77,13 +77,14 @@ void do_log(int priority, const char *format, ...)
         fflush(logfile);
         va_end(ap);
     }
+
 #ifdef HAVE_DBUS
     if (use_dbus) {
-       va_list ap;
-       va_start(ap, format);
-       pgl_dbus_send(format, ap);
-       va_end(ap);
-   }
+        va_list ap;
+        va_start(ap, format);
+        pgl_dbus_send(format, ap);
+        va_end(ap);
+    }
 #endif
 
     if (opt_merge) {
@@ -199,6 +200,8 @@ static FILE *create_pidfile(const char *name) {
     return f;
 }
 
+// Once daemonized stdout and stderr are no more available, only logging to
+// syslog, logfile and dbus.
 static void daemonize() {
     /* Fork off and have parent exit. */
     switch (fork()) {
@@ -211,11 +214,14 @@ static void daemonize() {
         exit(0);
     }
 
-    /* detach from the controlling terminal */
+    /* Detach from the controlling terminal */
     setsid();
+
+    /* Close all standard I/0 descriptors */
     close(fileno(stdin));
     close(fileno(stdout));
     close(fileno(stderr));
+
     do_log(LOG_INFO, "INFO: Started.");
 }
 
@@ -243,8 +249,7 @@ static int load_all_lists() {
 static void nfqueue_unbind() {
     if (!nfqueue_h)
         return;
-
-    do_log(LOG_INFO, "INFO: NFQUEUE: unbinding from queue 0.");
+    do_log(LOG_INFO, "INFO: Unbinding from nfqueue.");
     nfq_destroy_queue(nfqueue_qh);
     if (nfq_unbind_pf(nfqueue_h, AF_INET) < 0) {
         do_log(LOG_ERR, "ERROR: Error during nfq_unbind_pf(): %s", strerror(errno));
@@ -672,6 +677,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+    // open logfile
     if (logfile_name != NULL) {
         if ((logfile=fopen(logfile_name,"a")) == NULL) {
             fprintf(stderr, "Unable to open logfile: %s", logfile_name);

@@ -31,10 +31,12 @@ static DBusConnection *dbconn = NULL;
 // use_dbus is still 0, so in do_log calls dbus is still disabled.
 int pgl_dbus_init() {
 
+    // Object representing an exception.
     DBusError dberr;
 
     int req;
 
+    // Initializes a DBusError structure.
     dbus_error_init (&dberr);
 
     dbconn = dbus_bus_get (DBUS_BUS_SYSTEM, &dberr);
@@ -46,8 +48,7 @@ int pgl_dbus_init() {
         do_log(LOG_ERR, "ERROR: dbconn is NULL.\n");
         return -1;
     }
-    /* FIXME: need d-bus policy privileges for this to work, pgld has to get them! */
-//     dbus_error_init (&dberr); /* FIXME: Why commented out? */
+
     req = dbus_bus_request_name (dbconn, PGL_DBUS_PUBLIC_NAME,
         DBUS_NAME_FLAG_DO_NOT_QUEUE, &dberr); /* TODO: DBUS_NAME_FLAG_ALLOW_REPLACEMENT goes here */
     if (dbus_error_is_set (&dberr)) {
@@ -94,7 +95,8 @@ void pgl_dbus_send(const char *format, va_list ap) {
     }
 
     dbus_message_iter_init_append(dbmsg, &dbiter);
-    if (!dbus_message_iter_append_basic(&dbiter, DBUS_TYPE_STRING, &msgPtr)) { //The API needs a double pointer, otherwise causes seg. fault 
+    if (!dbus_message_iter_append_basic(&dbiter, DBUS_TYPE_STRING, &msgPtr)) {
+        /*The API needs a double pointer, otherwise causes segfault*/
         do_log_xdbus(LOG_ERR, "ERROR: dbus_message_iter_append_basic - out of memory.\n");
     }
     if (!dbus_connection_send (dbconn, dbmsg, &serial)) {
