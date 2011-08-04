@@ -28,6 +28,7 @@
 
 static DBusConnection *dbconn = NULL;
 
+// use_dbus is still 0, so in do_log calls dbus is still disabled.
 int pgl_dbus_init() {
 
     DBusError dberr;
@@ -38,41 +39,40 @@ int pgl_dbus_init() {
 
     dbconn = dbus_bus_get (DBUS_BUS_SYSTEM, &dberr);
     if (dbus_error_is_set (&dberr)) {
-        fprintf(stderr, "Connection Error (%s)\n", dberr.message);
+        do_log(LOG_ERR, "ERROR: Connection Error (%s)\n", dberr.message);
         dbus_error_free(&dberr);
     }
     if (dbconn == NULL) {
+        do_log(LOG_ERR, "ERROR: dbconn is NULL.\n");
         return -1;
     }
-    //FIXME: It will be difficult to use do_log() in dbus.c because
-    //            a) Of compiler errors(undefined symbols etc
-    //            b) do_log() calls pgl_dbus_send() 
-    //       Is fprintf(stderr,...) ok? (jimtb)
-    //do_log(LOG_INFO, "INFO: Connected to system bus.") 
     /* FIXME: need d-bus policy privileges for this to work, pgld has to get them! */
 //     dbus_error_init (&dberr); /* FIXME: Why commented out? */
     req = dbus_bus_request_name (dbconn, PGL_DBUS_PUBLIC_NAME,
         DBUS_NAME_FLAG_DO_NOT_QUEUE, &dberr); /* TODO: DBUS_NAME_FLAG_ALLOW_REPLACEMENT goes here */
     if (dbus_error_is_set (&dberr)) {
-//        do_log(LOG_ERR, "ERROR: requesting name: %s.", dberr.message); 
-	fprintf(stderr, "ERROR: requesting name %s.\n", dberr.message);
+        do_log(LOG_ERR, "ERROR: Error requesting name %s.\n", dberr.message);
         dbus_error_free(&dberr);
         return -1;
     }
     if (req == DBUS_REQUEST_NAME_REPLY_EXISTS) {
         /*TODO: req = dbus_bus_request_name (dbconn, NFB_DBUS_PUBLIC_NAME,
             DBUS_NAME_FLAG_REPLACE_EXISTING, &dberr); */
-//        do_log(LOG_WARNING, "WARN: pgld is already running."); 
-	fprintf(stderr, "WARN: pgld is already running.\n");
+        do_log(LOG_WARNING, "WARN: pgld dbus is already initialized.\n");
         return -1;
     }
+
+    do_log(LOG_INFO, "INFO: Connected to dbus system bus.");
+
     return 0;
 }
 
+// use_dbus now is 1, so in do_log calls dbus is enabled.
+// Therefore use do_log_xdbus instead for error messages.
 void pgl_dbus_send(const char *format, va_list ap) {
 
     if (dbconn == NULL) {
-	fprintf( stderr, "ERROR: dbus_send() called with NULL connection!\n");
+        do_log_xdbus(LOG_ERR, "ERROR: dbus_send() called with NULL connection.\n");
         exit(1);
     }
 
@@ -87,20 +87,20 @@ void pgl_dbus_send(const char *format, va_list ap) {
     dbmsg = dbus_message_new_signal ("/org/netfilter/pgl",
                                      "org.netfilter.pgl",
                                      "pgld_message");
+
     if (dbmsg == NULL) {
-        fprintf(stderr, "ERROR: NULL dbus message!\n");
+        do_log_xdbus(LOG_ERR, "ERROR: NULL dbus message.\n");
         exit(1);
     }
 
     dbus_message_iter_init_append(dbmsg, &dbiter);
     if (!dbus_message_iter_append_basic(&dbiter, DBUS_TYPE_STRING, &msgPtr)) { //The API needs a double pointer, otherwise causes seg. fault 
-      fprintf(stderr, "Out Of Memory!\n");
+        do_log_xdbus(LOG_ERR, "ERROR: dbus_message_iter_append_basic - out of memory.\n");
     }
     if (!dbus_connection_send (dbconn, dbmsg, &serial)) {
-        fprintf(stderr, "Out Of Memory!\n");
+        do_log_xdbus(LOG_ERR, "ERROR: dbus_connection_send - out of memory.\n");
     }
     dbus_connection_flush(dbconn);
     dbus_message_unref(dbmsg);
-    printf( "DEBUG: DBUS_SEND() SUCESSFUL!\n" );
 
 }

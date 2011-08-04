@@ -95,6 +95,34 @@ void do_log(int priority, const char *format, ...)
     }
 }
 
+// Logging function that does not log to dbus
+// (to be used e.g. in dbus functions for error messages)
+void do_log_xdbus(int priority, const char *format, ...) {
+
+    if (use_syslog) {
+        va_list ap;
+        va_start(ap, format);
+        vsyslog(LOG_MAKEPRI(LOG_DAEMON, priority), format, ap);
+        va_end(ap);
+    }
+
+    if (logfile) {
+        va_list ap;
+        va_start(ap, format);
+        time_t tv;
+        struct tm * timeinfo;
+        time( &tv );
+        timeinfo = localtime ( &tv );
+        strftime(timestr, 17, "%b %e %X", timeinfo);
+        timestr[16] = '\0';
+        fprintf(logfile,"%s ",timestr);
+        vfprintf(logfile, format, ap);
+        fprintf(logfile, "\n");
+        fflush(logfile);
+        va_end(ap);
+    }
+}
+
 void int2ip (uint32_t ipint, char *ipstr) {
     ipint=htonl(ipint);
     inet_ntop(AF_INET, &ipint, ipstr, INET_ADDRSTRLEN);
@@ -108,7 +136,7 @@ static void *dbus_lh = NULL;
         symbol = dlsym(dbus_lh, # symbol);                                     \
         err = dlerror();                                                       \
         if (err) {                                                             \
-            do_log(LOG_ERR, "ERROR: Cannot get symbol %s: %s", # symbol, err); \
+            do_log_xdbus(LOG_ERR, "ERROR: Cannot get symbol %s: %s", # symbol, err); \
             goto out_err;                                                      \
         }                                                                      \
     } while (0)
