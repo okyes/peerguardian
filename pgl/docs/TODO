@@ -28,6 +28,8 @@ pgld:
 
 pglcmd:
 
+  - FIX: on stop (and probably other commands), only dump/reset stats once
+
   - nice: on CentOS it is required to use e.g. "+5". Find solutions suiting all
     distros.
 
@@ -104,7 +106,14 @@ pgl-gui:
   * whitelisting bugs:
     * added 224.0.0.0/24: iptables command ok, but not added to pgl-gui and not
       to pglcmd.conf
-    - concatenate all commands on "Apply" with "&&"
+    * concatenate all commands on "Apply" with "&&"
+    * if CMD_CONF (/etc/pgl/pglcmd.conf) doesn't exist, create it on "Apply" of
+      whitelisting stuff
+      if BLOCKLISTS_LIST (/etc/pgl/blocklists.list) doesn't exist, create it on
+      "Apply" of blocklist changes
+    * before issuing the iptables commands check if the daemon is running:
+      daemon running: iptables command and settings to pglcmd.conf
+      daemon not running: only settings to pglcmd.conf
 
   * issue a "pglcmd reload" after blocklist selection changes on "Apply".
 
