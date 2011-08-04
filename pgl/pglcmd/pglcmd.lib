@@ -2146,7 +2146,6 @@ build_blocklist () {
         done
     fi
 
-
     if [ -z "$BLOCKLISTSCAT" ] ; then
         log_failure_msg "Error $E_BLOCKLIST: No blocklists configured or available."
         exit $E_BLOCKLIST
@@ -2195,19 +2194,19 @@ build_blocklist () {
             $DAEMON -m > $MASTER_BLOCKLIST && BUILT=1
         fi
 
-        [ "$BUILT" -eq 1 ] &&
-            echo "Blocklist built." ||
-                {
-                    log_failure_msg "Error: build_blocklist failed."
-                    if [ -f ${MASTER_BLOCKLIST}~ ] ; then
-                        echo -n "Restoring $MASTER_BLOCKLIST ..."
-                        mv ${MASTER_BLOCKLIST}~ $MASTER_BLOCKLIST ||
-                            { log_failure_msg " Error: mv exited with $?" ; exit 1 ; }
-                        log_end_msg 0
-                    else
-                        exit $E_BLOCKLIST
-                    fi
-                }
+        if [ "$BUILT" -eq 1 ] ; then
+            echo "Blocklist built."
+        else
+            log_failure_msg "Error: build_blocklist failed."
+            if [ -f ${MASTER_BLOCKLIST}~ ] ; then
+                echo -n "Restoring $MASTER_BLOCKLIST ..."
+                mv ${MASTER_BLOCKLIST}~ $MASTER_BLOCKLIST ||
+                    { log_failure_msg " Error: mv exited with $?" ; exit 1 ; }
+                log_end_msg 0
+            else
+                exit $E_BLOCKLIST
+            fi
+        fi
     fi
 
     # Save configuration settings on which this blocklist bases:
