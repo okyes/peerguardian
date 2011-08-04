@@ -709,6 +709,7 @@ int main(int argc, char *argv[]) {
         if (open_dbus() < 0) {
             do_log(LOG_ERR, "ERROR: Cannot load D-Bus plugin");
             try_dbus = 0;
+            exit(1);
         }
         if (pgl_dbus_init() < 0) {
             fprintf(stderr, "Cannot initialize D-Bus");
