@@ -42,7 +42,6 @@ class GuiOptions
         QString getActiveUpdateRadioButtonName();
         bool whitelistStateChanged(bool anyChange = true);
         bool blocklistStateChanged();
-        void updateLists(QTreeWidget * tree);
         bool hasToUpdatePglcmdConf();
         bool hasToUpdateBlocklistList();
         bool hasCheckboxChanged(QCheckBox*);
@@ -56,6 +55,8 @@ class GuiOptions
         void addWhitelistItemForIptablesRemoval(QTreeWidgetItem* item);
         void addRemovedWhitelistItem(QTreeWidgetItem *);
         QList<QTreeWidgetItem*>& getRemovedWhitelistItemsForIptablesRemoval(){ return m_WhitelistItemsForIptablesRemoval; }
+        void updateBlocklist();
+        void updateWhitelist(int starFrom = 0);
 };
 
 

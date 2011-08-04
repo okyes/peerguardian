@@ -150,7 +150,7 @@ int GuiOptions::getPositionFirstAddedWhitelistItem()
     int nItems = m_Window->getWhitelistTreeWidget()->topLevelItemCount();
     int prevNItems = m_WhitelistState.size();
     int added = nItems - ( prevNItems - m_WhitelistItemsRemoved );
-    int pos = m_Window->getWhitelistTreeWidget()->topLevelItemCount() - added;
+    int pos = nItems - added;
     
     return pos;
 }
@@ -189,33 +189,43 @@ void GuiOptions::deleteItems(QList<QTreeWidgetItem*> & list)
     list.clear();
 }
 
-void GuiOptions::updateLists(QTreeWidget * tree)
+void GuiOptions::updateWhitelist(int startFrom)
 {
-    QList<int> listState;
-    QList<QTreeWidgetItem*> items;
     QTreeWidgetItem * item;
+    QTreeWidget * tree = m_Window->getWhitelistTreeWidget();
+    
+    if ( startFrom <= 0)
+    {
+        startFrom = 0;
+        deleteItems(m_Whitelist);
+    }
+
+    for ( int i=startFrom; i < tree->topLevelItemCount(); i++ )
+    {
+        item = tree->topLevelItem(i);
+        QTreeWidgetItem * item2 = new QTreeWidgetItem(*item);
+        m_WhitelistState << item->checkState(0);
+        m_Whitelist << item2;
+    }
+    
+}
+
+void GuiOptions::updateBlocklist()
+{
+    QTreeWidgetItem * item;
+    QTreeWidget * tree = m_Window->getBlocklistTreeWidget();
+
+    deleteItems(m_Blocklist);
 
     for ( int i=0; i < tree->topLevelItemCount(); i++ )
     {
         item = tree->topLevelItem(i);
         QTreeWidgetItem * item2 = new QTreeWidgetItem(*item);
-        items << item2;
-        listState.append(item->checkState(0));
+        m_Blocklist << item2;
+        m_BlocklistState << item->checkState(0);
     }
-
-    if ( tree->objectName().contains("Blocklist", Qt::CaseInsensitive) )
-    {
-        m_BlocklistState = listState;
-        deleteItems(m_Blocklist);
-        m_Blocklist = items;
-    }
-    else
-    {
-        m_WhitelistState = listState;
-        deleteItems(m_Whitelist);
-        m_Whitelist = items;
-    }
-
+    
+    
 }
 
 void GuiOptions::update()
@@ -224,8 +234,8 @@ void GuiOptions::update()
     m_WhitelistItemsForIptablesRemoval.clear();
     updateStartAtBoot();
     updateUpdateRadioBtn();
-    updateLists(m_Window->getBlocklistTreeWidget());
-    updateLists(m_Window->getWhitelistTreeWidget());
+    updateWhitelist();
+    updateBlocklist();
 }
 
 
