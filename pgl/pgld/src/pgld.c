@@ -298,7 +298,10 @@ static void sighandler(int sig, siginfo_t *info, void *context) {
         blocklist_clear(0);
         free(blocklist_filenames);
         free(blocklist_charsets);
-        closelog();
+        // close syslog
+        if (use_syslog) {
+            closelog();
+        }
         if (pidfile) {
             fclose(pidfile);
             unlink(pidfile_name);
