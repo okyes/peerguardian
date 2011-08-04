@@ -56,12 +56,7 @@ case "$CRON" in
         ;;
     # Automatic update is on:
     1)
-        if [ -x /usr/sbin/sendmail ] ; then
-            SENDMAIL="/usr/sbin/sendmail"
-        elif [ -x /usr/lib/sendmail ] ; then
-            SENDMAIL="/usr/lib/sendmail"
-        fi
-        if [ $CRON_MAILTO ] && [ $SENDMAIL ] ; then
+        if [ $CRON_MAILTO ] && test_sendmail ; then
             cat<<EOF | $SENDMAIL -t
 To: $CRON_MAILTO
 Subject: Results of $CMD_NAME blocklist update

@@ -517,6 +517,18 @@ test_external () {
     return $E_XEXTERNAL
 }
 
+test_sendmail () {
+    if [ $SENDMAIL ] && [ "$SENDMAIL" != /usr/lib/sendmail ] && test_external $SENDMAIL ; then
+        true
+    elif [ -x /usr/lib/sendmail ] ; then
+        SENDMAIL="/usr/lib/sendmail"
+    else
+        echo "Warning: $SENDMAIL not found, not mailing stats."
+        echo "Check the SENDMAIL setting."
+        return $E_XEXTERNAL
+    fi
+}
+
 test_INIT () {
     case "$INIT" in
         '0'|'1')
@@ -2430,17 +2442,7 @@ reset_stats () {
 email_stats () {
     # Check if pgl is configured to mail the stats, and if daemon is running
     # (otherwise stats are not available).
-    if [ $STATS_MAILTO ] && status_of_proc $DAEMON $NAME > /dev/null 2>&1 ; then
-        # Check if sendmail is available
-        if [ $SENDMAIL ] && test_external $SENDMAIL ; then
-            true
-        elif [ -x /usr/lib/sendmail ] ; then
-            local SENDMAIL="/usr/lib/sendmail"
-        else
-            echo "Warning: $SENDMAIL not found, not mailing stats."
-            echo "Check the SENDMAIL setting."
-            return
-        fi
+    if [ $STATS_MAILTO ] && status_of_proc $DAEMON $NAME >/dev/null 2>&1 && test_sendmail ; then
         echo -n "Emailing stats"
         SUBJECT="$NAME hit statistics"
         cat<<EOF | $SENDMAIL -t &
