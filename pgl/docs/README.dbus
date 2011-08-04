@@ -41,6 +41,14 @@ You can monitor the pgl interface on the system dbus:
    dbus-monitor --system "interface=org.netfilter.pgl"
 
 
+Naming Conventions;
+D-Bus namespaces are all lowercase and correspond to reversed domain names, as
+ with Java. e.g. "org.freedesktop"
+Interface, signal, method, and property names are "WindowsStyleCaps", note that
+ the first letter is capitalized, unlike Java.
+Object paths are normally all lowercase with underscores used rather than
+ hyphens.
+
 bus: system bus
 
 bus names (address of the connection on the system bus):
@@ -62,7 +70,7 @@ How to use dbus to log in pgld:
 ===============================
 
 dbus was initially implemented in NFBlock by jpv and reimplemented by jimtb. It
-uses the lowlevel bindings.
+uses the lowlevel bindings "libdbus".
     dbmsg = dbus_message_new_signal ("/org/netfilter/pgl",
                                          "org.netfilter.pgl",
                                          "pgld_message");
