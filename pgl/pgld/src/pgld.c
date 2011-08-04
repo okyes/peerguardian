@@ -156,6 +156,7 @@ static int open_dbus() {
 
     do_dlsym(pgl_dbus_init);
     do_dlsym(pgl_dbus_send);
+//  do_dlsym(pgl_dbus_send_ipmatch);
     return 0;
 
 out_err:
@@ -399,7 +400,8 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                 found_range->hits++;
                 setipinfo(src, dst, proto, ip, payload);
 #ifndef LOWMEM
-                do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s || %s",src,dst,proto,found_range->name);
+                do_log_xdbus(LOG_NOTICE, " IN: %-22s %-22s %-4s || %s",src,dst,proto,found_range->name);
+//              TODO: pgl_dbus_send_ipmatch...
 #else
                 do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s",src,dst,proto);
 #endif
@@ -426,7 +428,8 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                 found_range->hits++;
                 setipinfo(src, dst, proto, ip, payload);
 #ifndef LOWMEM
-                do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4s || %s",src,dst,proto,found_range->name);
+                do_log_xdbus(LOG_NOTICE, "OUT: %-22s %-22s %-4s || %s",src,dst,proto,found_range->name);
+//              TODO: pgl_dbus_send_ipmatch...
 #else
                 do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4su", src,dst,proto);
 #endif
@@ -456,7 +459,8 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                 found_range->hits++;
                 setipinfo(src, dst, proto, ip, payload);
 #ifndef LOWMEM
-                do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s || %s",src,dst,proto,found_range->name);
+                do_log_xdbus(LOG_NOTICE, "FWD: %-22s %-22s %-4s || %s",src,dst,proto,found_range->name);
+//              TODO: pgl_dbus_send_ipmatch...
 #else
                 do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s",src,dst,proto);
 #endif
