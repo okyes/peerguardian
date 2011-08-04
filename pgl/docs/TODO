@@ -1,8 +1,11 @@
 TODO
 
+Note:  items marked with "*" are release-critical for 2.1.0
+
+
 pgld:
 
-  - fix dbus support, especially for logging:
+  * fix dbus support, especially for logging:
     The blocked IP logging messages should use separate objects for every item
     (SOURCE_IP, DESTINATION_IP, SOURCE_PORT, DESTINATION_PORT, PROTOCOL,
     TIMESTAMP) instead of a plain string, so that pgl-gui can easily use this
@@ -42,11 +45,10 @@ pglcmd:
   - use "ip addr" instead of "ifconfig":
     see http://jengelh.medozas.de/2008/0219-ifconfig-sucks.php
 
-  - send error messages to console (STDERR 1>&2) and logfile.
-    Completely rework the logging part, and check if all messages go where they
-    should.
-
-  - add dbus support, especially for logging. See below.
+  - add dbus support, especially for logging.
+    - Completely rework the logging part, and check if all messages go where
+      they should.
+    - send error messages to console (STDERR 1>&2), logfile and dbus.
 
   - add pidfile for pglcmd (e.g. to prevent 2 starts at nearly the same time.
     How to handle "update"? - this does not conflict with start.
@@ -92,16 +94,19 @@ pglcmd:
 pgl-gui:
 
 ###############################################################################
+
   [freemind]
 
   pgl-gui only:
 
   - add option "Reset to default"
 
-  - when you remove a unticked whitelisting in pgl-gui, there is a unnecessary
-    "mv pglcmd.conf" command.
+  * whitelisting bugs:
+    * added 224.0.0.0/24: iptables command ok, but not added to pgl-gui and not
+      to pglcmd.conf
+    - concatenate all commands on "Apply" with "&&"
 
-  - issue a "pglcmd reload" after blocklist selection changes on "Apply".
+  * issue a "pglcmd reload" after blocklist selection changes on "Apply".
 
   - policykit support (instead of kdesudo/gksu)
 
@@ -113,6 +118,11 @@ pgl-gui:
     Also use lists.xml to show the list description.
     Verify that lists like "example.com/list/list2" work.
 
+  * items on right-click on tray icon:
+    * Start, Stop, Restart: (currently no-op), remove or connect to the
+      corresponding pglcmd commands.
+    * Restore window: remove or connect. It's already implemented with
+      "left-click on tray icon"
 
   Requires pglcmd dbus:
 
@@ -121,11 +131,11 @@ pgl-gui:
 
   Requires pgld dbus:
 
-  - show log of blocked items (IP/port/protocol). Requires pgld dbus logging.
+  * show log of blocked items (IP/port/protocol). Requires pgld dbus logging.
 
   - whitelisting with right-clicking in the log of blocked IPs window:
 
-    - add blocked item (IP or port) to whitelisting (like in "Configure -
+    * add blocked item (IP or port) to whitelisting (like in "Configure -
       Whitelist").
 
     - add option to temp allow, which inserts the appropriate iptables rules
@@ -133,6 +143,12 @@ pgl-gui:
 
     - add complete blocked item (combination of all IP, port and proto as
       iptables rule to e.g. pgl-gui-iptables-insert.sh).
+
+  * Implement these items, or comment their code for the release:
+    * Blocked IP ranges
+    * Last blocklist update
+    * Stop logging
+    * Clear log
 
 ###############################################################################
 
@@ -157,6 +173,8 @@ All components:
 
   - use inotify (available since Linux kernel 2.6.13) to reload after
     configuration change.
+
+  - use doxygen or something like that for automatic documentation.
 
 
 
