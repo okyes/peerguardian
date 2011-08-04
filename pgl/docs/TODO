@@ -140,6 +140,10 @@ pgl-gui:
   - relicense everything to GPL3, fix headers especially of pgl-gui, update
 
   - Verify flags etc. in Makefile, use variables where possible
+    CFLAGS for the C compiler
+    CPPFLAGS in any compilation command that runs the preprocessor
+    LDFLAGS in any compilation command that does linking as well as in any
+        direct use of ld
     verify where prerequisite FORMS_HEADERS is necessary
 
 ###############################################################################
