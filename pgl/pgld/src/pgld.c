@@ -182,13 +182,13 @@ static FILE *create_pidfile(const char *name) {
 
     f = fopen(name, "w");
     if (f == NULL) {
-        fprintf(stderr, "Unable to create PID file %s: %s\n", name, strerror(errno));
+        do_log(LOG_ERR, "Unable to create PID file %s: %s\n", name, strerror(errno));
         return NULL;
     }
 
     /* this works even if pidfile is stale after daemon is sigkilled */
     if (lockf(fileno(f), F_TLOCK, 0) == -1) {
-        fprintf(stderr, "Unable to set exclusive lock for pidfile %s: %s\n", name, strerror(errno));
+        do_log(LOG_ERR, "Unable to set exclusive lock for pidfile %s: %s\n", name, strerror(errno));
         return NULL;
     }
 
@@ -290,11 +290,10 @@ static void sighandler(int sig, siginfo_t *info, void *context) {
     case SIGINT:
         nfqueue_unbind();
         blocklist_stats(0);
-
-// #ifdef HAVE_DBUS
-//         if (use_dbus)
-//             close_dbus();
-// #endif
+#ifdef HAVE_DBUS
+        if (use_dbus)
+            close_dbus();
+#endif
         blocklist_clear(0);
         free(blocklist_filenames);
         free(blocklist_charsets);
@@ -533,18 +532,6 @@ static void nfqueue_loop () {
         do_log(LOG_ERR, "ERROR: Error binding to queue.");
         exit(1);
     }
-    daemonize();
-
-    if (install_sighandler() != 0) {
-        do_log(LOG_ERR, "ERROR: Error installing signal handlers.");
-        exit(1);
-    }
-
-    pidfile = create_pidfile(pidfile_name);
-    if (!pidfile) {
-        do_log(LOG_ERR, "ERROR: Error creating pidfile %s", pidfile_name);
-        exit(1);
-    }
 
     nh = nfq_nfnlh(nfqueue_h);
     fd = nfnl_fd(nh);
@@ -675,30 +662,25 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+    if (pidfile_name == NULL) {
+        pidfile_name=malloc(strlen(PIDFILE)+1);
+        CHECK_OOM(pidfile_name);
+        strcpy(pidfile_name,PIDFILE);
+    }
+
     // open logfile
     if (logfile_name != NULL) {
         if ((logfile=fopen(logfile_name,"a")) == NULL) {
             fprintf(stderr, "Unable to open logfile: %s", logfile_name);
+            print_usage();
             perror(" ");
             exit(-1);
         }
     }
 
-    if (pidfile_name == NULL) {
-            pidfile_name=malloc(strlen(PIDFILE)+1);
-            CHECK_OOM(pidfile_name);
-            strcpy(pidfile_name,PIDFILE);
-    }
-
-    //open syslog
+    // open syslog
     if (use_syslog) {
         openlog("pgld", 0, LOG_DAEMON);
-    }
-
-    blocklist_init();
-    if (load_all_lists() < 0) {
-        do_log(LOG_ERR, "ERROR: Cannot load the blocklist(s)");
-        return -1;
     }
 
 #ifdef HAVE_DBUS
@@ -717,7 +699,32 @@ int main(int argc, char *argv[]) {
     use_dbus = try_dbus;
 #endif
 
+    daemonize();
+
+    // pidfile has to be created *after* daemonize (results in a new pid)
+    pidfile = create_pidfile(pidfile_name);
+    if (!pidfile) {
+        do_log(LOG_ERR, "ERROR: Error creating pidfile %s", pidfile_name);
+        exit(1);
+    }
+
+    if (install_sighandler() != 0) {
+        do_log(LOG_ERR, "ERROR: Error installing signal handlers.");
+        exit(1);
+    }
+
+    blocklist_init();
+    if (load_all_lists() < 0) {
+        do_log(LOG_ERR, "ERROR: Cannot load the blocklist(s)");
+        return -1;
+    }
+
     nfqueue_loop();
+
+    // Is the following code necessary at all now that we always daemonize. I
+    // think the only way to leave nfqueue_loop is SIGINT.
+    do_log(LOG_INFO, "DEBUG: this code really gets executed!");
+
     blocklist_stats(0);
 #ifdef HAVE_DBUS
     if (use_dbus)
