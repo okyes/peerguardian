@@ -249,37 +249,47 @@ void PglWhitelist::addTreeWidgetItemToWhitelist(QTreeWidgetItem* treeItem)
 
 
 
-void PglWhitelist::updateSettings(const QList<QTreeWidgetItem*>& treeItems, int firstAddedItemPos)
+void PglWhitelist::updateSettings(const QList<QTreeWidgetItem*>& treeItems, int firstAddedItemPos, bool updateAll)
 {
     int whitelistDisabledSize = m_WhitelistDisabled.keys().size();
-    
+    QTreeWidgetItem * treeItem;
     
     foreach ( QString key, m_WhitelistDisabled.keys() )
         m_WhitelistDisabled[key] = QStringList();
-        
-    foreach(QTreeWidgetItem* treeItem, treeItems)
-    {
-        //if icon is checked and the icon is null (no warning icon) it means
-        //it's an item to be ignored. Also if the item is unchecked but has a
-        //warning icon, which means it's in a state that has not been written to pglcmd.conf
-        if ( treeItem->checkState(0) == Qt::Checked  && treeItem->icon(0).isNull() ||
-            treeItem->checkState(0) == Qt::Unchecked && ( ! treeItem->icon(0).isNull()))
-            continue;
-        
-        addTreeWidgetItemToWhitelist(treeItem);
-    }
     
-    //Special case for added items. Since they fail to be added in the cycle
-    //above, because only with the properties of a QTreeWidgetItem 
-    //there's no way to know if the item has just been added or just changed.
-    if ( firstAddedItemPos > 0 )
+    if ( updateAll )
     {
+        foreach(QTreeWidgetItem* treeItem, treeItems)
+        {
+            if ( treeItem->checkState(0) == Qt::Unchecked && treeItem->icon(0).isNull() ||
+                treeItem->checkState(0) == Qt::Checked && ( ! treeItem->icon(0).isNull()))
+                addTreeWidgetItemToWhitelist(treeItem);
+        }
+    }
+    else if (firstAddedItemPos > 0 ) //added items
+    {
+        //add older items
+        //We don't go through the newly added items here, because their state can be
+        //misleading.
+        for(int i=0; i < firstAddedItemPos; i++)
+        {
+            treeItem = treeItems[i];
+            if ( treeItem->checkState(0) == Qt::Unchecked && treeItem->icon(0).isNull() ||
+                treeItem->checkState(0) == Qt::Checked && ( ! treeItem->icon(0).isNull()))
+                    addTreeWidgetItemToWhitelist(treeItem);
+        }        
+
+        //Special case for newly added items.
         for(int i=firstAddedItemPos; i < treeItems.size(); i++)
         {
             if ( treeItems[i]->checkState(0) == Qt::Unchecked )
+            {
                 addTreeWidgetItemToWhitelist(treeItems[i]);
+                treeItems[i]->setIcon(0, QIcon());
+            }
         }
     }
+    
     //write changes to settings' file
     foreach(QString key, m_WhitelistDisabled.keys() )
         if ( m_WhitelistDisabled[key].isEmpty() )

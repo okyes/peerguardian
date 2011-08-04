@@ -132,7 +132,7 @@ class PglWhitelist
         QString getTypeAsString(QString&);
         QString getGroup(QStringList&);
         QStringList updateWhitelistFile();
-        void updateSettings(const QList<QTreeWidgetItem*>& treeItems, int firstAddedItemPos);
+        void updateSettings(const QList<QTreeWidgetItem*>& treeItems, int firstAddedItemPos=0, bool updateAll=true);
         QString getWhitelistFile(){ return m_WhitelistFile; };
         QString getProtocol(QString& key);
         QString translateConnection(const QString&);
