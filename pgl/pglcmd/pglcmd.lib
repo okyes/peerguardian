@@ -1821,8 +1821,8 @@ LIST_URL2LIST_NAME () {
         LIST_NAME="$LIST_URL"
         ;;
     esac
-    # Replace problematic letters for file/directory operations, make everything lowercase
-    LIST_NAME_FIX="$( echo $LIST_NAME | sed "s|.*://|_|;s|/|_|g;s/?/_/g;s/ /_/g;s/\(.\)/\L\1/g" )"
+    # Replace problematic letters, make everything lowercase
+    LIST_NAME="$( echo $LIST_NAME | sed "s|.*://|_|;s|/|_|g;s/?/_/g;s/ /_/g;s/\(.\)/\L\1/g" )"
 }
 
 # Get blocklist.
@@ -1837,14 +1837,14 @@ get_blocklist () {
     LIST_URL2LIST_NAME
 
     # Set blocklist directory name.
-    BLOCKLIST_DIR="$BLOCKLISTS_DIR/$LIST_NAME_FIX"
+    BLOCKLIST_DIR="$BLOCKLISTS_DIR/$LIST_NAME"
     # Gives the name of the blocklist downloaded by wget. Reset the value here
     # and set it later in the script:
     BLOCKLIST_DOWNLOAD=""
     # Gives the name of successfully downloaded files:
-    BLOCKLIST_DOWNLOADED="$BLOCKLIST_DIR/downloaded/$LIST_NAME_FIX"
+    BLOCKLIST_DOWNLOADED="$BLOCKLIST_DIR/downloaded/$LIST_NAME"
     # BLOCKLIST_DOWNLOADED is extracted to this file
-    BLOCKLIST_EXTRACTED="$BLOCKLIST_DIR/extracted/$LIST_NAME_FIX"
+    BLOCKLIST_EXTRACTED="$BLOCKLIST_DIR/extracted/$LIST_NAME"
 
     echo -n "Updating $LIST_NAME... "
 
@@ -2130,7 +2130,7 @@ build_blocklist () {
             LIST_URL2LIST_NAME
 
             # Set name of the extracted blocklist.
-            BLOCKLIST_EXTRACTED="$BLOCKLISTS_DIR/$LIST_NAME_FIX/extracted/$LIST_NAME_FIX"
+            BLOCKLIST_EXTRACTED="$BLOCKLISTS_DIR/$LIST_NAME/extracted/$LIST_NAME"
 
             # Test if list is available:
             [ -f "$BLOCKLIST_EXTRACTED" ] ||
@@ -2472,7 +2472,7 @@ search () {
     for LIST in $LISTS_URL ; do
         # This function depends on LIST:
         LIST_URL2LIST_NAME
-        BLOCKLIST="$BLOCKLISTS_DIR/$LIST_NAME_FIX/extracted/$LIST_NAME_FIX"
+        BLOCKLIST="$BLOCKLISTS_DIR/$LIST_NAME/extracted/$LIST_NAME"
         # Exit immediately with zero status if any match is found
         grep -qEi "$SEARCHPATTERN" "$BLOCKLIST" && {
             echo
