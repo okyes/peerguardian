@@ -1807,6 +1807,14 @@ LIST_URL2LIST_NAME () {
         LIST_AUTHOR="$( echo $LIST_URL_TRUNK  | sed "s|\(.*\)/\(.*\)|\1|" )"
         LIST_NAME1="$( echo $LIST_URL_TRUNK | sed "s|\(.*\)/\(.*\)|\2|" )"
         LIST_NAME=${LIST_AUTHOR}_${LIST_NAME1}
+        # Fix inconsistent iblocklist names:
+        if [ "$LIST_NAME" = bluetack_level-1 ] ; then
+            LIST_NAME="bluetack_level1"
+        elif [ "$LIST_NAME" = bluetack_level-2 ] ; then
+            LIST_NAME="bluetack_level2"
+        elif [ "$LIST_NAME" = bluetack_level-3 ] ; then
+            LIST_NAME="bluetack_level3"
+        fi
         ;;
     *)
         # Otherwise, use LIST_URL.
