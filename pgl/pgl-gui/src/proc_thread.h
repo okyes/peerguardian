@@ -73,7 +73,7 @@ class ProcessT : public QThread {
         void operator=(const ProcessT& p){ *this = p;}
         
         
-        void executeCommands(const QStringList commands , const QProcess::ProcessChannelMode &mode, bool startNow=true);
+        void executeCommands(const QStringList commands , const QProcess::ProcessChannelMode &mode, bool root=true, bool startNow=true);
         void execute(const QStringList command, const QProcess::ProcessChannelMode &mode );
         
         //for backwards compatibility with the old Mobloquer code
@@ -97,8 +97,10 @@ class ProcessT : public QThread {
 		QProcess::ProcessChannelMode m_ChanMode;
 		QString m_Output;
         QTimer m_Timer;
+        bool m_NeedsRoot;
+        
     private slots:
-        void executeCommand(const QString command="", const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels, bool startNow = true);
+        void executeCommand(const QString command="", const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels, bool root = false, bool startNow = true);
 
 };
 
