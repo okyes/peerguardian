@@ -280,18 +280,21 @@ void Peerguardian::removeListItems()
 void Peerguardian::rootFinished()
 {
 
-    if ( QFile::exists("/tmp/pglcmd.conf") || QFile::exists("/tmp/blocklists.list") )
+    if ( ( m_FilesToMove.contains("/tmp/pglcmd.conf") && QFile::exists("/tmp/pglcmd.conf") ) ||  
+        (m_FilesToMove.contains("/tmp/blocklists.list") && QFile::exists("/tmp/blocklists.list")))
     {
         m_ApplyButton->setEnabled(true);
     }
     else
     {
         m_Whitelist->updateSettings(getTreeItems(m_WhitelistTreeWidget));
+        m_Whitelist->load();
         PglSettings::loadSettings();
         updateGUI();
         m_ApplyButton->setEnabled(false);
     }
     
+    m_FilesToMove.clear();
     m_UndoButton->setEnabled(m_ApplyButton->isEnabled());
 }
 
@@ -399,8 +402,10 @@ void Peerguardian::applyChanges()
     QString filepath;
     
     //apply new changes directly in iptables
-    updateWhitelistItemsInIptables();
-
+    QStringList iptablesCommands = m_Whitelist->updateWhitelistItemsInIptables(getTreeItems(m_WhitelistTreeWidget), guiOptions);
+    if ( ! iptablesCommands.isEmpty() )
+        m_Root->executeCommands(iptablesCommands, false);
+    
     //================ update /etc/pgl/pglcmd.conf ================/
 	if ( updatePglcmdConf )
     {
@@ -463,70 +468,20 @@ void Peerguardian::applyChanges()
     filepath = getUpdateFrequencyPath();
     if ( ! QFile::exists(filepath) )
         filesToMove[getUpdateFrequencyCurrentPath()] = filepath;
+        
+    m_FilesToMove = filesToMove.keys();
 
     if ( ! filesToMove.isEmpty() )
         m_Root->moveFiles(filesToMove, false);
-        
-    m_Root->executeAll();
 
+    m_Root->executeAll();
+    
     m_Whitelist->updateSettings(getTreeItems(m_WhitelistTreeWidget), guiOptions->getPositionFirstAddedWhitelistItem(), false);
     guiOptions->updateWhitelist(guiOptions->getPositionFirstAddedWhitelistItem());
+    m_ApplyButton->setEnabled(false); //assume changes will be applied, if not this button will be disabled afterwards
+    m_UndoButton->setEnabled(false);
 }
 
-void Peerguardian::updateWhitelistItemsInIptables()
-{
-    QList<QTreeWidgetItem*> items = getTreeItems(m_WhitelistTreeWidget);
-    QStringList values, connections, protocols;
-    QList<bool> allows;
-    int firstPos = guiOptions->getPositionFirstAddedWhitelistItem();
-    QList<QTreeWidgetItem*> removedItems = guiOptions->getRemovedWhitelistItemsForIptablesRemoval();
-    QList<QTreeWidgetItem*> itemsToIgnore;
-    
-    //append removed items
-    if ( ! removedItems.isEmpty() )
-        items += removedItems;
-        
-    //if the item has just been added, there's no point in removing it
-    //from iptables, since it isn't even there yet
-    if ( firstPos > 0 )
-        for(int i=firstPos; i < items.size(); i++)
-            if ( items[i]->checkState(0) == Qt::Unchecked  )
-                itemsToIgnore << items[i];
-    
-    foreach ( QTreeWidgetItem * item, items )
-    {
-        //ignore added and unchecked items 
-        if ( itemsToIgnore.contains(item) )
-            continue;
-        
-        //if it has a warning icon and is not one of the newly added items
-        if ( ! item->icon(0).isNull() )
-        {
-            values << item->text(0);
-            connections << item->text(1);
-            protocols << item->text(2);
-            
-            if ( item->checkState(0) == Qt::Checked )
-                allows << true;
-            else
-                allows << false;
-        }
-    }
-    
-    QStringList commands = m_Whitelist->getCommands(values, connections, protocols, allows);
-
-    if ( ! commands.isEmpty() )
-        m_Root->executeCommands(commands, false);
-        
-}
-
-
-/*void Peerguardian::allowIp(const QString& ip, const QStringList& chains )
-{
-
-    m_Root->execute(commands)
-    
-}*/
 
 QList<QTreeWidgetItem*> Peerguardian::getTreeItems(QTreeWidget *tree, int checkState)
 {

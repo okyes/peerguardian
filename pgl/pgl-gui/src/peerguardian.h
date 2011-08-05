@@ -148,6 +148,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     bool m_BlocklistItemPressed;
     bool m_treeItemPressed;
     GuiOptions *guiOptions;
+    QStringList m_FilesToMove;
 
 	public:
 		/**
@@ -205,7 +206,6 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void onTrayIconClicked(QSystemTrayIcon::ActivationReason);
         void checkboxChanged(bool);
         void undoGuiOptions();
-        void updateWhitelistItemsInIptables();
 
     protected:
 	void closeEvent ( QCloseEvent * event );
