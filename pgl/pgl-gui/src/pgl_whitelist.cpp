@@ -3,6 +3,7 @@
 #include "utils.h"
 #include "pgl_settings.h"
 #include "file_transactions.h"
+#include "gui_options.h"
 #include <QDebug>
 
 
@@ -110,6 +111,8 @@ Port& Port::operator=(const Port& other)
     m_number = other.number();
     m_protocols = other.protocols();
     m_values = other.values();
+    
+    return *this;
 }
 
 bool Port::operator==( WhitelistItem& item)
@@ -148,6 +151,9 @@ PglWhitelist::PglWhitelist(QSettings* settings)
 void PglWhitelist::load()
 {
     QStringList fileData = getFileData(m_WhitelistFile);
+    
+    if ( ! m_WhitelistEnabled.isEmpty() )
+        m_WhitelistEnabled.clear();
 
     foreach(QString line, fileData)
     {
@@ -167,6 +173,9 @@ void PglWhitelist::load()
     //Since disabled whitelisted items (IPs or Ports) can't be easily stored
     //in /etc/plg/pglcmd.conf, the best option is to store them on the GUI settings file
     QString disabled_items;
+    
+    if ( ! m_WhitelistDisabled.isEmpty() )
+        m_WhitelistDisabled.clear();
 
     foreach ( QString key, m_Group.keys() )
     {
@@ -280,8 +289,8 @@ void PglWhitelist::updateSettings(const QList<QTreeWidgetItem*>& treeItems, int 
         for(int i=0; i < firstAddedItemPos; i++)
         {
             treeItem = treeItems[i];
-            if ( treeItem->checkState(0) == Qt::Unchecked && treeItem->icon(0).isNull() ||
-                treeItem->checkState(0) == Qt::Checked && ( ! treeItem->icon(0).isNull()))
+            if ( (treeItem->checkState(0) == Qt::Unchecked && treeItem->icon(0).isNull() ) ||
+                (treeItem->checkState(0) == Qt::Checked && ( ! treeItem->icon(0).isNull())))
                     addTreeWidgetItemToWhitelist(treeItem);
         }        
 
@@ -368,6 +377,70 @@ QStringList PglWhitelist::getDirections(const QString& chain)
         
     return directions;
 
+}
+
+
+QStringList PglWhitelist::updateWhitelistItemsInIptables(QList<QTreeWidgetItem*> items, GuiOptions *guiOptions)
+{
+    QStringList values, connections, protocols;
+    QList<bool> allows;
+    QList<QTreeWidgetItem*> removedItems = guiOptions->getRemovedWhitelistItemsForIptablesRemoval();
+    int firstAddedItem = guiOptions->getPositionFirstAddedWhitelistItem();
+    bool added = false;
+    QTreeWidgetItem * item;
+    int firstRemovedItem = items.size();
+    
+    //append removed items
+    if ( ! removedItems.isEmpty() )
+    {
+        foreach(item, removedItems)
+        {
+            values << item->text(0);
+            connections << item->text(1);
+            protocols << item->text(2);
+            allows << false;
+        }
+    }
+    
+    //append added items
+    if ( firstAddedItem > 0 )
+    {
+        for(int i=firstAddedItem; i < items.size(); i++)
+        {
+            item = items[i];
+            if ( item->checkState(0) == Qt::Checked  )
+            {
+                values << item->text(0);
+                connections << item->text(1);
+                protocols << item->text(2);
+                allows << true;
+            }
+        }
+        
+    }
+    else 
+        firstAddedItem = items.size();
+    
+    for(int i=0; i < firstAddedItem; i++)
+    {
+        item = items[i];
+    
+        //if it has a warning icon and is not one of the newly added items
+        if ( ! item->icon(0).isNull() )
+        {
+            values << item->text(0);
+            connections << item->text(1);
+            protocols << item->text(2);
+
+            if ( item->checkState(0) == Qt::Checked )
+                allows << true;
+            else
+                allows << false;
+        }
+    }
+    
+    return getCommands(values, connections, protocols, allows);
+        
 }
 
 QStringList PglWhitelist::getCommands( QStringList items, QStringList connections, QStringList protocols, QList<bool> allows)

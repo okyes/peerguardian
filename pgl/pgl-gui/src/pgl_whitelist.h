@@ -9,6 +9,7 @@
 #include <QList>
 #include <QTreeWidgetItem>
 
+
 #define WHITE_IP_IN "WHITE_IP_IN"
 #define WHITE_IP_OUT "WHITE_IP_OUT"
 #define WHITE_IP_FWD "WHITE_IP_FWD"
@@ -31,6 +32,8 @@ typedef enum {
     DISABLED,
     INVALID
 };
+
+class GuiOptions;
 
 
 class WhitelistItem
@@ -129,6 +132,7 @@ class PglWhitelist
         QStringList getCommands(QStringList items, QStringList connections, QStringList protocols, QList<bool> allows);
         void addTreeWidgetItemToWhitelist(QTreeWidgetItem* item);
         void load();
+        QStringList updateWhitelistItemsInIptables(QList<QTreeWidgetItem*> items, GuiOptions *guiOptions);
 };
 
 #endif
