@@ -102,7 +102,7 @@ class SuperUser : public QObject
         void operator=(const SuperUser& su);
 
     public slots:
-        void processFinished(QStringList commands);
+        void processFinished(QStringList);
 
     signals:
         void finished();
@@ -114,7 +114,7 @@ class SuperUser : public QObject
         QList<ProcessT*> m_threads;
         QObject *m_parent;
         QMap<QString, QString> m_filesToMove;
-        QTimer m_timer;
+        ProcessT * m_ProcT;
         QStringList m_Commands;
 
 };

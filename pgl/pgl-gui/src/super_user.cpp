@@ -30,6 +30,9 @@ SuperUser::SuperUser( QObject *parent ):
     QObject(parent)
 {
     m_parent = parent;
+    m_ProcT = new ProcessT(m_parent);
+    connect(m_ProcT, SIGNAL(allCmdsFinished(QStringList)), this, SLOT(processFinished(QStringList)));
+    
 }
 
 SuperUser::SuperUser( QString& rootpath,  QObject *parent ):
@@ -37,6 +40,8 @@ SuperUser::SuperUser( QString& rootpath,  QObject *parent ):
 {
     setRootPath(rootpath, true);
     m_parent = parent;
+    m_ProcT = new ProcessT(m_parent);
+    connect(m_ProcT, SIGNAL(allCmdsFinished(QStringList)), this, SLOT(processFinished(QStringList)));
 }
 
 SuperUser::~SuperUser() {
@@ -44,7 +49,7 @@ SuperUser::~SuperUser() {
 	QSettings tempSettings;
 	tempSettings.setValue( "paths/super_user", m_SudoCmd );
 
-    foreach(ProcessT *t, m_threads)
+    /*foreach(ProcessT *t, m_threads)
     {
         if ( t->isRunning() )
         {
@@ -52,7 +57,7 @@ SuperUser::~SuperUser() {
             t->wait();
         }
         t->deleteLater();
-    }
+    }*/
 }
 
 void SuperUser::setRootPath(QString& path, bool verified)
@@ -92,8 +97,9 @@ void SuperUser::executeCommands(QStringList commands, bool start)
     QProcess::ProcessChannelMode mode = QProcess::MergedChannels;
     ProcessT *t;
     bool needsRoot = false;
+    
 
-    if ( ! start )
+    if ( (! start) || commands.isEmpty())
     {
         m_Commands << commands;
         return;
@@ -119,14 +125,17 @@ void SuperUser::executeCommands(QStringList commands, bool start)
     qDebug() << commands;
     qDebug() << "start thread";
 
-    t = new ProcessT(m_parent);
-    connect(t, SIGNAL(allCmdsFinished(QStringList)), this, SLOT(processFinished(QStringList)));
-    m_threads.push_back(t);
+    m_ProcT->executeCommands(commands, mode, needsRoot);
+
+    //t = new ProcessT(m_parent);
     
-    if ( m_threads.size() == 1 )
-        t->executeCommands(commands, mode, needsRoot);
-    else
-        t->executeCommands(commands, mode, needsRoot, false);
+    //connect(t, SIGNAL(allCmdsFinished(QStringList)), this, SLOT(processFinished(QStringList)));
+    //m_threads.push_back(t);
+    
+    //if ( m_threads.size() == 1 )
+        //t->executeCommands(commands, mode, needsRoot);
+    //else
+     //   t->executeCommands(commands, mode, needsRoot, false);
     
 
 }
@@ -177,18 +186,19 @@ void SuperUser::processFinished(QStringList commands)
 {
     ProcessT * t;
     
-    m_Commands.clear();
+    if ( ! m_Commands.isEmpty() )
+        m_Commands.clear();
     
-    emit(finished());
+    emit finished();
     
-    if ( ! m_threads.isEmpty() )
+    /*if ( ! m_threads.isEmpty() )
     {
         t = m_threads.takeFirst();
         delete t;
         
         if ( ! m_threads.isEmpty() )
             m_threads.first()->start();
-    }
+    }*/
 }
 
 
