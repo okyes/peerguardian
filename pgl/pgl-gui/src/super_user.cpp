@@ -85,15 +85,19 @@ void SuperUser::setFilePath( const QString &path ) {
 	
 
 
-void SuperUser::executeCommands(QStringList commands, bool wait) 
+void SuperUser::executeCommands(QStringList commands, bool start) 
 {
     
     
     QProcess::ProcessChannelMode mode = QProcess::MergedChannels;
     ProcessT *t;
+    bool needsRoot = false;
 
-    if ( wait )
+    if ( ! start )
+    {
         m_Commands << commands;
+        return;
+    }
 
 	if ( m_SudoCmd.isEmpty() )
     {
@@ -104,6 +108,7 @@ void SuperUser::executeCommands(QStringList commands, bool wait)
 
 	if ( ! hasPermissions("/etc") )//If the program is not run by root, use kdesu or gksu as first argument
     {
+        needsRoot = true;
         for (int i=0; i < commands.size(); i++)
         {
             commands[i].insert(0, m_SudoCmd + " \"");
@@ -115,15 +120,14 @@ void SuperUser::executeCommands(QStringList commands, bool wait)
     qDebug() << "start thread";
 
     t = new ProcessT(m_parent);
+    connect(t, SIGNAL(allCmdsFinished(QStringList)), this, SLOT(processFinished(QStringList)));
     m_threads.push_back(t);
     
     if ( m_threads.size() == 1 )
-        t->executeCommands(commands, mode);
+        t->executeCommands(commands, mode, needsRoot);
     else
-        t->executeCommands(commands, mode, false);
+        t->executeCommands(commands, mode, needsRoot, false);
     
-        
-    connect(t, SIGNAL(allCmdsFinished(QStringList)), this, SLOT(processFinished(QStringList)));
 
 }
 
@@ -166,7 +170,7 @@ void SuperUser::execute(const QStringList& command )
 
 void SuperUser::executeAll()
 {
-    executeCommands(m_Commands, false);
+    executeCommands(m_Commands);
 }
 
 void SuperUser::processFinished(QStringList commands)
@@ -203,7 +207,7 @@ void SuperUser::removeFile( const QString &source ) {
 }
 
 
-void SuperUser::moveFiles( const QMap<QString, QString> files, bool wait)
+void SuperUser::moveFiles( const QMap<QString, QString> files, bool start)
 {
     if ( ! files.isEmpty() )
     {
@@ -215,7 +219,7 @@ void SuperUser::moveFiles( const QMap<QString, QString> files, bool wait)
             commands << cmd;
         }
         
-        executeCommands(commands, wait);
+        executeCommands(commands, start);
     }
 }
 
