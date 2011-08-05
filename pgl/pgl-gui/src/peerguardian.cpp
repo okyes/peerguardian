@@ -286,7 +286,7 @@ void Peerguardian::rootFinished()
     }
     else
     {
-        m_Whitelist->updateSettings(getTreeItems(m_WhitelistTreeWidget), guiOptions->getPositionFirstAddedWhitelistItem());
+        m_Whitelist->updateSettings(getTreeItems(m_WhitelistTreeWidget));
         PglSettings::loadSettings();
         updateGUI();
         m_ApplyButton->setEnabled(false);
@@ -465,7 +465,9 @@ void Peerguardian::applyChanges()
         filesToMove[getUpdateFrequencyCurrentPath()] = filepath;
 
     if ( ! filesToMove.isEmpty() )
-        m_Root->moveFiles(filesToMove);
+        m_Root->moveFiles(filesToMove, false);
+        
+    m_Root->executeAll();
 
     m_Whitelist->updateSettings(getTreeItems(m_WhitelistTreeWidget), guiOptions->getPositionFirstAddedWhitelistItem(), false);
     guiOptions->updateWhitelist(guiOptions->getPositionFirstAddedWhitelistItem());
@@ -514,7 +516,8 @@ void Peerguardian::updateWhitelistItemsInIptables()
     QStringList commands = m_Whitelist->getCommands(values, connections, protocols, allows);
 
     if ( ! commands.isEmpty() )
-        m_Root->executeCommands(commands);
+        m_Root->executeCommands(commands, false);
+        
 }
 
 
