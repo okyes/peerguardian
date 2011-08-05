@@ -25,22 +25,12 @@ typedef enum {
     TYPE_OUTGOING,
 	TYPE_FORWARD };
 
-typedef enum {
-    IP,
-    PORT,
-};
 
 typedef enum {
     ENABLED,
     DISABLED,
     INVALID
 };
-
-typedef enum {
-    TCP,
-    UDP
-};
-
 
 
 class WhitelistItem
@@ -72,7 +62,6 @@ class WhitelistItem
         QStringList values() const { return m_values; }
         void addAlias(const QString &);
         void addAliases(const QStringList& );
-
         QString getTypeAsString();
         QStringList getAsStringList(){ return QStringList() << m_Value << getTypeAsString(); }
         bool operator==(const WhitelistItem & otherItem);
@@ -139,7 +128,7 @@ class PglWhitelist
         QStringList getDirections(const QString& chain);
         QStringList getCommands(QStringList items, QStringList connections, QStringList protocols, QList<bool> allows);
         void addTreeWidgetItemToWhitelist(QTreeWidgetItem* item);
-        
+        void load();
 };
 
 #endif

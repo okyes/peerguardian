@@ -126,7 +126,6 @@ bool Port::operator==( WhitelistItem& item)
 PglWhitelist::PglWhitelist(QSettings* settings)
 {
     m_WhitelistFile = PglSettings::getStoredValue("CMD_CONF");
-
     m_Settings = settings;
 
     if ( m_WhitelistFile.isEmpty() )
@@ -142,6 +141,12 @@ PglWhitelist::PglWhitelist(QSettings* settings)
     m_Group[WHITE_TCP_FWD] = TYPE_FORWARD;
     m_Group[WHITE_UDP_FWD] = TYPE_FORWARD;
 
+    load();
+
+}
+
+void PglWhitelist::load()
+{
     QStringList fileData = getFileData(m_WhitelistFile);
 
     foreach(QString line, fileData)
@@ -165,7 +170,7 @@ PglWhitelist::PglWhitelist(QSettings* settings)
 
     foreach ( QString key, m_Group.keys() )
     {
-        disabled_items = settings->value(QString("whitelist/%1").arg(key)).toString();
+        disabled_items = m_Settings->value(QString("whitelist/%1").arg(key)).toString();
         m_WhitelistDisabled[key] = disabled_items.split(" ", QString::SkipEmptyParts);
     }
 }
@@ -261,8 +266,9 @@ void PglWhitelist::updateSettings(const QList<QTreeWidgetItem*>& treeItems, int 
     {
         foreach(QTreeWidgetItem* treeItem, treeItems)
         {
-            if ( treeItem->checkState(0) == Qt::Unchecked && treeItem->icon(0).isNull() ||
-                treeItem->checkState(0) == Qt::Checked && ( ! treeItem->icon(0).isNull()))
+            //if ( treeItem->checkState(0) == Qt::Unchecked && treeItem->icon(0).isNull() ||
+             //   treeItem->checkState(0) == Qt::Checked && ( ! treeItem->icon(0).isNull()))
+             if ( treeItem->checkState(0) == Qt::Unchecked )
                 addTreeWidgetItemToWhitelist(treeItem);
         }
     }
