@@ -151,6 +151,10 @@ int GuiOptions::getPositionFirstAddedWhitelistItem()
     int prevNItems = m_WhitelistState.size();
     int added = nItems - ( prevNItems - m_WhitelistItemsRemoved );
     int pos = nItems - added;
+    /*qDebug() << "nItems: " << nItems;
+    qDebug() << "prevNItems: " << prevNItems;
+    qDebug() << "added: " << added;
+    qDebug() << "pos: " << pos;*/
     
     return pos;
 }
@@ -160,7 +164,6 @@ void GuiOptions::addRemovedWhitelistItem(QTreeWidgetItem * item)
     if (  item->checkState(0) == Qt::Checked && item->icon(0).isNull() )
     {
         m_WhitelistItemsForIptablesRemoval << item;
-        item->setIcon(0, QIcon(WARNING_ICON));
     }
        
     m_WhitelistItemsRemoved++;
@@ -187,6 +190,8 @@ void GuiOptions::deleteItems(QList<QTreeWidgetItem*> & list)
     foreach(QTreeWidgetItem * item, list)
         if (item) delete item;
     list.clear();
+    
+    qDebug() << "list size: " << list.size();
 }
 
 void GuiOptions::updateWhitelist(int startFrom)
@@ -198,6 +203,7 @@ void GuiOptions::updateWhitelist(int startFrom)
     {
         startFrom = 0;
         deleteItems(m_Whitelist);
+        m_WhitelistState.clear();
     }
 
     for ( int i=startFrom; i < tree->topLevelItemCount(); i++ )
@@ -216,6 +222,7 @@ void GuiOptions::updateBlocklist()
     QTreeWidget * tree = m_Window->getBlocklistTreeWidget();
 
     deleteItems(m_Blocklist);
+    m_BlocklistState.clear();
 
     for ( int i=0; i < tree->topLevelItemCount(); i++ )
     {
