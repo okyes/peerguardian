@@ -60,7 +60,6 @@ void ProcessT::run() {
 	emit commandOutput( m_Output );
 	qDebug() << Q_FUNC_INFO << "Command execution finished.";
     
-    qDebug() << "EXIT CODE: " << proc.exitCode();
         
     m_ExecutedCommands << m_Command;
     
@@ -103,7 +102,7 @@ void ProcessT::executeCommand(const QString command, const QProcess::ProcessChan
         m_Command = command;
     }
     
-	if ( startNow )
+	if ( (! isRunning()) && startNow )
 		start();
 }
 

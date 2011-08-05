@@ -90,7 +90,6 @@ class ProcessT : public QThread {
 		
 	private:
 		QString m_Command;
-        QList<QStringList> m_commands;
         QStringList m_Commands;
         QStringList m_ExecutedCommands;
 		QStringList m_Args;
