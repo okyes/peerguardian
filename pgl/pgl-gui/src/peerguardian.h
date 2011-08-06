@@ -206,6 +206,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void onTrayIconClicked(QSystemTrayIcon::ActivationReason);
         void checkboxChanged(bool);
         void undoGuiOptions();
+        void addLogItem(QString);
 
     protected:
 	void closeEvent ( QCloseEvent * event );

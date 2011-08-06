@@ -3,6 +3,7 @@
 #include <QMultiMap>
 #include <QHash>
 #include <QRegExp>
+#include <QDBusConnection>
 //#include <Action>
 //#include <ActionButton>
 
@@ -35,6 +36,14 @@ Peerguardian::Peerguardian( QWidget *parent ) :
 
     m_treeItemPressed = false;
     
+
+    QDBusConnection connection (QDBusConnection::systemBus());
+    QString service("");
+    QString name("pgld_message");
+    QString path("/org/netfilter/pgl");
+    QString interface("org.netfilter.pgl");
+    
+    qDebug() << connection.connect(service, path, interface, name, qobject_cast<QObject*>(this), SLOT(addLogItem(QString)));
     
     //ActionButton *bt;
     //bt = new ActionButton(kickPB, "org.qt.policykit.examples.kick", this);
@@ -46,6 +55,26 @@ Peerguardian::Peerguardian( QWidget *parent ) :
 	restoreGeometry( m_ProgramSettings->value("window/geometry").toByteArray() );
 	restoreState( m_ProgramSettings->value( "window/state" ).toByteArray() );*/
 
+}
+
+void Peerguardian::addLogItem(QString itemString)
+{
+    
+    qDebug() << itemString;
+    if ( itemString.contains("||") )
+    {
+        QTime time = QTime::currentTime();
+        QString timeStr = QString("%1:%2:%3").arg(time.hour()).arg(time.minute()).arg(time.second());
+        QStringList parts = itemString.split("||", QString::SkipEmptyParts);
+        QStringList firstPart = parts.first().split(" ", QString::SkipEmptyParts);
+        QStringList info;
+        
+        info << timeStr << parts.last() << firstPart[1]  << firstPart[2] << firstPart[3] << firstPart.first();
+        QTreeWidgetItem * item = new QTreeWidgetItem(m_LogTreeWidget, info);
+        m_LogTreeWidget->addTopLevelItem(item);
+        
+        m_LogTreeWidget->scrollToBottom();
+    }
 }
 
 Peerguardian::~Peerguardian() {
