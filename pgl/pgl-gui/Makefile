@@ -16,7 +16,6 @@ QTINC:=$(QTDIR)/include
 INCPATH:=\
 	-I$(QTINC) \
 	-I$(QTINC)/QtCore \
-	-I$(QTINC)/QtNetwork \
 	-I$(QTINC)/QtGui \
 	-I$(QTINC)/QtDBus\
 	-I. \
@@ -112,7 +111,7 @@ pgl-gui: $(SOURCESDIR)/main.o $(SOURCES:cpp=o) $(MOC_SOURCES_OBJECTS) qrc_images
 		$(SOURCES:cpp=o) \
 		$(MOC_SOURCES_OBJECTS) \
 		qrc_images.o \
-		-L/usr/lib -lQtGui -lQtNetwork -lQtCore -lpthread \
+		-L/usr/lib -lQtDBus -lQtGui -lQtCore -lpthread \
 		-o $@
 
 # objects of main and SOURCES
