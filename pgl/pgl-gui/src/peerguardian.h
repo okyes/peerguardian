@@ -85,7 +85,7 @@
 
 //Icon related defines
 #define LOG_LIST_INFO_ICON ":/images/info.png"
-#define LOG_LIST_OUTOING_ICON ":/images/outgoing.png"
+#define LOG_LIST_OUTGOING_ICON ":/images/outgoing.png"
 #define LOG_LIST_INCOMING_ICON ":/images/incoming.png"
 #define LOG_LIST_FORWARD_ICON ":/images/forward.png"
 #define LOG_LIST_ERROR_ICON ":/images/error.png"
@@ -139,7 +139,6 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     QSystemTrayIcon *m_Tray;
     QMenu *m_TrayMenu;
     //Timers
-    QTimer *m_FastTimer;
     QTimer *m_MediumTimer;
     QTimer *m_SlowTimer;
     bool quitApp;
@@ -149,6 +148,9 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     bool m_treeItemPressed;
     GuiOptions *guiOptions;
     QStringList m_FilesToMove;
+    bool m_StopLogging;
+    QHash<QString, QString> m_ConnectType;
+    QHash<QString, QIcon> m_ConnectIconType;
 
 	public:
 		/**
@@ -207,6 +209,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void checkboxChanged(bool);
         void undoGuiOptions();
         void addLogItem(QString);
+        void startStopLogging();
 
     protected:
 	void closeEvent ( QCloseEvent * event );

@@ -35,6 +35,15 @@ Peerguardian::Peerguardian( QWidget *parent ) :
     updateGUI();
 
     m_treeItemPressed = false;
+    m_StopLogging = false;
+    
+    m_ConnectType["OUT"] = tr("Outgoing"); 
+    m_ConnectType["IN"] = tr("Incoming");
+    m_ConnectType["FWD"] = tr("Forward");
+    
+    m_ConnectIconType[tr("Outgoing")] = QIcon(LOG_LIST_OUTGOING_ICON);
+    m_ConnectIconType[tr("Incoming")] = QIcon(LOG_LIST_INCOMING_ICON);
+    m_ConnectIconType[tr("Forward")] = QIcon();
     
 
     QDBusConnection connection (QDBusConnection::systemBus());
@@ -59,6 +68,8 @@ Peerguardian::Peerguardian( QWidget *parent ) :
 
 void Peerguardian::addLogItem(QString itemString)
 {
+    if ( m_StopLogging )
+        return;
     
     qDebug() << itemString;
     if ( itemString.contains("||") )
@@ -67,10 +78,20 @@ void Peerguardian::addLogItem(QString itemString)
         QString timeStr = QString("%1:%2:%3").arg(time.hour()).arg(time.minute()).arg(time.second());
         QStringList parts = itemString.split("||", QString::SkipEmptyParts);
         QStringList firstPart = parts.first().split(" ", QString::SkipEmptyParts);
+        QString connectType;
+        
+        if ( firstPart.first().contains(":") )
+            connectType = m_ConnectType[firstPart.first().split(":")[0]];
+        else
+            connectType = m_ConnectType[firstPart.first()];
+            
+            
         QStringList info;
         
-        info << timeStr << parts.last() << firstPart[1]  << firstPart[2] << firstPart[3] << firstPart.first();
+        
+        info << timeStr << parts.last() << firstPart[1]  << firstPart[2] << firstPart[3] << connectType;
         QTreeWidgetItem * item = new QTreeWidgetItem(m_LogTreeWidget, info);
+        item->setIcon(5, m_ConnectIconType[connectType]);
         m_LogTreeWidget->addTopLevelItem(item);
         
         m_LogTreeWidget->scrollToBottom();
@@ -115,7 +136,6 @@ Peerguardian::~Peerguardian() {
     if ( m_Control != NULL )
         delete m_Control;
 
-    delete m_FastTimer;
     delete m_MediumTimer;
     delete m_SlowTimer;
     delete guiOptions;
@@ -155,10 +175,6 @@ void Peerguardian::updateGUI()
 
 void Peerguardian::startTimers()
 {
-    //Intiallize the fast generic timer
-	m_FastTimer = new QTimer;
-	m_FastTimer->setInterval( m_ProgramSettings->value( "settings/fast_timer",FAST_TIMER_INTERVAL ).toInt());
-	m_FastTimer->start();
 	//Intiallize the medium timer for less usual procedures
 	m_MediumTimer = new QTimer;
 	m_MediumTimer->setInterval( m_ProgramSettings->value("settings/medium_timer",MEDIUM_TIMER_INTERVAL ).toInt() );
@@ -175,10 +191,9 @@ void Peerguardian::g_MakeConnections()
 {
 	//Log tab connections
     if ( m_Log != NULL )
-    {
         connect( m_Log, SIGNAL( newItem( LogItem ) ), this, SLOT( addLogItem( LogItem ) ) );
-        connect( m_FastTimer, SIGNAL( timeout() ), m_Log, SLOT( update() ) );
-    }
+        
+    connect(m_StopLoggingButton, SIGNAL(clicked()), this, SLOT(startStopLogging()));
 
 	//connect( m_LogTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( logTab_HandleLogChange() ) );
 	connect( m_LogClearButton, SIGNAL( clicked() ), m_LogTreeWidget, SLOT( clear() ) );
@@ -917,7 +932,7 @@ void Peerguardian::addLogItem( LogItem item ) {
 		itemTypeStr = tr(IN_STR);
 	}
 	else if ( item.type == BLOCK_OUT ) {
-		iconPath = LOG_LIST_OUTOING_ICON;
+		iconPath = LOG_LIST_OUTGOING_ICON;
 		itemTypeStr = tr( OUT_STR );
 	}
 	else if ( item.type == BLOCK_FWD ) {
@@ -974,6 +989,24 @@ void Peerguardian::undoGuiOptions()
         guiOptions->undo(); 
         m_UndoButton->setEnabled(false);
         m_ApplyButton->setEnabled(false);
+    }
+}
+
+void Peerguardian::startStopLogging()
+{ 
+    m_StopLogging = ! m_StopLogging;
+    
+    QPushButton *button = qobject_cast<QPushButton*> (sender()); 
+    
+    if ( m_StopLogging )
+    {
+        button->setIcon(QIcon(ENABLED_ICON));
+        button->setText(tr("Start Logging"));
+    }
+    else
+    {
+        button->setIcon(QIcon(DISABLED_ICON));
+        button->setText(tr("Stop Logging"));
     }
 }
 
