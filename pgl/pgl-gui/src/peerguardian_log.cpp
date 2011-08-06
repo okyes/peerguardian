@@ -31,21 +31,19 @@ LogItem::LogItem( const QString &entry ) {
 	if ( entry.isEmpty() ) {
 		qWarning() << Q_FUNC_INFO << "Emtpy log item entry given. Doing nothing";	
 	}
-	else
+	else if ( entry.contains("||") )
     {
-        if ( entry.contains("||") )
-        {
-            QStringList entryParts(entry.split( " ", QString::SkipEmptyParts) );
-            QStringList names(entry.split( "||", QString::SkipEmptyParts) );
-            m_Name = names[1];
+        QStringList entryParts(entry.split( " ", QString::SkipEmptyParts) );
+        QStringList names(entry.split( "||", QString::SkipEmptyParts) );
+        m_Name = names[1];
 
-            m_BlockTime = entryParts[2].trimmed();
-            m_ipSource = entryParts[4];
-            m_ipDest = entryParts[5];
-            m_Hits = 1;
-            return;
-        }
+        m_BlockTime = entryParts[2].trimmed();
+        m_ipSource = entryParts[4];
+        m_ipDest = entryParts[5];
+        m_Hits = 1;
+        return;
     }
+    
 
         type = IGNORE;
         /*
