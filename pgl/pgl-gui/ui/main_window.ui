@@ -49,7 +49,7 @@
        <enum>Qt::DefaultContextMenu</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_ControlPanel">
        <attribute name="title">
@@ -428,7 +428,7 @@
              </column>
              <column>
               <property name="text">
-               <string>Action</string>
+               <string>Connection Type</string>
               </property>
              </column>
             </widget>
@@ -436,7 +436,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_13">
              <item>
-              <widget class="QPushButton" name="pushButton">
+              <widget class="QPushButton" name="m_StopLoggingButton">
                <property name="text">
                 <string>Stop Logging</string>
                </property>
