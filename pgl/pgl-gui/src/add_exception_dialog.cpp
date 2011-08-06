@@ -7,7 +7,6 @@
 #include <QDir>
 #include "file_transactions.h"
 #include <QCompleter>
-#include <QNetworkRequest>
 #include <QFileSystemModel>
 
 class WhitelistItem;
