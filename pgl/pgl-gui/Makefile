@@ -18,6 +18,7 @@ INCPATH:=\
 	-I$(QTINC)/QtCore \
 	-I$(QTINC)/QtNetwork \
 	-I$(QTINC)/QtGui \
+	-I$(QTINC)/QtDBus\
 	-I. \
 	-Isrc \
 	-Iui
