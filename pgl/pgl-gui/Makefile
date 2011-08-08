@@ -211,7 +211,6 @@ DISTFILES = \
 	images/backup.png \
 	images/blocklist.png \
 	images/cancel.png \
-	images/LICENSE \
 	images/editdelete.png \
 	images/error.png \
 	images/exit.png \

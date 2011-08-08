@@ -5,6 +5,7 @@ Authors:
 
 Copyright:
     pgl: 2009-2010 Cade Robinson, Jindrich Makovicka, jre
+         2011 freemind, jre
     pgl-gui: 2009-2010 Dimitris Palyvos-Giannas <jimaras@gmail.com>
     blockcontrol: 2009 jre <jre-phoenix@users.sourceforge.net>
     nfblock: 2007-2009 Jindrich Makovicka <makovick@gmail.com>
@@ -13,26 +14,7 @@ Copyright:
 
 License:
 
-pgl (except pgl-gui):
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-
-On Debian systems, the complete text of the GNU General
-Public License 2 can be found in `/usr/share/common-licenses/GPL-2'.
-
-pgl-gui:
+pgl:
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -52,7 +34,15 @@ Public License 3 can be found in `/usr/share/common-licenses/GPL-3'.
 
 ===============================================================================
 
-LSB init-functions (modified version in pglcmd.lib):
+pgl-gui is using the crystal icon theme, released under the LGPL license.
+Some icons may have been modified.
+More information:
+http://www.everaldo.com/
+http://www.yellowicon.com/
+
+===============================================================================
+
+pglcmd.lib is using a modified version of the Debian LSB init-functions:
 Copyright (c) 2002-08 Chris Lawrence
 All rights reserved.
 

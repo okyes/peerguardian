@@ -14,10 +14,11 @@ Authors:
     Dimitris Palyvos-Giannas <jimaras@gmail.com>, created mobloquer.
         Reimplemented dbus in gpld.
     freemind <freemind@lavabit.com>, wrote pgl-gui, based on mobloquer.
+    jpv, initially created dbus support for nfblock.
+
 
 Contributors:
     godmachine81, slackware packager
-    jpv, initially implemented dbus support in nfblock
     Santiago M. Mola, nfblock build fixes and cleanups
     uljanow <uljanow@users.sourceforge.net>, author of iplist
         (iplist.sourceforge.net). Both moblock (especially the marking feature)
@@ -34,3 +35,14 @@ Contributors:
         first steps for the init & update script
 
     ... and many more. To be continued ...
+
+
+3rd party:
+
+pgl-gui is using the crystal icon theme, released under the LGPL license.
+Some icons may have been modified.
+More information:
+http://www.everaldo.com/
+http://www.yellowicon.com/
+
+pglcmd.lib is using a modified version of the Debian LSB init-functions.

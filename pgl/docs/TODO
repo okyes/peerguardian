@@ -162,7 +162,6 @@ pgl-gui:
 ###############################################################################
 
   [jre]
-  - relicense everything to GPL3, fix headers especially of pgl-gui, update
 
   - Verify flags etc. in Makefile, use variables where possible
     CFLAGS for the C compiler
@@ -185,6 +184,7 @@ All components:
 
   - use doxygen or something like that for automatic documentation.
 
+  - fix/update license headers of pgl-gui and pgld
 
 
 Packaging:

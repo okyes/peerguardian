@@ -131,7 +131,6 @@ DISTFILES = \
 	docs/AUTHORS \
 	docs/BUGS \
 	docs/COPYING \
-	docs/GPL-3 \
 	docs/iptables-custom-insert.sh \
 	docs/iptables-custom-remove.sh \
 	docs/pgld.1 \
