@@ -454,10 +454,14 @@ void Peerguardian::applyChanges()
     bool updateBlocklistsList = guiOptions->hasToUpdateBlocklistList();
     QString filepath;
     
-    //apply new changes directly in iptables
-    QStringList iptablesCommands = m_Whitelist->updateWhitelistItemsInIptables(getTreeItems(m_WhitelistTreeWidget), guiOptions);
-    if ( ! iptablesCommands.isEmpty() )
-        m_Root->executeCommands(iptablesCommands, false);
+    //only apply IPtables commands if the daemon is running
+    if ( m_Info->daemonState() )
+    {
+        //apply new changes directly in iptables
+        QStringList iptablesCommands = m_Whitelist->updateWhitelistItemsInIptables(getTreeItems(m_WhitelistTreeWidget), guiOptions);
+        if ( ! iptablesCommands.isEmpty() )
+            m_Root->executeCommands(iptablesCommands, false);
+    }
     
     //================ update /etc/pgl/pglcmd.conf ================/
 	if ( updatePglcmdConf )
@@ -531,7 +535,7 @@ void Peerguardian::applyChanges()
     
     m_Whitelist->updateSettings(getTreeItems(m_WhitelistTreeWidget), guiOptions->getPositionFirstAddedWhitelistItem(), false);
     guiOptions->updateWhitelist(guiOptions->getPositionFirstAddedWhitelistItem());
-    m_ApplyButton->setEnabled(false); //assume changes will be applied, if not this button will be disabled afterwards
+    m_ApplyButton->setEnabled(false); //assume changes will be applied, if not this button will be enabled afterwards
     m_UndoButton->setEnabled(false);
 }
 
@@ -848,6 +852,7 @@ void Peerguardian::g_UpdateDaemonStatus() {
 		}
 		m_Tray->setToolTip( tr( "Pgld is not running" ) );
 
+        setWindowIcon(QIcon(NOT_RUNNING_ICON));
 	}
 	else
     {
@@ -861,7 +866,8 @@ void Peerguardian::g_UpdateDaemonStatus() {
 			lastIcon = TRAY_ICON;
 		}
 		m_Tray->setToolTip( tr( "Pgld is up and running" ) );
-
+        
+        setWindowIcon(QIcon(RUNNING_ICON));
 	}
 }
 
