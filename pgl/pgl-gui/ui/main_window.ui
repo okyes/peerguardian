@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>642</width>
-    <height>540</height>
+    <width>808</width>
+    <height>602</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -413,12 +413,22 @@
              </column>
              <column>
               <property name="text">
-               <string>Source</string>
+               <string>Source IP</string>
               </property>
              </column>
              <column>
               <property name="text">
-               <string>Destination</string>
+               <string>Source Port</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Destination IP</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Destination Port</string>
               </property>
              </column>
              <column>
@@ -845,7 +855,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>642</width>
+     <width>808</width>
      <height>21</height>
     </rect>
    </property>
