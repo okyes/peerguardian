@@ -12,6 +12,8 @@ pgl 2.1.0~pre1 The GUI release!
 
   [ jre ]
   * LICENSE CHANGE: relicensed pgld and pglcmd to GPL v3 (or later)
+  * IMPORTANT CHANGES:
+    - removed default whitelisting of ports 80 (http) and 443 (https)
   * place local blocklists in LOCAL_BLOCKLIST_DIR (/etc/pgl/blocklists.local)
     instead of MASTER_BLOCKLIST_DIR
   * fixed: install pgld logrotate
