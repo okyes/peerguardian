@@ -20,6 +20,7 @@
 
 #include "super_user.h"
 #include "utils.h"
+#include "file_transactions.h"
 
 
 QString SuperUser::m_SudoCmd = "";
@@ -147,44 +148,35 @@ void SuperUser::execute(const QStringList& command )
     executeCommands(commands);
 }
 
-/*void SuperUser::startThread(const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode )
-{
-    //Although it could use several ProcessT instances at the same time,
-    //the way it works now will only allow to have one ProcessT instance at a time,
-    //because if we had several, each one of them would pop-up a dialog asking for
-    //the root password and that would be very annoying to the user.
-
-    bool executing = false;
-    qDebug() << "start thread";
-    foreach(ProcessT *t, m_threads)
-    {
-        if ( t->isFinished() )
-        {
-            t->execute(name, args, mode);
-            executing = true;
-            break;
-        }
-    }
-
-    if ( ! executing )
-    {
-        ProcessT *t = new ProcessT(m_parent);
-        m_threads.push_back(t);
-        t->execute(name, args, mode);
-        connect(t, SIGNAL(allCmdsFinished()), this, SLOT(processFinished()));
-    }
-
-
-}*/
-
 void SuperUser::executeAll()
 {
-    executeCommands(m_Commands);
+    QStringList lines;
+    QString cmd = QString("%1 %2").arg(m_SudoCmd).arg("/tmp/execute-all-pgl-commands.sh");
+    QStringList cmds;
+    cmds << cmd;
+    
+    qDebug() << "commands: " << m_Commands;
+    
+    if ( m_Commands.size() > 1 )
+    {
+        //create file with the commands to be executed
+        lines << "#!/usr/bin/sh";
+        lines << "set -e";
+        lines << m_Commands;
+        bool ok = saveFileData(lines, "/tmp/execute-all-pgl-commands.sh");
+    
+        if ( ok )
+            executeCommands(cmds);
+    }else if ( m_Commands.size() == 1 )
+        executeCommands(m_Commands);
+    
+    
+    
 }
 
 void SuperUser::processFinished(QStringList commands)
 {
-    ProcessT * t;
+    //ProcessT * t;
     
     if ( ! m_Commands.isEmpty() )
         m_Commands.clear();
