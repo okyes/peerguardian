@@ -72,26 +72,38 @@ void Peerguardian::addLogItem(QString itemString)
         return;
     
     qDebug() << itemString;
+    
     if ( itemString.contains("||") )
     {
-        QTime time = QTime::currentTime();
-        QString timeStr = QString("%1:%2:%3").arg(time.hour()).arg(time.minute()).arg(time.second());
         QStringList parts = itemString.split("||", QString::SkipEmptyParts);
         QStringList firstPart = parts.first().split(" ", QString::SkipEmptyParts);
-        QString connectType;
+        QString connectType, srcip, destip, srcport, destport;
         
         if ( firstPart.first().contains(":") )
             connectType = m_ConnectType[firstPart.first().split(":")[0]];
         else
             connectType = m_ConnectType[firstPart.first()];
             
+        if ( firstPart[3] == "TCP" || firstPart[3] == "UDP" )
+        {
+            srcip = firstPart[1].split(":", QString::SkipEmptyParts)[0];
+            srcport = firstPart[1].split(":", QString::SkipEmptyParts)[1];
+            destip = firstPart[2].split(":", QString::SkipEmptyParts)[0];
+            destport = firstPart[2].split(":", QString::SkipEmptyParts)[1];
+        }
+        else
+        {
+            srcip = firstPart[1];
+            srcport = "";
+            destip = firstPart[2];
+            destport = "";
+        }
             
         QStringList info;
         
-        
-        info << timeStr << parts.last() << firstPart[1]  << firstPart[2] << firstPart[3] << connectType;
+        info << QTime::currentTime().toString("hh:mm:ss") << parts.last() << srcip << srcport << destip << destport << firstPart[3] << connectType;
         QTreeWidgetItem * item = new QTreeWidgetItem(m_LogTreeWidget, info);
-        item->setIcon(5, m_ConnectIconType[connectType]);
+        item->setIcon(7, m_ConnectIconType[connectType]);
         m_LogTreeWidget->addTopLevelItem(item);
         
         m_LogTreeWidget->scrollToBottom();
@@ -255,19 +267,16 @@ void Peerguardian::g_MakeConnections()
 
 }
 
-
-
-
 void Peerguardian::quit()
 {
     int answer;
     
     if (m_ApplyButton->isEnabled())
     {
-	answer = confirm(tr("Apply changes?"), tr("You have unapplied changes, do you wish to apply them permanently before exiting?"), this);
-	
-	if ( answer == QMessageBox::Yes )
-	    applyChanges();
+        answer = confirm(tr("Really quit?"), tr("You have <b>unapplied</b> changes, do you really want to quit?"), this);
+        
+        if ( answer == QMessageBox::No )
+            return;
     }
     
     quitApp = true;
@@ -868,7 +877,6 @@ void Peerguardian::g_MakeMenus() {
 	m_TrayMenu->addAction( a_AllowHttps );
 	m_TrayMenu->addAction( a_AllowFtp );*/
 	m_TrayMenu->addSeparator();
-	m_TrayMenu->addAction( a_RestoreWindow );
 	m_TrayMenu->addAction( a_Exit );
 	m_Tray->setContextMenu(m_TrayMenu);
 
