@@ -42,8 +42,11 @@ int main(int argc, char *argv[])
 	QApplication::setOrganizationName( "pgl" );
 	QApplication::setOrganizationDomain( "https://sourceforge.net/projects/peerguardian" );
 	QApplication::setApplicationName( "pgl-gui" );
+    app.setQuitOnLastWindowClosed(false);
 
 	Peerguardian pgWindow;
+    
+    pgWindow.addApp(app);
 
 	QStringList args = QApplication::arguments();
 	//If tray argument was not given show the window normally
