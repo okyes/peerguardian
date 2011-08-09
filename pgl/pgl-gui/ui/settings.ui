@@ -1,237 +1,63 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>SettingsDialog</class>
- <widget class="QDialog" name="SettingsDialog" >
-  <property name="windowModality" >
+ <widget class="QDialog" name="SettingsDialog">
+  <property name="windowModality">
    <enum>Qt::ApplicationModal</enum>
   </property>
-  <property name="geometry" >
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>560</width>
-    <height>520</height>
+    <width>367</width>
+    <height>130</height>
    </rect>
   </property>
-  <property name="minimumSize" >
+  <property name="minimumSize">
    <size>
-    <width>560</width>
-    <height>520</height>
+    <width>200</width>
+    <height>130</height>
    </size>
   </property>
-  <property name="font" >
+  <property name="font">
    <font>
     <weight>50</weight>
     <bold>false</bold>
    </font>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Configure Mobloquer</string>
   </property>
-  <property name="windowIcon" >
-   <iconset resource="../images/images.qrc" >:/images/pgl-gui.png</iconset>
+  <property name="windowIcon">
+   <iconset resource="../images/images.qrc">
+    <normaloff>:/images/pgl-gui.png</normaloff>:/images/pgl-gui.png</iconset>
   </property>
-  <layout class="QVBoxLayout" >
+  <layout class="QVBoxLayout">
    <item>
-    <widget class="QFrame" name="frame" >
-     <property name="frameShape" >
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
-     <property name="frameShadow" >
+     <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QVBoxLayout" >
+     <layout class="QVBoxLayout">
       <item>
-       <widget class="QLabel" name="label" >
-        <property name="text" >
-         <string>MoBlock log file path:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" >
-        <item>
-         <widget class="QLineEdit" name="m_LogPathEdit" >
-          <property name="statusTip" >
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="m_LogPathButton" >
-          <property name="text" >
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_2" >
-        <property name="text" >
-         <string>Blockcontrol blocklists file path:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" >
-        <item>
-         <widget class="QLineEdit" name="m_ListsPathEdit" >
-          <property name="statusTip" >
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="m_ListsPathButton" >
-          <property name="text" >
-           <string>...</string>
-          </property>
-          <property name="arrowType" >
-           <enum>Qt::NoArrow</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_3" >
-        <property name="text" >
-         <string>Blockcontrol defaults settings file path:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" >
-        <item>
-         <widget class="QLineEdit" name="m_DefaultsPathEdit" >
-          <property name="statusTip" >
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="m_DefaultsPathButton" >
-          <property name="text" >
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_6" >
-        <property name="text" >
-         <string>Blockcontrol configuration file path:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" >
-        <item>
-         <widget class="QLineEdit" name="m_ConfPathEdit" >
-          <property name="statusTip" >
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="m_ConfPathButton" >
-          <property name="text" >
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_4" >
-        <property name="text" >
-         <string>Blockcontrol executable path:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" >
-        <item>
-         <widget class="QLineEdit" name="m_ControlPathEdit" />
-        </item>
-        <item>
-         <widget class="QToolButton" name="m_ControlPathButton" >
-          <property name="text" >
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_5" >
-        <property name="text" >
-         <string>Blockcontrol log path:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" >
-        <item>
-         <widget class="QLineEdit" name="m_ControlLogPathEdit" />
-        </item>
-        <item>
-         <widget class="QToolButton" name="m_ControlLogPathButton" >
-          <property name="text" >
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_7" >
-        <property name="text" >
+       <widget class="QLabel" name="label_7">
+        <property name="text">
          <string>Sudo front-end:</string>
         </property>
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" >
+       <layout class="QHBoxLayout">
         <item>
-         <widget class="QLineEdit" name="m_RootPathEdit" />
+         <widget class="QLineEdit" name="m_RootPathEdit"/>
         </item>
         <item>
-         <widget class="QToolButton" name="m_RootPathButton" >
-          <property name="text" >
+         <widget class="QToolButton" name="m_RootPathButton">
+          <property name="text">
            <string>...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" >
-        <item>
-         <spacer>
-          <property name="orientation" >
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" >
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="m_SetDefaultsButton" >
-          <property name="font" >
-           <font>
-            <weight>50</weight>
-            <italic>true</italic>
-            <bold>false</bold>
-           </font>
-          </property>
-          <property name="text" >
-           <string>Defaults</string>
           </property>
          </widget>
         </item>
@@ -241,35 +67,22 @@
     </widget>
    </item>
    <item>
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
  <tabstops>
-  <tabstop>m_LogPathEdit</tabstop>
-  <tabstop>m_ListsPathEdit</tabstop>
-  <tabstop>m_DefaultsPathEdit</tabstop>
-  <tabstop>m_ConfPathEdit</tabstop>
-  <tabstop>m_ControlPathEdit</tabstop>
-  <tabstop>m_ControlLogPathEdit</tabstop>
-  <tabstop>m_LogPathButton</tabstop>
-  <tabstop>m_ListsPathButton</tabstop>
-  <tabstop>m_DefaultsPathButton</tabstop>
-  <tabstop>m_ConfPathButton</tabstop>
-  <tabstop>m_ControlPathButton</tabstop>
-  <tabstop>m_ControlLogPathButton</tabstop>
-  <tabstop>m_SetDefaultsButton</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources>
-  <include location="../images/images.qrc" />
+  <include location="../images/images.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -278,11 +91,11 @@
    <receiver>SettingsDialog</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>252</x>
      <y>394</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>157</x>
      <y>274</y>
     </hint>
@@ -294,11 +107,11 @@
    <receiver>SettingsDialog</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>320</x>
      <y>394</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
     </hint>
