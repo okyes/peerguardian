@@ -52,7 +52,7 @@ class PglCmd : public SuperUser {
 		 * @param path The path of the blockcontrol script.
 		 * @param parent The parent of this QObject.
 		 */
-		PglCmd( const QString &path, QObject *parent = 0 );
+		PglCmd(  QObject *parent = 0, const QString &path="", const QString& gSudoPath="");
 		/**
 		 * Constructor, creates a blockcontrol object without setting any path for the blockcontrol script.
 		 * @param parent The parent of this QObject.
