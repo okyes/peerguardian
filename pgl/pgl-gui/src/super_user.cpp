@@ -27,23 +27,26 @@ QString SuperUser::m_SudoCmd = "";
 
 
 
-SuperUser::SuperUser( QObject *parent ):
+SuperUser::SuperUser( QObject *parent, const QString& rootpath ):
     QObject(parent)
 {
     m_parent = parent;
     m_ProcT = new ProcessT(m_parent);
     connect(m_ProcT, SIGNAL(allCmdsFinished(QStringList)), this, SLOT(processFinished(QStringList)));
+    connect(m_ProcT, SIGNAL(commandOutput(QString)), this, SLOT(commandOutput(QString)));
     
+    qDebug() << m_SudoCmd;
+    
+    if ( rootpath.isEmpty() )
+    {
+        QStringList gSudos;
+        gSudos << "which kdesudo" << "which gksudo" << "which kdesu" << "which gksu";
+        m_ProcT->executeCommands(gSudos);
+    }
+    else
+        m_SudoCmd = rootpath;
 }
 
-SuperUser::SuperUser( QString& rootpath,  QObject *parent ):
-    QObject(parent)
-{
-    setRootPath(rootpath, true);
-    m_parent = parent;
-    m_ProcT = new ProcessT(m_parent);
-    connect(m_ProcT, SIGNAL(allCmdsFinished(QStringList)), this, SLOT(processFinished(QStringList)));
-}
 
 SuperUser::~SuperUser() {
 
@@ -151,7 +154,7 @@ void SuperUser::execute(const QStringList& command )
 void SuperUser::executeAll()
 {
     QStringList lines;
-    QString cmd = QString("%1 %2").arg(m_SudoCmd).arg("/tmp/execute-all-pgl-commands.sh");
+    QString cmd = QString("%1 sh %2").arg(m_SudoCmd).arg("/tmp/execute-all-pgl-commands.sh");
     QStringList cmds;
     cmds << cmd;
     
@@ -160,13 +163,22 @@ void SuperUser::executeAll()
     if ( m_Commands.size() > 1 )
     {
         //create file with the commands to be executed
-        lines << "#!/usr/bin/sh";
+        lines << "#!/bin/sh";
         lines << "set -e";
-        lines << m_Commands;
+        
+        foreach(QString command, m_Commands)
+        {
+            if ( command.contains("iptables") )
+                lines << command + " || true";
+            else
+                lines << command;
+        }
+        
         bool ok = saveFileData(lines, "/tmp/execute-all-pgl-commands.sh");
     
         if ( ok )
             executeCommands(cmds);
+            
     }else if ( m_Commands.size() == 1 )
         executeCommands(m_Commands);
     
@@ -225,6 +237,13 @@ void SuperUser::moveFiles( const QMap<QString, QString> files, bool start)
     }
 }
 
+void SuperUser::commandOutput(QString path)
+{
+    if ( m_SudoCmd.isEmpty() &&  (! path.isEmpty()) )
+        m_SudoCmd = path;
+    
+}
+
 
 /*** Static methods ***/
 
@@ -241,6 +260,11 @@ QString SuperUser::getFilePath(const QString &path)
         p = getValidPath(path, GKSU_PATH);
 
     return p;
+}
+
+QString SuperUser::getGraphicalSudoPath()
+{
+    return m_SudoCmd;
 }
 
 

@@ -52,12 +52,12 @@ class SuperUser : public QObject
     Q_OBJECT
 
 	public:
+        static QString m_SudoCmd;
+        
 		/**
 		 * Constructor.
 		 */
-
-		SuperUser(QObject *parent = 0 );
-        SuperUser(QString& rootpath, QObject *parent = 0 );
+        SuperUser(QObject *parent = 0, const QString& rootpath ="");
 		/**
 		 * Destructor.
 		 */
@@ -96,6 +96,7 @@ class SuperUser : public QObject
         QString getRootPath();
         static QString getFilePath();
         static QString getFilePath(const QString &path);
+        static QString getGraphicalSudoPath();
         void startThread(const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode );
         void moveFiles( const QMap<QString, QString>, bool start = true);
         void executeAll();
@@ -103,19 +104,22 @@ class SuperUser : public QObject
 
     public slots:
         void processFinished(QStringList);
+        
+    private slots:
+        void commandOutput(QString);
 
     signals:
         void finished();
 
 	private:
         SuperUser(const SuperUser& other);
-		static QString m_SudoCmd;
 		static QString m_TestFile;
         QList<ProcessT*> m_threads;
         QObject *m_parent;
         QMap<QString, QString> m_filesToMove;
         ProcessT * m_ProcT;
         QStringList m_Commands;
+        bool emitFinished;
 
 };
 
