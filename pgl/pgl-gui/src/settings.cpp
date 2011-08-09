@@ -20,12 +20,14 @@
 
 #include "settings.h"
 #include "peerguardian_log.h"
+#include "super_user.h"
 
-SettingsDialog::SettingsDialog( QWidget *parent ) :
+SettingsDialog::SettingsDialog(QWidget *parent) :
 	QDialog( parent )
 {
 	setupUi( this );
     
+    file_SetRootPath( SuperUser::getGraphicalSudoPath() );
     connect( m_RootPathButton, SIGNAL( clicked() ), this, SLOT( file_BrowseRootPath() ) );
 
 }
@@ -45,5 +47,5 @@ void SettingsDialog::file_BrowseRootPath() {
 
 void SettingsDialog::file_SetDefaults() {
 
-	file_SetRootPath( KDESU_PATH );
+	file_SetRootPath( SuperUser::getGraphicalSudoPath() );
 }
