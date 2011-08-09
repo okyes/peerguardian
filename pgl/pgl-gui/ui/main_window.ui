@@ -863,31 +863,12 @@
     <property name="title">
      <string>File</string>
     </property>
-    <widget class="QMenu" name="menuBackups">
-     <property name="title">
-      <string>Manage Backups</string>
-     </property>
-     <property name="icon">
-      <iconset resource="../images/images.qrc">
-       <normaloff>:/images/backup.png</normaloff>:/images/backup.png</iconset>
-     </property>
-     <property name="separatorsCollapsible">
-      <bool>false</bool>
-     </property>
-     <addaction name="a_CreateBackups"/>
-     <addaction name="separator"/>
-     <addaction name="a_RestoreSettings"/>
-     <addaction name="a_RestoreList"/>
-    </widget>
-    <addaction name="menuBackups"/>
-    <addaction name="separator"/>
     <addaction name="a_Exit"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
      <string>Options</string>
     </property>
-    <addaction name="a_ToggleAutoScrolling"/>
     <addaction name="separator"/>
     <addaction name="a_SettingsDialog"/>
    </widget>
@@ -1152,33 +1133,6 @@
    </property>
    <property name="text">
     <string>Allow FTP connections</string>
-   </property>
-  </action>
-  <action name="a_CreateBackups">
-   <property name="icon">
-    <iconset>
-     <normaloff>Programas/peerguardian/pgl/pgl-gui/ui</normaloff>Programas/peerguardian/pgl/pgl-gui/ui</iconset>
-   </property>
-   <property name="text">
-    <string>Create Backups</string>
-   </property>
-  </action>
-  <action name="a_RestoreSettings">
-   <property name="icon">
-    <iconset>
-     <normaloff>Programas/peerguardian/pgl/pgl-gui/ui</normaloff>Programas/peerguardian/pgl/pgl-gui/ui</iconset>
-   </property>
-   <property name="text">
-    <string>Restore Settings</string>
-   </property>
-  </action>
-  <action name="a_RestoreList">
-   <property name="icon">
-    <iconset>
-     <normaloff>Programas/peerguardian/pgl/pgl-gui/ui</normaloff>Programas/peerguardian/pgl/pgl-gui/ui</iconset>
-   </property>
-   <property name="text">
-    <string>Restore Blocklists</string>
    </property>
   </action>
   <action name="a_SettingsDialog">
