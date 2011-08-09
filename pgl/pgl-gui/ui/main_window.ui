@@ -497,10 +497,10 @@
            <item>
             <widget class="QCheckBox" name="m_StartAtBootBox">
              <property name="statusTip">
-              <string>Start MoBlock as a daemon when the computer starts</string>
+              <string>Start PeerGuardian as a daemon when the computer starts</string>
              </property>
              <property name="text">
-              <string>Start Peerguardian at system boot</string>
+              <string>Start PeerGuardian at system boot</string>
              </property>
             </widget>
            </item>
