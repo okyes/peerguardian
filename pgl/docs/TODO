@@ -104,8 +104,16 @@ pgl-gui:
       daemon not running: only settings to pglcmd.conf
     * add all commands to a script (first line "set -e"), then run this script
       on Apply.
-    * only the first command gets executed, when you Apply all unapplied changes
-      on exit.
+     -I just unticked a blocklist and an IP (while the daemon was stopped).
+      pglcmd.conf was mv'd correctly, but blocklists.list not. Both items are
+      still on unapplied, and the files get always recreated on "Apply"
+     -Add after every iptables -D command a
+        || true
+     -Start /tmp/execute-all-pgl-commands.sh with
+        #!/bin/sh
+      instead of /usr/bin/sh
+
+  * tray icon exit action ignores "No" and exits anyway.
 
   * issue a "pglcmd reload" after blocklist selection changes on "Apply".
 
@@ -164,7 +172,6 @@ pgl-gui:
 
   - logging:
     - show the log of blocked IPs that happened while pgl-gui was in the tray.
-    - don't remove leading zeros in the timestamp
 
   - blocklists:
     - show local blocklists (in /etc/pgl/blocklists.local) in Configure tab
