@@ -60,6 +60,7 @@ Peerguardian::Peerguardian( QWidget *parent) :
     QString interface("org.netfilter.pgl");
     
     qDebug() << connection.connect(service, path, interface, name, qobject_cast<QObject*>(this), SLOT(addLogItem(QString)));
+
     
     //ActionButton *bt;
     //bt = new ActionButton(kickPB, "org.qt.policykit.examples.kick", this);
@@ -343,6 +344,9 @@ void Peerguardian::removeListItems()
 
 void Peerguardian::rootFinished()
 {
+    
+    if ( m_FilesToMove.isEmpty() )
+        return;
 
     if ( ( m_FilesToMove.contains("/tmp/pglcmd.conf") && QFile::exists("/tmp/pglcmd.conf") ) ||  
         (m_FilesToMove.contains("/tmp/blocklists.list") && QFile::exists("/tmp/blocklists.list")))
@@ -704,22 +708,13 @@ void Peerguardian::inicializeSettings()
 }
 
 void Peerguardian::g_SetRoot( ) {
-
-    QString filepath = SuperUser::getFilePath(m_ProgramSettings->value( "paths/super_user" ).toString());
-    qDebug() << "superuser file: " << filepath;
-
-    if ( ! filepath.isEmpty() )
-    {
-        if ( m_Root == NULL )
-            m_Root = new SuperUser(filepath);
-
-        if ( m_ProgramSettings->value( "paths/super_user" ).toString() != m_Root->getRootPath() )
-            m_ProgramSettings->setValue( "paths/super_user", m_Root->getRootPath() );
-    }
-    else
-        QMessageBox::warning( this, tr( "Could not locate sudo front-end" ), 
-        tr( "Could not find gksu or kdesu executable. The program will not be able to perform any operation which requires super user privilleges.\n\nYou can manually change the path for the sudo front-end through the settings dialog." ), QMessageBox::Ok );
-
+    
+    if ( m_Root != NULL )
+        delete m_Root;
+    
+    QString gSudo = m_ProgramSettings->value("paths/super_user").toString();
+    qDebug() << "gSudo: " << gSudo; 
+    m_Root = new SuperUser(this, gSudo);
 }
 
 void Peerguardian::g_SetLogPath() {
@@ -758,14 +753,9 @@ void Peerguardian::g_SetListPath()
 
 void Peerguardian::g_SetControlPath()
 {
-    QString filepath = PglCmd::getFilePath();
-
-    if ( ! filepath.isEmpty() && m_Control == NULL )
-    {
-			m_Control = new PglCmd;
-            m_Control->setFilePath(filepath, true);
-    }
-
+    QString  gSudo = m_ProgramSettings->value("paths/super_user").toString();
+    m_Control = new PglCmd(this, PglSettings::getStoredValue("CMD_PATHNAME"), gSudo);
+    
 }
 
 void Peerguardian::g_ShowAddDialog(int openmode) {
@@ -1042,8 +1032,12 @@ void Peerguardian::startStopLogging()
 void Peerguardian::openSettingsDialog()
 {
     SettingsDialog * dialog = new SettingsDialog(this);
-    dialog->exec();
-    
+        
+    if ( dialog->exec() )
+    {
+        m_ProgramSettings->setValue("paths/super_user", dialog->file_GetRootPath());
+        SuperUser::m_SudoCmd = m_ProgramSettings->value("paths/super_user").toString();
+    }
     
     if ( dialog )
         delete dialog; 
