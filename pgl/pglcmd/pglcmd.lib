@@ -1786,7 +1786,7 @@ LIST_URL2LIST_NAME () {
         # Strip iblocklist.com prefix and extensions like "&fileformat=p2p&archiveformat=gz"
         LIST_URL_TRUNK="$( echo $LIST_URL | sed "s|list.iblocklist.com/?list=||;s|\&.*||" )"
         # Grep LIST_URL_TRUNK drom lists.xml. If this file is missing, try to download it.
-        if ( [ -f ${BLOCKLISTS_DIR}/lists.xml ] || 
+        if ( [ -f ${BLOCKLISTS_DIR}/lists.xml ] ||
         ( test_net && [ -f ${BLOCKLISTS_DIR}/lists.xml ] )
         ) &&
         grep -q "<list>${LIST_URL_TRUNK}</list>" ${BLOCKLISTS_DIR}/lists.xml ; then

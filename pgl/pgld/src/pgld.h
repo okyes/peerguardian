@@ -53,6 +53,7 @@
 
 #define RECVBUFFSIZE 1500
 #define PAYLOADSIZE 24
+// http://www.iana.org/assignments/protocol-numbers/protocol-numbers.xml
 #define ICMP    1
 #define TCP     6
 #define UDP     17

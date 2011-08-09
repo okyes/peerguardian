@@ -63,8 +63,8 @@ int pgl_dbus_init() {
     return 0;
 }
 
-// use_dbus now is 1, so in do_log calls dbus is enabled.
-// Therefore use do_log_xdbus instead for error messages.
+// use_dbus now is 1, so in do_log dbus is enabled.
+// Therefore use do_log_xdbus for error messages.
 void pgl_dbus_send(const char *format, va_list ap) {
 
     if (dbconn == NULL) {

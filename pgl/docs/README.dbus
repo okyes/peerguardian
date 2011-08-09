@@ -54,16 +54,17 @@ bus: system bus
 bus names (address of the connection on the system bus):
     org.netfilter.pgl
 
-object path (name of the object):
-    org/netfilter/pgl
-
 interface (can usually be omitted)
     org/netfilter/pgl
 
-Logging is done with signals (broadcasting, "1:n publish-subscribe" coming from
-an object)
-member (=signal) if pgld blocks an IP (IP matches blocklist):
-    IPMatch
+object path (name of the object):
+    org/netfilter/pgl/
+
+Object/Member of pgld logging:
+    org/netfilter/pgl/pgld_message
+TODO:
+    org/netfilter/pgl/IpMatch
+    org/netfilter/pgl/pglcmd_Error
 
 
 How to use dbus to log in pgld:
@@ -71,6 +72,13 @@ How to use dbus to log in pgld:
 
 dbus was initially implemented in NFBlock by jpv and reimplemented by jimtb. It
 uses the lowlevel bindings "libdbus".
+
+http://dbus.freedesktop.org/doc/api/html/index.html, especially:
+http://dbus.freedesktop.org/doc/api/html/group__DBusMessage.html
+
+Logging is done with signals (broadcasting, "1:n publish-subscribe" coming from
+an object)
+
     dbmsg = dbus_message_new_signal ("/org/netfilter/pgl",
                                          "org.netfilter.pgl",
                                          "pgld_message");

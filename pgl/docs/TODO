@@ -5,11 +5,11 @@ Note:  items marked with "*" are release-critical for 2.1.0
 
 pgld:
 
-  * fix dbus support, especially for logging:
-    The blocked IP logging messages should use separate objects for every item
-    (SOURCE_IP, DESTINATION_IP, SOURCE_PORT, DESTINATION_PORT, PROTOCOL,
-    TIMESTAMP) instead of a plain string, so that pgl-gui can easily use this
-    information. Remove this logging from the general do_log.
+  - replace NIPQUAD (removed from kernel 2.6.36)
+
+  - improve logging: object org/netfilter/pgl/IpMatch consisting of separate
+    items (srcip, srcport, destip, destport, proto, description) instead of a
+    plain string.
 
   - use a real allowlist (instead of the iptables whitelisting):
     pgld [OPTIONS] [-A ALLOWLIST(s)] [-B BLOCKLISTS]
@@ -55,11 +55,6 @@ pglcmd:
   - add pidfile for pglcmd (e.g. to prevent 2 starts at nearly the same time.
     How to handle "update"? - this does not conflict with start.
 
-  - replace some "echo" lines with
-      cat >> FILENAME <<END
-      [text]
-      END
-
   - Send traffic to several NFQUEUE nums with --queue-balance and run multiple
     pgld instances for these nums. This might help on heavy load.
 
@@ -103,19 +98,28 @@ pgl-gui:
 
   - add option "Reset to default"
 
-  * whitelisting bugs:
-    * added 224.0.0.0/24: iptables command ok, but not added to pgl-gui and not
-      to pglcmd.conf
-    * concatenate all commands on "Apply" with "&&"
-    * if CMD_CONF (/etc/pgl/pglcmd.conf) doesn't exist, create it on "Apply" of
-      whitelisting stuff
-      if BLOCKLISTS_LIST (/etc/pgl/blocklists.list) doesn't exist, create it on
-      "Apply" of blocklist changes
+  * whitelisting:
     * before issuing the iptables commands check if the daemon is running:
       daemon running: iptables command and settings to pglcmd.conf
       daemon not running: only settings to pglcmd.conf
+    * add all commands to a script (first line "set -e"), then run this script
+      on Apply.
+    * only the first command gets executed, when you Apply all unapplied changes
+      on exit.
 
   * issue a "pglcmd reload" after blocklist selection changes on "Apply".
+
+  * Implement these items, or comment their code for the release:
+    * Control Tab:
+      * Blocked IP ranges: Remove in favor of "IPs to be blocked" in top bar.
+        grep /var/log/pgl/pgld.log
+      * Last blocklist update
+    * Menu entries
+    * items on right-click on tray icon:
+      * Start, Stop, Restart: (currently no-op), remove or connect to the
+        corresponding pglcmd commands.
+      * Restore window: remove or connect. It's already implemented with
+        "left-click on tray icon"
 
   - policykit support (instead of kdesudo/gksu)
 
@@ -127,11 +131,6 @@ pgl-gui:
     Also use lists.xml to show the list description.
     Verify that lists like "example.com/list/list2" work.
 
-  * items on right-click on tray icon:
-    * Start, Stop, Restart: (currently no-op), remove or connect to the
-      corresponding pglcmd commands.
-    * Restore window: remove or connect. It's already implemented with
-      "left-click on tray icon"
 
   Requires pglcmd dbus:
 
@@ -140,12 +139,22 @@ pgl-gui:
 
   Requires pgld dbus:
 
-  * show log of blocked items (IP/port/protocol). Requires pgld dbus logging.
-
   - whitelisting with right-clicking in the log of blocked IPs window:
 
     * add blocked item (IP or port) to whitelisting (like in "Configure -
       Whitelist").
+        if CHAIN = OUT
+            DestIp --> WHITE_IP_OUT
+            if Protocol = TCP
+                DestPort --> WHITE_TCP_OUT
+            if Protocol = UDP
+                DestPort --> WHITE_UDP_OUT
+        if CHAIN = IN
+            SrcIp --> WHITE_IP_IN
+            if Protocol = TCP
+                DestPort --> WHITE_TCP_IN
+            if Protocol = UDP
+                DestPort --> WHITE_UDP_IN
 
     - add option to temp allow, which inserts the appropriate iptables rules
       directly (but not to pglcmd.conf). (iptables --ctexpire (really?))
@@ -153,11 +162,38 @@ pgl-gui:
     - add complete blocked item (combination of all IP, port and proto as
       iptables rule to e.g. pgl-gui-iptables-insert.sh).
 
-  * Implement these items, or comment their code for the release:
-    * Blocked IP ranges
-    * Last blocklist update
-    * Stop logging
-    * Clear log
+  - logging:
+    - show the log of blocked IPs that happened while pgl-gui was in the tray.
+    - don't remove leading zeros in the timestamp
+
+  - blocklists:
+    - show local blocklists (in /etc/pgl/blocklists.local) in Configure tab
+      (adding them works flawlessly)
+    - if blocklists.list is missing and I add a new list, pgl-gui segfaults
+-------------------------------------------------------------------------------
+(gdb) run
+Starting program: /usr/bin/pgl-gui
+[Thread debugging using libthread_db enabled]
+[New Thread 0x7ffff0ca0700 (LWP 24128)]
+** Debug: superuser file:  "/usr/bin/gksu"
+** Debug: "/var/log/pgl"
+** Warning: QStringList getFileData(const QString&) Could not read from file "/var/log/pgl"
+** Warning: void PeerguardianInfo::updateLogData() Failed to retreive information for moblock from file "/var/log/pgl"
+[New Thread 0x7fffe5462700 (LWP 24129)]
+** Debug: list size:  0
+** Debug: list size:  0
+** Debug: true
+[New Thread 0x7fffe3415700 (LWP 24133)]
+[New Thread 0x7fffde4a4700 (LWP 24134)]
+** Debug: ~AddExceptionDialog()
+[Thread 0x7fffe3415700 (LWP 24133) exited]
+[Thread 0x7fffde4a4700 (LWP 24134) exited]
+
+Program received signal SIGSEGV, Segmentation fault.
+0x00007ffff6aacf34 in QString::operator=(QString const&) () from /usr/lib/libQtCore.so.4
+-------------------------------------------------------------------------------
+
+
 
 ###############################################################################
 
@@ -177,7 +213,8 @@ pgl-gui:
 All components:
 
   - use dbus for communication between components. Especially for logging
-    events, instead of parsing the logfiles.
+    events, instead of parsing the logfiles. [partly done]
+    change naming to e.g. org/pgl/pgld/...
 
   - use inotify (available since Linux kernel 2.6.13) to reload after
     configuration change.

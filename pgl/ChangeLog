@@ -8,7 +8,6 @@ pgl 2.1.0~pre1 The GUI release!
   [freemind]
   * added new GUI: pgl-gui (C++, Qt)
     partly based on old mobloquer
-    moved old code to pgl-gui.qt-old
 
   [ jre ]
   * LICENSE CHANGE: relicensed pgld and pglcmd to GPL v3 (or later)
@@ -16,8 +15,8 @@ pgl 2.1.0~pre1 The GUI release!
     - removed default whitelisting of ports 80 (http) and 443 (https)
     - added atma/atma list to default blocklists, following recommendations on
       http://tbg.iblocklist.com/pages/faq.html
-  * place local blocklists in LOCAL_BLOCKLIST_DIR (/etc/pgl/blocklists.local)
-    instead of MASTER_BLOCKLIST_DIR
+    - place local blocklists in LOCAL_BLOCKLIST_DIR (/etc/pgl/blocklists.local)
+      instead of MASTER_BLOCKLIST_DIR
   * fixed: install pgld logrotate
   * if-up: use NetworkManager instead of Debian specific /etc/network/if-up.d
     install if-up to /etc/NetworkManager/dispatcher.d/20pglcmd
@@ -34,21 +33,21 @@ pgl 2.1.0~pre1 The GUI release!
     - added configuration variable for SENDMAIL and TRACEROUTE (new default is
       tcptraceroute)
     - rewrote "wc -l" calls for a little more efficiency
-  * added blockcontrol2pglcmd.sh configuration transition script
-  * renamed VERBOSITY variable to VERBOSE
-  * removed nexus23/ipfilterx, this list is only available on a subscription
-    basis from iblocklist.com
-  * pgl-gui/Makefile: use general moc and uic commands instead of special -qt4
-    ones
-  * pglcmd cron and pgld logrotate: suppress STDOUT
+    - renamed VERBOSITY variable to VERBOSE
+    - use http://www.iblocklist.com/lists.xml to determine the user friendly
+      blocklist names for iblocklist.com URLs instead of hardcoding them.
   * pglcmd *stats:
     - only execute as root
     - shortened sleep time between signal and logfile parsing from 5 to 1
       seconds
-  * use http://www.iblocklist.com/lists.xml to determine the user friendly
-    blocklist names for iblocklist.com URLs instead of hardcoding them.
+  * pglcmd cron and pgld logrotate: suppress STDOUT
+  * added blockcontrol2pglcmd.sh configuration transition script
+  * removed nexus23/ipfilterx, this list is only available on a subscription
+    basis from iblocklist.com
+  * pgl-gui/Makefile: use general moc and uic commands instead of special -qt4
+    ones
   * pgld:
-    - fixed logging
+    - fixed logging of dbus error messages
     - enabled charset selection also in LOWMEM
 
 -- jre <jre-phoenix@users.sourceforge.net>  Wed, 20 Apr 2011 14:13:36 +0200
