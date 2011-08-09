@@ -26,7 +26,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Configure Mobloquer</string>
+   <string>Configure pgl-gui</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../images/images.qrc">
