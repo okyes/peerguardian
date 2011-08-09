@@ -262,5 +262,6 @@ clean:
 dist:
 	mkdir -p $(DISTDIR) $(DISTDIR)/images $(DISTDIR)/other $(DISTDIR)/src $(DISTDIR)/ui
 	for I in $(DISTFILES) ; do cp "$$I" $(DISTDIR)/$$I ; done
+	sed -i "s|#define VERSION_NUMBER.*|#define VERSION_NUMBER \"$(VERSION)\"|" $(DISTDIR)/src/peerguardian.h
 
 .PHONY: all install install-strip clean dist

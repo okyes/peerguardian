@@ -66,7 +66,7 @@
 #include "pgl_whitelist.h"
 
 
-#define VERSION_NUMBER "0.1"
+#define VERSION_NUMBER "git"
 
 //Time related defines
 #define FAST_TIMER_INTERVAL 500

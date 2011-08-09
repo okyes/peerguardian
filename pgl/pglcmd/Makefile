@@ -82,6 +82,7 @@ clean:
 dist:
 	mkdir -p $(DISTDIR)
 	for I in $(DISTFILES) ; do cp "$$I" $(DISTDIR)/$$I ; done
+	sed -i "s|^VERSION=.*|VERSION=\"$(VERSION)\"|" $(DISTDIR)/pglcmd.defaults
 	chmod +x cron.daily if-up init pglcmd pglcmd.wd
 
 .PHONY: all clean dist install
