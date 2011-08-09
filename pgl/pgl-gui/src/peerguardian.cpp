@@ -910,7 +910,10 @@ void Peerguardian::g_ShowAboutDialog() {
     message += QString("<b><i>PeerGuardian Linux version %1</b><br>A Graphical User Interface for PeerGuardian Linux<br><br>").arg( VERSION_NUMBER );
     message += "Copyright (C) 2007-2008 Dimitris Palyvos-Giannas<br>";
     message += "Copyright (C) 2011 Carlos Pais <br><br>";
-    message += "This program is licenced under the GNU General Public Licence v3<br><br><font size=2>";
+    message += "pgl is licensed under the GNU General Public License v3, or (at\
+                your option) any later version. This program comes with\
+                ABSOLUTELY NO WARRANTY. This is free software, and you are\
+                welcome to modify and/or redistribute it.<br><br><font size=2>";
     message +="Using modified version of the crystal icon theme:<br>http://www.everaldo.com/<br>http://www.yellowicon.com/<br><br>";
     message += "Credits go to Morpheus, jre, TheBlackSun, Pepsi_One and siofwolves from phoenixlabs.org for their help and suggestions. <br>";
     message += "I would also like to thank Art_Fowl from e-pcmag.gr for providing valuable help with Qt4 and for helping me with the project's development. <br>";
