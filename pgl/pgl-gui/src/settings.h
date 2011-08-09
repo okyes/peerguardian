@@ -54,105 +54,17 @@ class SettingsDialog : public QDialog, private Ui::SettingsDialog {
 		 */
 		SettingsDialog( QWidget *parent = 0 );
 		/**
-		 * Intiallize the custom connections between objects.
-		 */
-		void makeConnections();
-		/**
-		 * Set the text in the "log" line edit;
-		 * @param path QString with the new text.
-		 */
-		inline void file_SetLogPath( const QString &path ) { 	m_LogPathEdit->setText( path ); }
-		/**
-		 * Set the text in the "blocklists" line edit.
-		 * @param path QString with the new text.
-		 */
-		inline void file_SetListsPath( const QString &path ) { m_ListsPathEdit->setText( path ); }
-		/**
-		 * Set the text in the "blockcontrol defaults configuration file" line edit.
-		 * @param path QString with the new text.
-		 */
-		inline void file_SetDefaultsPath( const QString &path ) { m_DefaultsPathEdit->setText( path ); }
-		/**
-		 * Set the text in the "blockcontrol configuration file" line edit.
-		 * @param path QString with the new text.
-		 */
-		inline void file_SetConfPath( const QString &path ) { m_ConfPathEdit->setText( path ); }
-		/**
-		 * Set the text in the "blockcontrol" line edit.
-		 * @param path QString with the new text.
-		 */
-		inline void file_SetControlPath( const QString &path ) { m_ControlPathEdit->setText( path ); }
-		/**
-		 * Set the text in the "blockcontrol log" line edit.
-		 * @param path QString with the new text.
-		 */
-		inline void file_SetControlLogPath( const QString &path ) { m_ControlLogPathEdit->setText( path ); }
-		/**
 		 * Set the text in the "Sudo frontend" line edit.
 		 * @param path QString with the new text.
 		 */
 		inline void file_SetRootPath( const QString &path ) { m_RootPathEdit->setText( path ); }
-		/**
-		 * Get the "log" line edit's text.
-		 * @return QString with the text of the line edit.
-		 */
-		inline QString file_GetLogPath() const { return m_LogPathEdit->text(); }
-		/**
-		 * Get the "blocklists" line edit's text.
-		 * @return QString with the text of the line edit.
-		 */
-		inline QString file_GetListsPath() const { return m_ListsPathEdit->text(); }
-		/**
-		 * Get the "blockcontrol defaults configuration file" line edit's text.
-		 * @return QString with the text of the line edit.
-		 */
-		inline QString file_GetDefaultsPath() const { return m_DefaultsPathEdit->text(); }
-		/**
-		 * Get the "blockcontrol configuration file" line edit's text.
-		 * @return QStrign with the text of the line edit.
-		 */
-		inline QString file_GetConfPath() const { return m_ConfPathEdit->text(); }
-		/**
-		 * Get the "blockcontrol" line edit's text.
-		 * @return QString with the text of the line edit.
-		 */
-		inline QString file_GetControlPath() const { return m_ControlPathEdit->text(); }
-		/**
-		 * Get the "blockcontrol log" line edit's text.
-		 * @return QString with the text of the line edit.
-		 */
-		inline QString file_GetControlLogPath() const { return m_ControlLogPathEdit->text(); }
-		/**
-		 * Get the "sudo front end" line edit's text.
+
+		 /* Get the "sudo front end" line edit's text.
 		 * @return QString with the text of the line edit.
 		 */
 		inline QString file_GetRootPath() const { return m_RootPathEdit->text(); }
 
 	private slots:
-		/**
-		 * Show the QFileDialog so the user can select a new log file.
-		 */
-		void file_BrowseLogPath();
-		/**
-		 * Show the QFileDialog so the user can select a new blocklists file.
-		 */
-		void file_BrowseListsPath();
-		/**
-		 * Show the QFileDialog so the user can select a new blockcontrol defaults configuration file.
-		 */
-		void file_BrowseDefaultsPath();
-		/**
-		 * Show the QFileDialog so the user can select a new default blockcontrol defaults configuration file.
-		 */
-		void file_BrowseConfPath();
-		/**
-		 * Show the QFileDialog so the user can select a new blockcontrol script file.
-		 */
-		void file_BrowseControlPath();
-		/**
-		 * Show the QFileDialog so the user can select a new blockcontrol log file.
-		 */
-		void file_BrowseControlLogPath();
 		void file_BrowseRootPath();
 		void file_SetDefaults();
 		
