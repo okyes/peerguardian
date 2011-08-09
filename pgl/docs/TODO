@@ -98,33 +98,23 @@ pgl-gui:
 
   - add option "Reset to default"
 
-  * /tmp/execute-all-pgl-commands.sh
-    - execute it with "SUDOCOMMAND sh /tmp/execute-all-pgl-commands.sh (or make
-      it executable                ^^
-    - Add after every "iptables -D" command a
-        || true
-    - instead of /usr/bin/sh add to first line
-        #!/bin/sh
-
   * issue a "pglcmd reload" after blocklist selection changes on "Apply".
 
   - Resize default "Configure - Whitelist - Value" width
 
-  * Implement/Fix/Comment these old mobloquer items for the release:
-    * Control Tab:
-      * "Blocked IP ranges":
+  - Implement/Fix/Comment these items:
+    - Control Tab:
+      - "Blocked IP ranges":
         Remove in favor of "Blocking $X IP ranges ($Y IPs)" in top bar.
         Use last entry in DAEMON_LOG (/var/log/pgl/pgld.log) of:
             "INFO: Blocklist has $X IP ranges ($Y IPs)"
         If this doesn't exist check {DAEMON_LOG}.1 (/var/log/pgl/pgld.log.1)
       - "Last blocklist update":
-        * Comment the code or
         - use last entry in CMD_LOG (/var/log/pgl/pglcmd.log) of:
             date +%F" "%X" "%Z" End: pglcmd update
             2011-08-08 10:30:55 CEST End: pglcmd update
         If this doesn't exist check {CMD_LOG}.1 (/var/log/pgl/pglcmd.log.1)
-    * Menu - Options - Settings:
-      * apply choosing the sudo frontend in ~/.config/pgl/pgl-gui.conf
+    - Menu - Options - Settings:
       - add hint for the default and/or
       - add "Reset to default" (KDESU_PATH in super_user.h)
     * items on right-click on tray icon:
@@ -203,6 +193,12 @@ Starting program: /usr/bin/pgl-gui
 
 Program received signal SIGSEGV, Segmentation fault.
 0x00007ffff6aacf34 in QString::operator=(QString const&) () from /usr/lib/libQtCore.so.4
+-------------------------------------------------------------------------------
+
+
+    - If you stop pgl and send pgl-gui to the tray, and then Exit, you get:
+-------------------------------------------------------------------------------
+** Warning: Application asked to unregister timer 0x56000008 which is not registered in this thread. Fix application.
 -------------------------------------------------------------------------------
 
 

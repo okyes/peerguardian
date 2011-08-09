@@ -1,6 +1,6 @@
 BUGS of pgl:
 
-################################## Open bugs: ##################################
+Minor bugs may be listed in docs/TODO.
 
 - "update" doesn't work with OpenDNS
   see e.g. here:
