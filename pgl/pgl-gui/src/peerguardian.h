@@ -23,6 +23,7 @@
 #ifndef PEERGUARDIAN_H
 #define PEERGUARDIAN_H
 
+#include <QApplication>
 #include <QMainWindow>
 #include <QWidget>
 #include <QCloseEvent>
@@ -66,7 +67,7 @@
 #include "pgl_whitelist.h"
 
 
-#define VERSION_NUMBER "git"
+#define VERSION_NUMBER "0.1"
 
 //Time related defines
 #define FAST_TIMER_INTERVAL 500
@@ -117,6 +118,7 @@ typedef enum { SETTINGS_IPFILTER_DAT,
 
 class GuiOptions;
 class QTreeWidgetItem;
+class QApplication;
 
 /**
 *
@@ -128,6 +130,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
 
 	Q_OBJECT
 
+    QApplication * m_App;
     QSettings *m_ProgramSettings;
     QString m_Loaded_RootFile;
     SuperUser *m_Root;
@@ -138,11 +141,11 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     PglCmd *m_Control;
     QSystemTrayIcon *m_Tray;
     QMenu *m_TrayMenu;
+    QMenu * m_LogMenu;
     //Timers
     QTimer *m_MediumTimer;
     QTimer *m_SlowTimer;
     bool quitApp;
-    
     bool m_WhitelistItemPressed;
     bool m_BlocklistItemPressed;
     bool m_treeItemPressed;
@@ -161,7 +164,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
 		 * c)Create the connections between the objects.
 		 * @param parent The QWidget parent of the object.
 		 */
-		Peerguardian( QWidget *parent = 0 );
+		Peerguardian( QWidget *parent = 0);
 		/**
 		 * Destructor. Takes the appropriate actions when Peerguardian is destroyed.
 		 * Deletes object pointers and saves settings.
@@ -191,6 +194,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         QString getUpdateFrequencyCurrentPath();
         void updateWhitelist();
         void updateBlocklist();
+        void addApp(QApplication&);
 
     public slots:
         void g_ShowAddExceptionDialog() { g_ShowAddDialog(ADD_MODE | EXCEPTION_MODE); };
@@ -210,6 +214,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void undoGuiOptions();
         void addLogItem(QString);
         void startStopLogging();
+        void openSettingsDialog();
 
     protected:
 	void closeEvent ( QCloseEvent * event );

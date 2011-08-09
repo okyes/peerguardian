@@ -16,14 +16,12 @@
 //using namespace PolkitQt1;
 //using namespace PolkitQt1::Gui;
 
-Peerguardian::Peerguardian( QWidget *parent ) :
+Peerguardian::Peerguardian( QWidget *parent) :
 	QMainWindow( parent )
-
 {
 
 	setupUi( this );
-
-
+    
     PglSettings::loadSettings();
     guiOptions = new GuiOptions(this);
     inicializeSettings();
@@ -33,6 +31,15 @@ Peerguardian::Peerguardian( QWidget *parent ) :
     g_MakeConnections();
     updateInfo();
     updateGUI();
+    
+    //resize columns in log view
+    QHeaderView * header = m_LogTreeWidget->header();
+    header->resizeSection(0, header->sectionSize(0) / 1.5 );
+    header->resizeSection(1, header->sectionSize(0) * 3 );
+    header->resizeSection(3, header->sectionSize(0) / 1.4 );
+    header->resizeSection(5, header->sectionSize(0) / 1.4 );
+    header->resizeSection(6, header->sectionSize(6) / 2);
+    
 
     m_treeItemPressed = false;
     m_StopLogging = false;
@@ -217,7 +224,6 @@ void Peerguardian::g_MakeConnections()
     connect( m_Log, SIGNAL( newItem( LogItem ) ), this, SLOT( addLogItem( LogItem ) ) );
 
     //Menu related
-    //connect( a_Exit, SIGNAL( triggered() ), qApp, SLOT( quit() ) );
     connect( a_Exit, SIGNAL( triggered() ), this, SLOT( quit() ) );
     connect( a_AboutDialog, SIGNAL( triggered() ), this, SLOT( g_ShowAboutDialog() ) );
 
@@ -265,6 +271,7 @@ void Peerguardian::g_MakeConnections()
     //tray iconPath
     connect(m_Tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(onTrayIconClicked(QSystemTrayIcon::ActivationReason)));
 
+    connect(a_SettingsDialog, SIGNAL(triggered()), this, SLOT(openSettingsDialog()));
 }
 
 void Peerguardian::quit()
@@ -276,24 +283,28 @@ void Peerguardian::quit()
         answer = confirm(tr("Really quit?"), tr("You have <b>unapplied</b> changes, do you really want to quit?"), this);
         
         if ( answer == QMessageBox::No )
+        {
             return;
+        }
     }
     
-    quitApp = true;
-    close();
+    m_App->quit();
+}
+
+void Peerguardian::addApp(QApplication & app)
+{
+    m_App = &app;
 }
 
 void Peerguardian::closeEvent ( QCloseEvent * event )
 {
-    this->setVisible ( false );
-    if ( ! quitApp )
-	event->ignore();
+    this->hide();
 }
 
 void Peerguardian::onTrayIconClicked(QSystemTrayIcon::ActivationReason reason)
 {
     if ( reason == QSystemTrayIcon::Trigger )
-	this->setVisible ( ! this->isVisible() );
+        this->setVisible ( ! this->isVisible() );
 }
 
 
@@ -852,7 +863,7 @@ void Peerguardian::g_UpdateDaemonStatus() {
 		}
 		m_Tray->setToolTip( tr( "Pgld is not running" ) );
 
-        setWindowIcon(QIcon(NOT_RUNNING_ICON));
+        setWindowIcon(QIcon(TRAY_DISABLED_ICON));
 	}
 	else
     {
@@ -867,13 +878,14 @@ void Peerguardian::g_UpdateDaemonStatus() {
 		}
 		m_Tray->setToolTip( tr( "Pgld is up and running" ) );
         
-        setWindowIcon(QIcon(RUNNING_ICON));
+        setWindowIcon(QIcon(TRAY_ICON));
 	}
 }
 
 void Peerguardian::g_MakeMenus() {
 
 
+    //tray icon menu
 	m_TrayMenu = new QMenu(this);
 	m_TrayMenu->addAction( a_Start );
 	m_TrayMenu->addAction( a_Stop );
@@ -885,10 +897,10 @@ void Peerguardian::g_MakeMenus() {
 	m_TrayMenu->addSeparator();
 	m_TrayMenu->addAction( a_Exit );
 	m_Tray->setContextMenu(m_TrayMenu);
-
-	//g_UpdateTrayActions();
-
-	//a_ToggleAutoScrolling->setChecked( m_ListAutoScroll );
+    
+    //log tree menu
+    //m_LogMenu = new QMenu(this);
+    //m_LogMenu->addAction();
 
 }
 
@@ -898,10 +910,7 @@ void Peerguardian::g_ShowAboutDialog() {
     message += QString("<b><i>PeerGuardian Linux version %1</b><br>A Graphical User Interface for PeerGuardian Linux<br><br>").arg( VERSION_NUMBER );
     message += "Copyright (C) 2007-2008 Dimitris Palyvos-Giannas<br>";
     message += "Copyright (C) 2011 Carlos Pais <br><br>";
-    message += "pgl is licensed under the GNU General Public License v3, or (at\
-                your option) any later version. This program comes with\
-                ABSOLUTELY NO WARRANTY. This is free software, and you are\
-                welcome to modify and/or redistribute it.<br><br><font size=2>";
+    message += "This program is licenced under the GNU General Public Licence v3<br><br><font size=2>";
     message +="Using modified version of the crystal icon theme:<br>http://www.everaldo.com/<br>http://www.yellowicon.com/<br><br>";
     message += "Credits go to Morpheus, jre, TheBlackSun, Pepsi_One and siofwolves from phoenixlabs.org for their help and suggestions. <br>";
     message += "I would also like to thank Art_Fowl from e-pcmag.gr for providing valuable help with Qt4 and for helping me with the project's development. <br>";
@@ -1027,3 +1036,12 @@ void Peerguardian::startStopLogging()
     }
 }
 
+void Peerguardian::openSettingsDialog()
+{
+    SettingsDialog * dialog = new SettingsDialog(this);
+    dialog->exec();
+    
+    
+    if ( dialog )
+        delete dialog; 
+}
