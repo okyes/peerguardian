@@ -98,36 +98,38 @@ pgl-gui:
 
   - add option "Reset to default"
 
-  * whitelisting:
-    * before issuing the iptables commands check if the daemon is running:
-      daemon running: iptables command and settings to pglcmd.conf
-      daemon not running: only settings to pglcmd.conf
-    * add all commands to a script (first line "set -e"), then run this script
-      on Apply.
-     -I just unticked a blocklist and an IP (while the daemon was stopped).
-      pglcmd.conf was mv'd correctly, but blocklists.list not. Both items are
-      still on unapplied, and the files get always recreated on "Apply"
-     -Add after every iptables -D command a
+  * /tmp/execute-all-pgl-commands.sh
+    - execute it with "SUDOCOMMAND sh /tmp/execute-all-pgl-commands.sh (or make
+      it executable                ^^
+    - Add after every "iptables -D" command a
         || true
-     -Start /tmp/execute-all-pgl-commands.sh with
+    - instead of /usr/bin/sh add to first line
         #!/bin/sh
-      instead of /usr/bin/sh
-
-  * tray icon exit action ignores "No" and exits anyway.
 
   * issue a "pglcmd reload" after blocklist selection changes on "Apply".
 
-  * Implement these items, or comment their code for the release:
+  - Resize default "Configure - Whitelist - Value" width
+
+  * Implement/Fix/Comment these old mobloquer items for the release:
     * Control Tab:
-      * Blocked IP ranges: Remove in favor of "IPs to be blocked" in top bar.
-        grep /var/log/pgl/pgld.log
-      * Last blocklist update
-    * Menu entries
+      * "Blocked IP ranges":
+        Remove in favor of "Blocking $X IP ranges ($Y IPs)" in top bar.
+        Use last entry in DAEMON_LOG (/var/log/pgl/pgld.log) of:
+            "INFO: Blocklist has $X IP ranges ($Y IPs)"
+        If this doesn't exist check {DAEMON_LOG}.1 (/var/log/pgl/pgld.log.1)
+      - "Last blocklist update":
+        * Comment the code or
+        - use last entry in CMD_LOG (/var/log/pgl/pglcmd.log) of:
+            date +%F" "%X" "%Z" End: pglcmd update
+            2011-08-08 10:30:55 CEST End: pglcmd update
+        If this doesn't exist check {CMD_LOG}.1 (/var/log/pgl/pglcmd.log.1)
+    * Menu - Options - Settings:
+      * apply choosing the sudo frontend in ~/.config/pgl/pgl-gui.conf
+      - add hint for the default and/or
+      - add "Reset to default" (KDESU_PATH in super_user.h)
     * items on right-click on tray icon:
       * Start, Stop, Restart: (currently no-op), remove or connect to the
         corresponding pglcmd commands.
-      * Restore window: remove or connect. It's already implemented with
-        "left-click on tray icon"
 
   - policykit support (instead of kdesudo/gksu)
 
@@ -138,6 +140,9 @@ pgl-gui:
     leformat=p2p&archiveformat=gz
     Also use lists.xml to show the list description.
     Verify that lists like "example.com/list/list2" work.
+
+  - Allow to sort the columns in "Configure - Whitelist" by clicking in their
+    header.
 
 
   Requires pglcmd dbus:
