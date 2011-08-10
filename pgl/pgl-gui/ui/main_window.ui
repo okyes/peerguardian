@@ -1140,8 +1140,8 @@
   </action>
   <action name="a_SettingsDialog">
    <property name="icon">
-    <iconset>
-     <normaloff>Programas/peerguardian/pgl/pgl-gui/ui</normaloff>Programas/peerguardian/pgl/pgl-gui/ui</iconset>
+    <iconset resource="../images/images.qrc">
+     <normaloff>:/images/settings.png</normaloff>:/images/settings.png</iconset>
    </property>
    <property name="text">
     <string>Settings</string>
