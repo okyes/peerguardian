@@ -100,7 +100,11 @@ pgl-gui:
 
   * issue a "pglcmd reload" after blocklist selection changes on "Apply".
 
+  - Add "Reload" to "Control - Manage" tab
+
   - Resize default "Configure - Whitelist - Value" width
+
+  - images/settings.png is not shown
 
   - Implement/Fix/Comment these items:
     - Control Tab:
@@ -109,6 +113,21 @@ pgl-gui:
         Use last entry in DAEMON_LOG (/var/log/pgl/pgld.log) of:
             "INFO: Blocklist has $X IP ranges ($Y IPs)"
         If this doesn't exist check {DAEMON_LOG}.1 (/var/log/pgl/pgld.log.1)
+pgl-gui crashes on
+    start pgl-gui
+    sudo rm /var/log/pgl/pgld.log
+ or "pglcmd reload" (triggers reopening of the logfile)
+ or removing thes ..." lines
+... and can't be restarted until a "pglcmd restart"
+-------------------------------------------------------------------------------
+** Fatal: ASSERT failure in QList<T>::operator[]: "index out of range", file /usr/share/qt4/include/QtCore/qlist.h, line 464
+
+Program received signal SIGABRT, Aborted.
+0x00007ffff5ccd405 in raise (sig=<value optimized out>) at ../nptl/sysdeps/unix/sysv/linux/raise.c:64
+64  ../nptl/sysdeps/unix/sysv/linux/raise.c: No such file or directory.
+    in ../nptl/sysdeps/unix/sysv/linux/raise.c
+-------------------------------------------------------------------------------
+
       - "Last blocklist update":
         - use last entry in CMD_LOG (/var/log/pgl/pglcmd.log) of:
             date +%F" "%X" "%Z" End: pglcmd update
@@ -161,16 +180,18 @@ pgl-gui:
 
     - add option to temp allow, which inserts the appropriate iptables rules
       directly (but not to pglcmd.conf). (iptables --ctexpire (really?))
+      or:
+      "whitelist permanently" --> iptables command + pglcmd entry
+      "whitelist until pgl is restarted" --> only iptables command
 
     - add complete blocked item (combination of all IP, port and proto as
       iptables rule to e.g. pgl-gui-iptables-insert.sh).
 
-  - logging:
-    - show the log of blocked IPs that happened while pgl-gui was in the tray.
-
   - blocklists:
+
     - show local blocklists (in /etc/pgl/blocklists.local) in Configure tab
       (adding them works flawlessly)
+
     - if blocklists.list is missing and I add a new list, pgl-gui segfaults
 -------------------------------------------------------------------------------
 (gdb) run
@@ -193,12 +214,6 @@ Starting program: /usr/bin/pgl-gui
 
 Program received signal SIGSEGV, Segmentation fault.
 0x00007ffff6aacf34 in QString::operator=(QString const&) () from /usr/lib/libQtCore.so.4
--------------------------------------------------------------------------------
-
-
-    - If you stop pgl and send pgl-gui to the tray, and then Exit, you get:
--------------------------------------------------------------------------------
-** Warning: Application asked to unregister timer 0x56000008 which is not registered in this thread. Fix application.
 -------------------------------------------------------------------------------
 
 
