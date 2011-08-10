@@ -239,9 +239,10 @@ void SuperUser::moveFiles( const QMap<QString, QString> files, bool start)
 
 void SuperUser::commandOutput(QString path)
 {
-    if ( m_SudoCmd.isEmpty() &&  (! path.isEmpty()) )
+    if ( m_SudoCmd.isEmpty() &&  (! path.isEmpty()) && (! path.contains("command not found")))
+    {
         m_SudoCmd = path;
-    
+    }
 }
 
 
