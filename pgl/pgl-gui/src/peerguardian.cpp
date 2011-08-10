@@ -42,6 +42,11 @@ Peerguardian::Peerguardian( QWidget *parent) :
     header->resizeSection(5, header->sectionSize(0) / 1.4 );
     header->resizeSection(6, header->sectionSize(6) / 2);
     
+    //resize column in whitelist view
+    header = m_WhitelistTreeWidget->header();
+    header->resizeSection(0, header->sectionSize(0) * 2);
+    header->resizeSection(2, header->sectionSize(2) / 2);
+        
     m_treeItemPressed = false;
     m_StopLogging = false;
     
