@@ -22,6 +22,8 @@ Peerguardian::Peerguardian( QWidget *parent) :
 
 	setupUi( this );
     
+    m_LogTreeWidget->setContextMenuPolicy ( Qt::CustomContextMenu );
+    
     PglSettings::loadSettings();
     guiOptions = new GuiOptions(this);
     inicializeSettings();
@@ -40,9 +42,12 @@ Peerguardian::Peerguardian( QWidget *parent) :
     header->resizeSection(5, header->sectionSize(0) / 1.4 );
     header->resizeSection(6, header->sectionSize(6) / 2);
     
-
     m_treeItemPressed = false;
     m_StopLogging = false;
+    
+    a_whitelist15 = new QAction("Allow for 15min", this);
+    a_whitelist60 = new QAction("Allow for 60min", this);
+    a_whitelistPerm = new QAction("Allow for permanently", this);
     
     m_ConnectType["OUT"] = tr("Outgoing"); 
     m_ConnectType["IN"] = tr("Incoming");
@@ -80,6 +85,14 @@ void Peerguardian::addLogItem(QString itemString)
         return;
     
     qDebug() << itemString;
+    
+    if ( itemString.contains("INFO:") && itemString.contains("Blocklist") )
+    {
+        
+        QStringList parts = itemString.split(" ", QString::SkipEmptyParts);
+        m_Info->setLoadedIps(parts[3] + QString(" ") +  parts[6] + QString(" ") + parts.last());
+        return;
+    }
     
     if ( itemString.contains("||") )
     {
@@ -211,8 +224,11 @@ void Peerguardian::g_MakeConnections()
 {
 	//Log tab connections
     if ( m_Log != NULL )
+    {
         connect( m_Log, SIGNAL( newItem( LogItem ) ), this, SLOT( addLogItem( LogItem ) ) );
-        
+        connect( m_LogTreeWidget, SIGNAL(customContextMenuRequested ( const QPoint &)), this, SLOT(showLogRightClickMenu(const QPoint &)));
+    }
+       
     connect(m_StopLoggingButton, SIGNAL(clicked()), this, SLOT(startStopLogging()));
 
 	//connect( m_LogTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( logTab_HandleLogChange() ) );
@@ -347,9 +363,14 @@ void Peerguardian::rootFinished()
     
     if ( m_FilesToMove.isEmpty() )
         return;
+        
+    QString pglcmd_conf = PglSettings::getStoredValue("CMD_CONF").split("/").last();
+    QString blocklists_list = PglSettings::getStoredValue("BLOCKLISTS_LIST").split("/").last();
+    QString tmp_pglcmd = QString("/tmp/%1").arg(pglcmd_conf);
+    QString tmp_blocklists = QString("/tmp/%1").arg(blocklists_list);
 
-    if ( ( m_FilesToMove.contains("/tmp/pglcmd.conf") && QFile::exists("/tmp/pglcmd.conf") ) ||  
-        (m_FilesToMove.contains("/tmp/blocklists.list") && QFile::exists("/tmp/blocklists.list")))
+    if ( ( m_FilesToMove.contains(tmp_pglcmd) && QFile::exists(tmp_pglcmd) ) ||  
+        (m_FilesToMove.contains(tmp_blocklists) && QFile::exists(tmp_blocklists)))
     {
         m_ApplyButton->setEnabled(true);
     }
@@ -720,16 +741,14 @@ void Peerguardian::g_SetRoot( ) {
 void Peerguardian::g_SetLogPath() {
 
     QString filepath = PeerguardianLog::getFilePath();
-
-    qDebug() << filepath;
-
+    
     if ( ! filepath.isEmpty() && m_Log == NULL )
     {
-            m_Log = new PeerguardianLog();
-			m_Log->setFilePath(filepath, true);
+        m_Log = new PeerguardianLog();
+        m_Log->setFilePath(filepath, true);
 
         if ( m_Info == NULL )
-            m_Info = new PeerguardianInfo(m_Log->getLogPath());
+            m_Info = new PeerguardianInfo(PglSettings::getStoredValue("DAEMON_LOG"), this);
     }
     //else
         //QMessageBox::warning( this, tr( "Log file not found!" ), tr( "Peerguardian's log file was NOT found." ), QMessageBox::Ok );
@@ -888,9 +907,6 @@ void Peerguardian::g_MakeMenus() {
 	m_TrayMenu->addAction( a_Exit );
 	m_Tray->setContextMenu(m_TrayMenu);
     
-    //log tree menu
-    //m_LogMenu = new QMenu(this);
-    //m_LogMenu->addAction();
 
 }
 
@@ -1041,4 +1057,39 @@ void Peerguardian::openSettingsDialog()
     
     if ( dialog )
         delete dialog; 
+}
+
+
+void Peerguardian::showLogRightClickMenu(const QPoint& p)
+{
+    QTreeWidgetItem * item = m_LogTreeWidget->itemAt(p);
+    
+    if ( item == NULL )
+        return;
+    
+    QMenu   menu  (this);
+    QMenu *menuIp;
+    QMenu *menuPort;
+    
+    if ( item->text(7) == "Incoming" )
+    {
+        menuIp = menu.addMenu("Allow IP " + item->text(2));
+    }
+    else
+    {
+        menuIp =  menu.addMenu("Allow IP " + item->text(4));
+    }
+    
+    menuPort = menu.addMenu("Allow Port " + item->text(5));
+    
+    menuIp->addAction(a_whitelist15);
+    menuIp->addAction(a_whitelist60);
+    menuIp->addAction(a_whitelistPerm);
+    
+    menuPort->addAction(a_whitelist15);
+    menuPort->addAction(a_whitelist60);
+    menuPort->addAction(a_whitelistPerm);
+    
+    menu.exec(m_LogTreeWidget->mapToGlobal(p));
+
 }

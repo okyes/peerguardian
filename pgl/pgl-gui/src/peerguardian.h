@@ -154,6 +154,11 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     bool m_StopLogging;
     QHash<QString, QString> m_ConnectType;
     QHash<QString, QIcon> m_ConnectIconType;
+    //whitelist QActions
+    QAction *a_whitelistPerm;
+    QAction *a_whitelist15;
+    QAction *a_whitelist60;
+
 
 	public:
 		/**
@@ -215,6 +220,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void addLogItem(QString);
         void startStopLogging();
         void openSettingsDialog();
+        void showLogRightClickMenu(const QPoint&);
 
     protected:
 	void closeEvent ( QCloseEvent * event );
