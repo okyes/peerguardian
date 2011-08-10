@@ -86,11 +86,11 @@ void Peerguardian::addLogItem(QString itemString)
     
     qDebug() << itemString;
     
-    if ( itemString.contains("INFO:") && itemString.contains("Blocklist") )
+    if ( itemString.contains("INFO:") && itemString.contains("Blocking") )
     {
         
         QStringList parts = itemString.split(" ", QString::SkipEmptyParts);
-        m_Info->setLoadedIps(parts[3] + QString(" ") +  parts[6] + QString(" ") + parts.last());
+        m_Info->setLoadedIps(parts[2] + QString(" ") +  parts[5] + QString(" ") + parts.last());
         return;
     }
     

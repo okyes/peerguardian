@@ -41,14 +41,14 @@ void PeerguardianInfo::getLoadedIps()
         
         for(int i=0; i < fileData.size(); i++)
         {
-            if ( fileData[i].contains("INFO:") && fileData[i].contains("Blocklist") )
+            if ( fileData[i].contains("INFO:") && fileData[i].contains("Blocking") )
                 blocklist_line = fileData[i];
         }
         
         if ( ! blocklist_line.isEmpty() )
         {
             QStringList parts = blocklist_line.split(" ", QString::SkipEmptyParts);
-            m_LoadedRanges = parts[6] + QString(" ") + parts[9] + QString(" ") + parts.last();
+            m_LoadedRanges = parts[5] + QString(" ") + parts[8] + QString(" ") + parts.last();
         } 
     }
     
