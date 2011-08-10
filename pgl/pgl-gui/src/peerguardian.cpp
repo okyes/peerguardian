@@ -383,6 +383,9 @@ void Peerguardian::rootFinished()
         PglSettings::loadSettings();
         updateGUI();
         m_ApplyButton->setEnabled(false);
+        
+        if ( m_FilesToMove.contains(tmp_blocklists) ) 
+            m_Control->reload();
     }
     
     m_FilesToMove.clear();
