@@ -1,6 +1,7 @@
 /***************************************************************************
  *   Copyright (C) 2007-2008 by Dimitris Palyvos-Giannas   *
  *   jimaras@gmail.com   *
+ *   Copyright (C) 2011 Carlos Pais
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -35,7 +36,7 @@
 #define EMIT_SIGNAL_DELAY 20000
 
 typedef enum {BLOCKCONTROL_LOG_FILENAME_PLACE,
-    MOBLOCK_LOG_FILENAME_PLACE,
+    PGL_LOG_FILENAME_PLACE,
 	MAX_FILENAME_VECTOR_SIZE
 };
 	
@@ -56,24 +57,11 @@ class PeerguardianInfo : public QObject {
 		 * @param filename The path to the blockcontrol log
 		 * @param parent The QObject parent.
 		 */
-		PeerguardianInfo( const QString &logFileName, QObject *parent = 0 );
-		/**
-		 * Constructor. Creates a PeerguardianInfo object but does not load any data.
-		 * The data have to be loaded using setFilePath().
-		 * However, this class will still be able to check the state of the daemon with no data loaded.
-		 * @param parent The QObject parent.
-		 */
-		PeerguardianInfo( QObject *parent = 0 );
+		PeerguardianInfo( const QString & logPath, QObject *parent = 0 );
 		/**
 		 * Destructor.
 		 */
 		~PeerguardianInfo() { }
-		/**
-		 * Try to get the information from the file in the specified path.
-		 * If the path is invalid and no path is already set, MOBLOCK_INFO_PATH is used.
-		 * @param filename The path to the blockcontrol log.
-		 */
-		void setFilePath( const QString &filename, const int &place );
 		/**
 		 * @return The number of the ranges moblock has loaded.
 		 */
@@ -106,24 +94,15 @@ class PeerguardianInfo : public QObject {
 		 * @return The contents of the blockcontrol log with slightly changed format.
 		 */
 		inline QVector< QString > controlLog() const { return m_LastUpdateLog; }
+        
+        void getLoadedIps();
+        void setLoadedIps(const QString& loadedIps) { m_LoadedRanges = loadedIps; }
 
 	public slots:
-		/**
-		 * Update the information from blockcontrol log.
-		 */
-		void updateControlLog();
 		/**
 		 * Update the daemon state.
 		 */
 		void updateDaemonState();
-		/**
-		 * Update the information from moblock's log.
-		 */
-		void updateLog();
-		/**
-		 * Called when the data from the moblock log needs to be updated, with a delay of EMIT_SIGNAL_DELAY seconds.
-		 */
-		void delayedUpdateLog();
 	
 	signals:
 		/**
@@ -139,11 +118,11 @@ class PeerguardianInfo : public QObject {
 		/**
 		 * Emited when moblock starts running.
 		 */
-		void moblockStarted();
+		void pgldStarted();
 		/**
 		 * Emited when moblock is terminated.
 		 */
-		void moblockStopped();
+		void pgldStopped();
 		/**
 		 * Emited when there is a change in the blockcontrol log.
 		 */
@@ -154,14 +133,13 @@ class PeerguardianInfo : public QObject {
 	private:	
 		//Check if moblock is running
 		void checkProcess();
-		void updateLogData();
-		void updateCLogData();
 		void processDate( QString &date );
 		QString m_LoadedRanges;
 		QString m_SkippedRanges;
 		QString m_MergedRanges;
 		QString m_LastUpdateTime;
 		QString m_ProcessPID;
+        QString m_LogPath;
 		bool m_DaemonState;
 		bool m_infoLoaded;
 		QVector< QString > m_FileNames;

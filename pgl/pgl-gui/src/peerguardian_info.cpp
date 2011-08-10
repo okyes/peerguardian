@@ -1,6 +1,7 @@
 /***************************************************************************
  *   Copyright (C) 2007-2008 by Dimitris Palyvos-Giannas   *
  *   jimaras@gmail.com   *
+ *   Copyright (C) 2011 Carlos Pais
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -21,60 +22,48 @@
 #include "peerguardian_info.h"
 #include "utils.h"
 
-PeerguardianInfo::PeerguardianInfo( const QString &logFileName, QObject *parent ) :
+PeerguardianInfo::PeerguardianInfo( const QString &logPath, QObject *parent ) :
 	QObject( parent )
 {
-	
 	m_DaemonState = false;
-	m_FileNames.resize( MAX_FILENAME_VECTOR_SIZE );
-	setFilePath( logFileName, MOBLOCK_LOG_FILENAME_PLACE );
+    m_LogPath = logPath;
+    getLoadedIps();
 	checkProcess();
 }
 
-
-PeerguardianInfo::PeerguardianInfo( QObject *parent ) :
-	QObject( parent )
+void PeerguardianInfo::getLoadedIps()
 {
-
-	m_FileNames.resize( MAX_FILENAME_VECTOR_SIZE );
-	m_DaemonState = false;
-
-}
-
-void PeerguardianInfo::setFilePath( const QString &filename, const int &place ) {
-
-	if ( filename.isEmpty() ) {
-		qWarning() << Q_FUNC_INFO << "Can't set/change info file at place" << place << "as a null string was given.";
-		return;
-	}
-	else if ( place >= m_FileNames.size() ) {
-		qWarning() << Q_FUNC_INFO << "Can't set/change info file because place" << place << "is greater than the vector's size";
-		return;
-	}
-
-	m_FileNames[place] = filename;
-
-	
-	if ( place == BLOCKCONTROL_LOG_FILENAME_PLACE ) {
-		updateCLogData();
-	}
-	else if ( place == MOBLOCK_LOG_FILENAME_PLACE ) {
-		updateLogData();
-	}
-
-
+    
+    if ( QFile::exists(m_LogPath) )
+    {
+        QStringList fileData = getFileData( m_LogPath );
+        QString blocklist_line("");
+        
+        for(int i=0; i < fileData.size(); i++)
+        {
+            if ( fileData[i].contains("INFO:") && fileData[i].contains("Blocklist") )
+                blocklist_line = fileData[i];
+        }
+        
+        if ( ! blocklist_line.isEmpty() )
+        {
+            QStringList parts = blocklist_line.split(" ", QString::SkipEmptyParts);
+            m_LoadedRanges = parts[6] + QString(" ") + parts[9] + QString(" ") + parts.last();
+        } 
+    }
+    
 }
 
 void PeerguardianInfo::checkProcess() {
 
 	QString command = "pidof";
 	QString output;
-	QString moblockProcess;
+	QString pglProcess;
 
 	QProcess ps;
 	ps.start( command, QStringList() << DAEMON );
 	if ( ! ps.waitForStarted() ) {
-		qWarning() << Q_FUNC_INFO << "Could not get process status for moblock.";
+		qWarning() << Q_FUNC_INFO << "Could not get process status for pgl.";
 		m_DaemonState = false;
 	}
 	ps.closeWriteChannel();
@@ -86,28 +75,6 @@ void PeerguardianInfo::checkProcess() {
 
 }
 
-void PeerguardianInfo::updateControlLog() {
-
-	updateCLogData();
-
-	if ( m_LastUpdateLog != m_PreviousUpdateLog ) {
-		emit logChanged();
-		m_PreviousUpdateLog = m_LastUpdateLog;
-	}
-
-}
-
-void PeerguardianInfo::updateLog() {
-
-	updateLogData();
-
-}
-
-void PeerguardianInfo::delayedUpdateLog() {
-
-	QTimer::singleShot( EMIT_SIGNAL_DELAY, this, SLOT( updateLog() ) );
-
-}
 
 void PeerguardianInfo::updateDaemonState() {
 
@@ -124,92 +91,13 @@ void PeerguardianInfo::updateDaemonState() {
 	if ( m_DaemonState != oldState ) {
 		emit processStateChange( m_DaemonState );
 		if ( m_DaemonState == true ) {
-			emit moblockStarted();
+			emit pgldStarted();
 		}
 		else {
-			emit moblockStopped();
+			emit pgldStopped();
 		}
 	}
 
-
-}
-
-
-void PeerguardianInfo::updateCLogData() {
-
-
-	QStringList fileData = getFileData( m_FileNames[BLOCKCONTROL_LOG_FILENAME_PLACE] );
-
-	m_LastUpdateLog = QVector<QString>();
-	bool inLog = false;
-	QVector< QString > timeDateV(2);
-	m_LastUpdateTime = QString();
-
-	if ( fileData.isEmpty() ) {
-		qWarning() << Q_FUNC_INFO << "Failed to retreive information for moblock from file" << m_FileNames[BLOCKCONTROL_LOG_FILENAME_PLACE];
-		return;
-	}
-
-
-	for ( int i = 0; i < fileData.size(); i++ ) {
-
-		QString infoStr = fileData[i].trimmed();
-		if ( infoStr.isEmpty() ) {
-			continue;
-		}
-		else if ( infoStr.contains( "Begin:" ) ) {
-			inLog = true;
-			timeDateV = QVector<QString>::fromList( infoStr.split( " " ) );
-			processDate( timeDateV[0] );
-			QString timeDate = tr( "Operation started: %1 - %2" ).arg(timeDateV[0]).arg(timeDateV[1]);
-			m_LastUpdateLog.push_back( timeDate );
-		}
-		else if ( infoStr.contains( "End:" ) ) {
-			inLog = false;
-			timeDateV = QVector<QString>::fromList( infoStr.split( " " ) );
-			processDate( timeDateV[0] );
-			QString timeDate = tr( "Operation finished: %1 - %2" ).arg(timeDateV[0]).arg(timeDateV[1]);
-			m_LastUpdateLog.push_back( timeDate );
-		}
-		else if ( inLog == true ) {
-
-			m_LastUpdateLog.push_back( infoStr );
-			if ( infoStr.contains( "Blocklists updated", Qt::CaseInsensitive ) ) {
-				if ( !timeDateV[0].isNull() && !timeDateV[1].isNull() ) {
-					m_LastUpdateTime = tr( "%1 - %2" ).arg(timeDateV[0]).arg(timeDateV[1]);
-				}
-				else {
-					m_LastUpdateTime = QString();
-				}
-			}
-		}
-
-	}
-}
-
-void PeerguardianInfo::updateLogData() {
-
-	QStringList fileData = getFileData( m_FileNames[MOBLOCK_LOG_FILENAME_PLACE] );
-	m_LoadedRanges = QString();
-	m_SkippedRanges = QString();
-	m_MergedRanges = QString();
-
-	if ( fileData.isEmpty() ) {
-		qWarning() << Q_FUNC_INFO << "Failed to retreive information for moblock from file" << m_FileNames[MOBLOCK_LOG_FILENAME_PLACE];
-		return;
-	}
-
-	for ( int i = fileData.size() - 1; i >= 0; i--) {
-	
-		if ( fileData[i].startsWith( "*" ) ) {
-			fileData[i].remove( "*" );
-		}
-		fileData[i] = fileData[i].trimmed();
-		if ( fileData[i].startsWith( "Ranges loaded:", Qt::CaseInsensitive ) ) {
-			m_LoadedRanges = fileData[i].section( ":", 1, 1, QString::SectionSkipEmpty ).trimmed();
-			break;
-		}
-	}
 
 }
 
