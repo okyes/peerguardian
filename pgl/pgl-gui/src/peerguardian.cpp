@@ -48,6 +48,7 @@ Peerguardian::Peerguardian( QWidget *parent) :
     a_whitelist15 = new QAction("Allow for 15min", this);
     a_whitelist60 = new QAction("Allow for 60min", this);
     a_whitelistPerm = new QAction("Allow for permanently", this);
+
     
     m_ConnectType["OUT"] = tr("Outgoing"); 
     m_ConnectType["IN"] = tr("Incoming");
@@ -238,8 +239,6 @@ void Peerguardian::g_MakeConnections()
     connect( m_addExceptionButton, SIGNAL(clicked()), this, SLOT(g_ShowAddExceptionDialog()) );
     connect( m_addBlockListButton, SIGNAL(clicked()), this, SLOT(g_ShowAddBlockListDialog()) );
 
-    connect( m_Log, SIGNAL( newItem( LogItem ) ), this, SLOT( addLogItem( LogItem ) ) );
-
     //Menu related
     connect( a_Exit, SIGNAL( triggered() ), this, SLOT( quit() ) );
     connect( a_AboutDialog, SIGNAL( triggered() ), this, SLOT( g_ShowAboutDialog() ) );
@@ -250,6 +249,9 @@ void Peerguardian::g_MakeConnections()
         connect( m_startPglButton, SIGNAL( clicked() ), m_Control, SLOT( start() ) );
         connect( m_stopPglButton, SIGNAL( clicked() ), m_Control, SLOT( stop() ) );
         connect( m_restartPglButton, SIGNAL( clicked() ), m_Control, SLOT( restart() ) );
+        connect( a_Start, SIGNAL( triggered() ), m_Control, SLOT( start() ) );
+        connect( a_Stop, SIGNAL( triggered() ), m_Control, SLOT( stop() ) );
+        connect( a_Restart, SIGNAL( triggered() ), m_Control, SLOT( restart() ) );
         connect( m_updatePglButton, SIGNAL( clicked() ), m_Control, SLOT( update() ) );
     }
 
