@@ -781,7 +781,7 @@ void Peerguardian::g_SetListPath()
 
     //whitelisted Ips and ports - /etc/pgl/pglcmd.conf and /etc/pgl/allow.p2p and
     //$HOME/.config/pgl/pgl-gui.conf for disabled items
-    m_Whitelist = new PglWhitelist(m_ProgramSettings);
+    m_Whitelist = new PglWhitelist(m_ProgramSettings, guiOptions);
 
 }
 
@@ -1127,17 +1127,20 @@ void Peerguardian::whitelistItem(QAction *action)
     if ( action == a_whitelistIpTemp || action ==  a_whitelistPortTemp )
     {
         QStringList iptablesCommands = m_Whitelist->getCommands(QStringList() << info[0], QStringList() << info[1], QStringList() << info[2], QList<bool>() << true);
+        QString testCommand = m_Whitelist->getIptablesTestCommand(info[0], info[1], info[1]);
         m_Root->executeCommands(iptablesCommands, true);
     }
     else if (  action == a_whitelistIpPerm || action == a_whitelistPortPerm )
     {
-        
-        QTreeWidgetItem * treeItem = new QTreeWidgetItem(m_WhitelistTreeWidget, info);
-        treeItem->setCheckState(0, Qt::Checked);
-        treeItem->setIcon(0, QIcon(WARNING_ICON));
-        treeItem->setStatusTip(0, tr("You need to click the Apply button so the changes take effect"));
-        m_WhitelistTreeWidget->addTopLevelItem(treeItem);
-        applyChanges();
+        if ( ! m_Whitelist->isInPglcmd(info[0], info[1], info[2]) )
+        {
+            QTreeWidgetItem * treeItem = new QTreeWidgetItem(m_WhitelistTreeWidget, info);
+            treeItem->setCheckState(0, Qt::Checked);
+            treeItem->setIcon(0, QIcon(WARNING_ICON));
+            treeItem->setStatusTip(0, tr("You need to click the Apply button so the changes take effect"));
+            m_WhitelistTreeWidget->addTopLevelItem(treeItem);
+            applyChanges();
+        }
     }
 }
 
