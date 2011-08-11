@@ -104,12 +104,13 @@ class PglWhitelist
     QSettings * m_Settings;
     QMap<QString, QStringList> m_WhitelistEnabled;
     QMap<QString, QStringList> m_WhitelistDisabled;
+    GuiOptions * m_GuiOptions;
 
 	public:
 		/**
 		 * Constructor. Creates an emtpy PglWhitelist object with no data loaded.
 		 */
-		PglWhitelist(QSettings *);
+		PglWhitelist(QSettings *, GuiOptions*);
 		/**
 		 * Destructor.
 		 */
@@ -133,6 +134,9 @@ class PglWhitelist
         void addTreeWidgetItemToWhitelist(QTreeWidgetItem* item);
         void load();
         QStringList updateWhitelistItemsInIptables(QList<QTreeWidgetItem*> items, GuiOptions *guiOptions);
+        bool isPortAdded(const QString& value, const QString & portRange);
+        bool isInPglcmd(const QString& value, const QString& connectType, const QString& prot);
+        QString getIptablesTestCommand(const QString& value, const QString& connectType, const QString& prot);
 };
 
 #endif

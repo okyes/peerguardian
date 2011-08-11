@@ -126,10 +126,11 @@ bool Port::operator==( WhitelistItem& item)
 }
 
 
-PglWhitelist::PglWhitelist(QSettings* settings)
+PglWhitelist::PglWhitelist(QSettings* settings, GuiOptions * guiOptions)
 {
     m_WhitelistFile = PglSettings::getStoredValue("CMD_CONF");
     m_Settings = settings;
+    m_GuiOptions = guiOptions;
 
     if ( m_WhitelistFile.isEmpty() )
         return;
@@ -522,5 +523,70 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
     
     return commands;
         
+}
+
+bool PglWhitelist::isPortAdded(const QString& value, const QString & portRange)
+{
+    bool ok = false;
+    
+    if ( portRange.contains(":") )
+    {
+        int part1 = portRange.split(":")[0].toInt(&ok);
+        if ( ! ok ) return false;
+        int part2 = portRange.split(":")[1].toInt(&ok);
+        if ( ! ok ) return false;
+        int val = value.toInt(&ok);
+        if ( ! ok ) return false;
+        
+        if ( val >= part1 && val <= part2 )
+            return true;
+    }
+    
+    return false;
+}
+
+QString PglWhitelist::getIptablesTestCommand(const QString& value, const QString& connectType, const QString& prot)
+{
+    QString cmd("");
+    QString target = PglSettings::getStoredValue("IPTABLES_TARGET_WHITELISTING");
+    
+    if ( isValidIp(value) )
+    {
+        cmd = QString("iptables -L \"pgl_$CONNECTTYPE\" -n | grep \"$TARGET\" | grep \"$VALUE\"");
+    }
+    else
+    {
+        cmd = QString("iptables -L \"pgl_$CONNECTTYPE\" -n | grep \"$TARGET\" | grep \"$PROT dpt:$VALUE\"");
+        cmd.replace("$PROT", prot);
+    }
+    
+    cmd.replace("$CONNECTTYPE", connectType);
+    cmd.replace("$TARGET", target);
+    cmd.replace("$VALUE", value);
+
+    return cmd;
+}
+
+bool PglWhitelist::isInPglcmd(const QString& value, const QString& connectType, const QString& prot)
+{
+    QList<QTreeWidgetItem*> items = m_GuiOptions->getWhitelist();
+    bool ok;
+    
+    foreach(QTreeWidgetItem*item, items)
+    {
+        if ( connectType == item->text(1) && prot == item->text(2) )
+        {
+            if ( value == item->text(0) )
+            {
+                return true;
+            }
+            else if ( isPortAdded(value, item->text(0)) ) //could be a port range
+            {
+                return true;
+            }
+        }
+    }
+    
+    return false;
 }
 
