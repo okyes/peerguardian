@@ -34,6 +34,8 @@ Peerguardian::Peerguardian( QWidget *parent) :
     updateInfo();
     updateGUI();
     
+    m_selectedAction = "";
+    
     //resize columns in log view
     QHeaderView * header = m_LogTreeWidget->header();
     header->resizeSection(0, header->sectionSize(0) / 1.5 );
@@ -50,9 +52,12 @@ Peerguardian::Peerguardian( QWidget *parent) :
     m_treeItemPressed = false;
     m_StopLogging = false;
     
-    a_whitelist15 = new QAction("Allow for 15min", this);
-    a_whitelist60 = new QAction("Allow for 60min", this);
-    a_whitelistPerm = new QAction("Allow for permanently", this);
+    a_whitelistIpTemp = new QAction(tr("Allow temporarily"), this);
+    a_whitelistIpTemp->setToolTip(tr("Allows until pgld is restarted."));
+    a_whitelistIpPerm = new QAction(tr("Allow permanently"), this);
+    a_whitelistPortTemp = new QAction(tr("Allow temporarily"), this);
+    a_whitelistPortTemp->setToolTip(tr("Allows until pgld is restarted."));
+    a_whitelistPortPerm = new QAction(tr("Allow permanently"), this);
 
     
     m_ConnectType["OUT"] = tr("Outgoing"); 
@@ -1076,6 +1081,8 @@ void Peerguardian::showLogRightClickMenu(const QPoint& p)
     
     if ( item == NULL )
         return;
+        
+    m_selectedItem = item;
     
     QMenu   menu  (this);
     QMenu *menuIp;
@@ -1092,14 +1099,53 @@ void Peerguardian::showLogRightClickMenu(const QPoint& p)
     
     menuPort = menu.addMenu("Allow Port " + item->text(5));
     
-    menuIp->addAction(a_whitelist15);
-    menuIp->addAction(a_whitelist60);
-    menuIp->addAction(a_whitelistPerm);
+    connect(&menu, SIGNAL(triggered(QAction*)), this, SLOT(whitelistItem(QAction*)));
+    connect(menuIp, SIGNAL(hovered(QAction*)), this, SLOT(hoveredAction(QAction*)));
+    connect(menuPort, SIGNAL(hovered(QAction*)), this, SLOT(hoveredAction(QAction*)));
     
-    menuPort->addAction(a_whitelist15);
-    menuPort->addAction(a_whitelist60);
-    menuPort->addAction(a_whitelistPerm);
+    
+    menuIp->addAction(a_whitelistIpTemp);
+    menuIp->addAction(a_whitelistIpPerm);
+    
+    menuPort->addAction(a_whitelistPortTemp);
+    menuPort->addAction(a_whitelistPortPerm);
+
     
     menu.exec(m_LogTreeWidget->mapToGlobal(p));
 
+}
+
+void Peerguardian::whitelistItem(QAction *action)
+{
+    if ( m_selectedAction.isEmpty() )
+        return;
+
+    QString value = m_selectedAction.split(" ", QString::SkipEmptyParts).last();
+    QStringList info;
+    info << value << m_selectedItem->text(7) << m_selectedItem->text(6);
+
+    if ( action == a_whitelistIpTemp || action ==  a_whitelistPortTemp )
+    {
+        QStringList iptablesCommands = m_Whitelist->getCommands(QStringList() << info[0], QStringList() << info[1], QStringList() << info[2], QList<bool>() << true);
+        m_Root->executeCommands(iptablesCommands, true);
+    }
+    else if (  action == a_whitelistIpPerm || action == a_whitelistPortPerm )
+    {
+        
+        QTreeWidgetItem * treeItem = new QTreeWidgetItem(m_WhitelistTreeWidget, info);
+        treeItem->setCheckState(0, Qt::Checked);
+        treeItem->setIcon(0, QIcon(WARNING_ICON));
+        treeItem->setStatusTip(0, tr("You need to click the Apply button so the changes take effect"));
+        m_WhitelistTreeWidget->addTopLevelItem(treeItem);
+        applyChanges();
+    }
+}
+
+void Peerguardian::hoveredAction(QAction* action)
+{
+    QMenu *menu = qobject_cast<QMenu*>(sender());        
+    if ( ! menu->title().isEmpty() )
+    {
+        m_selectedAction = menu->title();
+    }
 }

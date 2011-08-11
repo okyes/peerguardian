@@ -155,10 +155,12 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     QHash<QString, QString> m_ConnectType;
     QHash<QString, QIcon> m_ConnectIconType;
     //whitelist QActions
-    QAction *a_whitelistPerm;
-    QAction *a_whitelist15;
-    QAction *a_whitelist60;
-
+    QAction *a_whitelistIpPerm;
+    QAction *a_whitelistIpTemp;
+    QAction *a_whitelistPortPerm;
+    QAction *a_whitelistPortTemp;
+    QString m_selectedAction; //store the QAction hovered in the log view when whitelisting an IP/Port
+    QTreeWidgetItem *m_selectedItem; //store the selected item from the log view when whitelisting an IP/Port
 
 	public:
 		/**
@@ -221,6 +223,8 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void startStopLogging();
         void openSettingsDialog();
         void showLogRightClickMenu(const QPoint&);
+        void hoveredAction(QAction*);
+        void whitelistItem(QAction*);
 
     protected:
 	void closeEvent ( QCloseEvent * event );
