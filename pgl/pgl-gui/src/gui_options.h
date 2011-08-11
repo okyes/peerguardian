@@ -48,6 +48,7 @@ class GuiOptions
         bool hasRadioButtonChanged(QRadioButton*);
         Qt::CheckState getState(int);
         void deleteItems(QList<QTreeWidgetItem*>&);
+        QList<QTreeWidgetItem*>& getWhitelist() { return m_Whitelist; }
         /*void undoBlocklist();
         void undoWhitelist();*/
         void undo();
