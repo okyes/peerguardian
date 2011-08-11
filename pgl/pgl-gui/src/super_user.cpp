@@ -31,7 +31,7 @@ SuperUser::SuperUser( QObject *parent, const QString& rootpath ):
     QObject(parent)
 {
     m_parent = parent;
-    m_ProcT = new ProcessT(m_parent);
+    m_ProcT = new ProcessT(this);
     connect(m_ProcT, SIGNAL(allCmdsFinished(QStringList)), this, SLOT(processFinished(QStringList)));
     connect(m_ProcT, SIGNAL(commandOutput(QString)), this, SLOT(commandOutput(QString)));
     
@@ -52,6 +52,8 @@ SuperUser::~SuperUser() {
 
 	QSettings tempSettings;
 	tempSettings.setValue( "paths/super_user", m_SudoCmd );
+    
+    m_ProcT->wait();
 
     /*foreach(ProcessT *t, m_threads)
     {
