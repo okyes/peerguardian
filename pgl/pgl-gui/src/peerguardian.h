@@ -68,6 +68,7 @@
 
 
 #define VERSION_NUMBER "git"
+#define DEFAULT_WINDOW_TITLE "Peerguardian Linux"
 
 //Time related defines
 #define FAST_TIMER_INTERVAL 500

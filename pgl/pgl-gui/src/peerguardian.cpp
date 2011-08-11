@@ -258,7 +258,7 @@ void Peerguardian::g_MakeConnections()
     {
         connect( m_startPglButton, SIGNAL( clicked() ), m_Control, SLOT( start() ) );
         connect( m_stopPglButton, SIGNAL( clicked() ), m_Control, SLOT( stop() ) );
-        connect( m_restartPglButton, SIGNAL( clicked() ), m_Control, SLOT( restart() ) );
+        connect( m_reloadPglButton, SIGNAL( clicked() ), m_Control, SLOT( reload() ) );
         connect( a_Start, SIGNAL( triggered() ), m_Control, SLOT( start() ) );
         connect( a_Stop, SIGNAL( triggered() ), m_Control, SLOT( stop() ) );
         connect( a_Restart, SIGNAL( triggered() ), m_Control, SLOT( restart() ) );
@@ -877,9 +877,6 @@ void Peerguardian::g_UpdateDaemonStatus() {
 
 	if ( ! running ) {
         m_controlPglButtons->setCurrentIndex(0);
-		//Update the label and the icon in manage tab
-		m_DaemonStatusLabel->setText( tr( "<FONT COLOR=\"#FF0000\">Pgld is not running</FONT>" ) );
-		m_StatusIcon->setPixmap( QIcon( NOT_RUNNING_ICON ).pixmap( ICON_WIDTH, ICON_HEIGHT ) );
 		//Update the tray
 		if ( lastIcon != TRAY_DISABLED_ICON ) {
 			m_Tray->setIcon( QIcon( TRAY_DISABLED_ICON ) );
@@ -892,9 +889,6 @@ void Peerguardian::g_UpdateDaemonStatus() {
 	else
     {
         m_controlPglButtons->setCurrentIndex(1);
-		QString message = tr( "<FONT COLOR=\"#008000\">Pgld is up and running</FONT>" );
-		m_DaemonStatusLabel->setText( message );
-		m_StatusIcon->setPixmap( QIcon( RUNNING_ICON ).pixmap( ICON_WIDTH, ICON_HEIGHT ) );
 
 		if ( lastIcon != TRAY_ICON ) {
 			m_Tray->setIcon( QIcon( TRAY_ICON ) );
@@ -957,15 +951,15 @@ void Peerguardian::updateInfo() {
 		lRanges = "N/A";
 
 	if ( m_Info->daemonState() == false )
-		lRanges = "0";
+		lRanges = "";
+    else
+        lRanges = QString(" - Blocked IP ranges: %1").arg(lRanges);
 
-	if ( dTime.isNull() )
-		dTime = "Unknown";
-
-
-	m_LoadedRangesLabel->setText( tr( "Blocked IP ranges: %1" ).arg( lRanges ) );
-	m_LastUpdateLabel->setText( tr( "Last blocklist update: %1" ).arg( dTime ) );
-
+	//if ( dTime.isNull() )
+	//	dTime = "Unknown";
+        
+    if ( windowTitle() != DEFAULT_WINDOW_TITLE + lRanges )
+        setWindowTitle(DEFAULT_WINDOW_TITLE + lRanges);
 }
 
 
