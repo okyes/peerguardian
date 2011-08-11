@@ -2,11 +2,23 @@ BUGS of pgl:
 
 Minor bugs may be listed in docs/TODO.
 
+- pgl-gui shows the number of IPs and IP ranges that it is blocking. Due to the
+  technical implementation this number keeps unchanged if you whitelist IPs,
+  although you should think that it gets smaller. So this is just a "visibility"
+  problem, but doesn't mean that anything doesn't work.
+  Technical explanation: the number of IPs that get blocked relates to the
+  blocklist that pgld uses. But the whitelisting is done with iptables rules
+  (target RETURN) that prevent that the whitelisted traffic ever reaches pgld.
+  --
+  2011-08-11, jre <jre-phoenix@users.sourceforge.net>
+
+
 - "update" doesn't work with OpenDNS
   see e.g. here:
   http://forums.phoenixlabs.org/showpost.php?p=127410&postcount=7
   http://forums.phoenixlabs.org/showthread.php?t=18045
   http://ubuntuforums.org/showthread.php?t=1189320
+
 
 - pglcmd only monitors if pgld starts successfully until pgld forks
   (daemonizes). Everything that happens after the fork doesn't get catched.

@@ -102,11 +102,15 @@ pgl-gui:
 
   - images/settings.png is not shown
 
+  - tooltips for right-click whitelisting are not shown.
+    "Whitelist temporarily" is not explained to the user.
+
   - Implement/Fix/Comment these items:
     - Control Tab:
       - "Blocked IP ranges":
         Remove in favor of "Blocking $X IP ranges ($Y IPs)" in top bar.
         If not found in DAEMON_LOG check {DAEMON_LOG}.1 (/var/log/pgl/pgld.log.1)
+        Correct long term implementation: request the data from pgld via dbus.
       - "Pgld status": remove completely. Use portions of the code for
         "Blocking $X IP ranges ($Y IPs)"
       - "Last blocklist update":
@@ -136,25 +140,25 @@ pgl-gui:
 
   - whitelisting with right-clicking in the log of blocked IPs window:
 
-    * add blocked item (IP or port) to whitelisting (like in "Configure -
-      Whitelist").
-        if CHAIN = OUT
-            DestIp --> WHITE_IP_OUT
-            if Protocol = TCP
-                DestPort --> WHITE_TCP_OUT
-            if Protocol = UDP
-                DestPort --> WHITE_UDP_OUT
-        if CHAIN = IN
-            SrcIp --> WHITE_IP_IN
-            if Protocol = TCP
-                DestPort --> WHITE_TCP_IN
-            if Protocol = UDP
-                DestPort --> WHITE_UDP_IN
+    - check if the entry is already in pglcmd.conf
 
-    - add option to temp allow:
-      insert iptables rule (no pglcmd entry) + delete that iptables rule after
-      X minutes (as far as pgl-gui doesn't crash, otherwise live with it and
-      wait for the next pglcmd restart)
+    - check if the IP/port is already whitelisted in iptables:
+
+        For IP whitelisting:
+        iptables -L "$IPTABLES_[IN|OUT|FWD]" -n | \
+            grep "$IPTABLES_TARGET_WHITELISTING" | \
+            grep "$IP"
+        iptables -L "pgl_out" -n | grep "RETURN" | grep "192.168.178.1"
+
+        For port whitelisting:
+        iptables -L "$IPTABLES_[IN|OUT|FWD]" -n | \
+            grep "$IPTABLES_TARGET_WHITELISTING" | \
+            grep "$PROTOCOL dpt:$PORT"
+        iptables -L "pgl_out" -n | grep "RETURN" | grep "tcp dpt:80"
+
+    - temp allow:
+      delete the iptables rule after X minutes (as far as pgl-gui doesn't crash,
+      otherwise live with it and wait for the next pglcmd restart)
 
     - add complete blocked item (combination of all IP, port and proto as
       iptables rule to e.g. pgl-gui-iptables-insert.sh).
