@@ -51,6 +51,7 @@ class GuiOptions
         /*void undoBlocklist();
         void undoWhitelist();*/
         void undo();
+        int getWhitelistPrevSize() {return m_WhitelistState.size(); }
         int getPositionFirstAddedWhitelistItem();
         void addWhitelistItemForIptablesRemoval(QTreeWidgetItem* item);
         void addRemovedWhitelistItem(QTreeWidgetItem *);
