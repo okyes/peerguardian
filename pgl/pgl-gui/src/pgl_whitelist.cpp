@@ -386,6 +386,7 @@ QStringList PglWhitelist::updateWhitelistItemsInIptables(QList<QTreeWidgetItem*>
     QList<bool> allows;
     QList<QTreeWidgetItem*> removedItems = guiOptions->getRemovedWhitelistItemsForIptablesRemoval();
     int firstAddedItem = guiOptions->getPositionFirstAddedWhitelistItem();
+    int totalPrevItems = guiOptions->getWhitelistPrevSize();
     bool added = false;
     QTreeWidgetItem * item;
     int firstRemovedItem = items.size();
@@ -403,7 +404,7 @@ QStringList PglWhitelist::updateWhitelistItemsInIptables(QList<QTreeWidgetItem*>
     }
     
     //append added items
-    if ( firstAddedItem > 0 )
+    if ( (totalPrevItems > 0 && firstAddedItem > 0)  || (totalPrevItems == 0 && firstAddedItem == 0) )
     {
         for(int i=firstAddedItem; i < items.size(); i++)
         {
