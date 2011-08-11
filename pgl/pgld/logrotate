@@ -7,7 +7,11 @@
     notifempty
     prerotate
         # If pglcmd is installed, send statistics per mail.
-        [ ! -x /usr/bin/pglcmd ] || /usr/bin/pglcmd email_stats > /dev/null
+        # The mail function forks a process that sleeps 5 seconds, so wait here longer.
+        [ ! -x /usr/bin/pglcmd ] || (
+        /usr/bin/pglcmd email_stats > /dev/null
+        sleep 7
+        )
     endscript
     postrotate
         # Reload pgld to reopen the logfile

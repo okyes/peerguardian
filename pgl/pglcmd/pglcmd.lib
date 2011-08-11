@@ -2404,29 +2404,18 @@ test_ipblocking () {
 
 # Just dump stats
 dump_stats () {
-    status_of_proc $DAEMON $NAME > /dev/null 2>&1 || {
-        echo "$DAEMON is not running."
-        exit 1
-        }
-    if [ "$LOG_LOGFILE" = 1 ] ; then
-        # If logfile does not exist, reload daemon to reopen a new one.
-        [ -f "$DAEMON_LOG" ] || kill -s HUP "$(pidofproc $DAEMON)"
-        CURLINE="$(wc -l < $DAEMON_LOG )"
-        kill -s USR2 "$(pidofproc $DAEMON)"
-        sleep 1
-        tail -n+$(($CURLINE + 1)) $DAEMON_LOG | grep STATS:
-    elif [ "$LOG_SYSLOG" = 1 ] ; then
-        CURLINE="$( grep pgld: /var/log/syslog | wc -l )"
-        kill -s USR2 "$(pidofproc $DAEMON)"
-        sleep 1
-        grep pgld: /var/log/syslog | tail -n+$(($CURLINE + 1)) | grep STATS:
-    else
-        echo "Logging to logfile or syslog must be enabled to dump stats."
-    fi
+    SIG_STATS="USR2"
+    pgl_stats
 }
 
 # Dump and reset stats
 reset_stats () {
+    SIG_STATS="USR1"
+    pgl_stats
+}
+
+# generic stats function (SIGUSR1/SIGUSR2)
+pgl_stats () {
     status_of_proc $DAEMON $NAME > /dev/null 2>&1 || {
         echo "$DAEMON is not running."
         exit 1
@@ -2435,14 +2424,18 @@ reset_stats () {
         # If logfile does not exist, reload daemon to reopen a new one.
         [ -f "$DAEMON_LOG" ] || kill -s HUP "$(pidofproc $DAEMON)"
         CURLINE="$( wc -l < $DAEMON_LOG )"
-        kill -s USR1 "$(pidofproc $DAEMON)"
-        sleep 1
+        kill -s $SIG_STATS "$(pidofproc $DAEMON)"
+        (
+        sleep 5
         tail -n+$(($CURLINE + 1)) $DAEMON_LOG | grep STATS:
+        ) &
     elif [ "$LOG_SYSLOG" = 1 ] ; then
         CURLINE="$( grep pgld: /var/log/syslog | wc -l )"
-        kill -s USR1 "$(pidofproc $DAEMON)"
-        sleep 1
+        kill -s $SIG_STATS "$(pidofproc $DAEMON)"
+        (
+        sleep 5
         grep pgld: /var/log/syslog | tail -n+$(($CURLINE + 1)) | grep STATS:
+        ) &
     else
         echo "Logging to logfile or syslog must be enabled to dump stats."
     fi
@@ -2451,6 +2444,8 @@ reset_stats () {
 email_stats () {
     # Check if pgl is configured to mail the stats, and if daemon is running
     # (otherwise stats are not available).
+    # After "reset_stats" sleep longer than the forked process in "reset_stats" itself,
+    # so that we catch its output.
     if [ $STATS_MAILTO ] && status_of_proc $DAEMON $NAME >/dev/null 2>&1 && test_sendmail ; then
         echo -n "Emailing stats"
         SUBJECT="$NAME hit statistics"
@@ -2458,7 +2453,7 @@ email_stats () {
 To: $STATS_MAILTO
 Subject: $SUBJECT
 
-$(reset_stats)
+$(reset_stats ; sleep 6)
 
 EOF
         log_end_msg "$?"

@@ -27,6 +27,9 @@ pgl 2.1.0~pre1 The GUI release!
       netfilter multiport module.
       Reason: Allow pgl-gui to *instantly* add/remove single ports to the
       whitelisting.
+    - [dump|reset]_stats:
+      - only execute as root
+      - fork sleep and grep commands to the background
     - email_stats: start sendmail in the background
       speeds up stop/restart
     - removed hardcoded pathname of start-stop-daemon
@@ -36,10 +39,6 @@ pgl 2.1.0~pre1 The GUI release!
     - renamed VERBOSITY variable to VERBOSE
     - use http://www.iblocklist.com/lists.xml to determine the user friendly
       blocklist names for iblocklist.com URLs instead of hardcoding them.
-  * pglcmd *stats:
-    - only execute as root
-    - shortened sleep time between signal and logfile parsing from 5 to 1
-      seconds
   * pglcmd cron and pgld logrotate: suppress STDOUT
   * added blockcontrol2pglcmd.sh configuration transition script
   * removed nexus23/ipfilterx, this list is only available on a subscription
