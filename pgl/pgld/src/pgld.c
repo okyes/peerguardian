@@ -422,23 +422,9 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
             if (found_range) {
                 status = nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
                 found_range->hits++;
-                // NOTE: In here the formats are sets.
-                // TODO: Separate IP and port in there.
                 setipinfo(src, dst, proto, ip, payload);
 #ifndef LOWMEM
                 do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s || %s",src,dst,proto,found_range->name);
-                /*TODO:
-                do_log_xdbus(LOG_NOTICE, " IN: %-22s %-22s %-4s || %s",src,dst,proto,found_range->name);
-#ifdef HAVE_DBUS
-            if (use_dbus) {
-                va_list ap;
-                va_start(ap, format);
-//              pgl_dbus_send(format, ap);
-                pgl_dbus_send_ipmatch("IN: %-22s %-22s %-4s %s",src,dst,proto,found_range->name);
-                va_end(ap);
-            }
-#endif
-                */
 #else
                 do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s",src,dst,proto);
 #endif
@@ -463,13 +449,23 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                     status = nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
                 }
                 found_range->hits++;
+                // NOTE: "setipinfo" sets the formats.
+                // TODO: Separate IP and port in there.
                 setipinfo(src, dst, proto, ip, payload);
 #ifndef LOWMEM
+//                 TODO: (here and in IN and FWD)
+// #ifdef HAVE_DBUS
+//                 do_log_xdbus(LOG_NOTICE, " IN: %-16s %-5s %-16s %-5s %-4s %s",src,srcport,dst,dstport,proto,found_range->name);
+//                 if (use_dbus) {
+//                     va_list ap;
+//                     va_start(ap, format);
+//                   //pgl_dbus_send(format, ap);
+//                     pgl_dbus_send_ipmatch("IN: %-16s %-5s %-16s %-5s %-4s %s",src,srcport,dst,dstport,proto,found_range->name);
+//                     va_end(ap);
+//                 }
+// #else
                 do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4s || %s",src,dst,proto,found_range->name);
-                /*TODO:
-                do_log_xdbus(LOG_NOTICE, "OUT: %-22s %-22s %-4s || %s",src,dst,proto,found_range->name);
-                pgl_dbus_send_ipmatch...
-                */
+// #endif
 #else
                 do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4su", src,dst,proto);
 #endif
@@ -500,10 +496,6 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                 setipinfo(src, dst, proto, ip, payload);
 #ifndef LOWMEM
                 do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s || %s",src,dst,proto,found_range->name);
-                /* TODO:
-                do_log_xdbus(LOG_NOTICE, "FWD: %-22s %-22s %-4s || %s",src,dst,proto,found_range->name);
-                pgl_dbus_send_ipmatch...
-                */
 #else
                 do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s",src,dst,proto);
 #endif

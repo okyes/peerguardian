@@ -15,6 +15,6 @@
     endscript
     postrotate
         # Reload pgld to reopen the logfile
-        [ ! -e /var/run/pgld.pid ] || kill -s HUP `cat /var/run/pgld.pid`
+        [ ! -e /var/run/pgld.pid ] || kill -s HUP $(cat /var/run/pgld.pid)
     endscript
 }
