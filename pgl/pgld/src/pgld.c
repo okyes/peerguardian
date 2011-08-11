@@ -94,6 +94,7 @@ void do_log(int priority, const char *format, ...) {
     }
 }
 
+#ifdef HAVE_DBUS
 // Logging function that does not log to dbus
 // (to be used e.g. in dbus functions for error messages)
 void do_log_xdbus(int priority, const char *format, ...) {
@@ -121,6 +122,7 @@ void do_log_xdbus(int priority, const char *format, ...) {
         va_end(ap);
     }
 }
+#endif
 
 void int2ip (uint32_t ipint, char *ipstr) {
     ipint=htonl(ipint);
