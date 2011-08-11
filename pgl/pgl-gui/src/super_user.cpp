@@ -170,7 +170,7 @@ void SuperUser::executeAll()
         
         foreach(QString command, m_Commands)
         {
-            if ( command.contains("iptables") )
+            if ( command.contains("iptables") && command.contains("-D"))
                 lines << command + " || true";
             else
                 lines << command;
