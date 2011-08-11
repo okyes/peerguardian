@@ -81,7 +81,7 @@ bool GuiOptions::whitelistStateChanged(bool anyChange)
         
         //Check if there were added items
         int firstPos = getPositionFirstAddedWhitelistItem();
-        if ( firstPos > 0 )
+        if ( firstPos >= 0 )
         {
             for(int i = firstPos; i < tree->topLevelItemCount(); i++)
                 //Since this is to test if we need to update pglcmd.conf
@@ -151,10 +151,6 @@ int GuiOptions::getPositionFirstAddedWhitelistItem()
     int prevNItems = m_WhitelistState.size();
     int added = nItems - ( prevNItems - m_WhitelistItemsRemoved );
     int pos = nItems - added;
-    /*qDebug() << "nItems: " << nItems;
-    qDebug() << "prevNItems: " << prevNItems;
-    qDebug() << "added: " << added;
-    qDebug() << "pos: " << pos;*/
     
     return pos;
 }
