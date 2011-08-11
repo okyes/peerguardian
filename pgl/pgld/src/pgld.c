@@ -37,8 +37,9 @@ static const char **blocklist_charsets = 0;
 static FILE* pidfile = NULL;
 static char timestr[17];
 
-// Default is no dbus, enable it with "-d"
 #ifdef HAVE_DBUS
+static int try_dbus = 0;
+// Default is no dbus, enable it with "-d"
 static int use_dbus = 0;
 //Declarations of dbus functions so that they can be dynamically loaded
 static int (*pgl_dbus_init)(void) = NULL;
@@ -165,6 +166,9 @@ out_err:
 static int close_dbus() {
     int ret = 0;
 
+
+    use_dbus = 0;
+
     if (dbus_lh) {
         ret = dlclose(dbus_lh);
         dbus_lh = 0;
@@ -173,7 +177,7 @@ static int close_dbus() {
     return ret;
 }
 
-#endif
+#endif  /*HAVE_DBUS*/
 
 static FILE *create_pidfile(const char *name) {
     FILE *f;
@@ -267,6 +271,11 @@ static void sighandler(int sig, siginfo_t *info, void *context) {
         blocklist_stats(0);
         break;
     case SIGHUP:
+        // close dbus
+#ifdef HAVE_DBUS
+        if (use_dbus)
+            close_dbus();
+#endif
         if (logfile_name != NULL) {
             do_log(LOG_INFO, "INFO: Closing logfile: %s", logfile_name);
             fclose(logfile);
@@ -279,6 +288,22 @@ static void sighandler(int sig, siginfo_t *info, void *context) {
                 do_log(LOG_INFO, "INFO: Reopened logfile: %s", logfile_name);
             }
         }
+        // connect to dbus
+#ifdef HAVE_DBUS
+    if (try_dbus) {
+        if (open_dbus() < 0) {
+            do_log(LOG_ERR, "ERROR: Cannot load D-Bus plugin");
+            try_dbus = 0;
+            exit(1);
+        }
+        if (pgl_dbus_init() < 0) {
+            do_log(LOG_ERR, "ERROR: Cannot initialize D-Bus");
+            try_dbus = 0;
+            exit(1);
+        }
+    }
+    use_dbus = try_dbus;
+#endif
         if (load_all_lists() < 0) {
             do_log(LOG_ERR, "ERROR: Cannot reload the blocklist(s).");
         }
@@ -611,7 +636,6 @@ void add_blocklist(const char *name, const char *charset) {
 
 int main(int argc, char *argv[]) {
     int opt, i;
-    int try_dbus = 0;
 
     while ((opt = getopt(argc, argv, "sl:"
 #ifdef HAVE_DBUS
@@ -706,6 +730,7 @@ int main(int argc, char *argv[]) {
         openlog("pgld", 0, LOG_DAEMON);
     }
 
+    // connect to dbus
 #ifdef HAVE_DBUS
     if (try_dbus) {
         if (open_dbus() < 0) {
