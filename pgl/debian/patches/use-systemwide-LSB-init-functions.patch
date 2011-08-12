@@ -1,7 +1,7 @@
 use systemwide LSB init-functions
 --- a/pglcmd/pglcmd.defaults
 +++ b/pglcmd/pglcmd.defaults
-@@ -84,8 +84,7 @@
+@@ -90,8 +90,7 @@
  # The path of the LSB init-functions.
  # If LSB file does not exist or variable is set to an empty value, pglcmd's
  # builtin LSB functions are used.
@@ -9,5 +9,5 @@ use systemwide LSB init-functions
 -LSB=""
 +LSB="/lib/lsb/init-functions"
 
- # Remember standard IFS (Internal Field Separator)
- STDIFS=$IFS
+ # The name of the sendmail executable, a link pointing there, or any other
+ # compatible mail transfer agent.

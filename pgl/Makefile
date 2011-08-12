@@ -150,7 +150,7 @@ clean: $(MODULES_CLEAN)
 	rm -rf *~ debian/*~ docs/*~ $(DISTDIR)
 
 dist: $(MODULES_DIST)
-	mkdir -p $(DISTDIR) $(DISTDIR)/debian $(DISTDIR)/debian/po $(DISTDIR)/debian/source $(DISTDIR)/docs
+	mkdir -p $(DISTDIR) $(DISTDIR)/debian $(DISTDIR)/debian/patches $(DISTDIR)/debian/po $(DISTDIR)/debian/source $(DISTDIR)/docs
 	for I in $(DISTFILES) ; do cp "$$I" $(DISTDIR)/$$I ; done
 	chmod +x debian/rules
 	tar cvzf $(RELEASEFILE) $(DISTDIR)
