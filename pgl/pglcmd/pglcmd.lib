@@ -811,7 +811,7 @@ test_net () {
 # e.g. IP=192.168.178.21 and SUBNETMASK=255.255.255.0 get 192.168.178.0/24
 set_NETWORK () {
     local NETIP1 NETIP2 NETIP3 NETIP4 MASK1 MASK2 MASK3 MASK4 BITS
-    [ $# -eq 2 ] || { echo "Internal error: Usage set_NETWORK IP SUBNETMASK" ; exit 1 ; }
+    [ $# -eq 2 ] || { echo "Internal error: Usage set_NETWORK IP SUBNETMASK, arguments were: $@" ; exit 1 ; }
     echo $1 | grep -Eq "$IPv4_REGEX" || { echo "Internal error: $1 is not a valid IP!" ; exit 1 ; }
     echo $2 | grep -Eq "$IPv4_REGEX" || { echo "Internal error: $2 is not a valid SUBNETMASK!" ; exit 1 ; }
 
@@ -861,6 +861,7 @@ set_NETWORK () {
         255.255.255.240)  BITS="28" ;;
         255.255.255.248)  BITS="29" ;;
         255.255.255.252)  BITS="30" ;;
+        *) { echo "Internal error: Cannot calculate bits length for ${2}!" ; exit 1 ; } ;;
     esac
     echo ${NET1}.${NET2}.${NET3}.${NET4}/${BITS}
 }
