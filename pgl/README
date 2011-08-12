@@ -102,7 +102,7 @@ Build dependencies pgld:
         directly)
 
 Build dependencies pgl-gui:
-    - libdbus development files (optional)
+    - libdbus development files
     - Qt4 development files
 
 
@@ -158,6 +158,7 @@ Runtime environment pgl-gui:
     - pgld
     - pglcmd
     - Qt4
+    - Qt dbus
 
 ##############################################################################
 

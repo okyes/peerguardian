@@ -1,8 +1,5 @@
 TODO
 
-Note:  items marked with "*" are release-critical for 2.1.0
-
-
 pgld:
 
   - replace NIPQUAD (removed from kernel 2.6.36)
@@ -10,12 +7,6 @@ pgld:
   - improve logging: object org/netfilter/pgl/IpMatch consisting of separate
     items (srcip, srcport, destip, destport, proto, description) instead of a
     plain string.
-
-  - use a real allowlist (instead of the iptables whitelisting):
-    pgld [OPTIONS] [-A ALLOWLIST(s)] [-B BLOCKLISTS]
-    - check packets first against the allowlist, if match: do the same as for
-      non-matching against blocklist
-    - then check against blocklist (same behaviour as currently)
 
   - add option to search for a specified IP in a blocklist:
     pgld -f IP BLOCKLIST
@@ -96,31 +87,14 @@ pgl-gui:
 
   pgl-gui only:
 
-  - add option "Reset to default"
-
-  - Add "Reload" to "Control - Manage" tab
-
   - images/settings.png is not shown
 
-  - tooltips for right-click whitelisting are not shown.
+  - right-click whitelisting:
+    tooltips are not shown.
     "Whitelist temporarily" is not explained to the user.
 
-  - Implement/Fix/Comment these items:
-    - Control Tab:
-      - "Blocked IP ranges":
-        Remove in favor of "Blocking $X IP ranges ($Y IPs)" in top bar.
-        If not found in DAEMON_LOG check {DAEMON_LOG}.1 (/var/log/pgl/pgld.log.1)
-        Correct long term implementation: request the data from pgld via dbus.
-      - "Pgld status": remove completely. Use portions of the code for
-        "Blocking $X IP ranges ($Y IPs)"
-      - "Last blocklist update":
-        remove completely. Instead reimplement it in the "Configure - Blocklist"
-        per list (use "stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16").
-        [ $BLOCKLIST_DOWNLOADED requires ${BLOCKLISTS_DIR}/lists.xml (implement
-        directly in pgl-gui or use function LIST_URL2LIST_NAME from pglcmd.lib ]
-    - Menu - Options - Settings:
-      - add hint for the default and/or
-      - add "Reset to default" (KDESU_PATH in super_user.h)
+  - Window title "Blocking $X IP ranges ($Y IPs)":
+    Correct long term implementation: request the data from pgld via dbus.
 
   - policykit support (instead of kdesudo/gksu)
 
@@ -132,6 +106,12 @@ pgl-gui:
     Also use lists.xml to show the list description.
     Verify that lists like "example.com/list/list2" work.
 
+  - "Last blocklist update":
+    Implement per blocklist in "Configure - Blocklist"
+    (use "stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16").
+    [ $BLOCKLIST_DOWNLOADED requires ${BLOCKLISTS_DIR}/lists.xml (implement
+    directly in pgl-gui or use function LIST_URL2LIST_NAME from pglcmd.lib ]
+
   - Allow to sort the columns in "Configure - Whitelist" by clicking in their
     header.
 
@@ -142,26 +122,14 @@ pgl-gui:
 
     - check if the entry is already in pglcmd.conf
 
-    - check if the IP/port is already whitelisted in iptables:
-
-        For IP whitelisting:
-        iptables -L "$IPTABLES_[IN|OUT|FWD]" -n | \
-            grep "$IPTABLES_TARGET_WHITELISTING" | \
-            grep "$IP"
-        iptables -L "pgl_out" -n | grep "RETURN" | grep "192.168.178.1"
-
-        For port whitelisting:
-        iptables -L "$IPTABLES_[IN|OUT|FWD]" -n | \
-            grep "$IPTABLES_TARGET_WHITELISTING" | \
-            grep "$PROTOCOL dpt:$PORT"
-        iptables -L "pgl_out" -n | grep "RETURN" | grep "tcp dpt:80"
-
     - temp allow:
       delete the iptables rule after X minutes (as far as pgl-gui doesn't crash,
       otherwise live with it and wait for the next pglcmd restart)
 
     - add complete blocked item (combination of all IP, port and proto as
       iptables rule to e.g. pgl-gui-iptables-insert.sh).
+
+  - fix multiple usage of " in command construction
 
   - show local blocklists (in /etc/pgl/blocklists.local) in Configure tab
     (adding them works flawlessly)
@@ -190,8 +158,6 @@ Program received signal SIGSEGV, Segmentation fault.
 0x00007ffff6aacf34 in QString::operator=(QString const&) () from /usr/lib/libQtCore.so.4
 -------------------------------------------------------------------------------
 
-
-
 ###############################################################################
 
   [jre]
@@ -219,6 +185,29 @@ All components:
   - use doxygen or something like that for automatic documentation.
 
   - fix/update license headers of pgl-gui and pgld
+
+  - long run whitelisting concept:
+    allow.p2p etc.:
+      implementation pglcmd:
+        remote whitelists automatically updated (URLs in allowlists.list) and/or
+        local whitelists (in folder allowlists.local).
+      implementation pgld:
+        pgld [OPTIONS] -b BLOCKLIST(S) -w WHITELIST(S)
+        pgld -m -b BLOCKLIST(S) -w WHITELIST(S) > master_blocklist.p2p
+        The IP ranges in these lists get unmerged (removed) from pgld's
+        internally loaded blocklist/the master blocklist.
+        NOTE: the following implementation doesn't work:
+        - check packets first against the allowlist, if match: do the same as
+          for non-matching against blocklist
+        - then check against blocklist (as currently)
+        --> if IP A is in a WHITELIST and IP B is in a BLOCKLIST, then traffic
+            between A and B is not blocked in FWD (checks saddr and daddr, thus
+            it matches A in any case), but blocked in IN (if B is saddr) and OUT
+            (if B is daddr).
+    WHITE_IP_[IN|OUT|FWD]:
+      user defined IP whitelistings on a per chain basis. May appear in a remote
+      whitelist today, but not tomorrow. Are managed through iptables.
+      (keep current implementation).
 
 
 Packaging:
