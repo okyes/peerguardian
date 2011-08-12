@@ -100,8 +100,8 @@ void Peerguardian::addLogItem(QString itemString)
     if ( itemString.contains("INFO:") && itemString.contains("Blocking") )
     {
         
-        QStringList parts = itemString.split(" ", QString::SkipEmptyParts);
-        m_Info->setLoadedIps(parts[2] + QString(" ") +  parts[5] + QString(" ") + parts.last());
+        QStringList parts = itemString.split("INFO:", QString::SkipEmptyParts);
+        m_Info->setLoadedIps(parts[0]);
         return;
     }
     
@@ -954,7 +954,7 @@ void Peerguardian::updateInfo() {
 	if ( m_Info->daemonState() == false )
 		lRanges = "";
     else
-        lRanges = QString(" - Blocked IP ranges: %1").arg(lRanges);
+        lRanges.insert(0, " - ");
 
 	//if ( dTime.isNull() )
 	//	dTime = "Unknown";

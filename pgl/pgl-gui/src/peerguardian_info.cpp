@@ -47,8 +47,8 @@ void PeerguardianInfo::getLoadedIps()
         
         if ( ! blocklist_line.isEmpty() )
         {
-            QStringList parts = blocklist_line.split(" ", QString::SkipEmptyParts);
-            m_LoadedRanges = parts[5] + QString(" ") + parts[8] + QString(" ") + parts.last();
+            QStringList parts = blocklist_line.split("INFO:", QString::SkipEmptyParts);
+            m_LoadedRanges = parts[1];
         } 
     }
     
