@@ -50,8 +50,10 @@ SuperUser::SuperUser( QObject *parent, const QString& rootpath ):
 
 SuperUser::~SuperUser() {
 
-	QSettings tempSettings;
-	tempSettings.setValue( "paths/super_user", m_SudoCmd );
+    QFile tmpfile("/tmp/execute-all-pgl-commands.sh");
+    
+    if ( tmpfile.exists() )
+        tmpfile.remove();
     
     m_ProcT->wait();
 
@@ -111,10 +113,13 @@ void SuperUser::executeCommands(QStringList commands, bool start)
         return;
     }
 
-	if ( m_SudoCmd.isEmpty() )
+	if ( m_SudoCmd.isEmpty() || (! QFile::exists(m_SudoCmd)) )
     {
-		qCritical() << Q_FUNC_INFO << "Could not use either kdesu or gksu to execute the command requested.\nIf neither of those executables exist in /usr/bin/ you can set the path of the one you prefer in pgl-gui's configuration file, usually found in ~/.config/pgl/pgl-gui.conf.\nThe path can be changed by changing the value of the super_user key, or creating a new one if it doesn't already exist.";
-		return;
+		QString errorMsg = "Could not use either kdesu(do) or gksu(do) to execute the command requested.\
+        You can set the path of the one you prefer in <b>\"Options - Settings - Sudo front-end\"</b>";
+        qCritical() << Q_FUNC_INFO << errorMsg;
+        emit error(errorMsg);
+        return;
 	}
 
 
