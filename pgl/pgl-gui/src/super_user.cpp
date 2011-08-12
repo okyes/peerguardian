@@ -169,12 +169,7 @@ void SuperUser::executeAll()
         lines << "set -e";
         
         foreach(QString command, m_Commands)
-        {
-            if ( command.contains("iptables") && command.contains("-D"))
-                lines << command + " || true";
-            else
-                lines << command;
-        }
+        lines << command;
         
         bool ok = saveFileData(lines, "/tmp/execute-all-pgl-commands.sh");
     
