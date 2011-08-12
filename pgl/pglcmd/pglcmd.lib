@@ -524,7 +524,7 @@ test_sendmail () {
     elif [ -x /usr/lib/sendmail ] ; then
         SENDMAIL="/usr/lib/sendmail"
     else
-        echo "Warning: $SENDMAIL not found, not mailing stats."
+        echo "Warning: $SENDMAIL not found."
         echo "Check the SENDMAIL setting."
         return $E_XEXTERNAL
     fi
