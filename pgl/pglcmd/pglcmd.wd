@@ -87,12 +87,6 @@ trap onexit INT SEGV QUIT TERM EXIT
 # Create pidfile.
 echo $$ > $WD_PID
 
-if [ -x /usr/sbin/sendmail ] ; then
-    SENDMAIL="/usr/sbin/sendmail"
-elif [ -x /usr/lib/sendmail ] ; then
-    SENDMAIL="/usr/lib/sendmail"
-fi
-
 while true ; do
     sleep $WD_SLEEP
     # First check if the daemon is running.
@@ -103,6 +97,7 @@ while true ; do
         echo "Now doing a restart:"
         $CMD_PATHNAME restart_not_wd || { RETVAL=$? ; break ; }
         if [ $WD_MAILTO ] && [ $SENDMAIL ] ; then
+            test_sendmail
             cat<<EOF | $SENDMAIL -t
 To: $WD_MAILTO
 Subject: $(basename $0) restarted $NAME
@@ -159,6 +154,7 @@ EOF
         echo "Now doing a restart:"
         $CMD_PATHNAME restart_not_wd || { RETVAL=$? ; break ; }
         if [ $WD_MAILTO ] && [ $SENDMAIL ] ; then
+            test_sendmail
             cat<<EOF | $SENDMAIL -t
 To: $WD_MAILTO
 Subject: $(basename $0) restarted $NAME
@@ -180,6 +176,7 @@ done
 
 # We only end up here, if restart fails!
 if [ $WD_MAILTO ] && [ $SENDMAIL ] ; then
+test_sendmail
 cat<<EOF | $SENDMAIL -t
 To: $WD_MAILTO
 Subject: $(basename $0) failed to restart $NAME
