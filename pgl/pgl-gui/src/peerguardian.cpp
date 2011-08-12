@@ -402,6 +402,10 @@ void Peerguardian::rootError(QString errorMsg)
     QMessageBox::warning( this, tr("Error"), errorMsg,
 	QMessageBox::Ok
     );
+    
+    m_ApplyButton->setEnabled(guiOptions->isChanged());
+    m_UndoButton->setEnabled(m_ApplyButton->isEnabled());
+    
 }
 
 
@@ -585,12 +589,12 @@ void Peerguardian::applyChanges()
     if ( ! filesToMove.isEmpty() )
         m_Root->moveFiles(filesToMove, false);
 
-    m_Root->executeAll();
-    
     m_Whitelist->updateSettings(getTreeItems(m_WhitelistTreeWidget), guiOptions->getPositionFirstAddedWhitelistItem(), false);
-    guiOptions->updateWhitelist(guiOptions->getPositionFirstAddedWhitelistItem());
+    guiOptions->updateWhitelist(guiOptions->getPositionFirstAddedWhitelistItem(), false);
     m_ApplyButton->setEnabled(false); //assume changes will be applied, if not this button will be enabled afterwards
     m_UndoButton->setEnabled(false);
+
+    m_Root->executeAll(); //execute previous gathered commands
 }
 
 
