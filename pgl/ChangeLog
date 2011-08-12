@@ -39,6 +39,7 @@ pgl 2.1.0~pre1 The GUI release!
     - renamed VERBOSITY variable to VERBOSE
     - use http://www.iblocklist.com/lists.xml to determine the user friendly
       blocklist names for iblocklist.com URLs instead of hardcoding them.
+    - fixed bug on whitelisting LAN with subnetmask 255.255.255.255
   * pglcmd cron and pgld logrotate: suppress STDOUT
   * added blockcontrol2pglcmd.sh configuration transition script
   * removed nexus23/ipfilterx, this list is only available on a subscription

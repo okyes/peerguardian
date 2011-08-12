@@ -811,7 +811,7 @@ test_net () {
 # e.g. IP=192.168.178.21 and SUBNETMASK=255.255.255.0 get 192.168.178.0/24
 set_NETWORK () {
     local NETIP1 NETIP2 NETIP3 NETIP4 MASK1 MASK2 MASK3 MASK4 BITS
-    [ $# -eq 2 ] || { echo "Internal error: Usage set_NETWORK IP SUBNETMASK, arguments were: $@" ; exit 1 ; }
+    [ $# -eq 2 ] || { echo "Internal error: Usage set_NETWORK IP SUBNETMASK, arguments were: \"${@}\"." ; exit 1 ; }
     echo $1 | grep -Eq "$IPv4_REGEX" || { echo "Internal error: $1 is not a valid IP!" ; exit 1 ; }
     echo $2 | grep -Eq "$IPv4_REGEX" || { echo "Internal error: $2 is not a valid SUBNETMASK!" ; exit 1 ; }
 
@@ -838,32 +838,33 @@ set_NETWORK () {
     # Haven't found a way to calculate this in a shell script. So using this table
     # for the bits length
     case $2 in
-        255.0.0.0)        BITS="8" ;;
-        255.128.0.0)      BITS="9" ;;
-        255.192.0.0)      BITS="10" ;;
-        255.224.0.0)      BITS="11" ;;
-        255.240.0.0)      BITS="12" ;;
-        255.248.0.0)      BITS="13" ;;
-        255.252.0.0)      BITS="14" ;;
-        255.254.0.0)      BITS="15" ;;
-        255.255.0.0)      BITS="16" ;;
-        255.255.128.0)    BITS="17" ;;
-        255.255.192.0)    BITS="18" ;;
-        255.255.224.0)    BITS="19" ;;
-        255.255.240.0)    BITS="20" ;;
-        255.255.248.0)    BITS="21" ;;
-        255.255.252.0)    BITS="22" ;;
-        255.255.254.0)    BITS="23" ;;
-        255.255.255.0)    BITS="24" ;;
-        255.255.255.128)  BITS="25" ;;
-        255.255.255.192)  BITS="26" ;;
-        255.255.255.224)  BITS="27" ;;
-        255.255.255.240)  BITS="28" ;;
-        255.255.255.248)  BITS="29" ;;
-        255.255.255.252)  BITS="30" ;;
+        255.0.0.0)        BITS="/8" ;;
+        255.128.0.0)      BITS="/9" ;;
+        255.192.0.0)      BITS="/10" ;;
+        255.224.0.0)      BITS="/11" ;;
+        255.240.0.0)      BITS="/12" ;;
+        255.248.0.0)      BITS="/13" ;;
+        255.252.0.0)      BITS="/14" ;;
+        255.254.0.0)      BITS="/15" ;;
+        255.255.0.0)      BITS="/16" ;;
+        255.255.128.0)    BITS="/17" ;;
+        255.255.192.0)    BITS="/18" ;;
+        255.255.224.0)    BITS="/19" ;;
+        255.255.240.0)    BITS="/20" ;;
+        255.255.248.0)    BITS="/21" ;;
+        255.255.252.0)    BITS="/22" ;;
+        255.255.254.0)    BITS="/23" ;;
+        255.255.255.0)    BITS="/24" ;;
+        255.255.255.128)  BITS="/25" ;;
+        255.255.255.192)  BITS="/26" ;;
+        255.255.255.224)  BITS="/27" ;;
+        255.255.255.240)  BITS="/28" ;;
+        255.255.255.248)  BITS="/29" ;;
+        255.255.255.252)  BITS="/30" ;;
+        255.255.255.255)  BITS="" ;;
         *) { echo "Internal error: Cannot calculate bits length for ${2}!" ; exit 1 ; } ;;
     esac
-    echo ${NET1}.${NET2}.${NET3}.${NET4}/${BITS}
+    echo ${NET1}.${NET2}.${NET3}.${NET4}${BITS}
 }
 
 white_local () {
