@@ -603,10 +603,14 @@ bool PglWhitelist::isInPglcmd(const QString& value, const QString& connectType, 
 {
     QList<QTreeWidgetItem*> items = m_GuiOptions->getWhitelist();
     bool ok;
-    
+    QString protocol = prot;
+
+    if ( isValidIp(value) )
+        protocol = "IP";
+
     foreach(QTreeWidgetItem*item, items)
-    {
-        if ( connectType == item->text(1) && prot == item->text(2) )
+    {    
+        if ( connectType == item->text(1) && protocol == item->text(2) )
         {
             if ( value == item->text(0) )
             {
