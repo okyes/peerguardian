@@ -282,7 +282,7 @@ void PglWhitelist::updateSettings(const QList<QTreeWidgetItem*>& treeItems, int 
                 addTreeWidgetItemToWhitelist(treeItem);
         }
     }
-    else if (firstAddedItemPos > 0 ) //added items
+    else if (firstAddedItemPos >= 0 ) //added items
     {
         //add older items
         //We don't go through the newly added items here, because their state can be
