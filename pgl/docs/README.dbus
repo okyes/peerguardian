@@ -95,7 +95,7 @@ dbus-send --system /org/netfilter/pgl/pglcmd org.netfilter.pgl.pglcmd_message st
 How to read the dbus logs in pgl-gui:
 ====================================
 
-There's a dbus binding (wrapper library) for Qt: libdbus-qt
+pgl-gui uses the dbus binding (wrapper library) for Qt.
 
 
 dbus documentation:

@@ -1,6 +1,6 @@
 ChangeLog PeerGuardian Linux (pgl)
 
-pgl 2.1.0~pre1 The GUI release!
+pgl 2.1.0 The GUI release!
 
   [ jimtb ]
   * fixed dbus implementation in pgld
@@ -50,7 +50,8 @@ pgl 2.1.0~pre1 The GUI release!
     - fixed logging of dbus error messages
     - enabled charset selection also in LOWMEM
 
--- jre <jre-phoenix@users.sourceforge.net>  Wed, 20 Apr 2011 14:13:36 +0200
+-- jre <jre-phoenix@users.sourceforge.net>  Fri, 12 Aug 2011 19:36:58 +0200
+
 
 pgl 2.0.4
 

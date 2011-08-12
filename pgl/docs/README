@@ -1,4 +1,4 @@
-README for pgl                                      Fri Jan  8 14:27:35 CET 2010
+README for pgl                                     Fri Aug 12 19:00:06 CEST 2011
 
 ================================================================================
 
@@ -9,6 +9,7 @@ Table of Contents:
 3.) Usage pglcmd
 4.) Options pglcmd
 5.) Configuration pglcmd
+6.) pgl-gui
 
 See also pgl/README for installation instruction and requirements.
 
@@ -187,3 +188,11 @@ configuration variables with comments.
 The allow list for IP ranges is allow.p2p (/etc/pgl/allow.p2p). Per default, the
 allowlist is used for incoming and outgoing connections. If desired different
 allow lists for incoming, outgoing and forward connections may be used.
+
+================================================================================
+
+6.) pgl-gui
+
+pgl-gui works on top of pgld and pglcmd. It requires dbus.
+Start it with "pgl-gui --tray" to dock it directly in the system tray.
+The pgl-gui configuration is in ~/.config/pgl/pgl-gui.conf
