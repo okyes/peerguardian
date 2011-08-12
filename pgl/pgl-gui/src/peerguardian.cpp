@@ -258,6 +258,7 @@ void Peerguardian::g_MakeConnections()
     {
         connect( m_startPglButton, SIGNAL( clicked() ), m_Control, SLOT( start() ) );
         connect( m_stopPglButton, SIGNAL( clicked() ), m_Control, SLOT( stop() ) );
+        connect( m_restartPglButton, SIGNAL( clicked() ), m_Control, SLOT( restart() ) );
         connect( m_reloadPglButton, SIGNAL( clicked() ), m_Control, SLOT( reload() ) );
         connect( a_Start, SIGNAL( triggered() ), m_Control, SLOT( start() ) );
         connect( a_Stop, SIGNAL( triggered() ), m_Control, SLOT( stop() ) );
