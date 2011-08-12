@@ -110,6 +110,7 @@ class SuperUser : public QObject
 
     signals:
         void finished();
+        void error(QString);
 
 	private:
         SuperUser(const SuperUser& other);
