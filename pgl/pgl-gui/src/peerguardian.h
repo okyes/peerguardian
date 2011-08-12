@@ -226,12 +226,13 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void showLogRightClickMenu(const QPoint&);
         void hoveredAction(QAction*);
         void whitelistItem(QAction*);
+        void rootError(QString);
 
     protected:
-	void closeEvent ( QCloseEvent * event );
+        void closeEvent ( QCloseEvent * event );
 
     protected slots:
-	void quit();
+        void quit();
 };	
 
 #endif //PEERGUARDIAN_H

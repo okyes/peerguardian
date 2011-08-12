@@ -160,28 +160,17 @@ Peerguardian::~Peerguardian() {
 	m_ProgramSettings->setValue( "settings/medium_timer", m_MediumTimer->interval() );
 	m_ProgramSettings->setValue( "settings/fast_timer", m_FastTimer->interval() );
 
-	//Free memory
-	delete m_Settings;*/
+	*/
+
 
     qWarning() << "~Peerguardian()";
 
-    if ( m_ProgramSettings != NULL )
-        delete m_ProgramSettings;
-    if ( m_Root != NULL )
-        delete m_Root;
-    if ( m_Log != NULL )
-        delete m_Log;
-    if ( m_Info != NULL )
-        delete m_Info;
+    //Free memory
     if ( m_List != NULL )
         delete m_List;
     if ( m_Whitelist != NULL )
 		delete m_Whitelist;
-    if ( m_Control != NULL )
-        delete m_Control;
 
-    delete m_MediumTimer;
-    delete m_SlowTimer;
     delete guiOptions;
 }
 
@@ -220,11 +209,11 @@ void Peerguardian::updateGUI()
 void Peerguardian::startTimers()
 {
 	//Intiallize the medium timer for less usual procedures
-	m_MediumTimer = new QTimer;
+	m_MediumTimer = new QTimer(this);
 	m_MediumTimer->setInterval( m_ProgramSettings->value("settings/medium_timer",MEDIUM_TIMER_INTERVAL ).toInt() );
 	m_MediumTimer->start();
 	//Intiallize the slow timer for less usual procedures
-	m_SlowTimer = new QTimer;
+	m_SlowTimer = new QTimer(this);
 	m_SlowTimer->setInterval( m_ProgramSettings->value("settings/slow_timer", SLOW_TIMER_INTERVAL ).toInt() );
 	m_SlowTimer->start();
 
@@ -264,6 +253,7 @@ void Peerguardian::g_MakeConnections()
         connect( a_Stop, SIGNAL( triggered() ), m_Control, SLOT( stop() ) );
         connect( a_Restart, SIGNAL( triggered() ), m_Control, SLOT( restart() ) );
         connect( m_updatePglButton, SIGNAL( clicked() ), m_Control, SLOT( update() ) );
+        connect( m_Control, SIGNAL(error(QString)), this, SLOT(rootError(QString)));
     }
 
     connect( m_MediumTimer, SIGNAL( timeout() ), this, SLOT( g_UpdateDaemonStatus() ) );
@@ -272,6 +262,7 @@ void Peerguardian::g_MakeConnections()
     //status bar
 	connect( m_Control, SIGNAL( actionMessage( QString, int ) ), m_StatusBar, SLOT( showMessage( QString, int ) ) );
 	connect( m_Control, SIGNAL( finished() ), m_StatusBar, SLOT( clearMessage() ) );
+
 
 	//Blocklist and Whitelist Tree Widgets
 	connect(m_WhitelistTreeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(treeItemChanged(QTreeWidgetItem*, int)));
@@ -292,8 +283,11 @@ void Peerguardian::g_MakeConnections()
     connect(m_AutoListUpdateMonthlyRadio, SIGNAL(clicked(bool)), this, SLOT(updateRadioButtonToggled(bool)));
 
     if ( m_Root )
+    {
         connect(m_Root, SIGNAL(finished()), this, SLOT(rootFinished()));
-
+        connect(m_Root, SIGNAL(error(QString)), this, SLOT(rootError(QString)));
+    }
+    
     //connect the remove buttons
     connect(m_rmBlockListButton, SIGNAL(clicked()), this, SLOT(removeListItems()));
     connect(m_rmExceptionButton, SIGNAL(clicked()), this, SLOT(removeListItems()));
@@ -402,6 +396,14 @@ void Peerguardian::rootFinished()
     m_FilesToMove.clear();
     m_UndoButton->setEnabled(m_ApplyButton->isEnabled());
 }
+
+void Peerguardian::rootError(QString errorMsg)
+{
+    QMessageBox::warning( this, tr("Error"), errorMsg,
+	QMessageBox::Ok
+    );
+}
+
 
 void Peerguardian::updateRadioButtonToggled(bool toggled)
 {
@@ -734,7 +736,7 @@ void Peerguardian::inicializeSettings()
     m_Control = NULL;
     quitApp = false;
 
-    m_ProgramSettings = new QSettings(QSettings::UserScope, "pgl", "pgl-gui");
+    m_ProgramSettings = new QSettings(QSettings::UserScope, "pgl", "pgl-gui", this);
 
     g_SetRoot();
     g_SetLogPath();
@@ -760,7 +762,7 @@ void Peerguardian::g_SetLogPath() {
     
     if ( ! filepath.isEmpty() && m_Log == NULL )
     {
-        m_Log = new PeerguardianLog();
+        m_Log = new PeerguardianLog(this);
         m_Log->setFilePath(filepath, true);
 
         if ( m_Info == NULL )
