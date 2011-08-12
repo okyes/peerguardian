@@ -58,7 +58,7 @@ class GuiOptions
         void addRemovedWhitelistItem(QTreeWidgetItem *);
         QList<QTreeWidgetItem*>& getRemovedWhitelistItemsForIptablesRemoval(){ return m_WhitelistItemsForIptablesRemoval; }
         void updateBlocklist();
-        void updateWhitelist(int starFrom = 0);
+        void updateWhitelist(int starFrom = 0, bool updateAll=true);
 };
 
 

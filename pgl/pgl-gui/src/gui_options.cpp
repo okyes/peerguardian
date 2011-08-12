@@ -193,25 +193,33 @@ void GuiOptions::deleteItems(QList<QTreeWidgetItem*> & list)
     qDebug() << "list size: " << list.size();
 }
 
-void GuiOptions::updateWhitelist(int startFrom)
+void GuiOptions::updateWhitelist(int startFrom, bool updateAll)
 {
     QTreeWidgetItem * item;
     QTreeWidget * tree = m_Window->getWhitelistTreeWidget();
-    
-    if ( startFrom <= 0)
+
+    if ( startFrom < 0 )
+        return;
+
+    if ( updateAll )
     {
         startFrom = 0;
         deleteItems(m_Whitelist);
         m_WhitelistState.clear();
     }
-
+    
     for ( int i=startFrom; i < tree->topLevelItemCount(); i++ )
-    {
+    {           
         item = tree->topLevelItem(i);
-        QTreeWidgetItem * item2 = new QTreeWidgetItem(*item);
-        m_WhitelistState << item->checkState(0);
-        m_Whitelist << item2;
+        
+        if ( item->checkState(0) == Qt::Unchecked || updateAll )
+        {
+            QTreeWidgetItem * item2 = new QTreeWidgetItem(*item);
+            m_WhitelistState << item->checkState(0);
+            m_Whitelist << item2;
+        }
     }
+    
     
 }
 
