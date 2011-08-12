@@ -450,12 +450,15 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
 
     QStringList commands;
     QString option;
+    QString ip_check, port_check;
     QString command_type("");
-    QString command;
-    QString chain, item, connection, protocol, conn;
+    QString command, iptables_list_type("iptables -L $IPTABLES_CHAIN -n | ");
+    QString chain, item, connection, protocol, conn, iptables_list, checkCmd;
     QStringList directions;
     bool ip;
     QString iptables_target_whitelisting = PglSettings::getStoredValue("IPTABLES_TARGET_WHITELISTING");
+    QString ip_check_type = QString("grep -x \"%1 *all *-- *$IP *0.0.0.0/0 *\" || ").arg(iptables_target_whitelisting);
+    QString port_check_type = QString("grep -x \"%1 *$PROTO *-- *0.0.0.0/0 *0.0.0.0/0 *$PROTO dpt:$PORT *\" || ").arg(iptables_target_whitelisting);
     
     
     for (int i=0; i < items.size(); i++ )
@@ -463,16 +466,22 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
         item = items[i];
         connection = connections[i];
         protocol = protocols[i];
-        
+        iptables_list = iptables_list_type;
+
         
         if ( isValidIp(item) )
         {
             command_type = "iptables $OPTION $IPTABLES_CHAIN $FROM $IP -j " + iptables_target_whitelisting;
+            ip_check = ip_check_type;
+            ip_check.replace("$IP", item);
             ip = true;
         }
         else
         {
             command_type = "iptables $OPTION $IPTABLES_CHAIN -p $PROT --dport $PORT -j " + iptables_target_whitelisting;
+            port_check = port_check_type;
+            port_check.replace("$PROTO", protocol.toLower());
+            port_check.replace("$PORT", item);
             ip = false;
         }
         
@@ -483,7 +492,10 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
         
         //convert incoming to in, outgoing to out, etc
         conn = translateConnection(connection);
+        //get iptables chain name from pglcmd.defaults
         chain = PglSettings::getStoredValue("IPTABLES_" + conn);
+        
+        iptables_list.replace("$IPTABLES_CHAIN", chain);
         
         //FWD needs --source and --destination
         if ( ip )
@@ -504,7 +516,8 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
                 command.replace(QString("$IPTABLES_CHAIN"), chain);
                 command.replace(QString("$FROM"), direction);
                 command.replace(QString("$IP "), item + " ");
-                commands << command;
+                
+                commands << iptables_list + ip_check + command;
             }
         }
         else
@@ -514,12 +527,9 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
             command.replace(QString("$IPTABLES_CHAIN"), chain);
             command.replace(QString("$PROT"), protocol);
             command.replace(QString("$PORT"), item);
-            commands << command;
+            commands << iptables_list + port_check + command;
         }
-        
-        
     }
-
     
     return commands;
         
@@ -549,18 +559,22 @@ QString PglWhitelist::getIptablesTestCommand(const QString& value, const QString
 {
     QString cmd("");
     QString target = PglSettings::getStoredValue("IPTABLES_TARGET_WHITELISTING");
+    QString chain;
+    
+    chain = translateConnection(connectType);
+    chain = PglSettings::getStoredValue("IPTABLES_" + chain);
     
     if ( isValidIp(value) )
     {
-        cmd = QString("iptables -L \"pgl_$CONNECTTYPE\" -n | grep \"$TARGET\" | grep \"$VALUE\"");
+        cmd = QString("iptables -L \"$CHAIN\" -n | grep \"$TARGET\" | grep -F \"$VALUE\"");
     }
     else
     {
-        cmd = QString("iptables -L \"pgl_$CONNECTTYPE\" -n | grep \"$TARGET\" | grep \"$PROT dpt:$VALUE\"");
+        cmd = QString("iptables -L \"$CHAIN\" -n | grep \"$TARGET\" | grep \"$PROT dpt:$VALUE\"");
         cmd.replace("$PROT", prot);
     }
     
-    cmd.replace("$CONNECTTYPE", connectType);
+    cmd.replace("$CHAIN", chain);
     cmd.replace("$TARGET", target);
     cmd.replace("$VALUE", value);
 
