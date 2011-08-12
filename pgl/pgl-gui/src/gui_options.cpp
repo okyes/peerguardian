@@ -152,7 +152,10 @@ int GuiOptions::getPositionFirstAddedWhitelistItem()
     int added = nItems - ( prevNItems - m_WhitelistItemsRemoved );
     int pos = nItems - added;
     
-    return pos;
+    if ( (pos == 0 && prevNItems == 0) || (pos > 0 && prevNItems > 0) )
+        return pos;
+    else
+        return -1;
 }
 
 void GuiOptions::addRemovedWhitelistItem(QTreeWidgetItem * item)
