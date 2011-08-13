@@ -138,11 +138,14 @@ void Peerguardian::addLogItem(QString itemString)
         item->setIcon(7, m_ConnectIconType[connectType]);
         m_LogTreeWidget->addTopLevelItem(item);
         
+        
+        if ( m_LogTreeWidget->topLevelItemCount() > MAX_LOG_SIZE )
+            m_LogTreeWidget->takeTopLevelItem(0);
+            
         m_LogTreeWidget->scrollToBottom();
     }
     
-    if ( m_LogTreeWidget->topLevelItemCount() > MAX_LOG_SIZE )
-        m_LogTreeWidget->takeTopLevelItem(0);
+
 }
 
 Peerguardian::~Peerguardian() {
