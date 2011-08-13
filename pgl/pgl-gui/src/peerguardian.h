@@ -75,6 +75,8 @@
 #define MEDIUM_TIMER_INTERVAL 2000
 #define SLOW_TIMER_INTERVAL 5000
 #define INFOMSG_DELAY 5000
+#define MAX_LOG_SIZE 512
+
 
 //Log related defines
 #define LOG_LIST_FONT "Times"

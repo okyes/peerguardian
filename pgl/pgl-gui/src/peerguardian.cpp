@@ -140,6 +140,9 @@ void Peerguardian::addLogItem(QString itemString)
         
         m_LogTreeWidget->scrollToBottom();
     }
+    
+    if ( m_LogTreeWidget->topLevelItemCount() > MAX_LOG_SIZE )
+        m_LogTreeWidget->takeTopLevelItem(0);
 }
 
 Peerguardian::~Peerguardian() {
