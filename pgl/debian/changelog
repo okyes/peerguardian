@@ -1,9 +1,17 @@
+pgl (2.1.1-1) unstable; urgency=low
+
+  * new upstream release
+  * fixed 2.1.0-1 debian/changelog entry
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sat, 13 Aug 2011 02:48:58 +0200
+
 pgl (2.1.0-1) unstable; urgency=low
 
   * added pgl-gui and pgl-gui-dbg package
   * fixed pglcmd.dirs (pgl instead of blockcontrol)
   * bumped to Standards-Version 3.9.2.0, no changes needed
   * removed most debconf questions except INIT and CRON
+  * fixed patches/use-systemwide-LSB-init-functions.patch
 
  -- jre <jre-phoenix@users.sourceforge.net>  Fri, 12 Aug 2011 19:09:22 +0200
 

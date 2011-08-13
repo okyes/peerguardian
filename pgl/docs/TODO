@@ -120,8 +120,6 @@ pgl-gui:
 
   - whitelisting with right-clicking in the log of blocked IPs window:
 
-    - check if the entry is already in pglcmd.conf
-
     - temp allow:
       delete the iptables rule after X minutes (as far as pgl-gui doesn't crash,
       otherwise live with it and wait for the next pglcmd restart)
