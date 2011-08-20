@@ -1135,7 +1135,8 @@ void Peerguardian::whitelistItem(QAction *action)
     {
         QStringList iptablesCommands = m_Whitelist->getCommands(QStringList() << info[0], QStringList() << info[1], QStringList() << info[2], QList<bool>() << true);
         QString testCommand = m_Whitelist->getIptablesTestCommand(info[0], info[1], info[1]);
-        m_Root->executeCommands(iptablesCommands, true);
+        m_Root->executeCommands(iptablesCommands, false);
+        m_Root->executeAll();
     }
     else if (  action == a_whitelistIpPerm || action == a_whitelistPortPerm )
     {
