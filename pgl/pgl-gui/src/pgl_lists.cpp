@@ -29,6 +29,7 @@ ListItem::ListItem( const QString &itemRawLine ) {
 
     option = NONE;
     m_Location = "";
+    mode = COMMENT_ITEM;
 
     if ( itemLine.isEmpty() ) {
         mode = COMMENT_ITEM;
@@ -60,6 +61,9 @@ bool ListItem::isValidBlockList(const QString & line)
 
     if ( line.contains("list.iblocklist.com") )
         return true;
+        
+    if ( line.contains("http://") || line.contains("ftp://") )
+        return true;
 
     if ( QFile::exists(line) )
         foreach(QString format, formats)
@@ -74,8 +78,10 @@ QString ListItem::getListName(const QString& line)
     if ( line.contains("list.iblocklist.com/lists/") )
         return line.split("list.iblocklist.com/lists/").last();
 
-    if ( line.contains("/") )
-        return line.split("/").last();
+    QFileInfo file(line);
+
+    if ( file.exists() )
+        return file.fileName();
 
     return line;
 }
