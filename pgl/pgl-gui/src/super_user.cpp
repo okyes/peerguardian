@@ -167,24 +167,17 @@ void SuperUser::executeAll()
     
     qDebug() << "commands: " << m_Commands;
     
-    if ( m_Commands.size() > 1 )
-    {
-        //create file with the commands to be executed
-        lines << "#!/bin/sh";
-        lines << "set -e";
-        
-        foreach(QString command, m_Commands)
-        lines << command;
-        
-        bool ok = saveFileData(lines, "/tmp/execute-all-pgl-commands.sh");
+    //create file with the commands to be executed
+    lines << "#!/bin/sh";
+    lines << "set -e";
     
-        if ( ok )
-            executeCommands(cmds);
-            
-    }else if ( m_Commands.size() == 1 )
-        executeCommands(m_Commands);
+    foreach(QString command, m_Commands)
+    lines << command;
     
-    
+    bool ok = saveFileData(lines, "/tmp/execute-all-pgl-commands.sh");
+
+    if ( ok )
+        executeCommands(cmds);
     
 }
 
