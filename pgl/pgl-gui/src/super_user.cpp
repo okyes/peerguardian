@@ -160,6 +160,9 @@ void SuperUser::execute(const QStringList& command )
 
 void SuperUser::executeAll()
 {
+    if ( m_Commands.isEmpty() )
+        return;
+    
     QStringList lines;
     QString cmd = QString("%1 sh %2").arg(m_SudoCmd).arg("/tmp/execute-all-pgl-commands.sh");
     QStringList cmds;
