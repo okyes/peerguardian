@@ -19,6 +19,8 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
     m_validExtensions << ".p2p" << ".zip" << ".7z" << ".gzip" << ".dat";
     QString help;
 
+    groupBox_2->hide();
+
     if ( mode == (ADD_MODE | EXCEPTION_MODE) )
     {
         bool ok;
@@ -52,6 +54,9 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
 
         connect(m_addEdit, SIGNAL(returnPressed()), this, SLOT(addEntry()));
         connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(addEntry()));
+        
+        
+        resize(width(), minimumSize().height());
     }
     else if ( mode == (ADD_MODE | BLOCKLIST_MODE) )
     {
@@ -80,7 +85,9 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
 
         connect(m_addEdit, SIGNAL(returnPressed()), this, SLOT(addBlocklist()));
         connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(addBlocklist()));
-
+        
+       setMinimumSize(0, 200);
+       resize(width(), height()/3);
     }
     
     m_helpLabel->setText(QObject::tr(help.toUtf8 ()));
@@ -97,8 +104,7 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
 
     this->mode = mode;
 
-    resize(width(), height()/2);
-    groupBox_2->hide();
+
 }
 
 
