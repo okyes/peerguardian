@@ -31,9 +31,12 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
         m_browseButton->hide();
         QString value;
 
-        help = QObject::tr("Valid Inputs: You can enter an IP Address with");
-        help +=  QObject::tr(" or without mask, a range of ports (eg. 1:50) or a single port number/name (eg. http, ftp, etc).") + "\n";
-        help += QObject::tr("You can enter multiple items separated by spaces!");
+        help  = QObject::tr("Valid Inputs:") + "\n";
+        help += QObject::tr("You can enter an IP Address with or without mask,");
+        help += QObject::tr("a range of ports (eg. 1:50) or a single port number/name (e.g. 80, http, ftp, etc).") + "\n\n";
+        help += QObject::tr("You can enter multiple items separated by spaces.") + "\n\n";
+        help += QObject::tr("Please note that allowing an outgoing port is a certain security risk:");
+        help += QObject::tr("a malicious host may listen on just this port. It is safer to allow traffic to certain IPs instead.");
 
         foreach(QTreeWidgetItem *treeItem, treeItems)
         {
