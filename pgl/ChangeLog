@@ -3,6 +3,8 @@ ChangeLog PeerGuardian Linux (pgl)
 pgl 2.1.2~WIP
 
   [jre]
+  * pgld/Makefile: moved LDFLAGS to end of rule. This should solve some
+    issues with newer gcc versions
 
   [freemind]
 
