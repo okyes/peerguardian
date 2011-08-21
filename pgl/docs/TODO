@@ -180,7 +180,9 @@ All components:
   - use inotify (available since Linux kernel 2.6.13) to reload after
     configuration change.
 
-  - use doxygen or something like that for automatic documentation.
+  - use e.g. notification-daemon to notify about errors.
+
+  - use e.g. doxygen for automatic documentation.
 
   - fix/update license headers of pgl-gui and pgld
 
@@ -210,7 +212,9 @@ All components:
 
 Packaging:
 
-  - add LOWMEM flavor packages
+  - add LOWMEM and NODBUS flavor packages
+
+  - build for other arches with qemubuilder
 
   - add debtags to debian packages
 
