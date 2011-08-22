@@ -21,13 +21,14 @@
 #define WHITE_UDP_FWD "WHITE_UDP_FWD"
 
 
-typedef enum {
+enum {
     TYPE_INCOMING,
     TYPE_OUTGOING,
-	TYPE_FORWARD };
+	TYPE_FORWARD 
+};
 
 
-typedef enum {
+enum {
     ENABLED,
     DISABLED,
     INVALID

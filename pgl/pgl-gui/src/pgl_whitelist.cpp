@@ -4,7 +4,6 @@
 #include "pgl_settings.h"
 #include "file_transactions.h"
 #include "gui_options.h"
-#include <QDebug>
 
 
 
@@ -266,7 +265,6 @@ void PglWhitelist::addTreeWidgetItemToWhitelist(QTreeWidgetItem* treeItem)
 
 void PglWhitelist::updateSettings(const QList<QTreeWidgetItem*>& treeItems, int firstAddedItemPos, bool updateAll)
 {
-    int whitelistDisabledSize = m_WhitelistDisabled.keys().size();
     QTreeWidgetItem * treeItem;
     
     foreach ( QString key, m_WhitelistDisabled.keys() )
@@ -388,9 +386,7 @@ QStringList PglWhitelist::updateWhitelistItemsInIptables(QList<QTreeWidgetItem*>
     QList<QTreeWidgetItem*> removedItems = guiOptions->getRemovedWhitelistItemsForIptablesRemoval();
     int firstAddedItem = guiOptions->getPositionFirstAddedWhitelistItem();
     int totalPrevItems = guiOptions->getWhitelistPrevSize();
-    bool added = false;
     QTreeWidgetItem * item;
-    int firstRemovedItem = items.size();
     
     //append removed items
     if ( ! removedItems.isEmpty() )
@@ -602,7 +598,6 @@ QString PglWhitelist::getIptablesTestCommand(const QString& value, const QString
 bool PglWhitelist::isInPglcmd(const QString& value, const QString& connectType, const QString& prot)
 {
     QList<QTreeWidgetItem*> items = m_GuiOptions->getWhitelist();
-    bool ok;
     QString protocol = prot;
 
     if ( isValidIp(value) )

@@ -30,16 +30,10 @@
 #include <QtDebug>
 
 #include "file_transactions.h"
-#include "peerguardian_log.h"
 
 #define DAEMON "pgld"
 #define EMIT_SIGNAL_DELAY 20000
 
-typedef enum {BLOCKCONTROL_LOG_FILENAME_PLACE,
-    PGL_LOG_FILENAME_PLACE,
-	MAX_FILENAME_VECTOR_SIZE
-};
-	
 
 /**
 *

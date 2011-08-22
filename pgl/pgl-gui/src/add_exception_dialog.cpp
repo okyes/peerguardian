@@ -23,8 +23,6 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
 
     if ( mode == (ADD_MODE | EXCEPTION_MODE) )
     {
-        bool ok;
-        int i;
 
         setPortsFromFile();
         //completer for the ports' names
@@ -297,8 +295,6 @@ bool AddExceptionDialog::isPort(QString & p)
     {
         QStringList ports = p.split(":");
         
-        qDebug() << ports;
-        
         if ( ports.size() > 2 )
             return false;
         
@@ -328,7 +324,6 @@ bool AddExceptionDialog::isValidWhitelistItem(WhitelistItem& whiteItem, QString&
     foreach(WhitelistItem tempItem, m_Items)
         if ( tempItem == whiteItem )
         {
-            qDebug() << tempItem.value() << whiteItem.value();
             reason = QObject::tr("It's already added");
             return false;
         }
@@ -395,9 +390,7 @@ void AddExceptionDialog::addEntry()
     reasons.clear();
 
     QStringList values, info;
-    bool valid = false;
     bool ip = false;
-    bool port = false;
     QStringList unrecognizedValues;
 
 
@@ -489,13 +482,8 @@ void AddExceptionDialog::addBlocklist()
 
 void AddExceptionDialog::keyPressEvent ( QKeyEvent * e )
 {
-    // have tried many different things in here
-    qDebug( "Dialog key pressed %d", e->key() );
-
     if (e->key() == Qt::Key_Escape)
         QDialog::keyPressEvent (e);
-    
-    
 
 }
 

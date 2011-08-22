@@ -189,8 +189,6 @@ void GuiOptions::deleteItems(QList<QTreeWidgetItem*> & list)
     foreach(QTreeWidgetItem * item, list)
         if (item) delete item;
     list.clear();
-    
-    qDebug() << "list size: " << list.size();
 }
 
 void GuiOptions::updateWhitelist(int startFrom, bool updateAll)
@@ -309,51 +307,9 @@ Qt::CheckState GuiOptions::getState(int state)
         case 1: return Qt::PartiallyChecked;
         break;
         
-        case 2: return Qt::Checked;
-        break;
+        default: return Qt::Checked;
     }
 }
-
-/*void GuiOptions::undoBlocklist()
-{
-    //reset the blocklist and whitelist treewidgets
-    QTreeWidget * tree = m_Window->getBlocklistTreeWidget();
-    QTreeWidgetItem * item = NULL;
-    
-    for(int i = 0; i < m_BlocklistState.size() ; i++)
-    {
-        item = tree->topLevelItem(i);
-        item->setCheckState(0, getState(m_BlocklistState[i]));
-        item->setIcon(0, QIcon());
-    }
-    
-    //remove added blocklists
-    for(int i = m_BlocklistState.size(); i < tree->topLevelItemCount() ; i++)
-    {
-        tree->takeTopLevelItem(i);
-    }
-}*/
-
-/*void GuiOptions::undoWhitelist()
-{
-    //reset the blocklist and whitelist treewidgets
-    QTreeWidget * tree = m_Window->getWhitelistTreeWidget();
-    QTreeWidgetItem * item = NULL;
-    
-    tree->clear();
-    tree = m_Whitelist;
-    
-    for(int i = 0; i < m_WhitelistState.size() && i < tree->topLevelItemCount(); i++)
-    {
-        item = tree->topLevelItem(i);
-        item->setCheckState(0, getState(m_WhitelistState[i]));
-        item->setIcon(0, QIcon());
-    }
-    
-    //remove added whitelist items
-    for(int i = m_WhitelistState.size(); i < tree->topLevelItemCount(); i++)
-        tree->takeTopLevelItem(i);
-}*/
 
 void GuiOptions::undo()
 {

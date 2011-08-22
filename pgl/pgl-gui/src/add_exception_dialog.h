@@ -23,11 +23,11 @@
 
 
 
-typedef enum openMode { ADD_MODE=0x000,
-                EDIT_MODE,
-                BLOCKLIST_MODE,
-                EXCEPTION_MODE
-            };
+enum openMode { ADD_MODE=0x000,
+            EDIT_MODE,
+            BLOCKLIST_MODE,
+            EXCEPTION_MODE
+};
 
 
 class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
