@@ -86,7 +86,8 @@ class ProcessT : public QThread {
 		 * @param output The output of the command which was executed.
 		 */
 		void commandOutput( QString output );
-        void allCmdsFinished(QStringList commands);
+        void allFinished(QStringList commands);
+        void error(QString msg);
 		
 	private:
 		QString m_Command;

@@ -60,6 +60,9 @@ void ProcessT::run() {
 	
 	m_Output = proc.readAll().trimmed();
 
+    if ( proc.exitCode() != 0 )
+        emit error(m_Output);
+        
     qDebug() << m_Output;
 	emit commandOutput( m_Output );
 	qDebug() << Q_FUNC_INFO << "Command execution finished.";
@@ -68,8 +71,8 @@ void ProcessT::run() {
     m_ExecutedCommands << m_Command;
     
     if ( m_Commands.isEmpty() )
-        emit allCmdsFinished(m_ExecutedCommands);
-    else
+        if ( proc.exitCode() == 0 ) emit allFinished(m_ExecutedCommands);
+    else 
     {
         m_Command = m_Commands.takeFirst();
         m_Timer.start(50);
