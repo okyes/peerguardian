@@ -55,17 +55,13 @@ ListItem::ListItem( const QString &itemRawLine ) {
 
 bool ListItem::isValidBlockList(const QString & line)
 {
-    //The validity of the item should be tested by pgld, not by the GUI. So we return always true.
-    //But in case this situation changes, we just need to rewrite this function.
-    return true;
-    
-    /*QStringList formats;
+    QStringList formats;
     formats << "7z" << "dat" << "gz" << "p2p" << "zip";
 
     if ( line.contains("list.iblocklist.com") )
         return true;
         
-    if ( line.contains("http://") || line.contains("ftp://") )
+    if ( line.contains("http://") || line.contains("ftp://") || line.contains("https://") )
         return true;
 
     if ( QFile::exists(line) )
@@ -73,7 +69,7 @@ bool ListItem::isValidBlockList(const QString & line)
             if ( line.endsWith(format) )
                 return true;
 
-    return false;*/
+    return false;
 }
 
 QString ListItem::getListName(const QString& line)
