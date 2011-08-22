@@ -55,37 +55,24 @@ SOURCES := $(addprefix $(SOURCESDIR)/, \
 	add_exception_dialog.cpp \
 	file_transactions.cpp \
 	gui_options.cpp \
-	ip_remove.cpp \
-	ip_whitelist.cpp \
-	list_add.cpp \
-	moblock_settings.cpp \
 	peerguardian.cpp \
 	peerguardian_info.cpp \
-	peerguardian_log.cpp \
 	pglcmd.cpp \
 	pgl_lists.cpp \
 	pgl_settings.cpp \
 	pgl_whitelist.cpp \
 	proc_thread.cpp \
 	settings.cpp \
-	settings_manager.cpp \
-	status_dialog.cpp \
 	super_user.cpp \
 	utils.cpp \
-	whois.cpp \
 	)
 
 # forms (.ui files) in folder ui/
 FORMSDIR := ui
 FORMS := $(addprefix $(FORMSDIR)/, \
 	add_exception.ui \
-	ip_whitelist.ui \
 	main_window.ui \
-	status_dialog.ui \
-	ip_remove.ui \
-	list_add.ui \
 	settings.ui \
-	whois.ui \
 	)
 
 # prepare some filenames with "foreach" from the above variables
