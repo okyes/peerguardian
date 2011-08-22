@@ -321,7 +321,8 @@ void replaceValueInFile(const QString& path, const QString & variable, const QSt
 
 QString getFileName(const QString& path)
 {
-    return path.split("/").last();
+    QFileInfo fileInfo(path);
+    return fileInfo.fileName();
 }
 
 bool hasValueInData(const QString& value, const QStringList& data)
