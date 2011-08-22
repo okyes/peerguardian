@@ -31,11 +31,9 @@
 
 #include "file_transactions.h"
 
-#define PGL_LIST_PATH "/etc/pgl/blocklists.list"
 
-typedef enum listOption { NO_TIME_STAMP, LOCAL, NONE };
 
-typedef enum itemMode { ENABLED_ITEM, DISABLED_ITEM, COMMENT_ITEM };
+enum itemMode { ENABLED_ITEM, DISABLED_ITEM, COMMENT_ITEM };
 
 /**
 *
@@ -54,18 +52,12 @@ class ListItem {
 		/**
 		 * Constructor, Creates an empty ListItem.
 		 */
-		ListItem() { option = NONE; mode = ENABLED_ITEM; }
+		ListItem() { mode = ENABLED_ITEM; }
 		/**
 		 * Destructor.
 		 */
 		~ListItem() { }
-		/**
-		 * The option of the blocklist.
-		 * NONE: The blocklist has no options.
-		 * NO_TIME_STAMP: The entry in the blocklists file begins with notimestamp.
-		 * LOCAL: The entry in the blocklists file begins with locallist.
-		 */
-		listOption option;
+
 		/**
 		 * The mode of the ListItem.
 		 * ENABLED_ITEM: Enabled blocklist entry.
@@ -83,11 +75,7 @@ class ListItem {
 		 * Example: "www.bluetack.co.uk/config/nipfilter.dat.gz"
 		 */
 		inline QString location() const { return m_Location; }
-		/**
-		 * @return The blocklist's format.
-		 * Basically, returns the list's extension.
-		 */
-		inline QString fileFormat() const { return m_Format; }
+
 		/**
 		 * Check if this ListItem matches another.
 		 * This function compares only the locations of the ListItems.
@@ -95,11 +83,6 @@ class ListItem {
 		 * @return True if the ListItems are the same, otherwise false.
 		 */
 		bool operator==( const ListItem &other );
-		/**
-		 * Export this ListItem as a raw blocklist entry.
-		 * @return The QString representing this blocklist and it's options and mode.
-		 */
-		QString exportItem() const;
 
         bool isEnabled();
         bool isDisabled();
@@ -110,7 +93,6 @@ class ListItem {
 	private:
 		QString m_Name;
 		QString m_Location;
-		QString m_Format;
 
 };
 
@@ -154,15 +136,6 @@ class PeerguardianList {
 		 * @param line The raw line from the blocklists file.
 		 */
 		void addItem( const QString &line );
-		//Add a new ListItem given its location and its itemAttribute
-		/**
-		 * Insert a new blocklist item into hte blocklists file.
-		 * This function uses the item's location and the option to generate a new ListItem.
-		 * The new item's mode is ENABLED_ITEM by default.
-		 * @param location The blocklist's location.
-		 * @param opt The ListItem's option.
-		 */
-		void addItem( const QString &location, listOption opt = NONE );
 		/**
 		 * Change the mode of a ListItem which already exists in the blockcontrol blocklists file.
 		 * @param item The ListItem the mode of which is to be changed.

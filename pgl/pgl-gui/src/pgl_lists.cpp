@@ -27,7 +27,6 @@ ListItem::ListItem( const QString &itemRawLine ) {
 
     QString itemLine = itemRawLine.trimmed();
 
-    option = NONE;
     m_Location = "";
     mode = COMMENT_ITEM;
 
@@ -56,7 +55,11 @@ ListItem::ListItem( const QString &itemRawLine ) {
 
 bool ListItem::isValidBlockList(const QString & line)
 {
-    QStringList formats;
+    //The validity of the item should be tested by pgld, not by the GUI. So we return always true.
+    //But in case this situation changes, we just need to rewrite this function.
+    return true;
+    
+    /*QStringList formats;
     formats << "7z" << "dat" << "gz" << "p2p" << "zip";
 
     if ( line.contains("list.iblocklist.com") )
@@ -70,7 +73,7 @@ bool ListItem::isValidBlockList(const QString & line)
             if ( line.endsWith(format) )
                 return true;
 
-    return false;
+    return false;*/
 }
 
 QString ListItem::getListName(const QString& line)
@@ -110,26 +113,6 @@ bool ListItem::operator==( const ListItem &other ) {
     return true;
 
 }
-
-QString ListItem::exportItem() const {
-
-    QString finalOut;
-
-    if ( mode != ENABLED_ITEM ) {
-        finalOut += "#";
-    }
-    if ( option == NO_TIME_STAMP ) {
-        finalOut += "notimestamp ";
-    }
-    else if ( option == LOCAL ) {
-        finalOut += "locallist ";
-    }
-
-    finalOut += m_Location;
-    return finalOut;
-
-}
-
 
 PeerguardianList::PeerguardianList( const QString &path )
 {
@@ -208,16 +191,6 @@ void PeerguardianList::addItem( const ListItem &newItem ) {
 void PeerguardianList::addItem( const QString &line ) {
 
     ListItem newItem( line );
-
-    addItem( newItem );
-
-}
-
-void PeerguardianList::addItem( const QString &location, listOption opt ) {
-
-    ListItem newItem( location );
-
-    newItem.option = opt;
 
     addItem( newItem );
 
@@ -338,15 +311,6 @@ QFileInfoList PeerguardianList::getLocalBlocklists()
     return localBlocklists;
 }
 
-bool PeerguardianList::exportToFile( const QString &filename ) {
-
-    QStringList tempFile;
-    for ( QVector< ListItem >::const_iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ )
-        tempFile.push_back( s->exportItem() );
-
-    return saveFileData( tempFile, filename );
-
-}
 
 
 QVector< ListItem * >  PeerguardianList::getEnabledItems()
@@ -404,7 +368,7 @@ void PeerguardianList::update(QList<QTreeWidgetItem*> treeItems)
         }
     }
 
-    QString filepath = "/tmp/" + m_FileName.split("/").last();
+    QString filepath = "/tmp/" + getFileName(m_FileName);
     saveFileData(newFileData, filepath);
 }
 
