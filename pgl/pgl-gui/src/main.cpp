@@ -45,8 +45,6 @@ int main(int argc, char *argv[])
     app.setQuitOnLastWindowClosed(false);
 
 	Peerguardian pgWindow;
-    
-    pgWindow.addApp(app);
 
 	QStringList args = QApplication::arguments();
 	//If tray argument was not given show the window normally
