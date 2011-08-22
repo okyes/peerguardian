@@ -19,15 +19,18 @@
  ***************************************************************************/
 
 #include "settings.h"
-#include "peerguardian_log.h"
 #include "super_user.h"
 
-SettingsDialog::SettingsDialog(QWidget *parent) :
+SettingsDialog::SettingsDialog(QSettings *settings, QWidget *parent) :
 	QDialog( parent )
 {
 	setupUi( this );
     
+    
     file_SetRootPath( SuperUser::getGraphicalSudoPath() );
+    int val = settings->value("maximum_log_entries").toInt();
+    m_MaxLogEntries->setValue(val);
+    
     connect( m_RootPathButton, SIGNAL( clicked() ), this, SLOT( file_BrowseRootPath() ) );
 
 }

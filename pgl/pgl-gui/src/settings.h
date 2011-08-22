@@ -23,6 +23,7 @@
 
 #include <QFileDialog>
 #include <QtDebug>
+#include <QSettings>
 
 
 #include "ui_settings.h"
@@ -30,8 +31,6 @@
 #include "peerguardian_info.h"
 #include "pgl_settings.h"
 #include "pgl_lists.h"
-#include "peerguardian_log.h"
-#include "settings_manager.h"
 
 class QString;
 
@@ -45,6 +44,8 @@ class QString;
 class SettingsDialog : public QDialog, private Ui::SettingsDialog {
 
 	Q_OBJECT
+    
+    QSettings * m_Settings;
 
 	public:
 		/**
@@ -52,7 +53,7 @@ class SettingsDialog : public QDialog, private Ui::SettingsDialog {
 		 * Intiallizes the UI.
 		 * @param parent The QWidget parent of the this object.
 		 */
-		SettingsDialog( QWidget *parent = 0 );
+		SettingsDialog( QSettings  *settings , QWidget *parent = 0);
 		/**
 		 * Set the text in the "Sudo frontend" line edit.
 		 * @param path QString with the new text.
@@ -63,6 +64,8 @@ class SettingsDialog : public QDialog, private Ui::SettingsDialog {
 		 * @return QString with the text of the line edit.
 		 */
 		inline QString file_GetRootPath() const { return m_RootPathEdit->text(); }
+        
+        inline int getMaxLogEntries() const { return m_MaxLogEntries->value(); }
 
 	private slots:
 		void file_BrowseRootPath();
