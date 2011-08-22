@@ -29,6 +29,11 @@ ProcessT::ProcessT( QObject *parent ) :
     m_Timer.setSingleShot(true);
 }
 
+ProcessT::ProcessT(const ProcessT& other):
+    QThread(other.parent())
+{ 
+    *this = other; 
+}
 
 ProcessT::~ProcessT() {
 
@@ -48,7 +53,6 @@ void ProcessT::run() {
 	qDebug() << Q_FUNC_INFO << "Executing command" << m_Command << m_Args << "...";
 	QProcess proc;
 	proc.setProcessChannelMode( m_ChanMode );
-	//proc.start( m_Command, m_Args );
     proc.start( m_Command ); 
 	proc.waitForStarted();
 	proc.waitForFinished();
@@ -89,9 +93,7 @@ void ProcessT::setCommand( const QString &name, const QStringList &args, const Q
 
 }
 
-void ProcessT::executeCommand(const QString command, const QProcess::ProcessChannelMode &mode, bool root, bool startNow) {
-
-    qDebug() << "******************EXECUTE COMMAND***************";
+void ProcessT::executeCommand(const QString command, const QProcess::ProcessChannelMode &mode, bool startNow) {
 
     if ( command.isEmpty() && m_Command.isEmpty() )
         return;
@@ -136,16 +138,15 @@ void ProcessT::execute(const QStringList command, const QProcess::ProcessChannel
 
 
 
-void ProcessT::executeCommands(const QStringList commands , const QProcess::ProcessChannelMode &mode, bool root, bool startNow) {
+void ProcessT::executeCommands(const QStringList commands , const QProcess::ProcessChannelMode &mode, bool startNow) {
 
     if ( commands.isEmpty() )
         return;
 
     m_Commands.clear();
     m_Commands << commands;
-    m_NeedsRoot = root;
 
-    executeCommand(m_Commands.takeFirst(), mode, root, startNow);
+    executeCommand(m_Commands.takeFirst(), mode, startNow);
     
 }
 

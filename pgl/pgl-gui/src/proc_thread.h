@@ -50,7 +50,7 @@ class ProcessT : public QThread {
 		 * @param parent The QObject parent of this object.
 		 */
 		ProcessT( QObject *parent = 0 );
-        ProcessT(ProcessT const& other) { *this = other; }
+        ProcessT(ProcessT const& other);
 		/**
 		 * Destructor.
 		 */
@@ -73,7 +73,7 @@ class ProcessT : public QThread {
         void operator=(const ProcessT& p){ *this = p;}
         
         
-        void executeCommands(const QStringList commands , const QProcess::ProcessChannelMode &mode=QProcess::SeparateChannels, bool root=true, bool startNow=true);
+        void executeCommands(const QStringList commands , const QProcess::ProcessChannelMode &mode=QProcess::SeparateChannels, bool startNow=true);
         void execute(const QStringList command, const QProcess::ProcessChannelMode &mode );
         
         //for backwards compatibility with the old Mobloquer code
@@ -99,7 +99,7 @@ class ProcessT : public QThread {
         bool m_NeedsRoot;
         
     private slots:
-        void executeCommand(const QString command="", const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels, bool root = false, bool startNow = true);
+        void executeCommand(const QString command="", const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels, bool startNow = true);
 
 };
 
