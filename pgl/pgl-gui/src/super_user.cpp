@@ -35,7 +35,7 @@ SuperUser::SuperUser( QObject *parent, const QString& rootpath ):
     connect(m_ProcT, SIGNAL(allCmdsFinished(QStringList)), this, SLOT(processFinished(QStringList)));
     connect(m_ProcT, SIGNAL(commandOutput(QString)), this, SLOT(commandOutput(QString)));
     
-    qDebug() << m_SudoCmd;
+    qDebug() << "Graphical Sudo: " << m_SudoCmd;
     
     if ( rootpath.isEmpty() )
     {
@@ -50,7 +50,7 @@ SuperUser::SuperUser( QObject *parent, const QString& rootpath ):
 
 SuperUser::~SuperUser() {
 
-    QFile tmpfile("/tmp/execute-all-pgl-commands.sh");
+    QFile tmpfile(TMP_SCRIPT);
     
     if ( tmpfile.exists() )
         tmpfile.remove();
@@ -96,16 +96,16 @@ void SuperUser::setFilePath( const QString &path ) {
 	
 }
 	
-
+void SuperUser::executeCommand(QString& command, bool start) 
+{
+    executeCommands(QStringList() << command, start);
+}
 
 void SuperUser::executeCommands(QStringList commands, bool start) 
 {
     
     
     QProcess::ProcessChannelMode mode = QProcess::MergedChannels;
-    ProcessT *t;
-    bool needsRoot = false;
-    
 
     if ( (! start) || commands.isEmpty())
     {
@@ -121,11 +121,15 @@ void SuperUser::executeCommands(QStringList commands, bool start)
         emit error(errorMsg);
         return;
 	}
-
+    
+    if ( m_ProcT->isRunning() )
+    {
+        qWarning() << "Another process is still running...";
+        return;
+    }
 
 	if ( ! hasPermissions("/etc") )//If the program is not run by root, use kdesu or gksu as first argument
     {
-        needsRoot = true;
         for (int i=0; i < commands.size(); i++)
         {
             commands[i].insert(0, m_SudoCmd + " \"");
@@ -133,10 +137,9 @@ void SuperUser::executeCommands(QStringList commands, bool start)
         }
 	}
     
-    qDebug() << commands;
-    qDebug() << "start thread";
+    qDebug() << Q_FUNC_INFO << "Executing commands: " << commands;
 
-    m_ProcT->executeCommands(commands, mode, needsRoot);
+    m_ProcT->executeCommands(commands, mode);
 
     //t = new ProcessT(m_parent);
     
@@ -158,29 +161,25 @@ void SuperUser::execute(const QStringList& command )
     executeCommands(commands);
 }
 
-void SuperUser::executeAll()
+void SuperUser::executeScript()
 {
     if ( m_Commands.isEmpty() )
         return;
     
     QStringList lines;
-    QString cmd = QString("%1 sh %2").arg(m_SudoCmd).arg("/tmp/execute-all-pgl-commands.sh");
-    QStringList cmds;
-    cmds << cmd;
+    QString cmd = QString("sh %1").arg(TMP_SCRIPT);
     
-    qDebug() << "commands: " << m_Commands;
+    qDebug() << "Commands: " << m_Commands;
     
     //create file with the commands to be executed
     lines << "#!/bin/sh";
     lines << "set -e";
-    
-    foreach(QString command, m_Commands)
-    lines << command;
+    lines << m_Commands;
     
     bool ok = saveFileData(lines, "/tmp/execute-all-pgl-commands.sh");
 
     if ( ok )
-        executeCommands(cmds);
+        executeCommand(cmd);
     
 }
 

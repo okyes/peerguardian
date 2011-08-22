@@ -38,6 +38,7 @@
 #define GKSU_PATH "/usr/bin/gksu"
 #define KDESU "kdesu"
 #define GKSU "gksu"
+#define TMP_SCRIPT "/tmp/execute-all-pgl-commands.sh"
 
 /**
 *
@@ -99,8 +100,9 @@ class SuperUser : public QObject
         static QString getGraphicalSudoPath();
         void startThread(const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode );
         void moveFiles( const QMap<QString, QString>, bool start = true);
-        void executeAll();
+        void executeScript();
         void operator=(const SuperUser& su);
+        void executeCommand(QString& command, bool start = true);
 
     public slots:
         void processFinished(QStringList);
