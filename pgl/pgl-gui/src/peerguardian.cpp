@@ -75,8 +75,14 @@ Peerguardian::Peerguardian( QWidget *parent) :
     QString path("/org/netfilter/pgl");
     QString interface("org.netfilter.pgl");
     
-    qDebug() << connection.connect(service, path, interface, name, qobject_cast<QObject*>(this), SLOT(addLogItem(QString)));
+    bool ok = connection.connect(service, path, interface, name, qobject_cast<QObject*>(this), SLOT(addLogItem(QString)));
 
+    if ( ! ok )
+        qDebug() << "Connection to DBus failed.";
+    else
+        qDebug() << "Connection to DBus was successful.";
+    
+    
     
     //ActionButton *bt;
     //bt = new ActionButton(kickPB, "org.qt.policykit.examples.kick", this);
@@ -139,7 +145,7 @@ void Peerguardian::addLogItem(QString itemString)
         m_LogTreeWidget->addTopLevelItem(item);
         
         
-        if ( m_LogTreeWidget->topLevelItemCount() > MAX_LOG_SIZE )
+        if ( m_LogTreeWidget->topLevelItemCount() > m_MaxLogSize )
             m_LogTreeWidget->takeTopLevelItem(0);
             
         m_LogTreeWidget->scrollToBottom();
@@ -223,23 +229,15 @@ void Peerguardian::startTimers()
 	m_SlowTimer->setInterval( m_ProgramSettings->value("settings/slow_timer", SLOW_TIMER_INTERVAL ).toInt() );
 	m_SlowTimer->start();
 
-
 }
 
 void Peerguardian::g_MakeConnections()
 {
 	//Log tab connections
-    if ( m_Log != NULL )
-    {
-        connect( m_Log, SIGNAL( newItem( LogItem ) ), this, SLOT( addLogItem( LogItem ) ) );
-        connect( m_LogTreeWidget, SIGNAL(customContextMenuRequested ( const QPoint &)), this, SLOT(showLogRightClickMenu(const QPoint &)));
-    }
-       
+    connect( m_LogTreeWidget, SIGNAL(customContextMenuRequested ( const QPoint &)), this, SLOT(showLogRightClickMenu(const QPoint &)));
+    connect( m_LogClearButton, SIGNAL( clicked() ), m_LogTreeWidget, SLOT( clear() ) );
     connect(m_StopLoggingButton, SIGNAL(clicked()), this, SLOT(startStopLogging()));
 
-	//connect( m_LogTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( logTab_HandleLogChange() ) );
-	connect( m_LogClearButton, SIGNAL( clicked() ), m_LogTreeWidget, SLOT( clear() ) );
-	connect( m_LogClearButton, SIGNAL( clicked() ), m_Log, SLOT( clear() ) );
 
     connect( m_addExceptionButton, SIGNAL(clicked()), this, SLOT(g_ShowAddExceptionDialog()) );
     connect( m_addBlockListButton, SIGNAL(clicked()), this, SLOT(g_ShowAddBlockListDialog()) );
@@ -318,12 +316,7 @@ void Peerguardian::quit()
         }
     }
     
-    m_App->quit();
-}
-
-void Peerguardian::addApp(QApplication & app)
-{
-    m_App = &app;
+    qApp->quit();
 }
 
 void Peerguardian::closeEvent ( QCloseEvent * event )
@@ -514,9 +507,18 @@ void Peerguardian::applyChanges()
 
     QMap<QString, QString> filesToMove;
     QStringList pglcmdConf;
+    QString pglcmdConfPath = PglSettings::getStoredValue("CMD_CONF");
     bool updatePglcmdConf = guiOptions->hasToUpdatePglcmdConf();
     bool updateBlocklistsList = guiOptions->hasToUpdateBlocklistList();
     QString filepath;
+    
+    if ( pglcmdConfPath.isEmpty() )
+    {
+        QString errorMsg = tr("Could not determine pglcmd.conf path! Did you install pgl and pglcmd?");
+        QMessageBox::warning( this, tr("Error"), errorMsg, QMessageBox::Ok);
+        qWarning() << errorMsg;
+        return;
+    }
     
     //only apply IPtables commands if the daemon is running
     if ( m_Info->daemonState() )
@@ -544,8 +546,8 @@ void Peerguardian::applyChanges()
             pglcmdConf = replaceValueInData(pglcmdConf, "CRON", value);
 
         //add /tmp/pglcmd.conf to the filesToMove
-        filesToMove["/tmp/" + getFileName(PGLCMD_CONF_PATH)] = PGLCMD_CONF_PATH;
-        saveFileData(pglcmdConf, "/tmp/" + getFileName(PGLCMD_CONF_PATH));
+        filesToMove["/tmp/" + getFileName(pglcmdConfPath)] = pglcmdConfPath;
+        saveFileData(pglcmdConf, "/tmp/" + getFileName(pglcmdConfPath));
     }
 
     //================ update /etc/pgl/blocklists.list ================/
@@ -600,7 +602,7 @@ void Peerguardian::applyChanges()
     m_ApplyButton->setEnabled(false); //assume changes will be applied, if not this button will be enabled afterwards
     m_UndoButton->setEnabled(false);
 
-    m_Root->executeAll(); //execute previous gathered commands
+    m_Root->executeScript(); //execute previous gathered commands
 }
 
 
@@ -740,16 +742,29 @@ void Peerguardian::inicializeSettings()
 	m_Settings = NULL;*/
     m_List = NULL;
     m_Whitelist = NULL;
-    m_Log = NULL;
     m_Info = NULL;
     m_Root = NULL;
     m_Control = NULL;
     quitApp = false;
 
     m_ProgramSettings = new QSettings(QSettings::UserScope, "pgl", "pgl-gui", this);
-
+    
+    QString max = m_ProgramSettings->value("maximum_log_entries").toString();
+    if ( max.isEmpty() )
+    {
+        m_ProgramSettings->setValue("maximum_log_entries", MAX_LOG_SIZE);
+        m_MaxLogSize = MAX_LOG_SIZE;
+    }
+    else
+    {
+        bool ok; 
+        m_MaxLogSize = max.toInt(&ok);
+        if ( ! ok )
+            m_MaxLogSize = MAX_LOG_SIZE;
+    }
+    
     g_SetRoot();
-    g_SetLogPath();
+    g_SetInfoPath();
     g_SetListPath();
     g_SetControlPath();
 
@@ -762,27 +777,13 @@ void Peerguardian::g_SetRoot( ) {
         delete m_Root;
     
     QString gSudo = m_ProgramSettings->value("paths/super_user").toString();
-    qDebug() << "gSudo: " << gSudo; 
     m_Root = new SuperUser(this, gSudo);
 }
 
-void Peerguardian::g_SetLogPath() {
+void Peerguardian::g_SetInfoPath() {
 
-    QString filepath = PeerguardianLog::getFilePath();
-    
-    if ( ! filepath.isEmpty() && m_Log == NULL )
-    {
-        m_Log = new PeerguardianLog(this);
-        m_Log->setFilePath(filepath, true);
-
-        if ( m_Info == NULL )
-            m_Info = new PeerguardianInfo(PglSettings::getStoredValue("DAEMON_LOG"), this);
-    }
-    //else
-        //QMessageBox::warning( this, tr( "Log file not found!" ), tr( "Peerguardian's log file was NOT found." ), QMessageBox::Ok );
-
-	//logTab_Init();
-	//manageTab_Init();
+    if ( m_Info == NULL )
+        m_Info = new PeerguardianInfo(PglSettings::getStoredValue("DAEMON_LOG"), this);
 }
 
 void Peerguardian::g_SetListPath()
@@ -976,65 +977,6 @@ void Peerguardian::updateInfo() {
 }
 
 
-void Peerguardian::addLogItem( LogItem item ) {
-
-	QString iconPath;
-	QString itemTypeStr;
-
-	if ( item.type == IGNORE || item.type == ERROR ) {
-		return;
-	}
-	else if ( item.type == BLOCK_IN ) {
-		iconPath = LOG_LIST_INCOMING_ICON;
-		itemTypeStr = tr(IN_STR);
-	}
-	else if ( item.type == BLOCK_OUT ) {
-		iconPath = LOG_LIST_OUTGOING_ICON;
-		itemTypeStr = tr( OUT_STR );
-	}
-	else if ( item.type == BLOCK_FWD ) {
-		iconPath = LOG_LIST_FORWARD_ICON;
-		itemTypeStr = tr( FWD_STR );
-	}
-
-
-	QStringList item_info;
-	item_info << item.blockTime();
-	item_info << item.name();
-	item_info << item.getIpSource();
-	item_info << item.getIpDest();
-	item_info << "TCP (change)";
-	item_info << "Blocked";
-
-	QTreeWidgetItem *newItem = new QTreeWidgetItem(m_LogTreeWidget, item_info);
-
-	/*newItem->setText( LOG_TIME_COLUMN, item.blockTime() );
-	newItem->setToolTip( LOG_TIME_COLUMN, item.blockTime() );
-	newItem->setText( LOG_NAME_COLUMN, item.name() );
-	newItem->setToolTip( LOG_NAME_COLUMN, item.name() );
-	newItem->setText( LOG_IP_COLUMN, item.IP() );
-	newItem->setToolTip( LOG_IP_COLUMN, item.IP() );
-	newItem->setText( LOG_TYPE_COLUMN, itemTypeStr );
-	newItem->setToolTip( LOG_TYPE_COLUMN, itemTypeStr );
-	newItem->setIcon( LOG_TYPE_COLUMN, QIcon( iconPath ) );*/
-	m_LogTreeWidget->addTopLevelItem( newItem );
-
-	//Don't let the list become too big
-	if ( m_LogTreeWidget->topLevelItemCount() > MAX_LOG_SIZE ) {
-		m_LogTreeWidget->clearSelection();
-		QTreeWidgetItem *toRem = m_LogTreeWidget->takeTopLevelItem( 0 );
-		delete toRem;
-		toRem = NULL;
-	}
-
-	//if ( m_ListAutoScroll == true )
-	m_LogTreeWidget->scrollToBottom();
-
-	//++m_BlockedConnections;
-
-}
-
-
 void Peerguardian::undoGuiOptions() 
 { 
     int answer = 0;
@@ -1069,12 +1011,16 @@ void Peerguardian::startStopLogging()
 
 void Peerguardian::openSettingsDialog()
 {
-    SettingsDialog * dialog = new SettingsDialog(this);
-        
-    if ( dialog->exec() )
+    SettingsDialog * dialog = new SettingsDialog(m_ProgramSettings, this);
+    
+    int exitCode = dialog->exec();
+    
+    if ( exitCode )
     {
         m_ProgramSettings->setValue("paths/super_user", dialog->file_GetRootPath());
         SuperUser::m_SudoCmd = m_ProgramSettings->value("paths/super_user").toString();
+        m_MaxLogSize = dialog->getMaxLogEntries();
+        m_ProgramSettings->setValue("maximum_log_entries", QString::number(m_MaxLogSize));
     }
     
     if ( dialog )
@@ -1136,7 +1082,7 @@ void Peerguardian::whitelistItem(QAction *action)
         QStringList iptablesCommands = m_Whitelist->getCommands(QStringList() << info[0], QStringList() << info[1], QStringList() << info[2], QList<bool>() << true);
         QString testCommand = m_Whitelist->getIptablesTestCommand(info[0], info[1], info[1]);
         m_Root->executeCommands(iptablesCommands, false);
-        m_Root->executeAll();
+        m_Root->executeScript();
     }
     else if (  action == a_whitelistIpPerm || action == a_whitelistPortPerm )
     {

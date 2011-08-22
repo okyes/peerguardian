@@ -50,19 +50,13 @@
 #include "ui_main_window.h"
 
 #include "file_transactions.h"
-#include "peerguardian_log.h"
 #include "pgl_settings.h"
-#include "settings_manager.h"
 #include "pgl_lists.h"
 #include "peerguardian_info.h"
 #include "pglcmd.h"
 #include "super_user.h"
 
 #include "settings.h"
-#include "whois.h"
-#include "list_add.h"
-#include "status_dialog.h"
-#include "ip_remove.h"
 #include "add_exception_dialog.h"
 #include "pgl_whitelist.h"
 
@@ -71,21 +65,10 @@
 #define DEFAULT_WINDOW_TITLE "Peerguardian Linux"
 
 //Time related defines
-#define FAST_TIMER_INTERVAL 500
 #define MEDIUM_TIMER_INTERVAL 2000
 #define SLOW_TIMER_INTERVAL 5000
 #define INFOMSG_DELAY 5000
-#define MAX_LOG_SIZE 512
 
-
-//Log related defines
-#define LOG_LIST_FONT "Times"
-#define LOG_LIST_FONT_SIZE 10
-#define LOG_MSG "LOG_MSG"
-
-//File related defines
-#define TEMP_SETTINGS_FILE "/tmp/temp_blockcontrol.conf"
-#define TEMP_LIST_FILE "/tmp/temp_blocklists.list"
 
 //Icon related defines
 #define LOG_LIST_INFO_ICON ":/images/info.png"
@@ -103,20 +86,10 @@
 #define ICON_WIDTH 24
 #define ICON_HEIGHT 24
 
-#define MAINWINDOW_WIDTH 480
-#define MAINWINDOW_HEIGHT 600
-
 #define UNCHECKED 0
 #define CHECKED 2
 
-typedef enum { LOG_TIME_COLUMN,
-	LOG_NAME_COLUMN,
-	LOG_IP_COLUMN,	
-	LOG_TYPE_COLUMN };
-
-typedef enum { SETTINGS_IPFILTER_DAT,
-	SETTINGS_P2B,
-	SETTINGS_P2P };
+#define MAX_LOG_SIZE 512
 
 
 class GuiOptions;
@@ -133,12 +106,10 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
 
 	Q_OBJECT
 
-    QApplication * m_App;
     QSettings *m_ProgramSettings;
     QString m_Loaded_RootFile;
     SuperUser *m_Root;
     PeerguardianInfo *m_Info;
-    PeerguardianLog *m_Log;
     PeerguardianList *m_List;
     PglWhitelist *m_Whitelist;
     PglCmd *m_Control;
@@ -157,6 +128,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     bool m_StopLogging;
     QHash<QString, QString> m_ConnectType;
     QHash<QString, QIcon> m_ConnectIconType;
+    int m_MaxLogSize;
     //whitelist QActions
     QAction *a_whitelistIpPerm;
     QAction *a_whitelistIpTemp;
@@ -184,7 +156,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void g_MakeConnections();
         void inicializeSettings();
 		void g_SetRoot();
-		void g_SetLogPath();
+		void g_SetInfoPath();
         void g_SetListPath();
         void g_SetControlPath();
         void g_MakeTray();
@@ -204,7 +176,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         QString getUpdateFrequencyCurrentPath();
         void updateWhitelist();
         void updateBlocklist();
-        void addApp(QApplication&);
+        int getMaxLogSize(){ return m_MaxLogSize; }
 
     public slots:
         void g_ShowAddExceptionDialog() { g_ShowAddDialog(ADD_MODE | EXCEPTION_MODE); };
@@ -212,7 +184,6 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void g_ShowAboutDialog();
         void updateInfo();
         void g_UpdateDaemonStatus();
-        void addLogItem( LogItem item );
         void treeItemChanged(QTreeWidgetItem*, int);
         void treeItemPressed(QTreeWidgetItem* item, int column);
         void applyChanges();
