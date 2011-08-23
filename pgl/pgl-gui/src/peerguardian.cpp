@@ -679,7 +679,7 @@ void Peerguardian::updateBlocklist()
     //get information about the blocklists being used
     foreach(ListItem* log_item, m_List->getValidItems())
     {
-        item_info << log_item->name();
+        item_info << log_item->name() << log_item->location();
         QTreeWidgetItem * tree_item = new QTreeWidgetItem(m_BlocklistTreeWidget, item_info);
         tree_item->setToolTip(0, log_item->location());
         
