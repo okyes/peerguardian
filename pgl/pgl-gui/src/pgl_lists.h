@@ -87,7 +87,7 @@ class ListItem {
         bool isEnabled();
         bool isDisabled();
 
-		bool isValidBlockList(const QString&);
+		static bool isValidBlockList(const QString&);
 		QString getListName(const QString& );
 
 	private:
