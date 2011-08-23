@@ -15,39 +15,39 @@
 # Do a "pglcmd reload" (or "restart" or "update") when you have edited this
 # file.
 
-list.iblocklist.com/lists/atma/atma
-# list.iblocklist.com/lists/bluetack/ads-trackers-and-bad-pr0n
-# list.iblocklist.com/lists/bluetack/bad-peers
-# list.iblocklist.com/lists/bluetack/bogon
-list.iblocklist.com/lists/bluetack/dshield
-# list.iblocklist.com/lists/bluetack/edu
-# list.iblocklist.com/lists/bluetack/for-non-lan-computers
-# list.iblocklist.com/lists/bluetack/forum-spam
-# list.iblocklist.com/lists/bluetack/hijacked
-# list.iblocklist.com/lists/bluetack/iana-multicast
-# list.iblocklist.com/lists/bluetack/iana-private
-# list.iblocklist.com/lists/bluetack/iana-reserved
-# list.iblocklist.com/lists/bluetack/level-1
-# list.iblocklist.com/lists/bluetack/level-2
-# list.iblocklist.com/lists/bluetack/level-3
-# list.iblocklist.com/lists/bluetack/microsoft
-list.iblocklist.com/lists/bluetack/proxy
-# list.iblocklist.com/lists/bluetack/range-test
-# list.iblocklist.com/lists/bluetack/spider
-# list.iblocklist.com/lists/bluetack/spyware
-# list.iblocklist.com/lists/bluetack/web-exploit
-# list.iblocklist.com/lists/bluetack/webexploit-forumspam
-# list.iblocklist.com/lists/cidr-report/bogon
-# list.iblocklist.com/lists/dchubad/faker
-# list.iblocklist.com/lists/dchubad/hacker
-# list.iblocklist.com/lists/dchubad/pedophiles
-# list.iblocklist.com/lists/dchubad/spammer
-# list.iblocklist.com/lists/peerblock/rapidshare
-# list.iblocklist.com/lists/spamhaus/drop
-list.iblocklist.com/lists/tbg/bogon
-list.iblocklist.com/lists/tbg/business-isps
-# list.iblocklist.com/lists/tbg/educational-institutions
-list.iblocklist.com/lists/tbg/general-corporate-ranges
-list.iblocklist.com/lists/tbg/hijacked
-list.iblocklist.com/lists/tbg/primary-threats
-list.iblocklist.com/lists/tbg/search-engines
+http://list.iblocklist.com/lists/atma/atma
+# http://list.iblocklist.com/lists/bluetack/ads-trackers-and-bad-pr0n
+# http://list.iblocklist.com/lists/bluetack/bad-peers
+# http://list.iblocklist.com/lists/bluetack/bogon
+http://list.iblocklist.com/lists/bluetack/dshield
+# http://list.iblocklist.com/lists/bluetack/edu
+# http://list.iblocklist.com/lists/bluetack/for-non-lan-computers
+# http://list.iblocklist.com/lists/bluetack/forum-spam
+# http://list.iblocklist.com/lists/bluetack/hijacked
+# http://list.iblocklist.com/lists/bluetack/iana-multicast
+# http://list.iblocklist.com/lists/bluetack/iana-private
+# http://list.iblocklist.com/lists/bluetack/iana-reserved
+# http://list.iblocklist.com/lists/bluetack/level-1
+# http://list.iblocklist.com/lists/bluetack/level-2
+# http://list.iblocklist.com/lists/bluetack/level-3
+# http://list.iblocklist.com/lists/bluetack/microsoft
+http://list.iblocklist.com/lists/bluetack/proxy
+# http://list.iblocklist.com/lists/bluetack/range-test
+# http://list.iblocklist.com/lists/bluetack/spider
+# http://list.iblocklist.com/lists/bluetack/spyware
+# http://list.iblocklist.com/lists/bluetack/web-exploit
+# http://list.iblocklist.com/lists/bluetack/webexploit-forumspam
+# http://list.iblocklist.com/lists/cidr-report/bogon
+# http://list.iblocklist.com/lists/dchubad/faker
+# http://list.iblocklist.com/lists/dchubad/hacker
+# http://list.iblocklist.com/lists/dchubad/pedophiles
+# http://list.iblocklist.com/lists/dchubad/spammer
+# http://list.iblocklist.com/lists/peerblock/rapidshare
+# http://list.iblocklist.com/lists/spamhaus/drop
+http://list.iblocklist.com/lists/tbg/bogon
+http://list.iblocklist.com/lists/tbg/business-isps
+# http://list.iblocklist.com/lists/tbg/educational-institutions
+http://list.iblocklist.com/lists/tbg/general-corporate-ranges
+http://list.iblocklist.com/lists/tbg/hijacked
+http://list.iblocklist.com/lists/tbg/primary-threats
+http://list.iblocklist.com/lists/tbg/search-engines
