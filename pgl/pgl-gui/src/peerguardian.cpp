@@ -4,6 +4,8 @@
 #include <QHash>
 #include <QRegExp>
 #include <QDBusConnection>
+#include <QApplication>
+#include <QDesktopWidget>
 //#include <Action>
 //#include <ActionButton>
 
@@ -81,7 +83,11 @@ Peerguardian::Peerguardian( QWidget *parent) :
         qDebug() << "Connection to DBus failed.";
     else
         qDebug() << "Connection to DBus was successful.";
-    
+
+    QDesktopWidget *desktop = QApplication::desktop();
+    int yy = desktop->height()/2-height()/2;
+    int xx = desktop->width() /2-width()/2;
+    move(xx, yy);
     
     
     //ActionButton *bt;
@@ -256,6 +262,7 @@ void Peerguardian::g_MakeConnections()
         connect( a_Start, SIGNAL( triggered() ), m_Control, SLOT( start() ) );
         connect( a_Stop, SIGNAL( triggered() ), m_Control, SLOT( stop() ) );
         connect( a_Restart, SIGNAL( triggered() ), m_Control, SLOT( restart() ) );
+        connect( a_Reload, SIGNAL( triggered() ), m_Control, SLOT( reload() ) );
         connect( m_updatePglButton, SIGNAL( clicked() ), m_Control, SLOT( update() ) );
         connect( m_Control, SIGNAL(error(QString)), this, SLOT(rootError(QString)));
     }
@@ -672,15 +679,15 @@ void Peerguardian::updateBlocklist()
     //get information about the blocklists being used
     foreach(ListItem* log_item, m_List->getValidItems())
     {
-        item_info << log_item->name() << log_item->location();
+        item_info << log_item->name();
         QTreeWidgetItem * tree_item = new QTreeWidgetItem(m_BlocklistTreeWidget, item_info);
-
+        tree_item->setToolTip(0, log_item->location());
+        
         if ( log_item->isEnabled() )
             tree_item->setCheckState(0, Qt::Checked);
         else
             tree_item->setCheckState(0, Qt::Unchecked);
 
-        m_BlocklistTreeWidget->addTopLevelItem( tree_item );
         item_info.clear();
     }
 
@@ -689,6 +696,7 @@ void Peerguardian::updateBlocklist()
     {
         item_info << blocklist.fileName() << blocklist.absoluteFilePath();
         QTreeWidgetItem * tree_item = new QTreeWidgetItem(m_BlocklistTreeWidget, item_info);
+        tree_item->setToolTip(0, blocklist.absoluteFilePath());
         tree_item->setCheckState(0, Qt::Checked);
         item_info.clear();
     }
@@ -922,6 +930,7 @@ void Peerguardian::g_MakeMenus() {
 	m_TrayMenu->addAction( a_Start );
 	m_TrayMenu->addAction( a_Stop );
 	m_TrayMenu->addAction( a_Restart );
+    m_TrayMenu->addAction( a_Reload );
 	/*m_TrayMenu->addSeparator();
 	m_TrayMenu->addAction( a_AllowHttp );
 	m_TrayMenu->addAction( a_AllowHttps );
