@@ -110,7 +110,7 @@ Description: PeerGuardian Linux GUI - pgl-gui
  millions of IP ranges). pgl is based on the Linux kernel netfilter framework
  and iptables.
  .
- This is the pgl Graphical User Interface pgl-gui (C++, Qt).
+ This is the pgl Graphical User Interface pgl-gui (C++, Qt4).
 
 Package: pgl-gui-dbg
 Architecture: any
@@ -124,6 +124,6 @@ Description: PeerGuardian Linux GUI - pgl-gui (debug)
  millions of IP ranges). pgl is based on the Linux kernel netfilter framework
  and iptables.
  .
- This is the pgl Graphical User Interface pgl-gui (C++, Qt).
+ This is the pgl Graphical User Interface pgl-gui (C++, Qt4).
  .
  This package contains the debugging symbols for pgl-gui.

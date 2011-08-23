@@ -1,8 +1,8 @@
-pgl (2.1.2~WIP-1) UNRELEASED; urgency=low
+pgl (2.1.2-1) unstable; urgency=low
 
-  * new upstream release 
+  * new upstream release
 
- -- jre <jre-phoenix@users.sourceforge.net>  Sun, 21 Aug 2011 15:37:23 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 23 Aug 2011 21:56:02 +0200
 
 pgl (2.1.1-1) unstable; urgency=low
 

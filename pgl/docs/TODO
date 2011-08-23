@@ -19,6 +19,9 @@ pgld:
 
 pglcmd:
 
+  - FIX: since 2011-08-11 I get system mails claiming I tried to send a mail
+    without recipient. Seems to be related at least to "restart".
+
   - FIX: on stop (and probably other commands), only dump/reset stats once
 
   - nice: on CentOS it is required to use e.g. "+5". Find solutions suiting all
@@ -87,6 +90,9 @@ pgl-gui:
 
   pgl-gui only:
 
+  - FIX: pgl-gui crashes if you try to whitelist temporarily while pgl is not
+    running.
+
   - images/settings.png is not shown
 
   - right-click whitelisting:
@@ -104,7 +110,6 @@ pgl-gui:
     for URLs like this: http://list.iblocklist.com/?list=ewqglwibdgjttwttrinl&fi
     leformat=p2p&archiveformat=gz
     Also use lists.xml to show the list description.
-    Verify that lists like "example.com/list/list2" work.
 
   - "Last blocklist update":
     Implement per blocklist in "Configure - Blocklist"
@@ -131,6 +136,10 @@ pgl-gui:
 
   - show local blocklists (in /etc/pgl/blocklists.local) in Configure tab
     (adding them works flawlessly)
+
+  - implement "Details about blocked IP":
+    - whois IP
+    - pglcmd search IP [requires search function in pgld, see above.]
 
   - if blocklists.list is missing and I add a new list, pgl-gui segfaults
 -------------------------------------------------------------------------------
@@ -215,6 +224,7 @@ Packaging:
   - add LOWMEM and NODBUS flavor packages
 
   - build for other arches with qemubuilder
+    test OpenSUSE build service
 
   - add debtags to debian packages
 

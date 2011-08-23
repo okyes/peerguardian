@@ -1,16 +1,25 @@
 ChangeLog PeerGuardian Linux (pgl)
 
-pgl 2.1.2~WIP
+pgl 2.1.2
 
   [jre]
   * pgld/Makefile: moved LDFLAGS to end of rule. This should solve some
     issues with newer gcc versions
   * pgl-gui: swapped the restart and reload icons
+  * documentation updates
 
   [freemind]
+  pgl-gui:
+  * fixed blank blocklist items, if blocklist is not from iblocklist.com
+  * fixed temporary allowing with right-click in the log window
+    kdesudo only accepts one command as argument, so execute all commands
+    through the tmp script.
+  * allow to specify the maximum log size (default 512 lines)
+  * reduced window's minimum width and height.
+  * removed unused mobloquer code
+  * minor fixes
 
-
--- jre <jre-phoenix@users.sourceforge.net>  Sun, 21 Aug 2011 15:37:23 +0200
+-- jre <jre-phoenix@users.sourceforge.net>  Tue, 23 Aug 2011 21:56:02 +0200
 
 
 pgl 2.1.1
