@@ -1,13 +1,15 @@
 
-#include "add_exception_dialog.h"
-#include "utils.h"
 #include <QEvent>
 #include <QUrl>
 #include <QFile>
 #include <QDir>
-#include "file_transactions.h"
 #include <QCompleter>
 #include <QFileSystemModel>
+
+#include "add_exception_dialog.h"
+#include "utils.h"
+#include "file_transactions.h"
+#include "pgl_lists.h"
 
 class WhitelistItem;
 
@@ -66,7 +68,10 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
             m_addEdit->setCompleter(completer);
 
             help = QObject::tr("Valid Inputs: You can enter a local path or an address to a valid blocklist.") + "\n";
-            help += QObject::tr("You can enter multiple items separated by spaces!");
+            help += QObject::tr("You can enter multiple items separated by spaces!") + "\n\n";
+            help += QObject::tr("If you are adding a local blocklist, please remember that the file you're adding won't be copied! ");
+            help += QObject::tr("In other words, if you delete the file you're adding, it will be no longer available or used in pgl after a restart or reload") + "\n\n";
+            help += QObject::tr("If you are adding an URL please prepend \"http://\", \"https://\" or \"ftp://\" in case your address doesn't have it!");
 
             setWindowTitle(QObject::tr("Add Blocklists"));
             groupBox->setTitle(QObject::tr("Add one or more Blocklists"));
@@ -85,7 +90,7 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
         connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(addBlocklist()));
         
        setMinimumSize(0, 200);
-       resize(width(), height()/3);
+       resize(width(), height()/1.9);
     }
     
     m_helpLabel->setText(QObject::tr(help.toUtf8 ()));
@@ -246,42 +251,44 @@ QStringList AddExceptionDialog::getParams(const QString& text)
         QFileInfo file("");
         bool append = false;
         params = text.split(' ');
-        
+ 
+ 
         for(int i=0; i < params.size(); i++)
         {
-            //reset the one spacers
-            if ( params[i].size() == 0 )
-                params[i] = " ";
             
             if ( append )
                 param += params[i];
             else
                 param = params[i];
                 
-            
             //if it's a filepath
             if ( param.trimmed()[0] == '/' || append)
             {
                 file.setFile(param.trimmed());
-                
+
                 //if the file exists and it's not a directory
                 //it means it's the full path
                 if ( file.exists() && ( ! file.isDir()) )
                 {
-                    paths << param;
+                    paths << param.trimmed();
+                    param.clear();
                     append = false;
                 }
                 else  //or else we assume it's a part of the path
                 {
+                    param += " "; //since the string was splitted by spaces, we have to re add them to reconstruct the string properly
                     append = true;
-                    param += " ";
                 }
             }
             else if ( ! param.simplified().isEmpty() )//if it's not an empty string it might be an URL
             {
-                paths << param.simplified();
+                paths << param;
+                param.clear();
             }
         }
+        
+        if ( ! param.isEmpty() )
+            paths << param;
         
         return paths;
     }
@@ -467,12 +474,39 @@ void AddExceptionDialog::addBlocklist()
 {
     QStringList values = getParams(m_addEdit->text());
     m_notValidTreeWidget->clear();
+    QStringList invalidValues;
+    m_blocklists.clear();
 
-    foreach(QString param, values)
-        if ( ! param.simplified().isEmpty() )
-            m_blocklists.push_back(param);
-    
-    emit(accept());
+    foreach(QString value, values)
+    {
+        if ( value.simplified().isEmpty() )
+            continue;
+        
+        if ( ! ListItem::isValidBlockList(value) )
+            invalidValues << value;
+        else
+            m_blocklists.push_back(value);
+    }
+
+    if ( invalidValues.isEmpty() )
+        emit(accept());
+    else
+    {
+        if ( ! groupBox_2->isVisible() )
+        {
+            resize(width(), height()*2);
+            groupBox_2->setVisible(true);
+        }
+        
+        for(int i=0; i < invalidValues.size(); i++)
+        {
+            QStringList info;
+            QString reason(tr("Not recognized as a valid local path nor it seems a valid URL (did you forget to prepend http, https or ftp?)."));
+            info << invalidValues[i] << "N/A" << "N/A" << reason;
+            QTreeWidgetItem *item = new QTreeWidgetItem(m_notValidTreeWidget, info);
+            item->setToolTip(3, reason);
+        }
+    }
 }
 
 
