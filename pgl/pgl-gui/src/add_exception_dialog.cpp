@@ -90,7 +90,7 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
         connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(addBlocklist()));
         
        setMinimumSize(0, 200);
-       resize(width(), height()/1.9);
+       resize(width(), height()/1.8);
     }
     
     m_helpLabel->setText(QObject::tr(help.toUtf8 ()));
