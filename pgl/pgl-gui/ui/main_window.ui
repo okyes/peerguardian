@@ -909,9 +909,16 @@
     <string>Update</string>
    </property>
   </action>
-  <action name="actionReload">
+  <action name="a_Reload">
+   <property name="icon">
+    <iconset resource="../images/images.qrc">
+     <normaloff>:/images/reload.png</normaloff>:/images/reload.png</iconset>
+   </property>
    <property name="text">
     <string>Reload</string>
+   </property>
+   <property name="toolTip">
+    <string>Only reloads blocklists.</string>
    </property>
   </action>
   <action name="a_ToggleAutoScrolling">
@@ -990,6 +997,9 @@
    </property>
    <property name="text">
     <string>Restart</string>
+   </property>
+   <property name="toolTip">
+    <string>Does a full restart. Including cleaning IPtables variables, pgld is stopped and started again. You'll be unprotected for a couple of seconds.</string>
    </property>
   </action>
   <action name="a_RestoreWindow">
