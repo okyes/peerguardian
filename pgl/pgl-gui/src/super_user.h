@@ -106,6 +106,7 @@ class SuperUser : public QObject
 
     public slots:
         void processFinished(QStringList);
+        void processError(const QString&);
         
     private slots:
         void commandOutput(QString);

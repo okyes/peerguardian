@@ -21,6 +21,7 @@
 #include "super_user.h"
 #include "utils.h"
 #include "file_transactions.h"
+#include "pgl_settings.h"
 
 
 QString SuperUser::m_SudoCmd = "";
@@ -32,10 +33,9 @@ SuperUser::SuperUser( QObject *parent, const QString& rootpath ):
 {
     m_parent = parent;
     m_ProcT = new ProcessT(this);
-    connect(m_ProcT, SIGNAL(allCmdsFinished(QStringList)), this, SLOT(processFinished(QStringList)));
+    connect(m_ProcT, SIGNAL(allFinished(QStringList)), this, SLOT(processFinished(QStringList)));
     connect(m_ProcT, SIGNAL(commandOutput(QString)), this, SLOT(commandOutput(QString)));
-    
-    qDebug() << "Graphical Sudo: " << m_SudoCmd;
+    connect(m_ProcT, SIGNAL(error(QString)), this, SLOT(processError(const QString&)));
     
     if ( rootpath.isEmpty() )
     {
@@ -45,6 +45,8 @@ SuperUser::SuperUser( QObject *parent, const QString& rootpath ):
     }
     else
         m_SudoCmd = rootpath;
+        
+    qDebug() << "Graphical Sudo: " << m_SudoCmd;
 }
 
 
@@ -115,8 +117,8 @@ void SuperUser::executeCommands(QStringList commands, bool start)
 
 	if ( m_SudoCmd.isEmpty() || (! QFile::exists(m_SudoCmd)) )
     {
-		QString errorMsg = "Could not use either kdesu(do) or gksu(do) to execute the command requested.\
-        You can set the path of the one you prefer in <b>\"Options - Settings - Sudo front-end\"</b>";
+		QString errorMsg = tr("Could not use either kdesu(do) or gksu(do) to execute the command requested.\
+        You can set the path of the one you prefer in <b>\"Options - Settings - Sudo front-end\"</b>");
         qCritical() << Q_FUNC_INFO << errorMsg;
         emit error(errorMsg);
         return;
@@ -185,21 +187,10 @@ void SuperUser::executeScript()
 
 void SuperUser::processFinished(QStringList commands)
 {
-    //ProcessT * t;
-    
     if ( ! m_Commands.isEmpty() )
         m_Commands.clear();
     
     emit finished();
-    
-    /*if ( ! m_threads.isEmpty() )
-    {
-        t = m_threads.takeFirst();
-        delete t;
-        
-        if ( ! m_threads.isEmpty() )
-            m_threads.first()->start();
-    }*/
 }
 
 
@@ -265,6 +256,19 @@ QString SuperUser::getGraphicalSudoPath()
     return m_SudoCmd;
 }
 
+void SuperUser::processError(const QString & cmdOutput)
+{
+    
+    QString daemonLog = PglSettings::getStoredValue("DAEMON_LOG");
+    QString controlLog = PglSettings::getStoredValue("CMD_LOG");
+    
+    QString errorMsg("");
+    errorMsg += tr("Failed executing command(s). The following output was given");
+    errorMsg += QString("%1 \"%2\" %3").arg(QString(":\n")).arg(cmdOutput).arg("\n") + "\n";
+    errorMsg += QString(tr("You can also check \"%1\" or \"%2\" for more details.")).arg(daemonLog).arg(controlLog);
+    
+    emit error(errorMsg);
+}
 
 
 
