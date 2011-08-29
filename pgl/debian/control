@@ -20,7 +20,8 @@ Package: pgld
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         iptables
+         iptables,
+         dbus
 Recommends: pglcmd,
         pgl-gui
 Breaks: moblock (<<2~)
