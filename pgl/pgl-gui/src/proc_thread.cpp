@@ -71,7 +71,10 @@ void ProcessT::run() {
     m_ExecutedCommands << m_Command;
     
     if ( m_Commands.isEmpty() )
-        if ( proc.exitCode() == 0 ) emit allFinished(m_ExecutedCommands);
+    {
+        if ( proc.exitCode() == 0 ) 
+            emit allFinished(m_ExecutedCommands);
+    }
     else 
     {
         m_Command = m_Commands.takeFirst();
