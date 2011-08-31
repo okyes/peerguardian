@@ -66,9 +66,9 @@ IFUPDIR ?= /etc/NetworkManager/dispatcher.d
 CRONDIR ?= /etc/cron.daily
 INITDIR ?= /etc/init.d
 LOGROTATEDIR ?= /etc/logrotate.d
-# If LSB file does not exist or variable is set to an empty value, pglcmd's
-# builtin LSB functions are used.
-LSB ?= /lib/lsb/init-functions
+# If LSB file does not exist or variable is set to an empty value (default),
+# pglcmd's builtin LSB init functions are used.
+#LSB ?= /lib/lsb/init-functions
 
 
 # Evaluate which components are to be built
