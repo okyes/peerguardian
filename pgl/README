@@ -1,25 +1,29 @@
-pgl/README
+pgl/README                                        Wed Aug 31 23:19:30 CEST 2011
 
-For a description of pgl and more information please have a look at
-pgl/docs/README.
 
-##############################################################################
+This README is about installation of pgl. For a description and more information
+please have a look at pgl/docs/README.
+
+
+
 
 Table of Contents:
+==================
 
-Installation
-Uninstall
-Files
-Requirements
-Supported systems
+1.) Manual installation
+2.) Installed files (uninstall)
+3.) Build dependencies and runtime environment
+4.) Available packages, build scripts and other distribution specific tips
 
-##############################################################################
 
-Installation:
+
+
+1.) Manual installation
+=======================
 
 
 Step 1: Get the source:
-=======================
+-----------------------
 Either get the latest stable release from peerguardian.sourceforge.net and
 unpack it.
 Or get the current development code:
@@ -27,31 +31,36 @@ git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardi
 
 
 Step 2: Base configuration (Makefile)
-=====================================
+-------------------------------------
 pgl consists of three components: the daemon pgld, the command line interface
 pglcmd and the GUI pgl-gui. In the pgl/Makefile you can enable/disable these
-components and configure the paths pgl is installed to and uses. In the
-"install" stanza of the pgl/pglcmd/Makefile you can enable the init script
-activation, so that pgl starts automatically at system boot.
+components and configure the paths pgl is installed to and uses.
 
+For a slick installation you can turn off dbus support (needed for pgl-gui).
 Especially for embedded devices (like router or NAS box) you might set the
-LOWMEM option to yes. This disables storing of textual range descriptions.
-
-Further you have options to turn on/off dbus support and zlib support for pgld
-loading compressed blocklists (both currently disabled).
+LOWMEM option to "yes" to disable storing of textual range descriptions.
 
 
-Step 3: Compilation and installation
-====================================
-Once you have adjusted the Makefile to your needs issue these commands:
+Step 3: Install pgl's dependencies
+----------------------------------
+Install the build dependencies (including the development headers) and runtime
+environment for the components (see chapter 4).
+
+
+Step 4: Compilation and installation
+------------------------------------
+Issue these commands (they are to go to the correct directory, build, install
+and activate the automatic start on system boot):
   cd peerguardian/pgl
   make
   make install
   /usr/lib/lsb/install_initd /etc/init.d/pgl
 
-##############################################################################
 
-Uninstall:
+
+
+2.) Installed files (uninstall)
+===============================
 
 There is no UNINSTALL routine (yet). But for reference here is a file list as
 pgl is installed per default:
@@ -90,9 +99,11 @@ pgl-gui:
 /usr/share/applications/pgl-gui.desktop
 /usr/share/pixmaps/pgl-gui.png
 
-##############################################################################
 
-Requirements:
+
+
+3.) Build dependencies and runtime environment
+==============================================
 
 Build dependencies pgld:
     - nfnetlink development files
@@ -102,34 +113,32 @@ Build dependencies pgld:
         directly)
 
 Build dependencies pgl-gui:
-    - libdbus development files
-    - Qt4 development files
-
+    - Qt4 development files (including Qt4 dbus)
 
 Runtime environment pgld:
     - the above libraries
     - iptables (required)
     - netfilter kernel support (kernel >= 2.6.13 for NFQUEUE support)
       Either as modules or directly built in the kernel. These are the modules
-      that are loaded here (with pglcmd):
-        iptable_filter
-        ip_tables
-        ipt_REJECT
-        nf_conntrack
-        nf_conntrack_ipv4
-        nf_defrag_ipv4
-        nfnetlink
-        nfnetlink_queue
-        x_tables
-        xt_iprange
-        xt_mark
-        xt_multiport
-        xt_NFQUEUE
-        xt_state
-        xt_tcpudp
-      The list was compiled with:
+      that are loaded here. Note that "xt_" may be named "ip_" or "ipt_" on
+      older systems. The list was compiled with:
         lsmod|grep -E "^x|^nf|^ip"|grep -Ev "^ip6|^ipv6"|sed "s| .*||"|sort
-      Note that xt_ may be named ip_ or ipt_ on older systems.
+      iptable_filter
+      ip_tables
+      ipt_REJECT
+      nf_conntrack
+      nf_conntrack_ipv4
+      nf_defrag_ipv4
+      nfnetlink
+      nfnetlink_queue
+      x_tables
+      xt_iprange
+      xt_mark
+      xt_multiport
+      xt_NFQUEUE
+      xt_state
+      xt_tcpudp
+    - dbus daemon (optional)
 
 Runtime environment pglcmd:
     - pgld
@@ -141,16 +150,7 @@ Runtime environment pglcmd:
         pidof (those should really be on every system)
     - /usr/bin/printf (optional, needed during "update" for archive type
         detection)
-    - /lib/lsb/init-functions (optional, because as fallback there's a modified
-        copy of the Debian init-functions in pglcmd)
-        Used functions, provided by /lib/lsb/init-functions (version >= 3.1):
-        - start_daemon
-        - killproc
-        - pidofproc
-        - status_of_proc
-        - log_failure_msg
-        - log_warning_msg
-        - log_success_msg
+    - /lib/lsb/init-functions (optional,there's a copy built in)
     - NetworkManager (optional, needed for automatic whitelisting of newly
       brought up network interfaces. Not needed in Debian.)
 
@@ -158,11 +158,68 @@ Runtime environment pgl-gui:
     - pgld
     - pglcmd
     - Qt4
-    - Qt dbus
 
-##############################################################################
 
-Supported systems:
+
+
+4.) Available packages, build scripts and other distribution specific tips
+==========================================================================
 
 pgl was written and tested under Debian Gnu/Linux Squeeze. However it should run
-under every Linux system.
+under every Linux system. It is our goal to make life as easy as possible for
+users and packagers.
+
+If you are a packager just contact us at forums.phoenixlabs.org or
+jre-phoenix@users.sourceforge.net. We'll gladly give you all possible support,
+change the code if feasible and publish your work. Of course you are welcome to
+join the project and e.g. commit directly to the git repository.
+
+If you know something missing in this list, please tell us!
+
+
+deb packages:
+-------------
+jre provides official packages in a repository for automatic updates:
+Debian at http://moblock-deb.sourceforge.net
+Ubuntu at https://launchpad.net/~jre-phoenix/+archive/ppa
+
+
+rpm packages:
+-------------
+CentOS by agent86 (last update 06-20-2011, pgl 2.0.4):
+http://forums.phoenixlabs.org/thread-16383-post-120468.html
+spec and patch file
+rpms (including netfilter libraries)
+RedHat's system initialization:
+  chkconfig add pgl
+  chkconfig pgl on
+
+openSUSE 11.3/x64:
+by pixecs (last update 06-03-2011, pgl 2.0.4):
+http://forums.phoenixlabs.org/thread-15882-post-120482.html#pid120482
+
+
+ARCH / AUR (Arch User Repo):
+----------------------------
+PKGBUILD by Gilrain:
+https://aur.archlinux.org/packages.php?ID=51839
+(last checked on 2011-08-27 for pgl 2.1.2)
+
+
+Gentoo:
+-------
+ebuild by Gef, updated by cauchy49:
+https://forums.gentoo.org/viewtopic-t-871027.html
+(last checked on 2011-08-27 for pgl 2.1.2)
+
+
+Slackware:
+----------
+by godmachine81:
+branch "pgl_slackware" in the git repository, slack tar available.
+
+
+synology:
+---------
+2009 by dino:
+http://forums.phoenixlabs.org/thread-1622-post-119717.html#pid119717

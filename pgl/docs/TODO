@@ -1,5 +1,8 @@
 TODO
 
+
+
+
 pgld:
 
   - replace NIPQUAD (removed from kernel 2.6.36)
@@ -14,6 +17,7 @@ pgld:
     if IP is not found: return 1
 
   - make length of range description configurable (with LOWMEM:=range=0)
+
 
 
 
@@ -82,29 +86,47 @@ pglcmd:
 
 
 
-pgl-gui:
 
-###############################################################################
+pgl-gui:
 
   [freemind]
 
-  pgl-gui only:
+  FIX:
 
-  - FIX: pgl-gui crashes if you try to whitelist temporarily while pgl is not
+  - enable "Allow Port" on right-click only for protocols TCP and UDP.
+
+  - pgl-gui crashes if you try to whitelist temporarily, while pgl is not
     running.
 
-  - images/settings.png is not shown
+  - images/settings.png is not shown (at least under Gnome)
 
   - right-click whitelisting:
-    tooltips are not shown.
-    "Whitelist temporarily" is not explained to the user.
+    tooltips are not shown (at least under Gnome)
+    "Whitelist temporarily" is not explained to the user
+
+  - clean up code: get rid of all unused remnants of mobloquer
+
+
+  NEW FEATURES:
+
+  - Allow to sort the columns in "Configure - Whitelist" by clicking in their
+    header.
+
+  - "Allow temporarily" on right-click in the log of blocked IPs:
+    delete the iptables rule after X minutes (as far as pgl-gui doesn't crash,
+    otherwise live with it and wait for the next pglcmd restart)
+
+  - show local blocklists (files in /etc/pgl/blocklists.local/) in Configure tab
+    (adding them works flawlessly)
+
+  - "Details about blocked IP" on right-click in the log of blocked IPs:
+    - whois IP
+    - pglcmd search IP [requires search function in pgld, see above.]
 
   - Window title "Blocking $X IP ranges ($Y IPs)":
     Correct long term implementation: request the data from pgld via dbus.
 
   - policykit support (instead of kdesudo/gksu)
-
-  - clean up code: get rid of all unused remnants of mobloquer
 
   - use ${BLOCKLISTS_DIR}/lists.xml to determine human friendly blocklist names
     for URLs like this: http://list.iblocklist.com/?list=ewqglwibdgjttwttrinl&fi
@@ -117,55 +139,10 @@ pgl-gui:
     [ $BLOCKLIST_DOWNLOADED requires ${BLOCKLISTS_DIR}/lists.xml (implement
     directly in pgl-gui or use function LIST_URL2LIST_NAME from pglcmd.lib ]
 
-  - Allow to sort the columns in "Configure - Whitelist" by clicking in their
-    header.
-
   - pop-up warning on errors from pglcmd (e.g. blocklist is not available)
     [ Requires pglcmd dbus ]
 
-  - whitelisting with right-clicking in the log of blocked IPs window:
 
-    - temp allow:
-      delete the iptables rule after X minutes (as far as pgl-gui doesn't crash,
-      otherwise live with it and wait for the next pglcmd restart)
-
-    - add complete blocked item (combination of all IP, port and proto as
-      iptables rule to e.g. pgl-gui-iptables-insert.sh).
-
-  - fix multiple usage of " in command construction
-
-  - show local blocklists (in /etc/pgl/blocklists.local) in Configure tab
-    (adding them works flawlessly)
-
-  - implement "Details about blocked IP":
-    - whois IP
-    - pglcmd search IP [requires search function in pgld, see above.]
-
-  - if blocklists.list is missing and I add a new list, pgl-gui segfaults
--------------------------------------------------------------------------------
-(gdb) run
-Starting program: /usr/bin/pgl-gui
-[Thread debugging using libthread_db enabled]
-[New Thread 0x7ffff0ca0700 (LWP 24128)]
-** Debug: superuser file:  "/usr/bin/gksu"
-** Debug: "/var/log/pgl"
-** Warning: QStringList getFileData(const QString&) Could not read from file "/var/log/pgl"
-** Warning: void PeerguardianInfo::updateLogData() Failed to retreive information for moblock from file "/var/log/pgl"
-[New Thread 0x7fffe5462700 (LWP 24129)]
-** Debug: list size:  0
-** Debug: list size:  0
-** Debug: true
-[New Thread 0x7fffe3415700 (LWP 24133)]
-[New Thread 0x7fffde4a4700 (LWP 24134)]
-** Debug: ~AddExceptionDialog()
-[Thread 0x7fffe3415700 (LWP 24133) exited]
-[Thread 0x7fffde4a4700 (LWP 24134) exited]
-
-Program received signal SIGSEGV, Segmentation fault.
-0x00007ffff6aacf34 in QString::operator=(QString const&) () from /usr/lib/libQtCore.so.4
--------------------------------------------------------------------------------
-
-###############################################################################
 
   [jre]
 
@@ -176,7 +153,6 @@ Program received signal SIGSEGV, Segmentation fault.
         direct use of ld
     verify where prerequisite FORMS_HEADERS is necessary
 
-###############################################################################
 
 
 
@@ -234,4 +210,4 @@ Web:
 
   - Update phoenixlabs.org
 
-  - update wiki.phoenixlabs.org
+  - update wiki.phoenixlabs.org or wiki at peerguardian.sourceforge.net
