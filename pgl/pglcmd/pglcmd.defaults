@@ -136,13 +136,19 @@ WD_SLEEP="300"
 
 # Set the nice level the watchdog is started with. Valid values are between -20
 # and 19. Higher values make the watchdog more friendly to other applications.
-# See nice(1).
-WD_NICE="19"
+# Note: This variable is applied by the LSB init functions. pglcmd's builtin and
+# Debian's functions use the nicelevel, but Redhat's use the adjustment of the
+# nicelevel (since the default nice level is 0, this normally has the same
+# effect. More important, Redhat's functions require to specify a "+" for
+# positive values, while this can be omitted for the internal and Debian's.
+# See nice(1) and renice(1).
+WD_NICE="+19"
 
 # Set the nice level the daemon is started with. Valid values are between -20
 # and 19. Higher values make the daemon more friendly to other applications, but
-# might have drawbacks on its own functionality. See nice(1).
-NICE_LEVEL="5"
+# might have drawbacks on its own functionality.
+# See the note on WD_NICE above.
+NICE_LEVEL="+0"
 
 # You may specify additional options for wget for the blocklist download here.
 # Note: In this variable the download application (wget) must be contained! Some
