@@ -1,13 +1,11 @@
-use systemwide LSB init-functions
---- a/pglcmd/pglcmd.defaults
-+++ b/pglcmd/pglcmd.defaults
-@@ -90,8 +90,7 @@
- # The path of the LSB init-functions.
- # If LSB file does not exist or variable is set to an empty value, pglcmd's
- # builtin LSB functions are used.
--# LSB="/lib/lsb/init-functions"
--LSB=""
-+LSB="/lib/lsb/init-functions"
-
- # The name of the sendmail executable, a link pointing there, or any other
- # compatible mail transfer agent.
+--- a/Makefile
++++ b/Makefile
+@@ -68,7 +68,7 @@
+ LOGROTATEDIR ?= /etc/logrotate.d
+ # If LSB file does not exist or variable is set to an empty value (default),
+ # pglcmd's builtin LSB init functions are used.
+-#LSB ?= /lib/lsb/init-functions
++LSB ?= /lib/lsb/init-functions
+ 
+ 
+ # Evaluate which components are to be built
