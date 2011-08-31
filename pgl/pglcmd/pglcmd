@@ -237,10 +237,14 @@ case "$1" in
         echo
         if [ -f "$LSB" ] ; then
             if head -n 1 "$LSB" | grep -q Debian > /dev/null 2>&1 ; then
-                echo "Using Debian LSB init-functions: $LSB."
+                echo "Using Debian LSB init-functions: ${LSB}:"
+            elif head -n 5 "$LSB" | grep -q redhat > /dev/null 2>&1 ; then
+                echo "Using Redhat LSB init-functions: ${LSB}."
             else
                 echo "Using LSB init-functions: $LSB."
             fi
+            # Show some information from the header (not shebang or empty lines)
+            cat "$LSB" | grep "^#" | grep -v -e "^#\!" -e "^# *$" | head -n 2
         else
             echo "Using internal LSB init-functions."
         fi
