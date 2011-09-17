@@ -5,7 +5,11 @@ pgl 2.1.3~WIP
   [jre]
   * added "+" to default nice values (+0 for pgld). Fixes problems with Redhat's
     init functions.
-  * fixed Makefile to keep default setting "use builtin LSB init functions".
+  * Makefile fixes:
+    - keep default setting "use builtin LSB init functions".
+    - replaced pkg-config with CFLAGS (containing the previous) in dbus.so
+    - reordered recipes to build with option "as-needed".
+      Fixes building in Ubuntu oneiric.
   * impoved output of show_config to show the version of the LSB init functions.
 
   [freemind]
