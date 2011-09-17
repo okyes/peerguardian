@@ -1,9 +1,10 @@
-pgl (2.1.3~WIP-1) unstable; urgency=low
+pgl (2.1.3-1) unstable; urgency=low
 
+  * new upstream release
   * added "dbus" to the pgld dependency
   * changed use-systemwide-LSB-init-functions.patch to modify Makefile
 
- -- jre <jre-phoenix@users.sourceforge.net>  Mon, 29 Aug 2011 18:08:27 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Sat, 17 Sep 2011 15:44:54 +0200
 
 pgl (2.1.2-1) unstable; urgency=low
 
