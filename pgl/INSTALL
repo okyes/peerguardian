@@ -1,0 +1,225 @@
+pgl/README                                        Wed Aug 31 23:19:30 CEST 2011
+
+
+This README is about installation of pgl. For a description and more information
+please have a look at pgl/docs/README.
+
+
+
+
+Table of Contents:
+==================
+
+1.) Manual installation
+2.) Installed files (uninstall)
+3.) Build dependencies and runtime environment
+4.) Available packages, build scripts and other distribution specific tips
+
+
+
+
+1.) Manual installation
+=======================
+
+
+Step 1: Get the source:
+-----------------------
+Either get the latest stable release from peerguardian.sourceforge.net and
+unpack it.
+Or get the current development code:
+git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
+
+
+Step 2: Base configuration (Makefile)
+-------------------------------------
+pgl consists of three components: the daemon pgld, the command line interface
+pglcmd and the GUI pgl-gui. In the pgl/Makefile you can enable/disable these
+components and configure the paths pgl is installed to and uses.
+
+For a slick installation you can turn off dbus support (needed for pgl-gui).
+Especially for embedded devices (like router or NAS box) you might set the
+LOWMEM option to "yes" to disable storing of textual range descriptions.
+
+
+Step 3: Install pgl's dependencies
+----------------------------------
+Install the build dependencies (including the development headers) and runtime
+environment for the components (see chapter 4).
+
+
+Step 4: Compilation and installation
+------------------------------------
+Issue these commands (they are to go to the correct directory, build, install
+and activate the automatic start on system boot):
+  cd peerguardian/pgl
+  make
+  make install
+  /usr/lib/lsb/install_initd /etc/init.d/pgl
+
+
+
+
+2.) Installed files (uninstall)
+===============================
+
+There is no UNINSTALL routine (yet). But for reference here is a file list as
+pgl is installed per default:
+
+pgld:
+/etc/dbus-1/system.d/org.netfilter.pgl.conf
+/usr/lib/pgl/dbus.so
+/etc/logrotate.d
+/etc/logrotate.d/pgld
+/usr/sbin/pgld
+/var/log/pgl/
+
+pglcmd:
+/etc/cron.daily/pglcmd
+/etc/init.d/pgl
+  If you activated the init script, first deactivate it with
+  /usr/lib/lsb/remove_initd /etc/init.d/pgl
+/etc/logrotate.d/pglcmd
+/etc/NetworkManager/dispatcher.d/20pglcmd
+  or in Debian: /etc/network/if-up.d/pglcmd
+/etc/pgl/allow.p2p
+/etc/pgl/blocklists.list
+/etc/pgl/blocklists.local/
+/etc/pgl/pglcmd.conf
+/usr/bin/pglcmd
+/usr/lib/pgl/pglcmd.defaults
+/usr/lib/pgl/pglcmd.lib
+/usr/lib/pgl/pglcmd.main
+/usr/sbin/pglcmd.wd
+/var/lib/pgl/
+/var/log/pgl/
+/var/spool/pgl/
+
+pgl-gui:
+/usr/bin/pgl-gui
+/usr/share/applications/pgl-gui.desktop
+/usr/share/pixmaps/pgl-gui.png
+
+
+
+
+3.) Build dependencies and runtime environment
+==============================================
+
+Build dependencies pgld:
+    - nfnetlink development files
+    - libnetfilter-queue development files
+    - libdbus development files (optional)
+    - zlib development files (optional, for loading gz compressed blocklists
+        directly)
+
+Build dependencies pgl-gui:
+    - Qt4 development files (including Qt4 dbus)
+
+Runtime environment pgld:
+    - the above libraries
+    - iptables (required)
+    - netfilter kernel support (kernel >= 2.6.13 for NFQUEUE support)
+      Either as modules or directly built in the kernel. These are the modules
+      that are loaded here. Note that "xt_" may be named "ip_" or "ipt_" on
+      older systems. The list was compiled with:
+        lsmod|grep -E "^x|^nf|^ip"|grep -Ev "^ip6|^ipv6"|sed "s| .*||"|sort
+      iptable_filter
+      ip_tables
+      ipt_REJECT
+      nf_conntrack
+      nf_conntrack_ipv4
+      nf_defrag_ipv4
+      nfnetlink
+      nfnetlink_queue
+      x_tables
+      xt_iprange
+      xt_mark
+      xt_multiport
+      xt_NFQUEUE
+      xt_state
+      xt_tcpudp
+    - dbus daemon (optional)
+
+Runtime environment pglcmd:
+    - pgld
+    - wget (optional, needed for blocklists update)
+    - p7zip (optional, needed for blocklists packed as .7z)
+    - unzip (optional, needed for blocklists packed as .zip)
+    - start-stop-daemon (optional)
+    - awk, sed, grep, basename, dirname, cat, cd, mv, cp, zcat, md5sum, renice,
+        pidof (those should really be on every system)
+    - /usr/bin/printf (optional, needed during "update" for archive type
+        detection)
+    - /lib/lsb/init-functions (optional,there's a copy built in)
+    - NetworkManager (optional, needed for automatic whitelisting of newly
+      brought up network interfaces. Not needed in Debian.)
+
+Runtime environment pgl-gui:
+    - pgld
+    - pglcmd
+    - Qt4
+
+
+
+
+4.) Available packages, build scripts and other distribution specific tips
+==========================================================================
+
+pgl was written and tested under Debian Gnu/Linux Squeeze. However it should run
+under every Linux system. It is our goal to make life as easy as possible for
+users and packagers.
+
+If you are a packager just contact us at forums.phoenixlabs.org or
+jre-phoenix@users.sourceforge.net. We'll gladly give you all possible support,
+change the code if feasible and publish your work. Of course you are welcome to
+join the project and e.g. commit directly to the git repository.
+
+If you know something missing in this list, please tell us!
+
+
+deb packages:
+-------------
+jre provides official packages in a repository for automatic updates:
+Debian at http://moblock-deb.sourceforge.net
+Ubuntu at https://launchpad.net/~jre-phoenix/+archive/ppa
+
+
+rpm packages:
+-------------
+CentOS by agent86 (last update 06-20-2011, pgl 2.0.4):
+http://forums.phoenixlabs.org/thread-16383-post-120468.html
+spec and patch file
+rpms (including netfilter libraries)
+RedHat's system initialization:
+  chkconfig add pgl
+  chkconfig pgl on
+
+openSUSE 11.3/x64:
+by pixecs (last update 06-03-2011, pgl 2.0.4):
+http://forums.phoenixlabs.org/thread-15882-post-120482.html#pid120482
+
+
+ARCH / AUR (Arch User Repo):
+----------------------------
+PKGBUILD by Gilrain:
+https://aur.archlinux.org/packages.php?ID=51839
+(last checked on 2011-08-27 for pgl 2.1.2)
+
+
+Gentoo:
+-------
+ebuild by Gef, updated by cauchy49:
+https://forums.gentoo.org/viewtopic-t-871027.html
+(last checked on 2011-08-27 for pgl 2.1.2)
+
+
+Slackware:
+----------
+by godmachine81:
+branch "pgl_slackware" in the git repository, slack tar available.
+
+
+synology:
+---------
+2009 by dino:
+http://forums.phoenixlabs.org/thread-1622-post-119717.html#pid119717

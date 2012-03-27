@@ -1,225 +1,198 @@
-pgl/README                                        Wed Aug 31 23:19:30 CEST 2011
+README for pgl                                     Fri Aug 12 19:00:06 CEST 2011
 
-
-This README is about installation of pgl. For a description and more information
-please have a look at pgl/docs/README.
-
-
-
+================================================================================
 
 Table of Contents:
-==================
 
-1.) Manual installation
-2.) Installed files (uninstall)
-3.) Build dependencies and runtime environment
-4.) Available packages, build scripts and other distribution specific tips
+1.) Description
+2.) Features pglcmd
+3.) Usage pglcmd
+4.) Options pglcmd
+5.) Configuration pglcmd
+6.) pgl-gui
 
+See also pgl/README for installation instruction and requirements.
 
+================================================================================
 
+1.) Description:
 
-1.) Manual installation
-=======================
+PeerGuardian Linux (pgl) is a privacy oriented firewall application. It blocks
+connections to and from hosts specified in huge blocklists (thousands or
+millions of IP ranges). pgl is based on the Linux kernel netfilter framework
+and iptables. 
 
+You can get it at http://sourceforge.net/projects/peerguardian/
 
-Step 1: Get the source:
------------------------
-Either get the latest stable release from peerguardian.sourceforge.net and
-unpack it.
-Or get the current development code:
-git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
+WARNING: pgl may block your complete network/internet access! Using too many
+and/or inappropriate lists may seriously degrade your internet service.
 
-
-Step 2: Base configuration (Makefile)
--------------------------------------
-pgl consists of three components: the daemon pgld, the command line interface
-pglcmd and the GUI pgl-gui. In the pgl/Makefile you can enable/disable these
-components and configure the paths pgl is installed to and uses.
-
-For a slick installation you can turn off dbus support (needed for pgl-gui).
-Especially for embedded devices (like router or NAS box) you might set the
-LOWMEM option to "yes" to disable storing of textual range descriptions.
-
-
-Step 3: Install pgl's dependencies
-----------------------------------
-Install the build dependencies (including the development headers) and runtime
-environment for the components (see chapter 4).
+pgl starts automatically at system boot per default. Some preconfigured
+blocklists are used and will be updated once a day. These blocklists may block
+much more than what you want. This may result in a strongly limited network
+availability - including your own LAN, gateway and DNS server, many webpages,
+services like eMail, instant messaging or the "weather applet" and your
+machine's accessibility from the internet.
+There are many configuration options to prevent this. Per default pglcmd
+already takes care of allowing (whitelisting) LAN traffic, DNS server and
+loopback device. If you are on a public LAN, you probably want to disable this
+feature.
 
 
-Step 4: Compilation and installation
-------------------------------------
-Issue these commands (they are to go to the correct directory, build, install
-and activate the automatic start on system boot):
-  cd peerguardian/pgl
-  make
-  make install
-  /usr/lib/lsb/install_initd /etc/init.d/pgl
+WARNING: Users with firewall (iptables rules)
 
+pgl does not conflict with other firewalls (iptables rules) as long as you make
+sure the following three conditions hold:
+  - pgl marks non-matched (IP is not in the blocklist) packets. (The marking
+    feature is on per default in pglcmd.)
+  - Other firewalls do not mark packets.
+  - pgl is started after other firewalls. If other firewalls are
+    started/reloaded after pgl, then you need to restart pgl again. You will
+    be fine, if the iptables rules which send traffic to the iptables chains
+    (pgl_in, pgl_out and pgl_fwd) stand before all other iptables rules which
+    ACCEPT traffic.
+    To help you achieve this, pglcmd.wd restarts pgl if it detects any problems.
+    But it's still recommended to restart pgl manually, whenever another
+    application changed the iptables setup.
 
+Technical note:
 
+pgld checks traffic (packets) that is sent to the iptables NFQUEUE target. If
+the necessary netfilter support is not built in the kernel directly, pglcmd will
+load the necessary kernel modules. If they are not available, pgld can not be
+started.
+If a packet matches the blocklist, then pgld DROPs it directly. If configured
+pgld MARKs the packet instead. Per default the MARKing feature is on if you use
+pglcmd. So blocked packets get the MARK "10", which is shown as "0xa" by
+iptables.
+If a packet doesn't match the blocklist, then pgld ACCEPTs it directly. If
+configured pgld MARKs the packet instead. Per default the MARKing feature is on
+if you use pglcmd. So allowed packets get the MARK "20", which is shown as
+"0x14" by iptables.
+A MARKed packet repeats the hook function (NF_REPEAT). So it is sent back to
+the head of the iptables chain again. This means it enters the chain INPUT,
+OUTPUT or FORWARD again, but this time bearing a MARK. Then further iptables
+rules that match the MARK decide what happens with the packets.
+Per default pglcmd sets iptables rules to REJECT outgoing packets, and to DROP
+incoming and forwarded packets, if they were "marked block". If they were
+"marked allow", pglcmd's iptables setup just ignores them, so other iptables
+rules decide what happens to them.
+It is strongly recommended to use the MARKing feature, because this allows to
+integrate pgl with other firewalls.
+A packet may only bear one mark, so there mustn't be any other applications or
+iptables rules that mark packets. Otherwise the setup will not work and the
+packet will loop forever.
 
-2.) Installed files (uninstall)
-===============================
+================================================================================
 
-There is no UNINSTALL routine (yet). But for reference here is a file list as
-pgl is installed per default:
+2.) Features pglcmd:
 
-pgld:
-/etc/dbus-1/system.d/org.netfilter.pgl.conf
-/usr/lib/pgl/dbus.so
-/etc/logrotate.d
-/etc/logrotate.d/pgld
-/usr/sbin/pgld
-/var/log/pgl/
+- Start and stop pgl. Or let init do this automatically.
+- Update your blocklists from online sources. Or let cron do this automatically.
+  Backups will be used if a problem occurs. Additionally you may use your local
+  blocklists.
+- Examine your selected blocklists by searching the single blocklists for
+  keywords.
+- Remove lines by keyword from the blocklists.
+- Handle your iptables rules: use a default setup, easily allow all traffic on
+  specific ports and use an allow list, or add your own sophisticated iptables
+  rules.
+- Allow all LAN traffic and the DNS server automatically. If you are on a public
+  LAN, you probably want to disable this feature.
+- Check the status and test the IP block daemon.
+- A watchdog monitors pgl and restarts it if necessary.
+- Detects if kernel modules are needed and loads them if necessary.
+- Set verbosity and logging options.
+- Provides LSB 3.1 compatible init script.
+- Daily rotation of the logfiles.
 
-pglcmd:
-/etc/cron.daily/pglcmd
-/etc/init.d/pgl
-  If you activated the init script, first deactivate it with
-  /usr/lib/lsb/remove_initd /etc/init.d/pgl
-/etc/logrotate.d/pglcmd
-/etc/NetworkManager/dispatcher.d/20pglcmd
-  or in Debian: /etc/network/if-up.d/pglcmd
-/etc/pgl/allow.p2p
-/etc/pgl/blocklists.list
-/etc/pgl/blocklists.local/
-/etc/pgl/pglcmd.conf
-/usr/bin/pglcmd
-/usr/lib/pgl/pglcmd.defaults
-/usr/lib/pgl/pglcmd.lib
-/usr/lib/pgl/pglcmd.main
-/usr/sbin/pglcmd.wd
-/var/lib/pgl/
-/var/log/pgl/
-/var/spool/pgl/
+================================================================================
 
-pgl-gui:
-/usr/bin/pgl-gui
-/usr/share/applications/pgl-gui.desktop
-/usr/share/pixmaps/pgl-gui.png
+3.) Usage pglcmd:
 
+pglcmd OPTION
+pglcmd search PATTERN
 
+================================================================================
 
+4.) Options pglcmd:
 
-3.) Build dependencies and runtime environment
-==============================================
+start
+  inserts iptables rules, starts pgld and the watchdog. If the blocklist
+  configuration changed, rebuilds the master blocklist.
 
-Build dependencies pgld:
-    - nfnetlink development files
-    - libnetfilter-queue development files
-    - libdbus development files (optional)
-    - zlib development files (optional, for loading gz compressed blocklists
-        directly)
+stop
+  deletes iptables rules and stops pgld.
 
-Build dependencies pgl-gui:
-    - Qt4 development files (including Qt4 dbus)
+start_wd
+  starts the watchdog.
 
-Runtime environment pgld:
-    - the above libraries
-    - iptables (required)
-    - netfilter kernel support (kernel >= 2.6.13 for NFQUEUE support)
-      Either as modules or directly built in the kernel. These are the modules
-      that are loaded here. Note that "xt_" may be named "ip_" or "ipt_" on
-      older systems. The list was compiled with:
-        lsmod|grep -E "^x|^nf|^ip"|grep -Ev "^ip6|^ipv6"|sed "s| .*||"|sort
-      iptable_filter
-      ip_tables
-      ipt_REJECT
-      nf_conntrack
-      nf_conntrack_ipv4
-      nf_defrag_ipv4
-      nfnetlink
-      nfnetlink_queue
-      x_tables
-      xt_iprange
-      xt_mark
-      xt_multiport
-      xt_NFQUEUE
-      xt_state
-      xt_tcpudp
-    - dbus daemon (optional)
+stop_wd
+  stops the watchdog.
 
-Runtime environment pglcmd:
-    - pgld
-    - wget (optional, needed for blocklists update)
-    - p7zip (optional, needed for blocklists packed as .7z)
-    - unzip (optional, needed for blocklists packed as .zip)
-    - start-stop-daemon (optional)
-    - awk, sed, grep, basename, dirname, cat, cd, mv, cp, zcat, md5sum, renice,
-        pidof (those should really be on every system)
-    - /usr/bin/printf (optional, needed during "update" for archive type
-        detection)
-    - /lib/lsb/init-functions (optional,there's a copy built in)
-    - NetworkManager (optional, needed for automatic whitelisting of newly
-      brought up network interfaces. Not needed in Debian.)
+restart
+  restarts pgld.
 
-Runtime environment pgl-gui:
-    - pgld
-    - pglcmd
-    - Qt4
+reload
+  rebuilds the master blocklist and reloads pgld if it is running.
 
+update
+  updates the blocklists, rebuilds the master blocklist and reloads pgld if it
+  is running.
 
+force-restart
+  like restart, but forces to rebuild blocklist
 
+force-reload
+  like reload, but forces to rebuild blocklist
 
-4.) Available packages, build scripts and other distribution specific tips
-==========================================================================
+force-update
+  like update, but forces to download blocklists again
 
-pgl was written and tested under Debian Gnu/Linux Squeeze. However it should run
-under every Linux system. It is our goal to make life as easy as possible for
-users and packagers.
+status
+  gives the iptables settings and the status of pgld and the watchdog.
 
-If you are a packager just contact us at forums.phoenixlabs.org or
-jre-phoenix@users.sourceforge.net. We'll gladly give you all possible support,
-change the code if feasible and publish your work. Of course you are welcome to
-join the project and e.g. commit directly to the git repository.
+test
+  does a simple test to check if pgl is working (pings a random IP from the
+  blocklist, checks if this IP was logged in the logfile, and if the IP
+  answered).
 
-If you know something missing in this list, please tell us!
+search
+  outputs the occurences of a keyword and the names of the single blocklists.
 
+stats
+  reports pgld's statistics.
 
-deb packages:
--------------
-jre provides official packages in a repository for automatic updates:
-Debian at http://moblock-deb.sourceforge.net
-Ubuntu at https://launchpad.net/~jre-phoenix/+archive/ppa
+reset_stats
+  resets pgld's statistics.
 
+show_config
+  shows the current configuration settings.
 
-rpm packages:
--------------
-CentOS by agent86 (last update 06-20-2011, pgl 2.0.4):
-http://forums.phoenixlabs.org/thread-16383-post-120468.html
-spec and patch file
-rpms (including netfilter libraries)
-RedHat's system initialization:
-  chkconfig add pgl
-  chkconfig pgl on
+Note for blocklist operations: When the master blocklist is built, missing
+single blocklists are downloaded. If any blocklist fails to download, and if
+there is no old version available, the operation aborts. If a downloaded
+blocklist fails to extract, it is deleted and the operation aborts.
 
-openSUSE 11.3/x64:
-by pixecs (last update 06-03-2011, pgl 2.0.4):
-http://forums.phoenixlabs.org/thread-15882-post-120482.html#pid120482
+================================================================================
 
+5.) Configuration pglcmd:
 
-ARCH / AUR (Arch User Repo):
-----------------------------
-PKGBUILD by Gilrain:
-https://aur.archlinux.org/packages.php?ID=51839
-(last checked on 2011-08-27 for pgl 2.1.2)
+Remote blocklists are configured in BLOCKLISTS_LIST (/etc/pgl/blocklists.list).
+Local blocklists are placed in LOCAL_BLOCKLIST_DIR (/etc/pgl/blocklists.local/).
 
+Most things are done in pglcmd.conf (/etc/pgl/pglcmd.conf). Refer to
+pglcmd.defaults (/usr/lib/pgl/pglcmd.defaults) for the complete set of possible
+configuration variables with comments.
 
-Gentoo:
--------
-ebuild by Gef, updated by cauchy49:
-https://forums.gentoo.org/viewtopic-t-871027.html
-(last checked on 2011-08-27 for pgl 2.1.2)
+The allow list for IP ranges is allow.p2p (/etc/pgl/allow.p2p). Per default, the
+allowlist is used for incoming and outgoing connections. If desired different
+allow lists for incoming, outgoing and forward connections may be used.
 
+================================================================================
 
-Slackware:
-----------
-by godmachine81:
-branch "pgl_slackware" in the git repository, slack tar available.
+6.) pgl-gui
 
-
-synology:
----------
-2009 by dino:
-http://forums.phoenixlabs.org/thread-1622-post-119717.html#pid119717
+pgl-gui works on top of pgld and pglcmd. It requires dbus.
+Start it with "pgl-gui --tray" to dock it directly in the system tray.
+The pgl-gui configuration is in ~/.config/pgl/pgl-gui.conf
