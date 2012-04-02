@@ -97,8 +97,8 @@ AC_ARG_WITH([lsb],
 AC_ARG_ENABLE([logrotate],
 	      [AS_HELP_STRING([--enable-logrotate],
 			     [enable support logrotate (default: enable)])],
-	      enable_logrotate=$enableval,
-	      enable_logrotate="yes")
+	      [enable_logrotate=$enableval],
+	      [enable_logrotate="yes"])
 
 AM_CONDITIONAL(LOGROTATEMAKE, [test "x$enable_logrotate" = "xyes"])
 
@@ -106,8 +106,8 @@ AM_CONDITIONAL(LOGROTATEMAKE, [test "x$enable_logrotate" = "xyes"])
 AC_ARG_ENABLE([cron],
 	      [AS_HELP_STRING([--enable-cron],
 			     [enable support for cron services (default: enable)])],
-	      enable_cron=$enableval,
-	      enable_cron="yes")
+	      [enable_cron=$enableval],
+	      [enable_cron="yes"])
 
 AM_CONDITIONAL(CRONMAKE, [test "x$enable_cron" = "xyes"])
 
@@ -115,8 +115,8 @@ AM_CONDITIONAL(CRONMAKE, [test "x$enable_cron" = "xyes"])
 AC_ARG_ENABLE([networkmanager],
 	      [AS_HELP_STRING([--enable-networkmanager],
 			     [enable support for NetworkManager (default: disable)])],
-	      enable_networkmanager=$enableval,
-	      enable_networkmanager="no")
+	      [enable_networkmanager=$enableval],
+	      [enable_networkmanager="no"])
 
 AM_CONDITIONAL(NETWORKMANAGERMAKE, [test "x$enable_networkmanager" = "xyes"])
 
@@ -132,22 +132,22 @@ PGLD_LDFLAGS="$libnetfilterqueue_LIBS"
 AC_ARG_ENABLE([zlib],
 	      [AS_HELP_STRING([--enable-zlib],
 			     [enable support for zlib compressed blocklists (default: enable)])],
-	      enable_zlib=$enableval,
-	      enable_zlib="yes")
+	      [enable_zlib=$enableval],
+	      [enable_zlib="yes"])
 
 # modify flags if zlib is enabled
 AS_IF([test "x$zlib_dbus" = "xyes"],
       [PKG_CHECK_MODULES([ZLIB],
-			 [zlib])
-      PGLD_CFLAGS="$PGLD_CFLAGS $ZLIB_CFLAGS -DHAVE_ZLIB"
-      PGLD_LDFLAGS="$PGLD_LDFLAGS $ZLIB_LIBS"])
+			 [zlib])]
+      [PGLD_CFLAGS="$PGLD_CFLAGS $ZLIB_CFLAGS -DHAVE_ZLIB"]
+      [PGLD_LDFLAGS="$PGLD_LDFLAGS $ZLIB_LIBS"])
 
 # configure-switch for dbus
 AC_ARG_ENABLE([dbus],
 	      [AS_HELP_STRING([--enable-dbus],
 			     [enable dbus support (default: enable)])],
-	      enable_dbus=$enableval,
-	      enable_dbus="yes")
+	      [enable_dbus=$enableval],
+	      [enable_dbus="yes"])
 
 # check if dbus is enabled in general
 AM_CONDITIONAL(DBUSMAKE, [test "x$enable_dbus" = "xyes"])
@@ -155,32 +155,32 @@ AM_CONDITIONAL(DBUSMAKE, [test "x$enable_dbus" = "xyes"])
 # modify PGLD_flags if dbus is enabled
 AS_IF([test "x$enable_dbus" = "xyes"],
       [PKG_CHECK_MODULES([DBUS],
-			 [dbus-1])
-      PGLD_CFLAGS="$PGLD_CFLAGS $DBUS_CFLAGS -fPIC"
-      PGLD_CPPFLAGS="$PGLD_CPPFLAGS -DHAVE_DBUS -DPLUGINDIR=\\\"${libdir}/pgl\\\""
-      PGLD_LDFLAGS="$PGLD_LDFLAGS $DBUS_LIBS -Wl,-export-dynamic -ldl"])
+			 [dbus-1])]
+      [PGLD_CFLAGS="$PGLD_CFLAGS $DBUS_CFLAGS -fPIC"]
+      [PGLD_CPPFLAGS="$PGLD_CPPFLAGS -DHAVE_DBUS -DPLUGINDIR=\\\"${libdir}/pgl\\\""]
+      [PGLD_LDFLAGS="$PGLD_LDFLAGS $DBUS_LIBS -Wl,-export-dynamic -ldl"])
 
 ##
 # configure-switch for qt4
 AC_ARG_WITH([qt4],
 	    [AS_HELP_STRING([--without-qt4],
 			   [build without gui])],
-	    with_qt4="$withval",
-	    with_qt4="yes") # this only reflects the default ("if not given")
+	    [with_qt4="$withval"],
+	    [with_qt4="yes"]) # this only reflects the default ("if not given")
 
 # modify QT4_flags if qt4 enabled and
 # include pgl-gui as subdir in Makefile.am (QT_SUB)
 AS_IF([test "x$with_qt4" = "xyes"],
-      AS_IF([test "x$enable_dbus" = "xyes"],
+      [AS_IF([test "x$enable_dbus" = "xyes"],
 	     [PKG_CHECK_MODULES([QT4DBUS], [QtDBus])],
-	     [AC_MSG_ERROR([qt4 needs dbus!])])
-      AC_CHECK_QT4(["4.3.0"]) # from qt4.m4
-      PKG_CHECK_MODULES([QT4], [QtCore QtGui])
-      AC_SEARCH_LIBS([pthread_create], [pthread]) # adds -lpthread to LIBS
-      QT_CXXFLAGS="$QT4_CFLAGS $QT4DBUS_CFLAGS"
-      QT_CPPFLAGS="-D_REENTRANT -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_SHARED"
-      QT_LDFLAGS="$QT4_LIBS $QT4DBUS_LIBS"
-      QT_SUB="pgl-gui")
+	     [AC_MSG_ERROR([qt4 needs dbus!])])]
+      [AC_CHECK_QT4(["4.3.0"])] # from qt4.m4
+      [PKG_CHECK_MODULES([QT4], [QtCore QtGui])]
+      [AC_SEARCH_LIBS([pthread_create], [pthread])] # adds -lpthread to LIBS
+      [QT_CXXFLAGS="$QT4_CFLAGS $QT4DBUS_CFLAGS "]
+      [QT_CPPFLAGS="-D_REENTRANT -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_SHARED"]
+      [QT_LDFLAGS="$QT4_LIBS $QT4DBUS_LIBS"]
+      [QT_SUB="pgl-gui"])
 
 # targets
 AC_CONFIG_FILES([Makefile
