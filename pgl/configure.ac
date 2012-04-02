@@ -175,9 +175,9 @@ AS_IF([test "x$with_qt4" = "xyes"],
 	     [PKG_CHECK_MODULES([QT4DBUS], [QtDBus])],
 	     [AC_MSG_ERROR([qt4 needs dbus!])])]
       [AC_CHECK_QT4(["4.3.0"])] # from qt4.m4
-      [PKG_CHECK_MODULES([QT4], [QtCore QtGui])]
+      [PKG_CHECK_MODULES([QT4], [QtCore QtGui polkit-qt-1])]
       [AC_SEARCH_LIBS([pthread_create], [pthread])] # adds -lpthread to LIBS
-      [QT_CXXFLAGS="$QT4_CFLAGS $QT4DBUS_CFLAGS "]
+      [QT_CXXFLAGS="$QT4_CFLAGS $QT4DBUS_CFLAGS -I$(pkg-config --variable includedir polkit-qt-1)/polkit-qt-1"] # see https://bugs.kde.org/show_bug.cgi?id=297340
       [QT_CPPFLAGS="-D_REENTRANT -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_SHARED"]
       [QT_LDFLAGS="$QT4_LIBS $QT4DBUS_LIBS"]
       [QT_SUB="pgl-gui"])
