@@ -1525,6 +1525,14 @@ Some influential environment variables:
   ZLIB_LIBS   linker flags for ZLIB, overriding pkg-config
   DBUS_CFLAGS C compiler flags for DBUS, overriding pkg-config
   DBUS_LIBS   linker flags for DBUS, overriding pkg-config
+  QT4DBUS_CFLAGS
+              C compiler flags for QT4DBUS, overriding pkg-config
+  QT4DBUS_LIBS
+              linker flags for QT4DBUS, overriding pkg-config
+  QT_CFLAGS   C compiler flags for QT, overriding pkg-config
+  QT_LIBS     linker flags for QT, overriding pkg-config
+  QT4_CFLAGS  C compiler flags for QT4, overriding pkg-config
+  QT4_LIBS    linker flags for QT4, overriding pkg-config
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -2185,6 +2193,60 @@ $as_echo "$ac_res" >&6; }
   eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
 
 } # ac_fn_c_find_uintX_t
+
+# ac_fn_cxx_check_type LINENO TYPE VAR INCLUDES
+# ---------------------------------------------
+# Tests whether TYPE exists after having included INCLUDES, setting cache
+# variable VAR accordingly.
+ac_fn_cxx_check_type ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
+$as_echo_n "checking for $2... " >&6; }
+if eval \${$3+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  eval "$3=no"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$4
+int
+main ()
+{
+if (sizeof ($2))
+	 return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$4
+int
+main ()
+{
+if (sizeof (($2)))
+	    return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+
+else
+  eval "$3=yes"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+eval ac_res=\$$3
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+
+} # ac_fn_cxx_check_type
 cat >config.log <<_ACEOF
 This file contains any messages produced by compilers while
 running configure, to aid debugging if configure makes a mistake.
@@ -17038,12 +17100,36 @@ fi
 
 # modify QT4_flags if qt4 enabled and
 # include pgl-gui as subdir in Makefile.am (QT_SUB)
+
+     ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+   ac_fn_cxx_check_type "$LINENO" "bool" "ac_cv_type_bool" "$ac_includes_default"
+if test "x$ac_cv_type_bool" = xyes; then :
+  ac_check_bool=yes
+else
+  ac_check_bool=no
+fi
+
+  ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+   if test "x$ac_check_bool" = "xyes" ; then
+
+$as_echo "#define HAVE_BOOL /**/" >>confdefs.h
+
+  fi
+
+
+
+
+
 if test "x$with_qt4" = "xyes"; then :
   if test "x$enable_dbus" = "xyes"; then :
-    QT4DBUS_CFLAGS
-              C compiler flags for QT4DBUS, overriding pkg-config
-  QT4DBUS_LIBS
-              linker flags for QT4DBUS, overriding pkg-config
 
 pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for QT4DBUS" >&5
@@ -17110,8 +17196,7 @@ $QT4DBUS_PKG_ERRORS
 Consider adjusting the PKG_CONFIG_PATH environment variable if you
 installed software in a non-standard prefix.
 
-Alternatively
-elif you may set the environment variables QT4DBUS_CFLAGS
+Alternatively, you may set the environment variables QT4DBUS_CFLAGS
 and QT4DBUS_LIBS to avoid the need to call pkg-config.
 See the pkg-config man page for more details." "$LINENO" 5
 elif test $pkg_failed = untried; then
@@ -17123,13 +17208,11 @@ as_fn_error $? "The pkg-config script could not be found or is too old.  Make su
 is in your PATH or set the PKG_CONFIG environment variable to the full
 path to pkg-config.
 
-Alternatively; then :
-  you may set the environment variables QT4DBUS_CFLAGS
+Alternatively, you may set the environment variables QT4DBUS_CFLAGS
 and QT4DBUS_LIBS to avoid the need to call pkg-config.
 See the pkg-config man page for more details.
 
-To get pkg-config
-elif see <http://pkg-config.freedesktop.org/>.
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
 See \`config.log' for more details" "$LINENO" 5; }
 else
 	QT4DBUS_CFLAGS=$pkg_cv_QT4DBUS_CFLAGS
@@ -17143,94 +17226,10 @@ else
 fi
 
 
-     ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
-# ac_fn_cxx_check_type LINENO TYPE VAR INCLUDES
-# ---------------------------------------------
-# Tests whether TYPE exists after having included INCLUDES, setting cache
-# variable VAR accordingly.
-ac_fn_cxx_check_type ()
-{
-  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
-$as_echo_n "checking for $2... " >&6; }
-if eval \${$3+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  eval "$3=no"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$4
-int
-main ()
-{
-if (sizeof ($2))
-	 return 0;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-$4
-int
-main ()
-{
-if (sizeof (($2)))
-	    return 0;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-
-else
-  eval "$3=yes"
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-eval ac_res=\$$3
-	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
-$as_echo "$ac_res" >&6; }
-  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
-
-} # ac_fn_cxx_check_type
-ac_fn_cxx_check_type "$LINENO" "bool" "ac_cv_type_bool" "$ac_includes_default"
-if test "x$ac_cv_type_bool" = xyes; then :
-  ac_check_bool=yes
-else
-  ac_check_bool=no
-fi
-
-  ac_ext=c
-ac_cpp='$CPP $CPPFLAGS'
-ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_c_compiler_gnu
-   if test "x$ac_check_bool" = "xyes" ; then
-
-$as_echo "#define HAVE_BOOL /**/" >>confdefs.h
-
-  fi
-
-
-
-
-
-
 QT_REQUIRED_VERSION="4.3.0"
 
 QT_REQUIRED_CONFIG="QtCore"
 
-  QT_CFLAGS   C compiler flags for QT, overriding pkg-config
-  QT_LIBS     linker flags for QT, overriding pkg-config
 
 pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for QT" >&5
@@ -17592,8 +17591,6 @@ Q_DATA_DIR="`$QMAKE -query QT_INSTALL_DATA`"
 Q_MKSPEC_DIR="`$QMAKE -query QT_INSTALL_DATA`/mkspecs"
 
  # from qt4.m4
-        QT4_CFLAGS  C compiler flags for QT4, overriding pkg-config
-  QT4_LIBS    linker flags for QT4, overriding pkg-config
 
 pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for QT4" >&5
@@ -17603,12 +17600,12 @@ if test -n "$QT4_CFLAGS"; then
     pkg_cv_QT4_CFLAGS="$QT4_CFLAGS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"QtCore QtGui\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "QtCore QtGui") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"QtCore QtGui polkit-qt-1\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "QtCore QtGui polkit-qt-1") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_QT4_CFLAGS=`$PKG_CONFIG --cflags "QtCore QtGui" 2>/dev/null`
+  pkg_cv_QT4_CFLAGS=`$PKG_CONFIG --cflags "QtCore QtGui polkit-qt-1" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -17620,12 +17617,12 @@ if test -n "$QT4_LIBS"; then
     pkg_cv_QT4_LIBS="$QT4_LIBS"
  elif test -n "$PKG_CONFIG"; then
     if test -n "$PKG_CONFIG" && \
-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"QtCore QtGui\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "QtCore QtGui") 2>&5
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"QtCore QtGui polkit-qt-1\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "QtCore QtGui polkit-qt-1") 2>&5
   ac_status=$?
   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
   test $ac_status = 0; }; then
-  pkg_cv_QT4_LIBS=`$PKG_CONFIG --libs "QtCore QtGui" 2>/dev/null`
+  pkg_cv_QT4_LIBS=`$PKG_CONFIG --libs "QtCore QtGui polkit-qt-1" 2>/dev/null`
 		      test "x$?" != "x0" && pkg_failed=yes
 else
   pkg_failed=yes
@@ -17646,22 +17643,21 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        QT4_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "QtCore QtGui" 2>&1`
+	        QT4_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "QtCore QtGui polkit-qt-1" 2>&1`
         else
-	        QT4_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "QtCore QtGui" 2>&1`
+	        QT4_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "QtCore QtGui polkit-qt-1" 2>&1`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$QT4_PKG_ERRORS" >&5
 
-	as_fn_error $? "Package requirements (QtCore QtGui) were not met:
+	as_fn_error $? "Package requirements (QtCore QtGui polkit-qt-1) were not met:
 
 $QT4_PKG_ERRORS
 
 Consider adjusting the PKG_CONFIG_PATH environment variable if you
 installed software in a non-standard prefix.
 
-Alternatively; then :
-  you may set the environment variables QT4_CFLAGS
+Alternatively, you may set the environment variables QT4_CFLAGS
 and QT4_LIBS to avoid the need to call pkg-config.
 See the pkg-config man page for more details." "$LINENO" 5
 elif test $pkg_failed = untried; then
@@ -17673,13 +17669,11 @@ as_fn_error $? "The pkg-config script could not be found or is too old.  Make su
 is in your PATH or set the PKG_CONFIG environment variable to the full
 path to pkg-config.
 
-Alternatively
-elif you may set the environment variables QT4_CFLAGS
+Alternatively, you may set the environment variables QT4_CFLAGS
 and QT4_LIBS to avoid the need to call pkg-config.
 See the pkg-config man page for more details.
 
-To get pkg-config; then :
-  see <http://pkg-config.freedesktop.org/>.
+To get pkg-config, see <http://pkg-config.freedesktop.org/>.
 See \`config.log' for more details" "$LINENO" 5; }
 else
 	QT4_CFLAGS=$pkg_cv_QT4_CFLAGS
@@ -17744,7 +17738,7 @@ if test "$ac_res" != no; then :
 
 fi
  # adds -lpthread to LIBS
-      QT_CXXFLAGS="$QT4_CFLAGS $QT4DBUS_CFLAGS"
+      QT_CXXFLAGS="$QT4_CFLAGS $QT4DBUS_CFLAGS -I$(pkg-config --variable includedir polkit-qt-1)/polkit-qt-1" # see https://bugs.kde.org/show_bug.cgi?id=297340
       QT_CPPFLAGS="-D_REENTRANT -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_SHARED"
       QT_LDFLAGS="$QT4_LIBS $QT4DBUS_LIBS"
       QT_SUB="pgl-gui"
