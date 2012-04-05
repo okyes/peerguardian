@@ -24,7 +24,6 @@
 #include <QStringList>
 #include <QFile>
 #include <QMetaType>
-#include <QDebug>
 #include <QList>
 
 #include <cstdio>
@@ -49,11 +48,10 @@ int main(int argc, char *argv[])
 	QApplication::setApplicationName( "pgl-gui" );
     app.setQuitOnLastWindowClosed(false);
 
-    int i = qRegisterMetaType<Command> ("Command");
-    i = qRegisterMetaType<CommandList> ("CommandList");
-    qDebug() << QMetaType::isRegistered(i); 
+        int i = qRegisterMetaType<Command> ("Command");
+        i = qRegisterMetaType<CommandList> ("CommandList"); 
 	Peerguardian pgWindow;
-        new Adaptor(&pgWindow);
+        //new Adaptor(&pgWindow);
 
 	QStringList args = QApplication::arguments();
 	//If tray argument was not given show the window normally

@@ -15,7 +15,6 @@ MOCS = \
 	src/moc_add_exception_dialog.cpp \
 	src/moc_file_transactions.cpp \
 	src/moc_gui_options.cpp \
-	src/moc_adaptor.cpp\
 	src/moc_peerguardian.cpp \
 	src/moc_peerguardian_info.cpp \
 	src/moc_pglcmd.cpp \
@@ -50,7 +49,6 @@ pgl_gui_SOURCES = \
 	src/add_exception_dialog.cpp src/add_exception_dialog.h \
 	src/file_transactions.cpp src/file_transactions.h \
 	src/gui_options.cpp src/gui_options.h \
-	src/adaptor.cpp src/adaptor.h\
 	src/peerguardian.cpp src/peerguardian.h \
 	src/peerguardian_info.cpp src/peerguardian_info.h \
 	src/pglcmd.cpp src/pglcmd.h \

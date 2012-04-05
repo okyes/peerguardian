@@ -20,7 +20,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-CMD_DEFAULTS="/usr/local/lib/pgl/pglcmd.defaults"
+CMD_DEFAULTS="/usr/lib/pgl/pglcmd.defaults"
 
 # Set LC_ALL environment variable to the value C, to achieve a consistent grep behaviour.
 export LC_ALL=C
