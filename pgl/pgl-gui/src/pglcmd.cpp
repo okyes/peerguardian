@@ -34,7 +34,8 @@ QString PglCmd::getPath()
     return m_FileName;
 }
 
-void PglCmd::setFilePath( const QString &path, bool verified) {
+void PglCmd::setFilePath( const QString &path, bool verified) 
+{
 
     if ( verified )
         m_FileName = path;
@@ -43,13 +44,14 @@ void PglCmd::setFilePath( const QString &path, bool verified) {
 
     if ( m_FileName.isEmpty() ){
         qCritical() << Q_FUNC_INFO << "File " << m_FileName << " could not be found.";
-		qCritical() << Q_FUNC_INFO << "PglCmd will probably not work";
+		qCritical() << Q_FUNC_INFO << "pglcmd will probably not work";
     }
 }
 
 
 
-void PglCmd::start() {
+void PglCmd::start() 
+{
     if (  m_FileName.isEmpty() )
     {
         qCritical() << Q_FUNC_INFO << "File " << m_FileName << " could not be found.";
@@ -61,7 +63,8 @@ void PglCmd::start() {
 
 }
 
-void PglCmd::restart() {
+void PglCmd::restart() 
+{
     
     if (  m_FileName.isEmpty() )
     {
@@ -71,10 +74,10 @@ void PglCmd::restart() {
 
 	SuperUser::execute( QStringList() << m_FileName << "restart" );
 	emit actionMessage( tr( "Restarting Peerguardian..." ), MESSAGE_TIMEOUT );
-
 }
 
-void PglCmd::stop() {
+void PglCmd::stop()
+{
     
     if (  m_FileName.isEmpty() )
     {
@@ -87,7 +90,8 @@ void PglCmd::stop() {
 
 }
 
-void PglCmd::reload() {
+void PglCmd::reload() 
+{
     
     if (  m_FileName.isEmpty() )
     {
@@ -100,7 +104,8 @@ void PglCmd::reload() {
 
 }
 
-void PglCmd::update() {
+void PglCmd::update()
+{
     
     if (  m_FileName.isEmpty() )
     {
@@ -114,7 +119,8 @@ void PglCmd::update() {
 
 }
 
-void PglCmd::status() {
+void PglCmd::status() 
+{
     
     if (  m_FileName.isEmpty() )
     {
@@ -122,8 +128,8 @@ void PglCmd::status() {
         return;
     }
 
-	SuperUser::execute( QStringList() << m_FileName << "status" );
-	emit actionMessage( tr( "Getting status for Peerguardian..." ), MESSAGE_TIMEOUT );
+    SuperUser::execute( QStringList() << m_FileName << "status" );
+    emit actionMessage( tr( "Getting status for Peerguardian..." ), MESSAGE_TIMEOUT );
 
 }
 

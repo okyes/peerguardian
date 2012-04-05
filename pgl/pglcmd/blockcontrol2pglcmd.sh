@@ -35,7 +35,7 @@ BLOCKCONTROL_LISTS="/etc/blockcontrol/blocklists.list"
 # CONTROL_MAIN has to be set correctly in all just mentioned files.
 # This is done by the pgl/pglcmd/Makefile based on the settings in the
 # pgl/Makefile.
-CONTROL_MAIN="/usr/lib/pgl/pglcmd.main"
+CONTROL_MAIN="/usr/local/lib/pgl/pglcmd.main"
 
 # Configure pglcmd and load functions.
 if [ -f "$CONTROL_MAIN" ] ; then

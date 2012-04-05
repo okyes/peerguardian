@@ -114,7 +114,9 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     PglWhitelist *m_Whitelist;
     PglCmd *m_Control;
     QSystemTrayIcon *m_Tray;
-    QMenu *m_TrayMenu;
+    QIcon mTrayIconEnabled;
+    QIcon mTrayIconDisabled;
+    QMenu * m_TrayMenu;
     QMenu * m_LogMenu;
     //Timers
     QTimer *m_MediumTimer;
@@ -136,6 +138,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     QAction *a_whitelistPortTemp;
     QString m_selectedAction; //store the QAction hovered in the log view when whitelisting an IP/Port
     QTreeWidgetItem *m_selectedItem; //store the selected item from the log view when whitelisting an IP/Port
+    bool mLastRunningState;
 
 	public:
 		/**
@@ -154,7 +157,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
 		virtual ~Peerguardian();
 
         void g_MakeConnections();
-        void inicializeSettings();
+        void initializeSettings();
 		void g_SetRoot();
 		void g_SetInfoPath();
         void g_SetListPath();

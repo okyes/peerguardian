@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2007-2008 by Dimitris Palyvos-Giannas   *
- *   jimaras@gmail.com   *
+ *   Copyright (C) 2007-2008 by Dimitris Palyvos-Giannas                   *
+ *   jimaras@gmail.com                                                     *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -32,6 +32,8 @@
 #include <QList>
 #include <QTimer>
 
+#include "command.h"
+
 
 /**
 *
@@ -40,7 +42,8 @@
 *
 */
 
-class ProcessT : public QThread {
+class ProcessT : public QThread 
+{
 
 	Q_OBJECT
 
@@ -73,34 +76,35 @@ class ProcessT : public QThread {
         void operator=(const ProcessT& p){ *this = p;}
         
         
-        void executeCommands(const QStringList commands , const QProcess::ProcessChannelMode &mode=QProcess::SeparateChannels, bool startNow=true);
-        void execute(const QStringList command, const QProcess::ProcessChannelMode &mode );
+        void executeCommands(const QStringList& commands , const QProcess::ProcessChannelMode &mode=QProcess::SeparateChannels, bool startNow=true);
+        void execute(const QStringList& command, const QProcess::ProcessChannelMode &mode );
         
         //for backwards compatibility with the old Mobloquer code
         void execute( const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels );
-        bool allFinished() { return m_Commands.isEmpty() && (! this->isRunning()); }
+        bool allFinished() { return mCommandsToExecute.isEmpty() && (! this->isRunning()); }
             
 	signals:
 		/**
 		 * Emitted when a command has finished running.
 		 * @param output The output of the command which was executed.
 		 */
-		void commandOutput( QString output );
-        void allFinished(QStringList commands);
-        void error(QString msg);
+		void commandOutput(const QString&);
+        void finished(const CommandList&);
+        void error(const QString&);
+        void newCommand();
 		
 	private:
+        QHash<QString, QString> commandToOutput;
+        QList<Command> mCommands;
 		QString m_Command;
-        QStringList m_Commands;
+        QStringList mCommandsToExecute;
         QStringList m_ExecutedCommands;
-		QStringList m_Args;
-		QProcess::ProcessChannelMode m_ChanMode;
-		QString m_Output;
-        QTimer m_Timer;
-        bool m_NeedsRoot;
+        QStringList m_Args;
+        QProcess::ProcessChannelMode m_ChanMode;
+        QString m_Output;
         
     private slots:
-        void executeCommand(const QString command="", const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels, bool startNow = true);
+        void executeCommand(const QString& command="", const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels, bool startNow = true);
 
 };
 

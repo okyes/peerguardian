@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef BLOCKCONTROL_H
-#define BLOCKCONTROL_H
+#ifndef pglcmd_H
+#define pglcmd_H
 
 #include <QObject>
 #include <QProcess>
@@ -36,7 +36,7 @@
 
 /**
 *
-* @short Simple class using SuperUser to handle the moblock daemon
+* @short Simple class using SuperUser to handle the pgl daemon
 *
 */
 
@@ -47,55 +47,55 @@ class PglCmd : public SuperUser {
 
 
 	public:
-		/**
-		 * Default constructor, creates a blockcontrol object using the script specified in path.
-		 * @param path The path of the blockcontrol script.
-		 * @param parent The parent of this QObject.
-		 */
-		PglCmd(  QObject *parent = 0, const QString &path="", const QString& gSudoPath="");
-		/**
-		 * Constructor, creates a blockcontrol object without setting any path for the blockcontrol script.
-		 * @param parent The parent of this QObject.
-		 */
-		PglCmd( QObject *parent = 0 );
-		/**
-		 * Destructor
-		 */
-		virtual ~PglCmd() { };
-		/**
-		 * Set the path to the blockcontrol script.
-		 * If the path specified is empty, then the default path, PGLCMD_PATH is used instead.
-		 * @param path The path to the blockcontrol script file.
-		 */
-		void setFilePath( const QString &path, bool verified=false );
+            /**
+                * Default constructor, creates a pglcmd object using the script specified in path.
+                * @param path The path of the pglcmd script.
+                * @param parent The parent of this QObject.
+                */
+            explicit PglCmd(  QObject *parent = 0, const QString &path="", const QString& gSudoPath="");
+            /**
+                * Constructor, creates a pglcmd object without setting any path for the pglcmd script.
+                * @param parent The parent of this QObject.
+                */
+            explicit PglCmd( QObject *parent = 0 );
+            /**
+                * Destructor
+                */
+            virtual ~PglCmd() { };
+            /**
+                * Set the path to the pglcmd script.
+                * If the path specified is empty, then the default path, PGLCMD_PATH is used instead.
+                * @param path The path to the pglcmd script file.
+                */
+            void setFilePath( const QString &path, bool verified=false );
 
-        QString getPath();
-        static QString getFilePath();
-        static QString getFilePath(const QString &path);
+            QString getPath();
+            static QString getFilePath();
+            static QString getFilePath(const QString &path);
 
 	public slots:
 		/**
-		 * Start the moblock daemon using blockcontrol
+		 * Start the pgld daemon using pglcmd
 		 */
 		void start();
 		/**
-		 * Restart the moblock daemon using blockcontrol
+		 * Restart the pgld daemon using pglcmd
 		 */
 		void restart();
 		/**
-		 * Stop the moblock daemon using blockcontrol
+		 * Stop the pgld daemon using pglcmd
 		 */
 		void stop();
 		/**
-		 * Reload moblock using blockcontrol
+		 * Reload pgld using pglcmd
 		 */
 		void reload();
 		/**
-		 * Update moblock using blockcontrol
+		 * Update pgld using pglcmd
 		 */
 		void update();
 		/**
-		 * Get the blockcontrol status.
+		 * Get the pglcmd status.
 		 */
 		void status();
 

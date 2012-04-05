@@ -12,8 +12,8 @@
 
 QString getValidPath(const QString &path, const QString &defaultPath );
 QStringList selectFiles(QWidget * parent=0, QString filter = "", QString title="Select one or more Blocklists", QString startPath=QDir::homePath());
-QString getValue(QString&);
-QString getVariable(QString&);
+QString getValue(const QString&);
+QString getVariable(const QString&);
 QString getValue(const QString&, const QString&);
 QString getLineWith(const QString&, const QString&);
 bool isValidIp(const QString &text );

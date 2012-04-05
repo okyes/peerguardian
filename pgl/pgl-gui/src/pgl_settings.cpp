@@ -19,45 +19,54 @@
  ***************************************************************************/
 
 #include "pgl_settings.h"
+
+#include <QDir>
+#include <QFile>
+#include <QDebug>
+#include <QObject>
+
 #include "file_transactions.h"
 #include "utils.h"
-#include <QDebug>
+
 
 
 QHash<QString, QString> PglSettings::variables = QHash<QString, QString>();
+QString mPglcmdDefaultsPath = "";
+QString mLastError = "";
 
 
-QString PglSettings::getVariableInValue(QString & var)
+QString PglSettings::getVariableInValue(const QString & var)
 {
+    QString variable(var);
 
     if ( var.contains("$") )
     {
-        QString stripvar(var);
+        QString strippedVar(var);
         int n = 0;
 
         if ( var.contains("{") && var.contains("}") )
         {
             int pos1 = var.indexOf('{') + 1;
             n = var.indexOf('}') - pos1;
-            stripvar = var.mid(pos1, n);
+            strippedVar = var.mid(pos1, n);
             n = 3;
         }
         else
         {
             int pos1 = var.indexOf('$') + 1;
-            stripvar = var.mid(pos1);
+            strippedVar = var.mid(pos1);
             n = 1;
         }
 
-        if ( PglSettings::variables.contains(stripvar) )
-            return var.replace(var.indexOf("$"), stripvar.size()+n, variables[stripvar]);
+        if ( variables.contains(strippedVar) )
+            return variable.replace(var.indexOf("$"), strippedVar.size()+n, variables[strippedVar]);
     }
 
 
     return var;
 }
 
-QString PglSettings::getValueInLine(QString& line)
+QString PglSettings::getValueInLine(const QString& line)
 {
 
     QString value = getValue(line);
@@ -82,14 +91,41 @@ QString PglSettings::getValueInLine(QString& line)
     if ( newValue.endsWith("/") )
         newValue.remove(newValue.size()-1, 1);
 
-
-    //qDebug() << line << "<<>>" <<newValue;
     return newValue;
 }
 
-void PglSettings::loadSettings()
+QString PglSettings::findPglcmdDefaultsPath()
 {
-    QStringList data = getFileData(PGLCMD_DEFAULTS_PATH);
+    if (QFile::exists(PGLCMD_DEFAULTS_PATH1)) 
+        return PGLCMD_DEFAULTS_PATH1;
+    
+    if (QFile::exists(PGLCMD_DEFAULTS_PATH2)) 
+        return PGLCMD_DEFAULTS_PATH2;
+    
+    QDir currentDir = QDir::current();
+    currentDir.cdUp();
+    
+    if (! currentDir.cd("lib") )
+        return "";
+    
+    if (! currentDir.exists("pgl"))
+        return "";
+    
+    currentDir.cd("pgl");
+    return currentDir.absolutePath();
+}
+
+bool PglSettings::loadSettings()
+{
+    mPglcmdDefaultsPath = findPglcmdDefaultsPath();
+    if (mPglcmdDefaultsPath.isEmpty()) {
+        mLastError = QObject::tr("Couldn't find pglcmd's defaults path. Please set it in preferences.");
+        return false;
+    }
+    
+    
+    qDebug() << mPglcmdDefaultsPath;
+    QStringList data = getFileData(mPglcmdDefaultsPath);
     QString variable;
 
     foreach (QString line, data)
@@ -109,8 +145,10 @@ void PglSettings::loadSettings()
     //Overwrite the variables' values with the values from pglcmd.conf
     QString pglcmdConfPath(PglSettings::getStoredValue("CMD_CONF"));
 
-    if ( pglcmdConfPath.isEmpty() )
-        return;
+    if ( pglcmdConfPath.isEmpty() ) {
+        mLastError = QObject::tr("Couldn't find plgcmd's configuration path.");
+        return false;
+    }
 
     data = getFileData(pglcmdConfPath);
     foreach(QString line, data)
@@ -125,8 +163,27 @@ void PglSettings::loadSettings()
             variables[variable] = getValue(line);
 
     }
+    
+    mLastError = "";
+    return true;
+}
 
-    //foreach(QString key, variables.keys() )
-    //    qDebug() << key << ": " << variables[key];
+QHash<QString, QString> PglSettings::getVariables()
+{
+	return variables;
+}
 
+QString PglSettings::getStoredValue(const QString &variable)
+{
+	return variables[variable];
+}
+
+QString PglSettings::pglcmdDefaultsPath()
+{
+    return mPglcmdDefaultsPath;
+}
+
+QString PglSettings::lastError()
+{
+    return mLastError;
 }

@@ -23,11 +23,16 @@
 #include <QDir>
 #include <QStringList>
 #include <QFile>
+#include <QMetaType>
+#include <QDebug>
+#include <QList>
 
 #include <cstdio>
 #include <cstdlib>
 
 #include "peerguardian.h"
+#include "adaptor.h"
+#include "command.h"
 
 void customOutput( QtMsgType type, const char *msg );
 
@@ -44,7 +49,11 @@ int main(int argc, char *argv[])
 	QApplication::setApplicationName( "pgl-gui" );
     app.setQuitOnLastWindowClosed(false);
 
+    int i = qRegisterMetaType<Command> ("Command");
+    i = qRegisterMetaType<CommandList> ("CommandList");
+    qDebug() << QMetaType::isRegistered(i); 
 	Peerguardian pgWindow;
+        new Adaptor(&pgWindow);
 
 	QStringList args = QApplication::arguments();
 	//If tray argument was not given show the window normally

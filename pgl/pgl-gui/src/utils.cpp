@@ -33,7 +33,7 @@ QStringList selectFiles(QWidget * parent, QString filter, QString title, QString
     return files;
 }
 
-QString getValue(QString& line)
+QString getValue(const QString& line)
 {
     QString value("");
 
@@ -53,7 +53,7 @@ QString getValue(QString& line)
 }
 
 
-QString getVariable(QString& line)
+QString getVariable(const QString& line)
 {
     if ( line.contains("=") )
          return line.split("=", QString::SkipEmptyParts)[0];

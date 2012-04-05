@@ -54,18 +54,21 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(desktopdir)" \
 PROGRAMS = $(bin_PROGRAMS)
 am__objects_1 = moc_add_exception_dialog.$(OBJEXT) \
 	moc_file_transactions.$(OBJEXT) moc_gui_options.$(OBJEXT) \
-	moc_peerguardian.$(OBJEXT) moc_peerguardian_info.$(OBJEXT) \
-	moc_pglcmd.$(OBJEXT) moc_pgl_lists.$(OBJEXT) \
-	moc_pgl_settings.$(OBJEXT) moc_pgl_whitelist.$(OBJEXT) \
-	moc_proc_thread.$(OBJEXT) moc_settings.$(OBJEXT) \
-	moc_super_user.$(OBJEXT) moc_utils.$(OBJEXT)
+	moc_adaptor.$(OBJEXT) moc_peerguardian.$(OBJEXT) \
+	moc_peerguardian_info.$(OBJEXT) moc_pglcmd.$(OBJEXT) \
+	moc_pgl_lists.$(OBJEXT) moc_pgl_settings.$(OBJEXT) \
+	moc_pgl_whitelist.$(OBJEXT) moc_proc_thread.$(OBJEXT) \
+	moc_settings.$(OBJEXT) moc_super_user.$(OBJEXT) \
+	moc_utils.$(OBJEXT)
 am_pgl_gui_OBJECTS = add_exception_dialog.$(OBJEXT) \
 	file_transactions.$(OBJEXT) gui_options.$(OBJEXT) \
-	peerguardian.$(OBJEXT) peerguardian_info.$(OBJEXT) \
-	pglcmd.$(OBJEXT) pgl_lists.$(OBJEXT) pgl_settings.$(OBJEXT) \
+	adaptor.$(OBJEXT) peerguardian.$(OBJEXT) \
+	peerguardian_info.$(OBJEXT) pglcmd.$(OBJEXT) \
+	pgl_lists.$(OBJEXT) pgl_settings.$(OBJEXT) \
 	pgl_whitelist.$(OBJEXT) proc_thread.$(OBJEXT) \
 	settings.$(OBJEXT) super_user.$(OBJEXT) utils.$(OBJEXT) \
-	main.$(OBJEXT) qrc_images.$(OBJEXT) $(am__objects_1)
+	command.$(OBJEXT) main.$(OBJEXT) qrc_images.$(OBJEXT) \
+	$(am__objects_1)
 pgl_gui_OBJECTS = $(am_pgl_gui_OBJECTS)
 pgl_gui_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -296,6 +299,7 @@ MOCS = \
 	src/moc_add_exception_dialog.cpp \
 	src/moc_file_transactions.cpp \
 	src/moc_gui_options.cpp \
+	src/moc_adaptor.cpp\
 	src/moc_peerguardian.cpp \
 	src/moc_peerguardian_info.cpp \
 	src/moc_pglcmd.cpp \
@@ -319,6 +323,7 @@ pgl_gui_SOURCES = \
 	src/add_exception_dialog.cpp src/add_exception_dialog.h \
 	src/file_transactions.cpp src/file_transactions.h \
 	src/gui_options.cpp src/gui_options.h \
+	src/adaptor.cpp src/adaptor.h\
 	src/peerguardian.cpp src/peerguardian.h \
 	src/peerguardian_info.cpp src/peerguardian_info.h \
 	src/pglcmd.cpp src/pglcmd.h \
@@ -329,6 +334,7 @@ pgl_gui_SOURCES = \
 	src/settings.cpp src/settings.h \
 	src/super_user.cpp src/super_user.h \
 	src/utils.cpp src/utils.h \
+	src/command.cpp src/command.h\
 	\
 	src/main.cpp \
 	qrc_images.cpp \
@@ -434,10 +440,13 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/adaptor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/add_exception_dialog.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/file_transactions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui_options.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/moc_adaptor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/moc_add_exception_dialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/moc_file_transactions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/moc_gui_options.Po@am__quote@
@@ -525,6 +534,20 @@ gui_options.obj: src/gui_options.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/gui_options.cpp' object='gui_options.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o gui_options.obj `if test -f 'src/gui_options.cpp'; then $(CYGPATH_W) 'src/gui_options.cpp'; else $(CYGPATH_W) '$(srcdir)/src/gui_options.cpp'; fi`
+
+adaptor.o: src/adaptor.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT adaptor.o -MD -MP -MF $(DEPDIR)/adaptor.Tpo -c -o adaptor.o `test -f 'src/adaptor.cpp' || echo '$(srcdir)/'`src/adaptor.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/adaptor.Tpo $(DEPDIR)/adaptor.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/adaptor.cpp' object='adaptor.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o adaptor.o `test -f 'src/adaptor.cpp' || echo '$(srcdir)/'`src/adaptor.cpp
+
+adaptor.obj: src/adaptor.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT adaptor.obj -MD -MP -MF $(DEPDIR)/adaptor.Tpo -c -o adaptor.obj `if test -f 'src/adaptor.cpp'; then $(CYGPATH_W) 'src/adaptor.cpp'; else $(CYGPATH_W) '$(srcdir)/src/adaptor.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/adaptor.Tpo $(DEPDIR)/adaptor.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/adaptor.cpp' object='adaptor.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o adaptor.obj `if test -f 'src/adaptor.cpp'; then $(CYGPATH_W) 'src/adaptor.cpp'; else $(CYGPATH_W) '$(srcdir)/src/adaptor.cpp'; fi`
 
 peerguardian.o: src/peerguardian.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT peerguardian.o -MD -MP -MF $(DEPDIR)/peerguardian.Tpo -c -o peerguardian.o `test -f 'src/peerguardian.cpp' || echo '$(srcdir)/'`src/peerguardian.cpp
@@ -666,6 +689,20 @@ utils.obj: src/utils.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o utils.obj `if test -f 'src/utils.cpp'; then $(CYGPATH_W) 'src/utils.cpp'; else $(CYGPATH_W) '$(srcdir)/src/utils.cpp'; fi`
 
+command.o: src/command.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT command.o -MD -MP -MF $(DEPDIR)/command.Tpo -c -o command.o `test -f 'src/command.cpp' || echo '$(srcdir)/'`src/command.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/command.Tpo $(DEPDIR)/command.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/command.cpp' object='command.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o command.o `test -f 'src/command.cpp' || echo '$(srcdir)/'`src/command.cpp
+
+command.obj: src/command.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT command.obj -MD -MP -MF $(DEPDIR)/command.Tpo -c -o command.obj `if test -f 'src/command.cpp'; then $(CYGPATH_W) 'src/command.cpp'; else $(CYGPATH_W) '$(srcdir)/src/command.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/command.Tpo $(DEPDIR)/command.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/command.cpp' object='command.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o command.obj `if test -f 'src/command.cpp'; then $(CYGPATH_W) 'src/command.cpp'; else $(CYGPATH_W) '$(srcdir)/src/command.cpp'; fi`
+
 main.o: src/main.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT main.o -MD -MP -MF $(DEPDIR)/main.Tpo -c -o main.o `test -f 'src/main.cpp' || echo '$(srcdir)/'`src/main.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/main.Tpo $(DEPDIR)/main.Po
@@ -721,6 +758,20 @@ moc_gui_options.obj: src/moc_gui_options.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/moc_gui_options.cpp' object='moc_gui_options.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o moc_gui_options.obj `if test -f 'src/moc_gui_options.cpp'; then $(CYGPATH_W) 'src/moc_gui_options.cpp'; else $(CYGPATH_W) '$(srcdir)/src/moc_gui_options.cpp'; fi`
+
+moc_adaptor.o: src/moc_adaptor.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT moc_adaptor.o -MD -MP -MF $(DEPDIR)/moc_adaptor.Tpo -c -o moc_adaptor.o `test -f 'src/moc_adaptor.cpp' || echo '$(srcdir)/'`src/moc_adaptor.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/moc_adaptor.Tpo $(DEPDIR)/moc_adaptor.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/moc_adaptor.cpp' object='moc_adaptor.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o moc_adaptor.o `test -f 'src/moc_adaptor.cpp' || echo '$(srcdir)/'`src/moc_adaptor.cpp
+
+moc_adaptor.obj: src/moc_adaptor.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT moc_adaptor.obj -MD -MP -MF $(DEPDIR)/moc_adaptor.Tpo -c -o moc_adaptor.obj `if test -f 'src/moc_adaptor.cpp'; then $(CYGPATH_W) 'src/moc_adaptor.cpp'; else $(CYGPATH_W) '$(srcdir)/src/moc_adaptor.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/moc_adaptor.Tpo $(DEPDIR)/moc_adaptor.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/moc_adaptor.cpp' object='moc_adaptor.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o moc_adaptor.obj `if test -f 'src/moc_adaptor.cpp'; then $(CYGPATH_W) 'src/moc_adaptor.cpp'; else $(CYGPATH_W) '$(srcdir)/src/moc_adaptor.cpp'; fi`
 
 moc_peerguardian.o: src/moc_peerguardian.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT moc_peerguardian.o -MD -MP -MF $(DEPDIR)/moc_peerguardian.Tpo -c -o moc_peerguardian.o `test -f 'src/moc_peerguardian.cpp' || echo '$(srcdir)/'`src/moc_peerguardian.cpp

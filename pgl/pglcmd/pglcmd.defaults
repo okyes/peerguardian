@@ -10,13 +10,13 @@
 ################################ Paths and names ###############################
 
 # PATH and paths.
-PATH="/usr/bin:/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
-BINDIR="/usr/bin"
-SBINDIR="/usr/sbin"
-PIDDIR="/var/run"
-LOGDIR="/var/log/pgl"
-CONFDIR="/etc/pgl"
-LIBDIR="/usr/lib/pgl"
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games"
+BINDIR="/usr/local/bin"
+SBINDIR="/usr/local/sbin"
+PIDDIR="/usr/local/var/run"
+LOGDIR="/usr/local/var/log/pgl"
+CONFDIR="/usr/local/etc/pgl"
+LIBDIR="/usr/local/lib/pgl"
 TMPDIR="/tmp"
 
 # The description.
@@ -49,7 +49,7 @@ CMD_CONF="${CONFDIR}/${CMD_NAME}.conf"
 # All blocklists in the LOCAL_BLOCKLIST_DIR directory (except those in
 # subdirectories, or which end in "~" or start with ".") are used.
 # Spaces in listnames are not allowed.
-LOCAL_BLOCKLIST_DIR="${CONFDIR}/blocklists.local"
+LOCAL_BLOCKLIST_DIR="/usr/local/etc/pgl/blocklists.local"
 
 # The path of blocklists.list.
 # There you can specify URLs and paths of the remote blocklists that you want to

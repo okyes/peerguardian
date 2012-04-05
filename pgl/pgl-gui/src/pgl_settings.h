@@ -27,21 +27,25 @@
 
 #include "super_user.h"
 
-#define PGLCMD_DEFAULTS_PATH "/usr/lib/pgl/pglcmd.defaults"
+#define PGLCMD_DEFAULTS_PATH1 "/usr/lib/pgl/pglcmd.defaults"
+#define PGLCMD_DEFAULTS_PATH2 "/usr/local/lib/pgl/pglcmd.defaults"
 
 class PglSettings
 {
-
     static QHash<QString, QString> variables;
-
+    
     public:
         PglSettings();
         ~PglSettings();
-        static void loadSettings();
-        static QHash<QString, QString> getVariables(){ return variables; }
-        static QString getStoredValue(const QString &variable){ return variables[variable]; }
-        static QString getValueInLine(QString&);
-        static QString getVariableInValue(QString &);
+        static bool loadSettings();
+        static QHash<QString, QString> getVariables();
+        static QString getStoredValue(const QString &);
+        static QString getValueInLine(const QString&);
+        static QString getVariableInValue(const QString &);
+        static QString findPglcmdDefaultsPath();
+        static QString pglcmdDefaultsPath();
+        static QString lastError();
+    
 };
 
 

@@ -27,7 +27,7 @@ SettingsDialog::SettingsDialog(QSettings *settings, QWidget *parent) :
 	setupUi( this );
     
     
-    file_SetRootPath( SuperUser::getGraphicalSudoPath() );
+    file_SetRootPath( SuperUser::sudoCommand() );
     int val = settings->value("maximum_log_entries").toInt();
     m_MaxLogEntries->setValue(val);
     
@@ -50,5 +50,5 @@ void SettingsDialog::file_BrowseRootPath() {
 
 void SettingsDialog::file_SetDefaults() {
 
-	file_SetRootPath( SuperUser::getGraphicalSudoPath() );
+	file_SetRootPath( SuperUser::sudoCommand() );
 }

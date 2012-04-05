@@ -26,9 +26,11 @@ Peerguardian::Peerguardian( QWidget *parent) :
     
     m_LogTreeWidget->setContextMenuPolicy ( Qt::CustomContextMenu );
     
-    PglSettings::loadSettings();
+    if ( ! PglSettings::loadSettings() )
+        QMessageBox::warning(this, tr("Error"), PglSettings::lastError(), QMessageBox::Ok);
+    
     guiOptions = new GuiOptions(this);
-    inicializeSettings();
+    initializeSettings();
     startTimers();
     g_MakeTray();
     g_MakeMenus();
@@ -89,7 +91,6 @@ Peerguardian::Peerguardian( QWidget *parent) :
     int xx = desktop->width() /2-width()/2;
     move(xx, yy);
     
-    
     //ActionButton *bt;
     //bt = new ActionButton(kickPB, "org.qt.policykit.examples.kick", this);
     //bt->setText("Kick... (long)");
@@ -145,16 +146,15 @@ void Peerguardian::addLogItem(QString itemString)
             
         QStringList info;
         
+        if ( m_LogTreeWidget->topLevelItemCount() > m_MaxLogSize )
+            m_LogTreeWidget->takeTopLevelItem(0);
+        
         info << QTime::currentTime().toString("hh:mm:ss") << parts.last() << srcip << srcport << destip << destport << firstPart[3] << connectType;
         QTreeWidgetItem * item = new QTreeWidgetItem(m_LogTreeWidget, info);
         item->setIcon(7, m_ConnectIconType[connectType]);
         m_LogTreeWidget->addTopLevelItem(item);
-        
-        
-        if ( m_LogTreeWidget->topLevelItemCount() > m_MaxLogSize )
-            m_LogTreeWidget->takeTopLevelItem(0);
             
-        m_LogTreeWidget->scrollToBottom();
+        //QTimer::singleShot(100, m_LogTreeWidget, SLOT(scrollToBottom()));
     }
     
 
@@ -411,7 +411,6 @@ void Peerguardian::rootError(QString errorMsg)
     
     m_ApplyButton->setEnabled(guiOptions->isChanged());
     m_UndoButton->setEnabled(m_ApplyButton->isEnabled());
-    
 }
 
 
@@ -666,7 +665,7 @@ void Peerguardian::treeItemPressed(QTreeWidgetItem* item, int column)
 
 void Peerguardian::updateBlocklist()
 {
-    if ( m_List == NULL )
+    if (! m_List )
         return;
 
     m_List->updateListsFromFile();
@@ -743,17 +742,23 @@ void Peerguardian::updateWhitelist()
     }
 }
 
-void Peerguardian::inicializeSettings()
+void Peerguardian::initializeSettings()
 {
 	//Intiallize all pointers to NULL before creating the objects with g_Set==Path
 	/*
 	m_Settings = NULL;*/
-    m_List = NULL;
-    m_Whitelist = NULL;
-    m_Info = NULL;
-    m_Root = NULL;
-    m_Control = NULL;
+    m_List = 0;
+    m_Whitelist = 0;
+    m_Info = 0;
+    m_Root = 0;
+    m_Control = 0;
     quitApp = false;
+    mLastRunningState = false;
+    
+    mTrayIconDisabled = QIcon(TRAY_DISABLED_ICON);
+    mTrayIconEnabled = QIcon(TRAY_ICON);
+    
+    setWindowIcon(mTrayIconDisabled);
 
     m_ProgramSettings = new QSettings(QSettings::UserScope, "pgl", "pgl-gui", this);
     
@@ -775,22 +780,19 @@ void Peerguardian::inicializeSettings()
     g_SetInfoPath();
     g_SetListPath();
     g_SetControlPath();
-
-
 }
 
 void Peerguardian::g_SetRoot( ) {
     
-    if ( m_Root != NULL )
+    if ( m_Root )
         delete m_Root;
     
-    QString gSudo = m_ProgramSettings->value("paths/super_user").toString();
-    m_Root = new SuperUser(this, gSudo);
+    m_Root = new SuperUser(this, m_ProgramSettings->value("paths/super_user", "").toString());
 }
 
 void Peerguardian::g_SetInfoPath() {
 
-    if ( m_Info == NULL )
+    if (! m_Info )
         m_Info = new PeerguardianInfo(PglSettings::getStoredValue("DAEMON_LOG"), this);
 }
 
@@ -815,7 +817,7 @@ void Peerguardian::g_SetControlPath()
 }
 
 void Peerguardian::g_ShowAddDialog(int openmode) {
-    AddExceptionDialog *dialog = NULL;
+    AddExceptionDialog *dialog = 0;
     bool newItems = false;
 
     if ( openmode == (ADD_MODE | EXCEPTION_MODE) )
@@ -876,50 +878,44 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
 		m_SettingChanged = false;
 	}*/
 
-    if ( dialog != NULL )
+    if ( dialog )
         delete dialog;
 }
 
 
-void Peerguardian::g_MakeTray() {
-
-	m_Tray = new QSystemTrayIcon( QIcon( TRAY_ICON ) );
+void Peerguardian::g_MakeTray() 
+{
+	m_Tray = new QSystemTrayIcon( mTrayIconDisabled );
 	m_Tray->setVisible( true );
+    m_Tray->setToolTip(tr("Pgld is not running"));
 	g_UpdateDaemonStatus();
 }
 
 
 void Peerguardian::g_UpdateDaemonStatus() {
 
-    if ( m_Info == NULL )
+    if (! m_Info )
         return;
+    
 	m_Info->updateDaemonState();
 	bool running = m_Info->daemonState();
-	static QString lastIcon;
-
-	if ( ! running ) {
-        m_controlPglButtons->setCurrentIndex(0);
-		//Update the tray
-		if ( lastIcon != TRAY_DISABLED_ICON ) {
-			m_Tray->setIcon( QIcon( TRAY_DISABLED_ICON ) );
-			lastIcon = TRAY_DISABLED_ICON;
-		}
-		m_Tray->setToolTip( tr( "Pgld is not running" ) );
-
-        setWindowIcon(QIcon(TRAY_DISABLED_ICON));
-	}
-	else
-    {
-        m_controlPglButtons->setCurrentIndex(1);
-
-		if ( lastIcon != TRAY_ICON ) {
-			m_Tray->setIcon( QIcon( TRAY_ICON ) );
-			lastIcon = TRAY_ICON;
-		}
-		m_Tray->setToolTip( tr( "Pgld is up and running" ) );
+    
+    if ( mLastRunningState != running ) {
+        if ( ! running ) {
+            m_controlPglButtons->setCurrentIndex(0);
+            m_Tray->setIcon(mTrayIconDisabled);
+            setWindowIcon(mTrayIconDisabled);
+            m_Tray->setToolTip(tr("Pgld is not running"));
+        }
+        else {
+            m_controlPglButtons->setCurrentIndex(1);
+            m_Tray->setIcon(mTrayIconEnabled);
+            setWindowIcon(mTrayIconEnabled);
+            m_Tray->setToolTip(tr("Pgld is up and running"));
+        }
         
-        setWindowIcon(QIcon(TRAY_ICON));
-	}
+        mLastRunningState = running;
+    }
 }
 
 void Peerguardian::g_MakeMenus() {
@@ -1027,7 +1023,7 @@ void Peerguardian::openSettingsDialog()
     if ( exitCode )
     {
         m_ProgramSettings->setValue("paths/super_user", dialog->file_GetRootPath());
-        SuperUser::m_SudoCmd = m_ProgramSettings->value("paths/super_user").toString();
+        SuperUser::setSudoCommand(m_ProgramSettings->value("paths/super_user", SuperUser::sudoCommand()).toString());
         m_MaxLogSize = dialog->getMaxLogEntries();
         m_ProgramSettings->setValue("maximum_log_entries", QString::number(m_MaxLogSize));
     }

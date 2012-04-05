@@ -19,14 +19,15 @@
  ***************************************************************************/
 
 #include "proc_thread.h"
+
 #include "utils.h"
+
 
 ProcessT::ProcessT( QObject *parent ) :
 	QThread( parent )
 {
-	m_ChanMode = QProcess::SeparateChannels;
-    connect(&m_Timer, SIGNAL(timeout()), this, SLOT(executeCommand()));
-    m_Timer.setSingleShot(true);
+    m_ChanMode = QProcess::SeparateChannels;
+    connect(this, SIGNAL(newCommand()), this, SLOT(executeCommand()));
 }
 
 ProcessT::ProcessT(const ProcessT& other):
@@ -35,23 +36,21 @@ ProcessT::ProcessT(const ProcessT& other):
     *this = other; 
 }
 
-ProcessT::~ProcessT() {
-
+ProcessT::~ProcessT() 
+{
 	wait();
-	qDebug() << Q_FUNC_INFO << "Thread destroyed";
-
+	qDebug() << Q_FUNC_INFO << " destroyed";
 }
 
-void ProcessT::run() {
-
-
+void ProcessT::run() 
+{
 	if ( m_Command.isEmpty() ) {
 		qWarning() << Q_FUNC_INFO << "No command set, doing nothing";
 		return;
 	}
 
-	qDebug() << Q_FUNC_INFO << "Executing command" << m_Command << m_Args << "...";
 	QProcess proc;
+    
 	proc.setProcessChannelMode( m_ChanMode );
     proc.start( m_Command ); 
 	proc.waitForStarted();
@@ -60,37 +59,37 @@ void ProcessT::run() {
 	
 	m_Output = proc.readAll().trimmed();
 
-    if ( proc.exitCode() != 0 )
-        emit error(m_Output);
-        
-    qDebug() << m_Output;
-	emit commandOutput( m_Output );
-	qDebug() << Q_FUNC_INFO << "Command execution finished.";
+    Command cmd(m_Command, m_Output);
     
-        
+    if ( proc.exitCode() != 0 ) {
+        cmd.setError(true);
+        emit error(m_Output);
+    }
+    
+    mCommands.append(cmd);
     m_ExecutedCommands << m_Command;
     
-    if ( m_Commands.isEmpty() )
+    if ( mCommandsToExecute.isEmpty() )
     {
-        if ( proc.exitCode() == 0 ) 
-            emit allFinished(m_ExecutedCommands);
+        emit finished(mCommands);
     }
     else 
     {
-        m_Command = m_Commands.takeFirst();
-        m_Timer.start(50);
+        m_Command = mCommandsToExecute.takeFirst();
+        emit newCommand();
     }
 
 }
 
-void ProcessT::setCommand( const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode ) {
+void ProcessT::setCommand( const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode ) 
+{
 
     //***** This function is for backwards compatibility with the old Mobloquer code. *****//
     //***** It should be removed at some point.*****//
 
 	if ( name.isEmpty() ) {
-		qWarning() << Q_FUNC_INFO << "Empty command given, doing nothing";
-		return;
+            qWarning() << Q_FUNC_INFO << "Empty command given, doing nothing";
+            return;
 	}
 
 	m_Command = name;
@@ -99,23 +98,26 @@ void ProcessT::setCommand( const QString &name, const QStringList &args, const Q
 
 }
 
-void ProcessT::executeCommand(const QString command, const QProcess::ProcessChannelMode &mode, bool startNow) {
+void ProcessT::executeCommand(const QString& command, const QProcess::ProcessChannelMode &mode, bool startNow)
+{
 
+    qDebug() << Q_FUNC_INFO << m_Command;
+    
     if ( command.isEmpty() && m_Command.isEmpty() )
         return;
 
-    if ( ! command.isEmpty() )
-    {
-        m_ChanMode = mode;
+    m_ChanMode = mode;
+    if (! command.isEmpty())
         m_Command = command;
-    }
+    mCommands.clear();
     
-	if ( (! isRunning()) && startNow )
-		start();
+    if (! isRunning() && startNow )
+        start();
 }
 
 
-void ProcessT::execute( const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode ) {
+void ProcessT::execute( const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode ) 
+{
 
     //***** This function is for backwards compatibility with the old Mobloquer code. *****//
     //***** It should be removed at some point.*****//
@@ -128,7 +130,7 @@ void ProcessT::execute( const QString &name, const QStringList &args, const QPro
 }
 
 
-void ProcessT::execute(const QStringList command, const QProcess::ProcessChannelMode &mode ) 
+void ProcessT::execute(const QStringList& command, const QProcess::ProcessChannelMode &mode ) 
 {
     //***** This function is for backwards compatibility with the old Mobloquer code. *****//
     //***** It should be removed at some point.*****//
@@ -137,22 +139,22 @@ void ProcessT::execute(const QStringList command, const QProcess::ProcessChannel
     //QStringList args = command.mid(1);
 
 	//setCommand( name, args, mode );
-    m_Commands.clear();
+    mCommandsToExecute.clear();
     executeCommand(command.join(" "), mode);
 
 }
 
 
 
-void ProcessT::executeCommands(const QStringList commands , const QProcess::ProcessChannelMode &mode, bool startNow) {
+void ProcessT::executeCommands(const QStringList& commands , const QProcess::ProcessChannelMode &mode, bool startNow) 
+{
 
     if ( commands.isEmpty() )
         return;
 
-    m_Commands.clear();
-    m_Commands << commands;
+    mCommandsToExecute = commands;
 
-    executeCommand(m_Commands.takeFirst(), mode, startNow);
+    executeCommand(mCommandsToExecute.takeFirst(), mode, startNow);
     
 }
 
