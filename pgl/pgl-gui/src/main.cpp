@@ -30,7 +30,6 @@
 #include <cstdlib>
 
 #include "peerguardian.h"
-#include "adaptor.h"
 #include "command.h"
 
 void customOutput( QtMsgType type, const char *msg );
