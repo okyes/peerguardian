@@ -105,6 +105,8 @@ CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
+
+# flags
 AM_CFLAGS = @PGLD_CFLAGS@
 AM_CPPFLAGS = @PGLD_CPPFLAGS@
 AM_CXXFLAGS = @AM_CXXFLAGS@
@@ -180,7 +182,9 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 PGLD_CFLAGS = @PGLD_CFLAGS@
 PGLD_CPPFLAGS = @PGLD_CPPFLAGS@
 PGLD_LDFLAGS = @PGLD_LDFLAGS@
+PGLD_LIBS = @PGLD_LIBS@
 PIDDIR = @PIDDIR@
+PKGCONFIG = @PKGCONFIG@
 PKG_CONFIG = @PKG_CONFIG@
 PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
@@ -269,6 +273,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+
+# sources for pgld binary
 pgld_SOURCES = \
 	       src/pgld.c src/pgld.h \
 	       src/stream.c src/stream.h \
@@ -280,7 +286,10 @@ pgld_SOURCES = \
 @DBUSMAKE_TRUE@libdbusdir = $(libdir)/$(PACKAGE_NAME)
 @DBUSMAKE_TRUE@libdbus_LTLIBRARIES = libdbus.la
 @DBUSMAKE_TRUE@libdbus_la_SOURCES = src/dbus.c src/dbus.h
-@DBUSMAKE_TRUE@pgld_LDADD = ./libdbus.la
+@DBUSMAKE_TRUE@pgld_LDADD = \
+@DBUSMAKE_TRUE@	     @PGLD_LIBS@ \
+@DBUSMAKE_TRUE@	     ./libdbus.la
+
 @DBUSMAKE_TRUE@dbusdir = $(sysconfdir)/dbus-1/system.d
 @DBUSMAKE_TRUE@dbus_DATA = org.netfilter.pgl.conf
 @LOGROTATEMAKE_TRUE@logdir = $(sysconfdir)/logrotate.d
