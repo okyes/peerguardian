@@ -14,6 +14,7 @@
 #include "utils.h"
 #include "gui_options.h"
 #include "pgl_settings.h"
+#include "viewer_widget.h"
 
 //using namespace PolkitQt1;
 //using namespace PolkitQt1::Gui;
@@ -251,6 +252,8 @@ void Peerguardian::g_MakeConnections()
     //Menu related
     connect( a_Exit, SIGNAL( triggered() ), this, SLOT( quit() ) );
     connect( a_AboutDialog, SIGNAL( triggered() ), this, SLOT( g_ShowAboutDialog() ) );
+    connect(viewPglcmdLogAction, SIGNAL(triggered()), this, SLOT(onViewerWidgetRequested()));
+    connect(viewPgldLogAction, SIGNAL(triggered()), this, SLOT(onViewerWidgetRequested()));
 
     //Control related
     if ( m_Control != NULL )
@@ -1110,4 +1113,19 @@ void Peerguardian::hoveredAction(QAction* action)
     {
         m_selectedAction = menu->title();
     }
+}
+
+void Peerguardian::onViewerWidgetRequested()
+{
+    QString path("");
+
+    if ( viewPglcmdLogAction == sender() ) {
+        path = PglSettings::getStoredValue("CMD_LOG");
+    }
+    else if (viewPgldLogAction == sender()) {
+        path = PglSettings::getStoredValue("DAEMON_LOG");
+    }
+    
+    ViewerWidget viewer(path);
+    viewer.exec();
 }

@@ -209,6 +209,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
 
     protected slots:
         void quit();
+        void onViewerWidgetRequested();
 };	
 
 #endif //PEERGUARDIAN_H

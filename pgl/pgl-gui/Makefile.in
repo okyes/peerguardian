@@ -58,14 +58,16 @@ am__objects_1 = moc_add_exception_dialog.$(OBJEXT) \
 	moc_pglcmd.$(OBJEXT) moc_pgl_lists.$(OBJEXT) \
 	moc_pgl_settings.$(OBJEXT) moc_pgl_whitelist.$(OBJEXT) \
 	moc_proc_thread.$(OBJEXT) moc_settings.$(OBJEXT) \
-	moc_super_user.$(OBJEXT) moc_utils.$(OBJEXT)
+	moc_super_user.$(OBJEXT) moc_utils.$(OBJEXT) \
+	moc_viewer_widget.$(OBJEXT)
 am_pgl_gui_OBJECTS = add_exception_dialog.$(OBJEXT) \
 	file_transactions.$(OBJEXT) gui_options.$(OBJEXT) \
 	peerguardian.$(OBJEXT) peerguardian_info.$(OBJEXT) \
 	pglcmd.$(OBJEXT) pgl_lists.$(OBJEXT) pgl_settings.$(OBJEXT) \
 	pgl_whitelist.$(OBJEXT) proc_thread.$(OBJEXT) \
 	settings.$(OBJEXT) super_user.$(OBJEXT) utils.$(OBJEXT) \
-	main.$(OBJEXT) qrc_images.$(OBJEXT) $(am__objects_1)
+	command.$(OBJEXT) viewer_widget.$(OBJEXT) main.$(OBJEXT) \
+	qrc_images.$(OBJEXT) $(am__objects_1)
 pgl_gui_OBJECTS = $(am_pgl_gui_OBJECTS)
 pgl_gui_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -305,7 +307,8 @@ MOCS = \
 	src/moc_proc_thread.cpp \
 	src/moc_settings.cpp \
 	src/moc_super_user.cpp \
-	src/moc_utils.cpp
+	src/moc_utils.cpp\
+	src/moc_viewer_widget.cpp
 
 FORMSDIR = ui
 FORMSHEADERS = \
@@ -329,6 +332,8 @@ pgl_gui_SOURCES = \
 	src/settings.cpp src/settings.h \
 	src/super_user.cpp src/super_user.h \
 	src/utils.cpp src/utils.h \
+	src/command.cpp src/command.h\
+	src/viewer_widget.cpp src/viewer_widget.h\
 	\
 	src/main.cpp \
 	qrc_images.cpp \
@@ -435,6 +440,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/add_exception_dialog.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/file_transactions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui_options.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
@@ -451,6 +457,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/moc_settings.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/moc_super_user.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/moc_utils.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/moc_viewer_widget.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/peerguardian.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/peerguardian_info.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pgl_lists.Po@am__quote@
@@ -462,6 +469,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/settings.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/super_user.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/viewer_widget.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -666,6 +674,34 @@ utils.obj: src/utils.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o utils.obj `if test -f 'src/utils.cpp'; then $(CYGPATH_W) 'src/utils.cpp'; else $(CYGPATH_W) '$(srcdir)/src/utils.cpp'; fi`
 
+command.o: src/command.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT command.o -MD -MP -MF $(DEPDIR)/command.Tpo -c -o command.o `test -f 'src/command.cpp' || echo '$(srcdir)/'`src/command.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/command.Tpo $(DEPDIR)/command.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/command.cpp' object='command.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o command.o `test -f 'src/command.cpp' || echo '$(srcdir)/'`src/command.cpp
+
+command.obj: src/command.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT command.obj -MD -MP -MF $(DEPDIR)/command.Tpo -c -o command.obj `if test -f 'src/command.cpp'; then $(CYGPATH_W) 'src/command.cpp'; else $(CYGPATH_W) '$(srcdir)/src/command.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/command.Tpo $(DEPDIR)/command.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/command.cpp' object='command.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o command.obj `if test -f 'src/command.cpp'; then $(CYGPATH_W) 'src/command.cpp'; else $(CYGPATH_W) '$(srcdir)/src/command.cpp'; fi`
+
+viewer_widget.o: src/viewer_widget.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT viewer_widget.o -MD -MP -MF $(DEPDIR)/viewer_widget.Tpo -c -o viewer_widget.o `test -f 'src/viewer_widget.cpp' || echo '$(srcdir)/'`src/viewer_widget.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/viewer_widget.Tpo $(DEPDIR)/viewer_widget.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/viewer_widget.cpp' object='viewer_widget.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o viewer_widget.o `test -f 'src/viewer_widget.cpp' || echo '$(srcdir)/'`src/viewer_widget.cpp
+
+viewer_widget.obj: src/viewer_widget.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT viewer_widget.obj -MD -MP -MF $(DEPDIR)/viewer_widget.Tpo -c -o viewer_widget.obj `if test -f 'src/viewer_widget.cpp'; then $(CYGPATH_W) 'src/viewer_widget.cpp'; else $(CYGPATH_W) '$(srcdir)/src/viewer_widget.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/viewer_widget.Tpo $(DEPDIR)/viewer_widget.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/viewer_widget.cpp' object='viewer_widget.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o viewer_widget.obj `if test -f 'src/viewer_widget.cpp'; then $(CYGPATH_W) 'src/viewer_widget.cpp'; else $(CYGPATH_W) '$(srcdir)/src/viewer_widget.cpp'; fi`
+
 main.o: src/main.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT main.o -MD -MP -MF $(DEPDIR)/main.Tpo -c -o main.o `test -f 'src/main.cpp' || echo '$(srcdir)/'`src/main.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/main.Tpo $(DEPDIR)/main.Po
@@ -861,6 +897,20 @@ moc_utils.obj: src/moc_utils.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/moc_utils.cpp' object='moc_utils.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o moc_utils.obj `if test -f 'src/moc_utils.cpp'; then $(CYGPATH_W) 'src/moc_utils.cpp'; else $(CYGPATH_W) '$(srcdir)/src/moc_utils.cpp'; fi`
+
+moc_viewer_widget.o: src/moc_viewer_widget.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT moc_viewer_widget.o -MD -MP -MF $(DEPDIR)/moc_viewer_widget.Tpo -c -o moc_viewer_widget.o `test -f 'src/moc_viewer_widget.cpp' || echo '$(srcdir)/'`src/moc_viewer_widget.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/moc_viewer_widget.Tpo $(DEPDIR)/moc_viewer_widget.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/moc_viewer_widget.cpp' object='moc_viewer_widget.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o moc_viewer_widget.o `test -f 'src/moc_viewer_widget.cpp' || echo '$(srcdir)/'`src/moc_viewer_widget.cpp
+
+moc_viewer_widget.obj: src/moc_viewer_widget.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT moc_viewer_widget.obj -MD -MP -MF $(DEPDIR)/moc_viewer_widget.Tpo -c -o moc_viewer_widget.obj `if test -f 'src/moc_viewer_widget.cpp'; then $(CYGPATH_W) 'src/moc_viewer_widget.cpp'; else $(CYGPATH_W) '$(srcdir)/src/moc_viewer_widget.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/moc_viewer_widget.Tpo $(DEPDIR)/moc_viewer_widget.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/moc_viewer_widget.cpp' object='moc_viewer_widget.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o moc_viewer_widget.obj `if test -f 'src/moc_viewer_widget.cpp'; then $(CYGPATH_W) 'src/moc_viewer_widget.cpp'; else $(CYGPATH_W) '$(srcdir)/src/moc_viewer_widget.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
