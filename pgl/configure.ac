@@ -14,6 +14,9 @@ AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
+AC_PATH_PROG([PKGCONFIG], [pkg-config])
+AS_IF([test "x$PKGCONFIG" = "xno"],
+      [AC_MSG_ERROR([pkg-config not found!])])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h inttypes.h limits.h netinet/in.h stdlib.h string.h sys/time.h syslog.h unistd.h])
@@ -125,8 +128,9 @@ AM_CONDITIONAL(NETWORKMANAGERMAKE, [test "x$enable_networkmanager" = "xyes"])
 # pkg-config module check, generates $1_LIBS and $1_CFLAGS vars
 PKG_CHECK_MODULES([libnetfilterqueue],[libnetfilter_queue])
 PGLD_CFLAGS=""
-PGLD_CPPFLAGS="-DVERSION=\\\"$VERSION\\\" -DPACKAGE_NAME=\\\"$PACKAGE\\\" -DPIDFILE=\\\"${localstatedir}/run/${PACKAGE}d.pid\\\""
-PGLD_LDFLAGS="$libnetfilterqueue_LIBS"
+PGLD_CPPFLAGS="$libnetfilterqueue_CFLAGS -DVERSION=\\\"$VERSION\\\" -DPACKAGE_NAME=\\\"$PACKAGE\\\" -DPIDFILE=\\\"${localstatedir}/run/${PACKAGE}d.pid\\\""
+PGLD_LDFLAGS="-Wl,-export-dynamic"
+PGLD_LIBS="$libnetfilterqueue_LIBS"
 
 # configure-switch for zlib
 AC_ARG_ENABLE([zlib],
@@ -139,8 +143,8 @@ AC_ARG_ENABLE([zlib],
 AS_IF([test "x$zlib_dbus" = "xyes"],
       [PKG_CHECK_MODULES([ZLIB],
 			 [zlib])]
-      [PGLD_CFLAGS="$PGLD_CFLAGS $ZLIB_CFLAGS -DHAVE_ZLIB"]
-      [PGLD_LDFLAGS="$PGLD_LDFLAGS $ZLIB_LIBS"])
+      [PGLD_CPPFLAGS="$PGLD_CPPFLAGS $ZLIB_CFLAGS -DHAVE_ZLIB"]
+      [PGLD_LIBS="$PGLD_LIBS $ZLIB_LIBS"])
 
 # configure-switch for dbus
 AC_ARG_ENABLE([dbus],
@@ -156,11 +160,18 @@ AM_CONDITIONAL(DBUSMAKE, [test "x$enable_dbus" = "xyes"])
 AS_IF([test "x$enable_dbus" = "xyes"],
       [PKG_CHECK_MODULES([DBUS],
 			 [dbus-1])]
-      [PGLD_CFLAGS="$PGLD_CFLAGS $DBUS_CFLAGS -fPIC"]
-      [PGLD_CPPFLAGS="$PGLD_CPPFLAGS -DHAVE_DBUS -DPLUGINDIR=\\\"${libdir}/pgl\\\""]
-      [PGLD_LDFLAGS="$PGLD_LDFLAGS $DBUS_LIBS -Wl,-export-dynamic -ldl"])
+      [PGLD_CFLAGS="$PGLD_CFLAGS -fPIC"]
+      [PGLD_CPPFLAGS="$PGLD_CPPFLAGS $DBUS_CFLAGS -DHAVE_DBUS -DPLUGINDIR=\\\"${libdir}/pgl\\\""]
+      [PGLD_LIBS="$PGLD_LIBS $DBUS_LIBS -ldl"])
+
 
 ##
+# initial QT_flags
+QT_CXXFLAGS=""
+QT_CPPFLAGS="-D_REENTRANT -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_SHARED"
+QT_LDFLAGS=""
+QT_LIBS=""
+
 # configure-switch for qt4
 AC_ARG_WITH([qt4],
 	    [AS_HELP_STRING([--without-qt4],
@@ -177,9 +188,8 @@ AS_IF([test "x$with_qt4" = "xyes"],
       [AC_CHECK_QT4(["4.3.0"])] # from qt4.m4
       [PKG_CHECK_MODULES([QT4], [QtCore QtGui polkit-qt-1])]
       [AC_SEARCH_LIBS([pthread_create], [pthread])] # adds -lpthread to LIBS
-      [QT_CXXFLAGS="$QT4_CFLAGS $QT4DBUS_CFLAGS -I$(pkg-config --variable includedir polkit-qt-1)/polkit-qt-1"] # see https://bugs.kde.org/show_bug.cgi?id=297340
-      [QT_CPPFLAGS="-D_REENTRANT -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_SHARED"]
-      [QT_LDFLAGS="$QT4_LIBS $QT4DBUS_LIBS"]
+      [QT_CPPFLAGS="$QT_CPPFLAGS $QT4_CFLAGS $QT4DBUS_CFLAGS -I`$PKGCONFIG --variable includedir polkit-qt-1`/polkit-qt-1"] # see https://bugs.kde.org/show_bug.cgi?id=297340
+      [QT_LIBS="$QT_LIBS $QT4_LIBS $QT4DBUS_LIBS"]
       [QT_SUB="pgl-gui"])
 
 # targets
@@ -189,7 +199,7 @@ AC_CONFIG_FILES([Makefile
                  pglcmd/Makefile
 		 pgl-gui/Makefile])
 
-# finally substitute several variables
+## finally substitute several variables
 AC_SUBST([QT_SUB]) # ref in Makefile.am
 AC_SUBST([INITDIR])
 AC_SUBST([PIDDIR])
@@ -199,14 +209,16 @@ AC_SUBST([BLOCKLISTS_DIR])
 AC_SUBST([LOCAL_BLOCKLIST_DIR])
 AC_SUBST([MASTER_BLOCKLIST_DIR])
 AC_SUBST([LSBFILE])
-
+# PGLDF subst.
 AC_SUBST([PGLD_CFLAGS])
 AC_SUBST([PGLD_CPPFLAGS])
 AC_SUBST([PGLD_LDFLAGS])
-
+AC_SUBST([PGLD_LIBS])
+# QT subst.
 AC_SUBST([QT_CXXFLAGS])
 AC_SUBST([QT_CPPFLAGS])
 AC_SUBST([QT_LDFLAGS])
+AC_SUBST([QT_LIBS])
 
 AC_SUBST([AM_CFLAGS])
 AC_SUBST([AM_CXXFLAGS])
@@ -234,13 +246,15 @@ echo dbus......................................... : no
 fi
 echo
 echo .............................................
-echo "default flags to append:"
+echo "developer debug:"
 echo "PGLD_CFLAGS: $PGLD_CFLAGS"
 echo "PGLD_CPPFLAGS: $PGLD_CPPFLAGS"
 echo "PGLD_LDFLAGS: $PGLD_LDFLAGS"
+echo "PGLD_LIBS: $PGLD_LIBS"
 echo "QT_CXXFLAGS: $QT_CXXFLAGS"
 echo "QT_CPPFLAGS: $QT_CPPFLAGS"
 echo "QT_LDFLAGS: $QT_LDFLAGS"
+echo "QT_LIBS: $QT_LIBS"
 echo .............................................
 echo
 echo Homepage http://peerguardian.sourceforge.net/ 

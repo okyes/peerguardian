@@ -60,12 +60,14 @@ pgl_gui_SOURCES = \
 	src/settings.cpp src/settings.h \
 	src/super_user.cpp src/super_user.h \
 	src/utils.cpp src/utils.h \
-	src/command.cpp src/command.h\
-	src/viewer_widget.cpp src/viewer_widget.h\
+	src/command.cpp src/command.h \
+	src/viewer_widget.cpp src/viewer_widget.h \
 	\
 	src/main.cpp \
 	qrc_images.cpp \
 	$(MOCS)
+
+pgl_gui_LDADD = @QT_LIBS@
 
 bin_PROGRAMS = pgl_gui
 

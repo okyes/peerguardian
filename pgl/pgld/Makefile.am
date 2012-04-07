@@ -1,7 +1,9 @@
+# flags
 AM_CFLAGS = @PGLD_CFLAGS@
 AM_CPPFLAGS = @PGLD_CPPFLAGS@
 AM_LDFLAGS = @PGLD_LDFLAGS@
 
+# sources for pgld binary
 pgld_SOURCES = \
 	       src/pgld.c src/pgld.h \
 	       src/stream.c src/stream.h \
@@ -15,7 +17,9 @@ if DBUSMAKE
 libdbusdir = $(libdir)/$(PACKAGE_NAME)
 libdbus_LTLIBRARIES = libdbus.la
 libdbus_la_SOURCES = src/dbus.c src/dbus.h
-pgld_LDADD = ./libdbus.la
+pgld_LDADD = \
+	     @PGLD_LIBS@ \
+	     ./libdbus.la
 
 dbusdir = $(sysconfdir)/dbus-1/system.d
 dbus_DATA = org.netfilter.pgl.conf
