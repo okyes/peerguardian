@@ -146,7 +146,7 @@ bool PglSettings::loadSettings()
     QString pglcmdConfPath(PglSettings::getStoredValue("CMD_CONF"));
 
     if ( pglcmdConfPath.isEmpty() ) {
-        mLastError = QObject::tr("Couldn't find plgcmd's configuration path.");
+        mLastError = QObject::tr("Couldn't find plgcmd's configuration path. Did you install pgld and pglcmd?");
         return false;
     }
 

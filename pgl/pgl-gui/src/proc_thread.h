@@ -90,7 +90,6 @@ class ProcessT : public QThread
 		 */
 		void commandOutput(const QString&);
         void finished(const CommandList&);
-        void error(const QString&);
         void newCommand();
 		
 	private:

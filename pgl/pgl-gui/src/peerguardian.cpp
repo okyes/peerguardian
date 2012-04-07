@@ -15,6 +15,7 @@
 #include "gui_options.h"
 #include "pgl_settings.h"
 #include "viewer_widget.h"
+#include "error_dialog.h"
 
 //using namespace PolkitQt1;
 //using namespace PolkitQt1::Gui;
@@ -256,7 +257,7 @@ void Peerguardian::g_MakeConnections()
     connect(viewPgldLogAction, SIGNAL(triggered()), this, SLOT(onViewerWidgetRequested()));
 
     //Control related
-    if ( m_Control != NULL )
+    if ( m_Control )
     {
         connect( m_startPglButton, SIGNAL( clicked() ), m_Control, SLOT( start() ) );
         connect( m_stopPglButton, SIGNAL( clicked() ), m_Control, SLOT( stop() ) );
@@ -267,7 +268,9 @@ void Peerguardian::g_MakeConnections()
         connect( a_Restart, SIGNAL( triggered() ), m_Control, SLOT( restart() ) );
         connect( a_Reload, SIGNAL( triggered() ), m_Control, SLOT( reload() ) );
         connect( m_updatePglButton, SIGNAL( clicked() ), m_Control, SLOT( update() ) );
-        connect( m_Control, SIGNAL(error(QString)), this, SLOT(rootError(QString)));
+        connect( m_Control, SIGNAL(error(const QString&)), this, SLOT(rootError(const QString&)));
+        connect( m_Control, SIGNAL(error(const CommandList&)), this, SLOT(rootError(const CommandList&)));
+        
     }
 
     connect( m_MediumTimer, SIGNAL( timeout() ), this, SLOT( g_UpdateDaemonStatus() ) );
@@ -299,7 +302,8 @@ void Peerguardian::g_MakeConnections()
     if ( m_Root )
     {
         connect(m_Root, SIGNAL(finished()), this, SLOT(rootFinished()));
-        connect(m_Root, SIGNAL(error(QString)), this, SLOT(rootError(QString)));
+        connect(m_Root, SIGNAL(error(const QString&)), this, SLOT(rootError(const QString&)));
+        connect(m_Root, SIGNAL(error(const CommandList&)), this, SLOT(rootError(const CommandList&)));
     }
     
     //connect the remove buttons
@@ -376,7 +380,6 @@ void Peerguardian::removeListItems()
 
 void Peerguardian::rootFinished()
 {
-    
     if ( m_FilesToMove.isEmpty() )
         return;
         
@@ -406,7 +409,25 @@ void Peerguardian::rootFinished()
     m_UndoButton->setEnabled(m_ApplyButton->isEnabled());
 }
 
-void Peerguardian::rootError(QString errorMsg)
+
+void Peerguardian::rootError(const CommandList& failedCommands)
+{
+    ErrorDialog dialog(failedCommands);
+    dialog.exec();
+
+    
+    /*QString errorMsg = QString("%1<br/><br/><i>%2</i><br/><br/>%3").arg(tr("The following commands failed:"))
+                                                    .arg(commands.join("<br/>"))
+                                                    .arg(tr("Please, check pgld's and/or pglcmd's log. You can do so through the <i>View menu</i>."));
+    QMessageBox::warning( this, tr("Error (One or more command(s) failed)"), errorMsg,
+	QMessageBox::Ok
+    );*/
+    
+    m_ApplyButton->setEnabled(guiOptions->isChanged());
+    m_UndoButton->setEnabled(m_ApplyButton->isEnabled());
+}
+
+void Peerguardian::rootError(const QString& errorMsg)
 {
     QMessageBox::warning( this, tr("Error"), errorMsg,
 	QMessageBox::Ok
@@ -523,7 +544,7 @@ void Peerguardian::applyChanges()
     
     if ( pglcmdConfPath.isEmpty() )
     {
-        QString errorMsg = tr("Could not determine pglcmd.conf path! Did you install pgl and pglcmd?");
+        QString errorMsg = tr("Could not determine pglcmd.conf path! Did you install pgld and pglcmd?");
         QMessageBox::warning( this, tr("Error"), errorMsg, QMessageBox::Ok);
         qWarning() << errorMsg;
         return;
@@ -946,7 +967,7 @@ void Peerguardian::g_ShowAboutDialog() {
     QString message;
     message += QString("<b><i>PeerGuardian Linux version %1</b><br>A Graphical User Interface for PeerGuardian Linux<br><br>").arg( VERSION_NUMBER );
     message += "Copyright (C) 2007-2008 Dimitris Palyvos-Giannas<br>";
-    message += "Copyright (C) 2011 Carlos Pais <br><br>";
+    message += "Copyright (C) 2011-2012 Carlos Pais <br><br>";
     message += "pgl is licensed under the GNU General Public License v3, or (at\
                 your option) any later version. This program comes with\
                 ABSOLUTELY NO WARRANTY. This is free software, and you are\

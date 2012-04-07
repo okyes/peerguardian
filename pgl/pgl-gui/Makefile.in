@@ -59,15 +59,16 @@ am__objects_1 = moc_add_exception_dialog.$(OBJEXT) \
 	moc_pgl_settings.$(OBJEXT) moc_pgl_whitelist.$(OBJEXT) \
 	moc_proc_thread.$(OBJEXT) moc_settings.$(OBJEXT) \
 	moc_super_user.$(OBJEXT) moc_utils.$(OBJEXT) \
-	moc_viewer_widget.$(OBJEXT)
+	moc_viewer_widget.$(OBJEXT) moc_error_dialog.$(OBJEXT)
 am_pgl_gui_OBJECTS = add_exception_dialog.$(OBJEXT) \
 	file_transactions.$(OBJEXT) gui_options.$(OBJEXT) \
 	peerguardian.$(OBJEXT) peerguardian_info.$(OBJEXT) \
 	pglcmd.$(OBJEXT) pgl_lists.$(OBJEXT) pgl_settings.$(OBJEXT) \
 	pgl_whitelist.$(OBJEXT) proc_thread.$(OBJEXT) \
 	settings.$(OBJEXT) super_user.$(OBJEXT) utils.$(OBJEXT) \
-	command.$(OBJEXT) viewer_widget.$(OBJEXT) main.$(OBJEXT) \
-	qrc_images.$(OBJEXT) $(am__objects_1)
+	command.$(OBJEXT) viewer_widget.$(OBJEXT) \
+	error_dialog.$(OBJEXT) main.$(OBJEXT) qrc_images.$(OBJEXT) \
+	$(am__objects_1)
 pgl_gui_OBJECTS = $(am_pgl_gui_OBJECTS)
 pgl_gui_DEPENDENCIES =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
@@ -310,7 +311,8 @@ MOCS = \
 	src/moc_settings.cpp \
 	src/moc_super_user.cpp \
 	src/moc_utils.cpp\
-	src/moc_viewer_widget.cpp
+	src/moc_viewer_widget.cpp\
+	src/moc_error_dialog.cpp
 
 FORMSDIR = ui
 FORMSHEADERS = \
@@ -336,6 +338,7 @@ pgl_gui_SOURCES = \
 	src/utils.cpp src/utils.h \
 	src/command.cpp src/command.h \
 	src/viewer_widget.cpp src/viewer_widget.h \
+	src/error_dialog.cpp src/error_dialog.h\
 	\
 	src/main.cpp \
 	qrc_images.cpp \
@@ -444,10 +447,12 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/add_exception_dialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/error_dialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/file_transactions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui_options.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/moc_add_exception_dialog.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/moc_error_dialog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/moc_file_transactions.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/moc_gui_options.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/moc_peerguardian.Po@am__quote@
@@ -705,6 +710,20 @@ viewer_widget.obj: src/viewer_widget.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o viewer_widget.obj `if test -f 'src/viewer_widget.cpp'; then $(CYGPATH_W) 'src/viewer_widget.cpp'; else $(CYGPATH_W) '$(srcdir)/src/viewer_widget.cpp'; fi`
 
+error_dialog.o: src/error_dialog.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT error_dialog.o -MD -MP -MF $(DEPDIR)/error_dialog.Tpo -c -o error_dialog.o `test -f 'src/error_dialog.cpp' || echo '$(srcdir)/'`src/error_dialog.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/error_dialog.Tpo $(DEPDIR)/error_dialog.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/error_dialog.cpp' object='error_dialog.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o error_dialog.o `test -f 'src/error_dialog.cpp' || echo '$(srcdir)/'`src/error_dialog.cpp
+
+error_dialog.obj: src/error_dialog.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT error_dialog.obj -MD -MP -MF $(DEPDIR)/error_dialog.Tpo -c -o error_dialog.obj `if test -f 'src/error_dialog.cpp'; then $(CYGPATH_W) 'src/error_dialog.cpp'; else $(CYGPATH_W) '$(srcdir)/src/error_dialog.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/error_dialog.Tpo $(DEPDIR)/error_dialog.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/error_dialog.cpp' object='error_dialog.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o error_dialog.obj `if test -f 'src/error_dialog.cpp'; then $(CYGPATH_W) 'src/error_dialog.cpp'; else $(CYGPATH_W) '$(srcdir)/src/error_dialog.cpp'; fi`
+
 main.o: src/main.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT main.o -MD -MP -MF $(DEPDIR)/main.Tpo -c -o main.o `test -f 'src/main.cpp' || echo '$(srcdir)/'`src/main.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/main.Tpo $(DEPDIR)/main.Po
@@ -914,6 +933,20 @@ moc_viewer_widget.obj: src/moc_viewer_widget.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/moc_viewer_widget.cpp' object='moc_viewer_widget.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o moc_viewer_widget.obj `if test -f 'src/moc_viewer_widget.cpp'; then $(CYGPATH_W) 'src/moc_viewer_widget.cpp'; else $(CYGPATH_W) '$(srcdir)/src/moc_viewer_widget.cpp'; fi`
+
+moc_error_dialog.o: src/moc_error_dialog.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT moc_error_dialog.o -MD -MP -MF $(DEPDIR)/moc_error_dialog.Tpo -c -o moc_error_dialog.o `test -f 'src/moc_error_dialog.cpp' || echo '$(srcdir)/'`src/moc_error_dialog.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/moc_error_dialog.Tpo $(DEPDIR)/moc_error_dialog.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/moc_error_dialog.cpp' object='moc_error_dialog.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o moc_error_dialog.o `test -f 'src/moc_error_dialog.cpp' || echo '$(srcdir)/'`src/moc_error_dialog.cpp
+
+moc_error_dialog.obj: src/moc_error_dialog.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT moc_error_dialog.obj -MD -MP -MF $(DEPDIR)/moc_error_dialog.Tpo -c -o moc_error_dialog.obj `if test -f 'src/moc_error_dialog.cpp'; then $(CYGPATH_W) 'src/moc_error_dialog.cpp'; else $(CYGPATH_W) '$(srcdir)/src/moc_error_dialog.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/moc_error_dialog.Tpo $(DEPDIR)/moc_error_dialog.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='src/moc_error_dialog.cpp' object='moc_error_dialog.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o moc_error_dialog.obj `if test -f 'src/moc_error_dialog.cpp'; then $(CYGPATH_W) 'src/moc_error_dialog.cpp'; else $(CYGPATH_W) '$(srcdir)/src/moc_error_dialog.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

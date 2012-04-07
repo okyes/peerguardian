@@ -111,10 +111,10 @@ class SuperUser : public QObject
 
     public slots:
         void processFinished(const CommandList&);
-        void processError(const QString&);
 
     signals:
         void finished();
+        void error(const CommandList&);
         void error(const QString&);
 
     private:

@@ -25,7 +25,8 @@ MOCS = \
 	src/moc_settings.cpp \
 	src/moc_super_user.cpp \
 	src/moc_utils.cpp\
-	src/moc_viewer_widget.cpp
+	src/moc_viewer_widget.cpp\
+	src/moc_error_dialog.cpp
 FORMSDIR = ui
 FORMSHEADERS = \
 	$(FORMSDIR)/ui_add_exception.h \
@@ -62,6 +63,7 @@ pgl_gui_SOURCES = \
 	src/utils.cpp src/utils.h \
 	src/command.cpp src/command.h \
 	src/viewer_widget.cpp src/viewer_widget.h \
+	src/error_dialog.cpp src/error_dialog.h\
 	\
 	src/main.cpp \
 	qrc_images.cpp \

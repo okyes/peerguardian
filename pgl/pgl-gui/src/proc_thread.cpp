@@ -61,20 +61,16 @@ void ProcessT::run()
 
     Command cmd(m_Command, m_Output);
     
-    if ( proc.exitCode() != 0 ) {
+    if ( proc.exitCode() != 0 ) 
         cmd.setError(true);
-        emit error(m_Output);
-    }
     
     mCommands.append(cmd);
     m_ExecutedCommands << m_Command;
     
-    if ( mCommandsToExecute.isEmpty() )
-    {
+    if ( mCommandsToExecute.isEmpty() ) {
         emit finished(mCommands);
     }
-    else 
-    {
+    else {
         m_Command = mCommandsToExecute.takeFirst();
         emit newCommand();
     }

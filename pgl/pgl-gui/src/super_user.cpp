@@ -34,7 +34,6 @@ SuperUser::SuperUser( QObject *parent, const QString& rootpath ):
 {
     m_ProcT = new ProcessT(this);
     connect(m_ProcT, SIGNAL(finished(const CommandList&)), this, SLOT(processFinished(const CommandList&)));
-    connect(m_ProcT, SIGNAL(error(const QString&)), this, SLOT(processError(const QString&)));
     mGetSudoCommand = false;
     
     if (mSudoCmd.isEmpty() && ! mGetSudoCommand) {
@@ -61,7 +60,7 @@ void SuperUser::findGraphicalSudo()
     QStringList prefixes;
 
     gSudos << KDESUDO << KDESU << GKSUDO << GKSU;
-    /*prefixes << PREFIX1 << PREFIX2;
+    prefixes << PREFIX1 << PREFIX2;
     
     QDir prefix3 = QDir::home();
     if (prefix3.cd(".local") && prefix3.cd("bin"))
@@ -72,9 +71,8 @@ void SuperUser::findGraphicalSudo()
             if (QFile::exists(prefixes[i] + gSudos[j])) {
                 mSudoCmd = prefixes[i] + gSudos[j];
                 return;
-            }*/
-    
-    qDebug() << Q_FUNC_INFO;
+            }
+            
     
     //if the graphical sudo hasn't been found yet, try the 'which' command as last resource.
     for(int i=0; i < gSudos.size(); i++) 
@@ -96,10 +94,6 @@ void SuperUser::executeCommand(QString& command, bool start)
 
 void SuperUser::executeCommands(QStringList commands, bool start) 
 {
-    
-    
-    QProcess::ProcessChannelMode mode = QProcess::MergedChannels;
-
     if ( (! start) || commands.isEmpty())
     {
         m_Commands << commands;
@@ -130,9 +124,9 @@ void SuperUser::executeCommands(QStringList commands, bool start)
         }
     }
     
-    qDebug() << "Executing commands: " << commands;
+    qDebug() << "Executing commands: \n" << commands << "\n";
 
-    m_ProcT->executeCommands(commands, mode);
+    m_ProcT->executeCommands(commands);
 }
 
 void SuperUser::execute(const QStringList& command ) 
@@ -167,8 +161,11 @@ void SuperUser::processFinished(const CommandList& commands)
     if ( ! m_Commands.isEmpty() )
         m_Commands.clear();
     
-    qDebug() << "PROCESS FINISHED";
-    qDebug() << commands.first().command();
+    CommandList failedCommands;
+    foreach(const Command& cmd, commands) {
+        if (cmd.error())
+            failedCommands << cmd;
+    }
     
     if (mGetSudoCommand && ! commands.isEmpty()) {
         Command command = commands.first();
@@ -178,6 +175,11 @@ void SuperUser::processFinished(const CommandList& commands)
         }
     }
     
+    
+    if (! failedCommands.isEmpty()) {
+        emit error(failedCommands);
+    }
+
     emit finished();
 }
 
@@ -202,27 +204,14 @@ void SuperUser::moveFiles( const QMap<QString, QString> files, bool start)
     if ( ! files.isEmpty() )
     {
         QStringList commands;
-        QString cmd;
         foreach(const QString& key, files.keys()) {
-            cmd = QString("mv %1 %2").arg(key).arg(files[key]);
-            commands << cmd;
+            if (key.isEmpty() || files[key].isEmpty()) 
+                continue;
+            commands << QString("mv %1 %2").arg(key).arg(files[key]);
         }
         
         executeCommands(commands, start);
     }
-}
-
-void SuperUser::processError(const QString & cmdOutput)
-{
-    QString daemonLog = PglSettings::getStoredValue("DAEMON_LOG");
-    QString controlLog = PglSettings::getStoredValue("CMD_LOG");
-    
-    QString errorMsg("");
-    errorMsg += tr("Failed executing command(s). The following output was given");
-    errorMsg += QString("%1 \"%2\" %3").arg(QString(":\n")).arg(cmdOutput).arg("\n") + "\n";
-    errorMsg += QString(tr("You can also check \"%1\" or \"%2\" for more details.")).arg(daemonLog).arg(controlLog);
-    
-    emit error(errorMsg);
 }
 
 /*** Static methods ***/

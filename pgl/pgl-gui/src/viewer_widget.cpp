@@ -15,7 +15,6 @@ ViewerWidget::ViewerWidget(const QString& filePath, QWidget* parent) :
     QDialog(parent)
 {
     QString text("");
-    QString notFound("");
     bool fileExists = true;
     
     if (QFile::exists(filePath)) 
@@ -38,7 +37,7 @@ ViewerWidget::ViewerWidget(const QString& filePath, QWidget* parent) :
     vlayout->addWidget(filter);
     
     resize(500, 300);
-    setWindowTitle(filePath + notFound);
+    setWindowTitle(filePath);
     if (! fileExists) {
         setWindowTitle( windowTitle() + tr(" (File doesn't exist)"));
         mTextView->setDisabled(true);
