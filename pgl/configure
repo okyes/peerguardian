@@ -1492,13 +1492,13 @@ Optional Packages:
   --with-piddir=DIR       path to PID directory (default: localstatedir/run)
   --with-tmpdir=DIR       path to TMP directory (default: /tmp)
   --with-blocklists=DIR   path to blocklists directory (default:
-                          /var/spool/pgl)
+                          localstatedir/spool/pgl)
   --with-localblocklist=DIR
                           path to local blocklist directory (default:
                           sysconfdir/pgl/blocklists.local)
   --with-masterblocklist=DIR
                           path to master blocklist directory (default:
-                          /var/lib/pgl)
+                          localstatedir/lib/pgl)
   --with-lsb=DIR          path to lsb file (default: none)
   --without-qt4           build without gui
 
@@ -16603,7 +16603,7 @@ fi
 if test "${with_blocklists+set}" = set; then :
   withval=$with_blocklists; BLOCKLISTS_DIR="$withval"
 else
-  BLOCKLISTS_DIR="/var/spool/$PACKAGE"
+  BLOCKLISTS_DIR="$localstatedir/spool/$PACKAGE"
 fi
 
 
@@ -16623,7 +16623,7 @@ fi
 if test "${with_masterblocklist+set}" = set; then :
   withval=$with_masterblocklist; MASTER_BLOCKLIST_DIR="$withval"
 else
-  MASTER_BLOCKLIST_DIR="/var/lib/$PACKAGE"
+  MASTER_BLOCKLIST_DIR="$localstatedir/lib/$PACKAGE"
 fi
 
 
@@ -16920,7 +16920,7 @@ fi
 
 
 # modify flags if zlib is enabled
-if test "x$zlib_dbus" = "xyes"; then :
+if test "x$enable_zlib" = "xyes"; then :
 
 pkg_failed=no
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ZLIB" >&5
@@ -20502,6 +20502,13 @@ echo
 echo pgl.......................................... : Version $VERSION
 echo
 echo Prefix....................................... : $prefix
+echo Logdir....................................... : $LOGDIR
+echo Piddir....................................... : $PIDDIR
+echo Tmpdir....................................... : $TMPDIR
+echo Blocklists................................... : $BLOCKLISTS_DIR
+echo Masterblocklist.............................. : $MASTER_BLOCKLIST_DIR
+echo Localblocklist............................... : $LOCAL_BLOCKLIST_DIR
+echo
 if test "x$with_qt4" = "xyes"; then
 echo QT-gui....................................... : yes
 else
@@ -20512,6 +20519,27 @@ echo dbus......................................... : yes
 else
 echo dbus......................................... : no
 fi
+if test "x$enable_zlib" = "xyes"; then
+echo zlib......................................... : yes
+else
+echo zlib......................................... : no
+fi
+if test "x$enable_logrotate" = "xyes"; then
+echo logrotate.................................... : yes
+else
+echo logrotate.................................... : no
+fi
+if test "x$enable_cron" = "xyes"; then
+echo cron......................................... : yes
+else
+echo cron......................................... : no
+fi
+if test "x$enable_networkmanager" = "xyes"; then
+echo networkmanager............................... : yes
+else
+echo networkmanager............................... : no
+fi
+
 echo
 echo .............................................
 echo "developer debug:"

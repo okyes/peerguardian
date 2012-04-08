@@ -777,9 +777,12 @@ uninstall-am:
 
 
 install-data-local:
-	@mkdir -p $(DESTDIR)$(MASTER_BLOCKLIST_DIR)
-	@mkdir -p $(DESTDIR)$(BLOCKLISTS_DIR)
-	@mkdir -p $(DESTDIR)$(LOCAL_BLOCKLIST_DIR)
+	@$(INSTALL) -d $(DESTDIR)$(MASTER_BLOCKLIST_DIR)
+	@$(INSTALL) -d $(DESTDIR)$(BLOCKLISTS_DIR)
+	@$(INSTALL) -d $(DESTDIR)$(LOCAL_BLOCKLIST_DIR)
+	@$(INSTALL) -d $(DESTDIR)$(PIDDIR)
+	@$(INSTALL) -d $(DESTDIR)$(LOGDIR)
+	@$(INSTALL) -d $(DESTDIR)$(TMPDIR)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
