@@ -71,7 +71,7 @@ AC_ARG_WITH([tmpdir],
 # let user specify BLOCKLISTS_DIR
 AC_ARG_WITH([blocklists],
 	    [AS_HELP_STRING([--with-blocklists=DIR],
-			    [path to blocklists directory (default: /var/spool/pgl)])],
+			    [path to blocklists directory (default: localstatedir/spool/pgl)])],
 	    [BLOCKLISTS_DIR="$withval"],
 	    [BLOCKLISTS_DIR="$localstatedir/spool/$PACKAGE"])
 
@@ -85,7 +85,7 @@ AC_ARG_WITH([localblocklist],
 # let user specify MASTER_BLOCKLIST_DIR 
 AC_ARG_WITH([masterblocklist],
 	    [AS_HELP_STRING([--with-masterblocklist=DIR],
-			    [path to master blocklist directory (default: /var/lib/pgl)])],
+			    [path to master blocklist directory (default: localstatedir/lib/pgl)])],
 	    [MASTER_BLOCKLIST_DIR="$withval"],
 	    [MASTER_BLOCKLIST_DIR="$localstatedir/lib/$PACKAGE"])
 
@@ -140,7 +140,7 @@ AC_ARG_ENABLE([zlib],
 	      [enable_zlib="yes"])
 
 # modify flags if zlib is enabled
-AS_IF([test "x$zlib_dbus" = "xyes"],
+AS_IF([test "x$enable_zlib" = "xyes"],
       [PKG_CHECK_MODULES([ZLIB],
 			 [zlib])]
       [PGLD_CPPFLAGS="$PGLD_CPPFLAGS $ZLIB_CFLAGS -DHAVE_ZLIB"]
@@ -234,6 +234,13 @@ echo
 echo pgl.......................................... : Version $VERSION
 echo
 echo Prefix....................................... : $prefix
+echo Logdir....................................... : $LOGDIR
+echo Piddir....................................... : $PIDDIR
+echo Tmpdir....................................... : $TMPDIR
+echo Blocklists................................... : $BLOCKLISTS_DIR
+echo Masterblocklist.............................. : $MASTER_BLOCKLIST_DIR
+echo Localblocklist............................... : $LOCAL_BLOCKLIST_DIR
+echo
 if test "x$with_qt4" = "xyes"; then
 echo QT-gui....................................... : yes
 else
@@ -244,6 +251,27 @@ echo dbus......................................... : yes
 else
 echo dbus......................................... : no
 fi
+if test "x$enable_zlib" = "xyes"; then
+echo zlib......................................... : yes
+else
+echo zlib......................................... : no
+fi
+if test "x$enable_logrotate" = "xyes"; then
+echo logrotate.................................... : yes
+else
+echo logrotate.................................... : no
+fi
+if test "x$enable_cron" = "xyes"; then
+echo cron......................................... : yes
+else
+echo cron......................................... : no
+fi
+if test "x$enable_networkmanager" = "xyes"; then
+echo networkmanager............................... : yes
+else
+echo networkmanager............................... : no
+fi
+
 echo
 echo .............................................
 echo "developer debug:"
