@@ -73,7 +73,7 @@ AC_ARG_WITH([blocklists],
 	    [AS_HELP_STRING([--with-blocklists=DIR],
 			    [path to blocklists directory (default: /var/spool/pgl)])],
 	    [BLOCKLISTS_DIR="$withval"],
-	    [BLOCKLISTS_DIR="/var/spool/$PACKAGE"])
+	    [BLOCKLISTS_DIR="$localstatedir/spool/$PACKAGE"])
 
 # let user specify LOCAL_BLOCKLIST_DIR
 AC_ARG_WITH([localblocklist],
@@ -87,7 +87,7 @@ AC_ARG_WITH([masterblocklist],
 	    [AS_HELP_STRING([--with-masterblocklist=DIR],
 			    [path to master blocklist directory (default: /var/lib/pgl)])],
 	    [MASTER_BLOCKLIST_DIR="$withval"],
-	    [MASTER_BLOCKLIST_DIR="/var/lib/$PACKAGE"])
+	    [MASTER_BLOCKLIST_DIR="$localstatedir/lib/$PACKAGE"])
 
 # let user specify LSB 
 AC_ARG_WITH([lsb],
