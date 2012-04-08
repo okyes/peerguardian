@@ -49,55 +49,35 @@ environment for the components (see chapter 4).
 
 Step 4: Compilation and installation
 ------------------------------------
-Issue these commands (they are to go to the correct directory, build, install
-and activate the automatic start on system boot):
-  cd peerguardian/pgl
+Pgl uses autotools which comes with several configure-switches you have
+to check before compiling. Go to the directory where you have extracted pgl and
+run:
+  ./configure --help
+
+Check the options and the paths. There are some common paths and options you should
+consider to set like:
+  --prefix         [default: /usr/local]
+  --sysconfdir     [default: $prefix/etc]
+  --localstatedir  [default: $prefix/var]
+  --with-initddir  [default: $sysconfdir/init.d]
+  --with-logdir    [default: $localstatedir/log/pgl]
+  --with-piddir    [default: $localstatedir/run]
+  --with-tmpdir    [default: /tmp]
+
+Now you should be clear about the settings you need for your distribution and 
+run something similar to:
+  ./configure --prefix=/my/prefix --with-initddir=/my/initddir
   make
   make install
-  /usr/lib/lsb/install_initd /etc/init.d/pgl
 
 
 
 
-2.) Installed files (uninstall)
+2.) Uninstall
 ===============================
 
-There is no UNINSTALL routine (yet). But for reference here is a file list as
-pgl is installed per default:
-
-pgld:
-/etc/dbus-1/system.d/org.netfilter.pgl.conf
-/usr/lib/pgl/dbus.so
-/etc/logrotate.d
-/etc/logrotate.d/pgld
-/usr/sbin/pgld
-/var/log/pgl/
-
-pglcmd:
-/etc/cron.daily/pglcmd
-/etc/init.d/pgl
-  If you activated the init script, first deactivate it with
-  /usr/lib/lsb/remove_initd /etc/init.d/pgl
-/etc/logrotate.d/pglcmd
-/etc/NetworkManager/dispatcher.d/20pglcmd
-  or in Debian: /etc/network/if-up.d/pglcmd
-/etc/pgl/allow.p2p
-/etc/pgl/blocklists.list
-/etc/pgl/blocklists.local/
-/etc/pgl/pglcmd.conf
-/usr/bin/pglcmd
-/usr/lib/pgl/pglcmd.defaults
-/usr/lib/pgl/pglcmd.lib
-/usr/lib/pgl/pglcmd.main
-/usr/sbin/pglcmd.wd
-/var/lib/pgl/
-/var/log/pgl/
-/var/spool/pgl/
-
-pgl-gui:
-/usr/bin/pgl-gui
-/usr/share/applications/pgl-gui.desktop
-/usr/share/pixmaps/pgl-gui.png
+To uninstall issue the following command:
+  make uninstall
 
 
 
