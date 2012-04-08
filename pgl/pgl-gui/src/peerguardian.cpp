@@ -6,6 +6,7 @@
 #include <QDBusConnection>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QScrollBar>
 //#include <Action>
 //#include <ActionButton>
 
@@ -156,7 +157,8 @@ void Peerguardian::addLogItem(QString itemString)
         item->setIcon(7, m_ConnectIconType[connectType]);
         m_LogTreeWidget->addTopLevelItem(item);
             
-        //QTimer::singleShot(100, m_LogTreeWidget, SLOT(scrollToBottom()));
+        if ( m_LogTreeWidget->verticalScrollBar()->value() == m_LogTreeWidget->verticalScrollBar()->maximum())
+            QTimer::singleShot(20, m_LogTreeWidget, SLOT(scrollToBottom()));
     }
     
 
