@@ -15,7 +15,7 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 AC_PATH_PROG([PKGCONFIG], [pkg-config])
-AS_IF([test "x$PKGCONFIG" = "xno"],
+AS_IF([test "x$PKGCONFIG" = "x"],
       [AC_MSG_ERROR([pkg-config not found!])])
 
 # Checks for header files.
