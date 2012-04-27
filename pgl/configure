@@ -15940,7 +15940,7 @@ $as_echo "no" >&6; }
 fi
 
 
-if test "x$PKGCONFIG" = "xno"; then :
+if test "x$PKGCONFIG" = "x"; then :
   as_fn_error $? "pkg-config not found!" "$LINENO" 5
 fi
 
