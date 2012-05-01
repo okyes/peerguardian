@@ -1,7 +1,7 @@
 # flags
 AM_CFLAGS = @PGLD_CFLAGS@
 AM_CPPFLAGS = @PGLD_CPPFLAGS@
-AM_LDFLAGS = @PGLD_LDFLAGS@
+AM_LDFLAGS = @PGLD_LDFLAGS@ -ldbus-1
 
 # sources for pgld binary
 pgld_SOURCES = \
