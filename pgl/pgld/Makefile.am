@@ -1,7 +1,7 @@
 # flags
 AM_CFLAGS = @PGLD_CFLAGS@
 AM_CPPFLAGS = @PGLD_CPPFLAGS@
-AM_LDFLAGS = @PGLD_LDFLAGS@ -ldbus-1
+AM_LDFLAGS = @PGLD_LDFLAGS@
 
 # sources for pgld binary
 pgld_SOURCES = \
@@ -23,6 +23,9 @@ pgld_LDADD = \
 
 dbusdir = $(sysconfdir)/dbus-1/system.d
 dbus_DATA = org.netfilter.pgl.conf
+else
+pgld_LDADD = \
+	     @PGLD_LIBS@
 endif
 
 if LOGROTATEMAKE
