@@ -58,6 +58,8 @@ Peerguardian::Peerguardian( QWidget *parent) :
         
     m_treeItemPressed = false;
     m_StopLogging = false;
+    mAutomaticScroll = true;
+    mIgnoreScroll = false;
     
     a_whitelistIpTemp = new QAction(tr("Allow temporarily"), this);
     a_whitelistIpTemp->setToolTip(tr("Allows until pgld is restarted."));
@@ -93,6 +95,8 @@ Peerguardian::Peerguardian( QWidget *parent) :
     int yy = desktop->height()/2-height()/2;
     int xx = desktop->width() /2-width()/2;
     move(xx, yy);
+    
+    m_LogTreeWidget->verticalScrollBar()->installEventFilter(this);
     
     //ActionButton *bt;
     //bt = new ActionButton(kickPB, "org.qt.policykit.examples.kick", this);
@@ -149,16 +153,20 @@ void Peerguardian::addLogItem(QString itemString)
             
         QStringList info;
         
-        if ( m_LogTreeWidget->topLevelItemCount() > m_MaxLogSize )
+        if ( m_LogTreeWidget->topLevelItemCount() > m_MaxLogSize ) {
+            //mIgnoreScroll = true;
             m_LogTreeWidget->takeTopLevelItem(0);
+            //mIgnoreScroll = false;
+        }
         
         info << QTime::currentTime().toString("hh:mm:ss") << parts.last() << srcip << srcport << destip << destport << firstPart[3] << connectType;
         QTreeWidgetItem * item = new QTreeWidgetItem(m_LogTreeWidget, info);
         item->setIcon(7, m_ConnectIconType[connectType]);
         m_LogTreeWidget->addTopLevelItem(item);
             
-        if ( m_LogTreeWidget->verticalScrollBar()->value() == m_LogTreeWidget->verticalScrollBar()->maximum())
-            QTimer::singleShot(20, m_LogTreeWidget, SLOT(scrollToBottom()));
+        
+        if (mAutomaticScroll)
+            m_LogTreeWidget->scrollToBottom();
     }
     
 
@@ -245,6 +253,8 @@ void Peerguardian::g_MakeConnections()
 {
 	//Log tab connections
     connect( m_LogTreeWidget, SIGNAL(customContextMenuRequested ( const QPoint &)), this, SLOT(showLogRightClickMenu(const QPoint &)));
+    connect( m_LogTreeWidget->verticalScrollBar(), SIGNAL(sliderMoved(int)), this, SLOT(onLogViewVerticalScrollbarMoved(int)));
+    connect( m_LogTreeWidget->verticalScrollBar(), SIGNAL(actionTriggered(int)), this, SLOT(onLogViewVerticalScrollbarActionTriggered(int)));
     connect( m_LogClearButton, SIGNAL( clicked() ), m_LogTreeWidget, SLOT( clear() ) );
     connect(m_StopLoggingButton, SIGNAL(clicked()), this, SLOT(startStopLogging()));
 
@@ -1151,4 +1161,39 @@ void Peerguardian::onViewerWidgetRequested()
     
     ViewerWidget viewer(path);
     viewer.exec();
+}
+
+bool Peerguardian::eventFilter(QObject* obj, QEvent* event)
+{
+    //if (obj == m_LogTreeWidget->verticalScrollBar() && mIgnoreScroll)
+    //    return true;
+    
+    if (obj == m_LogTreeWidget->verticalScrollBar() && event->type() == QEvent::Wheel) {
+        
+        if (m_LogTreeWidget->verticalScrollBar()->value() == m_LogTreeWidget->verticalScrollBar()->maximum()) 
+            mAutomaticScroll = true;
+        else
+            mAutomaticScroll = false;
+    }
+    
+    return false;
+}
+
+void Peerguardian::onLogViewVerticalScrollbarMoved(int value)
+{
+    QScrollBar *bar = static_cast<QScrollBar*>(sender());
+
+    if (bar->maximum() == value) 
+        mAutomaticScroll = true;
+    else
+        mAutomaticScroll = false;
+}
+
+void Peerguardian::onLogViewVerticalScrollbarActionTriggered(int action) 
+{
+    QScrollBar *scrollBar = static_cast<QScrollBar*>(sender());
+    
+    if (mAutomaticScroll && scrollBar->value() < scrollBar->maximum())
+        scrollBar->setSliderPosition(scrollBar->maximum());
+        
 }

@@ -27,6 +27,7 @@
 #include <QMainWindow>
 #include <QWidget>
 #include <QCloseEvent>
+#include <QEvent>
 #include <QVariant>
 #include <QByteArray>
 #include <QSettings>
@@ -140,6 +141,8 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     QTreeWidgetItem *m_selectedItem; //store the selected item from the log view when whitelisting an IP/Port
     bool mLastRunningState;
     CommandList mFailedCommands;
+    volatile bool mAutomaticScroll;
+    volatile bool mIgnoreScroll;
 
 	public:
 		/**
@@ -181,6 +184,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void updateWhitelist();
         void updateBlocklist();
         int getMaxLogSize(){ return m_MaxLogSize; }
+        virtual bool eventFilter(QObject*, QEvent*);
 
     public slots:
         void g_ShowAddExceptionDialog() { g_ShowAddDialog(ADD_MODE | EXCEPTION_MODE); };
@@ -212,6 +216,10 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     protected slots:
         void quit();
         void onViewerWidgetRequested();
+    
+    private slots:
+        void onLogViewVerticalScrollbarMoved(int);
+        void onLogViewVerticalScrollbarActionTriggered(int);
 };	
 
 #endif //PEERGUARDIAN_H
