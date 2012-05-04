@@ -23,6 +23,8 @@ pgld:
 
 pglcmd:
 
+  - add separate pidfiles for update and start/reload.
+
   - FIX: since 2011-08-11 I get system mails claiming I tried to send a mail
     without recipient. Seems to be related at least to "restart".
 
@@ -104,8 +106,12 @@ pgl-gui:
     tooltips are not shown (at least under Gnome)
     "Whitelist temporarily" is not explained to the user
 
-  - clean up code: get rid of all unused remnants of mobloquer
+  - show local blocklists (files in /etc/pgl/blocklists.local/) in Configure tab
+    (adding them works flawlessly)
 
+  - save some space to allow a smaller window, while "Whitelist" in the
+    Configuration Tab is still visible with one line (Jerriy, 2011-10-11,
+    http://ubuntuforums.org/showpost.php?p=11331774&postcount=554)
 
   NEW FEATURES:
 
@@ -115,9 +121,6 @@ pgl-gui:
   - "Allow temporarily" on right-click in the log of blocked IPs:
     delete the iptables rule after X minutes (as far as pgl-gui doesn't crash,
     otherwise live with it and wait for the next pglcmd restart)
-
-  - show local blocklists (files in /etc/pgl/blocklists.local/) in Configure tab
-    (adding them works flawlessly)
 
   - "Details about blocked IP" on right-click in the log of blocked IPs:
     - whois IP
@@ -131,7 +134,7 @@ pgl-gui:
   - use ${BLOCKLISTS_DIR}/lists.xml to determine human friendly blocklist names
     for URLs like this: http://list.iblocklist.com/?list=ewqglwibdgjttwttrinl&fi
     leformat=p2p&archiveformat=gz
-    Also use lists.xml to show the list description.
+    *** Also use lists.xml to show the list description. ***
 
   - "Last blocklist update":
     Implement per blocklist in "Configure - Blocklist"
@@ -141,17 +144,6 @@ pgl-gui:
 
   - pop-up warning on errors from pglcmd (e.g. blocklist is not available)
     [ Requires pglcmd dbus ]
-
-
-
-  [jre]
-
-  - Verify flags etc. in Makefile, use variables where possible
-    CFLAGS for the C compiler
-    CPPFLAGS in any compilation command that runs the preprocessor
-    LDFLAGS in any compilation command that does linking as well as in any
-        direct use of ld
-    verify where prerequisite FORMS_HEADERS is necessary
 
 
 
@@ -167,7 +159,9 @@ All components:
 
   - use e.g. notification-daemon to notify about errors.
 
-  - use e.g. doxygen for automatic documentation.
+  - automatic documentation, use e.g.
+    doxygen (creates doc from source)
+    doconce (markup language for several output formats).
 
   - fix/update license headers of pgl-gui and pgld
 
@@ -194,6 +188,12 @@ All components:
       whitelist today, but not tomorrow. Are managed through iptables.
       (keep current implementation).
 
+  - cppcheck --enable=all ./
+
+  - coccinelle
+    automatically analyze and rewrite C code
+    https://lwn.net/Articles/315686/
+
 
 Packaging:
 
@@ -204,10 +204,22 @@ Packaging:
 
   - add debtags to debian packages
 
+  - create debian patch from modified upstream:
+    dpkg-source --commit
+
+  - check LSB + FHS for pid file location, adapt:
+    Currently Debian/Unstable is going through a transition to using /run instead
+    of /var/run.
+    --
+    etbe, 07/22/2011
 
 
 Web:
 
-  - Update phoenixlabs.org
+  - update http://sourceforge.net/projects/peerguardian/
+    - replaces defunct phoenixlabs.org
 
-  - update wiki.phoenixlabs.org or wiki at peerguardian.sourceforge.net
+  - create wiki at peerguardian.sourceforge.net
+    (based on https://help.ubuntu.com/community/MoBlock)
+
+  - add information for new developers, short git intro

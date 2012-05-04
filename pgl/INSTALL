@@ -21,6 +21,8 @@ Table of Contents:
 1.) Manual installation
 =======================
 
+This is the general method to install pgl. Please also have a look at the
+distribution specific section (chapter 4).
 
 Step 1: Get the source:
 -----------------------
@@ -44,7 +46,7 @@ LOWMEM option to "yes" to disable storing of textual range descriptions.
 Step 3: Install pgl's dependencies
 ----------------------------------
 Install the build dependencies (including the development headers) and runtime
-environment for the components (see chapter 4).
+environment for the components (see chapter 3).
 
 
 Step 4: Compilation and installation
@@ -86,58 +88,58 @@ To uninstall issue the following command:
 ==============================================
 
 Build dependencies pgld:
-    - nfnetlink development files
-    - libnetfilter-queue development files
-    - libdbus development files (optional)
-    - zlib development files (optional, for loading gz compressed blocklists
-        directly)
+- nfnetlink development files
+- libnetfilter-queue development files
+- libdbus development files (optional)
+- zlib development files (optional, for loading gz compressed blocklists
+  directly)
 
-Build dependencies pgl-gui:
-    - Qt4 development files (including Qt4 dbus)
+ Build dependencies pgl-gui:
+- Qt4 development files (including Qt4 dbus)
 
-Runtime environment pgld:
-    - the above libraries
-    - iptables (required)
-    - netfilter kernel support (kernel >= 2.6.13 for NFQUEUE support)
-      Either as modules or directly built in the kernel. These are the modules
-      that are loaded here. Note that "xt_" may be named "ip_" or "ipt_" on
-      older systems. The list was compiled with:
-        lsmod|grep -E "^x|^nf|^ip"|grep -Ev "^ip6|^ipv6"|sed "s| .*||"|sort
-      iptable_filter
-      ip_tables
-      ipt_REJECT
-      nf_conntrack
-      nf_conntrack_ipv4
-      nf_defrag_ipv4
-      nfnetlink
-      nfnetlink_queue
-      x_tables
-      xt_iprange
-      xt_mark
-      xt_multiport
-      xt_NFQUEUE
-      xt_state
-      xt_tcpudp
-    - dbus daemon (optional)
+ Runtime environment pgld:
+- the above libraries
+- iptables (required)
+- netfilter kernel support (kernel >= 2.6.13 for NFQUEUE support)
+  Either as modules or directly built in the kernel. These are the modules that
+  are loaded here. Note that "xt_" may be named "ip_" or "ipt_" on older
+  systems. This list was compiled with:
+    lsmod|grep -E "^x|^nf|^ip"|grep -Ev "^ip6|^ipv6"|sed "s| .*||"|sort
+  iptable_filter
+  ip_tables
+  ipt_REJECT
+  nf_conntrack
+  nf_conntrack_ipv4
+  nf_defrag_ipv4
+  nfnetlink
+  nfnetlink_queue
+  x_tables
+  xt_iprange
+  xt_mark
+  xt_multiport
+  xt_NFQUEUE
+  xt_state
+  xt_tcpudp
+- dbus daemon (optional)
 
-Runtime environment pglcmd:
-    - pgld
-    - wget (optional, needed for blocklists update)
-    - p7zip (optional, needed for blocklists packed as .7z)
-    - unzip (optional, needed for blocklists packed as .zip)
-    - start-stop-daemon (optional)
-    - awk, sed, grep, basename, dirname, cat, cd, mv, cp, zcat, md5sum, renice,
-        pidof (those should really be on every system)
-    - /usr/bin/printf (optional, needed during "update" for archive type
-        detection)
-    - /lib/lsb/init-functions (optional,there's a copy built in)
-    - NetworkManager (optional, needed for automatic whitelisting of newly
-      brought up network interfaces. Not needed in Debian.)
+ Runtime environment pglcmd:
+- pgld
+- wget (optional, needed for blocklists update)
+- p7zip (optional, needed for blocklists packed as .7z)
+- unzip (optional, needed for blocklists packed as .zip)
+- start-stop-daemon (optional)
+- awk, sed, grep, basename, dirname, cat, cd, mv, cp, zcat, md5sum, renice,
+  pidof (those should really be on every system)
+- /usr/bin/printf (optional, needed during "update" for archive type
+  detection)
+- /lib/lsb/init-functions (optional,there's a copy built in)
+- NetworkManager (optional, needed for automatic whitelisting of newly
+  brought up network interfaces. Not needed in Debian.)
 
-Runtime environment pgl-gui:
-    - pgld
-    - pglcmd
-    - Qt4
+ Runtime environment pgl-gui:
+- pgld
+- pglcmd
+- Qt4
 
 
 
@@ -149,10 +151,16 @@ pgl was written and tested under Debian Gnu/Linux Squeeze. However it should run
 under every Linux system. It is our goal to make life as easy as possible for
 users and packagers.
 
-If you are a packager just contact us at forums.phoenixlabs.org or
-jre-phoenix@users.sourceforge.net. We'll gladly give you all possible support,
-change the code if feasible and publish your work. Of course you are welcome to
-join the project and e.g. commit directly to the git repository.
+NOTE FOR PACKAGERS:
+If you are a packager just contact us at
+http://sourceforge.net/projects/peerguardian/ or
+jre-phoenix@users.sourceforge.net.
+We'll gladly give you all possible support, change the code if feasible and
+publish your work. Of course you are welcome to join the project and e.g.
+commit directly to the git repository.
+To test if pgl is correctly integrated in your system, you'll have to verify
+the correct handling of the init, cron, if-up and logrotate files (all pglcmd,
+logrotate also for pgld), and may test if LSB="/lib/lsb/init-functions" works.
 
 If you know something missing in this list, please tell us!
 
@@ -162,6 +170,9 @@ deb packages:
 jre provides official packages in a repository for automatic updates:
 Debian at http://moblock-deb.sourceforge.net
 Ubuntu at https://launchpad.net/~jre-phoenix/+archive/ppa
+
+Debian RFP: http://bugs.debian.org/578192
+Ubuntu RFP: https://bugs.launchpad.net/ubuntu/+bug/109822
 
 
 rpm packages:
