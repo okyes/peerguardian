@@ -20,10 +20,10 @@ Package: pgld
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         iptables,
-         dbus
+         iptables
 Recommends: pglcmd,
-        pgl-gui
+        pgl-gui,
+        dbus
 Breaks: moblock (<<2~)
 Replaces: moblock (<<2~)
 Conflicts: iplist,
