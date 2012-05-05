@@ -51,6 +51,13 @@ environment for the components (see chapter 3).
 
 Step 4: Compilation and installation
 ------------------------------------
+If you are using the development version from the git repository generate
+the autotools files first. Go to the peerguardian/pgl directory and run:
+  ./autogen.sh
+
+To update the files run:
+  autoreconf
+
 Pgl uses autotools which comes with several configure-switches you have
 to check before compiling. Go to the directory where you have extracted pgl and
 run:
@@ -87,7 +94,8 @@ To uninstall issue the following command:
 3.) Build dependencies and runtime environment
 ==============================================
 
-Build dependencies pgld:
+Build dependencies:
+- autotools (autoconf, automake, libtoolize)
 - nfnetlink development files
 - libnetfilter-queue development files
 - libdbus development files (optional)

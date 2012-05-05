@@ -6,14 +6,25 @@
 # NOTE! Please use 'git-ls-files -i --exclude-standard'
 # command after changing this file, to see if there are
 # any tracked files which get ignored after the change.
+
 #
 # Normal rules
 #
-*.gz
-*.tgz
-*.changes
-*.deb
-*.dsc
-*.orig
-*~
-\#*#
+description-pak
+stamp*
+
+#
+# ignore all autotools-generated files
+#
+# to create them execute
+#    aclocal -I m4 && libtoolize --copy --force --install --automake &&
+#    aclocal -I m4 && autoconf && autoheader && automake --add-missing --copy
+Makefile
+Makefile.in
+aclocal.m4
+config.*
+configure
+depcomp
+install-sh
+ltmain.sh
+autom4te.cache

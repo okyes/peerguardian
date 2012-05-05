@@ -6,17 +6,6 @@
 # NOTE! Please use 'git-ls-files -i --exclude-standard'
 # command after changing this file, to see if there are
 # any tracked files which get ignored after the change.
-#
-files
-*.debhelper.log
-*.debhelper
-*.substvars
-pglcmd/*
-pgld/*
-pgl-gui/*
-tmp/*
-pglcmd.cron.daily
-pglcmd.if-up
-pglcmd.logrotate
-pglcmd.pgl.init
-pgld.logrotate
+
+moc_*
+
