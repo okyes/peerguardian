@@ -1,4 +1,0 @@
-^(.*)\s(\d{1,2}:\d{1,2}:\d{1,2})\s(.*) #Separate date and time from the main message 
-^\s+(\w{2,3}):\s+(?:(\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}):?(\d{0,5})\s+){2}\s+(\w*)\s+\|\|\s+(.*) #Parse a hit entry
-^\s*\*(.*) #Parse a general entry
-^.*:(?!\d)\s+(.*)$ #Parse a pglcmd begin/end entry
