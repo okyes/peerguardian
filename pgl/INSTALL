@@ -207,9 +207,8 @@ https://aur.archlinux.org/packages.php?ID=51839
 
 Gentoo:
 -------
-ebuild by Gef, updated by cauchy49:
-https://forums.gentoo.org/viewtopic-t-871027.html
-(last checked on 2011-08-27 for pgl 2.1.2)
+available in main portage tree
+http://packages.gentoo.org/package/net-firewall/pglinux
 
 
 Slackware:
