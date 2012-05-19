@@ -7,7 +7,7 @@ AC_CONFIG_SRCDIR([pgld/src/pgld.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([-Wall])
-LT_INIT([shared])
+LT_INIT([disable-static])
 
 # Checks for programs.
 AC_PROG_CXX
@@ -91,8 +91,8 @@ AC_ARG_WITH([masterblocklist],
 
 # let user specify LSB 
 AC_ARG_WITH([lsb],
-	    [AS_HELP_STRING([--with-lsb=DIR],
-			    [path to lsb file (default: none)])],
+	    [AS_HELP_STRING([--with-lsb=FILE],
+			    [path to lsb/init-functions file (default: none/built-in)])],
 	    [LSBFILE="$withval"],
 	    [LSBFILE=""])
 
@@ -129,7 +129,7 @@ AM_CONDITIONAL(NETWORKMANAGERMAKE, [test "x$enable_networkmanager" = "xyes"])
 PKG_CHECK_MODULES([libnetfilterqueue],[libnetfilter_queue])
 PGLD_CFLAGS=""
 PGLD_CPPFLAGS="$libnetfilterqueue_CFLAGS -DVERSION=\\\"$VERSION\\\" -DPACKAGE_NAME=\\\"$PACKAGE\\\" -DPIDFILE=\\\"${localstatedir}/run/${PACKAGE}d.pid\\\""
-PGLD_LDFLAGS="-Wl,-export-dynamic"
+PGLD_LDFLAGS=""
 PGLD_LIBS="$libnetfilterqueue_LIBS"
 
 # configure-switch for zlib
@@ -156,12 +156,13 @@ AC_ARG_ENABLE([dbus],
 # check if dbus is enabled in general
 AM_CONDITIONAL(DBUSMAKE, [test "x$enable_dbus" = "xyes"])
 
-# modify PGLD_flags if dbus is enabled
+# modify PGLD_flags and LIBDBUS_flags if dbus is enabled
 AS_IF([test "x$enable_dbus" = "xyes"],
       [PKG_CHECK_MODULES([DBUS],
 			 [dbus-1])]
       [PGLD_CFLAGS="$PGLD_CFLAGS -fPIC"]
       [PGLD_CPPFLAGS="$PGLD_CPPFLAGS $DBUS_CFLAGS -DHAVE_DBUS -DPLUGINDIR=\\\"${libdir}/pgl\\\""]
+      [PGLD_LDFLAGS="-Wl,-export-dynamic"]
       [PGLD_LIBS="$PGLD_LIBS $DBUS_LIBS -ldl"])
 
 
