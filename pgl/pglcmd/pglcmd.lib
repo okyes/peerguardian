@@ -1680,11 +1680,15 @@ do_start () {
     esac
 }
 
+do_stop_quick () {
+    STOP_QUICK=1
+    do_stop
+}
+
 # Function that stops daemon (but not watchdog)
 do_stop () {
-    # STATS_MAILTO is set to empty value by init to prevent email_stats on stop
-    # during system halt.
-    email_stats
+    # Email stats, except if we are on system shutdown.
+    [ "$STOP_QUICK" ] || email_stats
     # Remove iptables rules/chains
     delete_iptables
     # As per LSB don't test if daemon is installed on stop!

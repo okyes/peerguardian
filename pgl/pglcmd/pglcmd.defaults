@@ -377,8 +377,7 @@ VERBOSE="1"
 # If not set, cron will decide what happens with the output.
 CRON_MAILTO="root"
 
-# Email stats daily and on every stop/restart (except when the system is
-# halted).
+# Email stats daily and on every stop/restart (except on system shutdown).
 # Specify the mail recipient. If not set, stats will not be emailed.
 STATS_MAILTO=$CRON_MAILTO
 

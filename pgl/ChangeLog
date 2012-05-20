@@ -12,6 +12,9 @@ pgl 2.2.0~pre1 The autotools release
   * added new widget to allow viewing and filtering information on files.
   * added error dialog
 
+  [jre]
+  * fixed: don't send stats on shutdown. Added "pglcmd stop_quick"
+
 -- jre <jre-phoenix@users.sourceforge.net>  Tue, 01 May 2012 15:01:57 +0200
 
 

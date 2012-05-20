@@ -82,10 +82,8 @@ case "$1" in
         esac
         ;;
     stop)
-        # Set STATS_MAILTO to empty value to prevent email_stats on stop during
-        # system halt.
-        STATS_MAILTO=""
-        $CMD_PATHNAME $1
+        # stop_quick is normal stop, but without email_stats
+        $CMD_PATHNAME stop_quick
         ;;
     restart|reload|force-reload|update|status)
         $CMD_PATHNAME $1

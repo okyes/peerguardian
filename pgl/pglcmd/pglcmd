@@ -51,7 +51,7 @@ RETVAL=0
 # Then on exit do log_end_msg. Fixes output for failed commands.
 case "$1" in
     'start'|'stop'|'start_wd'|'stop_wd'|'restart'|'reload'|'force-reload'|\
-    'update'|'force-update'|'stats'|'reset_stats'|'email_stats')
+    'update'|'force-update'|'stats'|'reset_stats'|'email_stats'|'stop_quick')
         test_root
         # Define an exit function for trapped signals
         onexit () {
@@ -75,12 +75,12 @@ case "$1" in
         date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
         [ "$VERBOSE" -gt 0 ] && log_end_msg $RETVAL
         ;;
-    'stop')
+    'stop'|'stop_quick')
         test_CMD_LOG
         [ "$VERBOSE" -gt 0 ] && log_daemon_msg "Stopping $DESC" "$NAME"
         date +%F" "%X" "%Z" Begin: $(basename $0) $1" >> $CMD_LOG 2>&1
         do_stop_wd >> $CMD_LOG 2>&1
-        do_stop >> $CMD_LOG 2>&1
+        do_${1} >> $CMD_LOG 2>&1
         date +%F" "%X" "%Z" End: $(basename $0) $1" >> $CMD_LOG 2>&1
         [ "$VERBOSE" -gt 0 ] && log_end_msg $RETVAL
         ;;
@@ -287,6 +287,7 @@ case "$1" in
         echo "    stop"
         echo "    start_wd"
         echo "    stop_wd"
+        echo "    stop_quick"
         echo "    restart"
         echo "    reload"
         echo "    update"
