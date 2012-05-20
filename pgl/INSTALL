@@ -141,6 +141,8 @@ Runtime environment pgld:
 - /lib/lsb/init-functions (optional,there's a copy built in)
 - NetworkManager (optional, needed for automatic whitelisting of newly
   brought up network interfaces. Not needed in Debian.)
+- sendmail (optional, needed to send informational (blocklist updates) and
+  warning mails (if pglcmd.wd detects a problem.)
 
  Runtime environment pgl-gui:
 - pgld
