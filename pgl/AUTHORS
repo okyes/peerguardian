@@ -2,20 +2,20 @@ pgl is an open-source project. We like many authors contributing their work to
 this project. This is an attempt to list all authors and contributors.
 
 Authors:
-    Cader <cade.robinson@gmail.com>, heavily modified nfblockd, so that it
-        became pgld. Also worked on pglcmd and previously much other stuff.
-    Jindrich Makovicka <makovick@gmail.com>, wrote original nfblockd, based on
-        MoBlock.
-    Morpheus <ebutera@users.berlios.de>, created the original MoBlock
     jre <jre-phoenix@users.sourceforge.net>, created pglcmd, based on his
         previous blockcontrol, previously moblock-control. Based on init &
-        update script from the forum at methlabs.org (predecessor of
-        phoenixlabs.org). Debian packager. Project coordinator.
+        update script for peerguardnf from the forum at methlabs.org
+        (predecessor of phoenixlabs.org). Debian packager. Project coordinator.
+    Morpheus <ebutera@users.berlios.de>, created the original MoBlock
     Dimitris Palyvos-Giannas <jimaras@gmail.com>, created mobloquer.
-        Reimplemented dbus in gpld.
-    freemind <freemind@lavabit.com>, wrote pgl-gui, based on mobloquer.
+        Reimplemented dbus in pgld.
+    Jindrich Makovicka <makovick@gmail.com>, wrote original nfblockd, based on
+        MoBlock.
     jpv, initially created dbus support for nfblock.
-
+    Cader <cade.robinson@gmail.com>, heavily modified nfblockd, so that it
+        became pgld. Also worked on pglcmd and previously much other stuff.
+    freemind <freemind@lavabit.com>, wrote pgl-gui, based on mobloquer.
+    hasufell <julian.ospald@googlemail.com>, added autotools support
 
 Contributors:
     godmachine81, slackware packager

@@ -63,8 +63,8 @@ to check before compiling. Go to the directory where you have extracted pgl and
 run:
   ./configure --help
 
-Check the options and the paths. There are some common paths and options you should
-consider to set like:
+Check the options and the paths. There are some common paths and options you
+should consider to set like:
   --prefix         [default: /usr/local]
   --sysconfdir     [default: $prefix/etc]
   --localstatedir  [default: $prefix/var]
@@ -98,14 +98,12 @@ Build dependencies:
 - autotools (autoconf, automake, libtoolize)
 - nfnetlink development files
 - libnetfilter-queue development files
-- libdbus development files (optional)
+- libdbus development files (optional, required for the GUI)
+- Qt4 development files including Qt4 dbus (optional, required for the GUI)
 - zlib development files (optional, for loading gz compressed blocklists
   directly)
 
- Build dependencies pgl-gui:
-- Qt4 development files (including Qt4 dbus)
-
- Runtime environment pgld:
+Runtime environment pgld:
 - the above libraries
 - iptables (required)
 - netfilter kernel support (kernel >= 2.6.13 for NFQUEUE support)
