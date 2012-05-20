@@ -519,14 +519,14 @@ test_external () {
 }
 
 test_sendmail () {
-    if [ $SENDMAIL ] && [ "$SENDMAIL" != /usr/lib/sendmail ] && test_external $SENDMAIL ; then
-        true
-    elif [ -x /usr/lib/sendmail ] ; then
-        SENDMAIL="/usr/lib/sendmail"
-    else
-        echo "Warning: $SENDMAIL not found."
-        echo "Check the SENDMAIL setting."
-        return $E_XEXTERNAL
+    if [ $SENDMAIL ] ; then
+        if [ -x "$SENDMAIL" ] || test_external "$SENDMAIL" ; then
+            true
+        else
+            echo "Warning: $SENDMAIL not found."
+            echo "Check the SENDMAIL setting."
+            return $E_XEXTERNAL
+        fi
     fi
 }
 

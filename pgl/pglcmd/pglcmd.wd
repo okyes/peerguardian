@@ -96,8 +96,7 @@ while true ; do
         echo "To disable the watchdog set WATCHDOG=\"0\" in $CMD_CONF."
         echo "Now doing a restart:"
         $CMD_PATHNAME restart_not_wd || { RETVAL=$? ; break ; }
-        if [ $WD_MAILTO ] && [ $SENDMAIL ] ; then
-            test_sendmail
+        if [ $WD_MAILTO ] && test_sendmail ; then
             cat<<EOF | $SENDMAIL -t
 To: $WD_MAILTO
 Subject: $(basename $0) restarted $NAME
@@ -153,8 +152,7 @@ EOF
         echo "To disable the watchdog set WATCHDOG=\"0\" in $CMD_CONF."
         echo "Now doing a restart:"
         $CMD_PATHNAME restart_not_wd || { RETVAL=$? ; break ; }
-        if [ $WD_MAILTO ] && [ $SENDMAIL ] ; then
-            test_sendmail
+        if [ $WD_MAILTO ] && test_sendmail ; then
             cat<<EOF | $SENDMAIL -t
 To: $WD_MAILTO
 Subject: $(basename $0) restarted $NAME
@@ -175,9 +173,8 @@ EOF
 done
 
 # We only end up here, if restart fails!
-if [ $WD_MAILTO ] && [ $SENDMAIL ] ; then
-test_sendmail
-cat<<EOF | $SENDMAIL -t
+if [ $WD_MAILTO ] && test_sendmail ; then
+    cat<<EOF | $SENDMAIL -t
 To: $WD_MAILTO
 Subject: $(basename $0) failed to restart $NAME
 
