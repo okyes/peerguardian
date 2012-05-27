@@ -48,24 +48,81 @@ pgllib_DATA = \
 	pglcmd.lib \
 	pglcmd.main
 
-all-local:
-	cat pglcmd.defaults | \
-	$(SED) "s|^PATH=.*|PATH=\"$(PATH)\"|" | \
-	$(SED) "s|^BINDIR=.*|BINDIR=\"$(bindir)\"|" | \
-	$(SED) "s|^SBINDIR=.*|SBINDIR=\"$(sbindir)\"|" | \
-	$(SED) "s|^PIDDIR=.*|PIDDIR=\"$(PIDDIR)\"|" | \
-	$(SED) "s|^LOGDIR=.*|LOGDIR=\"$(LOGDIR)\"|" | \
-	$(SED) "s|^CONFDIR=.*|CONFDIR=\"$(pgletcdir)\"|" | \
-	$(SED) "s|^LIBDIR=.*|LIBDIR=\"$(libdir)/$(PACKAGE_NAME)\"|" | \
-	$(SED) "s|^TMPDIR=.*|TMPDIR=\"$(TMPDIR)\"|" | \
-	$(SED) "s|^BLOCKLISTS_DIR=.*|BLOCKLISTS_DIR=\"$(BLOCKLISTS_DIR)\"|" | \
-	$(SED) "s|^LOCAL_BLOCKLIST_DIR=.*|LOCAL_BLOCKLIST_DIR=\"$(LOCAL_BLOCKLIST_DIR)\"|" | \
-	$(SED) "s|^MASTER_BLOCKLIST_DIR=.*|MASTER_BLOCKLIST_DIR=\"$(MASTER_BLOCKLIST_DIR)\"|" | \
-	$(SED) "s|^LSB=.*|LSB=\"$(LSB)\"|" | \
-	$(SED) "s|^DBUS=.*|DBUS=\"$(DBUS_SET)\"|" > pglcmd.defaults.install
-	mv -f pglcmd.defaults.install pglcmd.defaults
-	$(SED) -i -e "s|^CMD_DEFAULTS=.*|CMD_DEFAULTS=\"$(pgllibdir)/pglcmd.defaults\"|" pglcmd.main
-	for FILE in blockcontrol2pglcmd.sh pglcmd pglcmd.wd cron.daily/pglcmd init/pgl ../debian/pglcmd.postinst networkmanager/20pglcmd ; do \
-		cat $$FILE | \
-		$(SED) -i -e "s|^CONTROL_MAIN=.*|CONTROL_MAIN=\"$(pgllibdir)/pglcmd.main\"|" $$FILE ; \
-	done
+pglcmd.defaults:
+	sed \
+	-e 's|^PATH=.*|PATH=\"$(PATH)\"|g' \
+	-e 's|^BINDIR=.*|BINDIR=\"$(bindir)\"|g' \
+	-e 's|^SBINDIR=.*|SBINDIR=\"$(sbindir)\"|g' \
+	-e 's|^PIDDIR=.*|PIDDIR=\"$(PIDDIR)\"|g' \
+	-e 's|^LOGDIR=.*|LOGDIR=\"$(LOGDIR)\"|g' \
+	-e 's|^CONFDIR=.*|CONFDIR=\"$(pgletcdir)\"|g' \
+	-e 's|^LIBDIR=.*|LIBDIR=\"$(libdir)/$(PACKAGE_NAME)\"|g' \
+	-e 's|^TMPDIR=.*|TMPDIR=\"$(TMPDIR)\"|g' \
+	-e 's|^BLOCKLISTS_DIR=.*|BLOCKLISTS_DIR=\"$(BLOCKLISTS_DIR)\"|g' \
+	-e 's|^LOCAL_BLOCKLIST_DIR=.*|LOCAL_BLOCKLIST_DIR=\"$(LOCAL_BLOCKLIST_DIR)\"|g' \
+	-e 's|^MASTER_BLOCKLIST_DIR=.*|MASTER_BLOCKLIST_DIR=\"$(MASTER_BLOCKLIST_DIR)\"|g' \
+	-e 's|^LSB=.*|LSB=\"$(LSB)\"|g' \
+	-e 's|^DBUS=.*|DBUS=\"$(DBUS_SET)\"|g' \
+	< pglcmd.defaults.in > pglcmd.defaults
+
+pglcmd.main:
+	sed \
+	-e 's|^CMD_DEFAULTS=.*|CMD_DEFAULTS=\"$(pgllibdir)/pglcmd.defaults\"|g' \
+	< pglcmd.main.in > pglcmd.main
+
+do_subst = sed -e 's|^CONTROL_MAIN=.*|CONTROL_MAIN=\"$(pgllibdir)/pglcmd.main\"|g'
+
+blockcontrol2pglcmd.sh:
+	$(do_subst) < blockcontrol2pglcmd.sh.in > blockcontrol2pglcmd.sh
+	chmod +x blockcontrol2pglcmd.sh
+
+pglcmd:
+	$(do_subst) < pglcmd.in > pglcmd
+	chmod +x pglcmd
+
+pglcmd.wd:
+	$(do_subst) < pglcmd.wd.in > pglcmd.wd
+	chmod +x pglcmd.wd
+
+cron.daily/pglcmd:
+	$(do_subst) < cron.daily/pglcmd.in > cron.daily/pglcmd
+	chmod +x cron.daily/pglcmd
+
+init/pgl:
+	$(do_subst) < init/pgl.in > init/pgl
+	chmod +x init/pgl
+
+../debian/pglcmd.postinst:
+	$(do_subst) < ../debian/pglcmd.postinst.in > ../debian/pglcmd.postinst
+	chmod +x ../debian/pglcmd.postinst
+
+networkmanager/20pglcmd:
+	$(do_subst) < networkmanager/20pglcmd.in > networkmanager/20pglcmd
+	chmod +x networkmanager/20pglcmd
+
+# These files are also distributed
+# If the files get modified on "make", only the corresponding *.in files are
+# listed here. Otherwise the file that gets installed is listed here.
+EXTRA_DIST = \
+	pglcmd.defaults.in \
+	pglcmd.main.in \
+	blockcontrol2pglcmd.sh.in \
+	pglcmd.in \
+	pglcmd.wd.in \
+	cron.daily/pglcmd.in \
+	init/pgl.in \
+	../debian/pglcmd.postinst.in \
+	networkmanager/20pglcmd.in \
+	pglcmd.lib
+
+# These files get removed on clean
+CLEANFILES = \
+	pglcmd.defaults \
+	pglcmd.main \
+	blockcontrol2pglcmd.sh \
+	pglcmd \
+	pglcmd.wd \
+	cron.daily/pglcmd \
+	init/pgl \
+	../debian/pglcmd.postinst \
+	networkmanager/20pglcmd
