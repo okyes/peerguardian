@@ -27,7 +27,7 @@ netdir = $(sysconfdir)/NetworkManager/dispatcher.d
 net_SCRIPTS = networkmanager/20pglcmd
 endif
 
-initddir = @INITDIR@
+initddir = @INITDDIR@
 initd_SCRIPTS = init/pgl
 
 pglcmddir = $(bindir)

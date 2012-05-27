@@ -40,12 +40,12 @@ AC_CHECK_FUNCS([memchr memmove memset strdup strerror strstr])
 QT_SUB=
 
 ##
-# let user specify initddir
+# let user specify INITDDIR
 AC_ARG_WITH([initddir],
 	    [AS_HELP_STRING([--with-initddir=DIR],
 			    [path to init script directory (default: sysconfdir/init.d)])],
-	    [INITDIR="$withval"],
-	    [INITDIR="$sysconfdir/init.d"])
+	    [INITDDIR="$withval"],
+	    [INITDDIR="$sysconfdir/init.d"])
 
 # let user specify LOGDIR
 AC_ARG_WITH([logdir],
@@ -202,7 +202,7 @@ AC_CONFIG_FILES([Makefile
 
 ## finally substitute several variables
 AC_SUBST([QT_SUB]) # ref in Makefile.am
-AC_SUBST([INITDIR])
+AC_SUBST([INITDDIR])
 AC_SUBST([PIDDIR])
 AC_SUBST([LOGDIR])
 AC_SUBST([TMPDIR])
@@ -236,6 +236,7 @@ echo pgl.......................................... : Version $VERSION
 echo
 echo Prefix....................................... : $prefix
 echo Exec_Prefix.................................. : $exec_prefix
+echo Initd........................................ : $INITDDIR
 echo Logdir....................................... : $LOGDIR
 echo Piddir....................................... : $PIDDIR
 echo Tmpdir....................................... : $TMPDIR
