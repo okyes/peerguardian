@@ -27,8 +27,8 @@
 # This can happen in early boot stages before local file systems are mounted.
 
 # CONTROL_MAIN has to be set correctly in all just mentioned files.
-# This is done by the pgl/pglcmd/Makefile based on the settings in the
-# pgl/Makefile.
+# Except for debian/pglcmd.postinst, this is done automatically on "make" based
+# on the "configure" options.
 CONTROL_MAIN="/usr/lib/pgl/pglcmd.main"
 
 # Configure pglcmd and load functions.

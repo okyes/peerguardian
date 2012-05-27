@@ -92,10 +92,6 @@ init/pgl:
 	$(do_subst) < init/pgl.in > init/pgl
 	chmod +x init/pgl
 
-../debian/pglcmd.postinst:
-	$(do_subst) < ../debian/pglcmd.postinst.in > ../debian/pglcmd.postinst
-	chmod +x ../debian/pglcmd.postinst
-
 networkmanager/20pglcmd:
 	$(do_subst) < networkmanager/20pglcmd.in > networkmanager/20pglcmd
 	chmod +x networkmanager/20pglcmd
@@ -111,7 +107,6 @@ EXTRA_DIST = \
 	pglcmd.wd.in \
 	cron.daily/pglcmd.in \
 	init/pgl.in \
-	../debian/pglcmd.postinst.in \
 	networkmanager/20pglcmd.in \
 	pglcmd.lib
 
@@ -124,5 +119,4 @@ CLEANFILES = \
 	pglcmd.wd \
 	cron.daily/pglcmd \
 	init/pgl \
-	../debian/pglcmd.postinst \
 	networkmanager/20pglcmd
