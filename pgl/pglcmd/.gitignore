@@ -7,6 +7,15 @@
 # command after changing this file, to see if there are
 # any tracked files which get ignored after the change.
 
-qrc_images.cpp
-pgl_gui
+#
+# Normal rules
+#
+pglcmd.defaults
+pglcmd.main
+blockcontrol2pglcmd.sh
+/pglcmd
+pglcmd.wd
+cron.daily/pglcmd
+init/pgl
+networkmanager/20pglcmd
 
