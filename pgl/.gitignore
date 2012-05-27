@@ -26,5 +26,12 @@ config.*
 configure
 depcomp
 install-sh
+libtool
 ltmain.sh
 autom4te.cache
+.deps/
+.libs/
+*.o
+*.lo
+*.la
+
