@@ -5,10 +5,11 @@ MASTER_BLOCKLIST_DIR = @MASTER_BLOCKLIST_DIR@
 ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = \
-	  docs \
-	  pglcmd \
-	  pgld \
-	  $(QT_SUB)
+	docs \
+	pglcmd \
+	pgld \
+	$(QT_SUB)
+
 
 install-data-local:
 	@$(INSTALL) -d $(DESTDIR)$(MASTER_BLOCKLIST_DIR)

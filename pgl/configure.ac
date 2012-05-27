@@ -195,10 +195,10 @@ AS_IF([test "x$with_qt4" = "xyes"],
 
 # targets
 AC_CONFIG_FILES([Makefile
-                 docs/Makefile
-		 pgld/Makefile
-                 pglcmd/Makefile
-		 pgl-gui/Makefile])
+		docs/Makefile
+		pgld/Makefile
+		pglcmd/Makefile
+		pgl-gui/Makefile])
 
 ## finally substitute several variables
 AC_SUBST([QT_SUB]) # ref in Makefile.am
@@ -235,28 +235,16 @@ echo
 echo pgl.......................................... : Version $VERSION
 echo
 echo Prefix....................................... : $prefix
+echo Exec_Prefix.................................. : $exec_prefix
 echo Logdir....................................... : $LOGDIR
 echo Piddir....................................... : $PIDDIR
 echo Tmpdir....................................... : $TMPDIR
 echo Blocklists................................... : $BLOCKLISTS_DIR
-echo Masterblocklist.............................. : $MASTER_BLOCKLIST_DIR
 echo Localblocklist............................... : $LOCAL_BLOCKLIST_DIR
+echo Masterblocklist.............................. : $MASTER_BLOCKLIST_DIR
+echo "LSB (use built-in functions if empty)........ : $LSBFILE"
 echo
-if test "x$with_qt4" = "xyes"; then
-echo QT-gui....................................... : yes
-else
-echo QT-gui....................................... : no
-fi
-if test "x$enable_dbus" = "xyes"; then
-echo dbus......................................... : yes
-else
-echo dbus......................................... : no
-fi
-if test "x$enable_zlib" = "xyes"; then
-echo zlib......................................... : yes
-else
-echo zlib......................................... : no
-fi
+
 if test "x$enable_logrotate" = "xyes"; then
 echo logrotate.................................... : yes
 else
@@ -272,10 +260,25 @@ echo networkmanager............................... : yes
 else
 echo networkmanager............................... : no
 fi
+if test "x$enable_zlib" = "xyes"; then
+echo zlib......................................... : yes
+else
+echo zlib......................................... : no
+fi
+if test "x$enable_dbus" = "xyes"; then
+echo dbus......................................... : yes
+else
+echo dbus......................................... : no
+fi
+if test "x$with_qt4" = "xyes"; then
+echo QT-gui....................................... : yes
+else
+echo QT-gui....................................... : no
+fi
 
 echo
 echo .............................................
-echo "developer debug:"
+echo "Developer debug:"
 echo "PGLD_CFLAGS: $PGLD_CFLAGS"
 echo "PGLD_CPPFLAGS: $PGLD_CPPFLAGS"
 echo "PGLD_LDFLAGS: $PGLD_LDFLAGS"
