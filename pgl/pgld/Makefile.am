@@ -20,13 +20,13 @@ libdbus_la_SOURCES = src/dbus.c src/dbus.h
 libdbus_la_LDFLAGS = -module -avoid-version
 libdbus_la_LIBADD = @PGLD_LIBS@
 dbusdir = $(sysconfdir)/dbus-1/system.d
-dbus_DATA = org.netfilter.pgl.conf
+dist_dbus_DATA = org.netfilter.pgl.conf
 else
 
 endif
 
 if LOGROTATEMAKE
 logdir = $(sysconfdir)/logrotate.d
-log_DATA = logrotate/pgld
+dist_log_DATA = logrotate/pgld
 endif
 

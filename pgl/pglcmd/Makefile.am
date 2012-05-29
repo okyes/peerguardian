@@ -14,7 +14,7 @@ endif
 
 if LOGROTATEMAKE
 logdir = $(sysconfdir)/logrotate.d
-log_DATA = logrotate/pglcmd
+dist_log_DATA = logrotate/pglcmd
 endif
 
 if CRONMAKE
@@ -37,7 +37,7 @@ pglcmdwddir = $(sbindir)
 pglcmdwd_SCRIPTS = pglcmd.wd
 
 pgletcdir = $(sysconfdir)/$(PACKAGE_NAME)
-pgletc_DATA = \
+dist_pgletc_DATA = \
 	allow.p2p \
 	blocklists.list \
 	pglcmd.conf

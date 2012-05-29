@@ -1,7 +1,9 @@
-man_MANS = pgld.1
+dist_man_MANS = pgld.1
+
+examplesdir = $(docdir)/examples
+dist_examples_DATA =  \
+	iptables-custom-insert.sh \
+	iptables-custom-remove.sh
 
 install-data-local:
-	$(INSTALL_DATA) -D $(abs_srcdir)/iptables-custom-insert.sh \
-		$(DESTDIR)$(datadir)/$(PACKAGE_NAME)/examples/iptables-custom-insert.sh
-	$(INSTALL_DATA) -D $(abs_srcdir)/iptables-custom-remove.sh \
-		$(DESTDIR)$(datadir)/$(PACKAGE_NAME)/examples/iptables-custom-remove.sh
+	@$(INSTALL) -d $(DESTDIR)$(examplesdir)
