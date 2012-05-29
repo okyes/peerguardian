@@ -5,13 +5,16 @@ Maintainer: PeerGuardian Linux Developers <peerguardian-devel@lists.sourceforge.
 Uploaders: jre <jre-phoenix@users.sourceforge.net>
 Bugs: mailto:peerguardian-devel@lists.sourceforge.net
 Build-Depends: debhelper (>= 7.0.50~),
+               dh-autoreconf,
                po-debconf,
-               libqt4-dev,
-               libdbus-1-dev,
                zlib1g-dev,
+               libdbus-1-dev,
                libnetfilter-queue-dev,
-               libnfnetlink-dev
-Standards-Version: 3.9.2.0
+               libnfnetlink-dev,
+               libpolkit-qt-1-dev,
+               libqt4-dev
+Build-Conflicts: autoconf2.13, automake1.4
+Standards-Version: 3.9.3.0
 Homepage: http://peerguardian.sourceforge.net/
 Vcs-Browser: http://peerguardian.git.sourceforge.net/
 Vcs-Git: git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian

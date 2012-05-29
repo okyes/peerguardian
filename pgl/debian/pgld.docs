@@ -1,6 +1,10 @@
-docs/AUTHORS
-docs/BUGS
-docs/README
-docs/README.blocklists
-docs/THANKS
-docs/TODO
+AUTHORS
+BUGS
+ChangeLog
+INSTALL
+NEWS
+README
+README.blocklists
+README.dbus
+THANKS
+TODO

@@ -6,25 +6,28 @@
 #export DH_VERBOSE=1
 
 %:
-	dh $@
+	dh $@ --with autoreconf
 
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		--with-lsb=/lib/lsb/init-functions \
+		--enable-networkmanager
 
 override_dh_auto_build:
+	dh_auto_build
 	# Link some files to debian/ directory until debhelper can handle such
 	# cases better. See http://bugs.debian.org/499486
 	# Just act if pglcmd package is built:
 ifneq (,$(findstring pglcmd, $(shell dh_listpackages)))
-	ln -f pglcmd/cron.daily debian/pglcmd.cron.daily
-	ln -f pglcmd/if-up debian/pglcmd.if-up
-	ln -f pglcmd/init debian/pglcmd.pgl.init
-	ln -f pglcmd/logrotate debian/pglcmd.logrotate
+	ln -f pglcmd/cron.daily/pglcmd debian/pglcmd.cron.daily
+	ln -f pglcmd/networkmanager/20pglcmd debian/pglcmd.if-up
+	ln -f pglcmd/init/pgl debian/pglcmd.pgl.init
+	ln -f pglcmd/logrotate/pglcmd debian/pglcmd.logrotate
 endif
 	# Just act if pgld package is built:
 ifneq (,$(findstring pgld, $(shell dh_listpackages)))
-	ln -f pgld/logrotate debian/pgld.logrotate
+	ln -f pgld/logrotate/pgld debian/pgld.logrotate
 endif
-
-	dh_auto_build
 
 override_dh_clean:
 	# Just act if pglcmd package is built:
