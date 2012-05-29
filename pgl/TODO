@@ -204,8 +204,9 @@ Packaging:
 
   - add debtags to debian packages
 
-  - create debian patch from modified upstream:
-    dpkg-source --commit
+  - cme command from libconfig-model-perl provides a way to check the
+    dependency list. Obsolete versions can be cleaned up automatically with
+    'cme fix dpkg-control'.
 
   - check LSB + FHS for pid file location, adapt:
     Currently Debian/Unstable is going through a transition to using /run instead

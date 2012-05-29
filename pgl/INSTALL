@@ -11,7 +11,7 @@ Table of Contents:
 ==================
 
 1.) Manual installation
-2.) Installed files (uninstall)
+2.) Uninstall
 3.) Build dependencies and runtime environment
 4.) Available packages, build scripts and other distribution specific tips
 
@@ -24,6 +24,7 @@ Table of Contents:
 This is the general method to install pgl. Please also have a look at the
 distribution specific section (chapter 4).
 
+
 Step 1: Get the source:
 -----------------------
 Either get the latest stable release from peerguardian.sourceforge.net and
@@ -32,24 +33,13 @@ Or get the current development code:
 git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
 
 
-Step 2: Base configuration (Makefile)
--------------------------------------
-pgl consists of three components: the daemon pgld, the command line interface
-pglcmd and the GUI pgl-gui. In the pgl/Makefile you can enable/disable these
-components and configure the paths pgl is installed to and uses.
-
-For a slick installation you can turn off dbus support (needed for pgl-gui).
-Especially for embedded devices (like router or NAS box) you might set the
-LOWMEM option to "yes" to disable storing of textual range descriptions.
-
-
-Step 3: Install pgl's dependencies
+Step 2: Install pgl's dependencies
 ----------------------------------
 Install the build dependencies (including the development headers) and runtime
 environment for the components (see chapter 3).
 
 
-Step 4: Compilation and installation
+Step 3: Compilation and installation
 ------------------------------------
 If you are using the development version from the git repository generate
 the autotools files first. Go to the peerguardian/pgl directory and run:
@@ -66,20 +56,44 @@ run:
 Check the options and the paths. There are some common paths and options you
 should consider to set like:
   --prefix         [default: /usr/local]
-  --sysconfdir     [default: $prefix/etc]
-  --localstatedir  [default: $prefix/var]
+  --sysconfdir     [default: $prefix/etc, recommended: /etc]
+  --localstatedir  [default: $prefix/var, recommended: /var]
   --with-initddir  [default: $sysconfdir/init.d]
   --with-logdir    [default: $localstatedir/log/pgl]
   --with-piddir    [default: $localstatedir/run]
   --with-tmpdir    [default: /tmp]
+  --with-lsb=      [default: none/built-in,
+                    recommended: /lib/lsb/init-functions]
+  --enable-networkmanager [default: disable]
 
 Now you should be clear about the settings you need for your distribution and 
 run something similar to:
-  ./configure --prefix=/my/prefix --with-initddir=/my/initddir
+  ./configure --prefix=/my/prefix --with-initddir=/my/initddir --sysconfdir=/etc
   make
   make install
 
+On some systems it may be required to activate the init script manually, e.g.:
+  update-rc.d pgl defaults
 
+
+Example configure line for a complete build, and full system integration
+(on a debian system):
+  ./configure \
+    --prefix=/usr \
+    --mandir=/usr/share/man \
+    --datadir=/usr/share \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --with-lsb=/lib/lsb/init-functions \
+    --enable-cron \
+    --enable-dbus \
+    --enable-logrotate \
+    --enable-networkmanager \
+    --enable-zlib \
+    --with-qt4
+
+ArchLinux users probably have to set:
+  --with-initddir=/etc/rc.d
 
 
 2.) Uninstall

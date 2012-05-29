@@ -9,14 +9,16 @@ http://wiki.debian.org/Projects/DebSrc3.0.
 Make Debian packages:
 
 Install the build requirements:
-  apt-get install devscripts \
-                    debhelper \
-                    po-debconf \
-                    zlib1g-dev \
-                    libnetfilter-queue-dev \
-                    libnfnetlink-dev \
-                    libdbus-1-dev \
-                    libqt4-dev
+  apt-get install debhelper (>= 7.0.50~) \
+               dh-autoreconf \
+               po-debconf \
+               zlib1g-dev \
+               libdbus-1-dev \
+               libnetfilter-queue-dev \
+               libnfnetlink-dev \
+               libpolkit-qt-1-dev \
+               libqt4-dev \
+               libtool
 
 Get the source (see pgl/README, Step 1: Get the source).
 
