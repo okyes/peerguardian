@@ -48,9 +48,10 @@ pgllib_DATA = \
 	pglcmd.lib \
 	pglcmd.main
 
+# Don't update PATH here anymore, because on user's make it doesn't contain
+# [/usr]/sbin
 pglcmd.defaults:
 	sed \
-	-e 's|^PATH=.*|PATH=\"$(PATH)\"|g' \
 	-e 's|^BINDIR=.*|BINDIR=\"$(bindir)\"|g' \
 	-e 's|^SBINDIR=.*|SBINDIR=\"$(sbindir)\"|g' \
 	-e 's|^PIDDIR=.*|PIDDIR=\"$(PIDDIR)\"|g' \
