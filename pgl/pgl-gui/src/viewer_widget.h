@@ -4,6 +4,7 @@
 
 #include <QDialog>
 #include <QTextEdit>
+#include <QShowEvent>
 
 class ViewerWidget : public QDialog
 {
@@ -14,9 +15,14 @@ class ViewerWidget : public QDialog
     public:
         explicit ViewerWidget(const QString& filePath="", QWidget* parent = 0);
         virtual ~ViewerWidget();
+        
+    protected:
+        virtual void showEvent(QShowEvent *);
+        
     private slots:
         void onFilterTextEdited(const QString&);
         void onReturnPressed();
+        void moveScrollBarToBottom();
     
 };
 

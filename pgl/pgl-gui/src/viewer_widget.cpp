@@ -8,6 +8,9 @@
 #include <QFile>
 #include <QList>
 #include <QDebug>
+#include <QDialogButtonBox>
+#include <QScrollBar>
+#include <QTimer>
 
 #include "file_transactions.h"
 
@@ -25,16 +28,19 @@ ViewerWidget::ViewerWidget(const QString& filePath, QWidget* parent) :
     QVBoxLayout* vlayout = new QVBoxLayout(this);
     //QHBoxLayout* hlayout = new QHBoxLayout;
     //vlayout->addLayout(hlayout);
+    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Close, Qt::Horizontal, this);
     QLineEdit * filter = new QLineEdit(this);
     mTextView = new QTextEdit(this);
     mTextView->setReadOnly(true);
     mTextView->setText(text);
     
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
     connect(filter, SIGNAL(textEdited(const QString&)), this, SLOT(onFilterTextEdited(const QString&)));
     connect(filter, SIGNAL(returnPressed()), this, SLOT(onReturnPressed()));
 
     vlayout->addWidget(mTextView);
     vlayout->addWidget(filter);
+    vlayout->addWidget(buttonBox);
     
     resize(500, 300);
     setWindowTitle(filePath);
@@ -47,6 +53,18 @@ ViewerWidget::ViewerWidget(const QString& filePath, QWidget* parent) :
 
 ViewerWidget::~ViewerWidget()
 {
+}
+
+void ViewerWidget::showEvent(QShowEvent * event)
+{
+    QDialog::showEvent(event);
+    mTextView->verticalScrollBar()->setValue(mTextView->verticalScrollBar()->maximum());
+    
+}
+
+void ViewerWidget::moveScrollBarToBottom()
+{
+    mTextView->verticalScrollBar()->setValue(mTextView->verticalScrollBar()->maximum());
 }
 
 void ViewerWidget::onFilterTextEdited(const QString& text)
