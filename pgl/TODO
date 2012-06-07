@@ -197,6 +197,9 @@ All components:
     automatically analyze and rewrite C code
     https://lwn.net/Articles/315686/
 
+  - add check in configure.ac to prevent building the GUI while LOWMEM is
+    enabled.
+
 
 Packaging:
 

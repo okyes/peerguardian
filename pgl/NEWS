@@ -1,0 +1,6 @@
+pgl (2.2.0)
+
+  * our new Gentoo maintainer added a real buildsystem (GNU autotools)
+  * renamed pgl-gui to pgl-gui  
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Thu, 07 Jun 2012 21:59:44 +0200

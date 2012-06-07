@@ -73,12 +73,18 @@ support:
 Especially for embedded devices (like router or NAS box) you might disable
 storing of textual IP range descriptions:
   --enable-lowmem
-
+But generally it is recommended (and required for the GUI) to disable that
+feature:
+  --disable-lowmem
 
 
 Now you should be clear about the settings you need for your distribution and 
 run something similar to:
-  ./configure --prefix=/my/prefix --with-initddir=/my/initddir --sysconfdir=/etc
+  ./configure \
+    --prefix=/my/prefix \
+    --with-initddir=/my/initddir \
+    --sysconfdir=/etc \
+    --disable-lowmem
   make
   make install
 
@@ -100,7 +106,9 @@ Example configure line for a complete build, and full system integration
     --enable-logrotate \
     --enable-networkmanager \
     --enable-zlib \
-    --with-qt4
+    --with-qt4 \
+    --disable-lowmem
+
 
 ArchLinux users probably have to set:
   --with-initddir=/etc/rc.d
