@@ -123,6 +123,14 @@ AC_ARG_ENABLE([networkmanager],
 
 AM_CONDITIONAL(NETWORKMANAGERMAKE, [test "x$enable_networkmanager" = "xyes"])
 
+# let user specify iconsdir
+AC_ARG_WITH([iconsdir],
+	    [AS_HELP_STRING([--with-iconsdir=FILE],
+			    [path where icons get installed (default: datadir/pixmaps)])],
+	    [ICONSDIR="$withval"],
+	    [ICONSDIR="$datadir/pixmaps"])
+
+
 ##
 # initial PGLD_flags
 # pkg-config module check, generates $1_LIBS and $1_CFLAGS vars
@@ -210,6 +218,7 @@ AC_SUBST([BLOCKLISTS_DIR])
 AC_SUBST([LOCAL_BLOCKLIST_DIR])
 AC_SUBST([MASTER_BLOCKLIST_DIR])
 AC_SUBST([LSBFILE])
+AC_SUBST([ICONSDIR])
 # PGLDF subst.
 AC_SUBST([PGLD_CFLAGS])
 AC_SUBST([PGLD_CPPFLAGS])
