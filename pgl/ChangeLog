@@ -17,6 +17,7 @@ pgl 2.2.0~pre1 The autotools release
   * cleaned up some sendmail tests
   * buildsystem:
     - don't change PATH in pglcmd.default on "make"
+  * renamed blockcontrol2pglcmd.sh to blockcontrol2pglcmd
 
 -- jre <jre-phoenix@users.sourceforge.net>  Tue, 01 May 2012 15:01:57 +0200
 

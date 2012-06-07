@@ -12,7 +12,7 @@
 #
 pglcmd.defaults
 pglcmd.main
-blockcontrol2pglcmd.sh
+blockcontrol2pglcmd
 /pglcmd
 pglcmd.wd
 cron.daily/pglcmd

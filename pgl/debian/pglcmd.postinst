@@ -60,7 +60,7 @@ esac
 
 ################################################################################
 # The following code is common between pglcmd, pglcmd.wd,
-# cron.daily, init, debian/pglcmd.postinst and blockcontrol2pglcmd.sh.
+# cron.daily, init, debian/pglcmd.postinst and blockcontrol2pglcmd.
 
 # if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
 # This can happen in early boot stages before local file systems are mounted.
@@ -83,7 +83,7 @@ fi
 ###############################################################################
 
 # Transition some old blockcontrol configuration settings.
-[ -x /usr/bin/blockcontrol2pglcmd.sh ] && blockcontrol2pglcmd.sh || true
+[ -x /usr/bin/blockcontrol2pglcmd ] && blockcontrol2pglcmd || true
 
 ###############################################################################
 

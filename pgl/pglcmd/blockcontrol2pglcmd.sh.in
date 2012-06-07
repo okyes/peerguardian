@@ -1,5 +1,5 @@
 #!/bin/sh
-# blockcontrol2pglcmd.sh - transition blockcontrol to pglcmd configuration
+# blockcontrol2pglcmd - transition blockcontrol to pglcmd configuration
 #
 # Copyright (C) 2011 jre <jre-phoenix@users.sourceforge.net>
 #
@@ -27,7 +27,7 @@ BLOCKCONTROL_LISTS="/etc/blockcontrol/blocklists.list"
 
 ################################################################################
 # The following code is common between pglcmd, pglcmd.wd,
-# cron.daily, init, debian/pglcmd.postinst and blockcontrol2pglcmd.sh.
+# cron.daily, init, debian/pglcmd.postinst and blockcontrol2pglcmd.
 
 # if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
 # This can happen in early boot stages before local file systems are mounted.
