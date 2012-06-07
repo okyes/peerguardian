@@ -13,7 +13,11 @@ AM_LDFLAGS = @QT_LDFLAGS@
 
 bin_PROGRAMS = pgl_gui
 
-pgl_gui_LDADD = @QT_LIBS@
+# additional libraries and objects to link in pgl_gui
+pgl_gui_LDADD = \
+	@QT_LIBS@ \
+	$(nodist_EXTRA_pgl_gui_SOURCES:.cpp=.o) \
+	qrc_images.o
 
 dist_pgl_gui_SOURCES = \
 	src/add_exception_dialog.cpp src/add_exception_dialog.h \
@@ -32,14 +36,9 @@ dist_pgl_gui_SOURCES = \
 	src/super_user.cpp src/super_user.h \
 	src/utils.cpp src/utils.h \
 	src/viewer_widget.cpp src/viewer_widget.h \
-	src/main.cpp \
-	qrc_images.cpp \
-	$(nodist_EXTRA_pgl_gui_SOURCES)
+	src/main.cpp
 
-# moc files
-# nodist_ doesn't work (moc_ files are added to the tar.gz), because it's added
-# to pgl_gui_SOURCES above. This is necessary because otherwise make fails
-# on linking (although nodist_EXTRA_pgl_gui_SOURCES are added to BUILT_SOURCES)
+# these moc files are also built from SOURCES
 nodist_EXTRA_pgl_gui_SOURCES = \
 	src/moc_add_exception_dialog.cpp \
 	src/moc_command.cpp \
@@ -58,6 +57,7 @@ nodist_EXTRA_pgl_gui_SOURCES = \
 	src/moc_utils.cpp \
 	src/moc_viewer_widget.cpp
 
+# rule to build moc files
 src/moc_%.cpp: src/%.h
 	$(MOC) $(AM_CPPFLAGS) "$<" -o "$@"
 
@@ -67,15 +67,17 @@ FORMSSOURCES = \
 	ui/main_window.ui \
 	ui/settings.ui
 
+# these ui forms headers are built from FORMSSOURCES
 nodist_FORMSHEADERS = \
 	ui/ui_add_exception.h \
 	ui/ui_main_window.h \
 	ui/ui_settings.h
 
+# rule to build ui forms headers
 ui/ui_%.h: ui/%.ui
 	$(UIC) $< -o $@
 
-# qrc_images
+# rule to build qrc_images.cpp
 qrc_images.cpp: images/images.qrc
 	$(RCC) -name images images/images.qrc -o qrc_images.cpp
 
