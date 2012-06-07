@@ -49,8 +49,7 @@ To update the files run:
   autoreconf
 
 Pgl uses autotools which comes with several configure-switches you have
-to check before compiling. Go to the directory where you have extracted pgl and
-run:
+to check before compiling. Go to the pgl/ directory and run:
   ./configure --help
 
 Check the options and the paths. There are some common paths and options you
@@ -58,13 +57,24 @@ should consider to set like:
   --prefix         [default: /usr/local]
   --sysconfdir     [default: $prefix/etc, recommended: /etc]
   --localstatedir  [default: $prefix/var, recommended: /var]
+  --with-iconsdir  [default: $datadir/pixmaps]
   --with-initddir  [default: $sysconfdir/init.d]
   --with-logdir    [default: $localstatedir/log/pgl]
   --with-piddir    [default: $localstatedir/run]
   --with-tmpdir    [default: /tmp]
   --with-lsb=      [default: none/built-in,
                     recommended: /lib/lsb/init-functions]
-  --enable-networkmanager [default: disable]
+
+For a slick installation you can build without the GUI and turn off dbus
+support:
+  --without-qt4
+  --disable-dbus
+
+Especially for embedded devices (like router or NAS box) you might disable
+storing of textual IP range descriptions:
+  --enable-lowmem
+
+
 
 Now you should be clear about the settings you need for your distribution and 
 run something similar to:
@@ -77,7 +87,7 @@ On some systems it may be required to activate the init script manually, e.g.:
 
 
 Example configure line for a complete build, and full system integration
-(on a debian system):
+(on a Debian system):
   ./configure \
     --prefix=/usr \
     --mandir=/usr/share/man \
@@ -94,6 +104,8 @@ Example configure line for a complete build, and full system integration
 
 ArchLinux users probably have to set:
   --with-initddir=/etc/rc.d
+
+
 
 
 2.) Uninstall

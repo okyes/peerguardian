@@ -125,7 +125,7 @@ AM_CONDITIONAL(NETWORKMANAGERMAKE, [test "x$enable_networkmanager" = "xyes"])
 
 # let user specify iconsdir
 AC_ARG_WITH([iconsdir],
-	    [AS_HELP_STRING([--with-iconsdir=FILE],
+	    [AS_HELP_STRING([--with-iconsdir=DIR],
 			    [path where icons get installed (default: datadir/pixmaps)])],
 	    [ICONSDIR="$withval"],
 	    [ICONSDIR="$datadir/pixmaps"])

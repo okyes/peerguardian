@@ -130,6 +130,9 @@ pgl-gui:
     Correct long term implementation: request the data from pgld via dbus.
 
   - policykit support (instead of kdesudo/gksu)
+    This also solves this security problem: you can give root rights to
+      "/usr/bin/gksu "sh /tmp/execute-all-pgl-commands.sh""
+    But this file is writable for the user.
 
   - use ${BLOCKLISTS_DIR}/lists.xml to determine human friendly blocklist names
     for URLs like this: http://list.iblocklist.com/?list=ewqglwibdgjttwttrinl&fi
