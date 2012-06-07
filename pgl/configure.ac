@@ -173,6 +173,17 @@ AS_IF([test "x$enable_dbus" = "xyes"],
       [PGLD_LDFLAGS="-Wl,-export-dynamic"]
       [PGLD_LIBS="$PGLD_LIBS $DBUS_LIBS -ldl"])
 
+# configure-switch for lowmem
+AC_ARG_ENABLE([lowmem],
+	      [AS_HELP_STRING([--enable-lowmem],
+			     [enable lowmem support (default: enable)])],
+	      [enable_lowmem=$enableval],
+	      [enable_lowmem="yes"])
+
+# modify PGLD_flags if lowmem is enabled
+AS_IF([test "x$enable_lowmem" = "xyes"],
+      [PGLD_CPPFLAGS="$PGLD_CPPFLAGS -DLOWMEM"])
+
 
 ##
 # initial QT_flags
@@ -279,6 +290,11 @@ if test "x$enable_dbus" = "xyes"; then
 echo dbus......................................... : yes
 else
 echo dbus......................................... : no
+fi
+if test "x$enable_lowmem" = "xyes"; then
+echo lowmem....................................... : yes
+else
+echo lowmem....................................... : no
 fi
 if test "x$with_qt4" = "xyes"; then
 echo QT-gui....................................... : yes
