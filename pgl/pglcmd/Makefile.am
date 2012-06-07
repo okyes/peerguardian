@@ -64,6 +64,7 @@ pglcmd.defaults:
 	-e 's|^MASTER_BLOCKLIST_DIR=.*|MASTER_BLOCKLIST_DIR=\"$(MASTER_BLOCKLIST_DIR)\"|g' \
 	-e 's|^LSB=.*|LSB=\"$(LSB)\"|g' \
 	-e 's|^DBUS=.*|DBUS=\"$(DBUS_SET)\"|g' \
+	-e 's|^VERSION=.*|VERSION=\"$(VERSION)\"|g' \
 	< pglcmd.defaults.in > pglcmd.defaults
 
 pglcmd.main:
