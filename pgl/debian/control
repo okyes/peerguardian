@@ -107,7 +107,7 @@ Depends: ${shlibs:Depends},
          pgld (<< ${source:Version}.1~),
          pglcmd (= ${source:Version})
 Breaks: mobloquer (<<2~)
-Replaces: mobloquer (<<2~)
+Replaces: mobloquer (<<2~), pgl-gui
 Description: PeerGuardian Linux GUI - pglgui
  PeerGuardian Linux (pgl) is a privacy oriented firewall application. It blocks
  connections to and from hosts specified in huge blocklists (thousands or
@@ -116,12 +116,20 @@ Description: PeerGuardian Linux GUI - pglgui
  .
  This is the pgl Graphical User Interface pglgui (C++, Qt4).
 
+Package: pgl-gui
+Architecture: all
+Depends: pglgui
+Description: transitional dummy package
+ This package is a dummy package to transition to pglgui. It can be safely
+ removed.
+
 Package: pglgui-dbg
 Architecture: any
 Section: debug
 Priority: extra
 Depends: ${misc:Depends},
          pglgui (= ${binary:Version})
+Replaces: pgl-gui-dbg
 Description: PeerGuardian Linux GUI - pglgui (debug)
  PeerGuardian Linux (pgl) is a privacy oriented firewall application. It blocks
  connections to and from hosts specified in huge blocklists (thousands or
@@ -131,3 +139,10 @@ Description: PeerGuardian Linux GUI - pglgui (debug)
  This is the pgl Graphical User Interface pglgui (C++, Qt4).
  .
  This package contains the debugging symbols for pglgui.
+
+Package: pgl-gui-dbg
+Architecture: all
+Depends: pglgui-dbg
+Description: transitional dummy package
+ This package is a dummy package to transition to pglgui-dbg. It can be safely
+ removed.
