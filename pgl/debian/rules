@@ -10,8 +10,7 @@
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
-		--with-lsb=/lib/lsb/init-functions \
-		--disable-lowmem
+		--with-lsb=/lib/lsb/init-functions
 
 override_dh_auto_build:
 	dh_auto_build

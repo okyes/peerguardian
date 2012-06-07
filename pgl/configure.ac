@@ -178,7 +178,7 @@ AC_ARG_ENABLE([lowmem],
 	      [AS_HELP_STRING([--enable-lowmem],
 			     [enable lowmem support (default: enable)])],
 	      [enable_lowmem=$enableval],
-	      [enable_lowmem="yes"])
+	      [enable_lowmem="no"])
 
 # modify PGLD_flags if lowmem is enabled
 AS_IF([test "x$enable_lowmem" = "xyes"],
