@@ -86,7 +86,7 @@ desktopdir = $(datadir)/applications
 dist_desktop_DATA = other/pgl-gui.desktop
 
 # icon
-iconsdir = $(datadir)/pixmaps
+iconsdir = @ICONSDIR@
 dist_icons_DATA = images/pgl-gui.png
 
 # additional files to be added to the tar.gz on "make dist"
