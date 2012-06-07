@@ -11,15 +11,15 @@ AM_CPPFLAGS = \
 AM_LDFLAGS = @QT_LDFLAGS@
 
 
-bin_PROGRAMS = pgl_gui
+bin_PROGRAMS = pglgui
 
-# additional libraries and objects to link in pgl_gui
-pgl_gui_LDADD = \
+# additional libraries and objects to link in pglgui
+pglgui_LDADD = \
 	@QT_LIBS@ \
-	$(nodist_EXTRA_pgl_gui_SOURCES:.cpp=.o) \
+	$(nodist_EXTRA_pglgui_SOURCES:.cpp=.o) \
 	qrc_images.o
 
-dist_pgl_gui_SOURCES = \
+dist_pglgui_SOURCES = \
 	src/add_exception_dialog.cpp src/add_exception_dialog.h \
 	src/command.cpp src/command.h \
 	src/error_dialog.cpp src/error_dialog.h \
@@ -39,7 +39,7 @@ dist_pgl_gui_SOURCES = \
 	src/main.cpp
 
 # these moc files are also built from SOURCES
-nodist_EXTRA_pgl_gui_SOURCES = \
+nodist_EXTRA_pglgui_SOURCES = \
 	src/moc_add_exception_dialog.cpp \
 	src/moc_command.cpp \
 	src/moc_error_dialog.cpp \
@@ -83,11 +83,11 @@ qrc_images.cpp: images/images.qrc
 
 # .desktop file rules
 desktopdir = $(datadir)/applications
-dist_desktop_DATA = other/pgl-gui.desktop
+dist_desktop_DATA = other/pglgui.desktop
 
 # icon
 iconsdir = @ICONSDIR@
-dist_icons_DATA = images/pgl-gui.png
+dist_icons_DATA = images/pglgui.png
 
 # additional files to be added to the tar.gz on "make dist"
 EXTRA_DIST = \
@@ -96,7 +96,7 @@ EXTRA_DIST = \
 	$(FORMSSOURCES)
 
 BUILT_SOURCES = \
-	$(nodist_EXTRA_pgl_gui_SOURCES) \
+	$(nodist_EXTRA_pglgui_SOURCES) \
 	$(nodist_FORMSHEADERS) \
 	qrc_images.cpp
 

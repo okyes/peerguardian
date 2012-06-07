@@ -796,7 +796,7 @@ void Peerguardian::initializeSettings()
     
     setWindowIcon(mTrayIconDisabled);
 
-    m_ProgramSettings = new QSettings(QSettings::UserScope, "pgl", "pgl-gui", this);
+    m_ProgramSettings = new QSettings(QSettings::UserScope, "pgl", "pglgui", this);
     
     QString max = m_ProgramSettings->value("maximum_log_entries").toString();
     if ( max.isEmpty() )
@@ -840,7 +840,7 @@ void Peerguardian::g_SetListPath()
             m_List = new PeerguardianList(filepath);
 
     //whitelisted Ips and ports - /etc/pgl/pglcmd.conf and /etc/pgl/allow.p2p and
-    //$HOME/.config/pgl/pgl-gui.conf for disabled items
+    //$HOME/.config/pgl/pglgui.conf for disabled items
     m_Whitelist = new PglWhitelist(m_ProgramSettings, guiOptions);
 
 }

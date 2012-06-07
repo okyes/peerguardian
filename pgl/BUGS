@@ -7,7 +7,7 @@ Minor bugs may be listed in docs/TODO.
   2011-05-29, jre <jre-phoenix@users.sourceforge.net>
 
 
-- pgl-gui shows the number of IPs and IP ranges that it is blocking. Due to the
+- pglgui shows the number of IPs and IP ranges that it is blocking. Due to the
   technical implementation this number keeps unchanged if you whitelist IPs,
   although you should think that it gets smaller. So this is just a "visibility"
   problem, but doesn't mean that anything doesn't work.

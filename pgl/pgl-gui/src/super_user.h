@@ -74,7 +74,7 @@ class SuperUser : public QObject
         /**
             * Execute a command with sudo rights.
             * @param command QStringList containing the command to be executed.
-            * @param detached Execute the command either detached or start it normally and wait for it to be finished. This is ingored if pgl-gui was started with sudo rights.
+            * @param detached Execute the command either detached or start it normally and wait for it to be finished. This is ingored if pglgui was started with sudo rights.
             */
         void executeCommands( QStringList commands, bool start = true );
         void execute( const QStringList& command);

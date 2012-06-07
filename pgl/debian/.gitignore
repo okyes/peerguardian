@@ -13,7 +13,7 @@ files
 *.substvars
 pglcmd/*
 pgld/*
-pgl-gui/*
+pglgui/*
 tmp/*
 pglcmd.cron.daily
 pglcmd.if-up

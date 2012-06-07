@@ -1,4 +1,4 @@
-pgl-gui                           draft                            2011-04-20
+pglgui                           draft                            2011-04-20
 
 
 PeerGuardian Linux consists of three components:
@@ -12,7 +12,7 @@ PeerGuardian Linux consists of three components:
     - It handles the blocklists.
     - pglcmd.wd is a watchdog that frequently checks whether the daemon is still
         running and some iptables rules exist. On fail it restarts pglcmd.
-- pgl-gui: is the GUI (Graphical User Interface) on top of pgld and pglcmd.
+- pglgui: is the GUI (Graphical User Interface) on top of pgld and pglcmd.
 
 
 Utilized software:
@@ -63,7 +63,7 @@ Main Window:
     - Logging
     - Paths
     - ...
-    - pgl-gui specific settings, saved in ~/.config/pgl/pgl-gui.conf
+    - pglgui specific settings, saved in ~/.config/pgl/pglgui.conf
 
 Dockable to system tray
     different icons for whether pgld process is running
@@ -104,8 +104,8 @@ Dependencies:
 See "install" for installation instructions.
 
 Common problems:
-* If pgl-gui stops working properly, the first thing you should try to do is
+* If pglgui stops working properly, the first thing you should try to do is
   delete its configuration file.
-  Just run "rm ~/.config/pgl/pgl-gui.conf" in a terminal to do so.
-* Launch pgl-gui with the argument --tray if you want it to start minimized in
+  Just run "rm ~/.config/pgl/pglgui.conf" in a terminal to do so.
+* Launch pglgui with the argument --tray if you want it to start minimized in
   the tray.

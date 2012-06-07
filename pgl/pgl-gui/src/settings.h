@@ -36,7 +36,7 @@ class QString;
 
 /**
  *
- * @short Class representing the pgl-gui settings dialog.
+ * @short Class representing the pglgui settings dialog.
  *
  */
 

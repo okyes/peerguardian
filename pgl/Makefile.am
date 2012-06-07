@@ -15,7 +15,7 @@ dist_doc_DATA = \
 	BUGS \
 	README.blocklists \
 	README.dbus \
-	README.pgl-gui
+	README.pglgui
 
 EXTRA_DIST = \
 	autogen.sh \
@@ -36,9 +36,9 @@ EXTRA_DIST = \
 	debian/pgld.docs \
 	debian/pgld.install \
 	debian/pgld.manpages \
-	debian/pgl-gui.docs \
-	debian/pgl-gui.install \
-	debian/pgl-gui.links \
+	debian/pglgui.docs \
+	debian/pglgui.install \
+	debian/pglgui.links \
 	debian/po/POTFILES.in \
 	debian/po/templates.pot \
 	debian/README.Debian \

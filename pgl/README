@@ -9,7 +9,7 @@ Table of Contents:
 3.) Usage pglcmd
 4.) Options pglcmd
 5.) Configuration pglcmd
-6.) pgl-gui
+6.) pglgui
 
 See also pgl/README for installation instruction and requirements.
 
@@ -191,8 +191,8 @@ allow lists for incoming, outgoing and forward connections may be used.
 
 ================================================================================
 
-6.) pgl-gui
+6.) pglgui
 
-pgl-gui works on top of pgld and pglcmd. It requires dbus.
-Start it with "pgl-gui --tray" to dock it directly in the system tray.
-The pgl-gui configuration is in ~/.config/pgl/pgl-gui.conf
+pglgui works on top of pgld and pglcmd. It requires dbus.
+Start it with "pglgui --tray" to dock it directly in the system tray.
+The pglgui configuration is in ~/.config/pgl/pglgui.conf

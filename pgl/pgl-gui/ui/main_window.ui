@@ -33,7 +33,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../images/images.qrc">
-    <normaloff>:/images/pgl-gui.png</normaloff>:/images/pgl-gui.png</iconset>
+    <normaloff>:/images/pglgui.png</normaloff>:/images/pglgui.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_8">

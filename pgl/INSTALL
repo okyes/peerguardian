@@ -170,7 +170,7 @@ Runtime environment pgld:
 - sendmail (optional, needed to send informational (blocklist updates) and
   warning mails (if pglcmd.wd detects a problem.)
 
- Runtime environment pgl-gui:
+ Runtime environment pglgui:
 - pgld
 - pglcmd
 - Qt4

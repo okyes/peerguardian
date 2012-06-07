@@ -17,7 +17,7 @@ Then:
 - pglcmd is configured with DBUS="1", and thus
   - starts pgld with dbus enabled ("-d" command line option)
   - pglcmd has dbus enabled
-- pgl-gui: WIP
+- pglgui: WIP
 
 The dbus conf file is in pgl/pgld/org.netfilter.pgl.conf and installed to
 /etc/dbus-1/system.d/org.netfilter.pgl.conf
@@ -27,7 +27,7 @@ Currently only logging is implemented:
 ======================================
 the sender (pgld and pglcmd (WIP)) emits "signals" that are broadcasted. The
 "signal" is the message that is logged.
-pgl-gui may listen (on the interface) to these signals.
+pglgui may listen (on the interface) to these signals.
 
 
 
@@ -92,10 +92,10 @@ dbus-send --system /org/netfilter/pgl/pglcmd org.netfilter.pgl.pglcmd_message st
 
 
 
-How to read the dbus logs in pgl-gui:
+How to read the dbus logs in pglgui:
 ====================================
 
-pgl-gui uses the dbus binding (wrapper library) for Qt.
+pglgui uses the dbus binding (wrapper library) for Qt.
 
 
 dbus documentation:
@@ -106,5 +106,5 @@ http://www.freedesktop.org/wiki/Software/dbus (Homepage)
 http://www.freedesktop.org/wiki/IntroductionToDBus
 http://dbus.freedesktop.org/doc/dbus-tutorial.html
 
-Probably interesting for Qt pgl-gui:
+Probably interesting for Qt pglgui:
 http://doc.trolltech.com/4.2/intro-to-dbus.html

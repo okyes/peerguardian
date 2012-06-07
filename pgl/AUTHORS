@@ -14,7 +14,7 @@ Authors:
     jpv, initially created dbus support for nfblock.
     Cader <cade.robinson@gmail.com>, heavily modified nfblockd, so that it
         became pgld. Also worked on pglcmd and previously much other stuff.
-    freemind <freemind@lavabit.com>, wrote pgl-gui, based on mobloquer.
+    freemind <freemind@lavabit.com>, wrote pglgui, based on mobloquer.
     hasufell <julian.ospald@googlemail.com>, added autotools support
 
 Contributors:
@@ -39,7 +39,7 @@ Contributors:
 
 3rd party:
 
-pgl-gui is using the crystal icon theme, released under the LGPL license.
+pglgui is using the crystal icon theme, released under the LGPL license.
 Some icons may have been modified.
 More information:
 http://www.everaldo.com/

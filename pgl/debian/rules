@@ -56,7 +56,7 @@ override_dh_strip:
 ifneq (,$(findstring pglcmd, $(shell dh_listpackages)))
 	dh_strip -p pgld --dbg-package=pgld-dbg
 endif
-	# Just act if pgl-gui package is built:
-ifneq (,$(findstring pgl-gui, $(shell dh_listpackages)))
-	dh_strip -p pgl-gui --dbg-package=pgl-gui-dbg
+	# Just act if pglgui package is built:
+ifneq (,$(findstring pglgui, $(shell dh_listpackages)))
+	dh_strip -p pglgui --dbg-package=pglgui-dbg
 endif

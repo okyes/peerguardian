@@ -25,7 +25,7 @@ Depends: ${shlibs:Depends},
          ${misc:Depends},
          iptables
 Recommends: pglcmd,
-        pgl-gui,
+        pglgui,
         dbus
 Breaks: moblock (<<2~)
 Replaces: moblock (<<2~)
@@ -64,7 +64,7 @@ Depends: ${misc:Depends},
          lsb-base,
          pgld (>= ${source:Version}),
          pgld (<< ${source:Version}.1~)
-Recommends: pgl-gui,
+Recommends: pglgui,
         wget,
         unzip,
         p7zip | p7zip-full
@@ -99,7 +99,7 @@ Description: PeerGuardian Linux - pglcmd
   - Provides LSB 3.1 compatible init script.
   - Daily rotation of the logfiles.
 
-Package: pgl-gui
+Package: pglgui
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
@@ -108,26 +108,26 @@ Depends: ${shlibs:Depends},
          pglcmd (= ${source:Version})
 Breaks: mobloquer (<<2~)
 Replaces: mobloquer (<<2~)
-Description: PeerGuardian Linux GUI - pgl-gui
+Description: PeerGuardian Linux GUI - pglgui
  PeerGuardian Linux (pgl) is a privacy oriented firewall application. It blocks
  connections to and from hosts specified in huge blocklists (thousands or
  millions of IP ranges). pgl is based on the Linux kernel netfilter framework
  and iptables.
  .
- This is the pgl Graphical User Interface pgl-gui (C++, Qt4).
+ This is the pgl Graphical User Interface pglgui (C++, Qt4).
 
-Package: pgl-gui-dbg
+Package: pglgui-dbg
 Architecture: any
 Section: debug
 Priority: extra
 Depends: ${misc:Depends},
-         pgl-gui (= ${binary:Version})
-Description: PeerGuardian Linux GUI - pgl-gui (debug)
+         pglgui (= ${binary:Version})
+Description: PeerGuardian Linux GUI - pglgui (debug)
  PeerGuardian Linux (pgl) is a privacy oriented firewall application. It blocks
  connections to and from hosts specified in huge blocklists (thousands or
  millions of IP ranges). pgl is based on the Linux kernel netfilter framework
  and iptables.
  .
- This is the pgl Graphical User Interface pgl-gui (C++, Qt4).
+ This is the pgl Graphical User Interface pglgui (C++, Qt4).
  .
- This package contains the debugging symbols for pgl-gui.
+ This package contains the debugging symbols for pglgui.

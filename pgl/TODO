@@ -89,7 +89,7 @@ pglcmd:
 
 
 
-pgl-gui:
+pglgui:
 
   [freemind]
 
@@ -97,7 +97,7 @@ pgl-gui:
 
   - enable "Allow Port" on right-click only for protocols TCP and UDP.
 
-  - pgl-gui crashes if you try to whitelist temporarily, while pgl is not
+  - pglgui crashes if you try to whitelist temporarily, while pgl is not
     running.
 
   - images/settings.png is not shown (at least under Gnome)
@@ -119,7 +119,7 @@ pgl-gui:
     header.
 
   - "Allow temporarily" on right-click in the log of blocked IPs:
-    delete the iptables rule after X minutes (as far as pgl-gui doesn't crash,
+    delete the iptables rule after X minutes (as far as pglgui doesn't crash,
     otherwise live with it and wait for the next pglcmd restart)
 
   - "Details about blocked IP" on right-click in the log of blocked IPs:
@@ -143,7 +143,7 @@ pgl-gui:
     Implement per blocklist in "Configure - Blocklist"
     (use "stat --format=%y $BLOCKLIST_DOWNLOADED | head -c 16").
     [ $BLOCKLIST_DOWNLOADED requires ${BLOCKLISTS_DIR}/lists.xml (implement
-    directly in pgl-gui or use function LIST_URL2LIST_NAME from pglcmd.lib ]
+    directly in pglgui or use function LIST_URL2LIST_NAME from pglcmd.lib ]
 
   - pop-up warning on errors from pglcmd (e.g. blocklist is not available)
     [ Requires pglcmd dbus ]
@@ -166,7 +166,7 @@ All components:
     doxygen (creates doc from source)
     doconce (markup language for several output formats).
 
-  - fix/update license headers of pgl-gui and pgld
+  - fix/update license headers of pglgui and pgld
 
   - long run whitelisting concept:
     allow.p2p etc.:

@@ -200,7 +200,7 @@ AC_ARG_WITH([qt4],
 	    [with_qt4="yes"]) # this only reflects the default ("if not given")
 
 # modify QT4_flags if qt4 enabled and
-# include pgl-gui as subdir in Makefile.am (QT_SUB)
+# include pglgui as subdir in Makefile.am (QT_SUB)
 AS_IF([test "x$with_qt4" = "xyes"],
       [AS_IF([test "x$enable_dbus" = "xyes"],
 	     [PKG_CHECK_MODULES([QT4DBUS], [QtDBus])],
@@ -210,14 +210,14 @@ AS_IF([test "x$with_qt4" = "xyes"],
       [AC_SEARCH_LIBS([pthread_create], [pthread])] # adds -lpthread to LIBS
       [QT_CPPFLAGS="$QT_CPPFLAGS $QT4_CFLAGS $QT4DBUS_CFLAGS -I`$PKGCONFIG --variable includedir polkit-qt-1`/polkit-qt-1"] # see https://bugs.kde.org/show_bug.cgi?id=297340
       [QT_LIBS="$QT_LIBS $QT4_LIBS $QT4DBUS_LIBS"]
-      [QT_SUB="pgl-gui"])
+      [QT_SUB="pglgui"])
 
 # targets
 AC_CONFIG_FILES([Makefile
 		docs/Makefile
 		pgld/Makefile
 		pglcmd/Makefile
-		pgl-gui/Makefile])
+		pglgui/Makefile])
 
 ## finally substitute several variables
 AC_SUBST([QT_SUB]) # ref in Makefile.am

@@ -27,7 +27,7 @@ Change to the source directory "peerguardian/pgl/".
 Then issue
   debuild --no-lintian -us -uc -tc -b
 
-You will get deb packages called pgld, pglcmd, pgl-gui, pgld-dbg and pgl-gui-dbg
+You will get deb packages called pgld, pglcmd, pglgui, pgld-dbg and pglgui-dbg
 in the "peerguardian/" directory.
 
  -- jre <jre-phoenix@users.sourceforge.net>  Wed, 20 Apr 2011 22:41:53 +0200

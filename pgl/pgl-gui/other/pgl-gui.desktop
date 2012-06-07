@@ -1,8 +1,8 @@
 [Desktop Entry]
-Name=pgl-gui
+Name=pglgui
 Type=Application
-Exec=/usr/bin/pgl_gui
-Icon=pgl-gui.png
+Exec=/usr/bin/pglgui
+Icon=pglgui.png
 Comment=Graphical User Interface of PeerGuardian Linux
 StartupNotify=true
 Terminal=false
