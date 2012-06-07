@@ -6,10 +6,10 @@ pgl 2.2.0~pre1 The autotools release
   * added autotools support
 
   [freemind]
-  * overall refactor to the gui
-    - fix issues with finding graphical su
+  * overall code refactor to the gui
+  * fixed issues with finding graphical su
   * added 2 new actions for viewing pgld and pglcmd log files.
-  * added new widget to allow viewing and filtering information on files.
+    - added new widget to allow viewing and filtering information on files.
   * added error dialog
 
   [jre]
