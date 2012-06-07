@@ -117,9 +117,9 @@ AM_CONDITIONAL(CRONMAKE, [test "x$enable_cron" = "xyes"])
 # configure-switch for NetworkManager
 AC_ARG_ENABLE([networkmanager],
 	      [AS_HELP_STRING([--enable-networkmanager],
-			     [enable support for NetworkManager (default: disable)])],
+			     [enable support for NetworkManager (default: enable)])],
 	      [enable_networkmanager=$enableval],
-	      [enable_networkmanager="no"])
+	      [enable_networkmanager="yes"])
 
 AM_CONDITIONAL(NETWORKMANAGERMAKE, [test "x$enable_networkmanager" = "xyes"])
 
