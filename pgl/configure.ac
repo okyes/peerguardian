@@ -176,7 +176,7 @@ AS_IF([test "x$enable_dbus" = "xyes"],
 # configure-switch for lowmem
 AC_ARG_ENABLE([lowmem],
 	      [AS_HELP_STRING([--enable-lowmem],
-			     [enable lowmem support (default: enable)])],
+			     [enable lowmem support (default: disable)])],
 	      [enable_lowmem=$enableval],
 	      [enable_lowmem="no"])
 
