@@ -98,8 +98,8 @@ AC_ARG_WITH([lsb],
 
 # configure-switch for logrotate
 AC_ARG_ENABLE([logrotate],
-	      [AS_HELP_STRING([--enable-logrotate],
-			     [enable support logrotate (default: enable)])],
+	      [AS_HELP_STRING([--disable-logrotate],
+			     [disable logrotate support (default: enable)])],
 	      [enable_logrotate=$enableval],
 	      [enable_logrotate="yes"])
 
@@ -107,8 +107,8 @@ AM_CONDITIONAL(LOGROTATEMAKE, [test "x$enable_logrotate" = "xyes"])
 
 # configure-switch for cron
 AC_ARG_ENABLE([cron],
-	      [AS_HELP_STRING([--enable-cron],
-			     [enable support for cron services (default: enable)])],
+	      [AS_HELP_STRING([--disable-cron],
+			     [disable support for cron services (default: enable)])],
 	      [enable_cron=$enableval],
 	      [enable_cron="yes"])
 
@@ -116,8 +116,8 @@ AM_CONDITIONAL(CRONMAKE, [test "x$enable_cron" = "xyes"])
 
 # configure-switch for NetworkManager
 AC_ARG_ENABLE([networkmanager],
-	      [AS_HELP_STRING([--enable-networkmanager],
-			     [enable support for NetworkManager (default: enable)])],
+	      [AS_HELP_STRING([--disable-networkmanager],
+			     [disable support for NetworkManager (default: enable)])],
 	      [enable_networkmanager=$enableval],
 	      [enable_networkmanager="yes"])
 
@@ -142,8 +142,8 @@ PGLD_LIBS="$libnetfilterqueue_LIBS"
 
 # configure-switch for zlib
 AC_ARG_ENABLE([zlib],
-	      [AS_HELP_STRING([--enable-zlib],
-			     [enable support for zlib compressed blocklists (default: enable)])],
+	      [AS_HELP_STRING([--disable-zlib],
+			     [disable support for zlib compressed blocklists (default: enable)])],
 	      [enable_zlib=$enableval],
 	      [enable_zlib="yes"])
 
@@ -156,8 +156,8 @@ AS_IF([test "x$enable_zlib" = "xyes"],
 
 # configure-switch for dbus
 AC_ARG_ENABLE([dbus],
-	      [AS_HELP_STRING([--enable-dbus],
-			     [enable dbus support (default: enable)])],
+	      [AS_HELP_STRING([--disable-dbus],
+			     [disable dbus support (default: enable)])],
 	      [enable_dbus=$enableval],
 	      [enable_dbus="yes"])
 
