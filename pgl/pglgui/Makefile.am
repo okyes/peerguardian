@@ -1,3 +1,7 @@
+# dependency tracking does not work well with our
+# moc rules
+AUTOMAKE_OPTIONS = no-dependencies
+
 # QT tools
 RCC = @RCC@
 UIC = @UIC@
