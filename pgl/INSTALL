@@ -65,6 +65,9 @@ should consider to set like:
   --with-lsb=      [default: none/built-in,
                     recommended: /lib/lsb/init-functions]
 
+IMPORTANT: Especially the "--sysconfdir=/etc" setting is required for a working
+installation! Otherwise you should expect e.g. dbus errors.
+
 For a slick installation you can build without the GUI and turn off dbus
 support:
   --without-qt4
@@ -83,8 +86,7 @@ run something similar to:
   ./configure \
     --prefix=/my/prefix \
     --with-initddir=/my/initddir \
-    --sysconfdir=/etc \
-    --disable-lowmem
+    --sysconfdir=/etc
   make
   make install
 
@@ -182,6 +184,7 @@ Runtime environment pgld:
 - pgld
 - pglcmd
 - Qt4
+- dbus
 
 
 
