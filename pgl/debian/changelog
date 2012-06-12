@@ -2,6 +2,8 @@ pgl (2.2.0~pre1-1) unstable; urgency=low
 
   * new upstream version
   * drop debian/use-systemwide-LSB-init-functions.patch
+  * rules:
+    - don't use "dh $@ --with autoreconf" for lucid and natty
   * control:
     - dbus just recommended by pgld, not required
     - adapted to autotools buildsystem
