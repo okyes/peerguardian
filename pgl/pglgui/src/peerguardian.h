@@ -63,7 +63,7 @@
 
 
 #define VERSION_NUMBER VERSION
-#define DEFAULT_WINDOW_TITLE "Peerguardian Linux"
+#define DEFAULT_WINDOW_TITLE "PeerGuardian Linux"
 
 //Time related defines
 #define MEDIUM_TIMER_INTERVAL 2000
