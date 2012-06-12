@@ -4,7 +4,8 @@ Priority: optional
 Maintainer: PeerGuardian Linux Developers <peerguardian-devel@lists.sourceforge.net>
 Uploaders: jre <jre-phoenix@users.sourceforge.net>
 Bugs: mailto:peerguardian-devel@lists.sourceforge.net
-Build-Depends: debhelper (>= 7.0.50~),
+Build-Depends: autoconf (>= 2.68~),
+               debhelper (>= 7.0.50~),
                dh-autoreconf,
                po-debconf,
                zlib1g-dev,
