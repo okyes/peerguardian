@@ -62,7 +62,7 @@
 #include "pgl_whitelist.h"
 
 
-#define VERSION_NUMBER "git"
+#define VERSION_NUMBER VERSION
 #define DEFAULT_WINDOW_TITLE "Peerguardian Linux"
 
 //Time related defines
