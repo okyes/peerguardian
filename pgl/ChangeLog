@@ -1,6 +1,6 @@
 ChangeLog PeerGuardian Linux (pgl)
 
-pgl 2.2.0~pre1 The autotools release
+pgl 2.2.0 The autotools release
 
   [hasufell]
   * added autotools support
@@ -20,7 +20,7 @@ pgl 2.2.0~pre1 The autotools release
     - fixed "dist", "clean" and readded "lowmem"
   * renamed blockcontrol2pglcmd.sh to blockcontrol2pglcmd
 
--- jre <jre-phoenix@users.sourceforge.net>  Tue, 01 May 2012 15:01:57 +0200
+-- jre <jre-phoenix@users.sourceforge.net>  Tue, 12 Jun 2012 23:17:49 +0200
 
 
 pgl 2.1.3
