@@ -17,10 +17,11 @@ See also pgl/README for installation instruction and requirements.
 
 1.) Description:
 
-PeerGuardian Linux (pgl) is a privacy oriented firewall application. It blocks
-connections to and from hosts specified in huge blocklists (thousands or
-millions of IP ranges). pgl is based on the Linux kernel netfilter framework
-and iptables. 
+PeerGuardian is a privacy oriented firewall application. It blocks connections
+to and from hosts specified in huge blocklists (thousands or millions of IP
+ranges). Its origins lie in targeting aggressive IPs while you use P2P.
+
+pgl is based on the Linux kernel netfilter framework and iptables.
 
 You can get it at http://sourceforge.net/projects/peerguardian/
 

@@ -1,3 +1,9 @@
+pgl (2.2.1~git-1~pre1) UNRELEASED; urgency=low
+
+  * new upstream release
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 13 Jun 2012 19:27:34 +0200
+
 pgl (2.2.0-1) unstable; urgency=low
 
   * new upstream release
