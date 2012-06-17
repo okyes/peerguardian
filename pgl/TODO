@@ -197,8 +197,17 @@ All components:
     automatically analyze and rewrite C code
     https://lwn.net/Articles/315686/
 
+
+
+
+Buildsystem:
+
   - add check in configure.ac to prevent building the GUI while LOWMEM is
     enabled.
+
+  - check if each component can be built separately
+
+
 
 
 Packaging:
@@ -214,11 +223,6 @@ Packaging:
     dependency list. Obsolete versions can be cleaned up automatically with
     'cme fix dpkg-control'.
 
-  - check LSB + FHS for pid file location, adapt:
-    Currently Debian/Unstable is going through a transition to using /run instead
-    of /var/run.
-    --
-    etbe, 07/22/2011
 
 
 Web:
