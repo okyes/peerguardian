@@ -27,8 +27,7 @@
 
 #include "super_user.h"
 
-#define PGLCMD_DEFAULTS_PATH1 "/usr/lib/pgl/pglcmd.defaults"
-#define PGLCMD_DEFAULTS_PATH2 "/usr/local/lib/pgl/pglcmd.defaults"
+#define PGLCMD_DEFAULTS_PATH PGLCMDDEFAULTSPATH
 
 class PglSettings
 {

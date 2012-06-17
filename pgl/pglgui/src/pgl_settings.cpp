@@ -94,13 +94,12 @@ QString PglSettings::getValueInLine(const QString& line)
     return newValue;
 }
 
+// PGLCMD_DEFAULTS_PATH is now set automatically by the Makefile/configure.ac
+// TODO: just test if it exists, don't try automatic detection. jre, 2012-06-15
 QString PglSettings::findPglcmdDefaultsPath()
 {
-    if (QFile::exists(PGLCMD_DEFAULTS_PATH1)) 
-        return PGLCMD_DEFAULTS_PATH1;
-    
-    if (QFile::exists(PGLCMD_DEFAULTS_PATH2)) 
-        return PGLCMD_DEFAULTS_PATH2;
+    if (QFile::exists(PGLCMD_DEFAULTS_PATH))
+        return PGLCMD_DEFAULTS_PATH;
     
     QDir currentDir = QDir::current();
     currentDir.cdUp();
@@ -118,8 +117,9 @@ QString PglSettings::findPglcmdDefaultsPath()
 bool PglSettings::loadSettings()
 {
     mPglcmdDefaultsPath = findPglcmdDefaultsPath();
+    // TODO: Readd pglcmd.defaults path setting in preferences, jre, 2012-06-15
     if (mPglcmdDefaultsPath.isEmpty()) {
-        mLastError = QObject::tr("Couldn't find pglcmd's defaults path. Please set it in preferences.");
+        mLastError = QObject::tr("Couldn't find pglcmd's defaults path.");
         return false;
     }
     
