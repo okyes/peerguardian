@@ -57,7 +57,7 @@ pglcmd.defaults:
 	-e 's|^PIDDIR=.*|PIDDIR=\"$(PIDDIR)\"|g' \
 	-e 's|^LOGDIR=.*|LOGDIR=\"$(LOGDIR)\"|g' \
 	-e 's|^CONFDIR=.*|CONFDIR=\"$(pgletcdir)\"|g' \
-	-e 's|^LIBDIR=.*|LIBDIR=\"$(libdir)/$(PACKAGE_NAME)\"|g' \
+	-e 's|^LIBDIR=.*|LIBDIR=\"$(pgllibdir)\"|g' \
 	-e 's|^TMPDIR=.*|TMPDIR=\"$(TMPDIR)\"|g' \
 	-e 's|^BLOCKLISTS_DIR=.*|BLOCKLISTS_DIR=\"$(BLOCKLISTS_DIR)\"|g' \
 	-e 's|^LOCAL_BLOCKLIST_DIR=.*|LOCAL_BLOCKLIST_DIR=\"$(LOCAL_BLOCKLIST_DIR)\"|g' \

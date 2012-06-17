@@ -169,7 +169,7 @@ AS_IF([test "x$enable_dbus" = "xyes"],
       [PKG_CHECK_MODULES([DBUS],
 			 [dbus-1])]
       [PGLD_CFLAGS="$PGLD_CFLAGS -fPIC"]
-      [PGLD_CPPFLAGS="$PGLD_CPPFLAGS $DBUS_CFLAGS -DHAVE_DBUS -DPLUGINDIR=\\\"${libdir}/pgl\\\""]
+      [PGLD_CPPFLAGS="$PGLD_CPPFLAGS $DBUS_CFLAGS -DHAVE_DBUS -DPLUGINDIR=\\\"${libdir}/$PACKAGE\\\""]
       [PGLD_LDFLAGS="-Wl,-export-dynamic"]
       [PGLD_LIBS="$PGLD_LIBS $DBUS_LIBS -ldl"])
 
