@@ -124,8 +124,7 @@ Description: PeerGuardian Linux GUI - pglgui
 
 Package: pgl-gui
 Architecture: all
-Depends: ${misc:Depends},
-        pglgui
+Depends: pglgui
 Description: transitional dummy package for pglgui
  This package is a dummy package to transition to pglgui. It can be safely
  removed.
@@ -152,8 +151,7 @@ Package: pgl-gui-dbg
 Architecture: all
 Section: debug
 Priority: extra
-Depends: ${misc:Depends},
-        pglgui-dbg
+Depends: pglgui-dbg
 Description: transitional dummy package for pglgui-dbg
  This package is a dummy package to transition to pglgui-dbg. It can be safely
  removed.
