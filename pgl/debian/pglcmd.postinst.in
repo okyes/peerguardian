@@ -68,7 +68,7 @@ esac
 # CONTROL_MAIN has to be set correctly in all just mentioned files.
 # Except for debian/pglcmd.postinst, this is done automatically on "make" based
 # on the "configure" options.
-CONTROL_MAIN="/usr/lib/pgl/pglcmd.main"
+CONTROL_MAIN="/usr/lib/@DEB_HOST_MULTIARCH@/pgl/pglcmd.main"
 
 # Configure pglcmd and load functions.
 if [ -f "$CONTROL_MAIN" ] ; then

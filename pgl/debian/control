@@ -5,7 +5,7 @@ Maintainer: PeerGuardian Linux Developers <peerguardian-devel@lists.sourceforge.
 Uploaders: jre <jre-phoenix@users.sourceforge.net>
 Bugs: mailto:peerguardian-devel@lists.sourceforge.net
 Build-Depends: autoconf (>= 2.68~),
-               debhelper (>= 7.0.50~),
+               debhelper (>= 9~),
                dh-autoreconf,
                po-debconf,
                zlib1g-dev,
@@ -61,7 +61,7 @@ Description: PeerGuardian Linux - pgld (debug)
  This package contains the debugging symbols for pgld.
 
 Package: pglcmd
-Architecture: all
+Architecture: any
 Depends: ${misc:Depends},
          iptables,
          lsb-base,
@@ -109,7 +109,8 @@ Depends: ${shlibs:Depends},
          ${misc:Depends},
          pgld (>= ${source:Version}),
          pgld (<< ${source:Version}.1~),
-         pglcmd (= ${source:Version})
+         pglcmd (>= ${source:Version}),
+         pglcmd (<< ${source:Version}.1~)
 Breaks: mobloquer (<<2~)
 Replaces: mobloquer (<<2~), pgl-gui
 Description: PeerGuardian Linux GUI - pglgui

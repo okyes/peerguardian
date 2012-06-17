@@ -26,6 +26,7 @@ ifneq (,$(findstring pglcmd, $(shell dh_listpackages)))
 	ln -f pglcmd/networkmanager/20pglcmd debian/pglcmd.if-up
 	ln -f pglcmd/init/pgl debian/pglcmd.pgl.init
 	ln -f pglcmd/logrotate/pglcmd debian/pglcmd.logrotate
+	sed 's/@DEB_HOST_MULTIARCH@/$(DEB_HOST_MULTIARCH)/g' debian/pglcmd.postinst.in > debian/pglcmd.postinst
 endif
 	# Just act if pgld package is built:
 ifneq (,$(findstring pgld, $(shell dh_listpackages)))
@@ -39,10 +40,12 @@ ifneq (, $(findstring pglcmd, $(shell dh_listpackages)))
 	# This should be run on the "clean" target.
 	debconf-updatepo
 	# Remove the hardlinks from debian/ directory again. See above.
+	# Also remove the created pglcmd.postinst
 	rm -f debian/pglcmd.cron.daily \
 	debian/pglcmd.if-up \
 	debian/pglcmd.pgl.init \
-	debian/pglcmd.logrotate
+	debian/pglcmd.logrotate \
+	debian/pglcmd.postinst
 endif
 	# Just act if pgld package is built:
 ifneq (,$(findstring pgld, $(shell dh_listpackages)))

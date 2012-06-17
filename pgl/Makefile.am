@@ -28,7 +28,7 @@ EXTRA_DIST = \
 	debian/pglcmd.examples \
 	debian/pglcmd.install \
 	debian/pglcmd.links \
-	debian/pglcmd.postinst \
+	debian/pglcmd.postinst.in \
 	debian/pglcmd.postrm \
 	debian/pglcmd.preinst \
 	debian/pglcmd.templates \
