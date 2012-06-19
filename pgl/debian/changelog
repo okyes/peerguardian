@@ -1,14 +1,14 @@
-pgl (2.2.1~git-1~pre1) UNRELEASED; urgency=low
+pgl (2.2.1~pre1-1) pgl-experimental; urgency=low
 
-  * new upstream release
-  * control:
-    - changed pglcmd from architecture all to any (pglcmd.defaults lists
-      architecture specific paths)
+  * bump to debhelper 9: use architecture dependent paths /usr/lib/.../pgl
+    - pglcmd.postinst now gets generated from an .in file
+    - changed pglcmd from architecture all to any
+    - updated debian/*.install files
   * rules: reverted to always use "autoreconf"
     TODO: backport for Debian Squeeze and Ubuntu Lucid and Natty:
     don't use autotools (autoreconf) and debhelper 9 there.
 
- -- jre <jre-phoenix@users.sourceforge.net>  Wed, 13 Jun 2012 19:27:34 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 19 Jun 2012 21:56:22 +0200
 
 pgl (2.2.0-1) unstable; urgency=low
 
