@@ -2,7 +2,9 @@ ChangeLog PeerGuardian Linux (pgl)
 
 pgl (2.2.1~git) UNRELEASED
 
-  *
+  * WIP: fix bug, consider: https://sourceforge.net/tracker/?func=detail&aid=
+    3383915&group_id=131687&atid=721926
+    Test: Disabled dbus closing and reopening on reload
 
  -- jre <jre-phoenix@users.sourceforge.net>  Wed, 13 Jun 2012 19:27:34 +0200
 
