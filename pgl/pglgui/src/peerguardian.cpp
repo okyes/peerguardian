@@ -32,6 +32,11 @@ Peerguardian::Peerguardian( QWidget *parent) :
     if ( ! PglSettings::loadSettings() )
         QMessageBox::warning(this, tr("Error"), PglSettings::lastError(), QMessageBox::Ok);
     
+    m_treeItemPressed = false;
+    m_StopLogging = false;
+    mAutomaticScroll = true;
+    mIgnoreScroll = false;
+    
     guiOptions = new GuiOptions(this);
     initializeSettings();
     startTimers();
@@ -56,10 +61,7 @@ Peerguardian::Peerguardian( QWidget *parent) :
     header->resizeSection(0, header->sectionSize(0) * 2);
     header->resizeSection(2, header->sectionSize(2) / 2);
         
-    m_treeItemPressed = false;
-    m_StopLogging = false;
-    mAutomaticScroll = true;
-    mIgnoreScroll = false;
+
     
     a_whitelistIpTemp = new QAction(tr("Allow temporarily"), this);
     a_whitelistIpTemp->setToolTip(tr("Allows until pgld is restarted."));
