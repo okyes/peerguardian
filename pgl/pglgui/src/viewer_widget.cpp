@@ -11,44 +11,49 @@
 #include <QDialogButtonBox>
 #include <QScrollBar>
 #include <QTimer>
+#include <QPushButton> 
 
 #include "file_transactions.h"
 
-ViewerWidget::ViewerWidget(const QString& filePath, QWidget* parent) :
+ViewerWidget::ViewerWidget(const QString& info, QWidget* parent) :
     QDialog(parent)
 {
-    QString text("");
-    bool fileExists = true;
-    
-    if (QFile::exists(filePath)) 
-        text = getFileData(filePath).join("\n");
-    else
-        fileExists = false;
-        
     QVBoxLayout* vlayout = new QVBoxLayout(this);
     //QHBoxLayout* hlayout = new QHBoxLayout;
     //vlayout->addLayout(hlayout);
-    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Close, Qt::Horizontal, this);
+    mButtonBox = new QDialogButtonBox(QDialogButtonBox::Close, Qt::Horizontal, this);
     QLineEdit * filter = new QLineEdit(this);
     mTextView = new QTextEdit(this);
     mTextView->setReadOnly(true);
-    mTextView->setText(text);
     
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(mButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
     connect(filter, SIGNAL(textEdited(const QString&)), this, SLOT(onFilterTextEdited(const QString&)));
     connect(filter, SIGNAL(returnPressed()), this, SLOT(onReturnPressed()));
 
     vlayout->addWidget(mTextView);
     vlayout->addWidget(filter);
-    vlayout->addWidget(buttonBox);
+    vlayout->addWidget(mButtonBox);
     
     resize(500, 300);
-    setWindowTitle(filePath);
-    if (! fileExists) {
+    
+    filter->setFocus();
+    
+    QString text = info;
+    
+    if (QFile::exists(info)) {
+        setWindowTitle(info);
+        text = getFileData(info).join("\n");
+    }
+    else {
         setWindowTitle( windowTitle() + tr(" (File doesn't exist)"));
+    }
+    
+    if (text.isEmpty()) {
         mTextView->setDisabled(true);
         filter->setDisabled(true);
     }
+        
+    mTextView->setText(text);
 }
 
 ViewerWidget::~ViewerWidget()
@@ -128,7 +133,13 @@ void ViewerWidget::onReturnPressed()
     
     if (index == -1)
         return;
-    
-    while(mTextView->textCursor().position() < index) 
+        
+    while(mTextView->textCursor().position() <= index) 
         mTextView->moveCursor(QTextCursor::Down);
+}
+
+void ViewerWidget::keyPressEvent ( QKeyEvent * e )
+{
+    if (e->key() == Qt::Key_Escape)
+        QDialog::keyPressEvent (e);
 }

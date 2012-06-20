@@ -5,15 +5,18 @@
 #include <QDialog>
 #include <QTextEdit>
 #include <QShowEvent>
+#include <QAbstractButton>
+#include <QDialogButtonBox>
 
 class ViewerWidget : public QDialog
 {
     Q_OBJECT
     
     QTextEdit* mTextView;
+    QDialogButtonBox* mButtonBox;
     
     public:
-        explicit ViewerWidget(const QString& filePath="", QWidget* parent = 0);
+        explicit ViewerWidget(const QString& info="", QWidget* parent = 0);
         virtual ~ViewerWidget();
         
     protected:
@@ -23,6 +26,9 @@ class ViewerWidget : public QDialog
         void onFilterTextEdited(const QString&);
         void onReturnPressed();
         void moveScrollBarToBottom();
+        
+    protected:
+        void keyPressEvent ( QKeyEvent * e );
     
 };
 
