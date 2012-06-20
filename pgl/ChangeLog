@@ -6,6 +6,11 @@ pgl 2.2.1~pre1 UNRELEASED
     3383915&group_id=131687&atid=721926
     Test: Disabled dbus closing and reopening on reload
 
+  [freemind]
+  * Fixed log viewer dialog to not close on key press.
+  * Added whois action.
+  * Minor tweaks.
+
  -- jre <jre-phoenix@users.sourceforge.net>  Tue, 19 Jun 2012 21:56:22 +0200
 
 
