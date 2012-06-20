@@ -24,7 +24,6 @@
 Peerguardian::Peerguardian( QWidget *parent) :
 	QMainWindow( parent )
 {
-
 	setupUi( this );
     
     m_LogTreeWidget->setContextMenuPolicy ( Qt::CustomContextMenu );
@@ -61,8 +60,6 @@ Peerguardian::Peerguardian( QWidget *parent) :
     header->resizeSection(0, header->sectionSize(0) * 2);
     header->resizeSection(2, header->sectionSize(2) / 2);
         
-
-    
     a_whitelistIpTemp = new QAction(tr("Allow temporarily"), this);
     a_whitelistIpTemp->setToolTip(tr("Allows until pgld is restarted."));
     a_whitelistIpPerm = new QAction(tr("Allow permanently"), this);
@@ -71,7 +68,6 @@ Peerguardian::Peerguardian( QWidget *parent) :
     a_whitelistPortPerm = new QAction(tr("Allow permanently"), this);
     aWhoisIp = new QAction(tr("Whois "), this);
 
-    
     m_ConnectType["OUT"] = tr("Outgoing"); 
     m_ConnectType["IN"] = tr("Incoming");
     m_ConnectType["FWD"] = tr("Forward");
@@ -107,12 +103,54 @@ Peerguardian::Peerguardian( QWidget *parent) :
     //bt = new ActionButton(kickPB, "org.qt.policykit.examples.kick", this);
     //bt->setText("Kick... (long)");
 
-	/*
-	//Restore the window's previous state
-	resize( m_ProgramSettings->value( "window/size", QSize( MAINWINDOW_WIDTH, MAINWINDOW_HEIGHT ) ).toSize() );
-	restoreGeometry( m_ProgramSettings->value("window/geometry").toByteArray() );
-	restoreState( m_ProgramSettings->value( "window/state" ).toByteArray() );*/
+	
+	//Restore to the window's previous state
+    if (m_ProgramSettings->contains("window/geometry"))
+        restoreGeometry( m_ProgramSettings->value("window/geometry").toByteArray() );
+    
+    if (m_ProgramSettings->contains("window/state"))
+        restoreState( m_ProgramSettings->value( "window/state" ).toByteArray() );
+    
+    for (int i = 0; i < m_LogTreeWidget->columnCount(); i++ ) {
+        QString settingName = "logTreeView/column_" + QString::number(i);
+        qDebug() <<m_ProgramSettings->value(settingName).type();
+        if (m_ProgramSettings->contains(settingName)) {
+            int value = m_ProgramSettings->value(settingName).toInt(&ok);
+            if (ok)
+                m_LogTreeWidget->setColumnWidth(i, value);
+        }
+    }
 
+}
+
+Peerguardian::~Peerguardian() {
+
+    qWarning() << "~Peerguardian()";
+
+	//Save column sizes
+    for (int i = 0; i < m_LogTreeWidget->columnCount() ; i++ ) {
+		QString settingName = "logTreeView/column_";
+		settingName += QVariant( i ).toString();
+		m_ProgramSettings->setValue( settingName, m_LogTreeWidget->columnWidth(i) );
+	}
+	/*for ( int i = 0; i < m_LogTreeWidget->columnCount() - 1; i++ ) {
+		QString settingName = "log/column_";
+		settingName += QVariant( i ).toString();
+		m_ProgramSettings->setValue( settingName, m_LogTreeWidget->columnWidth( i ) );
+	}
+    **/
+
+	//Save window settings
+	m_ProgramSettings->setValue( "window/state", saveState() );
+	m_ProgramSettings->setValue( "window/geometry", saveGeometry() );
+
+    //Free memory
+    if ( m_List )
+        delete m_List;
+    if ( m_Whitelist )
+		delete m_Whitelist;
+    if (guiOptions)
+        delete guiOptions;
 }
 
 void Peerguardian::addLogItem(QString itemString)
@@ -175,38 +213,6 @@ void Peerguardian::addLogItem(QString itemString)
     }
     
 
-}
-
-Peerguardian::~Peerguardian() {
-
-	//Save column sizes
-	/*for ( int i = 0; i < m_LogTreeWidget->columnCount() - 1; i++ ) {
-		QString settingName = "log/column_";
-		settingName += QVariant( i ).toString();
-		m_ProgramSettings->setValue( settingName, m_LogTreeWidget->columnWidth( i ) );
-	}
-
-	//Save window settings
-	m_ProgramSettings->setValue( "window/state", saveState() );
-	m_ProgramSettings->setValue( "window/size", size() );
-	m_ProgramSettings->setValue( "window/geometry", saveGeometry() );
-	m_ProgramSettings->setValue( "settings/autoscroll", m_ListAutoScroll );
-	m_ProgramSettings->setValue( "settings/slow_timer", m_SlowTimer->interval() );
-	m_ProgramSettings->setValue( "settings/medium_timer", m_MediumTimer->interval() );
-	m_ProgramSettings->setValue( "settings/fast_timer", m_FastTimer->interval() );
-
-	*/
-
-
-    qWarning() << "~Peerguardian()";
-
-    //Free memory
-    if ( m_List != NULL )
-        delete m_List;
-    if ( m_Whitelist != NULL )
-		delete m_Whitelist;
-
-    delete guiOptions;
 }
 
 void Peerguardian::updateGUI()
