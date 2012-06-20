@@ -742,7 +742,6 @@ void Peerguardian::updateBlocklist()
 
 void Peerguardian::updateWhitelist()
 {
-    
     QMap<QString, QStringList> items;
     QStringList values;
     QStringList info;
@@ -779,6 +778,8 @@ void Peerguardian::updateWhitelist()
             info.clear();
         }
     }
+    
+    m_WhitelistTreeWidget->setSortingEnabled(true);
 }
 
 void Peerguardian::initializeSettings()
