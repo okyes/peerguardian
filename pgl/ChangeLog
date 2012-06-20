@@ -10,6 +10,7 @@ pgl 2.2.1~pre1 UNRELEASED
   * Fixed log viewer dialog to not close on key press.
   * Added whois action.
   * Minor tweaks.
+  * Fixed (random) unapplied changes at start-up bug. 
 
  -- jre <jre-phoenix@users.sourceforge.net>  Tue, 19 Jun 2012 21:56:22 +0200
 
