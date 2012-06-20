@@ -143,6 +143,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     CommandList mFailedCommands;
     volatile bool mAutomaticScroll;
     volatile bool mIgnoreScroll;
+    QAction *aWhoisIp;
 
 	public:
 		/**
@@ -220,6 +221,8 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     private slots:
         void onLogViewVerticalScrollbarMoved(int);
         void onLogViewVerticalScrollbarActionTriggered(int);
+        void onWhoisTriggered();
+        void showCommandsOutput(const CommandList&);
 };	
 
 #endif //PEERGUARDIAN_H

@@ -67,6 +67,7 @@ Peerguardian::Peerguardian( QWidget *parent) :
     a_whitelistPortTemp = new QAction(tr("Allow temporarily"), this);
     a_whitelistPortTemp->setToolTip(tr("Allows until pgld is restarted."));
     a_whitelistPortPerm = new QAction(tr("Allow permanently"), this);
+    aWhoisIp = new QAction(tr("Whois "), this);
 
     
     m_ConnectType["OUT"] = tr("Outgoing"); 
@@ -97,6 +98,8 @@ Peerguardian::Peerguardian( QWidget *parent) :
     move(xx, yy);
     
     m_LogTreeWidget->verticalScrollBar()->installEventFilter(this);
+    
+    connect(aWhoisIp, SIGNAL(triggered()), this, SLOT(onWhoisTriggered()));
     
     //ActionButton *bt;
     //bt = new ActionButton(kickPB, "org.qt.policykit.examples.kick", this);
@@ -434,7 +437,7 @@ void Peerguardian::rootError(const CommandList& failedCommands)
     QMessageBox::warning( this, tr("Error (One or more command(s) failed)"), errorMsg,
 	QMessageBox::Ok
     );*/
-    
+ 
     m_ApplyButton->setEnabled(guiOptions->isChanged());
     m_UndoButton->setEnabled(m_ApplyButton->isEnabled());
 }
@@ -485,8 +488,6 @@ void Peerguardian::updateRadioButtonToggled(bool toggled)
         m_AutoListUpdateMonthlyRadio->setIcon(QIcon());
         m_AutoListUpdateMonthlyRadio->setStatusTip("");
     }
-	
-    
 }
 
 
@@ -727,7 +728,7 @@ void Peerguardian::updateBlocklist()
     }
 
     //get local blocklists
-    foreach(QFileInfo blocklist, m_List->getLocalBlocklists())
+    foreach(const QFileInfo& blocklist, m_List->getLocalBlocklists())
     {
         item_info << blocklist.fileName() << blocklist.absoluteFilePath();
         QTreeWidgetItem * tree_item = new QTreeWidgetItem(m_BlocklistTreeWidget, item_info);
@@ -1073,7 +1074,7 @@ void Peerguardian::showLogRightClickMenu(const QPoint& p)
 {
     QTreeWidgetItem * item = m_LogTreeWidget->itemAt(p);
     
-    if ( item == NULL )
+    if ( ! item )
         return;
         
     m_selectedItem = item;
@@ -1081,22 +1082,21 @@ void Peerguardian::showLogRightClickMenu(const QPoint& p)
     QMenu   menu  (this);
     QMenu *menuIp;
     QMenu *menuPort;
+    int index = 4;
     
     if ( item->text(7) == "Incoming" )
-    {
-        menuIp = menu.addMenu("Allow IP " + item->text(2));
-    }
-    else
-    {
-        menuIp =  menu.addMenu("Allow IP " + item->text(4));
-    }
+        index = 2;
     
+    menuIp =  menu.addMenu("Allow IP " + item->text(index));
     menuPort = menu.addMenu("Allow Port " + item->text(5));
+    
+    menu.addSeparator();
+    aWhoisIp->setText(tr("Whois ") + item->text(index));
+    menu.addAction(aWhoisIp);
     
     connect(&menu, SIGNAL(triggered(QAction*)), this, SLOT(whitelistItem(QAction*)));
     connect(menuIp, SIGNAL(hovered(QAction*)), this, SLOT(hoveredAction(QAction*)));
     connect(menuPort, SIGNAL(hovered(QAction*)), this, SLOT(hoveredAction(QAction*)));
-    
     
     menuIp->addAction(a_whitelistIpTemp);
     menuIp->addAction(a_whitelistIpPerm);
@@ -1104,9 +1104,7 @@ void Peerguardian::showLogRightClickMenu(const QPoint& p)
     menuPort->addAction(a_whitelistPortTemp);
     menuPort->addAction(a_whitelistPortPerm);
 
-    
     menu.exec(m_LogTreeWidget->mapToGlobal(p));
-
 }
 
 void Peerguardian::whitelistItem(QAction *action)
@@ -1197,3 +1195,35 @@ void Peerguardian::onLogViewVerticalScrollbarActionTriggered(int action)
         scrollBar->setSliderPosition(scrollBar->maximum());
         
 }
+
+void Peerguardian::showCommandsOutput(const CommandList& commands) 
+{
+    
+    QString output("");
+    QString title("");
+    foreach(const Command& command, commands) {
+        output += command.output();
+        output += "\n";
+        
+        if (! title.isEmpty())
+            title += tr(" and ");
+        title += command.command();
+    }
+    
+    ViewerWidget viewer(output);
+    viewer.setWindowTitle(title);
+    viewer.exec();
+} 
+
+void Peerguardian::onWhoisTriggered() 
+{
+    QAction* action = qobject_cast<QAction*>(sender());
+    if (! action)
+        return;
+    ProcessT *process = new ProcessT(this);
+    connect(process, SIGNAL(finished(const CommandList&)), this, SLOT(showCommandsOutput(const CommandList&)));
+    if (action->text().contains(" "))
+        process->execute("whois", QStringList() << action->text().split(" ")[1]);
+}
+    
+    
