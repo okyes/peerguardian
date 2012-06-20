@@ -1,4 +1,3 @@
- 
 #include "error_dialog.h"
 
 #include <QHBoxLayout>

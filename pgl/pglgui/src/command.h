@@ -5,8 +5,6 @@
 #include <QMetaType>
 #include <QList>
 
-
-
 class Command
 {
     QString mCommand;

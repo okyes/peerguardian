@@ -101,6 +101,7 @@ QString PglSettings::findPglcmdDefaultsPath()
     if (QFile::exists(PGLCMD_DEFAULTS_PATH))
         return PGLCMD_DEFAULTS_PATH;
     
+    //deprecated code below, should be removed at some point
     QDir currentDir = QDir::current();
     currentDir.cdUp();
     
@@ -123,7 +124,6 @@ bool PglSettings::loadSettings()
         return false;
     }
     
-    
     qDebug() << mPglcmdDefaultsPath;
     QStringList data = getFileData(mPglcmdDefaultsPath);
     QString variable;
@@ -140,8 +140,7 @@ bool PglSettings::loadSettings()
             variables[variable] = PglSettings::getValueInLine(line);
 
     }
-
-
+    
     //Overwrite the variables' values with the values from pglcmd.conf
     QString pglcmdConfPath(PglSettings::getStoredValue("CMD_CONF"));
 

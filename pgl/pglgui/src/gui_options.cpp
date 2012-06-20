@@ -1,5 +1,7 @@
 #include "gui_options.h"
 
+#include <QDebug>
+
 GuiOptions::GuiOptions() 
 { 
     m_Window = NULL; 

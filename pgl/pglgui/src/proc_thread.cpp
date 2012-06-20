@@ -39,7 +39,7 @@ ProcessT::ProcessT(const ProcessT& other):
 ProcessT::~ProcessT() 
 {
 	wait();
-	qDebug() << Q_FUNC_INFO << " destroyed";
+	//qDebug() << Q_FUNC_INFO << " destroyed";
 }
 
 void ProcessT::run() 

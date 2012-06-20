@@ -477,7 +477,7 @@ void AddExceptionDialog::addBlocklist()
     QStringList invalidValues;
     m_blocklists.clear();
 
-    foreach(QString value, values)
+    foreach(const QString& value, values)
     {
         if ( value.simplified().isEmpty() )
             continue;
