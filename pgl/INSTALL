@@ -1,10 +1,4 @@
-pgl/README                                        Wed Aug 31 23:19:30 CEST 2011
-
-
-This README is about installation of pgl. For a description and more information
-please have a look at pgl/docs/README.
-
-
+pgl/INSTALL                                    Wed, 20 Jun 2012 22:57:43 +0200
 
 
 Table of Contents:
@@ -27,26 +21,38 @@ distribution specific section (chapter 4).
 
 Step 1: Get the source:
 -----------------------
+
 Either get the latest stable release from peerguardian.sourceforge.net and
 unpack it.
-Or get the current development code:
-git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
+
+Or get the current development code (the following is one command line!):
+  git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerg
+  uardian
 
 
 Step 2: Install pgl's dependencies
 ----------------------------------
+
 Install the build dependencies (including the development headers) and runtime
 environment for the components (see chapter 3).
 
 
 Step 3: Compilation and installation
 ------------------------------------
+
+Step 3.0: Create/update autotools files (only required for git version)
+-----------------------------------------------------------------------
+
 If you are using the development version from the git repository generate
 the autotools files first. Go to the peerguardian/pgl directory and run:
   ./autogen.sh
 
 To update the files run:
   autoreconf
+
+
+Step 3.1: Configure
+-------------------
 
 Pgl uses autotools which comes with several configure-switches you have
 to check before compiling. Go to the pgl/ directory and run:
@@ -76,25 +82,17 @@ support:
 Especially for embedded devices (like router or NAS box) you might disable
 storing of textual IP range descriptions:
   --enable-lowmem
-But generally it is recommended (and required for the GUI) to disable that
-feature:
-  --disable-lowmem
+But generally it is recommended (and required for the GUI) to use the default,
+which is not to use this feature.
 
-
-Now you should be clear about the settings you need for your distribution and 
+Now you should be clear about the settings you need for your distribution and
 run something similar to:
   ./configure \
     --prefix=/my/prefix \
     --with-initddir=/my/initddir \
     --sysconfdir=/etc
-  make
-  make install
 
-On some systems it may be required to activate the init script manually, e.g.:
-  update-rc.d pgl defaults
-
-
-Example configure line for a complete build, and full system integration
+Full example configure line for a complete build and full system integration
 (on a Debian system):
   ./configure \
     --prefix=/usr \
@@ -111,9 +109,51 @@ Example configure line for a complete build, and full system integration
     --with-qt4 \
     --disable-lowmem
 
+Minimal example line for a complete build and full system integration (on a
+Debian system). Installs most things to /usr/local
+  ./configure \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --with-lsb=/lib/lsb/init-functions
 
 ArchLinux users probably have to set:
   --with-initddir=/etc/rc.d
+
+
+Step 3.2: Build and install
+---------------------------
+
+After configure you can build and install the package, just issue:
+  make
+  make install
+
+
+Step 3.3: Activate the init script
+----------------------------------
+
+On some systems (e.g. Debian and Ubuntu based) it may be required to activate
+the init script manually:
+  update-rc.d pgl defaults
+
+Or alternatively:
+  /usr/lib/lsb/install_initd /etc/init.d/pgl
+
+RedHat's system initialization:
+  chkconfig add pgl
+  chkconfig pgl on
+
+Or probably manually, something like:
+  ln -s /etc/init.d/pgl /etc/rc0.d/K01pgl
+  ln -s /etc/init.d/pgl /etc/rc1.d/K01pgl
+  ln -s /etc/init.d/pgl /etc/rc2.d/S20pgl
+  ln -s /etc/init.d/pgl /etc/rc3.d/S20pgl
+  ln -s /etc/init.d/pgl /etc/rc4.d/S20pgl
+  ln -s /etc/init.d/pgl /etc/rc5.d/S20pgl
+  ln -s /etc/init.d/pgl /etc/rc6.d/K01pgl
+
+Or something else, please tell us how it works for your distribution!
+
+Other systems, like Gentoo, don't need this activation of the init script.
 
 
 
@@ -142,7 +182,7 @@ Build dependencies:
 Runtime environment pgld:
 - the above libraries
 - iptables (required)
-- netfilter kernel support (kernel >= 2.6.13 for NFQUEUE support)
+- netfilter kernel support (Linux kernel >= 2.6.13 for NFQUEUE support)
   Either as modules or directly built in the kernel. These are the modules that
   are loaded here. Note that "xt_" may be named "ip_" or "ipt_" on older
   systems. This list was compiled with:
@@ -185,6 +225,7 @@ Runtime environment pgld:
 - pglcmd
 - Qt4
 - dbus
+- whois
 
 
 
@@ -192,7 +233,7 @@ Runtime environment pgld:
 4.) Available packages, build scripts and other distribution specific tips
 ==========================================================================
 
-pgl was written and tested under Debian Gnu/Linux Squeeze. However it should run
+pgl was written and tested under Debian Gnu/Linux Wheezy. However it should run
 under every Linux system. It is our goal to make life as easy as possible for
 users and packagers.
 
@@ -204,10 +245,9 @@ We'll gladly give you all possible support, change the code if feasible and
 publish your work. Of course you are welcome to join the project and e.g.
 commit directly to the git repository.
 To test if pgl is correctly integrated in your system, you'll have to verify
-the correct handling of the init, cron, if-up and logrotate files (all pglcmd,
-logrotate also for pgld), and may test if LSB="/lib/lsb/init-functions" works.
-
-If you know something missing in this list, please tell us!
+the correct handling of the init, cron, NetworkManager and logrotate files
+(all are part of pglcmd, logrotate also of pgld), and may test if
+LSB="/lib/lsb/init-functions" works.
 
 
 deb packages:
@@ -220,8 +260,8 @@ Debian RFP: http://bugs.debian.org/578192
 Ubuntu RFP: https://bugs.launchpad.net/ubuntu/+bug/109822
 
 
-rpm packages:
--------------
+rpm packages [outdated]:
+------------------------
 CentOS by agent86 (last update 06-20-2011, pgl 2.0.4):
 http://forums.phoenixlabs.org/thread-16383-post-120468.html
 spec and patch file
@@ -230,7 +270,8 @@ RedHat's system initialization:
   chkconfig add pgl
   chkconfig pgl on
 
-openSUSE 11.3/x64:
+openSUSE 11.3/x64 [outdated]:
+-----------------------------
 by pixecs (last update 06-03-2011, pgl 2.0.4):
 http://forums.phoenixlabs.org/thread-15882-post-120482.html#pid120482
 
@@ -239,17 +280,17 @@ ARCH / AUR (Arch User Repo):
 ----------------------------
 PKGBUILD by Gilrain:
 https://aur.archlinux.org/packages.php?ID=51839
-(last checked on 2011-08-27 for pgl 2.1.2)
+(Last Updated: Thu, 14 Jun 2012 08:52:59 +0000 for 2.2.0)
 
 
 Gentoo:
 -------
-available in main portage tree
+available in main portage tree by our Gentoo maintainer hasufell:
 http://packages.gentoo.org/package/net-firewall/pglinux
 
 
-Slackware:
-----------
+Slackware [outdated]:
+---------------------
 by godmachine81:
 branch "pgl_slackware" in the git repository, slack tar available.
 
