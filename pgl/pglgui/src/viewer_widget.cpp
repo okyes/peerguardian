@@ -5,15 +5,12 @@
 #include <QVBoxLayout>
 #include <QTextEdit>
 #include <QLineEdit>
-#include <QFile>
 #include <QList>
 #include <QDebug>
 #include <QDialogButtonBox>
 #include <QScrollBar>
 #include <QTimer>
 #include <QPushButton> 
-
-#include "file_transactions.h"
 
 ViewerWidget::ViewerWidget(const QString& info, QWidget* parent) :
     QDialog(parent)
@@ -22,27 +19,32 @@ ViewerWidget::ViewerWidget(const QString& info, QWidget* parent) :
     //QHBoxLayout* hlayout = new QHBoxLayout;
     //vlayout->addLayout(hlayout);
     mButtonBox = new QDialogButtonBox(QDialogButtonBox::Close, Qt::Horizontal, this);
-    QLineEdit * filter = new QLineEdit(this);
+    mFilterEdit = new QLineEdit(this);
     mTextView = new QTextEdit(this);
     mTextView->setReadOnly(true);
+    mTextView->document()->setMaximumBlockCount(5000);
+    //connect(mTextView, SIGNAL(cursorPositionChanged ()), this, SLOT(moveScrollBarToBottom()));
     
     connect(mButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
-    connect(filter, SIGNAL(textEdited(const QString&)), this, SLOT(onFilterTextEdited(const QString&)));
-    connect(filter, SIGNAL(returnPressed()), this, SLOT(onReturnPressed()));
+    connect(mFilterEdit, SIGNAL(textEdited(const QString&)), this, SLOT(onFilterTextEdited(const QString&)));
+    connect(mFilterEdit, SIGNAL(returnPressed()), this, SLOT(onReturnPressed()));
 
     vlayout->addWidget(mTextView);
-    vlayout->addWidget(filter);
+    vlayout->addWidget(mFilterEdit);
     vlayout->addWidget(mButtonBox);
     
     resize(500, 300);
     
-    filter->setFocus();
+    mFilterEdit->setFocus();
     
     QString text = info;
     
     if (QFile::exists(info)) {
         setWindowTitle(info);
-        text = getFileData(info).join("\n");
+        ReadFile *readFile = new ReadFile(info, this);
+        connect(readFile, SIGNAL(finished()), this, SLOT(onReadFileFinished()));
+        readFile->start();
+        //text = getFileData(info).join("\n");
     }
     else {
         setWindowTitle( windowTitle() + tr(" (File doesn't exist)"));
@@ -50,10 +52,10 @@ ViewerWidget::ViewerWidget(const QString& info, QWidget* parent) :
     
     if (text.isEmpty()) {
         mTextView->setDisabled(true);
-        filter->setDisabled(true);
+        mFilterEdit->setDisabled(true);
     }
-        
-    mTextView->setText(text);
+    else
+        mTextView->setText(text);
 }
 
 ViewerWidget::~ViewerWidget()
@@ -63,13 +65,13 @@ ViewerWidget::~ViewerWidget()
 void ViewerWidget::showEvent(QShowEvent * event)
 {
     QDialog::showEvent(event);
-    mTextView->verticalScrollBar()->setValue(mTextView->verticalScrollBar()->maximum());
-    
+    moveScrollBarToBottom();
 }
 
 void ViewerWidget::moveScrollBarToBottom()
 {
-    mTextView->verticalScrollBar()->setValue(mTextView->verticalScrollBar()->maximum());
+    if (mTextView->verticalScrollBar())
+        mTextView->verticalScrollBar()->setValue(mTextView->verticalScrollBar()->maximum());
 }
 
 void ViewerWidget::onFilterTextEdited(const QString& text)
@@ -80,6 +82,9 @@ void ViewerWidget::onFilterTextEdited(const QString& text)
     QStringList lines;
     QString txt;
     int index;
+    
+    if (text.isEmpty())
+        return;
     
     if (plainText.contains("\n"))
         lines = plainText.split("\n");
@@ -98,12 +103,10 @@ void ViewerWidget::onFilterTextEdited(const QString& text)
         }
     }
     
-    QLineEdit *filter = qobject_cast<QLineEdit*>(sender());
-    
     if (changed) {
         mTextView->setText(lines.join("<br/>"));
-        if (filter)
-            filter->setStyleSheet("");
+        if (mFilterEdit)
+            mFilterEdit->setStyleSheet("");
         
         index = plainText.indexOf(text, 0, Qt::CaseInsensitive);
 
@@ -111,25 +114,28 @@ void ViewerWidget::onFilterTextEdited(const QString& text)
             mTextView->moveCursor(QTextCursor::Down);
     }
     else{
-        if (filter)
-            filter->setStyleSheet("background-color:red;");
+        if (mFilterEdit)
+            mFilterEdit->setStyleSheet("background-color:red;");
     }
 }
 
 void ViewerWidget::onReturnPressed()
 {
-    QLineEdit *filter = qobject_cast<QLineEdit*>(sender());
-    if (! filter)
+    QLineEdit *mFilterEdit = qobject_cast<QLineEdit*>(sender());
+    if (! mFilterEdit)
         return;
-    
+
+    QString mFilterEditText = mFilterEdit->text();
+    if (mFilterEditText.isEmpty())
+        return;
+        
     QString text = mTextView->toPlainText();
-    QString filterText = filter->text();
     QTextCursor cursor = mTextView->textCursor();
     QStringList lines;
     int from=0, index=0;
     
     from = mTextView->textCursor().position();
-    index = text.indexOf(filterText, from, Qt::CaseInsensitive);
+    index = text.indexOf(mFilterEditText, from, Qt::CaseInsensitive);
     
     if (index == -1)
         return;
@@ -142,4 +148,21 @@ void ViewerWidget::keyPressEvent ( QKeyEvent * e )
 {
     if (e->key() == Qt::Key_Escape)
         QDialog::keyPressEvent (e);
+}
+
+void ViewerWidget::onReadFileFinished()
+{
+    ReadFile * readFile = qobject_cast<ReadFile*>(sender());
+    if (! readFile)
+        return;
+    
+    QString data = readFile->data();
+    
+    if (data.isEmpty())
+        return;
+    
+    mTextView->setEnabled(true);
+    mFilterEdit->setEnabled(true);
+    mTextView->setPlainText(readFile->data());
+    moveScrollBarToBottom();
 }

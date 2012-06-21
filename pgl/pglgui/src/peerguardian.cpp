@@ -113,7 +113,6 @@ Peerguardian::Peerguardian( QWidget *parent) :
     
     for (int i = 0; i < m_LogTreeWidget->columnCount(); i++ ) {
         QString settingName = "logTreeView/column_" + QString::number(i);
-        qDebug() <<m_ProgramSettings->value(settingName).type();
         if (m_ProgramSettings->contains(settingName)) {
             int value = m_ProgramSettings->value(settingName).toInt(&ok);
             if (ok)
