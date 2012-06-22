@@ -4,16 +4,16 @@ Priority: optional
 Maintainer: PeerGuardian Linux Developers <peerguardian-devel@lists.sourceforge.net>
 Uploaders: jre <jre-phoenix@users.sourceforge.net>
 Bugs: mailto:peerguardian-devel@lists.sourceforge.net
-Build-Depends: autoconf (>= 2.68~),
-               debhelper (>= 9~),
-               dh-autoreconf,
-               po-debconf,
-               zlib1g-dev,
+Build-Depends: po-debconf,
                libdbus-1-dev,
                libnetfilter-queue-dev,
                libnfnetlink-dev,
                libpolkit-qt-1-dev,
-               libqt4-dev
+               libqt4-dev,
+               zlib1g-dev,
+               autoconf (>= 2.68~),
+               dh-autoreconf,
+               debhelper (>= 9~)
 Build-Conflicts: autoconf2.13, automake1.4
 Standards-Version: 3.9.3.0
 Homepage: http://peerguardian.sourceforge.net/
