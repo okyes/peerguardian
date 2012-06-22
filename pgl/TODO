@@ -123,7 +123,6 @@ pglgui:
     otherwise live with it and wait for the next pglcmd restart)
 
   - "Details about blocked IP" on right-click in the log of blocked IPs:
-    - whois IP
     - pglcmd search IP [requires search function in pgld, see above.]
 
   - Window title "Blocking $X IP ranges ($Y IPs)":
@@ -166,7 +165,8 @@ All components:
     doxygen (creates doc from source)
     doconce (markup language for several output formats).
 
-  - fix/update license headers of pglgui and pgld
+  - fix/update license headers of pglgui (including autotools/m4 files) and
+    pgld. use new debbian/copyright format.
 
   - long run whitelisting concept:
     allow.p2p etc.:
