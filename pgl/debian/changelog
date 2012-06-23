@@ -5,6 +5,7 @@ pgl (2.2.1~pre1-1) pgl-experimental; urgency=low
     - changed pglcmd from architecture all to any
     - updated debian/*.install files
   * rules: reverted to always use "autoreconf"
+  * rename old pgl-gui.conf files
     TODO: backport for Debian Squeeze and Ubuntu Lucid and Natty:
     don't use autotools (autoreconf) and debhelper 9 there.
 
