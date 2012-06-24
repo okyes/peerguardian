@@ -23,6 +23,8 @@ EXTRA_DIST = \
 	debian/compat \
 	debian/control \
 	debian/copyright \
+	debian/moblock.config \
+	debian/moblock.templates \
 	debian/pglcmd.config \
 	debian/pglcmd.dirs \
 	debian/pglcmd.examples \

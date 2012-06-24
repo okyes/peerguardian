@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: pgl@packages.debian.org\n"
-"POT-Creation-Date: 2011-07-31 16:26+0200\n"
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: peerguardian-devel@lists.sourceforge.net\n"
+"POT-Creation-Date: 2012-06-25 00:59+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -67,4 +67,33 @@ msgid ""
 "This sets if the daily cron job updates the blocklists. With the default "
 "settings this causes up to 10 MB traffic per day. You can configure which "
 "blocklists are used in /etc/pgl/blocklists.list."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../moblock.templates:1001
+msgid "moblock/blockcontrol/mobloquer have been transitioned to pgl"
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../moblock.templates:1001
+msgid ""
+"pgl is based on them and is their official successor. The new pgl packages "
+"have been installed on your system automatically:\n"
+" pgld for moblock.\n"
+" pglcmd for blockcontrol.\n"
+" pglgui for mobloquer.\n"
+"Most of your configuration has been transitioned automatically, you'll find "
+"it in /etc/pgl/ or can check it in the GUI pglgui. The usage, especially of "
+"pglcmd, is nearly identical. The iptables chains are now called pgl_in, "
+"pgl_fwd and pgl_out."
+msgstr ""
+
+#. Type: note
+#. Description
+#: ../moblock.templates:1001
+msgid ""
+"Get support and help developing at the project's homepage: http://"
+"peerguardian.sourceforge.net/"
 msgstr ""

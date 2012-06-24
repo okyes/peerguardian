@@ -142,35 +142,41 @@ Description: PeerGuardian Linux GUI - pglgui (debug)
 
 Package: moblock
 Architecture: all
-Depends: pgld
+Priority: extra
+Depends: ${misc:Depends}, pgld
 Description: transitional dummy package for pgld
  This package is a dummy package to transition to pgld. It can be safely
  removed.
 
 Package: blockcontrol
 Architecture: all
-Depends: pglcmd
+Priority: extra
+Depends: ${misc:Depends}, pglcmd
 Description: transitional dummy package for pglcmd
  This package is a dummy package to transition to pglcmd. It can be safely
  removed.
 
 Package: mobloquer
 Architecture: all
-Depends: pglgui
+Priority: extra
+Depends: ${misc:Depends}, pglgui
 Description: transitional dummy package for pglgui
  This package is a dummy package to transition to pglgui. It can be safely
  removed.
 
 Package: mobloquer-dbg
 Architecture: all
-Depends: pglgui-dbg
+Section: debug
+Priority: extra
+Depends: ${misc:Depends}, pglgui-dbg
 Description: transitional dummy package for pglgui-dbg
  This package is a dummy package to transition to pglgui-dbg. It can be safely
  removed.
 
 Package: pgl-gui
 Architecture: all
-Depends: pglgui
+Priority: extra
+Depends: ${misc:Depends}, pglgui
 Description: transitional dummy package for pglgui
  This package is a dummy package to transition to pglgui. It can be safely
  removed.
@@ -179,7 +185,7 @@ Package: pgl-gui-dbg
 Architecture: all
 Section: debug
 Priority: extra
-Depends: pglgui-dbg
+Depends: ${misc:Depends}, pglgui-dbg
 Description: transitional dummy package for pglgui-dbg
  This package is a dummy package to transition to pglgui-dbg. It can be safely
  removed.
