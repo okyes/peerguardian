@@ -104,4 +104,7 @@ BUILT_SOURCES = \
 	$(nodist_FORMSHEADERS) \
 	qrc_images.cpp
 
-CLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = \
+	$(BUILT_SOURCES) \
+	$(nodist_EXTRA_pglgui_SOURCES:.cpp=.o) \
+	.deps/*.Po

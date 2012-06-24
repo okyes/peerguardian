@@ -6,6 +6,7 @@ pgl 2.2.1
   * Disabled dbus closing and reopening on reload. Fixes bug "pgld binaries
     built under Ubuntu Oneiric, Precise and Mint 12 crash on reload" (Closes:
     SF Bug #3495654)
+  * fixed Makefile clean target
 
   [freemind]
   * Fixed log viewer dialog to not close on key press.

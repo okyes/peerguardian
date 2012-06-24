@@ -39,6 +39,7 @@ EXTRA_DIST = \
 	debian/pglgui.docs \
 	debian/pglgui.install \
 	debian/pglgui.links \
+	debian/pglgui.postinst \
 	debian/po/POTFILES.in \
 	debian/po/templates.pot \
 	debian/README.Debian \
@@ -53,3 +54,6 @@ install-data-local:
 	@$(INSTALL) -d $(DESTDIR)$(PIDDIR)
 	@$(INSTALL) -d $(DESTDIR)$(LOGDIR)
 	@$(INSTALL) -d $(DESTDIR)$(TMPDIR)
+
+CLEANFILES = \
+	autom4te.cache/*
