@@ -122,13 +122,6 @@ Description: PeerGuardian Linux GUI - pglgui
  .
  This is the pgl Graphical User Interface pglgui (C++, Qt4).
 
-Package: pgl-gui
-Architecture: all
-Depends: pglgui
-Description: transitional dummy package for pglgui
- This package is a dummy package to transition to pglgui. It can be safely
- removed.
-
 Package: pglgui-dbg
 Architecture: any
 Section: debug
@@ -146,6 +139,41 @@ Description: PeerGuardian Linux GUI - pglgui (debug)
  This is the pgl Graphical User Interface pglgui (C++, Qt4).
  .
  This package contains the debugging symbols for pglgui.
+
+Package: moblock
+Architecture: all
+Depends: pgld
+Description: transitional dummy package for pgld
+ This package is a dummy package to transition to pgld. It can be safely
+ removed.
+
+Package: blockcontrol
+Architecture: all
+Depends: pglcmd
+Description: transitional dummy package for pglcmd
+ This package is a dummy package to transition to pglcmd. It can be safely
+ removed.
+
+Package: mobloquer
+Architecture: all
+Depends: pglgui
+Description: transitional dummy package for pglgui
+ This package is a dummy package to transition to pglgui. It can be safely
+ removed.
+
+Package: mobloquer-dbg
+Architecture: all
+Depends: pglgui-dbg
+Description: transitional dummy package for pglgui-dbg
+ This package is a dummy package to transition to pglgui-dbg. It can be safely
+ removed.
+
+Package: pgl-gui
+Architecture: all
+Depends: pglgui
+Description: transitional dummy package for pglgui
+ This package is a dummy package to transition to pglgui. It can be safely
+ removed.
 
 Package: pgl-gui-dbg
 Architecture: all
