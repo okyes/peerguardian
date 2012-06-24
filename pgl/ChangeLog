@@ -1,10 +1,11 @@
 ChangeLog PeerGuardian Linux (pgl)
 
-pgl 2.2.1~pre1 UNRELEASED
+pgl 2.2.1
 
-  * WIP: fix bug, consider: https://sourceforge.net/tracker/?func=detail&aid=
-    3383915&group_id=131687&atid=721926
-    Test: Disabled dbus closing and reopening on reload
+  [jre]
+  * Disabled dbus closing and reopening on reload. Fixes bug "pgld binaries
+    built under Ubuntu Oneiric, Precise and Mint 12 crash on reload" (Closes:
+    SF Bug #3495654)
 
   [freemind]
   * Fixed log viewer dialog to not close on key press.
@@ -14,7 +15,7 @@ pgl 2.2.1~pre1 UNRELEASED
   * Added sortable columns in whitelist view.
   * Added automatic saving and restoring of window's state.
 
- -- jre <jre-phoenix@users.sourceforge.net>  Tue, 19 Jun 2012 21:56:22 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Sat, 23 Jun 2012 18:38:33 +0200
 
 
 pgl 2.2.0 The autotools release

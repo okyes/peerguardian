@@ -1,4 +1,4 @@
-pgl (2.2.1~pre1-1) pgl-experimental; urgency=low
+pgl (2.2.1-1) unstable; urgency=low
 
   * bump to debhelper 9: use architecture dependent paths /usr/lib/.../pgl
     - pglcmd.postinst now gets generated from an .in file
@@ -7,10 +7,8 @@ pgl (2.2.1~pre1-1) pgl-experimental; urgency=low
   * rules: reverted to always use "autoreconf"
   * rename old pgl-gui.conf files
   * added transitional packages for moblock, blockcontrol and mobloquer
-    TODO: backport for Debian Squeeze and Ubuntu Lucid and Natty:
-    don't use autotools (autoreconf) and debhelper 9 there.
 
- -- jre <jre-phoenix@users.sourceforge.net>  Tue, 19 Jun 2012 21:56:22 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Sat, 23 Jun 2012 20:19:48 +0200
 
 pgl (2.2.0-1) unstable; urgency=low
 

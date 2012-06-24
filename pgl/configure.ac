@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([pgl], [2.2.1~pre1], [http://sourceforge.net/tracker/?group_id=131687&atid=721926])
+AC_INIT([pgl], [2.2.1], [http://sourceforge.net/tracker/?group_id=131687&atid=721926])
 AC_CONFIG_SRCDIR([pgld/src/pgld.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
