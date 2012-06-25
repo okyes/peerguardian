@@ -2,7 +2,7 @@ pgl (2.2.1-2) unstable; urgency=low
 
   * added debconf note about the automatic transition from moblock etc.
 
- -- jre <jre-phoenix@users.sourceforge.net>  Sun, 24 Jun 2012 12:28:02 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 25 Jun 2012 01:01:50 +0200
 
 pgl (2.2.1-1) unstable; urgency=low
 

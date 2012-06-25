@@ -16,7 +16,7 @@ pgl 2.2.1
   * Added sortable columns in whitelist view.
   * Added automatic saving and restoring of window's state.
 
- -- jre <jre-phoenix@users.sourceforge.net>  Sat, 23 Jun 2012 18:38:33 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 25 Jun 2012 01:01:50 +0200
 
 
 pgl 2.2.0 The autotools release

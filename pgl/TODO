@@ -5,16 +5,20 @@ TODO
 
 pgld:
 
-  - replace NIPQUAD (removed from kernel 2.6.36)
-
-  - improve logging: object org/netfilter/pgl/IpMatch consisting of separate
-    items (srcip, srcport, destip, destport, proto, description) instead of a
-    plain string.
+  - implement "long run whitelisting concept" (see "All components" below").
+    This has to be done first in pgld, then in pglcmd and then in pglgui.
 
   - add option to search for a specified IP in a blocklist:
     pgld -f IP BLOCKLIST
     if IP is found in the BLOCKLIST: return 0 and output the matching range(s).
     if IP is not found: return 1
+    when implemented, adapt "pglcmd search"
+
+  - replace NIPQUAD (removed from kernel 2.6.36) (Note: still works on 3.2)
+
+  - improve logging: object org/netfilter/pgl/IpMatch consisting of separate
+    items (srcip, srcport, destip, destport, proto, description) instead of a
+    plain string. Use this with dbus, adapt pglgui when implemented.
 
   - make length of range description configurable (with LOWMEM:=range=0)
 
@@ -23,7 +27,12 @@ pgld:
 
 pglcmd:
 
-  - add separate pidfiles for update and start/reload.
+  - implement "long run whitelisting concept" (see "All components" below").
+    This has to be done first in pgld, then in pglcmd and then in pglgui.
+
+  - search function:
+    requires search function in pgld, see above.
+    Use this function instead of grep'ping for REGEX.
 
   - FIX: since 2011-08-11 I get system mails claiming I tried to send a mail
     without recipient. Seems to be related at least to "restart".
@@ -33,17 +42,6 @@ pglcmd:
   - nice: on CentOS it is required to use e.g. "+5". Find solutions suiting all
     distros.
 
-  - adapt to real allow lists:
-    requires allow lists in pgld, see above
-    - add configuration file allowlists.lists to handle remote allowlists
-      (like blocklists.list for remote blocklists)
-    - load all allowlists in a specified folder "allowlists.local"
-    - remove variables ALLOW_[IN|OUT|FWD]
-
-  - search function:
-    requires search function in pgld, see above.
-    Use this function instead of grep'ping for REGEX.
-
   - use "ip addr" instead of "ifconfig":
     see http://jengelh.medozas.de/2008/0219-ifconfig-sucks.php
 
@@ -51,13 +49,15 @@ pglcmd:
     - Completely rework the logging part, and check if all messages go where
       they should.
     - send error messages to console (STDERR 1>&2), logfile and dbus.
+    - when implemented pglgui should watch for the error messages
 
-  - add pidfile for pglcmd (e.g. to prevent 2 starts at nearly the same time.
-    How to handle "update"? - this does not conflict with start.
+  - add pidfiles for update and start/reload
+    (prevent 2 starts at nearly the same time, but still allow a simultaneous
+    start and update)
 
   - Send traffic to several NFQUEUE nums with --queue-balance and run multiple
     pgld instances for these nums. This might help on heavy load.
-
+    --
     Alternatively increasing the default receive/send window seems to fix the
     problem:
         sysctl -w net.core.rmem_default=8388608
@@ -115,8 +115,13 @@ pglgui:
 
   NEW FEATURES:
 
-  - Allow to sort the columns in "Configure - Whitelist" by clicking in their
-    header.
+  - policykit support (instead of kdesudo/gksu)
+    This also solves this security problem: you can give root rights to
+      "/usr/bin/gksu "sh /tmp/execute-all-pgl-commands.sh""
+    But this file is writable for the user.
+
+  - implement "long run whitelisting concept" (see "All components" below").
+    This has to be done first in pgld, then in pglcmd and then in pglgui.
 
   - "Allow temporarily" on right-click in the log of blocked IPs:
     delete the iptables rule after X minutes (as far as pglgui doesn't crash,
@@ -127,11 +132,6 @@ pglgui:
 
   - Window title "Blocking $X IP ranges ($Y IPs)":
     Correct long term implementation: request the data from pgld via dbus.
-
-  - policykit support (instead of kdesudo/gksu)
-    This also solves this security problem: you can give root rights to
-      "/usr/bin/gksu "sh /tmp/execute-all-pgl-commands.sh""
-    But this file is writable for the user.
 
   - use ${BLOCKLISTS_DIR}/lists.xml to determine human friendly blocklist names
     for URLs like this: http://list.iblocklist.com/?list=ewqglwibdgjttwttrinl&fi
@@ -152,6 +152,30 @@ pglgui:
 
 All components:
 
+  - long run whitelisting concept:
+    * allow.p2p etc.:
+      implementation pgld:
+        pgld [OPTIONS] -b BLOCKLIST(S) -w WHITELIST(S)
+        pgld -m -b BLOCKLIST(S) -w WHITELIST(S) > master_blocklist.p2p
+        The IP ranges in the allowlists get removed from pgld's internally
+        loaded blocklist/the master blocklist.
+        NOTE: the following implementation doesn't work:
+        - check packets first against the allowlist, if match: do the same as
+          for non-matching against blocklist
+        - then check against blocklist (as currently)
+        --> if IP A is in a WHITELIST and IP B is in a BLOCKLIST, then traffic
+            between A and B is not blocked in FWD (checks saddr and daddr, thus
+            it matches A in any case), but blocked in IN (if B is saddr) and OUT
+            (if B is daddr).
+      implementation pglcmd:
+        - remote whitelists automatically updated (URLs in allowlists.list)
+        - local whitelists (in folder allowlists.local).
+        - remove variables ALLOW_[IN|OUT|FWD]
+    * WHITE_IP_[IN|OUT|FWD]:
+      user defined IP whitelistings on a per chain basis. May appear in a remote
+      whitelist today, but not tomorrow. Are managed through iptables.
+      (keep current implementation).
+
   - use dbus for communication between components. Especially for logging
     events, instead of parsing the logfiles. [partly done]
     change naming to e.g. org/pgl/pgld/...
@@ -167,29 +191,6 @@ All components:
 
   - fix/update license headers of pglgui (including autotools/m4 files) and
     pgld. use new debbian/copyright format.
-
-  - long run whitelisting concept:
-    allow.p2p etc.:
-      implementation pglcmd:
-        remote whitelists automatically updated (URLs in allowlists.list) and/or
-        local whitelists (in folder allowlists.local).
-      implementation pgld:
-        pgld [OPTIONS] -b BLOCKLIST(S) -w WHITELIST(S)
-        pgld -m -b BLOCKLIST(S) -w WHITELIST(S) > master_blocklist.p2p
-        The IP ranges in these lists get unmerged (removed) from pgld's
-        internally loaded blocklist/the master blocklist.
-        NOTE: the following implementation doesn't work:
-        - check packets first against the allowlist, if match: do the same as
-          for non-matching against blocklist
-        - then check against blocklist (as currently)
-        --> if IP A is in a WHITELIST and IP B is in a BLOCKLIST, then traffic
-            between A and B is not blocked in FWD (checks saddr and daddr, thus
-            it matches A in any case), but blocked in IN (if B is saddr) and OUT
-            (if B is daddr).
-    WHITE_IP_[IN|OUT|FWD]:
-      user defined IP whitelistings on a per chain basis. May appear in a remote
-      whitelist today, but not tomorrow. Are managed through iptables.
-      (keep current implementation).
 
   - cppcheck --enable=all ./
 
@@ -219,18 +220,23 @@ Packaging:
 
   - add debtags to debian packages
 
-  - cme command from libconfig-model-perl provides a way to check the
-    dependency list. Obsolete versions can be cleaned up automatically with
-    'cme fix dpkg-control'.
+  - Use dpkg-buildflags to add disable_zlib to PGLD_CPPFLAGS for Ubuntu Lucid
+    (instead of disabling it in the git branch).
+
 
 
 
 Web:
 
-  - update http://sourceforge.net/projects/peerguardian/
-    - replaces defunct phoenixlabs.org
+  - Use the default sourceforge project website template for
+    [DONE] http://peerguardian.sourceforge.net/ and
+    [TODO] http://moblock-deb.sourceforge.net/
+    This template gives all relevant project links and shows the news entries.
 
-  - create wiki at peerguardian.sourceforge.net
-    (based on https://help.ubuntu.com/community/MoBlock)
-
-  - add information for new developers, short git intro
+  - All other contents can then be added to the wiki of
+    peerguardian.sourceforge.net:
+    [TODO] create wiki at peerguardian.sourceforge.net
+    [TODO] add contents based on https://help.ubuntu.com/community/MoBlock
+    [TODO] add information for new developers, short git intro
+    [TODO] add contents from wiki.phoenixlabs.org (see archive.org), especially
+           the official blocklist specifications.
