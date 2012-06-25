@@ -1,3 +1,9 @@
+pgl (2.2.2~pre1-1) UNRELEASED; urgency=low
+
+  * started development of new release
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 25 Jun 2012 16:09:21 +0200
+
 pgl (2.2.1-2) unstable; urgency=low
 
   * added debconf note about the automatic transition from moblock etc.
