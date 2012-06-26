@@ -22,6 +22,8 @@ pgld:
 
   - make length of range description configurable (with LOWMEM:=range=0)
 
+  - send total of blocked connections over dbus (then show it in pglgui)
+
 
 
 
@@ -146,6 +148,9 @@ pglgui:
 
   - pop-up warning on errors from pglcmd (e.g. blocklist is not available)
     [ Requires pglcmd dbus ]
+
+  - show total of blocked connections (requires implementation in pgld with
+    dbus)
 
 
 
