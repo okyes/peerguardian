@@ -344,7 +344,7 @@ IP_REMOVE=""
 # Turn on/off pgld's logging to syslog
 # 0 - Don't log to syslog
 # 1 - Log to syslog
-LOG_SYSLOG="1"
+LOG_SYSLOG="0"
 
 # Turn on/off pgld's logging to logfile
 # 0 - Don't log to logfile

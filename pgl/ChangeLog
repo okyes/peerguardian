@@ -3,7 +3,7 @@ ChangeLog PeerGuardian Linux (pgl)
 
 pgl 2.2.2~pre1
 
-  * started development of new release 2.2.2
+  * changed default to not log to syslog (LOG_SYSLOG="0")
 
  -- jre <jre-phoenix@users.sourceforge.net>  Mon, 25 Jun 2012 16:08:57 +0200
 
