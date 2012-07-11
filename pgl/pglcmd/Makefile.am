@@ -90,9 +90,18 @@ cron.daily/pglcmd:
 	$(do_subst) < cron.daily/pglcmd.in > cron.daily/pglcmd
 	chmod +x cron.daily/pglcmd
 
+if GENTOOINIT
+init/pgl:
+	sed \
+	-e 's|@PID_DIR@|$(PIDDIR)|' \
+	-e 's|@PGLCMDPATH@|$(bindir)/pglcmd|' \
+	< init/pgl.gentoo.in > init/pgl
+	chmod +x init/pgl
+else
 init/pgl:
 	$(do_subst) < init/pgl.in > init/pgl
 	chmod +x init/pgl
+endif
 
 networkmanager/20pglcmd:
 	$(do_subst) < networkmanager/20pglcmd.in > networkmanager/20pglcmd

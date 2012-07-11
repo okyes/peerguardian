@@ -123,6 +123,15 @@ AC_ARG_ENABLE([networkmanager],
 
 AM_CONDITIONAL(NETWORKMANAGERMAKE, [test "x$enable_networkmanager" = "xyes"])
 
+# use gentoo init script
+AC_ARG_WITH([gentoo-init],
+    [AS_HELP_STRING([--with-gentoo-init],
+        [install a gentoo init script])],
+    [gentoo_init="$withval"],
+    [gentoo_init="no"])
+
+AM_CONDITIONAL(GENTOOINIT, [test "x$gentoo_init" = "xyes"])
+
 # let user specify iconsdir
 AC_ARG_WITH([iconsdir],
     [AS_HELP_STRING([--with-iconsdir=DIR],

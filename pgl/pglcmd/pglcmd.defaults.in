@@ -109,6 +109,7 @@ STDIFS=$IFS
 ############################ General configuration ############################
 
 # Turn on/off automatic start.
+# ignore this on Gentoo
 # Note: this tells the init script not to start pgl on "start".
 # The same behaviour can be achieved by removing/tweaking the init file and the
 # links pointing to it. You can do this manually or by using an application such
