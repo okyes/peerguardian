@@ -29,6 +29,14 @@ pgld:
 
 pglcmd:
 
+  - update dependency, cf. to apt:
+// Send email to this address for problems or packages upgrades
+// If empty or unset then no email is sent, make sure that you
+// have a working mail setup on your system. A package that provides
+// 'mailx' must be installed.
+//Unattended-Upgrade::Mail "root@localhost";
+//Unattended-Upgrade::MailOnlyOnError "true";
+
   - implement "long run whitelisting concept" (see "All components" below").
     This has to be done first in pgld, then in pglcmd and then in pglgui.
 
@@ -61,7 +69,8 @@ pglcmd:
     pgld instances for these nums. This might help on heavy load.
     --
     Alternatively increasing the default receive/send window seems to fix the
-    problem:
+    problem. Add this to your system's config (you may use /etc/pgl/insert.sh
+    if you don't know a better file)
         sysctl -w net.core.rmem_default=8388608
         sysctl -w net.core.wmem_default=8388608
     --
