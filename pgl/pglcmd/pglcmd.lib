@@ -2121,9 +2121,9 @@ build_blocklist () {
     [ -f "$MASTER_BLOCKLIST" ] &&
         mv $MASTER_BLOCKLIST ${MASTER_BLOCKLIST}~
 
-    # Prepare removing lines from the blocklist:
-    # replace in IP_REMOVE all semicolons with pipe character
-    SINGLE_REMOVE="$(echo $IP_REMOVE | sed "s/;/|/g")"
+    # Prepare removing lines from the blocklist with "grep":
+    # remove pending ";" and replace all other ";" with "|" in IP_REMOVE.
+    SINGLE_REMOVE="$( echo $IP_REMOVE | sed " s/;$// ; s/;/|/g " )"
 
     # Read the non-comment|not-empty lines from BLOCKLISTS_LIST.
     # Ignore all entries after # (comments).
