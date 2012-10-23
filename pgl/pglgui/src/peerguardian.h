@@ -125,7 +125,6 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     bool quitApp;
     bool m_WhitelistItemPressed;
     bool m_BlocklistItemPressed;
-    bool m_treeItemPressed;
     GuiOptions *guiOptions;
     QStringList m_FilesToMove;
     bool m_StopLogging;

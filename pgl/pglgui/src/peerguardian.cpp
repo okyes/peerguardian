@@ -31,7 +31,6 @@ Peerguardian::Peerguardian( QWidget *parent) :
     if ( ! PglSettings::loadSettings() )
         QMessageBox::warning(this, tr("Error"), PglSettings::lastError(), QMessageBox::Ok);
     
-    m_treeItemPressed = false;
     m_StopLogging = false;
     mAutomaticScroll = true;
     mIgnoreScroll = false;
@@ -670,13 +669,13 @@ QList<QTreeWidgetItem*> Peerguardian::getTreeItems(QTreeWidget *tree, int checkS
 
 void Peerguardian::treeItemChanged(QTreeWidgetItem* item, int column)
 {
-    if ( ! m_treeItemPressed )
-        return;
-
-    m_treeItemPressed = false;
-
-    m_ApplyButton->setEnabled(guiOptions->isChanged());
-    m_UndoButton->setEnabled(m_ApplyButton->isEnabled());
+    m_WhitelistTreeWidget->blockSignals(true);
+    m_BlocklistTreeWidget->blockSignals(true);
+    
+    bool changed = guiOptions->isChanged();
+    m_ApplyButton->setEnabled(changed);
+    m_UndoButton->setEnabled(changed);
+    
     if ( guiOptions->isChanged(item) )
     {
         item->setIcon(0, QIcon(WARNING_ICON));
@@ -687,13 +686,13 @@ void Peerguardian::treeItemChanged(QTreeWidgetItem* item, int column)
         item->setIcon(0, QIcon());
         item->setStatusTip(0, "");
     }
-
+    
+    m_WhitelistTreeWidget->blockSignals(false);
+    m_BlocklistTreeWidget->blockSignals(false);
 }
 
 void Peerguardian::treeItemPressed(QTreeWidgetItem* item, int column)
 {
-    m_treeItemPressed = true;
-
     if ( item->treeWidget()->objectName().contains("block", Qt::CaseInsensitive) )
     {
         m_rmExceptionButton->setEnabled(false);
@@ -714,6 +713,7 @@ void Peerguardian::updateBlocklist()
 
     m_List->updateListsFromFile();
 
+    m_BlocklistTreeWidget->blockSignals(true);
     if ( m_BlocklistTreeWidget->topLevelItemCount() > 0 )
         m_BlocklistTreeWidget->clear();
 
@@ -743,6 +743,8 @@ void Peerguardian::updateBlocklist()
         tree_item->setCheckState(0, Qt::Checked);
         item_info.clear();
     }
+    
+    m_BlocklistTreeWidget->blockSignals(false);
 }
 
 void Peerguardian::updateWhitelist()
@@ -750,6 +752,8 @@ void Peerguardian::updateWhitelist()
     QMap<QString, QStringList> items;
     QStringList values;
     QStringList info;
+    
+    m_WhitelistTreeWidget->blockSignals(true);
     
     if ( m_WhitelistTreeWidget->topLevelItemCount() > 0 )
         m_WhitelistTreeWidget->clear();
@@ -785,6 +789,8 @@ void Peerguardian::updateWhitelist()
     }
     
     m_WhitelistTreeWidget->setSortingEnabled(true);
+    
+    m_WhitelistTreeWidget->blockSignals(false);
 }
 
 void Peerguardian::initializeSettings()
