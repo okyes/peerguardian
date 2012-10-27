@@ -465,13 +465,13 @@ bool isPort(QString & p)
     }
     
     
-    if (! isNumber(p))
-      return false;
+    if (isNumber(p))
+      return true;
 
-    if (port(p.toLower()) == -1)
-      return false;
+    if (port(p.toLower()) != -1)
+      return true;
 
-    return true;
+    return false;
 }
 
 Port getPortFromLine(QString line)
