@@ -5,9 +5,6 @@
 #include "file_transactions.h"
 #include "gui_options.h"
 
-
-
-
 WhitelistItem::WhitelistItem(const QString& value, const QString& connType, const QString& prot, int type)
 {
     m_Value = value;
@@ -60,70 +57,6 @@ void WhitelistItem::addAliases(const QStringList & aliases)
             m_values << alias;
 
 }
-
-
-Port::Port(QString desig, QString prot, int n)
-{
-    m_values << desig;
-
-    //the port number can be consider an alias too
-    if ( n > 0 )
-        m_values << QString::number(n);
-
-    m_protocols << prot;
-    m_number = n;
-}
-
-Port::Port()
-{
-    m_number = 0;
-}
-
-QString Port::value()
-{
-    if ( ! m_values.isEmpty() )
-        return m_values[0];
-    else
-        return QString("");
-}
-
-
-Port::Port(const Port& other)
-{
-    *this = other;
-}
-
-void Port::addProtocols(const QStringList& protocols)
-{
-    m_protocols << protocols;
-    m_protocols.removeDuplicates();
-}
-
-void Port::addAlias(const QString& alias)
-{
-    if ( ! m_values.contains(alias) )
-        m_values << alias;
-}
-
-Port& Port::operator=(const Port& other)
-{
-    m_number = other.number();
-    m_protocols = other.protocols();
-    m_values = other.values();
-    
-    return *this;
-}
-
-bool Port::operator==( WhitelistItem& item)
-{
-
-    foreach(QString value, m_values)
-        if ( value == item.value() )
-            return true;
-
-    return false;
-}
-
 
 PglWhitelist::PglWhitelist(QSettings* settings, GuiOptions * guiOptions)
 {
@@ -260,8 +193,6 @@ void PglWhitelist::addTreeWidgetItemToWhitelist(QTreeWidgetItem* treeItem)
     if ( m_Group.contains(group) )
         m_WhitelistDisabled[group] << treeItem->text(0);
 }
-
-
 
 void PglWhitelist::updateSettings(const QList<QTreeWidgetItem*>& treeItems, int firstAddedItemPos, bool updateAll)
 {
@@ -452,6 +383,7 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
     QString command, iptables_list_type("iptables -L $IPTABLES_CHAIN -n | ");
     QString chain, item, connection, protocol, conn, iptables_list, checkCmd;
     QStringList directions;
+    QString portNumber("0");
     bool ip;
     QString iptables_target_whitelisting = PglSettings::getStoredValue("IPTABLES_TARGET_WHITELISTING");
     QString ip_source_check_type = QString("grep -x \'%1 *all *-- *$IP *0.0.0.0/0 *\'").arg(iptables_target_whitelisting);
@@ -465,9 +397,19 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
         connection = connections[i];
         protocol = protocols[i];
         iptables_list = iptables_list_type;
-
+        int _port = 0;
         
-        if ( isValidIp(item) )
+        ip = isValidIp(item);
+        
+        if (! ip ) {
+          _port = port(item);
+          if (_port != -1)
+            portNumber = QString::number(_port);
+          else
+            portNumber = item;
+        }
+        
+        if ( ip )
         {
             command_type = " $COMMAND_OPERATOR iptables $OPTION $IPTABLES_CHAIN $FROM $IP -j " + iptables_target_whitelisting;
             // NOTE jre: IN uses source, OUT uses destination, and FWD uses both.
@@ -476,15 +418,13 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
             ip_destination_check = ip_destination_check_type;
             ip_source_check.replace("$IP", item);
             ip_destination_check.replace("$IP", item);
-            ip = true;
         }
         else
         {
             command_type = " $COMMAND_OPERATOR iptables $OPTION $IPTABLES_CHAIN -p $PROT --dport $PORT -j " + iptables_target_whitelisting;
             port_check = port_check_type;
             port_check.replace("$PROTO", protocol.toLower());
-            port_check.replace("$PORT", item);
-            ip = false;
+            port_check.replace("$PORT", portNumber);
         }
         
         if ( allows[i] )
@@ -540,7 +480,7 @@ QStringList PglWhitelist::getCommands( QStringList items, QStringList connection
             command.replace(QString("$COMMAND_OPERATOR"), command_operator);
             command.replace(QString("$IPTABLES_CHAIN"), chain);
             command.replace(QString("$PROT"), protocol);
-            command.replace(QString("$PORT"), item);
+            command.replace(QString("$PORT"), portNumber);
             commands << iptables_list + port_check + command;
         }
     }
@@ -574,6 +514,8 @@ QString PglWhitelist::getIptablesTestCommand(const QString& value, const QString
     QString cmd("");
     QString target = PglSettings::getStoredValue("IPTABLES_TARGET_WHITELISTING");
     QString chain;
+    QString portNumber = value;
+    int _port = 0;
     
     chain = translateConnection(connectType);
     chain = PglSettings::getStoredValue("IPTABLES_" + chain);
@@ -586,11 +528,14 @@ QString PglWhitelist::getIptablesTestCommand(const QString& value, const QString
     {
         cmd = QString("iptables -L \"$CHAIN\" -n | grep \"$TARGET\" | grep \"$PROT dpt:$VALUE\"");
         cmd.replace("$PROT", prot);
+        _port = port(value);
+        if (_port != -1)
+          portNumber = QString::number(_port);
     }
     
     cmd.replace("$CHAIN", chain);
     cmd.replace("$TARGET", target);
-    cmd.replace("$VALUE", value);
+    cmd.replace("$VALUE", portNumber);
 
     return cmd;
 }

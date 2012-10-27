@@ -9,7 +9,6 @@
 #include <QList>
 #include <QTreeWidgetItem>
 
-
 #define WHITE_IP_IN "WHITE_IP_IN"
 #define WHITE_IP_OUT "WHITE_IP_OUT"
 #define WHITE_IP_FWD "WHITE_IP_FWD"
@@ -19,7 +18,6 @@
 #define WHITE_UDP_OUT "WHITE_UDP_OUT"
 #define WHITE_TCP_FWD "WHITE_TCP_FWD"
 #define WHITE_UDP_FWD "WHITE_UDP_FWD"
-
 
 enum {
     TYPE_INCOMING,
@@ -35,7 +33,6 @@ enum {
 };
 
 class GuiOptions;
-
 
 class WhitelistItem
 {
@@ -69,32 +66,6 @@ class WhitelistItem
         QString getTypeAsString();
         QStringList getAsStringList(){ return QStringList() << m_Value << getTypeAsString(); }
         bool operator==(const WhitelistItem & otherItem);
-
-};
-
-
-
-class Port
-{
-    int m_number;
-    QStringList m_protocols;
-    QStringList m_values;
-
-    public:
-        Port();
-        Port(const Port& other);
-        Port(QString desig, QString prot, int n=0);
-        ~Port(){};
-        void addProtocols(const QStringList&);
-        void addAlias(const QString&);
-        int number() const { return m_number;}
-        QStringList values() const { return m_values; }
-        QString value();
-        QStringList protocols() const { return m_protocols; }
-        Port& operator=(const Port& other);
-        bool hasProtocol(const QString& protocol) { return m_protocols.contains(protocol, Qt::CaseInsensitive); }
-        bool operator==(WhitelistItem& item);
-        bool operator==(const Port& );
 };
 
 class PglWhitelist
