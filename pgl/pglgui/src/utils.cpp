@@ -8,6 +8,101 @@
 #include <QDir>
 #include <QDebug>
 
+static QList<Port> mPorts;
+static QHash<QString, int> mPortsPair;
+
+// **** PORT CLASS **** //
+Port::Port(const QString& name, const QString& prot, int n)
+{
+    mNames << name;
+
+    //the port number can be consider an alias too
+    if ( n > 0 )
+        mNames << QString::number(n);
+
+    mProtocols << prot;
+    mNumber = n;
+}
+
+Port::Port()
+{
+    mNumber = 0;
+}
+
+Port::Port(const Port& other)
+{
+    *this = other;
+}
+
+int Port::number() const
+{
+  return mNumber;
+}
+
+QStringList Port::protocols() const
+{
+  return mProtocols;
+}
+
+QStringList Port::names() const
+{
+  return mNames;
+}
+
+QString Port::name() const
+{
+    if ( ! mNames.isEmpty() )
+        return mNames[0];
+  
+    return QString("");
+}
+
+bool Port::hasProtocol(const QString& protocol) const
+{
+  return mProtocols.contains(protocol, Qt::CaseInsensitive); 
+}
+
+void Port::addProtocols(const QStringList& protocols)
+{
+    mProtocols << protocols;
+    mProtocols.removeDuplicates();
+}
+
+void Port::addName(const QString& name)
+{
+    if ( ! mNames.contains(name) )
+        mNames << name;
+}
+
+/*Port& Port::operator=(const Port& other)
+{
+    m_number = other.number();
+    m_protocols = other.protocols();
+    m_values = other.values();
+    
+    return *this;
+}*/
+
+/*bool Port::operator==(WhitelistItem& item)
+{
+    foreach(const QString& name, mNames)
+        if (item.value() == name)
+            return true;
+
+    return false;
+}*/
+
+bool Port::containsName(const QString& name) const
+{
+  foreach(const QString& _name, mNames)
+    if (name == _name)
+      return true;
+    
+  return false;
+}
+
+// ****  **** //
+
 QString getValidPath(const QString &path, const QString &defaultPath )
 {
     QString new_path;
@@ -51,7 +146,6 @@ QString getValue(const QString& line)
 
     return value;
 }
-
 
 QString getVariable(const QString& line)
 {
@@ -158,7 +252,6 @@ bool isValidIp( const QString &text ){
 		}
 	}
 		
-
 	return true;
 
 }
@@ -216,7 +309,6 @@ QString getNewFileName(QString dir, const QString name)
 
 bool hasPermissions(const QString & filepath)
 {
-
     if ( filepath.isEmpty() ) {
 		qWarning() << Q_FUNC_INFO << "Empty file path given, doing nothing";
 		return false;
@@ -345,4 +437,149 @@ int confirm(QString title, QString msg, QWidget *parent)
         );
        
        return confirm;
+}
+
+bool isNumber(const QString& str)
+{
+    for (int i=0; i < str.size(); i++)
+      if (! str[i].isDigit())
+          return false;
+
+    return true;
+}
+
+bool isPort(QString & p)
+{
+    if ( p.contains(":") ) //port range
+    {
+        QStringList ports = p.split(":");
+        
+        if ( ports.size() > 2 )
+            return false;
+        
+        foreach(QString port, ports)
+            if (! isNumber(port))
+                return false;
+                
+        return true;
+    }
+    
+    
+    if (! isNumber(p))
+      return false;
+
+    if (port(p.toLower()) == -1)
+      return false;
+
+    return true;
+}
+
+Port getPortFromLine(QString line)
+{
+    QStringList elements;
+    int portNum;
+    QString protocol;
+    Port port;
+
+    line = line.simplified();
+
+    if ( line.isEmpty() || line.startsWith("#") )
+        return Port();
+
+    elements = line.split(" ");
+
+    portNum = elements[1].split("/")[0].toInt();
+    protocol = elements[1].split("/")[1];
+
+    port = Port(elements[0], protocol, portNum);
+
+    if ( elements.size() >= 3 && ( ! elements[2].startsWith("#")) )
+        port.addName(elements[2]);
+
+    return port;
+}
+
+void loadPorts()
+{   
+    if (! mPorts.isEmpty())
+      return;
+    
+    QStringList fileData = getFileData("/etc/services");
+    QStringList elements;
+    int portNum;
+    QString protocol;
+    Port port1, port2;
+
+    //old way for backwards compatibility
+    /*foreach(QString line, fileData)
+    {
+        line = line.simplified();
+
+        if ( line.isEmpty() || line.startsWith("#") )
+            continue;
+
+        elements = line.split(" ");
+
+        portNum = elements[1].split("/")[0].toInt();
+        protocol = elements[1].split("/")[1];
+
+        mPortsFilter[elements[0]] = portNum;
+
+        //check for alternative names
+        if ( elements.size() >= 3 && ( ! elements[2].startsWith("#")) )
+            mPortsFilter[elements[2]] = portNum;
+    }*/
+
+    for ( int i=0; i < fileData.size(); i++ )
+    {
+        port1 = getPortFromLine(fileData[i]);
+
+        if ( i < fileData.size()-1 )
+        {
+            //get next line
+            port2 = getPortFromLine(fileData[i+1]);
+
+            if ( port1.name() == port2.name() )
+            {
+                port1.addProtocols(port2.protocols());
+                ++i; //ignores next line
+            }
+        }
+
+        mPorts.append(port1);
+    }
+}
+  
+int port(const QString& name) 
+{
+  if (mPorts.isEmpty())
+    loadPorts();
+  
+  if (isNumber(name))
+    return name.toInt();
+  
+  foreach(const Port& port, mPorts) 
+      if (port.containsName(name))
+        return port.number();
+  
+  return -1;
+}
+  
+QList<Port> ports()
+{
+  if (mPorts.isEmpty())
+    loadPorts();
+  return mPorts;
+}
+
+QHash<QString, int> portNamesAndNumbersPair()
+{
+  QHash<QString, int> ports;
+  
+  foreach(const Port& port, mPorts)
+    foreach(const QString& name, port.names()) 
+      if (! isNumber(name))
+        ports[name] = port.number();
+ 
+  return ports;
 }
