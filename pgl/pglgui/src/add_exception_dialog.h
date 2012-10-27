@@ -20,8 +20,7 @@
 
 #include "ui_add_exception.h"
 #include "pgl_whitelist.h"
-
-
+#include "utils.h"
 
 enum openMode { ADD_MODE=0x000,
             EDIT_MODE,
@@ -29,13 +28,12 @@ enum openMode { ADD_MODE=0x000,
             EXCEPTION_MODE
 };
 
-
 class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
 
 	Q_OBJECT
 
-    QHash<QString, int> ports;
-    QList<Port> m_ports;
+    QList<Port> mPorts;
+    QHash<QString, int> mPortsPair;
     QList<WhitelistItem> m_Items;
     QList<WhitelistItem> m_validItems;
     QList<WhitelistItem> m_invalidItems;
@@ -43,13 +41,11 @@ class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
     int mode;
     QStringList m_validExtensions;
     QStringList m_blocklists;
-
 	
 	public:
         AddExceptionDialog(QWidget *p = 0, int mode=0);
         AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetItem*> treeItems);
         ~AddExceptionDialog();
-        int getPort(const QString&);
         QStringList getBlocklistInfo(QString&);
         QStringList getExceptionInfo(QString&);
         QVector<QTreeWidgetItem*> getTreeItems(QTreeWidget *);
@@ -61,9 +57,6 @@ class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
         QStringList getConnections();
         QStringList getProtocols(bool);
         QStringList getParams(const QString& text);
-        void setPortsFromFile();
-        bool isPort(QString &);
-        Port getPortFromLine(QString);
 
     public slots:
         void addEntry();

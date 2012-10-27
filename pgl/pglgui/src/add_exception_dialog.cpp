@@ -25,10 +25,12 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
 
     if ( mode == (ADD_MODE | EXCEPTION_MODE) )
     {
-
-        setPortsFromFile();
+        //setPortsFromFile();
         //completer for the ports' names
-        QCompleter * completer = new QCompleter(ports.keys(), m_addEdit);
+        mPorts = ports();
+        mPortsPair = portNamesAndNumbersPair();
+        
+        QCompleter * completer = new QCompleter(mPortsPair.keys(), m_addEdit);
         m_addEdit->setCompleter(completer);
         m_browseButton->hide();
         QString value;
@@ -45,17 +47,16 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
             value = treeItem->text(0);
             WhitelistItem item = WhitelistItem(value, treeItem->text(1), treeItem->text(2));
 
-            foreach(Port port, m_ports)
-                if ( port == item )
-                    item.addAliases(port.values());
+            foreach(const Port& port, mPorts)
+                if ( port.containsName(item.value()) )
+                    item.addAliases(port.names());
 
             m_Items.push_back(item);
         }
 
         connect(m_addEdit, SIGNAL(returnPressed()), this, SLOT(addEntry()));
         connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(addEntry()));
-        
-        
+
         resize(width(), minimumSize().height());
     }
     else if ( mode == (ADD_MODE | BLOCKLIST_MODE) )
@@ -63,7 +64,7 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
 
             QFileSystemModel * model = new QFileSystemModel(m_addEdit);
             model->setRootPath(QDir::homePath());
-            //completer for the ports' names
+           
             QCompleter * completer = new QCompleter(model, m_addEdit);
             m_addEdit->setCompleter(completer);
 
@@ -107,105 +108,22 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
 
     this->mode = mode;
 
-
 }
-
 
 //************************** Whitelist dialog ***************************//
 
 AddExceptionDialog::~AddExceptionDialog()
 {
-
     qDebug() << "~AddExceptionDialog()";
 }
 
-Port AddExceptionDialog::getPortFromLine(QString line)
-{
-    QStringList elements;
-    int port_num;
-    QString protocol;
-    Port port;
-
-    line = line.simplified();
-
-    if ( line.isEmpty() || line.startsWith("#") )
-        return Port();
-
-    elements = line.split(" ");
-
-    port_num = elements[1].split("/")[0].toInt();
-    protocol = elements[1].split("/")[1];
-
-    port = Port(elements[0], protocol, port_num);
-
-    if ( elements.size() >= 3 && ( ! elements[2].startsWith("#")) )
-        port.addAlias(elements[2]);
-
-    return port;
-}
-
-void AddExceptionDialog::setPortsFromFile()
-{
-    QStringList fileData = getFileData("/etc/services");
-    QStringList elements;
-    int port_num;
-    QString protocol;
-    Port port1, port2;
-
-    //old way for backwards compatibility
-    foreach(QString line, fileData)
-    {
-        line = line.simplified();
-
-        if ( line.isEmpty() || line.startsWith("#") )
-            continue;
-
-        elements = line.split(" ");
-
-        port_num = elements[1].split("/")[0].toInt();
-        protocol = elements[1].split("/")[1];
-
-        ports[elements[0]] = port_num;
-
-        //check for alternative names
-        if ( elements.size() >= 3 && ( ! elements[2].startsWith("#")) )
-            ports[elements[2]] = port_num;
-    }
-
-    for ( int i=0; i < fileData.size(); i++ )
-    {
-
-        port1 = getPortFromLine(fileData[i]);
-
-        if ( i < fileData.size()-1 )
-        {
-            //get next line
-            port2 = getPortFromLine(fileData[i+1]);
-
-            if ( port1.value() == port2.value() )
-            {
-                port1.addProtocols(port2.protocols());
-                ++i; //ignores next line
-            }
-        }
-
-        m_ports.push_back(port1);
-    }
-
-}
-
-
-
 bool AddExceptionDialog::isValidException(QString& text)
 {
-    if ( isPort( text ) )
-        return true;
-    else if( isValidIp(text) )
+    if (isValidIp(text) || isPort( text ) )
         return true;
 
     return false;
 }
-
 
 QStringList AddExceptionDialog::getConnections()
 {
@@ -239,8 +157,6 @@ QStringList AddExceptionDialog::getProtocols(bool isIp)
 
     return protocols;
 }
-
-
 
 QStringList AddExceptionDialog::getParams(const QString& text)
 {
@@ -296,49 +212,21 @@ QStringList AddExceptionDialog::getParams(const QString& text)
         return text.split(' ', QString::SkipEmptyParts);
 }
 
-bool AddExceptionDialog::isPort(QString & p)
-{
-    if ( p.contains(":") )
-    {
-        QStringList ports = p.split(":");
-        
-        if ( ports.size() > 2 )
-            return false;
-        
-        foreach(QString port, ports)
-            if ( port != QString::number(port.toInt()) )
-                return false;
-                
-        return true;
-    }
-    
-    
-    if ( p == QString::number(p.toInt()) )
-        return true;
-
-    if ( ports.contains(p.toLower()) )
-        return true;
-
-    return false;
-}
-
-
 bool AddExceptionDialog::isValidWhitelistItem(WhitelistItem& whiteItem, QString& reason)
 {
     reason = "";
 
     //checks if the new item doesn't already exist
-    foreach(WhitelistItem tempItem, m_Items)
-        if ( tempItem == whiteItem )
-        {
+    foreach(WhitelistItem tempItem, m_Items) {
+        if ( tempItem == whiteItem ) {
             reason = QObject::tr("It's already added");
             return false;
         }
+    }
 
-    foreach(Port port, m_ports)
-        if ( port == whiteItem )
-            if ( ! port.hasProtocol(whiteItem.protocol()) )
-            {
+    foreach(const Port& port, mPorts)
+        if ( port.containsName(whiteItem.value()) )
+            if ( ! port.hasProtocol(whiteItem.protocol()) ) {
                 reason += whiteItem.value();
                 reason += QObject::tr(" doesn't work over ") + whiteItem.protocol();
                 return false;
@@ -375,17 +263,6 @@ void AddExceptionDialog::setWhitelistItems(QString& value, bool isIp)
     }
 }
 
-int AddExceptionDialog::getPort(const QString& p)
-{
-    if ( ports.contains(p.toUpper()) )
-        return ports[p.toUpper()];
-
-    if ( p == QString::number(p.toInt()) )
-        return p.toInt();
-
-    return -1;
-}
-
 void AddExceptionDialog::addEntry()
 //Used by exception (whitelist) window
 {
@@ -399,7 +276,6 @@ void AddExceptionDialog::addEntry()
     QStringList values, info;
     bool ip = false;
     QStringList unrecognizedValues;
-
 
     values = getParams(m_addEdit->text());
 
@@ -446,6 +322,8 @@ void AddExceptionDialog::addEntry()
             QTreeWidgetItem *item = new QTreeWidgetItem(m_notValidTreeWidget, info);
             m_notValidTreeWidget->addTopLevelItem(item);
         }
+        
+        resize(width(), minimumSize().height()*1.3);
 
     }
     else
@@ -468,7 +346,6 @@ void AddExceptionDialog::selectLocalBlocklist()
     text += " ";
     m_addEdit->setText(text);
 }
-
 
 void AddExceptionDialog::addBlocklist()
 {
@@ -509,9 +386,6 @@ void AddExceptionDialog::addBlocklist()
     }
 }
 
-
-
-
 //Dialog specific
 
 void AddExceptionDialog::keyPressEvent ( QKeyEvent * e )
@@ -520,7 +394,3 @@ void AddExceptionDialog::keyPressEvent ( QKeyEvent * e )
         QDialog::keyPressEvent (e);
 
 }
-
-
-
-
