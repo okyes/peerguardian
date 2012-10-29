@@ -156,7 +156,7 @@ NICE_LEVEL="+0"
 # The default options make sure that pglcmd plays nice with the list
 # servers.
 # For example you may specify a proxy:
-# WGET_OPTS="http_proxy=URL wget -q -t 5 -T 120 -w 5 --user-agent=${CMD_NAME}/${VERSION}"
+# WGET_OPTS="env http_proxy=URL wget -q -t 5 -T 120 -w 5 --user-agent=${CMD_NAME}/${VERSION}"
 WGET_OPTS="wget -q -t 5 -T 120 -w 5 --user-agent=${CMD_NAME}/${VERSION}"
 
 # Try to download this site before blocklist updates.
