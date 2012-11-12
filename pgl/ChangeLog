@@ -7,6 +7,7 @@ pgl 2.2.2~pre1
   * changed default to not log to syslog (LOG_SYSLOG="0")
   * fixed pending ";" in IP_REMOVE results in empty blocklist
   * added "env" to the example WGET_OPTS for proxies. Closes: SF bug #3581707
+  * fixed reading ipfilter.dat lines which contain a : in the decription
   * updated documentation
 
   [hasufell]
