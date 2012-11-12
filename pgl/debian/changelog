@@ -1,8 +1,8 @@
-pgl (2.2.2~pre1-1) UNRELEASED; urgency=low
+pgl (2.2.2-1) unstable; urgency=low
 
-  * started development of new release
+  * new release
 
- -- jre <jre-phoenix@users.sourceforge.net>  Mon, 25 Jun 2012 16:09:21 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 12 Nov 2012 00:59:57 +0100
 
 pgl (2.2.1-2) unstable; urgency=low
 

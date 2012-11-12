@@ -1,7 +1,7 @@
 ChangeLog PeerGuardian Linux (pgl)
 
 
-pgl 2.2.2~pre1
+pgl 2.2.2
 
   [jre]
   * changed default to not log to syslog (LOG_SYSLOG="0")
@@ -18,9 +18,11 @@ pgl 2.2.2~pre1
   * fixed bug that prevented apply button from getting enabled.
   * modified iptables related functions to use always port numbers and not
     names (fix)
+  * fixed pglgui crashes if you try to whitelist permanently, while pgl is not
+    running.
   * code refacturing
 
- -- jre <jre-phoenix@users.sourceforge.net>  Mon, 29 Oct 2012 22:56:38 +0100
+ -- jre <jre-phoenix@users.sourceforge.net>  Mon, 25 Jun 2012 16:09:21 +0200
 
 
 pgl 2.2.1

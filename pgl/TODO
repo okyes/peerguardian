@@ -108,9 +108,6 @@ pglgui:
 
   - enable "Allow Port" on right-click only for protocols TCP and UDP.
 
-  - pglgui crashes if you try to whitelist temporarily, while pgl is not
-    running.
-
   - images/settings.png is not shown (at least under Gnome)
 
   - right-click whitelisting:
@@ -173,6 +170,9 @@ All components:
         pgld -m -b BLOCKLIST(S) -w WHITELIST(S) > master_blocklist.p2p
         The IP ranges in the allowlists get removed from pgld's internally
         loaded blocklist/the master blocklist.
+        NOTE: parser.c already has to handle lists in ipfilter.dat format. In
+        .DAT there is a value which if >=128 means that the IP range is allowed.
+        The current implementation is parser.c simply ignores these IP ranges.
         NOTE: the following implementation doesn't work:
         - check packets first against the allowlist, if match: do the same as
           for non-matching against blocklist

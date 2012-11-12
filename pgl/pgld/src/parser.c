@@ -295,7 +295,7 @@ int load_list(const char *filename, const char *charset) {
     } else if (ret == -2) {
         return ret;
     }
-    // it wasn't ascii so clear the blocklist starting were it was before and get new count
+    // it wasn't ascii so clear the blocklist starting where it was before and get new count
     blocklist_clear(prevcount);
     prevcount = blocklist.count;
 
