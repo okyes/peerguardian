@@ -136,8 +136,6 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     QAction *a_whitelistIpTemp;
     QAction *a_whitelistPortPerm;
     QAction *a_whitelistPortTemp;
-    QString m_selectedAction; //store the QAction hovered in the log view when whitelisting an IP/Port
-    QTreeWidgetItem *m_selectedItem; //store the selected item from the log view when whitelisting an IP/Port
     bool mLastRunningState;
     CommandList mFailedCommands;
     volatile bool mAutomaticScroll;
@@ -205,8 +203,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void startStopLogging();
         void openSettingsDialog();
         void showLogRightClickMenu(const QPoint&);
-        void hoveredAction(QAction*);
-        void whitelistItem(QAction*);
+        void whitelistItem();
         void rootError(const QString&);
         void rootError(const CommandList&);
 

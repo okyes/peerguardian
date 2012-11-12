@@ -44,8 +44,6 @@ Peerguardian::Peerguardian( QWidget *parent) :
     updateInfo();
     updateGUI();
     
-    m_selectedAction = "";
-    
     //resize columns in log view
     QHeaderView * header = m_LogTreeWidget->header();
     header->resizeSection(0, header->sectionSize(0) / 1.5 );
@@ -97,6 +95,10 @@ Peerguardian::Peerguardian( QWidget *parent) :
     m_LogTreeWidget->verticalScrollBar()->installEventFilter(this);
     
     connect(aWhoisIp, SIGNAL(triggered()), this, SLOT(onWhoisTriggered()));
+    connect(a_whitelistIpTemp, SIGNAL(triggered()), this, SLOT(whitelistItem()));
+    connect(a_whitelistIpPerm, SIGNAL(triggered()), this, SLOT(whitelistItem()));
+    connect(a_whitelistPortTemp, SIGNAL(triggered()), this, SLOT(whitelistItem()));
+    connect(a_whitelistPortPerm, SIGNAL(triggered()), this, SLOT(whitelistItem()));
     
     //ActionButton *bt;
     //bt = new ActionButton(kickPB, "org.qt.policykit.examples.kick", this);
@@ -119,6 +121,8 @@ Peerguardian::Peerguardian( QWidget *parent) :
         }
     }
 
+    addLogItem("OUT: 192.168.1.109:7881     147.158.36.82:18935    UDP  || Invermay Research Centre | Concurrent Technologies Corporation");
+    
 }
 
 Peerguardian::~Peerguardian() {
@@ -1090,10 +1094,8 @@ void Peerguardian::showLogRightClickMenu(const QPoint& p)
     
     if ( ! item )
         return;
-        
-    m_selectedItem = item;
     
-    QMenu   menu  (this);
+    QMenu menu(this);
     QMenu *menuIp;
     QMenu *menuPort;
     int index = 4;
@@ -1101,46 +1103,68 @@ void Peerguardian::showLogRightClickMenu(const QPoint& p)
     if ( item->text(7) == "Incoming" )
         index = 2;
     
+    QVariantMap data;
+    data.insert("ip", item->text(index));
+    data.insert("port", item->text(5));
+    data.insert("prot", item->text(6));
+    data.insert("type", item->text(7));
+    
+    a_whitelistIpTemp->setData(data);
+    a_whitelistIpPerm->setData(data);
+    a_whitelistPortTemp->setData(data);
+    a_whitelistPortPerm->setData(data);
+    
     menuIp =  menu.addMenu("Allow IP " + item->text(index));
     menuPort = menu.addMenu("Allow Port " + item->text(5));
     
     menu.addSeparator();
+    aWhoisIp->setData(item->text(index));
     aWhoisIp->setText(tr("Whois ") + item->text(index));
     menu.addAction(aWhoisIp);
     
-    connect(&menu, SIGNAL(triggered(QAction*)), this, SLOT(whitelistItem(QAction*)));
-    connect(menuIp, SIGNAL(hovered(QAction*)), this, SLOT(hoveredAction(QAction*)));
-    connect(menuPort, SIGNAL(hovered(QAction*)), this, SLOT(hoveredAction(QAction*)));
-    
     menuIp->addAction(a_whitelistIpTemp);
     menuIp->addAction(a_whitelistIpPerm);
-    
     menuPort->addAction(a_whitelistPortTemp);
     menuPort->addAction(a_whitelistPortPerm);
 
     menu.exec(m_LogTreeWidget->mapToGlobal(p));
 }
 
-void Peerguardian::whitelistItem(QAction *action)
+void Peerguardian::whitelistItem()
 {
-    if ( m_selectedAction.isEmpty() )
+    QAction* action = qobject_cast<QAction*>(sender());
+    if (! action)
         return;
-
-    QString value = m_selectedAction.split(" ", QString::SkipEmptyParts).last();
-    QStringList info;
-    info << value << m_selectedItem->text(7) << m_selectedItem->text(6);
-
+    
+    if (! m_Info->daemonState()) {
+        QMessageBox::information(this, tr("Peerguardian is not running"), tr("It's not possible to whitelist while Peerguardian is not running."));
+        return;
+    }
+    
+    QVariantMap data = action->data().toMap();
+    QString ip = data.value("ip").toString();
+    QString port = data.value("port").toString();
+    QString type = data.value("type").toString();
+    QString prot = data.value("prot").toString();
+    QString value = "";
+    if (action == a_whitelistIpPerm || action == a_whitelistIpTemp)
+        value = ip;
+    else
+        value = port;
+        
     if ( action == a_whitelistIpTemp || action ==  a_whitelistPortTemp )
     {
-        QStringList iptablesCommands = m_Whitelist->getCommands(QStringList() << info[0], QStringList() << info[1], QStringList() << info[2], QList<bool>() << true);
-        QString testCommand = m_Whitelist->getIptablesTestCommand(info[0], info[1], info[2]);
+        QStringList iptablesCommands = m_Whitelist->getCommands(QStringList() << value, QStringList() << type, QStringList() << prot, QList<bool>() << true);
+        QString testCommand = m_Whitelist->getIptablesTestCommand(ip, type, prot);
         m_Root->executeCommands(iptablesCommands, false);
         m_Root->executeScript();
     }
     else if (  action == a_whitelistIpPerm || action == a_whitelistPortPerm )
     {
-        if ( ! m_Whitelist->isInPglcmd(info[0], info[1], info[2]) )
+        if ( ! m_Whitelist->isInPglcmd(value, type, prot) )
         {
+            QStringList info;
+            info << value << type << prot;
             QTreeWidgetItem * treeItem = new QTreeWidgetItem(m_WhitelistTreeWidget, info);
             treeItem->setCheckState(0, Qt::Checked);
             treeItem->setIcon(0, QIcon(WARNING_ICON));
@@ -1148,15 +1172,6 @@ void Peerguardian::whitelistItem(QAction *action)
             m_WhitelistTreeWidget->addTopLevelItem(treeItem);
             applyChanges();
         }
-    }
-}
-
-void Peerguardian::hoveredAction(QAction* action)
-{
-    QMenu *menu = qobject_cast<QMenu*>(sender());        
-    if ( ! menu->title().isEmpty() )
-    {
-        m_selectedAction = menu->title();
     }
 }
 
@@ -1237,7 +1252,7 @@ void Peerguardian::onWhoisTriggered()
     ProcessT *process = new ProcessT(this);
     connect(process, SIGNAL(finished(const CommandList&)), this, SLOT(showCommandsOutput(const CommandList&)));
     if (action->text().contains(" "))
-        process->execute("whois", QStringList() << action->text().split(" ")[1]);
+        process->execute("whois", QStringList() << action->data().toString());
 }
     
     
