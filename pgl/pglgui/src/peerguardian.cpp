@@ -120,9 +120,6 @@ Peerguardian::Peerguardian( QWidget *parent) :
                 m_LogTreeWidget->setColumnWidth(i, value);
         }
     }
-
-    addLogItem("OUT: 192.168.1.109:7881     147.158.36.82:18935    UDP  || Invermay Research Centre | Concurrent Technologies Corporation");
-    
 }
 
 Peerguardian::~Peerguardian() {
