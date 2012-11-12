@@ -78,7 +78,7 @@ static int loadlist_ascii(const char *filename, const char *charset) {
             ok++;
             }
         // else try the line as a ipfilter.dat line
-        else if (sscanf(buf, "%d.%d.%d.%d %*[-,] %d.%d.%d.%d , %d , %299s",
+        else if (sscanf(buf, "%d.%d.%d.%d %*[-,] %d.%d.%d.%d , %d , %299[^:]",
             &ip1[0], &ip1[1], &ip1[2], &ip1[3],
             &ip2[0], &ip2[1], &ip2[2], &ip2[3],
             &filter_level, name) == 10){
