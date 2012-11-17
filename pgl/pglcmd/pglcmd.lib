@@ -2088,7 +2088,7 @@ update_blocklists () {
 }
 
 # Function that builds the MASTER_BLOCKLIST from all remote blocklists (configured
-# in BLOCKLISTS_LIST) and all local blocklists (all other lists in MASTER_BLOCKLIST_DIR).
+# in BLOCKLISTS_LIST) and all local blocklists (all lists in LOCAL_BLOCKLIST_DIR).
 # pgld is started with just this list.
 # Ratio: We want to reload the daemon as fast as possible. Therefore do the whole
 # blocklist management separately and save one premerged MASTER_BLOCKLIST to harddisk.
