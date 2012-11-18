@@ -2087,8 +2087,11 @@ update_blocklists () {
     fi
 }
 
-# Function that builds the MASTER_BLOCKLIST from all remote blocklists (configured
-# in BLOCKLISTS_LIST) and all local blocklists (all lists in LOCAL_BLOCKLIST_DIR).
+# Function that builds the MASTER_BLOCKLIST
+# - from all remote blocklists (configured in BLOCKLISTS_LIST) and
+# - all local blocklists (all lists in LOCAL_BLOCKLIST_DIR, except those
+#   starting with "." or ending with "~"),
+# - but without lines that match case-insensitive IP_REMOVE.
 # pgld is started with just this list.
 # Ratio: We want to reload the daemon as fast as possible. Therefore do the whole
 # blocklist management separately and save one premerged MASTER_BLOCKLIST to harddisk.
