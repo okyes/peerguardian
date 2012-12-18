@@ -1,10 +1,11 @@
 ChangeLog PeerGuardian Linux (pgl)
 
 
-pgl 2.2.3
+pgl 2.2.3 UNRELEASED
 
   [jre]
-  * started development of new release 2.2.3
+  * use conntrack instead of state netfilter module
+    TODO: change kernel test for this, or add a fallback solution
 
  -- jre <jre-phoenix@users.sourceforge.net>  Mon, 12 Nov 2012 18:23:03 +0100
 

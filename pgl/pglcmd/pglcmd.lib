@@ -1251,7 +1251,7 @@ insert_iptables () {
             echo "..Activating chains:"
             case "$IPTABLES_ACTIVATION" in
             '1')
-                CMD_STATE="-m state --state NEW"
+                CMD_STATE="-m conntrack ! --ctstate RELATED,ESTABLISHED"
                 ;;
             '2')
                 CMD_STATE=""
@@ -1543,6 +1543,7 @@ do_start () {
                 else
                     log_warning_msg "Warning: Could not load kernel module ipt_REJECT, continuing anyway."
                 fi
+            # TODO: rewrite for ctstate:
             # xt_state
             [ -f /proc/net/ip_tables_matches ] && grep -q state /proc/net/ip_tables_matches ||
                 modprobe -q xt_state ||
