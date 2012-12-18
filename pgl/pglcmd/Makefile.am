@@ -118,6 +118,7 @@ EXTRA_DIST = \
 	pglcmd.wd.in \
 	cron.daily/pglcmd.in \
 	init/pgl.in \
+	init/pgl.gentoo.in \
 	networkmanager/20pglcmd.in \
 	pglcmd.lib
 
