@@ -99,7 +99,7 @@ static int loadlist_ascii(const char *filename, const char *charset) {
         // could add more tests for other ASCII formats here.
         // else the line is invalid
         else {
-            do_log(LOG_INFO, "WARN: Invalid ASCII line: %s", buf);
+            do_log(LOG_INFO, "WARN: No valid ASCII blocklist format line: %s", buf);
         }
     }
     stream_close(&s);
