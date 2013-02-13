@@ -6,6 +6,10 @@ pgl 2.2.3 UNRELEASED
   [jre]
   * use conntrack instead of state netfilter module
     TODO: change kernel test for this, or add a fallback solution
+  * added systemd file by Pierre Buard, tested for months by the Arch Linux
+    guinea pigs. Thanks!
+    Closes: https://sourceforge.net/p/peerguardian/patches/2/
+    TODO: integrate, add to documentation
 
  -- jre <jre-phoenix@users.sourceforge.net>  Mon, 12 Nov 2012 18:23:03 +0100
 
