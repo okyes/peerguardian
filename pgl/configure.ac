@@ -14,8 +14,8 @@ AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
-AC_PATH_PROG([PKGCONFIG], [pkg-config])
-AS_IF([test "x$PKGCONFIG" = "x"],
+AC_PATH_PROG([PKG_CONFIG], [pkg-config])
+AS_IF([test "x$PKG_CONFIG" = "x"],
     [AC_MSG_ERROR([pkg-config not found!])])
 
 # Checks for header files.
@@ -223,7 +223,7 @@ AS_IF([test "x$with_qt4" = "xyes"],
     [AC_CHECK_QT4(["4.3.0"])] # from qt4.m4
     [PKG_CHECK_MODULES([QT4], [QtCore QtGui polkit-qt-1])]
     [AC_SEARCH_LIBS([pthread_create], [pthread])] # adds -lpthread to LIBS
-    [QT_CPPFLAGS="$QT_CPPFLAGS $QT4_CFLAGS $QT4DBUS_CFLAGS -I`$PKGCONFIG --variable includedir polkit-qt-1`/polkit-qt-1"] # see https://bugs.kde.org/show_bug.cgi?id=297340
+    [QT_CPPFLAGS="$QT_CPPFLAGS $QT4_CFLAGS $QT4DBUS_CFLAGS -I`$PKG_CONFIG --variable includedir polkit-qt-1`/polkit-qt-1"] # see https://bugs.kde.org/show_bug.cgi?id=297340
     [QT_LIBS="$QT_LIBS $QT4_LIBS $QT4DBUS_LIBS"]
     [QT_SUB="pglgui"])
 
