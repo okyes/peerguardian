@@ -1154,10 +1154,10 @@ insert_iptables () {
                 {
                 echo -n "....Whitelisting ports" &&
                 for PORT in $WHITE_TCP ; do
-                    iptables -I ${PGL_CHAIN} -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                    iptables -I $PGL_CHAIN -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
                 done &&
                 for PORT in $WHITE_UDP ; do
-                    iptables -I ${PGL_CHAIN} -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                    iptables -I $PGL_CHAIN -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
                 done &&
                 log_end_msg "$?"
                 }
