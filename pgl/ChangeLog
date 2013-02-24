@@ -10,6 +10,9 @@ pgl 2.2.3 UNRELEASED
     guinea pigs. Thanks!
     Closes: https://sourceforge.net/p/peerguardian/patches/2/
     TODO: integrate, add to documentation
+  * fix: (re-)enable MARKing for incoming matched packets.
+    Thanks Jason Hill,
+    https://sourceforge.net/p/peerguardian/discussion/446996/thread/ed9a443f
 
  -- jre <jre-phoenix@users.sourceforge.net>  Mon, 12 Nov 2012 18:23:03 +0100
 

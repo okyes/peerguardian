@@ -425,8 +425,16 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
         case NF_IP_LOCAL_IN:
             found_range = blocklist_find(ntohl(ip->saddr));
             if (found_range) {
-                status = nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
+                if (reject_mark) {
+                    // we set the user-defined reject_mark and set NF_REPEAT verdict
+                    // it's up to other iptables rules to decide what to do with this marked packet
+                    status = nfq_set_verdict_mark(qh, id, NF_REPEAT, reject_mark, 0, NULL);
+                } else {
+                    status = nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
+                }
                 found_range->hits++;
+                // NOTE: "setipinfo" sets the formats.
+                // TODO: Separate IP and port in there.
                 setipinfo(src, dst, proto, ip, payload);
 #ifndef LOWMEM
                 do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s || %s",src,dst,proto,found_range->name);
