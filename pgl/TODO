@@ -86,6 +86,7 @@ pglcmd:
     and then it overwrites the answers with the not-yet modified configuration
     files.
     Further the debconf database is not cleared properly on purge.
+    Probably related to http://bugs.debian.org/476946?
 
   - adapt test function for peerguardian .p2b v2 binary format blocklist
     formats.
@@ -123,10 +124,11 @@ pglgui:
 
   NEW FEATURES:
 
-  - policykit support (instead of kdesudo/gksu)
-    This also solves this security problem: you can give root rights to
-      "/usr/bin/gksu "sh /tmp/execute-all-pgl-commands.sh""
-    But this file is writable for the user.
+  - policykit support (instead of [gk|kde]su(do))
+    This may solve this soerious security problem:
+    pglgui creates /tmp/execute-all-pgl-commands.sh (with the rights of the
+    user running pglgui) and executes that file with root rights (gained via
+    [gk|kde]su(do).
 
   - implement "long run whitelisting concept" (see "All components" below").
     This has to be done first in pgld, then in pglcmd and then in pglgui.

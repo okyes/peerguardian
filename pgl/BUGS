@@ -2,6 +2,24 @@ BUGS of pgl:
 
 Minor bugs may be listed in docs/TODO.
 
+- Serious security problem:
+  pglgui creates /tmp/execute-all-pgl-commands.sh (with the rights of the user
+  running pglgui) and executes that file with root rights (gained via
+  [gk|kde]su(do).
+  An attacker who has control over the user account (but not yet over the
+  root account) may use this file to gain root access.
+  You may be safer if you run pglgui as root to avoid this problem. On the
+  other site, if there is any other security hole in pglgui, it gets worse by
+  running pglgui as root.
+  Maybe this problem could be solved by implementing policykit (longtime on
+  the TODO for replacing the current [gk|kde]su(do), so that we
+  don't have to use the /tmp/execute-all-pgl-commands.sh at all.
+  Maybe there is an easy way to fix the problem in the short run.
+  If we stay with /tmp/execute-all-pgl-commands.sh it should be created
+  owned and being writable only by root (this triggers earlier and more
+  frequent calls of [gk|kde]su(do) (whenever code is going to be added to
+  /tmp/execute-all-pgl-commands.sh, yet before the script is really executed),
+  which could be more elegantly handled by policykit support.
 
 - pglgui shows the number of IPs and IP ranges that it is blocking. Due to the
   technical implementation this number keeps unchanged if you whitelist IPs,
