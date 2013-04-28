@@ -17,6 +17,7 @@ pgl 2.2.3 UNRELEASED
     same way it is already supported for remote blocklists
     NOTE: pgld already had builtin support for gz packed lists, if it was
     compiled with zlib support.
+  * use sed instead of echo to add newline at end of blocklist
 
  -- jre <jre-phoenix@users.sourceforge.net>  Mon, 12 Nov 2012 18:23:03 +0100
 

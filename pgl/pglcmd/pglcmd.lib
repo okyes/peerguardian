@@ -2041,8 +2041,11 @@ extract_blocklist () {
     esac
     # Count the lines in the list and check if there are any lines.
     if [ "$( wc -l < ${BLOCKLIST_EXTRACTED}.tmp )" -gt 0 ] ; then
-        mv -f "${BLOCKLIST_EXTRACTED}.tmp" "${BLOCKLIST_EXTRACTED}" ||
-            { log_failure_msg "Error: mv exited with $?" ; exit 1 ; }
+        # Add a newline at end of file if it was missing
+        # This creates a copy of local blocklists even if nothing is changed instead of just linking
+        sed -e '$a\' "${BLOCKLIST_EXTRACTED}.tmp" > "${BLOCKLIST_EXTRACTED}" &&
+            rm ${BLOCKLIST_EXTRACTED}.tmp ||
+            { log_failure_msg "Error: $? Failed to save extracted blocklist ${BLOCKLIST_EXTRACTED}" ; exit 1 ; }
         echo "done."
     else
         # TODO: Remove list from e.g. UPDATE_SUCCESS
@@ -2056,8 +2059,6 @@ extract_blocklist () {
             UPDATE_FAIL="$UPDATE_FAIL $LIST_NAME (new list was empty, no old list available! Ignoring ...);"
         fi
     fi
-    # Add a newline at the end of the blocklist to fix broken lists:
-    echo "" >> $BLOCKLIST_EXTRACTED
 }
 
 # Function that updates blocklists and reloads daemon
