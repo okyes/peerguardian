@@ -115,8 +115,19 @@ pglgui:
     tooltips are not shown (at least under Gnome)
     "Whitelist temporarily" is not explained to the user
 
-  - show local blocklists (files in /etc/pgl/blocklists.local/) in Configure tab
-    (adding them works flawlessly)
+  - show local blocklists (all files in /etc/pgl/blocklists.local/, except
+    those in subdirectories, or which end in "~" or start with ".") in
+    Configure tab (adding them works flawlessly)
+    allow all filetypes for local blocklists (unpacked (may have any file
+    extension), gz, zip and 7z).
+    Suggestion for implementation:
+    remove a local blocklist (LIST):
+        rm /etc/pgl/blocklists.local/LIST
+    untick a local blocklist (LIST):
+        mv /etc/pgl/blocklists.local/LIST /etc/pgl/blocklists.local/.LIST
+        (if it is not a link, else remove the link)
+        and/or save in pglgui.conf as it is done currently
+        show hidden files as unticked
 
   - save some space to allow a smaller window, while "Whitelist" in the
     Configuration Tab is still visible with one line (Jerriy, 2011-10-11,

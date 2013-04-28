@@ -105,6 +105,11 @@ rules.
 .TP
 .B \-m [BLOCKLIST(S)]
 Load, sort, merge, and dump blocklist(s) specified or piped from stdin.
+.TP
+.B BLOCKLIST
+BLOCKLIST may be in p2p, p2b, ipfilter.dat or lowmem format. pgld has builtin
+support for gz packed lists, if it was compiled with zlib support. pglcmd
+unpacks gz, zip and 7z lists for pgld.
 .PP
 
 .SH OPTIONS pglcmd

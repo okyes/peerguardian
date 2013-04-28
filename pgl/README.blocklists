@@ -35,9 +35,11 @@ use "pglcmd search PATTERN" to examine the single blocklists.
 Note about different blocklist formats:
 
 pgld supports all known blocklist formats. You can use several formats at the
-same time. pgld detects the format automatically.
-But currently pglcmd only supports lists in text format, but not in binary
-format.
+same time. pgld detects the format automatically. pgld has builtin
+support for gz packed lists, if it was compiled with zlib support.
+
+pglcmd only supports lists in text format, but not in binary format. pglcmd
+unpacks gz, zip and 7z lists for pgld.
 
 The following formats are supported:
 - eMule ipfilter.dat

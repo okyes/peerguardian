@@ -1958,6 +1958,11 @@ get_blocklist () {
             { log_failure_msg " Error: $LIST_URL exists, but $BLOCKLIST_DOWNLOADED doesn't exist! Strange, aborting!" ; exit 1 ; }
     fi
 
+    extract_blocklist
+}
+
+# Depends on LIST_NAME, BLOCKLIST_DOWNLOADED and BLOCKLIST_EXTRACTED
+extract_blocklist () {
     # Unpack the lists
     echo -n "Extracting $LIST_NAME, "
 
@@ -2166,14 +2171,30 @@ build_blocklist () {
     set_BLOCKLISTS_LOCAL
     if [ -n "$BLOCKLISTS_LOCAL" ] ; then
         for LIST in $BLOCKLISTS_LOCAL ; do
+
+            # For local blocklist the same extract function is used as for remote lists
+            LIST_NAME="$(basename $LIST)"
+            BLOCKLIST_DOWNLOAD="$LIST"
+            BLOCKLIST_DIR="${BLOCKLISTS_DIR}/blocklists-local"
+            # A link to the original local list
+            BLOCKLIST_DOWNLOADED="${BLOCKLIST_DIR}/${LIST_NAME}"
+            # BLOCKLIST_DOWNLOADED is extracted to this file (or linked if it was unpacked)
+            BLOCKLIST_EXTRACTED="${BLOCKLIST_DOWNLOADED}.extracted"
+            [ -d "${BLOCKLIST_DIR}" ] || {
+                echo -n "Creating missing directory ${BLOCKLIST_DIR} ..."
+                mkdir -p ${BLOCKLIST_DIR} && echo "."
+                }
+            ln -fs ${BLOCKLIST_DOWNLOAD} ${BLOCKLIST_DOWNLOADED}
+            extract_blocklist
+
             # Log which lines will be removed later
             if [ -n "$IP_REMOVE" ] ; then
-                echo "Removing the following lines from $LIST:"
-                grep -Ei "$SINGLE_REMOVE" "$LIST" | sort
+                echo "Removing the following lines from ${LIST_NAME}:"
+                grep -Ei "$SINGLE_REMOVE" "${BLOCKLIST_EXTRACTED}" | sort
             fi
 
             # Remember all used lists
-            BLOCKLISTSCAT="$BLOCKLISTSCAT $LIST"
+            BLOCKLISTSCAT="$BLOCKLISTSCAT ${BLOCKLIST_EXTRACTED}"
         done
     fi
 

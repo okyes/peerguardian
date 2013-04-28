@@ -9,8 +9,9 @@
 # Instead or additionally to the remote blocklists that are specified here, you
 # can put local blocklists in LOCAL_BLOCKLIST_DIR (/etc/pgl/blocklists.local/).
 # All blocklists in that directory (except those in subdirectories, or which end
-# in "~" or start with ".") are used. They may be in any supported format and
-# have to be either unpacked or gzip'ped.
+# in "~" or start with ".") are used. They may be in any supported format.
+
+# pglcmd unpacks lists that are compressed with gz, zip or 7z for pgld.
 
 # Do a "pglcmd reload" (or "restart" or "update") when you have edited this
 # file.
