@@ -265,10 +265,9 @@ QFileInfoList getFilesInfo(QString & dir)
 
 QString getPointer(QString & dir, QString & filepathPointed)
 {
-    foreach(QFileInfo fileInfo, getFilesInfo(dir) )
-        if ( fileInfo.isSymLink() )
-            if ( fileInfo.symLinkTarget() == filepathPointed )
-                return fileInfo.absoluteFilePath();
+    foreach(const QFileInfo& fileInfo, getFilesInfo(dir) )
+        if ( fileInfo.isSymLink() && fileInfo.symLinkTarget() == filepathPointed)
+            return fileInfo.absoluteFilePath();
 
     return "";
 }
