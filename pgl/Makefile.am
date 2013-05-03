@@ -49,13 +49,15 @@ EXTRA_DIST = \
 	debian/source/format \
 	debian/watch
 
+# do not recreate existent directories
+# this would also mess up custom permissions if present
 install-data-local:
-	@$(INSTALL) -d $(DESTDIR)$(MASTER_BLOCKLIST_DIR)
-	@$(INSTALL) -d $(DESTDIR)$(BLOCKLISTS_DIR)
-	@$(INSTALL) -d $(DESTDIR)$(LOCAL_BLOCKLIST_DIR)
-	@$(INSTALL) -d $(DESTDIR)$(PIDDIR)
-	@$(INSTALL) -d $(DESTDIR)$(LOGDIR)
-	@$(INSTALL) -d $(DESTDIR)$(TMPDIR)
+	@[ -e $(DESTDIR)$(MASTER_BLOCKLIST_DIR) ] || $(INSTALL) -d $(DESTDIR)$(MASTER_BLOCKLIST_DIR)
+	@[ -e $(DESTDIR)$(BLOCKLISTS_DIR) ] || $(INSTALL) -d $(DESTDIR)$(BLOCKLISTS_DIR)
+	@[ -e $(DESTDIR)$(LOCAL_BLOCKLIST_DIR) ] || $(INSTALL) -d $(DESTDIR)$(LOCAL_BLOCKLIST_DIR)
+	@[ -e $(DESTDIR)$(PIDDIR) ] || $(INSTALL) -d $(DESTDIR)$(PIDDIR)
+	@[ -e $(DESTDIR)$(LOGDIR) ] || $(INSTALL) -d $(DESTDIR)$(LOGDIR)
+	@[ -e $(DESTDIR)$(TMPDIR) ] || $(INSTALL) -d $(DESTDIR)$(TMPDIR)
 
 CLEANFILES = \
 	autom4te.cache/*
