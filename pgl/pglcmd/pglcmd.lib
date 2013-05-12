@@ -604,7 +604,8 @@ test_IPTABLES_TARGET () {
             ;;
         # although QUEUE is deprecated, it is the same as NFQUEUE 0.
         'QUEUE')
-            true
+            echo "Warning: ip_queue has been obsoleted by nfnetlink_queue."
+            echo "You should replace in pglcmd.conf IPTABLES_TARGET=QUEUE with NFQUEUE."
             ;;
         *)
             log_failure_msg "Error $E_CONFIG: Check the IPTABLES_TARGET setting."
@@ -619,11 +620,11 @@ test_REJECT () {
             true
             ;;
         '1')
-            # No test for REJECT_MARK, yet
+            # No test for REJECT_MARK. Valid: decimal and hexadecimal!?
             # No test for REJECT_IN. Valid: all iptables targets
             # No test for REJECT_OUT. Valid: all iptables targets
             # No test for REJECT_FWD. Valid: all iptables targets
-            # Transition REJECT_FW REJECT_FWD.
+            # TODO (remove some day): Transition 2010-08-12: REJECT_FW REJECT_FWD.
             # If old var is not-empty, but new var is empty, then take old value.
             [ -z "$REJECT_FW" ] || {
                 REJECT_FWD=${REJECT_FWD:-${REJECT_FWD}}
@@ -644,7 +645,7 @@ test_ACCEPT () {
             true
             ;;
         '1')
-            # No test for ACCEPT_MARK, yet
+            # No test for ACCEPT_MARK. Valid: decimal and hexadecimal!?
             true
             ;;
         *)
@@ -731,23 +732,25 @@ test_IPTABLES_VARS () {
             # No test for WHITE_TCP_OUT.
             # No test for WHITE_UDP_OUT.
             # No test for WHITE_TCP_FWD.
-            # Transition WHITE_TCP_FORWARD WHITE_TCP_FWD.
+            # TODO (remove some day): Transition 2010-08-11: WHITE_TCP_FORWARD WHITE_TCP_FWD.
             # If old var is not-empty, but new var is empty, then take old value.
             [ -z "$WHITE_TCP_FORWARD" ] || {
                 WHITE_TCP_FWD=${WHITE_TCP_FWD:-${WHITE_TCP_FORWARD}}
                 log_warning_msg "WHITE_TCP_FORWARD is deprecated. Use WHITE_TCP_FWD instead."
                 }
             # No test for WHITE_UDP_FWD.
-            # Transition WHITE_UDP_FORWARD WHITE_UDP_FWD.
+            # TODO (remove some day): Transition 2010-08-11: WHITE_UDP_FORWARD WHITE_UDP_FWD.
             # If old var is not-empty, but new var is empty, then take old value.
             [ -z "$WHITE_UDP_FORWARD" ] || {
                 WHITE_UDP_FWD=${WHITE_UDP_FWD:-${WHITE_UDP_FORWARD}}
                 log_warning_msg "WHITE_UDP_FORWARD is deprecated. Use WHITE_UDP_FWD instead."
                 }
-            # No test for WHITE_IP_IN. Valid: network name, a hostname (please note that specifying any name to be resolved with a remote query such as DNS is a really bad idea), a network IP address (with /mask), or a plain IP address.
+            # No test for WHITE_IP_IN. Valid: network name, a hostname (please note that specifying
+            #   any name to be resolved with a remote query such as DNS is a really bad idea), a
+            #   network IP address (with /mask), or a plain IP address.
             # No test for WHITE_IP_OUT.
             # No test for WHITE_IP_FWD.
-            # Transition WHITE_IP_FORWARD WHITE_IP_FWD.
+            # TODO (remove some day): Transition 2010-08-11: WHITE_IP_FORWARD WHITE_IP_FWD.
             # If old var is not-empty, but new var is empty, then take old value.
             [ -z "$WHITE_IP_FORWARD" ] || {
                 WHITE_IP_FWD=${WHITE_IP_FWD:-${WHITE_IP_FORWARD}}
@@ -1470,16 +1473,21 @@ do_start () {
             log_success_msg "$NAME is already running, doing nothing."
             ;;
         3)  # Daemon is not running.
+
             # Build blocklist if necessary to make sure pglcmd's settings are taken.
             # Force to build it, if started with force-restart.
             [ ! "$CMD_OPTION" = force-restart ] &&
-                [ -f "$MD5SUM_FILE" ] && set_md5sum && [ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ] ||
+                [ -f "$MD5SUM_FILE" ] &&
+                set_md5sum &&
+                [ "$MD5SUM" = "$(cat $MD5SUM_FILE)" ] ||
                 build_blocklist
-            # TRANSITION 2011-05-28: remove old master blocklists:
+
+            # TODO (remove some day): Transition 2011-05-28: remove old master blocklists:
             for LIST in guarding.p2p.backup guarding.p2p ${CMD_NAME}_premerged_blocklist.p2p~ ${CMD_NAME}_premerged_blocklist.p2p pglcmd_blocklist.p2p~ pglcmd_blocklist.p2p; do
                 [ -f "${MASTER_BLOCKLIST_DIR}/${LIST}" ] &&
                 mv "${MASTER_BLOCKLIST_DIR}/${LIST}" ${MASTER_BLOCKLIST}~
             done
+
             test_IPTABLES_TARGET
             test_REJECT
             test_ACCEPT
@@ -1492,6 +1500,12 @@ do_start () {
             #         not give the specified entries in /proc/net. But once pgld was started they are there.
             # Note 2: On a first glance some modules might be loaded conditional on some configuration. I decided
             #         against that to allow for e.g, custom iptables rules.
+
+            # TODO: iptable_filter
+            # TODO: ip_tables
+            # TODO: nfnetlink
+            # TODO: nfnetlink_queue
+            # TODO: x_tables
 
             # xt_NFQUEUE
             case "$IPTABLES_TARGET" in
@@ -1511,14 +1525,13 @@ do_start () {
                         }
                     ;;
             esac
+
             # TODO: xt_tcpudp
                 # /proc/net/ip_tables_matches:
                 # udplite
                 # udp
                 # tcp
-            # TODO?: nfnetlink_queue
-            # TODO?: nf_conntrack/nf_conntrack_ipv4 depended on by xt_state
-            # TODO?: iptable_filter
+
             # xt_mark
             [ -f /proc/net/ip_tables_matches ] && grep -q mark /proc/net/ip_tables_matches ||
                 modprobe -q xt_mark ||
@@ -1531,6 +1544,7 @@ do_start () {
                 else
                     log_warning_msg "Warning: Could not load kernel module xt_mark, continuing anyway."
                 fi
+
             # ipt_REJECT
             [ -f /proc/net/ip_tables_targets ] && grep -q REJECT /proc/net/ip_tables_targets ||
                 modprobe -q xt_REJECT ||
@@ -1543,23 +1557,29 @@ do_start () {
                 else
                     log_warning_msg "Warning: Could not load kernel module ipt_REJECT, continuing anyway."
                 fi
-            # TODO: rewrite for ctstate:
-            # xt_state
-            [ -f /proc/net/ip_tables_matches ] && grep -q state /proc/net/ip_tables_matches ||
-                modprobe -q xt_state ||
-                modprobe -q ipt_state ||
+
+            # xt_conntrack
+            # TODO: nf_conntrack
+            # TODO: nf_conntrack_ipv4
+            # TODO: nf_defrag_ipv4
+            [ -f /proc/net/ip_tables_matches ] && grep -q conntrack /proc/net/ip_tables_matches ||
+                modprobe -q xt_conntrack ||
+                modprobe -q ipt_conntrack ||
                 if [ "$IPTABLES_ACTIVATION" = 1 ] ; then
-                    log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_state, not starting $NAME!"
-                    log_failure_msg "Use a kernel with netfilter STATE support or reconfigure $(basename $0)"
-                    log_failure_msg "to check all traffic (not only NEW) traffic (option IPTABLES_ACTIVATION)."
+                    log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_conntrack, not starting $NAME!"
+                    log_failure_msg "Use a kernel with netfilter CONNTRACK support or reconfigure $(basename $0)"
+                    log_failure_msg "to check all traffic (not only NEW) traffic (option IPTABLES_ACTIVATION)"
+                    log_failure_msg "(not recommended due to excess cpu usage)."
                     exit $E_XEXTERNAL
                 else
-                    log_warning_msg "Warning: Could not load kernel module xt_state, continuing anyway."
+                    log_warning_msg "Warning: Could not load kernel module xt_conntrack, continuing anyway."
                 fi
+
             # xt_iprange
             [ -f /proc/net/ip_tables_matches ] && grep -q iprange /proc/net/ip_tables_matches ||
                 modprobe -q xt_iprange ||
-                modprobe -q ipt_iprange || {
+                modprobe -q ipt_iprange ||
+                {
                 # If CHAINS is empty/not set, then set it to "all". Replace all with the single names.
                 CHAINS=${CHAINS:-all}
                 [ "$CHAINS" != all ] || CHAINS="INPUT OUTPUT FORWARD"
@@ -1587,6 +1607,7 @@ do_start () {
                     fi
                 done
                 log_warning_msg "Warning: Could not load kernel module xt_iprange, continuing anyway."
+
                 }
 
             # Execute old REMOVE_SCRIPT if it still exists for any reason, because we may run into troubles
@@ -1862,8 +1883,8 @@ get_blocklist () {
         mkdir -p "$BLOCKLIST_DIR/download" ||
         { log_failure_msg " Error: mkdir -p exited with $?" ; exit 1 ; }
 
-    cd "$BLOCKLIST_DIR/download" ||
-        { log_failure_msg " Error: cd exited with $?" ; exit 1 ; }
+    pushd "$BLOCKLIST_DIR/download" >/dev/null ||
+        { log_failure_msg " Error: pushd exited with $?" ; exit 1 ; }
 
     # Create necessary directories if missing:
     [ -d "$(dirname $BLOCKLIST_DOWNLOADED)" ] ||
@@ -1904,6 +1925,9 @@ get_blocklist () {
             WGET_RET=$?
             ;;
     esac
+
+    popd ||
+        { log_failure_msg " Error: popd exited with $?" ; exit 1 ; }
 
     # Get the name of the downloaded blocklist: BLOCKLIST_DOWNLOAD
     # Take the newest file, in case there are several files in the folder.

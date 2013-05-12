@@ -1,15 +1,16 @@
 ChangeLog PeerGuardian Linux (pgl)
 
 
-pgl 2.2.3 UNRELEASED
+pgl 2.2.3~pre1 UNRELEASED
 
   [jre]
   * use conntrack instead of state netfilter module
-    TODO: change kernel test for this, or add a fallback solution
+  * check all traffic that is not related/established (instead of all new
+    traffic)
   * added systemd file by Pierre Buard, tested for months by the Arch Linux
     guinea pigs. Thanks!
     Closes: https://sourceforge.net/p/peerguardian/patches/2/
-    TODO: integrate, add to documentation
+  ***  TODO: integrate, add to documentation
   * fix: (re-)enable MARKing for incoming matched packets.
     Thanks Jason Hill,
     https://sourceforge.net/p/peerguardian/discussion/446996/thread/ed9a443f
@@ -18,6 +19,11 @@ pgl 2.2.3 UNRELEASED
     NOTE: pgld already had builtin support for gz packed lists, if it was
     compiled with zlib support.
   * use sed instead of echo to add newline at end of blocklist
+  * use pushd and popd before/after downloading blocklists (instead of only
+    cd'ing into the directory, but not leaving again)
+
+  [hasufell]
+  * MAKE: do not recreate already existent dirs (Closes: SF bug #325)
 
  -- jre <jre-phoenix@users.sourceforge.net>  Mon, 12 Nov 2012 18:23:03 +0100
 
