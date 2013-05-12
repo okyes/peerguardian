@@ -60,30 +60,30 @@ to check before compiling. Go to the pgl/ directory and run:
 
 Check the options and the paths. There are some common paths and options you
 should consider to set like:
-  --prefix         [default: /usr/local]
-  --sysconfdir     [default: $prefix/etc, recommended: /etc]
-  --localstatedir  [default: $prefix/var, recommended: /var]
-  --with-iconsdir  [default: $datadir/pixmaps]
-  --with-initddir  [default: $sysconfdir/init.d]
-  --with-logdir    [default: $localstatedir/log/pgl]
-  --with-piddir    [default: $localstatedir/run]
-  --with-tmpdir    [default: /tmp]
-  --with-lsb=      [default: none/built-in,
-                    recommended: /lib/lsb/init-functions]
+    --prefix         [default: /usr/local]
+    --sysconfdir     [default: $prefix/etc, recommended: /etc]
+    --localstatedir  [default: $prefix/var, recommended: /var]
+    --with-iconsdir  [default: $datadir/pixmaps]
+    --with-initddir  [default: $sysconfdir/init.d]
+    --with-logdir    [default: $localstatedir/log/pgl]
+    --with-piddir    [default: $localstatedir/run]
+    --with-tmpdir    [default: /tmp]
+    --with-lsb=      [default: none/built-in,
+		      recommended: /lib/lsb/init-functions]
 
 IMPORTANT: Especially the "--sysconfdir=/etc" setting is required for a working
 installation! Otherwise you should expect e.g. dbus errors.
 
 For a slick installation you can build without the GUI and turn off dbus
 support:
-  --without-qt4
-  --disable-dbus
+    --without-qt4
+    --disable-dbus
 
 Especially for embedded devices (like router or NAS box) you might disable
 storing of textual IP range descriptions:
-  --enable-lowmem
+    --enable-lowmem
 But generally it is recommended (and required for the GUI) to use the default,
-which is not to use this feature.
+which is not to use lowmem.
 
 Now you should be clear about the settings you need for your distribution and
 run something similar to:
@@ -93,7 +93,7 @@ run something similar to:
     --sysconfdir=/etc
 
 Full example configure line for a complete build and full system integration
-(on a Debian system):
+(on a Debian system, but not adapted to multiarch /usr/lib/ARCH/pgl/ paths):
   ./configure \
     --prefix=/usr \
     --mandir=/usr/share/man \
@@ -117,7 +117,7 @@ Debian system). Installs most things to /usr/local
     --with-lsb=/lib/lsb/init-functions
 
 ArchLinux users probably have to set:
-  --with-initddir=/etc/rc.d
+    --with-initddir=/etc/rc.d
 
 
 Step 3.2: Build and install
@@ -186,21 +186,21 @@ Runtime environment pgld:
   Either as modules or directly built in the kernel. These are the modules that
   are loaded here. Note that "xt_" may be named "ip_" or "ipt_" on older
   systems. This list was compiled with:
-    lsmod|grep -E "^x|^nf|^ip"|grep -Ev "^ip6|^ipv6"|sed "s| .*||"|sort
-  iptable_filter
-  ip_tables
-  ipt_REJECT
-  nf_conntrack
-  nf_conntrack_ipv4
-  nf_defrag_ipv4
-  nfnetlink
-  nfnetlink_queue
-  x_tables
-  xt_conntrack
-  xt_iprange
-  xt_mark
-  xt_NFQUEUE
-  xt_tcpudp
+  lsmod|grep -E "^x|^nf|^ip"|grep -Ev "^ip6|^ipv6|^nfs|^xhci"|sed "s| .*||"|sort
+    iptable_filter
+    ip_tables
+    ipt_REJECT
+    nf_conntrack
+    nf_conntrack_ipv4
+    nf_defrag_ipv4
+    nfnetlink
+    nfnetlink_queue
+    x_tables
+    xt_conntrack
+    xt_iprange
+    xt_mark
+    xt_NFQUEUE
+    xt_tcpudp
 - dbus daemon (optional)
 
  Runtime environment pglcmd:
