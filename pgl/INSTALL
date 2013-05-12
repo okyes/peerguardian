@@ -196,11 +196,11 @@ Runtime environment pgld:
   nfnetlink
   nfnetlink_queue
   x_tables
+  xt_conntrack
   xt_iprange
   xt_mark
   xt_multiport
   xt_NFQUEUE
-  xt_state
   xt_tcpudp
 - dbus daemon (optional)
 

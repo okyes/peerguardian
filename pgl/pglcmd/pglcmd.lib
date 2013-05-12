@@ -1517,7 +1517,6 @@ do_start () {
                 # udp
                 # tcp
             # TODO?: nfnetlink_queue
-            # TODO?: nf_conntrack/nf_conntrack_ipv4 depended on by xt_state
             # TODO?: iptable_filter
             # xt_mark
             [ -f /proc/net/ip_tables_matches ] && grep -q mark /proc/net/ip_tables_matches ||
@@ -1543,18 +1542,18 @@ do_start () {
                 else
                     log_warning_msg "Warning: Could not load kernel module ipt_REJECT, continuing anyway."
                 fi
-            # TODO: rewrite for ctstate:
-            # xt_state
-            [ -f /proc/net/ip_tables_matches ] && grep -q state /proc/net/ip_tables_matches ||
-                modprobe -q xt_state ||
-                modprobe -q ipt_state ||
+            # xt_conntrack
+            [ -f /proc/net/ip_tables_matches ] && grep -q conntrack /proc/net/ip_tables_matches ||
+                modprobe -q xt_conntrack ||
+                modprobe -q ipt_conntrack ||
                 if [ "$IPTABLES_ACTIVATION" = 1 ] ; then
-                    log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_state, not starting $NAME!"
-                    log_failure_msg "Use a kernel with netfilter STATE support or reconfigure $(basename $0)"
-                    log_failure_msg "to check all traffic (not only NEW) traffic (option IPTABLES_ACTIVATION)."
+                    log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_conntrack, not starting $NAME!"
+                    log_failure_msg "Use a kernel with netfilter CONNTRACK support or reconfigure $(basename $0)"
+                    log_failure_msg "to check all traffic (not only NEW) traffic (option IPTABLES_ACTIVATION)"
+                    log_failure_msg "(not recommended due to excess cpu usage)."
                     exit $E_XEXTERNAL
                 else
-                    log_warning_msg "Warning: Could not load kernel module xt_state, continuing anyway."
+                    log_warning_msg "Warning: Could not load kernel module xt_conntrack, continuing anyway."
                 fi
             # xt_iprange
             [ -f /proc/net/ip_tables_matches ] && grep -q iprange /proc/net/ip_tables_matches ||

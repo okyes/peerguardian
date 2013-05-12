@@ -5,7 +5,8 @@ pgl 2.2.3 UNRELEASED
 
   [jre]
   * use conntrack instead of state netfilter module
-    TODO: change kernel test for this, or add a fallback solution
+  * check all traffic that is not related/established (instead of all new
+    traffic)
   * added systemd file by Pierre Buard, tested for months by the Arch Linux
     guinea pigs. Thanks!
     Closes: https://sourceforge.net/p/peerguardian/patches/2/
