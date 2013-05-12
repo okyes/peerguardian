@@ -199,7 +199,6 @@ Runtime environment pgld:
   xt_conntrack
   xt_iprange
   xt_mark
-  xt_multiport
   xt_NFQUEUE
   xt_tcpudp
 - dbus daemon (optional)
