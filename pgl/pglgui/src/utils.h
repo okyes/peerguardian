@@ -37,13 +37,14 @@ class Port
 QString getValidPath(const QString &path, const QString &defaultPath );
 QStringList selectFiles(QWidget * parent=0, QString filter = "", QString title="Select one or more Blocklists", QString startPath=QDir::homePath());
 QString getValue(const QString&);
+QStringList getValues(const QString&);
 QString getVariable(const QString&);
 QString getValue(const QString&, const QString&);
 QString getLineWith(const QString&, const QString&);
 bool isValidIp(const QString &text );
-QFileInfoList getFilesInfo(QString &);
+QFileInfoList getFilesInfo(const QString &);
 bool isPointingTo(QString &, QString &);
-QString getPointer(QString &, QString &);
+QString getPointer(const QString &, const QString &);
 bool hasPermissions(const QString&);
 QString getNewFileName(QString dir, const QString name);
 QString joinPath(const QString& dir, const QString& file);
@@ -55,7 +56,7 @@ int confirm(QString title, QString msg, QWidget *parent=NULL);
 bool isPort(QString&);
 bool isNumber(const QString&);
 Port getPortFromLine(QString);
-int port(const QString&);
+int portNumber(const QString&);
 QList<Port> ports();
 QHash<QString, int> portNamesAndNumbersPair();
 

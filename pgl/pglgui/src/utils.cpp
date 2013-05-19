@@ -147,6 +147,12 @@ QString getValue(const QString& line)
     return value;
 }
 
+
+QStringList getValues(const QString& line)
+{
+    return getValue(line).split(" ", QString::SkipEmptyParts);
+}
+
 QString getVariable(const QString& line)
 {
     if ( line.contains("=") )
@@ -256,14 +262,14 @@ bool isValidIp( const QString &text ){
 
 }
 
-QFileInfoList getFilesInfo(QString & dir)
+QFileInfoList getFilesInfo(const QString & dir)
 {
     QDir directory(dir);
 
     return directory.entryInfoList(QDir::NoDotAndDotDot | QDir::Files);
 }
 
-QString getPointer(QString & dir, QString & filepathPointed)
+QString getPointer(const QString & dir, const QString & filepathPointed)
 {
     foreach(const QFileInfo& fileInfo, getFilesInfo(dir) )
         if ( fileInfo.isSymLink() && fileInfo.symLinkTarget() == filepathPointed)
@@ -350,20 +356,45 @@ QString joinPath(const QString & dir, const QString & file)
 QStringList replaceValueInData(QStringList& data, const QString & variable, const QString & value)
 {
     //this function is usually used to receive pglcmd.conf and check for variables and values there
-    QRegExp re(QString("^%1=.*").arg(variable));
-    int pos = data.indexOf(re);
+    //QRegExp re(QString("^%1=.*").arg(variable));
+    QRegExp validPattern("^.*[a-zA-Z]+[ ]*=[ ]*\"[a-zA-Z0-9\.]+\"$");
+    QString var, comment;
+    QString line;
+    //int pos = data.indexOf(re);
 
     //Usual case: if the variable doesn't exist in pglcmd.conf and it's the same as in pglcmd.defaults
     //if ( pos == -1 && value == PglSetting::getStoredValue(variable))
         //return data;
 
-    while ( pos != -1 )
+    for(int i=0; i < data.size(); i++) {
+        line = data[i].trimmed();
+        if (line.startsWith("#"))
+            continue;
+
+        comment = "";
+        if (line.contains("#")) { //if there are any comments
+            comment = " #" + line.split("#")[1];
+            line = line.split("#")[0];
+        }
+
+        if (line.contains(variable)) {
+            var = getVariable(line);
+
+            if (var == variable) {
+                qDebug() << "values: " << value << getValue(line);
+                if (value != getValue(line))
+                    data[i] = var + "=\"" + value + '"' + comment;
+            }
+        }
+    }
+
+    /*while ( pos != -1 )
     {
         data.removeAt(pos);
         pos = data.indexOf(re);
     }
 
-    data << variable + QString("=\"") + value + QString('"');
+    data << variable + QString("=\"") + value + QString('"');*/
 
     return data;
 }
@@ -418,7 +449,7 @@ QString getFileName(const QString& path)
 
 bool hasValueInData(const QString& value, const QStringList& data)
 {
-    foreach(QString line, data)
+    foreach(const QString& line, data)
         if ( line.contains(value) )
             return true;
 
@@ -467,7 +498,7 @@ bool isPort(QString & p)
     if (isNumber(p))
       return true;
 
-    if (port(p.toLower()) != -1)
+    if (portNumber(p.toLower()) != -1)
       return true;
 
     return false;
@@ -549,7 +580,7 @@ void loadPorts()
     }
 }
   
-int port(const QString& name) 
+int portNumber(const QString& name)
 {
   if (mPorts.isEmpty())
     loadPorts();
