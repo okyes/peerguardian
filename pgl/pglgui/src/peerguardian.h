@@ -51,6 +51,7 @@
 #include "ui_main_window.h"
 
 #include "file_transactions.h"
+#include "pglcore.h"
 #include "pgl_settings.h"
 #include "pgl_lists.h"
 #include "peerguardian_info.h"
@@ -103,7 +104,7 @@ class QApplication;
 *
 */
 
-class Peerguardian : public QMainWindow, private Ui::MainWindow {
+class Peerguardian : public QMainWindow {
 
 	Q_OBJECT
 
@@ -111,8 +112,6 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     QString m_Loaded_RootFile;
     SuperUser *m_Root;
     PeerguardianInfo *m_Info;
-    PeerguardianList *m_List;
-    PglWhitelist *m_Whitelist;
     PglCmd *m_Control;
     QSystemTrayIcon *m_Tray;
     QIcon mTrayIconEnabled;
@@ -125,7 +124,6 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     bool quitApp;
     bool m_WhitelistItemPressed;
     bool m_BlocklistItemPressed;
-    GuiOptions *guiOptions;
     QStringList m_FilesToMove;
     bool m_StopLogging;
     QHash<QString, QString> m_ConnectType;
@@ -141,6 +139,8 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
     volatile bool mAutomaticScroll;
     volatile bool mIgnoreScroll;
     QAction *aWhoisIp;
+    PglCore *mPglCore;
+    Ui::MainWindow mUi;
 
 	public:
 		/**
@@ -159,10 +159,9 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
 		virtual ~Peerguardian();
 
         void g_MakeConnections();
-        void initializeSettings();
+        void initCore();
 		void g_SetRoot();
 		void g_SetInfoPath();
-        void g_SetListPath();
         void g_SetControlPath();
         void g_MakeTray();
         void g_MakeMenus();
@@ -170,27 +169,29 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void startTimers();
         void updateGUI();
         QList<QTreeWidgetItem*> getTreeItems(QTreeWidget *tree, int checkState=-1);
-        QRadioButton * getAutoListUpdateDailyRadio() {return m_AutoListUpdateDailyRadio;}
-        QRadioButton * getAutoListUpdateWeeklyRadio() {return m_AutoListUpdateWeeklyRadio;}
-        QRadioButton * getAutoListUpdateMonthlyRadio() {return m_AutoListUpdateMonthlyRadio;}
-        QCheckBox * getAutoListUpdateBox() { return m_AutoListUpdateBox; }
-        QCheckBox * getStartAtBootBox() { return m_StartAtBootBox; }
-        QTreeWidget * getBlocklistTreeWidget() { return m_BlocklistTreeWidget; }
-        QTreeWidget * getWhitelistTreeWidget() { return m_WhitelistTreeWidget; }
+        QRadioButton * getAutoListUpdateDailyRadio() {return mUi.updateDailyRadio;}
+        QRadioButton * getAutoListUpdateWeeklyRadio() {return mUi.updateWeeklyRadio;}
+        QRadioButton * getAutoListUpdateMonthlyRadio() {return mUi.updateMonthlyRadio;}
+        QCheckBox * getAutoListUpdateBox() { return mUi.updateAutomaticallyCheckBox; }
+        QCheckBox * getStartAtBootBox() { return mUi.startAtBootCheckBox; }
+        QTreeWidget * getBlocklistTreeWidget() { return mUi.blocklistTreeWidget; }
+        QTreeWidget * getWhitelistTreeWidget() { return mUi.whitelistTreeWidget; }
         QString getUpdateFrequencyPath();
         QString getUpdateFrequencyCurrentPath();
-        void updateWhitelist();
-        void updateBlocklist();
+        void updateWhitelistWidget();
+        void updateBlocklistWidget();
         int getMaxLogSize(){ return m_MaxLogSize; }
         virtual bool eventFilter(QObject*, QEvent*);
 
     public slots:
-        void g_ShowAddExceptionDialog() { g_ShowAddDialog(ADD_MODE | EXCEPTION_MODE); };
-        void g_ShowAddBlockListDialog() { g_ShowAddDialog(ADD_MODE | BLOCKLIST_MODE); };
+        void showAddExceptionDialog();
+        void showAddBlocklistDialog();
         void g_ShowAboutDialog();
         void updateInfo();
         void g_UpdateDaemonStatus();
         void treeItemChanged(QTreeWidgetItem*, int);
+        void blocklistItemChanged(QTreeWidgetItem*, int);
+        void whitelistItemChanged(QTreeWidgetItem*, int);
         void treeItemPressed(QTreeWidgetItem* item, int column);
         void applyChanges();
         void updateRadioButtonToggled(bool);
@@ -198,7 +199,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void removeListItems();
         void onTrayIconClicked(QSystemTrayIcon::ActivationReason);
         void checkboxChanged(bool);
-        void undoGuiOptions();
+        void undoAll();
         void addLogItem(QString);
         void startStopLogging();
         void openSettingsDialog();
@@ -209,6 +210,7 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
 
     protected:
         void closeEvent ( QCloseEvent * event );
+        void updateBlocklists();
 
     protected slots:
         void quit();
@@ -219,6 +221,13 @@ class Peerguardian : public QMainWindow, private Ui::MainWindow {
         void onLogViewVerticalScrollbarActionTriggered(int);
         void onWhoisTriggered();
         void showCommandsOutput(const CommandList&);
+
+private:
+        void setApplyButtonEnabled(bool enable);
+        void setButtonChanged(QAbstractButton*, bool);
+        void setTreeWidgetItemChanged(QTreeWidgetItem*, bool, bool blockSignals=true);
+        void restoreSettings();
+        void saveSettings();
 };	
 
 #endif //PEERGUARDIAN_H
