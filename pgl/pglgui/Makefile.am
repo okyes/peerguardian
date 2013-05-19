@@ -24,6 +24,12 @@ pglgui_LDADD = \
 	qrc_images.o
 
 dist_pglgui_SOURCES = \
+  src/enums.h \
+	src/option.cpp src/option.h src/option_p.h \
+	src/whitelist_item.cpp src/whitelist_item.h src/whitelist_item_p.h \
+	src/list_item.cpp src/list_item.h \
+	src/blocklist.cpp src/blocklist.h src/blocklist_p.h \
+	src/pglcore.cpp src/pglcore.h \
 	src/add_exception_dialog.cpp src/add_exception_dialog.h \
 	src/command.cpp src/command.h \
 	src/error_dialog.cpp src/error_dialog.h \
@@ -45,6 +51,7 @@ dist_pglgui_SOURCES = \
 # these moc files are also built from SOURCES
 nodist_EXTRA_pglgui_SOURCES = \
 	src/moc_add_exception_dialog.cpp \
+	src/moc_pglcore.cpp \
 	src/moc_command.cpp \
 	src/moc_error_dialog.cpp \
 	src/moc_file_transactions.cpp \
