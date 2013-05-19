@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef PEERGUARDIAN_LISTS_H
-#define PEERGUARDIAN_LISTS_H
+#ifndef PGL_BLOCKLISTS_H
+#define PGL_BLOCKLISTS_H
 
 #include <QVector>
 #include <QString>
@@ -28,104 +28,41 @@
 #include <QTreeWidgetItem>
 #include <QFileInfo>
 #include <QHash>
+#include <QString>
 
 #include "file_transactions.h"
+#include "list_item.h"
+#include "blocklist.h"
+#include "enums.h"
 
-
-
-enum itemMode { ENABLED_ITEM, DISABLED_ITEM, COMMENT_ITEM };
-
-/**
-*
-* @short Class representing both blocklist entries and comments in the blockcontrol blocklists file.
-*
-*/
-
-class ListItem {
-
-	public:
-		/**
-		 * Constructor. Creates a ListItem and analyzes the raw line from the configuration file.
-		 * @param itemRawLine The line from the blockcontrol blocklists file.
-		 */
-		ListItem( const QString &itemRawLine );
-		/**
-		 * Constructor, Creates an empty ListItem.
-		 */
-		ListItem() { mode = ENABLED_ITEM; }
-		/**
-		 * Destructor.
-		 */
-		~ListItem() { }
-
-		/**
-		 * The mode of the ListItem.
-		 * ENABLED_ITEM: Enabled blocklist entry.
-		 * DISABLED_ITEM: Disabled blocklist entry, line starts with #.
-		 * COMMENT_ITEM: Not a blocklist. Line starts with # but it's not valid.
-		 */
-		itemMode mode;
-		/**
-		 * @return The name of the list without the extension.
-		 * For example "www.bluetack.co.uk/config/nipfilter.dat.gz" will return "nipfilter"
-		 */
-		inline QString name() const { return m_Name; }
-		/**
-		 * @return The blocklist's location.
-		 * Example: "www.bluetack.co.uk/config/nipfilter.dat.gz"
-		 */
-		inline QString location() const { return m_Location; }
-
-		/**
-		 * Check if this ListItem matches another.
-		 * This function compares only the locations of the ListItems.
-		 * @param other The second ListItem.
-		 * @return True if the ListItems are the same, otherwise false.
-		 */
-		bool operator==( const ListItem &other );
-
-        bool isEnabled();
-        bool isDisabled();
-
-		static bool isValidBlockList(const QString&);
-		QString getListName(const QString& );
-
-	private:
-		QString m_Name;
-		QString m_Location;
-
-};
+class Blocklist;
+class ListItem;
 
 /**
 *
-* @short Class representing the data in the blockcontrol blocklists file.
+* @short Class containing information about blocklists in use.
 *
 */
 
-
-class PeerguardianList {
+class BlocklistManager {
 
 	public:
 		/**
 		 * Constructor. Creates a PeerguardianList object and loads the data from the blockcontrol blocklists file.
 		 * @param path The path to the blockcontrol blocklists file.
 		 */
-		PeerguardianList( const QString &path );
-		/**
-		 * Constructor. Creates an emtpy PeerguardianList object with no data loaded.
-		 */
-		PeerguardianList() { };
+        BlocklistManager( const QString &path = "");
 		/**
 		 * Destructor.
 		 */
-		~PeerguardianList() { }
+        ~BlocklistManager();
 		/**
 		 * Set the file path to the blockcontrol blocklists file.
 		 * If the path is invalid and no path is already set, PGL_LIST_PATH is used.
 		 * @param path The path to the blockcontrol blocklists file.
 		 */
 		void setFilePath( const QString &path, bool verified=false );
-        QString getListPath();
+        QString blocklistsFilePath();
 		/**
 		 * Insert a new blocklist item into the blocklists file.
 		 * @param newItem The new ListItem to be added.
@@ -141,21 +78,21 @@ class PeerguardianList {
 		 * @param item The ListItem the mode of which is to be changed.
 		 * @param newMode The new mode of the ListItem.
 		 */
-		void setMode( const ListItem &item, const itemMode &newMode );
+        void setMode( const ListItem &item, const ItemMode &newMode );
 		/**
 		 * Change the mode of a ListItem which already exists in the blockcontrol blocklists file.
 		 * The ListItem will be found according to its location.
 		 * @param location The ListItem's location.
 		 * @param newMode The ListItem's new mode.
 		 */
-		void setModeByLocation( const QString &location, const itemMode &newMode );
+        void setModeByLocation( const QString &location, const ItemMode &newMode );
 		/**
 		 * Change the mode of a ListItem which already exists in the blockcontrol blocklists file.
 		 * The ListItem will be found according to its name.
 		 * @param location The ListItem's name.
 		 * @param newMode The ListItem's new mode.
 		 */
-		void setModeByName( const QString &name, const itemMode &newMode );
+        void setModeByName( const QString &name, const ItemMode &newMode );
 		/**
 		 * Remove a ListItem completely from the blocklists file.
 		 * WARNING: Searches by name are NOT safe and should be avoided.
@@ -193,7 +130,7 @@ class PeerguardianList {
 		 * @param mode The mode of the ListItems.
 		 * @return A vector of pointers containing the items with the requested mode.
 		 */
-		QVector< ListItem * > getItems( const itemMode &mode );
+        QVector< ListItem * > getItems( const ItemMode &mode );
  		/**
  		 * Get all the ListItems which exist in the blockcontrol blocklists file.
  		 * Items with mode COMMENT_ITEM are not returned by this function.
@@ -212,17 +149,33 @@ class PeerguardianList {
         static QString getFilePath();
         static QString getFilePath(const QString &path);
         void update(QList<QTreeWidgetItem*>);
+        QStringList localBlocklistsUpdate(const QList<QTreeWidgetItem*>&);
         QHash<QString, bool> getLocalLists(){ return m_localLists; }
-        QString getLocalBlocklistDir(){ return m_localBlocklistDir; }
-        QFileInfoList getLocalBlocklists();
+        QString localBlocklistsDir();
+        //QFileInfoList localBlocklists();
         void updateListsFromFile();
+        void loadBlocklists();
+        void addBlocklist(const QString&);
+        QStringList generateBlocklistsFile();
+        QList<Blocklist*> blocklists();
+        QList<Blocklist*> localBlocklists();
+        bool containsLocalBlocklist(Blocklist*);
+        QString localBlocklistPath(Blocklist*);
+        Blocklist* blocklistAt(int);
+        void removeBlocklistAt(int);
 
+    private:
+        void loadLocalBlocklists();
+        void loadBlocklistsFile();
+        
 	private:
 		int indexOfName( const QString &name );
 		QVector< ListItem > m_ListsFile;
-		QString m_FileName;
+        QString mBlocklistsFilePath;
         QHash<QString, bool> m_localLists;
-        QString m_localBlocklistDir;
+        QStringList mLocalBlocklists;
+        QString mLocalBlocklistsDir;
+        QList<Blocklist*> mBlocklists;
 
 };
 

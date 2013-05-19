@@ -22,204 +22,150 @@
 #include "utils.h"
 #include "pgl_settings.h"
 
+// =========== BlocklistManager class =========== //
 
-ListItem::ListItem( const QString &itemRawLine ) {
+BlocklistManager::BlocklistManager( const QString &path )
+{
+    if (path.isEmpty())
+        setFilePath(getValidPath(path, PglSettings::value("BLOCKLISTS_LIST")), true);
+    else
+        setFilePath(path, true);
+    mLocalBlocklistsDir = PglSettings::value("LOCAL_BLOCKLIST_DIR") + "/";
+}
 
-    QString itemLine = itemRawLine.trimmed();
-
-    m_Location = "";
-    mode = COMMENT_ITEM;
-
-    if ( itemLine.isEmpty() ) {
-        mode = COMMENT_ITEM;
+BlocklistManager::~BlocklistManager()
+{
+    foreach(Blocklist* blocklist, mBlocklists) {
+        if (blocklist)
+            delete blocklist;
     }
-    else if (itemLine.startsWith('#'))
-    {
-        if ( isValidBlockList(itemLine) )
-        {
-            mode = DISABLED_ITEM;
-            m_Name = getListName(itemLine);
-            m_Location = itemLine.split("#")[1];
-        }
+}
+
+void BlocklistManager::addBlocklist(const QString & url)
+{
+    mBlocklists.append(new Blocklist(url));
+}
+
+void BlocklistManager::loadBlocklists()
+{
+    //clear all items, if any
+    for(int i=0; i < mBlocklists.size(); i++)
+        delete mBlocklists[i];
+    mBlocklists.clear();
+
+    m_ListsFile.clear();
+    
+    loadBlocklistsFile();
+    loadLocalBlocklists();
+}
+
+void BlocklistManager::loadBlocklistsFile()
+{
+    if ( mBlocklistsFilePath.isEmpty() )
+        return;
+
+    QStringList tempFileData = getFileData( mBlocklistsFilePath );
+    ListItem item;
+
+    for( int i=0; i < tempFileData.size(); i++) {
+        item = ListItem(tempFileData[i]);
+        m_ListsFile.append(item);
+        if (item.isBlocklist())
+            mBlocklists.append(item.blocklist());
+    }
+}
+
+void BlocklistManager::loadLocalBlocklists()
+{
+    if (! QFile::exists(mLocalBlocklistsDir))
+        return;
+    
+    QDir blocklistsDir(mLocalBlocklistsDir);
+    QString path;
+    
+    //enabled local blocklists
+    foreach(const QFileInfo& info, blocklistsDir.entryInfoList(QDir::NoDotAndDotDot|QDir::Files|QDir::Hidden)) {
+        path = info.absoluteFilePath();
+        if (info.isSymLink())
+            path = info.symLinkTarget();
+
+        if (info.isHidden())
+            mBlocklists.append(new Blocklist(path, true, false));
         else
-            mode = COMMENT_ITEM;
+            mBlocklists.append(new Blocklist(path, true, true));
     }
-    else if( isValidBlockList(itemLine) )
-    {
-        mode = ENABLED_ITEM;
-        m_Name = getListName(itemLine);
-        m_Location = itemLine;
-    }
-
 }
 
-bool ListItem::isValidBlockList(const QString & line)
+QString BlocklistManager::localBlocklistsDir()
 {
-    QStringList formats;
-    formats << "7z" << "dat" << "gz" << "p2p" << "zip";
-
-    if ( line.contains("list.iblocklist.com") )
-        return true;
-        
-    if ( line.contains("http://") || line.contains("ftp://") || line.contains("https://") )
-        return true;
-
-    if ( QFile::exists(line) )
-        foreach(QString format, formats)
-            if ( line.endsWith(format) )
-                return true;
-
-    return false;
+    return mLocalBlocklistsDir;
 }
 
-QString ListItem::getListName(const QString& line)
+QString BlocklistManager::blocklistsFilePath()
 {
-    if ( line.contains("list.iblocklist.com/lists/") )
-        return line.split("list.iblocklist.com/lists/").last();
-
-    QFileInfo file(line);
-
-    if ( file.exists() )
-        return file.fileName();
-
-    return line;
+    return mBlocklistsFilePath;
 }
 
-bool ListItem::isDisabled() {
-    if ( mode == DISABLED_ITEM )
-        return true;
-
-    return false;
-}
-
-bool ListItem::isEnabled() {
-
-    if ( mode == ENABLED_ITEM )
-        return true;
-
-    return false;
-
-}
-
-bool ListItem::operator==( const ListItem &other ) {
-
-    if ( location() != other.location() )
-        return false;
-
-    return true;
-
-}
-
-PeerguardianList::PeerguardianList( const QString &path )
+void BlocklistManager::setFilePath( const QString &path, bool verified )
 {
-
-    setFilePath(path, true);
-    m_localBlocklistDir = PglSettings::getStoredValue("LOCAL_BLOCKLIST_DIR") + "/";
-
-}
-
-QString PeerguardianList::getListPath()
-{
-    return m_FileName;
-}
-
-
-void PeerguardianList::setFilePath( const QString &path, bool verified ) {
 
     if ( verified )
-        m_FileName = path;
+        mBlocklistsFilePath = path;
     else
-        m_FileName = getValidPath(path, PglSettings::getStoredValue("BLOCKLISTS_LIST"));
+        mBlocklistsFilePath = getValidPath(path, PglSettings::value("BLOCKLISTS_LIST"));
 
-    if ( m_FileName.isEmpty() )
+    if ( mBlocklistsFilePath.isEmpty() )
         qWarning() << Q_FUNC_INFO << "Empty path given, doing nothing";
 
 }
 
-void PeerguardianList::updateListsFromFile()
+int BlocklistManager::indexOfName( const QString &name )
 {
-    if ( m_FileName.isEmpty() )
-        return;
-
-    m_ListsFile = QVector< ListItem >();
-    QStringList tempFileData = getFileData( m_FileName );
-
-
-    for( int i=0; i < tempFileData.size(); i++)
-    {
-        ListItem tempItem(tempFileData[i]);
-
-        if ( tempItem.mode == COMMENT_ITEM )
-            continue;
-
-        m_ListsFile.push_back(tempItem);
-    }
-}
-
-
-int PeerguardianList::indexOfName( const QString &name ) {
-
-        for ( int i = 0; i < m_ListsFile.size(); i++ ) {
-            if ( m_ListsFile[i].name() == name ) {
-                return i;
-            }
+    for ( int i = 0; i < m_ListsFile.size(); i++ ) {
+        if (m_ListsFile[i].blocklist() && m_ListsFile[i].blocklist()->name() == name ) {
+            return i;
         }
+    }
 
     return -1;
-
 }
 
-
-
-
-void PeerguardianList::addItem( const ListItem &newItem ) {
-
-    if ( newItem.mode == COMMENT_ITEM ) {
-
-        qWarning() << Q_FUNC_INFO << "Inserting COMMENT_ITEM into the blocklist vector.";
-
-    }
-    m_ListsFile.push_back( newItem );
-
-
+void BlocklistManager::addItem( const ListItem &newItem )
+{ 
+    m_ListsFile.append( newItem );
 }
 
-void PeerguardianList::addItem( const QString &line ) {
-
+void BlocklistManager::addItem( const QString &line )
+{
     ListItem newItem( line );
-
     addItem( newItem );
-
 }
 
-void PeerguardianList::setMode( const ListItem &item, const itemMode &mode ) {
-
+void BlocklistManager::setMode( const ListItem &item, const ItemMode &mode )
+{
     int i = m_ListsFile.indexOf( item );
     if ( i >= 0 ) {
         m_ListsFile[i].mode = mode;
     }
-
 }
 
-void PeerguardianList::setModeByLocation( const QString &location, const itemMode &mode ) {
-
+void BlocklistManager::setModeByLocation( const QString &location, const ItemMode &mode )
+{
     ListItem *item = getItemByLocation( location );
-    if ( item != NULL ) {
+    if (item) {
         setMode( *item, mode );
     }
-
 }
 
-void PeerguardianList::setModeByName( const QString &name, const itemMode &mode ) {
-
+void BlocklistManager::setModeByName( const QString &name, const ItemMode &mode )
+{
     ListItem *item = getItemByName( name );
-    if ( item != NULL ) {
+    if (item) {
         setMode( *item, mode );
     }
-
 }
 
-void PeerguardianList::removeItem( const ListItem &item ) {
+void BlocklistManager::removeItem( const ListItem &item ) {
 
     int i = m_ListsFile.indexOf( item );
     if ( i >= 0 ) {
@@ -228,157 +174,191 @@ void PeerguardianList::removeItem( const ListItem &item ) {
 
 }
 
-void PeerguardianList::removeItemByLocation( const QString &location ) {
+void BlocklistManager::removeItemByLocation( const QString &location ) {
 
     ListItem *item = getItemByLocation( location );
-    if ( item != NULL ) {
+    if (item) {
         removeItem( *item );
     }
-
 }
 
-void PeerguardianList::removeItemByName( const QString &name) {
-
+void BlocklistManager::removeItemByName( const QString &name)
+{
     ListItem *item = getItemByName( name );
-    if ( item != NULL ) {
+    if ( item) {
         removeItem( *item );
     }
-
-
 }
 
-ListItem *PeerguardianList::getItemByName( const QString &name  ) {
-
-
-    for ( QVector< ListItem >::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ ) {
+ListItem *BlocklistManager::getItemByName( const QString &name  )
+{
+    /*for ( QVector<ListItem>::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ ) {
         if ( s->name() == name )
             return s;
-    }
+    }*/
 
-
-    return NULL;
-
+    return 0;
 }
 
-ListItem *PeerguardianList::getItemByLocation( const QString &location ) {
-
-
-    for ( QVector< ListItem >::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ ) {
+ListItem *BlocklistManager::getItemByLocation( const QString &location )
+{
+    /*for ( QVector< ListItem >::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ ) {
         if ( s->location() == location )
             return s;
-    }
+    }*/
 
-    return NULL;
+    return 0;
 }
 
-QVector< ListItem *> PeerguardianList::getItems( const itemMode &mode ) {
+QVector< ListItem *> BlocklistManager::getItems(const ItemMode &mode ) {
 
     QVector< ListItem * > result;
 
     for ( QVector< ListItem >::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ )
         if ( s->mode == mode )
             result.push_back(s);
-
-
+        
     return result;
-
 }
 
-QVector< ListItem * > PeerguardianList::getValidItems()
+QVector< ListItem * > BlocklistManager::getValidItems()
 {
     QVector< ListItem * > result;
     for ( QVector< ListItem >::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ )
         if ( s->mode != COMMENT_ITEM )
             result.push_back(s);
 
-
     return result;
 }
 
-QFileInfoList PeerguardianList::getLocalBlocklists()
-{
-    QFileInfoList localBlocklists;
-    QDir defaultDir (m_localBlocklistDir);
-
-    foreach(QFileInfo fileInfo, defaultDir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files) )
-        if ( fileInfo.isSymLink() )
-            localBlocklists << QFileInfo(fileInfo.symLinkTarget());
-
-    return localBlocklists;
-}
-
-
-
-QVector< ListItem * >  PeerguardianList::getEnabledItems()
+QVector< ListItem * >  BlocklistManager::getEnabledItems()
 {
     return getItems(ENABLED_ITEM);
 }
 
-QVector< ListItem * >  PeerguardianList::getDisabledItems()
+QVector< ListItem * >  BlocklistManager::getDisabledItems()
 {
     return getItems(DISABLED_ITEM);
 }
 
-void PeerguardianList::update(QList<QTreeWidgetItem*> treeItems)
+QStringList BlocklistManager::generateBlocklistsFile()
 {
-
-    QStringList fileData = getFileData(m_FileName);
     QStringList newFileData;
     QString line;
-    bool state;
+    QList<Blocklist*> addedBlocklists;
 
-    m_localLists.clear();
-
-    //load comments to newFileData
-    foreach(QString line, fileData)
-    {
-        ListItem listItem = ListItem(line);
-
-        if ( listItem.mode == COMMENT_ITEM )
+    foreach(const ListItem& item, m_ListsFile) {
+        if ( item.mode == COMMENT_ITEM )
             newFileData << line;
+        else if (item.blocklist() && ! item.blocklist()->isLocal()) {
+            addedBlocklists.append(item.blocklist());
+            if (item.mode == ENABLED_ITEM)
+                newFileData << item.blocklist()->location();
+            else
+                newFileData << "# " + item.blocklist()->location();
+        }
     }
 
-    //load lists to newFileData
-    foreach(QTreeWidgetItem * treeItem, treeItems)
-    {
+    //add possible new blocklists
+    foreach(Blocklist* blocklist, mBlocklists) {
+        if (addedBlocklists.contains(blocklist))
+            continue;
+        if (blocklist->isEnabled())
+            newFileData << blocklist->location();
+        else
+            newFileData << "# " + blocklist->location();
+    }
+
+    //saveFileData(newFileData, QDir::temp().absoluteFilePath(getFileName(mBlocklistsFilePath)));
+    return newFileData;
+}
+
+/*QFileInfoList BlocklistManager::localBlocklists()
+{
+      QFileInfoList localBlocklists;
+      QDir defaultDir (mLocalBlocklistsDir);
+
+      foreach(QFileInfo fileInfo, defaultDir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files) )
+          if ( fileInfo.isSymLink() )
+              localBlocklists << QFileInfo(fileInfo.symLinkTarget());
+
+      return localBlocklists;
+}*/
+
+QList<Blocklist*> BlocklistManager::localBlocklists()
+{
+    QList<Blocklist*> localBlocklists;
+
+    foreach(Blocklist* blocklist, mBlocklists)
+        if (blocklist->isLocal())
+            localBlocklists.append(blocklist);
+    return localBlocklists;
+}
+
+QStringList BlocklistManager::localBlocklistsUpdate(const QList<QTreeWidgetItem*>& treeItems)
+{
+    bool state;
+    foreach(QTreeWidgetItem * treeItem, treeItems) {
         //if it's a filepath
-        if ( QFile::exists( treeItem->text(1) ) )
-        {
+        if ( QFile::exists( treeItem->text(1) ) ){
             state = true;
             if ( treeItem->checkState(0) == Qt::Unchecked )
                 state = false;
 
             m_localLists.insert(treeItem->text(1), state);
-
-        }
-        else //if it's an URL
-        {
-            if ( treeItem->checkState(0) == Qt::Unchecked )
-                line = "# ";
-
-            line += treeItem->text(1).trimmed();
-
-            newFileData << line;
-
-            line.clear();
         }
     }
+}
 
-    QString filepath = "/tmp/" + getFileName(m_FileName);
-    saveFileData(newFileData, filepath);
+QList<Blocklist*> BlocklistManager::blocklists()
+{
+    return mBlocklists;
+}
+
+bool BlocklistManager::containsLocalBlocklist(Blocklist* blocklist)
+{
+    return ! localBlocklistPath(blocklist).isEmpty();
+}
+
+QString BlocklistManager::localBlocklistPath(Blocklist * blocklist)
+{
+    QFileInfoList filesInfo = getFilesInfo(mLocalBlocklistsDir);
+    QString nameMatch;
+
+    foreach(const QFileInfo& info, filesInfo) {
+        if (info.isSymLink() && info.symLinkTarget() == blocklist->location())
+            return info.absoluteFilePath();
+        else if (info.fileName() == blocklist->name())
+            nameMatch = info.absoluteFilePath();
+    }
+
+    return nameMatch;
+}
+
+Blocklist* BlocklistManager::blocklistAt(int index)
+{
+    if (index >= 0 && index < mBlocklists.size())
+        return mBlocklists[index];
+    return 0;
+}
+
+void BlocklistManager::removeBlocklistAt(int index)
+{
+    if (index >= 0 && index < mBlocklists.size())
+        mBlocklists[index]->remove();
 }
 
 /*** Static methods ***/
 
-QString PeerguardianList::getFilePath()
+QString BlocklistManager::getFilePath()
 {
     QString path("");
-    return getValidPath(path, PglSettings::getStoredValue("BLOCKLISTS_LIST"));
+    return getValidPath(path, PglSettings::value("BLOCKLISTS_LIST"));
 }
 
-QString PeerguardianList::getFilePath(const QString &path)
+QString BlocklistManager::getFilePath(const QString &path)
 {
-    return getValidPath(path, PglSettings::getStoredValue("BLOCKLISTS_LIST"));
+    return getValidPath(path, PglSettings::value("BLOCKLISTS_LIST"));
 }
 
 
