@@ -49,7 +49,7 @@
        <enum>Qt::DefaultContextMenu</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_ControlPanel">
        <attribute name="title">
@@ -59,7 +59,7 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QGroupBox" name="m_ControlInfoGroup_2">
+           <widget class="QGroupBox" name="controlInfoGroup_2">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -71,7 +71,7 @@
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout">
              <item>
-              <widget class="QStackedWidget" name="m_controlPglButtons">
+              <widget class="QStackedWidget" name="controlPglButtons">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>70</horstretch>
@@ -97,12 +97,12 @@
                 <number>1</number>
                </property>
                <property name="currentIndex">
-                <number>0</number>
+                <number>1</number>
                </property>
                <widget class="QWidget" name="page">
                 <layout class="QVBoxLayout" name="verticalLayout_2">
                  <item>
-                  <widget class="QPushButton" name="m_startPglButton">
+                  <widget class="QPushButton" name="startPglButton">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -132,7 +132,7 @@
                <widget class="QWidget" name="page_2">
                 <layout class="QVBoxLayout" name="verticalLayout">
                  <item>
-                  <widget class="QPushButton" name="m_stopPglButton">
+                  <widget class="QPushButton" name="stopPglButton">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -165,7 +165,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="m_restartPglButton">
+              <widget class="QPushButton" name="restartPglButton">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -194,7 +194,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="m_reloadPglButton">
+              <widget class="QPushButton" name="reloadPglButton">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -214,7 +214,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="m_updatePglButton">
+              <widget class="QPushButton" name="updatePglButton">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>92</horstretch>
@@ -254,7 +254,7 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_9">
            <item>
-            <widget class="QTreeWidget" name="m_LogTreeWidget">
+            <widget class="QTreeWidget" name="logTreeWidget">
              <property name="mouseTracking">
               <bool>true</bool>
              </property>
@@ -315,7 +315,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_13">
              <item>
-              <widget class="QPushButton" name="m_StopLoggingButton">
+              <widget class="QPushButton" name="stopLoggingButton">
                <property name="toolTip">
                 <string>Ignores or appends any blocking information coming from pgld.</string>
                </property>
@@ -329,7 +329,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="m_LogClearButton">
+              <widget class="QPushButton" name="clearLogButton">
                <property name="toolTip">
                 <string>Clears the log</string>
                </property>
@@ -370,7 +370,7 @@
           </property>
           <layout class="QVBoxLayout" name="_17">
            <item>
-            <widget class="QCheckBox" name="m_StartAtBootBox">
+            <widget class="QCheckBox" name="startAtBootCheckBox">
              <property name="statusTip">
               <string>Start PeerGuardian as a daemon when the computer starts</string>
              </property>
@@ -395,7 +395,7 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_10">
            <item>
-            <widget class="QCheckBox" name="m_AutoListUpdateBox">
+            <widget class="QCheckBox" name="updateAutomaticallyCheckBox">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -413,7 +413,7 @@
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_6">
              <item>
-              <widget class="QRadioButton" name="m_AutoListUpdateDailyRadio">
+              <widget class="QRadioButton" name="updateDailyRadio">
                <property name="enabled">
                 <bool>false</bool>
                </property>
@@ -432,7 +432,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QRadioButton" name="m_AutoListUpdateWeeklyRadio">
+              <widget class="QRadioButton" name="updateWeeklyRadio">
                <property name="enabled">
                 <bool>false</bool>
                </property>
@@ -445,7 +445,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QRadioButton" name="m_AutoListUpdateMonthlyRadio">
+              <widget class="QRadioButton" name="updateMonthlyRadio">
                <property name="enabled">
                 <bool>false</bool>
                </property>
@@ -477,14 +477,7 @@
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_5">
              <item>
-              <widget class="Line" name="line_6">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QTreeWidget" name="m_BlocklistTreeWidget">
+              <widget class="QTreeWidget" name="blocklistTreeWidget">
                <property name="mouseTracking">
                 <bool>true</bool>
                </property>
@@ -513,7 +506,7 @@
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_5">
                <item>
-                <widget class="QPushButton" name="m_addBlockListButton">
+                <widget class="QPushButton" name="addBlockListButton">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -533,7 +526,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="m_rmBlockListButton">
+                <widget class="QPushButton" name="removeBlocklistButton">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
@@ -580,7 +573,7 @@
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_4">
              <item>
-              <widget class="QTreeWidget" name="m_WhitelistTreeWidget">
+              <widget class="QTreeWidget" name="whitelistTreeWidget">
                <property name="mouseTracking">
                 <bool>true</bool>
                </property>
@@ -622,7 +615,7 @@
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_10">
                <item>
-                <widget class="QPushButton" name="m_addExceptionButton">
+                <widget class="QPushButton" name="addExceptionButton">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -642,7 +635,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="m_rmExceptionButton">
+                <widget class="QPushButton" name="removeExceptionButton">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
@@ -694,7 +687,7 @@
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="m_UndoButton">
+           <widget class="QPushButton" name="undoButton">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -704,7 +697,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="m_ApplyButton">
+           <widget class="QPushButton" name="applyButton">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -727,14 +720,14 @@
     </item>
    </layout>
   </widget>
-  <widget class="QStatusBar" name="m_StatusBar"/>
+  <widget class="QStatusBar" name="statusBar"/>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
      <width>808</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1067,9 +1060,9 @@
  </resources>
  <connections>
   <connection>
-   <sender>m_AutoListUpdateBox</sender>
+   <sender>updateAutomaticallyCheckBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>m_AutoListUpdateDailyRadio</receiver>
+   <receiver>updateDailyRadio</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1083,9 +1076,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>m_AutoListUpdateBox</sender>
+   <sender>updateAutomaticallyCheckBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>m_AutoListUpdateMonthlyRadio</receiver>
+   <receiver>updateMonthlyRadio</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1099,9 +1092,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>m_AutoListUpdateBox</sender>
+   <sender>updateAutomaticallyCheckBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>m_AutoListUpdateWeeklyRadio</receiver>
+   <receiver>updateWeeklyRadio</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
