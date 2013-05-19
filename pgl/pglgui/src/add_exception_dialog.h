@@ -21,6 +21,8 @@
 #include "ui_add_exception.h"
 #include "pgl_whitelist.h"
 #include "utils.h"
+#include "blocklist.h"
+#include "pgl_lists.h"
 
 enum openMode { ADD_MODE=0x000,
             EDIT_MODE,

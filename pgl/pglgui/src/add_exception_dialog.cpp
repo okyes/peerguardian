@@ -359,7 +359,7 @@ void AddExceptionDialog::addBlocklist()
         if ( value.simplified().isEmpty() )
             continue;
         
-        if ( ! ListItem::isValidBlockList(value) )
+        if ( ! Blocklist::isValid(value) )
             invalidValues << value;
         else
             m_blocklists.push_back(value);
@@ -392,5 +392,4 @@ void AddExceptionDialog::keyPressEvent ( QKeyEvent * e )
 {
     if (e->key() == Qt::Key_Escape)
         QDialog::keyPressEvent (e);
-
 }
