@@ -20,8 +20,6 @@
 
 #include "file_transactions.h"
 
-
-
 QStringList getFileData( const QString &path ) {
 
 	QStringList fileContents;
