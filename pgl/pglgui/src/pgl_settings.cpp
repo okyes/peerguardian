@@ -1,10 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2007-2008 by Dimitris Palyvos-Giannas   *
- *   jimaras@gmail.com   *
+ *   Copyright (C) 2013 by Carlos Pais <freemind@lavabit.com>              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
+ *   the Free Software Foundation; either version 3 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
@@ -24,44 +23,40 @@
 #include <QFile>
 #include <QDebug>
 #include <QObject>
+#include <QStringList>
 
 #include "file_transactions.h"
 #include "utils.h"
 
-
-
-QHash<QString, QString> PglSettings::variables = QHash<QString, QString>();
+//QHash<QString, QString> PglSettings::mVariables = QHash<QString, QString>();
+QHash<QString, QString> mVariables;
 QString mPglcmdDefaultsPath = "";
 QString mLastError = "";
-
+QStringList mPglcmdConfData;
 
 QString PglSettings::getVariableInValue(const QString & var)
 {
     QString variable(var);
 
-    if ( var.contains("$") )
-    {
+    if ( var.contains("$") ) {
         QString strippedVar(var);
         int n = 0;
 
-        if ( var.contains("{") && var.contains("}") )
-        {
+        if ( var.contains("{") && var.contains("}") ) {
             int pos1 = var.indexOf('{') + 1;
             n = var.indexOf('}') - pos1;
             strippedVar = var.mid(pos1, n);
             n = 3;
         }
-        else
-        {
+        else {
             int pos1 = var.indexOf('$') + 1;
             strippedVar = var.mid(pos1);
             n = 1;
         }
 
-        if ( variables.contains(strippedVar) )
-            return variable.replace(var.indexOf("$"), strippedVar.size()+n, variables[strippedVar]);
+        if ( mVariables.contains(strippedVar) )
+            return variable.replace(var.indexOf("$"), strippedVar.size()+n, PglSettings::value(strippedVar, ""));
     }
-
 
     return var;
 }
@@ -124,7 +119,6 @@ bool PglSettings::loadSettings()
         return false;
     }
     
-    qDebug() << mPglcmdDefaultsPath;
     QStringList data = getFileData(mPglcmdDefaultsPath);
     QString variable;
 
@@ -137,44 +131,39 @@ bool PglSettings::loadSettings()
         variable = getVariable(line);
 
         if( ! variable.isEmpty() )
-            variables[variable] = PglSettings::getValueInLine(line);
+            PglSettings::store(variable, PglSettings::getValueInLine(line));
 
     }
     
     //Overwrite the variables' values with the values from pglcmd.conf
-    QString pglcmdConfPath(PglSettings::getStoredValue("CMD_CONF"));
+    QString pglcmdConfPath(PglSettings::value("CMD_CONF"));
 
     if ( pglcmdConfPath.isEmpty() ) {
         mLastError = QObject::tr("Couldn't find plgcmd's configuration path. Did you install pgld and pglcmd?");
         return false;
     }
 
-    data = getFileData(pglcmdConfPath);
-    foreach(QString line, data)
+    mPglcmdConfData = getFileData(pglcmdConfPath);
+    foreach(QString line, mPglcmdConfData)
     {
         line = line.trimmed();
+
         if ( line.startsWith('#') ) //ignore comments
             continue;
 
         variable = getVariable(line);
 
-        if ( variables.contains(variable) )
-            variables[variable] = getValue(line);
-
+        if ( mVariables.contains(variable) )
+            PglSettings::store(variable, getValue(line));
     }
     
     mLastError = "";
     return true;
 }
 
-QHash<QString, QString> PglSettings::getVariables()
+QHash<QString, QString> PglSettings::variables()
 {
-	return variables;
-}
-
-QString PglSettings::getStoredValue(const QString &variable)
-{
-	return variables[variable];
+    return mVariables;
 }
 
 QString PglSettings::pglcmdDefaultsPath()
@@ -185,4 +174,56 @@ QString PglSettings::pglcmdDefaultsPath()
 QString PglSettings::lastError()
 {
     return mLastError;
+}
+
+void PglSettings::store(const QString & var, const QVariant& value)
+{
+    mVariables[var] = value.toString().trimmed();
+}
+
+void PglSettings::add(const QString& var, const QVariant& value)
+{
+    QString val = value.toString().trimmed();
+    QStringList values = PglSettings::values(var);
+    if (! values.contains(val))
+        values += val;
+    mVariables[var] = values.join(" ");
+}
+
+void PglSettings::remove(const QString& var, const QVariant& value)
+{
+    QString val = value.toString().trimmed();
+    if (mVariables.contains(var)) {
+        QStringList values = PglSettings::values(var);
+        if (values.contains(val))
+            values.removeAll(val);
+        mVariables[var] = values.join(" ");
+    }
+}
+
+QString PglSettings::value(const QString& var, const QString& def)
+{
+    return mVariables.value(var, def);
+}
+
+QStringList PglSettings::values(const QString& var)
+{
+    QString value = mVariables.value(var);
+    return value.split(" ", QString::SkipEmptyParts);
+}
+
+QStringList PglSettings::pglcmdConfData()
+{
+    return mPglcmdConfData;
+}
+
+QStringList PglSettings::generatePglcmdConf()
+{
+    QStringList data = mPglcmdConfData;
+
+    foreach(const QString& var, mVariables.keys()) {
+        replaceValueInData(data, var, mVariables[var]);
+    }
+
+    return data;
 }

@@ -1,10 +1,9 @@
 /***************************************************************************
- *   Copyright (C) 2007-2008 by Dimitris Palyvos-Giannas   *
- *   jimaras@gmail.com   *
+ *   Copyright (C) 2013 by Carlos Pais <freemind@lavabit.com>              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
+ *   the Free Software Foundation; either version 3 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
@@ -18,12 +17,13 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef PGL_SETTINGS_NEW_H
-#define PGL_SETTINGS_NEW_H
+#ifndef PGL_SETTINGS_H
+#define PGL_SETTINGS_H
 
 #include <QString>
 #include <QHash>
 #include <QStringList>
+#include <QVariant>
 
 #include "super_user.h"
 
@@ -31,19 +31,23 @@
 
 class PglSettings
 {
-    static QHash<QString, QString> variables;
-    
     public:
         PglSettings();
         ~PglSettings();
         static bool loadSettings();
-        static QHash<QString, QString> getVariables();
-        static QString getStoredValue(const QString &);
+        static QHash<QString, QString> variables();
         static QString getValueInLine(const QString&);
         static QString getVariableInValue(const QString &);
         static QString findPglcmdDefaultsPath();
         static QString pglcmdDefaultsPath();
         static QString lastError();
+        static QStringList pglcmdConfData();
+        static void store(const QString&, const QVariant&);
+        static void add(const QString&, const QVariant&);
+        static void remove(const QString&, const QVariant&);
+        static QString value(const QString&, const QString&def="");
+        static QStringList values(const QString&);
+        static QStringList generatePglcmdConf();
     
 };
 
