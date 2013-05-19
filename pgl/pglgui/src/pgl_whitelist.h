@@ -1,3 +1,22 @@
+/***************************************************************************
+ *   Copyright (C) 2013 by Carlos Pais <freemind@lavabit.com>              *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 3 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+
 #ifndef PGL_WHITELIST_H
 #define PGL_WHITELIST_H
 
@@ -7,7 +26,8 @@
 #include <QStringList>
 #include <QSettings>
 #include <QList>
-#include <QTreeWidgetItem>
+
+#include "whitelist_item.h"
 
 #define WHITE_IP_IN "WHITE_IP_IN"
 #define WHITE_IP_OUT "WHITE_IP_OUT"
@@ -19,59 +39,14 @@
 #define WHITE_TCP_FWD "WHITE_TCP_FWD"
 #define WHITE_UDP_FWD "WHITE_UDP_FWD"
 
-enum {
-    TYPE_INCOMING,
-    TYPE_OUTGOING,
-	TYPE_FORWARD 
-};
-
-
-enum {
-    ENABLED,
-    DISABLED,
-    INVALID
-};
 
 class GuiOptions;
 
-class WhitelistItem
+class WhitelistManager
 {
-
-    QString m_Value;
-    QStringList m_values;
-    QString m_Connection; //Incoming, Outgoing or Forward
-    int m_Type; //Ip or Port
-    QString m_Protocol; //TCP, UDP or IP
-    QString m_Group;
-    bool m_Enabled;
-    bool m_Valid;
-
-    public:
-        WhitelistItem();
-        WhitelistItem(const QString&, const QString&, const QString&, int type=ENABLED);
-        WhitelistItem(const QString&, const QString&, int type=ENABLED);
-        ~WhitelistItem(){};
-        QString value() { return m_Value; }
-        QStringList values() { return m_values; }
-        bool valid () { return m_Valid; }
-        void setValid (bool valid) { m_Valid = valid; }
-        QString connection() const { return m_Connection; }
-        int type() { return m_Type; }
-        QString protocol() const { return m_Protocol; }
-        QString group() { return m_Group; }
-        bool isEnabled(){ return m_Enabled; }
-        QStringList values() const { return m_values; }
-        void addAlias(const QString &);
-        void addAliases(const QStringList& );
-        QString getTypeAsString();
-        QStringList getAsStringList(){ return QStringList() << m_Value << getTypeAsString(); }
-        bool operator==(const WhitelistItem & otherItem);
-};
-
-class PglWhitelist
-{
-    QList<WhitelistItem> m_WhitelistedItems;
+    QList<WhitelistItem*> mWhiteListItems;
     QString m_WhitelistFile;
+    QStringList mWhitelistFileData;
     QMap<QString, int> m_Group;
     QSettings * m_Settings;
     QMap<QString, QStringList> m_WhitelistEnabled;
@@ -80,35 +55,42 @@ class PglWhitelist
 
 	public:
 		/**
-		 * Constructor. Creates an emtpy PglWhitelist object with no data loaded.
+         * Constructor. Creates an emtpy WhitelistManager object with no data loaded.
 		 */
-		PglWhitelist(QSettings *, GuiOptions*);
+        WhitelistManager(QSettings *);
 		/**
 		 * Destructor.
 		 */
-		~PglWhitelist() { }
+        ~WhitelistManager();
 
-        QList<WhitelistItem> getWhitelistedItems(){ return m_WhitelistedItems; }
+        QList<WhitelistItem*> whitelistItems();
         void loadDisabledItems(QSettings*);
-        QStringList updatePglcmdConf(QList<QTreeWidgetItem*>);
-        QList<WhitelistItem> getWhitelistItems(QList<QTreeWidgetItem*>);
+        //QStringList updatePglcmdConf(QList<QTreeWidgetItem*>);
         QMap<QString, QStringList> getEnabledWhitelistedItems() { return m_WhitelistEnabled; }
         QMap<QString, QStringList> getDisabledWhitelistedItems(){ return m_WhitelistDisabled; }
-        QString getTypeAsString(QString&);
+        QString getTypeAsString(const QString&);
         QString getGroup(QStringList&);
         QStringList updateWhitelistFile();
-        void updateSettings(const QList<QTreeWidgetItem*>& treeItems, int firstAddedItemPos=0, bool updateAll=true);
-        QString getWhitelistFile(){ return m_WhitelistFile; };
-        QString getProtocol(QString& key);
+        //void updateSettings(const QList<QTreeWidgetItem*>& treeItems, int firstAddedItemPos=0, bool updateAll=true);
         QString translateConnection(const QString&);
         QStringList getDirections(const QString& chain);
         QStringList getCommands(QStringList items, QStringList connections, QStringList protocols, QList<bool> allows);
-        void addTreeWidgetItemToWhitelist(QTreeWidgetItem* item);
+        //void addTreeWidgetItemToWhitelist(QTreeWidgetItem* item);
         void load();
-        QStringList updateWhitelistItemsInIptables(QList<QTreeWidgetItem*> items, GuiOptions *guiOptions);
+        QStringList generateIptablesCommands();
+        //QStringList updateWhitelistItemsInIptables(QList<QTreeWidgetItem*> items, GuiOptions *guiOptions);
         bool isPortAdded(const QString& value, const QString & portRange);
         bool isInPglcmd(const QString& value, const QString& connectType, const QString& prot);
+        bool contains(const QString&, const QString&, const QString&);
         QString getIptablesTestCommand(const QString& value, const QString& connectType, const QString& prot);
+        QString parseProtocol(const QString&);
+        QString parseConnectionType(const QString&);
+        WhitelistItem* whitelistItemAt(int);
+        void addItem(WhitelistItem*);
+        void removeItemAt(int);
+        void updatePglSettings();
+        void updateGuiSettings();
+        bool isChanged();
 };
 
 #endif
