@@ -116,8 +116,8 @@ Debian system). Installs most things to /usr/local
     --localstatedir=/var \
     --with-lsb=/lib/lsb/init-functions
 
-ArchLinux users probably have to set:
-    --with-initddir=/etc/rc.d
+ArchLinux users have to set:
+  --with-systemdsystemunitdir=/usr/lib/systemd/system/
 
 
 Step 3.2: Build and install
@@ -130,6 +130,9 @@ After configure you can build and install the package, just issue:
 
 Step 3.3: Activate the init script
 ----------------------------------
+
+a) init script
+--------------
 
 On some systems (e.g. Debian and Ubuntu based) it may be required to activate
 the init script manually:
@@ -156,6 +159,16 @@ Or something else, please tell us how it works for your distribution!
 Other systems, like Gentoo, don't need this activation of the init script.
 
 
+b) systemd service file
+-----------------------
+
+ARCH Linux:
+
+To start the program for the session:
+  systemctl start pgl.service
+
+To have it up and running on every boot
+  systemctl enable pgl.service
 
 
 2.) Uninstall

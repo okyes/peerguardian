@@ -48,6 +48,9 @@ pgllib_DATA = \
 	pglcmd.lib \
 	pglcmd.main
 
+systemdsystemunit_DATA = \
+	init/pgl.service
+
 # Don't update PATH here anymore, because on user's make it doesn't contain
 # [/usr]/sbin
 pglcmd.defaults:
@@ -103,6 +106,15 @@ init/pgl:
 	chmod +x init/pgl
 endif
 
+init/pgl.service:
+	sed \
+	-e 's|@data_root_dir@|$(datarootdir)|g' \
+	-e 's|@CONF_DIR@|$(sysconfdir)|g' \
+	-e 's|@LIB_DIR@|$(libdir)|g' \
+	-e 's|@BIN_DIR@|$(bindir)|g' \
+	-e 's|@PID_DIR@|$(PIDDIR)|g' \
+	< init/pgl.service.in > init/pgl.service
+
 networkmanager/20pglcmd:
 	$(do_subst) < networkmanager/20pglcmd.in > networkmanager/20pglcmd
 	chmod +x networkmanager/20pglcmd
@@ -119,6 +131,7 @@ EXTRA_DIST = \
 	cron.daily/pglcmd.in \
 	init/pgl.in \
 	init/pgl.gentoo.in \
+	init/pgl.service.in \
 	networkmanager/20pglcmd.in \
 	pglcmd.lib
 
@@ -131,4 +144,5 @@ CLEANFILES = \
 	pglcmd.wd \
 	cron.daily/pglcmd \
 	init/pgl \
+	init/pgl.service \
 	networkmanager/20pglcmd

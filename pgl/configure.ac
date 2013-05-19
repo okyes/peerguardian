@@ -132,6 +132,17 @@ AC_ARG_WITH([gentoo-init],
 
 AM_CONDITIONAL(GENTOOINIT, [test "x$gentoo_init" = "xyes"])
 
+# use systemd service file (yes, if user specifies a path)
+# http://www.freedesktop.org/software/systemd/man/daemon.html
+PKG_PROG_PKG_CONFIG
+AC_ARG_WITH([systemdsystemunitdir],
+        AS_HELP_STRING([--with-systemdsystemunitdir=DIR], [Directory for systemd service files]),
+        [], [with_systemdsystemunitdir=$($PKG_CONFIG --variable=systemdsystemunitdir systemd)])
+if test "x$with_systemdsystemunitdir" != xno; then
+        AC_SUBST([systemdsystemunitdir], [$with_systemdsystemunitdir])
+fi
+AM_CONDITIONAL(HAVE_SYSTEMD, [test -n "$with_systemdsystemunitdir" -a "x$with_systemdsystemunitdir" != xno ])
+
 # let user specify iconsdir
 AC_ARG_WITH([iconsdir],
     [AS_HELP_STRING([--with-iconsdir=DIR],
@@ -311,6 +322,11 @@ else
 echo QT-gui....................................... : no
 fi
 
+if test -n "$with_systemdsystemunitdir" -a "x$with_systemdsystemunitdir" != xno; then
+echo systemdsystemunitdir......................... : $systemdsystemunitdir
+else
+echo systemd...................................... : no
+fi
 echo
 echo .............................................
 echo "Developer debug:"
