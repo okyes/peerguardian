@@ -53,6 +53,8 @@ void PglCore::load()
     bool updateWeekly = false;
     bool updateMonthly = false;
 
+    qDebug() << "LOAD";
+
     PglSettings::loadSettings();
 
     if ( PglSettings::value("INIT") == "1" )
@@ -208,8 +210,5 @@ void PglCore::undo()
             blocklist->undo();
     }
 
-    foreach(WhitelistItem* item, mWhitelistManager->whitelistItems()) {
-        if (item->isChanged())
-           item->undo();
-    }
+    mWhitelistManager->undo();
 }
