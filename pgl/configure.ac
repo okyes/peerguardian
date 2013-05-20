@@ -321,7 +321,11 @@ echo QT-gui....................................... : yes
 else
 echo QT-gui....................................... : no
 fi
-
+if test "x$gentoo_init" = "xyes"; then
+echo Gentoo init script........................... : yes
+else
+echo Gentoo init script........................... : no
+fi
 if test -n "$with_systemdsystemunitdir" -a "x$with_systemdsystemunitdir" != xno; then
 echo systemdsystemunitdir......................... : $systemdsystemunitdir
 else

@@ -10,7 +10,6 @@ pgl 2.2.3~pre1 UNRELEASED
   * added systemd file by Pierre Buard, tested for months by the Arch Linux
     guinea pigs. Thanks!
     Closes: https://sourceforge.net/p/peerguardian/patches/2/
-  ***  TODO: integrate, add to documentation
   * fix: (re-)enable MARKing for incoming matched packets.
     Thanks Jason Hill,
     https://sourceforge.net/p/peerguardian/discussion/446996/thread/ed9a443f

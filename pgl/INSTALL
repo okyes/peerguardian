@@ -110,14 +110,17 @@ Full example configure line for a complete build and full system integration
     --disable-lowmem
 
 Minimal example line for a complete build and full system integration (on a
-Debian system). Installs most things to /usr/local
+Debian system, installs most things to /usr/local/):
   ./configure \
     --sysconfdir=/etc \
     --localstatedir=/var \
     --with-lsb=/lib/lsb/init-functions
 
-ArchLinux users have to set:
+If you use systemd on your system, use something like:
   --with-systemdsystemunitdir=/usr/lib/systemd/system/
+
+Gentoo has its own init file, use it with:
+  --with-gentoo-init
 
 
 Step 3.2: Build and install
@@ -128,14 +131,15 @@ After configure you can build and install the package, just issue:
   make install
 
 
-Step 3.3: Activate the init script
-----------------------------------
+Step 3.3: Activate pgl on system initialization
+-----------------------------------------------
 
-a) init script
---------------
+
+a) SysV init script
+-------------------
 
 On some systems (e.g. Debian and Ubuntu based) it may be required to activate
-the init script manually:
+the init script:
   update-rc.d pgl defaults
 
 Or alternatively:
@@ -161,8 +165,6 @@ Other systems, like Gentoo, don't need this activation of the init script.
 
 b) systemd service file
 -----------------------
-
-ARCH Linux:
 
 To start the program for the session:
   systemctl start pgl.service
@@ -245,9 +247,9 @@ Runtime environment pgld:
 4.) Available packages, build scripts and other distribution specific tips
 ==========================================================================
 
-pgl was written and tested under Debian Gnu/Linux Wheezy. However it should run
-under every Linux system. It is our goal to make life as easy as possible for
-users and packagers.
+pgl was written and tested under Debian Gnu/Linux Jessie. However it should
+run under every Linux system. It is our goal to make life as easy as possible
+for users and packagers.
 
 NOTE FOR PACKAGERS:
 If you are a packager just contact us at
