@@ -638,7 +638,8 @@ void Peerguardian::applyChanges()
     if ( m_Info->daemonState() )
     {
         //apply new changes directly in iptables
-        QStringList iptablesCommands;// = whitelist->updateWhitelistItemsInIptables(getTreeItems(mUi.whitelistTreeWidget), guiOptions);
+        // = whitelist->updateWhitelistItemsInIptables(getTreeItems(mUi.whitelistTreeWidget), guiOptions);
+        QStringList iptablesCommands = whitelist->generateIptablesCommands();
         if ( ! iptablesCommands.isEmpty() )
             m_Root->executeCommands(iptablesCommands, false);
     }
