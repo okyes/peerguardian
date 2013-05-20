@@ -799,7 +799,9 @@ void Peerguardian::whitelistItemChanged(QTreeWidgetItem* item, int column)
         return;
 
     WhitelistManager* manager = mPglCore->whitelistManager();
-    WhitelistItem* whitelistItem = manager->whitelistItemAt(treeWidget->indexOfTopLevelItem(item));
+    //WhitelistItem* whitelistItem = manager->whitelistItemAt(treeWidget->indexOfTopLevelItem(item));
+    QVariant wlitem = item->data(0, Qt::UserRole);
+    WhitelistItem* whitelistItem = (WhitelistItem*) wlitem.value<void*>();
 
     if (whitelistItem) {
         if (item->checkState(0) == Qt::Checked)
@@ -810,8 +812,6 @@ void Peerguardian::whitelistItemChanged(QTreeWidgetItem* item, int column)
         setTreeWidgetItemChanged(item, whitelistItem->isChanged());
         setApplyButtonEnabled(mPglCore->isChanged());
     }
-
-    qDebug() << whitelistItem->isRemoved();
 }
 
 void Peerguardian::treeItemChanged(QTreeWidgetItem* item, int column)
@@ -878,6 +878,11 @@ void Peerguardian::updateBlocklistWidget()
         info << blocklist->name();
         QTreeWidgetItem * item = new QTreeWidgetItem(mUi.blocklistTreeWidget, info);
         item->setToolTip(0, blocklist->location());
+        item->setData(0, Qt::UserRole, qVariantFromValue((void *) blocklist));
+        /*QVariant bl = item->data(0, Qt::UserRole);
+        Blocklist *block = (Blocklist*) bl.value<void*>();
+        qDebug() << block << blocklist;*/
+
 
         if ( blocklist->isEnabled() )
             item->setCheckState(0, Qt::Checked);
@@ -893,8 +898,6 @@ void Peerguardian::updateBlocklistWidget()
 
 void Peerguardian::updateWhitelistWidget()
 {
-    QMap<QString, QStringList> items;
-    QStringList values;
     QStringList info;
     WhitelistManager *whitelist = mPglCore->whitelistManager();
     
@@ -906,16 +909,21 @@ void Peerguardian::updateWhitelistWidget()
     foreach(WhitelistItem * item, whitelist->whitelistItems()) {
         info << item->value() << item->connection() << item->protocol();
         QTreeWidgetItem * treeItem = new QTreeWidgetItem(mUi.whitelistTreeWidget, info);
+        treeItem->setData(0, Qt::UserRole, qVariantFromValue((void *) item));
+
         if (item->isEnabled())
             treeItem->setCheckState(0, Qt::Checked );
         else
             treeItem->setCheckState(0, Qt::Unchecked );
 
-        setTreeWidgetItemChanged(treeItem, item->isChanged());
+        setTreeWidgetItemChanged(treeItem, item->isChanged(), false);
         info.clear();
     }
-    //mUi.whitelistTreeWidget->setSortingEnabled(true);
+
+    mUi.whitelistTreeWidget->setSortingEnabled(true);
+    mUi.whitelistTreeWidget->sortByColumn(0);
     mUi.whitelistTreeWidget->blockSignals(false);
+
 
     /*mUi.whitelistTreeWidget->blockSignals(true);
 
