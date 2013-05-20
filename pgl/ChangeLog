@@ -20,6 +20,7 @@ pgl 2.2.3~pre1 UNRELEASED
   * use sed instead of echo to add newline at end of blocklist
   * use pushd and popd before/after downloading blocklists (instead of only
     cd'ing into the directory, but not leaving again)
+  * init: added firewalld and moved $syslog to Should-Start|Stop
 
   [hasufell]
   * MAKE: do not recreate already existent dirs (Closes: SF bug #325)
