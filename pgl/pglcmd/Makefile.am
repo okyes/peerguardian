@@ -48,8 +48,10 @@ pgllib_DATA = \
 	pglcmd.lib \
 	pglcmd.main
 
+if HAVE_SYSTEMD
 systemdsystemunit_DATA = \
 	init/pgl.service
+endif
 
 # Don't update PATH here anymore, because on user's make it doesn't contain
 # [/usr]/sbin
