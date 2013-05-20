@@ -1,12 +1,13 @@
 [Unit]
 Description=PeerGuardian Linux - an IP Blocker
-Documentation=man:pgld(1) file://@data_root_dir@/doc/pgl/README.blocklists
+Documentation=man:pgld(1)
+Documentation=file://@data_root_dir@/doc/pgl/README.blocklists
 After=network.target
 ConditionPathExists=|@CONF_DIR@/pgl/blocklists.list
 ConditionDirectoryNotEmpty=|@LIB_DIR@/pgl
 
 [Service]
-BusName=org.netfilter.pgl
+Type=forking
 ExecStart=@BIN_DIR@/pglcmd start
 ExecStop=@BIN_DIR@/pglcmd stop
 PIDFile=@PID_DIR@/pgld.pid

@@ -10,7 +10,6 @@ pgl 2.2.3~pre1 UNRELEASED
   * added systemd file by Pierre Buard, tested for months by the Arch Linux
     guinea pigs. Thanks!
     Closes: https://sourceforge.net/p/peerguardian/patches/2/
-  ***  TODO: integrate, add to documentation
   * fix: (re-)enable MARKing for incoming matched packets.
     Thanks Jason Hill,
     https://sourceforge.net/p/peerguardian/discussion/446996/thread/ed9a443f
@@ -21,6 +20,7 @@ pgl 2.2.3~pre1 UNRELEASED
   * use sed instead of echo to add newline at end of blocklist
   * use pushd and popd before/after downloading blocklists (instead of only
     cd'ing into the directory, but not leaving again)
+  * init: added firewalld and moved $syslog to Should-Start|Stop
 
   [hasufell]
   * MAKE: do not recreate already existent dirs (Closes: SF bug #325)

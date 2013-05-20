@@ -1635,19 +1635,20 @@ do_start () {
                 LOG_LOGFILE_OPT=""
             fi
 
-
             # Set the options for marking matched packets
             if [ "$REJECT" -eq 1 ] ; then
                 REJECT_OPT="-r $REJECT_MARK"
             else
                 REJECT_OPT=""
             fi
+
             # Set the options for marking not matched packets
             if [ "$ACCEPT" -eq 1 ] ; then
                 ACCEPT_OPT="-a $ACCEPT_MARK"
             else
                 ACCEPT_OPT=""
             fi
+
             # Set the NFQUEUE number only if NFQUEUE and not QUEUE is used
             case "$IPTABLES_TARGET" in
                 NFQUEUE)

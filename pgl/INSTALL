@@ -60,28 +60,28 @@ to check before compiling. Go to the pgl/ directory and run:
 
 Check the options and the paths. There are some common paths and options you
 should consider to set like:
-    --prefix         [default: /usr/local]
-    --sysconfdir     [default: $prefix/etc, recommended: /etc]
-    --localstatedir  [default: $prefix/var, recommended: /var]
-    --with-iconsdir  [default: $datadir/pixmaps]
-    --with-initddir  [default: $sysconfdir/init.d]
-    --with-logdir    [default: $localstatedir/log/pgl]
-    --with-piddir    [default: $localstatedir/run]
-    --with-tmpdir    [default: /tmp]
-    --with-lsb=      [default: none/built-in,
-		      recommended: /lib/lsb/init-functions]
+  --prefix         [default: /usr/local]
+  --sysconfdir     [default: $prefix/etc, recommended: /etc]
+  --localstatedir  [default: $prefix/var, recommended: /var]
+  --with-iconsdir  [default: $datadir/pixmaps]
+  --with-initddir  [default: $sysconfdir/init.d]
+  --with-logdir    [default: $localstatedir/log/pgl]
+  --with-piddir    [default: $localstatedir/run]
+  --with-tmpdir    [default: /tmp]
+  --with-lsb=      [default: none/built-in,
+                    recommended: /lib/lsb/init-functions]
 
 IMPORTANT: Especially the "--sysconfdir=/etc" setting is required for a working
 installation! Otherwise you should expect e.g. dbus errors.
 
 For a slick installation you can build without the GUI and turn off dbus
 support:
-    --without-qt4
-    --disable-dbus
+  --without-qt4
+  --disable-dbus
 
 Especially for embedded devices (like router or NAS box) you might disable
 storing of textual IP range descriptions:
-    --enable-lowmem
+  --enable-lowmem
 But generally it is recommended (and required for the GUI) to use the default,
 which is not to use lowmem.
 
@@ -110,14 +110,17 @@ Full example configure line for a complete build and full system integration
     --disable-lowmem
 
 Minimal example line for a complete build and full system integration (on a
-Debian system). Installs most things to /usr/local
+Debian system, installs most things to /usr/local/):
   ./configure \
     --sysconfdir=/etc \
     --localstatedir=/var \
     --with-lsb=/lib/lsb/init-functions
 
-ArchLinux users have to set:
+If you use systemd on your system, use something like:
   --with-systemdsystemunitdir=/usr/lib/systemd/system/
+
+Gentoo has its own init file, use it with:
+  --with-gentoo-init
 
 
 Step 3.2: Build and install
@@ -128,14 +131,15 @@ After configure you can build and install the package, just issue:
   make install
 
 
-Step 3.3: Activate the init script
-----------------------------------
+Step 3.3: Activate pgl on system initialization
+-----------------------------------------------
 
-a) init script
---------------
+
+a) SysV init script
+-------------------
 
 On some systems (e.g. Debian and Ubuntu based) it may be required to activate
-the init script manually:
+the init script:
   update-rc.d pgl defaults
 
 Or alternatively:
@@ -162,13 +166,13 @@ Other systems, like Gentoo, don't need this activation of the init script.
 b) systemd service file
 -----------------------
 
-ARCH Linux:
-
 To start the program for the session:
   systemctl start pgl.service
 
 To have it up and running on every boot
   systemctl enable pgl.service
+
+
 
 
 2.) Uninstall
@@ -245,9 +249,9 @@ Runtime environment pgld:
 4.) Available packages, build scripts and other distribution specific tips
 ==========================================================================
 
-pgl was written and tested under Debian Gnu/Linux Wheezy. However it should run
-under every Linux system. It is our goal to make life as easy as possible for
-users and packagers.
+pgl was written and tested under Debian Gnu/Linux Jessie. However it should
+run under every Linux system. It is our goal to make life as easy as possible
+for users and packagers.
 
 NOTE FOR PACKAGERS:
 If you are a packager just contact us at

@@ -46,7 +46,7 @@ protect your privacy.
 .B pglcmd
 is designed to do all tasks related to pgl:
 .IP \(em 3
-Start and stop pgl. Or let init do this automatically.
+Start and stop pgl. Or let either SysV init or systemd do this for you.
 .IP \(em 3
 Update your blocklists from online sources. Or let cron do this automatically.
 Backups will be used if a problem occurs. Additionally you may use your local
@@ -71,8 +71,6 @@ A watchdog monitors pgl.
 Detects if kernel modules are needed and loads them if necessary.
 .IP \(em 3
 Set verbosity and logging options.
-.IP \(em 3
-Provides LSB 3.1 compatible init script.
 .IP \(em 3
 Daily rotation of the logfiles.
 
@@ -137,7 +135,7 @@ stops the watchdog.
 restarts pgl.
 .TP
 .B reload
-rebuilds the master blocklist and reloads pgld if it is running.
+rebuilds the master blocklist if necessary and reloads pgld if it is running.
 .TP
 .B update
 updates the blocklists, rebuilds the master blocklist and reloads pgld if it is
@@ -379,7 +377,8 @@ directory is defined in IPTABLES_CUSTOM_DIR) that ends in remove.sh will be
 executed on every "pglcmd stop", if IPTABLES_SETTINGS="1" or "2" is
 configured.
 .IP /etc/init.d/pgl
-Starts pgl automatically on every bootup.
+.IP /usr/lib/systemd/system/pgl.service
+SysV init or systemd file, starts pgl automatically on every bootup.
 .IP /etc/cron.daily/pglcmd
 Updates the blocklists automatically.
 .IP /etc/logrotate.d/pglcmd
