@@ -91,6 +91,7 @@ class WhitelistManager
         void updatePglSettings();
         void updateGuiSettings();
         bool isChanged();
+        void undo();
 };
 
 #endif

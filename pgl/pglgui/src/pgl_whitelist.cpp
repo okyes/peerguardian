@@ -701,3 +701,20 @@ void WhitelistManager::removeItemAt(int index)
     if (index >= 0 && index < mWhiteListItems.size())
         mWhiteListItems[index]->remove();
 }
+
+void WhitelistManager::undo()
+{
+    WhitelistItem* item;
+
+    for(int i=mWhiteListItems.size()-1; i >= 0; i--) {
+        item = mWhiteListItems[i];
+        if (item->isChanged()) {
+            if (item->isAdded()) {
+                mWhiteListItems.takeAt(i);
+                delete item;
+            }
+            else
+                item->undo();
+        }
+    }
+}
