@@ -60,28 +60,28 @@ to check before compiling. Go to the pgl/ directory and run:
 
 Check the options and the paths. There are some common paths and options you
 should consider to set like:
-    --prefix         [default: /usr/local]
-    --sysconfdir     [default: $prefix/etc, recommended: /etc]
-    --localstatedir  [default: $prefix/var, recommended: /var]
-    --with-iconsdir  [default: $datadir/pixmaps]
-    --with-initddir  [default: $sysconfdir/init.d]
-    --with-logdir    [default: $localstatedir/log/pgl]
-    --with-piddir    [default: $localstatedir/run]
-    --with-tmpdir    [default: /tmp]
-    --with-lsb=      [default: none/built-in,
-		      recommended: /lib/lsb/init-functions]
+  --prefix         [default: /usr/local]
+  --sysconfdir     [default: $prefix/etc, recommended: /etc]
+  --localstatedir  [default: $prefix/var, recommended: /var]
+  --with-iconsdir  [default: $datadir/pixmaps]
+  --with-initddir  [default: $sysconfdir/init.d]
+  --with-logdir    [default: $localstatedir/log/pgl]
+  --with-piddir    [default: $localstatedir/run]
+  --with-tmpdir    [default: /tmp]
+  --with-lsb=      [default: none/built-in,
+                    recommended: /lib/lsb/init-functions]
 
 IMPORTANT: Especially the "--sysconfdir=/etc" setting is required for a working
 installation! Otherwise you should expect e.g. dbus errors.
 
 For a slick installation you can build without the GUI and turn off dbus
 support:
-    --without-qt4
-    --disable-dbus
+  --without-qt4
+  --disable-dbus
 
 Especially for embedded devices (like router or NAS box) you might disable
 storing of textual IP range descriptions:
-    --enable-lowmem
+  --enable-lowmem
 But generally it is recommended (and required for the GUI) to use the default,
 which is not to use lowmem.
 
@@ -171,6 +171,8 @@ To start the program for the session:
 
 To have it up and running on every boot
   systemctl enable pgl.service
+
+
 
 
 2.) Uninstall
