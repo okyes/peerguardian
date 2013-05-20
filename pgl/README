@@ -134,7 +134,7 @@ restart
   restarts pgld.
 
 reload
-  rebuilds the master blocklist and reloads pgld if it is running.
+  rebuilds the master blocklist if necessary and reloads pgld if it is running.
 
 update
   updates the blocklists, rebuilds the master blocklist and reloads pgld if it
