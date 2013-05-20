@@ -24,7 +24,7 @@ pglgui_LDADD = \
 	qrc_images.o
 
 dist_pglgui_SOURCES = \
-  src/enums.h \
+	src/enums.h \
 	src/option.cpp src/option.h src/option_p.h \
 	src/whitelist_item.cpp src/whitelist_item.h src/whitelist_item_p.h \
 	src/list_item.cpp src/list_item.h \
