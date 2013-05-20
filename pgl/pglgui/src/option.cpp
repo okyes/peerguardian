@@ -133,6 +133,13 @@ void Option::undo()
     *d_ptr = *d_active_ptr;
 }
 
+bool Option::isAdded() const
+{
+    if (! d_active_ptr)
+        return true;
+    return (d_active_ptr->name.isEmpty() && d_active_ptr->value.isNull());
+}
+
 bool Option::isRemoved() const
 {
     return d_ptr->removed;
