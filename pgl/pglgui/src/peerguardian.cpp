@@ -1178,6 +1178,7 @@ void Peerguardian::undoAll()
     
     if ( answer == QMessageBox::Yes) {
         mPglCore->undo();
+        updateGUI();
         setApplyButtonEnabled(false);
     }
 }
