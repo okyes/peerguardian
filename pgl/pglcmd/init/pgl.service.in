@@ -2,9 +2,8 @@
 Description=PeerGuardian Linux - an IP Blocker
 Documentation=man:pgld(1)
 Documentation=file://@data_root_dir@/doc/pgl/README.blocklists
-After=network.target
-ConditionPathExists=|@CONF_DIR@/pgl/blocklists.list
-ConditionDirectoryNotEmpty=|@LIB_DIR@/pgl
+After=network.target syslog.target
+After=firehol.service firestarter.service firewalld.service ufw.service
 
 [Service]
 Type=forking
