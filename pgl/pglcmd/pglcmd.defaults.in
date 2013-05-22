@@ -342,9 +342,9 @@ IP_REMOVE=""
 
 ######################## Logging and verbosity settings ########################
 
-# Turn on/off pgld's logging to syslog
-# 0 - Don't log to syslog
-# 1 - Log to syslog
+# Turn on/off pgld's logging to syslog and/or systemd journal
+# 0 - Don't log to syslog/systemd journal
+# 1 - Log to syslog/systemd journal
 LOG_SYSLOG="0"
 
 # Turn on/off pgld's logging to logfile
