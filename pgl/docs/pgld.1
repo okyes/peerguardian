@@ -80,7 +80,7 @@ Daily rotation of the logfiles.
 Enable D-Bus support.
 .TP
 .B \-s
-Enable logging to syslog.
+Enable logging to syslog and/or systemd journal.
 .TP
 .B \-l LOGFILE
 Enable logging to LOGFILE.
@@ -312,10 +312,10 @@ make sure the following three conditions hold:
 pgl marks non-matched (IP is not in the blocklist) packets. (The marking feature
 is on per default in pglcmd.)
 .IP \(em 3
-Other firewalls do not mark packets.
+Other firewalls must not mark packets.
 .IP \(em 3
 pgl is started after other firewalls. If other firewalls are started or reloaded
-after pgl, then you need to restart pglcmd again. You will be fine, if the
+after pgl, then you may need to restart pglcmd again. You will be fine, if the
 iptables rules which send traffic to the iptables chains (pgl_in, pgl_out and
 pgl_fwd) stand before all other iptables rules which ACCEPT traffic.
 .IP
