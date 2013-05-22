@@ -23,12 +23,15 @@
 #include "utils.h"
 #include "blocklist.h"
 #include "pgl_lists.h"
+#include "pglcore.h"
 
 enum openMode { ADD_MODE=0x000,
             EDIT_MODE,
             BLOCKLIST_MODE,
             EXCEPTION_MODE
 };
+
+class PglCore;
 
 class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
 
@@ -43,10 +46,11 @@ class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
     int mode;
     QStringList m_validExtensions;
     QStringList m_blocklists;
+    PglCore* mPglCore;
 	
 	public:
         AddExceptionDialog(QWidget *p = 0, int mode=0);
-        AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetItem*> treeItems);
+        AddExceptionDialog(QWidget *p, int mode, PglCore*);
         ~AddExceptionDialog();
         QStringList getBlocklistInfo(QString&);
         QStringList getExceptionInfo(QString&);

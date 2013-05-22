@@ -1007,7 +1007,7 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
 
     if ( openmode == (ADD_MODE | EXCEPTION_MODE) )
     {
-        dialog = new AddExceptionDialog( this, openmode, getTreeItems(mUi.whitelistTreeWidget));
+        dialog = new AddExceptionDialog( this, openmode, mPglCore);
         dialog->exec();
 
         WhitelistManager* whitelist = mPglCore->whitelistManager();
@@ -1031,7 +1031,7 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
     else if (  openmode == (ADD_MODE | BLOCKLIST_MODE) )
     {
 
-        dialog = new AddExceptionDialog( this, openmode, getTreeItems(mUi.blocklistTreeWidget));
+        dialog = new AddExceptionDialog( this, openmode, mPglCore);
         dialog->exec();
         BlocklistManager* blocklistManager = mPglCore->blocklistManager();
 

@@ -13,11 +13,12 @@
 
 class WhitelistItem;
 
-AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetItem*> treeItems) :
+AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, PglCore* pglCore) :
 	QDialog( p )
 {
 	setupUi( this );
 
+    mPglCore = pglCore;
     m_validExtensions << ".p2p" << ".zip" << ".7z" << ".gzip" << ".dat";
     QString help;
 
@@ -27,13 +28,11 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
     {
         //setPortsFromFile();
         //completer for the ports' names
-        mPorts = ports();
-        mPortsPair = portNamesAndNumbersPair();
+        QStringList portNames = mPglCore->whitelistManager()->systemPortsNameToNumber().keys();
         
-        QCompleter * completer = new QCompleter(mPortsPair.keys(), m_addEdit);
+        QCompleter * completer = new QCompleter(portNames, m_addEdit);
         m_addEdit->setCompleter(completer);
         m_browseButton->hide();
-        QString value;
 
         help  = QObject::tr("Valid Inputs:") + "\n";
         help += QObject::tr("You can enter an IP Address with or without mask,");
@@ -42,7 +41,7 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
         help += QObject::tr("Please note that allowing an outgoing port is a certain security risk:");
         help += QObject::tr("a malicious host may listen on just this port. It is safer to allow traffic to certain IPs instead.");
 
-        foreach(QTreeWidgetItem *treeItem, treeItems)
+        /*foreach(QTreeWidgetItem *treeItem, treeItems)
         {
             value = treeItem->text(0);
             WhitelistItem item = WhitelistItem(value, treeItem->text(1), treeItem->text(2));
@@ -52,7 +51,7 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
                     item.addAliases(port.names());
 
             m_Items.push_back(item);
-        }
+        }*/
 
         connect(m_addEdit, SIGNAL(returnPressed()), this, SLOT(addEntry()));
         connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(addEntry()));
@@ -114,12 +113,12 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, QList<QTreeWidgetIt
 
 AddExceptionDialog::~AddExceptionDialog()
 {
-    qDebug() << "~AddExceptionDialog()";
 }
 
 bool AddExceptionDialog::isValidException(QString& text)
 {
-    if (isValidIp(text) || isPort( text ) )
+    WhitelistManager* whitelist = mPglCore->whitelistManager();
+    if (isValidIp(text) || whitelist->isPort( text ) )
         return true;
 
     return false;
@@ -239,11 +238,12 @@ void AddExceptionDialog::setWhitelistItems(QString& value, bool isIp)
 {
     QList<WhitelistItem> items;
     QStringList protocols, connections;
+    WhitelistManager* whitelist = mPglCore->whitelistManager();
 
     protocols = getProtocols(isIp);
     connections = getConnections();
 
-    QString reason;
+    QString reason("");
 
     foreach(QString protocol, protocols)
     {
@@ -251,7 +251,7 @@ void AddExceptionDialog::setWhitelistItems(QString& value, bool isIp)
         {
             WhitelistItem item = WhitelistItem(value, connection, protocol);
 
-            if ( isValidWhitelistItem(item, reason) )
+            if ( whitelist->isValid(item, reason) )
                 m_validItems << item;
             else
             {
@@ -276,6 +276,7 @@ void AddExceptionDialog::addEntry()
     QStringList values, info;
     bool ip = false;
     QStringList unrecognizedValues;
+    WhitelistManager* whitelist = mPglCore->whitelistManager();
 
     values = getParams(m_addEdit->text());
 
@@ -286,7 +287,7 @@ void AddExceptionDialog::addEntry()
         if ( param.isEmpty() )
             continue;
 
-        if ( isPort(param) )
+        if ( whitelist->isPort(param) )
             ip = false;
         else if ( isValidIp(param ) )
             ip = true;
