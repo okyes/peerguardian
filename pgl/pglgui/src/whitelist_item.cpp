@@ -51,20 +51,21 @@ bool WhitelistItemPrivate::operator==(const WhitelistItemPrivate& other)
     return containsPort(other.value.toString());
 }
 
-bool WhitelistItemPrivate::containsPort(const QString& value)
+bool WhitelistItemPrivate::containsPort(const QString& other)
 {
     bool ok = false;
+    QString value = this->value.toString();
     int port = value.toInt(&ok);
     int port2 = 0, start = 0, end = 0;
     QStringList range;
 
     if (ok) {
-        port2 = value.toInt(&ok);
+        port2 = other.toInt(&ok);
         if (ok) {
             return port == port2;
         }
-        else if (value.contains(":")){
-            range = value.split(":");
+        else if (other.contains(":")){
+            range = other.split(":");
             if (range.count() > 0) {
                 start = range.first().toInt();
                 end = range.last().toInt(&ok);
@@ -82,14 +83,14 @@ bool WhitelistItemPrivate::containsPort(const QString& value)
             if (! ok) end = 65535;
         }
 
-        port2 = value.toInt(&ok);
+        port2 = other.toInt(&ok);
 
         if (ok) {
             if (port2 >= start && port2 <= end)
                 return true;
         }
-        else if (value.contains(":")){
-            range = value.split(":");
+        else if (other.contains(":")){
+            range = other.split(":");
             if (range.count() > 0) {
                 int start2 = range.first().toInt();
                 int end2 = range.last().toInt(&ok);
