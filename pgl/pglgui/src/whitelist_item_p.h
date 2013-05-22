@@ -1,5 +1,5 @@
-#ifndef PGL_WHITELIST_ITEM_P_H
-#define PGL_WHITELIST_ITEM_P_H
+#ifndef WHITELIST_ITEM_P_H
+#define WHITELIST_ITEM_P_H
 
 #include <QMap>
 #include <QString>
