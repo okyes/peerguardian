@@ -53,11 +53,6 @@ QStringList replaceValueInData(QStringList& data, const QString & variable, cons
 QString getFileName(const QString& path);
 bool hasValueInData(const QString&, const QStringList&);
 int confirm(QString title, QString msg, QWidget *parent=NULL);
-bool isPort(QString&);
 bool isNumber(const QString&);
-Port getPortFromLine(QString);
-int portNumber(const QString&);
-QList<Port> ports();
-QHash<QString, int> portNamesAndNumbersPair();
 
 #endif

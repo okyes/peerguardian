@@ -8,7 +8,6 @@
 #include <QDir>
 #include <QDebug>
 
-static QList<Port> mPorts;
 static QHash<QString, int> mPortsPair;
 
 // **** PORT CLASS **** //
@@ -352,7 +351,6 @@ QString joinPath(const QString & dir, const QString & file)
 
 }
 
-
 QStringList replaceValueInData(QStringList& data, const QString & variable, const QString & value)
 {
     //this function is usually used to receive pglcmd.conf and check for variables and values there
@@ -399,7 +397,6 @@ QStringList replaceValueInData(QStringList& data, const QString & variable, cons
     return data;
 }
 
-
 void replaceValueInFile(const QString& path, const QString & variable, const QString & value)
 {
 
@@ -440,7 +437,6 @@ void replaceValueInFile(const QString& path, const QString & variable, const QSt
     file.close();
 }
 
-
 QString getFileName(const QString& path)
 {
     QFileInfo fileInfo(path);
@@ -455,7 +451,6 @@ bool hasValueInData(const QString& value, const QStringList& data)
 
     return false;
 }
-
 
 int confirm(QString title, QString msg, QWidget *parent)
 {
@@ -478,138 +473,3 @@ bool isNumber(const QString& str)
     return true;
 }
 
-bool isPort(QString & p)
-{
-    if ( p.contains(":") ) //port range
-    {
-        QStringList ports = p.split(":");
-        
-        if ( ports.size() > 2 )
-            return false;
-        
-        foreach(QString port, ports)
-            if (! isNumber(port))
-                return false;
-                
-        return true;
-    }
-    
-    
-    if (isNumber(p))
-      return true;
-
-    if (portNumber(p.toLower()) != -1)
-      return true;
-
-    return false;
-}
-
-Port getPortFromLine(QString line)
-{
-    QStringList elements;
-    int portNum;
-    QString protocol;
-    Port port;
-
-    line = line.simplified();
-
-    if ( line.isEmpty() || line.startsWith("#") )
-        return Port();
-
-    elements = line.split(" ");
-
-    portNum = elements[1].split("/")[0].toInt();
-    protocol = elements[1].split("/")[1];
-
-    port = Port(elements[0], protocol, portNum);
-
-    if ( elements.size() >= 3 && ( ! elements[2].startsWith("#")) )
-        port.addName(elements[2]);
-
-    return port;
-}
-
-void loadPorts()
-{   
-    if (! mPorts.isEmpty())
-      return;
-    
-    QStringList fileData = getFileData("/etc/services");
-    QStringList elements;
-    int portNum;
-    QString protocol;
-    Port port1, port2;
-
-    //old way for backwards compatibility
-    /*foreach(QString line, fileData)
-    {
-        line = line.simplified();
-
-        if ( line.isEmpty() || line.startsWith("#") )
-            continue;
-
-        elements = line.split(" ");
-
-        portNum = elements[1].split("/")[0].toInt();
-        protocol = elements[1].split("/")[1];
-
-        mPortsFilter[elements[0]] = portNum;
-
-        //check for alternative names
-        if ( elements.size() >= 3 && ( ! elements[2].startsWith("#")) )
-            mPortsFilter[elements[2]] = portNum;
-    }*/
-
-    for ( int i=0; i < fileData.size(); i++ )
-    {
-        port1 = getPortFromLine(fileData[i]);
-
-        if ( i < fileData.size()-1 )
-        {
-            //get next line
-            port2 = getPortFromLine(fileData[i+1]);
-
-            if ( port1.name() == port2.name() )
-            {
-                port1.addProtocols(port2.protocols());
-                ++i; //ignores next line
-            }
-        }
-
-        mPorts.append(port1);
-    }
-}
-  
-int portNumber(const QString& name)
-{
-  if (mPorts.isEmpty())
-    loadPorts();
-  
-  if (isNumber(name))
-    return name.toInt();
-  
-  foreach(const Port& port, mPorts) 
-      if (port.containsName(name))
-        return port.number();
-  
-  return -1;
-}
-  
-QList<Port> ports()
-{
-  if (mPorts.isEmpty())
-    loadPorts();
-  return mPorts;
-}
-
-QHash<QString, int> portNamesAndNumbersPair()
-{
-  QHash<QString, int> ports;
-  
-  foreach(const Port& port, mPorts)
-    foreach(const QString& name, port.names()) 
-      if (! isNumber(name))
-        ports[name] = port.number();
- 
-  return ports;
-}

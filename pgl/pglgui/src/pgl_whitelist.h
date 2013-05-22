@@ -28,6 +28,7 @@
 #include <QList>
 
 #include "whitelist_item.h"
+#include "utils.h"
 
 #define WHITE_IP_IN "WHITE_IP_IN"
 #define WHITE_IP_OUT "WHITE_IP_OUT"
@@ -52,6 +53,7 @@ class WhitelistManager
     QMap<QString, QStringList> m_WhitelistEnabled;
     QMap<QString, QStringList> m_WhitelistDisabled;
     GuiOptions * m_GuiOptions;
+    QList<Port> mSystemPorts;
 
 	public:
 		/**
@@ -82,6 +84,9 @@ class WhitelistManager
         bool isPortAdded(const QString& value, const QString & portRange);
         bool isInPglcmd(const QString& value, const QString& connectType, const QString& prot);
         bool contains(const QString&, const QString&, const QString&);
+        bool contains(const WhitelistItem&);
+        bool isValid(const QString&, const QString&, const QString&, QString&);
+        bool isValid(const WhitelistItem&, QString&);
         QString getIptablesTestCommand(const QString& value, const QString& connectType, const QString& prot);
         QString parseProtocol(const QString&);
         QString parseConnectionType(const QString&);
@@ -92,6 +97,12 @@ class WhitelistManager
         void updateGuiSettings();
         bool isChanged();
         void undo();
+        void loadSystemPorts();
+        QList<Port> systemPorts();
+        QHash<QString, int> systemPortsNameToNumber();
+        Port parsePort(QString);
+        int portNumber(const QString&);
+        bool isPort(const QString&);
 };
 
 #endif

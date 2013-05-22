@@ -42,6 +42,7 @@ WhitelistManager::WhitelistManager(QSettings* settings)
     m_Group[WHITE_TCP_FWD] = TYPE_FORWARD;
     m_Group[WHITE_UDP_FWD] = TYPE_FORWARD;
 
+    loadSystemPorts();
 }
 
 WhitelistManager::~WhitelistManager()
@@ -649,14 +650,43 @@ QString WhitelistManager::getIptablesTestCommand(const QString& value, const QSt
     return cmd;
 }
 
-
-bool WhitelistManager::contains(const QString& value, const QString& connectType, const QString& prot)
+bool WhitelistManager::contains(const WhitelistItem & item)
 {
-    foreach(WhitelistItem* item, mWhiteListItems)
-        if (*item == WhitelistItem(value, connectType, prot))
+    foreach(WhitelistItem* _item, mWhiteListItems)
+        if (*_item == item)
             return true;
 
     return false;
+}
+
+bool WhitelistManager::contains(const QString& value, const QString& connectType, const QString& prot)
+{
+    return contains(WhitelistItem(value, connectType, prot));
+}
+
+bool WhitelistManager::isValid(const WhitelistItem & item, QString & reason)
+{
+    if (contains(item)) {
+        reason = QObject::tr("It's already added");
+        return false;
+    }
+
+    foreach(const Port& port, mSystemPorts) {
+        if ( port.containsName(item.value()) ) {
+            if ( ! port.hasProtocol(item.protocol()) ) {
+                reason += item.value();
+                reason += QObject::tr(" doesn't work over ") + item.protocol();
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool WhitelistManager::isValid(const QString& value, const QString& connectType, const QString& prot, QString& reason)
+{
+    return isValid(WhitelistItem(value, connectType, prot), reason);
 }
 
 bool WhitelistManager::isInPglcmd(const QString& value, const QString& connectType, const QString& prot)
@@ -717,4 +747,111 @@ void WhitelistManager::undo()
                 item->undo();
         }
     }
+}
+
+QList<Port> WhitelistManager::systemPorts()
+{
+    return mSystemPorts;
+}
+
+QHash<QString, int> WhitelistManager::systemPortsNameToNumber()
+{
+  QHash<QString, int> ports;
+
+  foreach(const Port& port, mSystemPorts)
+    foreach(const QString& name, port.names())
+      if (! isNumber(name))
+        ports[name] = port.number();
+
+  return ports;
+}
+
+int WhitelistManager::portNumber(const QString& name)
+{
+  if (isNumber(name))
+    return name.toInt();
+
+  foreach(const Port& port, mSystemPorts)
+      if (port.containsName(name))
+        return port.number();
+
+  return -1;
+}
+
+void WhitelistManager::loadSystemPorts()
+{
+    if (! mSystemPorts.isEmpty())
+        mSystemPorts.clear();
+
+    QStringList fileData = getFileData("/etc/services");
+    Port port1, port2;
+
+    for ( int i=0; i < fileData.size(); i++ )
+    {
+        port1 = parsePort(fileData[i]);
+
+        if ( i < fileData.size()-1 )
+        {
+            //get next line
+            port2 = parsePort(fileData[i+1]);
+
+            if ( port1.name() == port2.name() )
+            {
+                port1.addProtocols(port2.protocols());
+                ++i; //ignores next line
+            }
+        }
+
+        mSystemPorts.append(port1);
+    }
+}
+
+Port WhitelistManager::parsePort(QString line)
+{
+    QStringList elements;
+    int portNum;
+    QString protocol;
+    Port port;
+
+    line = line.simplified();
+
+    if ( line.isEmpty() || line.startsWith("#") )
+        return Port();
+
+    elements = line.split(" ");
+
+    portNum = elements[1].split("/")[0].toInt();
+    protocol = elements[1].split("/")[1];
+
+    port = Port(elements[0], protocol, portNum);
+
+    if ( elements.size() >= 3 && ( ! elements[2].startsWith("#")) )
+        port.addName(elements[2]);
+
+    return port;
+}
+
+bool WhitelistManager::isPort(const QString & p)
+{
+    if ( p.contains(":") ) //port range
+    {
+        QStringList ports = p.split(":");
+
+        if ( ports.size() > 2 )
+            return false;
+
+        foreach(QString port, ports)
+            if (! isNumber(port))
+                return false;
+
+        return true;
+    }
+
+    if (isNumber(p))
+      return true;
+
+    if (portNumber(p.toLower()) != -1)
+      return true;
+
+    return false;
 }
