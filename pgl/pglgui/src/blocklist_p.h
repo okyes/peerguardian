@@ -40,6 +40,8 @@ public:
 public:
     bool local;
     bool valid;
+    bool isSymLink;
+    QString targetLocation;
 };
 
 #endif //BLOCKLIST_H

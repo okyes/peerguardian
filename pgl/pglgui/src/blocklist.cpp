@@ -13,8 +13,17 @@ Blocklist::Blocklist(const QString& text, bool active, bool enabled) :
     setData(d_ptr);
 
     d_ptr->local = false;
-    if (QFile::exists(text))
+    d_ptr->isSymLink = false;
+    d_ptr->targetLocation = "";
+
+    if (QFile::exists(text)) {
         d_ptr->local = true;
+        QFileInfo info = QFileInfo(text);
+        if (info.isSymLink()) {
+            d_ptr->isSymLink = true;
+            d_ptr->targetLocation = info.symLinkTarget();
+        }
+    }
 
     setEnabled(enabled);
     setName(parseName(text));
@@ -38,6 +47,11 @@ Blocklist::~Blocklist()
     d_active_ptr = 0;
 }
 
+bool Blocklist::isSymLink() const
+{
+    return d_ptr->isSymLink;
+}
+
 bool Blocklist::isLocal() const
 {
     return d_ptr->local;
@@ -51,6 +65,13 @@ bool Blocklist::isValid() const
 QString Blocklist::location() const
 {
     return d_ptr->value.toString();
+}
+
+QString Blocklist::targetLocation() const
+{
+    if (d_ptr->isSymLink)
+        return d_ptr->targetLocation;
+    return location();
 }
 
 bool Blocklist::exists() const
@@ -88,10 +109,15 @@ QString Blocklist::parseName(const QString& text)
     if ( text.contains("http://") || text.contains("ftp://") || text.contains("https://") )
         return text.split("/").last();
 
-    QFileInfo file(text);
+    QFileInfo info(text);
 
-    if ( file.exists() )
-        return file.fileName();
+    if ( info.exists() ) {
+        QString filename  = info.fileName();
+        if (filename.startsWith("."))
+            return info.fileName().mid(1);
+        else
+            return info.fileName();
+    }
 
     return text;
 }

@@ -40,10 +40,12 @@ public:
     Blocklist(const Blocklist&);
     virtual ~Blocklist();
 
+    bool isSymLink() const;
     bool isLocal() const;
     bool isValid() const;
     bool exists() const;
     QString location() const;
+    QString targetLocation()const;
     static bool isValid(const QString&);
 
 protected:
