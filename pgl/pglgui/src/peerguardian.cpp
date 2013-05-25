@@ -680,36 +680,22 @@ void Peerguardian::applyChanges()
             filesToMove[filepath] = blocklistManager->blocklistsFilePath();
 
         //================ manage the local blocklists ====================/
-        QHash<QString, bool> localFiles = blocklistManager->getLocalLists();
-        QString localBlocklistDir = blocklistManager->localBlocklistsDir();
+        QDir localBlocklistDir(blocklistManager->localBlocklistsDir());
         QList<Blocklist*> localBlocklists = blocklistManager->localBlocklists();
-        QString symlinkPath;
         
         foreach(Blocklist* blocklist, localBlocklists) {
             if (! blocklist->isChanged() || ! blocklist->exists())
                 continue;
 
             filepath = blocklist->location();
-            bool containsBlocklist = blocklistManager->containsLocalBlocklist(blocklist);
-            qDebug() << blocklist->name() << blocklist->isRemoved() << blocklist->isEnabled() << blocklist->isDisabled();
-
-            if (blocklist->isRemoved() && containsBlocklist) {
-                QString blocklistPath = blocklistManager->localBlocklistPath(blocklist);
-                filesToMove[blocklistPath] = "/dev/null";
+            if (blocklist->isRemoved()) {
+                filesToMove[blocklist->location()] = "/dev/null";
             }
-            else if (blocklist->isEnabled() && ! containsBlocklist) {
-                qDebug() << "add!!!!" << blocklist->location();
-                symlinkPath = "/tmp/" + blocklist->name();
-                qDebug() << symlinkPath;
-                QFile::link(filepath, symlinkPath);
-                filesToMove[symlinkPath] = localBlocklistDir;
+            else if (blocklist->isEnabled()) {
+               filesToMove[blocklist->location()] = localBlocklistDir.absoluteFilePath(blocklist->name());
             }
-            else if (blocklist->isDisabled() && containsBlocklist) {
-                QFileInfo info(blocklistManager->localBlocklistPath(blocklist));
-                QDir dir = info.absoluteDir();
-
-                filesToMove[info.absoluteFilePath()] = dir.absoluteFilePath("."+info.fileName());
-                qDebug() << filesToMove;
+            else if (blocklist->isDisabled()) {
+                filesToMove[blocklist->location()] = localBlocklistDir.absoluteFilePath("."+blocklist->name());
             }
         }
         
@@ -877,7 +863,7 @@ void Peerguardian::updateBlocklistWidget()
     foreach(Blocklist* blocklist, blocklistManager->blocklists()) {
         info << blocklist->name();
         QTreeWidgetItem * item = new QTreeWidgetItem(mUi.blocklistTreeWidget, info);
-        item->setToolTip(0, blocklist->location());
+        item->setToolTip(0, blocklist->targetLocation());
         item->setData(0, Qt::UserRole, qVariantFromValue((void *) blocklist));
         /*QVariant bl = item->data(0, Qt::UserRole);
         Blocklist *block = (Blocklist*) bl.value<void*>();
