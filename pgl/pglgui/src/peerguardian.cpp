@@ -682,13 +682,18 @@ void Peerguardian::applyChanges()
         //================ manage the local blocklists ====================/
         QDir localBlocklistDir(blocklistManager->localBlocklistsDir());
         QList<Blocklist*> localBlocklists = blocklistManager->localBlocklists();
+        QDir tempDir = QDir::temp();
         
         foreach(Blocklist* blocklist, localBlocklists) {
             if (! blocklist->isChanged() || ! blocklist->exists())
                 continue;
 
             filepath = blocklist->location();
-            if (blocklist->isRemoved()) {
+            if (blocklist->isAdded()) {
+                QFile::link(filepath, tempDir.absoluteFilePath(blocklist->name()));
+                filesToMove[tempDir.absoluteFilePath(blocklist->name())] = localBlocklistDir.absolutePath();
+            }
+            else if (blocklist->isRemoved()) {
                 filesToMove[blocklist->location()] = "/dev/null";
             }
             else if (blocklist->isEnabled()) {
