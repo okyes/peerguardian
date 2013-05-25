@@ -42,7 +42,7 @@ QString getVariable(const QString&);
 QString getValue(const QString&, const QString&);
 QString getLineWith(const QString&, const QString&);
 bool isValidIp(const QString &text );
-QFileInfoList getFilesInfo(const QString &);
+QFileInfoList getFilesInfo(const QString &, QDir::Filters filters=QDir::QDir::NoDotAndDotDot|QDir::Files);
 bool isPointingTo(QString &, QString &);
 QString getPointer(const QString &, const QString &);
 bool hasPermissions(const QString&);

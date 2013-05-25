@@ -261,7 +261,7 @@ bool isValidIp( const QString &text ){
 
 }
 
-QFileInfoList getFilesInfo(const QString & dir)
+QFileInfoList getFilesInfo(const QString & dir, QDir::Filters filters)
 {
     QDir directory(dir);
 
