@@ -86,8 +86,8 @@ void BlocklistManager::loadLocalBlocklists()
     //enabled local blocklists
     foreach(const QFileInfo& info, blocklistsDir.entryInfoList(QDir::NoDotAndDotDot|QDir::Files|QDir::Hidden)) {
         path = info.absoluteFilePath();
-        if (info.isSymLink())
-            path = info.symLinkTarget();
+        //if (info.isSymLink())
+            //path = info.symLinkTarget();
 
         if (info.isHidden())
             mBlocklists.append(new Blocklist(path, true, false));
@@ -322,10 +322,11 @@ bool BlocklistManager::containsLocalBlocklist(Blocklist* blocklist)
 
 QString BlocklistManager::localBlocklistPath(Blocklist * blocklist)
 {
-    QFileInfoList filesInfo = getFilesInfo(mLocalBlocklistsDir);
+    QFileInfoList filesInfo = getFilesInfo(mLocalBlocklistsDir, QDir::NoDotAndDotDot|QDir::Files|QDir::Hidden);
     QString nameMatch;
 
     foreach(const QFileInfo& info, filesInfo) {
+        if (info.isDir()) continue;
         if (info.isSymLink() && info.symLinkTarget() == blocklist->location())
             return info.absoluteFilePath();
         else if (info.fileName() == blocklist->name())
