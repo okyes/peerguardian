@@ -184,6 +184,7 @@ void PglSettings::store(const QString & var, const QVariant& value)
 void PglSettings::add(const QString& var, const QVariant& value)
 {
     QString val = value.toString().trimmed();
+    qDebug() << "Adding to PglSettings" << val;
     QStringList values = PglSettings::values(var);
     if (! values.contains(val))
         values += val;
@@ -193,6 +194,7 @@ void PglSettings::add(const QString& var, const QVariant& value)
 void PglSettings::remove(const QString& var, const QVariant& value)
 {
     QString val = value.toString().trimmed();
+    qDebug() << "Removing from PglSettings" << val;
     if (mVariables.contains(var)) {
         QStringList values = PglSettings::values(var);
         if (values.contains(val))
