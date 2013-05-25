@@ -430,8 +430,9 @@ void Peerguardian::rootFinished()
         updateGUI();
         setApplyButtonEnabled(false);
         
-        if ( m_FilesToMove.contains(tmp_blocklists) ) 
+        if (mReloadPgl)
             m_Control->reload();
+        mReloadPgl = false;
     }
     
     m_FilesToMove.clear();
@@ -618,7 +619,7 @@ QString Peerguardian::getUpdateFrequencyCurrentPath()
 
 void Peerguardian::applyChanges()
 {
-
+    mReloadPgl = false;
     WhitelistManager* whitelist = mPglCore->whitelistManager();
     BlocklistManager* blocklistManager = mPglCore->blocklistManager();
     QMap<QString, QString> filesToMove;
@@ -670,7 +671,7 @@ void Peerguardian::applyChanges()
     //================ update /etc/pgl/blocklists.list ================/
     if ( updateBlocklistsFile ) {
 
-        qDebug() << updateBlocklistsFile;
+        mReloadPgl = true;
         QStringList data = blocklistManager->generateBlocklistsFile();
         QString outputFilePath = QDir::temp().absoluteFilePath(getFileName(blocklistManager->blocklistsFilePath()));
         saveFileData(data, outputFilePath);

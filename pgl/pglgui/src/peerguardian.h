@@ -141,6 +141,7 @@ class Peerguardian : public QMainWindow {
     QAction *aWhoisIp;
     PglCore *mPglCore;
     Ui::MainWindow mUi;
+    bool mReloadPgl;
 
 	public:
 		/**
