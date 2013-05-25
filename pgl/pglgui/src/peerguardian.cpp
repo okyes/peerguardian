@@ -378,12 +378,8 @@ void Peerguardian::onTrayIconClicked(QSystemTrayIcon::ActivationReason reason)
 
 void Peerguardian::removeListItems()
 {
-    QList<QTreeWidgetItem *> treeItems;
     QTreeWidget * tree;
-    WhitelistManager* whitelistManager = mPglCore->whitelistManager();
-    BlocklistManager* blocklistManager = mPglCore->blocklistManager();
     bool isWhitelist;
-    int i;
 
     if ( sender()->objectName().contains("block", Qt::CaseInsensitive) ) {
         tree  = mUi.blocklistTreeWidget;
@@ -395,15 +391,20 @@ void Peerguardian::removeListItems()
     }
 
     foreach(QTreeWidgetItem *item, tree->selectedItems()) {
-        i = tree->indexOfTopLevelItem(item);
-        tree->takeTopLevelItem(i);
+        QVariant _item = item->data(0, Qt::UserRole);
 
-        if ( isWhitelist )
-            whitelistManager->removeItemAt(i);
-        else
-            blocklistManager->removeBlocklistAt(i);
-
+        if ( isWhitelist ) {
+            WhitelistItem* whitelistItem = (WhitelistItem*) _item.value<void*>();
+            whitelistItem->remove();
+        }
+        else {
+            Blocklist* blocklist = (Blocklist*) _item.value<void*>();
+            blocklist->remove();
+        }
     }
+
+    foreach(QTreeWidgetItem* item, tree->selectedItems())
+        tree->takeTopLevelItem(tree->indexOfTopLevelItem(item));
 
     setApplyButtonEnabled(mPglCore->isChanged());
 }
@@ -648,7 +649,6 @@ void Peerguardian::applyChanges()
     if ( updatePglcmdConf ) {
         //======== Whitelisted IPs are stored in pglcmd.conf too ==========/
         //pglcmdConf = whitelist->updatePglcmdConf(getTreeItems(mUi.whitelistTreeWidget));
-        qDebug() << "updatePglcmd";
         pglcmdConf = mPglCore->generatePglcmdConf();
 
         //========start at boot option ( pglcmd.conf )==========/
@@ -766,7 +766,9 @@ void Peerguardian::blocklistItemChanged(QTreeWidgetItem* item, int column)
         return;
 
     BlocklistManager* manager = mPglCore->blocklistManager();
-    Blocklist* blocklist = manager->blocklistAt(treeWidget->indexOfTopLevelItem(item));
+    //Blocklist* blocklist = manager->blocklistAt(treeWidget->indexOfTopLevelItem(item));
+    QVariant bl = item->data(0, Qt::UserRole);
+    Blocklist* blocklist = (Blocklist*) bl.value<void*>();
     if (blocklist) {
         if (item->checkState(0) == Qt::Checked)
             blocklist->setEnabled(true);
