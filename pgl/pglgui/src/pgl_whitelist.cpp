@@ -27,7 +27,6 @@ WhitelistManager::WhitelistManager(QSettings* settings)
 {
     m_WhitelistFile = PglSettings::value("CMD_CONF");
     m_Settings = settings;
-    m_GuiOptions = 0;
 
     //if ( m_WhitelistFile.isEmpty() )
     //    return;
@@ -47,10 +46,10 @@ WhitelistManager::WhitelistManager(QSettings* settings)
 
 WhitelistManager::~WhitelistManager()
 {
-    foreach(WhitelistItem* item, mWhiteListItems)
+    foreach(WhitelistItem* item, mWhitelistItems)
         if (item)
             delete item;
-    mWhiteListItems.clear();
+    mWhitelistItems.clear();
 }
 
 void WhitelistManager::load()
@@ -62,11 +61,11 @@ void WhitelistManager::load()
     if ( ! m_WhitelistEnabled.isEmpty() )
         m_WhitelistEnabled.clear();
 
-    foreach(WhitelistItem* item, mWhiteListItems)
+    foreach(WhitelistItem* item, mWhitelistItems)
         if (item)
             delete item;
-    if (! mWhiteListItems.isEmpty())
-        mWhiteListItems.clear();
+    if (! mWhitelistItems.isEmpty())
+        mWhitelistItems.clear();
 
     foreach(const QString& line, fileData)
     {
@@ -77,7 +76,7 @@ void WhitelistManager::load()
         if (m_Group.contains(key)) {
             values = getValue(line).split(" ", QString::SkipEmptyParts);
             foreach(const QString& value, values)
-                mWhiteListItems.append(new WhitelistItem(value, parseConnectionType(key), parseProtocol(key), true));
+                mWhitelistItems.append(new WhitelistItem(value, parseConnectionType(key), parseProtocol(key), true));
 
             m_WhitelistEnabled[key] = values;
         }
@@ -87,7 +86,7 @@ void WhitelistManager::load()
                 values = getValue(line).split(" ", QString::SkipEmptyParts);
 
                 foreach(const QString& value, values)
-                    mWhiteListItems.append(new WhitelistItem(value, parseProtocol(line), parseConnectionType(line)));
+                    mWhitelistItems.append(new WhitelistItem(value, parseProtocol(line), parseConnectionType(line)));
 
                 m_WhitelistEnabled[key] = getValue(line).split(" ", QString::SkipEmptyParts);
                 break;
@@ -109,7 +108,7 @@ void WhitelistManager::load()
             foreach(const QString& value, values) {
                 WhitelistItem* item = new WhitelistItem(value, parseConnectionType(key), parseProtocol(key), true, false);
                 qDebug() << item->isRemoved();
-                mWhiteListItems.append(item);
+                mWhitelistItems.append(item);
             }
             m_WhitelistDisabled[key] = values;
         }
@@ -254,7 +253,7 @@ void WhitelistManager::updateSettings(const QList<QTreeWidgetItem*>& treeItems, 
 
 bool WhitelistManager::isChanged()
 {
-    foreach(WhitelistItem* item, mWhiteListItems)
+    foreach(WhitelistItem* item, mWhitelistItems)
         if (item && item->isChanged())
             return true;
     return false;
@@ -265,25 +264,21 @@ void WhitelistManager::updatePglSettings()
     QStringList info;
     QString group;
 
-    foreach(WhitelistItem* item, mWhiteListItems) {
+    foreach(WhitelistItem* item, mWhitelistItems) {
         if (item->isChanged()) {
             info << item->value() << item->connection() << item->protocol();
             group = getGroup(info);
-            if (item->isEnabled()) {
-                PglSettings::add(group, item->value());
-            }
-            else if (item->isDisabled() || item->isRemoved()) {
+
+            if (item->isDisabled() || item->isRemoved()) {
                 PglSettings::remove(group, item->value());
+            }
+            else if (item->isEnabled()) {
+                PglSettings::add(group, item->value());
             }
 
             info.clear();
         }
     }
-
-    qDebug() << "WHITE_TCP_OUT" << PglSettings::value("WHITE_TCP_OUT");
-    /*foreach(const QString& key, groups.keys()) {
-        PglSettings::store(key, groups[key]);
-    }*/
 }
 
 void WhitelistManager::updateGuiSettings()
@@ -291,7 +286,7 @@ void WhitelistManager::updateGuiSettings()
     QString key, group;
     QStringList info, values;
 
-    foreach(WhitelistItem* item, mWhiteListItems) {
+    foreach(WhitelistItem* item, mWhitelistItems) {
         if (item->isChanged()) {
             info << item->value() << item->connection() << item->protocol();
             group = getGroup(info);
@@ -299,17 +294,17 @@ void WhitelistManager::updateGuiSettings()
             if (m_Settings->contains(key))
                 values = m_Settings->value(key).toString().split(" ", QString::SkipEmptyParts);
 
-            qDebug() << item->value() << item->isRemoved() << item->isDisabled() << group << values;
-
             if (item->isEnabled() || item->isRemoved()) {
-                if (values.contains(item->value()))
+                if (values.contains(item->value())) {
+                    qDebug() << "Removing" << item->value() << "from pglgui settings";
                     values.removeAll(item->value());
+                }
             }
             else if (item->isDisabled() && ! values.contains(item->value())) {
+                qDebug() << "Adding" << item->value() << "to pglgui settings";
                 values += item->value();
             }
 
-            qDebug() << "VALUES:" << values;
             if (values.isEmpty())
                 m_Settings->remove(key);
             else
@@ -404,7 +399,7 @@ QStringList WhitelistManager::generateIptablesCommands()
     QStringList values, connections, protocols;
     QList<bool> allows;
 
-    foreach(WhitelistItem* item, mWhiteListItems) {
+    foreach(WhitelistItem* item, mWhitelistItems) {
 
         if (item->isChanged()) {
             values << item->value();
@@ -652,7 +647,7 @@ QString WhitelistManager::getIptablesTestCommand(const QString& value, const QSt
 
 bool WhitelistManager::contains(const WhitelistItem & item)
 {
-    foreach(WhitelistItem* _item, mWhiteListItems)
+    foreach(WhitelistItem* _item, mWhitelistItems)
         if (*_item == item)
             return true;
 
@@ -689,7 +684,7 @@ bool WhitelistManager::isValid(const QString& value, const QString& connectType,
     return isValid(WhitelistItem(value, connectType, prot), reason);
 }
 
-bool WhitelistManager::isInPglcmd(const QString& value, const QString& connectType, const QString& prot)
+/*bool WhitelistManager::isInPglcmd(const QString& value, const QString& connectType, const QString& prot)
 {
     QList<QTreeWidgetItem*> items = m_GuiOptions->getWhitelist();
     QString protocol = prot;
@@ -707,40 +702,40 @@ bool WhitelistManager::isInPglcmd(const QString& value, const QString& connectTy
     }
     
     return false;
-}
+}*/
 
 QList<WhitelistItem*> WhitelistManager::whitelistItems()
 {
-    return mWhiteListItems;
+    return mWhitelistItems;
 }
 
 WhitelistItem* WhitelistManager::whitelistItemAt(int index)
 {
-    if (index >= 0 && index < mWhiteListItems.size())
-        return mWhiteListItems[index];
+    if (index >= 0 && index < mWhitelistItems.size())
+        return mWhitelistItems[index];
     return 0;
 }
 
 void WhitelistManager::addItem(WhitelistItem * item)
 {
-    mWhiteListItems.append(item);
+    mWhitelistItems.append(item);
 }
 
 void WhitelistManager::removeItemAt(int index)
 {
-    if (index >= 0 && index < mWhiteListItems.size())
-        mWhiteListItems[index]->remove();
+    if (index >= 0 && index < mWhitelistItems.size())
+        mWhitelistItems[index]->remove();
 }
 
 void WhitelistManager::undo()
 {
     WhitelistItem* item;
 
-    for(int i=mWhiteListItems.size()-1; i >= 0; i--) {
-        item = mWhiteListItems[i];
+    for(int i=mWhitelistItems.size()-1; i >= 0; i--) {
+        item = mWhitelistItems[i];
         if (item->isChanged()) {
             if (item->isAdded()) {
-                mWhiteListItems.takeAt(i);
+                mWhitelistItems.takeAt(i);
                 delete item;
             }
             else

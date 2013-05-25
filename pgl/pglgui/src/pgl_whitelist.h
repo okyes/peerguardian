@@ -45,14 +45,14 @@ class GuiOptions;
 
 class WhitelistManager
 {
-    QList<WhitelistItem*> mWhiteListItems;
+    QList<WhitelistItem*> mWhitelistItems;
+    QList<WhitelistItem*> mRemovedWhitelistItems;
     QString m_WhitelistFile;
     QStringList mWhitelistFileData;
     QMap<QString, int> m_Group;
     QSettings * m_Settings;
     QMap<QString, QStringList> m_WhitelistEnabled;
     QMap<QString, QStringList> m_WhitelistDisabled;
-    GuiOptions * m_GuiOptions;
     QList<Port> mSystemPorts;
 
 	public:
@@ -82,7 +82,7 @@ class WhitelistManager
         QStringList generateIptablesCommands();
         //QStringList updateWhitelistItemsInIptables(QList<QTreeWidgetItem*> items, GuiOptions *guiOptions);
         bool isPortAdded(const QString& value, const QString & portRange);
-        bool isInPglcmd(const QString& value, const QString& connectType, const QString& prot);
+        //bool isInPglcmd(const QString& value, const QString& connectType, const QString& prot);
         bool contains(const QString&, const QString&, const QString&);
         bool contains(const WhitelistItem&);
         bool isValid(const QString&, const QString&, const QString&, QString&);
