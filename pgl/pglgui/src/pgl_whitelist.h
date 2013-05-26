@@ -87,6 +87,7 @@ class WhitelistManager
         bool contains(const WhitelistItem&);
         bool isValid(const QString&, const QString&, const QString&, QString&);
         bool isValid(const WhitelistItem&, QString&);
+        WhitelistItem* item(const WhitelistItem&);
         QString getIptablesTestCommand(const QString& value, const QString& connectType, const QString& prot);
         QString parseProtocol(const QString&);
         QString parseConnectionType(const QString&);

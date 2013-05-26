@@ -645,12 +645,18 @@ QString WhitelistManager::getIptablesTestCommand(const QString& value, const QSt
     return cmd;
 }
 
-bool WhitelistManager::contains(const WhitelistItem & item)
+WhitelistItem* WhitelistManager::item(const WhitelistItem& other)
 {
-    foreach(WhitelistItem* _item, mWhitelistItems)
-        if (*_item == item)
-            return true;
+    foreach(WhitelistItem* item, mWhitelistItems)
+        if (*item == other)
+            return item;
+    return 0;
+}
 
+bool WhitelistManager::contains(const WhitelistItem & other)
+{
+    if (item(other))
+        return  true;
     return false;
 }
 
@@ -659,18 +665,19 @@ bool WhitelistManager::contains(const QString& value, const QString& connectType
     return contains(WhitelistItem(value, connectType, prot));
 }
 
-bool WhitelistManager::isValid(const WhitelistItem & item, QString & reason)
+bool WhitelistManager::isValid(const WhitelistItem & other, QString & reason)
 {
-    if (contains(item)) {
+    WhitelistItem* item = this->item(other);
+    if (item && item->isEnabled()) {
         reason = QObject::tr("It's already added");
         return false;
     }
 
     foreach(const Port& port, mSystemPorts) {
-        if ( port.containsName(item.value()) ) {
-            if ( ! port.hasProtocol(item.protocol()) ) {
-                reason += item.value();
-                reason += QObject::tr(" doesn't work over ") + item.protocol();
+        if ( port.containsName(other.value()) ) {
+            if ( ! port.hasProtocol(other.protocol()) ) {
+                reason += other.value();
+                reason += QObject::tr(" doesn't work over ") + other.protocol();
                 return false;
             }
         }
