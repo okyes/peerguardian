@@ -678,7 +678,7 @@ void Peerguardian::applyChanges()
         
         //update the blocklists.list file
         if (QFile::exists(outputFilePath))
-            filesToMove[filepath] = blocklistManager->blocklistsFilePath();
+            filesToMove[outputFilePath] = blocklistManager->blocklistsFilePath();
 
         //================ manage the local blocklists ====================/
         QDir localBlocklistDir(blocklistManager->localBlocklistsDir());
