@@ -351,17 +351,27 @@ void AddExceptionDialog::selectLocalBlocklist()
 void AddExceptionDialog::addBlocklist()
 {
     QStringList values = getParams(m_addEdit->text());
+    BlocklistManager* blocklistManager = mPglCore->blocklistManager();
     m_notValidTreeWidget->clear();
     QStringList invalidValues;
     m_blocklists.clear();
+    QString reason("");
 
     foreach(const QString& value, values)
     {
         if ( value.simplified().isEmpty() )
             continue;
         
-        if ( ! Blocklist::isValid(value) )
+        Blocklist* blocklist = blocklistManager->blocklist(value);
+
+        if ( ! Blocklist::isValid(value)) {
+            reason = tr("Not recognized as a valid local path nor it seems a valid URL (did you forget to prepend http, https or ftp?).");
             invalidValues << value;
+        }
+        else if (blocklist && blocklist->isEnabled()) {
+            reason = QObject::tr("It's already added");
+            invalidValues << value;
+        }
         else
             m_blocklists.push_back(value);
     }
@@ -379,7 +389,6 @@ void AddExceptionDialog::addBlocklist()
         for(int i=0; i < invalidValues.size(); i++)
         {
             QStringList info;
-            QString reason(tr("Not recognized as a valid local path nor it seems a valid URL (did you forget to prepend http, https or ftp?)."));
             info << invalidValues[i] << "N/A" << "N/A" << reason;
             QTreeWidgetItem *item = new QTreeWidgetItem(m_notValidTreeWidget, info);
             item->setToolTip(3, reason);
