@@ -1008,7 +1008,10 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
 
         foreach(WhitelistItem whiteItem, dialog->getItems()) {
             QStringList info; info << whiteItem.value() << whiteItem.connection() << whiteItem.protocol();
-            whitelist->addItem(new WhitelistItem(whiteItem.value(), whiteItem.connection(), whiteItem.protocol()));
+            if (whitelist->contains(whiteItem))
+                whitelist->item(whiteItem)->setEnabled(true);
+            else
+                whitelist->addItem(new WhitelistItem(whiteItem.value(), whiteItem.connection(), whiteItem.protocol()));
             //QTreeWidgetItem * treeItem = new QTreeWidgetItem(mUi.whitelistTreeWidget, info);
             //treeItem->setCheckState(0, Qt::Checked);
             //treeItem->setIcon(0, QIcon(WARNING_ICON));
@@ -1030,8 +1033,10 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
         BlocklistManager* blocklistManager = mPglCore->blocklistManager();
 
         foreach(const QString& blocklist, dialog->getBlocklists()) {
-            qDebug() << blocklist;
-            blocklistManager->addBlocklist(blocklist);
+            if (blocklistManager->contains(blocklist))
+                blocklistManager->blocklist(blocklist)->setEnabled(true);
+            else
+                blocklistManager->addBlocklist(blocklist);
             newItems = true;
         }
         
