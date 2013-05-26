@@ -163,6 +163,8 @@ class BlocklistManager {
         QString localBlocklistPath(Blocklist*);
         Blocklist* blocklistAt(int);
         void removeBlocklistAt(int);
+        Blocklist* blocklist(const QString&);
+        bool contains(const QString&);
 
     private:
         void loadLocalBlocklists();

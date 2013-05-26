@@ -358,6 +358,22 @@ void BlocklistManager::removeBlocklistAt(int index)
         mBlocklists[index]->remove();
 }
 
+Blocklist* BlocklistManager::blocklist(const QString & value)
+{
+    foreach(Blocklist* blocklist, mBlocklists)
+        if (blocklist->targetLocation() == value)
+            return blocklist;
+    return 0;
+}
+
+
+bool BlocklistManager::contains(const QString & value)
+{
+    if (blocklist(value))
+        return true;
+    return false;
+}
+
 /*** Static methods ***/
 
 QString BlocklistManager::getFilePath()
