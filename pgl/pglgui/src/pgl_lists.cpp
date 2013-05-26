@@ -244,24 +244,33 @@ QVector< ListItem * >  BlocklistManager::getDisabledItems()
 QStringList BlocklistManager::generateBlocklistsFile()
 {
     QStringList newFileData;
-    QString line;
     QList<Blocklist*> addedBlocklists;
 
     foreach(const ListItem& item, m_ListsFile) {
         if ( item.mode == COMMENT_ITEM )
-            newFileData << line;
-        else if (item.blocklist() && ! item.blocklist()->isLocal()) {
+            newFileData << item.value();
+        else if (item.blocklist()) {
             addedBlocklists.append(item.blocklist());
-            if (item.mode == ENABLED_ITEM)
-                newFileData << item.blocklist()->location();
-            else
-                newFileData << "# " + item.blocklist()->location();
+
+            if (item.blocklist()->isRemoved())
+                continue;
+
+            if (item.blocklist()->isChanged()){
+                if (item.blocklist()->isEnabled())
+                    newFileData << item.blocklist()->location();
+                else
+                    newFileData << "# " + item.blocklist()->location();
+            }
+            else {
+                newFileData << item.value();
+            }
         }
+
     }
 
     //add possible new blocklists
     foreach(Blocklist* blocklist, mBlocklists) {
-        if (addedBlocklists.contains(blocklist))
+        if (blocklist->isLocal() || addedBlocklists.contains(blocklist) || ! blocklist->isChanged() || blocklist->isRemoved())
             continue;
         if (blocklist->isEnabled())
             newFileData << blocklist->location();

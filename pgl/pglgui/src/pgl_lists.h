@@ -18,8 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef PGL_BLOCKLISTS_H
-#define PGL_BLOCKLISTS_H
+#ifndef BLOCKLIST_MANAGER_H
+#define BLOCKLIST_MANAGER_H
 
 #include <QVector>
 #include <QString>
