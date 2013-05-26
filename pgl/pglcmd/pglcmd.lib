@@ -1884,8 +1884,8 @@ get_blocklist () {
         mkdir -p "$BLOCKLIST_DIR/download" ||
         { log_failure_msg " Error: mkdir -p exited with $?" ; exit 1 ; }
 
-    pushd "$BLOCKLIST_DIR/download" >/dev/null ||
-        { log_failure_msg " Error: pushd exited with $?" ; exit 1 ; }
+    cd "$BLOCKLIST_DIR/download" ||
+        { log_failure_msg " Error: cd exited with $?" ; exit 1 ; }
 
     # Create necessary directories if missing:
     [ -d "$(dirname $BLOCKLIST_DOWNLOADED)" ] ||
@@ -1927,8 +1927,8 @@ get_blocklist () {
             ;;
     esac
 
-    popd ||
-        { log_failure_msg " Error: popd exited with $?" ; exit 1 ; }
+    cd / ||
+        { log_failure_msg " Error: cd exited with $?" ; exit 1 ; }
 
     # Get the name of the downloaded blocklist: BLOCKLIST_DOWNLOAD
     # Take the newest file, in case there are several files in the folder.

@@ -18,8 +18,8 @@ pgl 2.2.3~pre1 UNRELEASED
     NOTE: pgld already had builtin support for gz packed lists, if it was
     compiled with zlib support.
   * use sed instead of echo to add newline at end of blocklist
-  * use pushd and popd before/after downloading blocklists (instead of only
-    cd'ing into the directory, but not leaving again)
+  * cd / after downloading blocklists (instead of only cd'ing into the
+    directory, but not leaving again)
   * init: added firewalld and moved $syslog to Should-Start|Stop
 
   [hasufell]
