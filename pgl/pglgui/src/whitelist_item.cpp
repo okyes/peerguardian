@@ -31,7 +31,6 @@ WhitelistItemPrivate::WhitelistItemPrivate()
 
 WhitelistItemPrivate::~WhitelistItemPrivate()
 {
-    qDebug() << "~WhitelistItemPrivate()";
 }
 
 bool WhitelistItemPrivate::operator==(const WhitelistItemPrivate& other)
