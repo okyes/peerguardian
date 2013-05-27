@@ -227,5 +227,7 @@ QStringList PglSettings::generatePglcmdConf()
         replaceValueInData(data, var, mVariables[var]);
     }
 
+    cleanData(data);
+
     return data;
 }
