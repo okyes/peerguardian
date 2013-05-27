@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QFileInfoList>
 #include <QMessageBox>
+#include <QRegExp>
 
 class Port
 {
@@ -50,6 +51,7 @@ QString getNewFileName(QString dir, const QString name);
 QString joinPath(const QString& dir, const QString& file);
 void replaceValueInFile(const QString& path, const QString & variable, const QString & value);
 QStringList replaceValueInData(QStringList& data, const QString & variable, const QString & value);
+QStringList cleanData(QStringList& data);
 QString getFileName(const QString& path);
 bool hasValueInData(const QString&, const QStringList&);
 int confirm(QString title, QString msg, QWidget *parent=NULL);

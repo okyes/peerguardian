@@ -351,11 +351,29 @@ QString joinPath(const QString & dir, const QString & file)
 
 }
 
+//remove lines with empty values
+QStringList cleanData(QStringList& data)
+{
+    QRegExp emptyValuePattern("^( )*[a-zA-Z0-9_]+( )*=( )*\"\"$");
+    QString line;
+
+    for(int i=data.size()-1; i >= 0; --i) {
+        line = data[i].trimmed();
+        if (line.startsWith("#"))
+            continue;
+
+        if (emptyValuePattern.exactMatch(line))
+            data.removeAt(i);
+    }
+
+    return data;
+}
+
 QStringList replaceValueInData(QStringList& data, const QString & variable, const QString & value)
 {
     //this function is usually used to receive pglcmd.conf and check for variables and values there
     //QRegExp re(QString("^%1=.*").arg(variable));
-    QRegExp validPattern("^.*[a-zA-Z]+[ ]*=[ ]*\"[a-zA-Z0-9\.]+\"$");
+    //QRegExp validPattern("^.*[a-zA-Z]+[ ]*=[ ]*\"[a-zA-Z0-9\.]+\"$");
     QString var, comment;
     QString line;
     //int pos = data.indexOf(re);
@@ -379,7 +397,6 @@ QStringList replaceValueInData(QStringList& data, const QString & variable, cons
             var = getVariable(line);
 
             if (var == variable) {
-                qDebug() << "values: " << value << getValue(line);
                 if (value != getValue(line))
                     data[i] = var + "=\"" + value + '"' + comment;
             }
