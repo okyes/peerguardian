@@ -310,6 +310,7 @@ void WhitelistManager::updateGuiSettings()
             else
                 m_Settings->setValue(key, values.join(" "));
             values.clear();
+            info.clear();
         }
         /*if (item->isDisabled()) {
             QStringList info; info << item->value() << item->connection() << item->protocol();
