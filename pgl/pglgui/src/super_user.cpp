@@ -112,6 +112,7 @@ void SuperUser::executeCommands(QStringList commands, bool start)
     if ( m_ProcT->isRunning() )
     {
         qWarning() << "Another process is still running...";
+        emit error("Another process is still running...");
         return;
     }
 
@@ -119,8 +120,7 @@ void SuperUser::executeCommands(QStringList commands, bool start)
     {
         for (int i=0; i < commands.size(); i++)
         {
-            commands[i].insert(0, mSudoCmd + " \"");
-            commands[i].append("\"");
+            commands[i].insert(0, mSudoCmd + " ");
         }
     }
     
@@ -140,19 +140,21 @@ void SuperUser::executeScript()
 {
     if ( m_Commands.isEmpty() )
         return;
-    
-    QStringList lines;
-    QString cmd = QString("sh %1").arg(TMP_SCRIPT);
-    
+
+    //QStringList lines;
+    //QString cmd = QString("sh %1").arg(TMP_SCRIPT);
+    QString cmd = QString("sh -c \"(%1)\"").arg(m_Commands.join(") && ("));
+    executeCommand(cmd);
+
     //create file with the commands to be executed
-    lines << "#!/bin/sh";
+    /*lines << "#!/bin/sh";
     lines << "set -e";
     lines << m_Commands;
     
     bool ok = saveFileData(lines, "/tmp/execute-all-pgl-commands.sh");
 
     if ( ok )
-        executeCommand(cmd);
+        executeCommand(cmd);*/
     
 }
 
