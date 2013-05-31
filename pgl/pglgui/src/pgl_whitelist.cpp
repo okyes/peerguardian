@@ -181,7 +181,7 @@ QStringList WhitelistManager::updateWhitelistFile()
         value = m_WhitelistEnabled[key].join(" ");
 
         if ( hasValueInData(key, fileData) || value != PglSettings::value(key) )
-            replaceValueInData(fileData, key, m_WhitelistEnabled[key].join(" "));
+            setValueInData(fileData, key, m_WhitelistEnabled[key].join(" "));
     }
 
     return fileData;
@@ -486,7 +486,7 @@ QStringList WhitelistManager::getCommands( QStringList items, QStringList connec
     QString command_operator;
     QString ip_source_check, ip_destination_check, port_check;
     QString command_type("");
-    QString command, iptables_list_type("iptables -L $IPTABLES_CHAIN -n | ");
+    QString command, iptables_list_type("! iptables -L $IPTABLES_CHAIN -n | ");
     QString chain, item, connection, protocol, conn, iptables_list, checkCmd;
     QStringList directions;
     QString portNum("0");
@@ -541,7 +541,7 @@ QStringList WhitelistManager::getCommands( QStringList items, QStringList connec
         else
         {
             option = "-D";
-            command_operator = "&&";
+            command_operator = "||";
         }
         
         //convert incoming to in, outgoing to out, etc
