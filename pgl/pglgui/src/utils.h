@@ -50,7 +50,7 @@ bool hasPermissions(const QString&);
 QString getNewFileName(QString dir, const QString name);
 QString joinPath(const QString& dir, const QString& file);
 void replaceValueInFile(const QString& path, const QString & variable, const QString & value);
-QStringList replaceValueInData(QStringList& data, const QString & variable, const QString & value);
+void setValueInData(QStringList& data, const QString & variable, const QString & value);
 QStringList cleanData(QStringList& data);
 QString getFileName(const QString& path);
 bool hasValueInData(const QString&, const QStringList&);

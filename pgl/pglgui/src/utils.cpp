@@ -369,13 +369,14 @@ QStringList cleanData(QStringList& data)
     return data;
 }
 
-QStringList replaceValueInData(QStringList& data, const QString & variable, const QString & value)
+void setValueInData(QStringList& data, const QString & variable, const QString & value)
 {
     //this function is usually used to receive pglcmd.conf and check for variables and values there
     //QRegExp re(QString("^%1=.*").arg(variable));
     //QRegExp validPattern("^.*[a-zA-Z]+[ ]*=[ ]*\"[a-zA-Z0-9\.]+\"$");
     QString var, comment;
     QString line;
+    bool found = false;
     //int pos = data.indexOf(re);
 
     //Usual case: if the variable doesn't exist in pglcmd.conf and it's the same as in pglcmd.defaults
@@ -394,6 +395,7 @@ QStringList replaceValueInData(QStringList& data, const QString & variable, cons
         }
 
         if (line.contains(variable)) {
+            found = true;
             var = getVariable(line);
 
             if (var == variable) {
@@ -403,6 +405,10 @@ QStringList replaceValueInData(QStringList& data, const QString & variable, cons
         }
     }
 
+    if (! found) {
+        data.append(variable + "=\"" + value + '"');
+    }
+
     /*while ( pos != -1 )
     {
         data.removeAt(pos);
@@ -410,8 +416,6 @@ QStringList replaceValueInData(QStringList& data, const QString & variable, cons
     }
 
     data << variable + QString("=\"") + value + QString('"');*/
-
-    return data;
 }
 
 void replaceValueInFile(const QString& path, const QString & variable, const QString & value)
