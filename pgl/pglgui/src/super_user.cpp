@@ -120,7 +120,7 @@ void SuperUser::executeCommands(QStringList commands, bool start)
     {
         for (int i=0; i < commands.size(); i++)
         {
-            commands[i].insert(0, mSudoCmd + " ");
+            commands[i].insert(0, mSudoCmd + sudoParameters());
         }
     }
     
@@ -143,7 +143,7 @@ void SuperUser::executeScript()
 
     //QStringList lines;
     //QString cmd = QString("sh %1").arg(TMP_SCRIPT);
-    QString cmd = QString("sh -c \"(%1)\"").arg(m_Commands.join(") && ("));
+    QString cmd = QString("\"(%1)\"").arg(m_Commands.join(") && ("));
     executeCommand(cmd);
 
     //create file with the commands to be executed
@@ -214,6 +214,15 @@ void SuperUser::moveFiles( const QMap<QString, QString> files, bool start)
         
         executeCommands(commands, start);
     }
+}
+
+QString SuperUser::sudoParameters()
+{
+    if (mSudoCmd.endsWith("kdesudo")) {
+        return " -c ";
+    }
+
+    return " ";
 }
 
 /*** Static methods ***/

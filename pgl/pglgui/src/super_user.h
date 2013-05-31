@@ -120,6 +120,7 @@ class SuperUser : public QObject
     private:
         SuperUser(const SuperUser& other);
         void findGraphicalSudo();
+        QString sudoParameters();
         QMap<QString, QString> m_filesToMove;
         ProcessT * m_ProcT;
         QStringList m_Commands;
