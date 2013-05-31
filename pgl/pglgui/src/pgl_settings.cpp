@@ -28,8 +28,8 @@
 #include "file_transactions.h"
 #include "utils.h"
 
-//QHash<QString, QString> PglSettings::mVariables = QHash<QString, QString>();
-QHash<QString, QString> mVariables;
+QHash<QString, QString> mDefaultVariables;
+QHash<QString, QString> mConfVariables;
 QString mPglcmdDefaultsPath = "";
 QString mLastError = "";
 QStringList mPglcmdConfData;
@@ -54,7 +54,7 @@ QString PglSettings::getVariableInValue(const QString & var)
             n = 1;
         }
 
-        if ( mVariables.contains(strippedVar) )
+        if ( PglSettings::contains(strippedVar) )
             return variable.replace(var.indexOf("$"), strippedVar.size()+n, PglSettings::value(strippedVar, ""));
     }
 
@@ -120,7 +120,7 @@ bool PglSettings::loadSettings()
     }
     
     QStringList data = getFileData(mPglcmdDefaultsPath);
-    QString variable;
+    QString variable, value;
 
     foreach (QString line, data)
     {
@@ -131,8 +131,7 @@ bool PglSettings::loadSettings()
         variable = getVariable(line);
 
         if( ! variable.isEmpty() )
-            PglSettings::store(variable, PglSettings::getValueInLine(line));
-
+            mDefaultVariables[variable] = PglSettings::getValueInLine(line);
     }
     
     //Overwrite the variables' values with the values from pglcmd.conf
@@ -152,18 +151,19 @@ bool PglSettings::loadSettings()
             continue;
 
         variable = getVariable(line);
+        value = getValue(line);
 
-        if ( mVariables.contains(variable) )
-            PglSettings::store(variable, getValue(line));
+        if ( ! mDefaultVariables.contains(variable)  || mDefaultVariables.value(variable) != value)
+            mConfVariables[variable] = value;
     }
     
     mLastError = "";
     return true;
 }
 
-QHash<QString, QString> PglSettings::variables()
+QHash<QString, QString> PglSettings::confVariables()
 {
-    return mVariables;
+    return mConfVariables;
 }
 
 QString PglSettings::pglcmdDefaultsPath()
@@ -178,40 +178,53 @@ QString PglSettings::lastError()
 
 void PglSettings::store(const QString & var, const QVariant& value)
 {
-    mVariables[var] = value.toString().trimmed();
+    mConfVariables[var] = value.toString().trimmed();
 }
 
 void PglSettings::add(const QString& var, const QVariant& value)
 {
     QString val = value.toString().trimmed();
-    qDebug() << "Adding to PglSettings" << val;
+    qDebug() << "Adding to PglSettings" << var << val;
     QStringList values = PglSettings::values(var);
     if (! values.contains(val))
         values += val;
-    mVariables[var] = values.join(" ");
+    mConfVariables[var] = values.join(" ");
 }
 
 void PglSettings::remove(const QString& var, const QVariant& value)
 {
     QString val = value.toString().trimmed();
-    qDebug() << "Removing from PglSettings" << val;
-    if (mVariables.contains(var)) {
+    qDebug() << "Removing from PglSettings" << var << val;
+    if (mConfVariables.contains(var)) {
         QStringList values = PglSettings::values(var);
         if (values.contains(val))
             values.removeAll(val);
-        mVariables[var] = values.join(" ");
+        mConfVariables[var] = values.join(" ");
     }
 }
 
 QString PglSettings::value(const QString& var, const QString& def)
 {
-    return mVariables.value(var, def);
+    if (mConfVariables.contains(var))
+        return mConfVariables.value(var);
+    else if (mDefaultVariables.contains(var))
+        return mDefaultVariables.value(var);
+    return def;
 }
 
 QStringList PglSettings::values(const QString& var)
 {
-    QString value = mVariables.value(var);
+    QString value = PglSettings::value(var);
     return value.split(" ", QString::SkipEmptyParts);
+}
+
+bool PglSettings::contains(const QString& var, const QString& value)
+{
+    QString val = PglSettings::value(var, "");
+    if (! value.isEmpty())
+        return value == val;
+
+    return ! val.isEmpty();
 }
 
 QStringList PglSettings::pglcmdConfData()
@@ -223,11 +236,9 @@ QStringList PglSettings::generatePglcmdConf()
 {
     QStringList data = mPglcmdConfData;
 
-    foreach(const QString& var, mVariables.keys()) {
-        replaceValueInData(data, var, mVariables[var]);
+    foreach(const QString& var, mConfVariables.keys()) {
+        setValueInData(data, var, mConfVariables[var]);
     }
-
-    cleanData(data);
 
     return data;
 }

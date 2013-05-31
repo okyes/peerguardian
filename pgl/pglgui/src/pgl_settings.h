@@ -35,7 +35,7 @@ class PglSettings
         PglSettings();
         ~PglSettings();
         static bool loadSettings();
-        static QHash<QString, QString> variables();
+        static QHash<QString, QString> confVariables();
         static QString getValueInLine(const QString&);
         static QString getVariableInValue(const QString &);
         static QString findPglcmdDefaultsPath();
@@ -47,6 +47,7 @@ class PglSettings
         static void remove(const QString&, const QVariant&);
         static QString value(const QString&, const QString&def="");
         static QStringList values(const QString&);
+        static bool contains(const QString&, const QString&val="");
         static QStringList generatePglcmdConf();
     
 };
