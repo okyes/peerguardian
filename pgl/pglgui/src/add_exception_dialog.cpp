@@ -297,15 +297,23 @@ void AddExceptionDialog::addEntry()
             continue;
         }
 
-        setWhitelistItems(param, ip);
+        if (ip && m_portRadio->isChecked()) {
+            m_invalidItems << WhitelistItem(param, "", "");
+            reasons << "Not a valid port.";
+        }
+        else if (!ip && m_ipRadio->isChecked()) {
+            m_invalidItems << WhitelistItem(param, "", "");
+            reasons << "Not a valid ip.";
+        }
+        else {
+            setWhitelistItems(param, ip);
+        }
     }
 
     m_notValidTreeWidget->clear();
 
     if ( ! unrecognizedValues.isEmpty() || ! m_invalidItems.isEmpty() )
     {
-         QStringList connections, protocols;
-
         if ( ! groupBox_2->isVisible() )
             groupBox_2->setVisible(true);
 
