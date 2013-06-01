@@ -3,6 +3,7 @@
 #include "blocklist_p.h"
 
 #include <QFile>
+#include <QDebug>
 
 Blocklist::Blocklist(const QString& text, bool active, bool enabled) :
     Option(),
@@ -124,8 +125,13 @@ QString Blocklist::parseName(const QString& text)
 
 QString Blocklist::parseUrl(const QString& text)
 {
-    if (text.contains('#') && text.split('#').size() >= 2)
-        return text.split("#")[1];
+    if (text.contains('#')) {
+        QStringList parts = text.split('#', QString::SkipEmptyParts);
+        if(parts.size() >= 1)
+            return parts[0].trimmed();
+        else
+            return "";
+    }
 
     return text;
 }

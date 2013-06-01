@@ -6,9 +6,9 @@
 
 ListItem::ListItem( const QString &itemRawLine ) {
 
-    QString itemLine = itemRawLine.trimmed();
+    QString itemLine = itemRawLine.simplified();
 
-    mValue = itemRawLine;
+    mValue = itemLine;
     mode = COMMENT_ITEM;
     mBlocklist = 0;
 
@@ -19,7 +19,6 @@ ListItem::ListItem( const QString &itemRawLine ) {
         if ( Blocklist::isValid(itemLine) )
         {
             mode = DISABLED_ITEM;
-            mValue = itemLine;
             mBlocklist = new Blocklist(itemLine, true, false);
         }
         else
@@ -27,7 +26,6 @@ ListItem::ListItem( const QString &itemRawLine ) {
     }
     else if(Blocklist::isValid(itemLine)){
         mode = ENABLED_ITEM;
-        mValue = itemLine;
         mBlocklist = new Blocklist(itemLine, true);
     }
 }
