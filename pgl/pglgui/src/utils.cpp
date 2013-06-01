@@ -318,8 +318,6 @@ bool hasPermissions(const QString & filepath)
 		return false;
 	}
 
-
-
     QFileInfo fileInfo (filepath);
     QFile file;
     if ( ! fileInfo.isDir() )
@@ -328,7 +326,6 @@ bool hasPermissions(const QString & filepath)
         file.setFileName(fileInfo.filePath() + "/test_file");
 
     if ( ! file.open( QIODevice::ReadWrite | QIODevice::Text ) ) {
-		qWarning() << Q_FUNC_INFO << "Could not read from file" << file.fileName();
 		return false;
 	}
 

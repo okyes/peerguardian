@@ -95,10 +95,7 @@ void ProcessT::setCommand( const QString &name, const QStringList &args, const Q
 }
 
 void ProcessT::executeCommand(const QString& command, const QProcess::ProcessChannelMode &mode, bool startNow)
-{
-
-    qDebug() << Q_FUNC_INFO << m_Command;
-    
+{    
     if ( command.isEmpty() && m_Command.isEmpty() )
         return;
 

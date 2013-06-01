@@ -3,7 +3,6 @@
 #include "blocklist_p.h"
 
 #include <QFile>
-#include <QDebug>
 
 Blocklist::Blocklist(const QString& text, bool active, bool enabled) :
     Option(),
