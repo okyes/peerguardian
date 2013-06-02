@@ -115,7 +115,7 @@ void SuperUser::exec(QStringList commands)
 
     if ( ! hasPermissions("/etc") ) {//If the program is not run by root, use kdesu or gksu as first argument
         QString command = commands.join(") && (");
-        command = QString ("%1 %2 sh -c \"(%3)\"").arg(mSudoCmd).arg(sudoParameters()).arg(command);
+        command = QString ("%1 %2 \"(%3)\"").arg(mSudoCmd).arg(sudoParameters()).arg(command);
         commands.clear();
         commands << command;
         /*for (int i=0; i < commands.size(); i++) {
