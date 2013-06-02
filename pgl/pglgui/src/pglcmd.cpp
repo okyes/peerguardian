@@ -58,7 +58,7 @@ void PglCmd::start()
         return;
     }
 
-	SuperUser::execute( QStringList() << m_FileName << "start" );
+    SuperUser::executeCommand( QStringList() << m_FileName << "start" );
 	emit actionMessage( tr( "Starting Peerguardian..." ), MESSAGE_TIMEOUT );
 
 }
@@ -72,7 +72,7 @@ void PglCmd::restart()
         return;
     }
 
-	SuperUser::execute( QStringList() << m_FileName << "restart" );
+    SuperUser::executeCommand( QStringList() << m_FileName << "restart" );
 	emit actionMessage( tr( "Restarting Peerguardian..." ), MESSAGE_TIMEOUT );
 }
 
@@ -85,7 +85,7 @@ void PglCmd::stop()
         return;
     }
 
-	SuperUser::execute( QStringList() << m_FileName << "stop" );
+    SuperUser::executeCommand( QStringList() << m_FileName << "stop" );
 	emit actionMessage( tr( "Stopping Peerguardian..." ), MESSAGE_TIMEOUT );
 
 }
@@ -99,7 +99,7 @@ void PglCmd::reload()
         return;
     }
 
-	SuperUser::execute( QStringList() << m_FileName << "reload" );
+    SuperUser::executeCommand( QStringList() << m_FileName << "reload" );
 	emit actionMessage( tr( "Reloading Peerguardian..." ), MESSAGE_TIMEOUT );
 
 }
@@ -113,7 +113,7 @@ void PglCmd::update()
         return;
     }
 
-	SuperUser::execute( QStringList() << m_FileName << "update" );
+    SuperUser::executeCommand( QStringList() << m_FileName << "update" );
 	emit actionMessage( tr( "Updating Peerguardian..." ), MESSAGE_TIMEOUT );
 
 
@@ -128,7 +128,7 @@ void PglCmd::status()
         return;
     }
 
-    SuperUser::execute( QStringList() << m_FileName << "status" );
+    SuperUser::executeCommand( QStringList() << m_FileName << "status" );
     emit actionMessage( tr( "Getting status for Peerguardian..." ), MESSAGE_TIMEOUT );
 
 }
