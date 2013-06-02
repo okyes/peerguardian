@@ -196,7 +196,9 @@ class Peerguardian : public QMainWindow {
         void treeItemPressed(QTreeWidgetItem* item, int column);
         void applyChanges();
         void updateRadioButtonToggled(bool);
-        void rootFinished();
+        void rootFinished(const CommandList&);
+        void rootError(const QString&);
+        void controlFinished(const CommandList&);
         void removeListItems();
         void onTrayIconClicked(QSystemTrayIcon::ActivationReason);
         void checkboxChanged(bool);
@@ -206,8 +208,7 @@ class Peerguardian : public QMainWindow {
         void openSettingsDialog();
         void showLogRightClickMenu(const QPoint&);
         void whitelistItem();
-        void rootError(const QString&);
-        void rootError(const CommandList&);
+
 
     protected:
         void closeEvent ( QCloseEvent * event );

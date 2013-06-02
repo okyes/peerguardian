@@ -307,16 +307,12 @@ void Peerguardian::g_MakeConnections()
         connect( mUi.a_Reload, SIGNAL( triggered() ), m_Control, SLOT( reload() ) );
         connect( mUi.updatePglButton, SIGNAL( clicked() ), m_Control, SLOT( update() ) );
         connect( m_Control, SIGNAL(error(const QString&)), this, SLOT(rootError(const QString&)));
-        connect( m_Control, SIGNAL(error(const CommandList&)), this, SLOT(rootError(const CommandList&)));
+        connect( m_Control, SIGNAL(finished(const CommandList&)), this, SLOT(controlFinished(const CommandList&)));
+        connect( m_Control, SIGNAL( actionMessage(const QString&, int ) ), mUi.statusBar, SLOT( showMessage( const QString&, int ) ) );
     }
 
     connect( m_MediumTimer, SIGNAL( timeout() ), this, SLOT( g_UpdateDaemonStatus() ) );
 	connect( m_MediumTimer, SIGNAL( timeout() ), this, SLOT( updateInfo() ) );
-
-    //status bar
-    connect( m_Control, SIGNAL( actionMessage( QString, int ) ), mUi.statusBar, SLOT( showMessage( QString, int ) ) );
-    connect( m_Control, SIGNAL( finished() ), mUi.statusBar, SLOT( clearMessage() ) );
-
 
 	//Blocklist and Whitelist Tree Widgets
     connect(mUi.whitelistTreeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(whitelistItemChanged(QTreeWidgetItem*, int)));
@@ -336,9 +332,8 @@ void Peerguardian::g_MakeConnections()
     connect(mUi.updateMonthlyRadio, SIGNAL(clicked(bool)), this, SLOT(updateRadioButtonToggled(bool)));
 
     if ( m_Root ) {
-        connect(m_Root, SIGNAL(finished()), this, SLOT(rootFinished()));
+        connect(m_Root, SIGNAL(finished(const CommandList&)), this, SLOT(rootFinished(const CommandList&)));
         connect(m_Root, SIGNAL(error(const QString&)), this, SLOT(rootError(const QString&)));
-        connect(m_Root, SIGNAL(error(const CommandList&)), this, SLOT(rootError(const CommandList&)));
     }
     
     //connect the remove buttons
@@ -409,50 +404,52 @@ void Peerguardian::removeListItems()
     setApplyButtonEnabled(mPglCore->isChanged());
 }
 
-void Peerguardian::rootFinished()
+void Peerguardian::controlFinished(const CommandList & commands)
 {
-    if ( m_FilesToMove.isEmpty() )
-        return;
-        
-    WhitelistManager* whitelist = mPglCore->whitelistManager();
-    QString pglcmd_conf = PglSettings::value("CMD_CONF").split("/").last();
-    QString blocklists_list = PglSettings::value("BLOCKLISTS_LIST").split("/").last();
-    QString tmp_pglcmd = QString("/tmp/%1").arg(pglcmd_conf);
-    QString tmp_blocklists = QString("/tmp/%1").arg(blocklists_list);
+    CommandList failedCommands;
+    foreach(const Command& cmd, commands) {
+        if (cmd.error())
+            failedCommands << cmd;
+    }
 
-    if ( ( m_FilesToMove.contains(tmp_pglcmd) && QFile::exists(tmp_pglcmd) ) ||  
-        (m_FilesToMove.contains(tmp_blocklists) && QFile::exists(tmp_blocklists))){
+    if (! failedCommands.isEmpty()) {
         setApplyButtonEnabled(true);
+        ErrorDialog dialog(failedCommands);
+        dialog.exec();
+    }
+
+    mUi.statusBar->clearMessage();
+}
+
+void Peerguardian::rootFinished(const CommandList& commands)
+{    
+    CommandList failedCommands;
+    foreach(const Command& cmd, commands) {
+        if (cmd.error())
+            failedCommands << cmd;
+    }
+
+    //QString pglcmd_conf = PglSettings::value("CMD_CONF").split("/").last();
+    //QString blocklists_list = PglSettings::value("BLOCKLISTS_LIST").split("/").last();
+    //QString tmp_pglcmd = QString("/tmp/%1").arg(pglcmd_conf);
+    //QString tmp_blocklists = QString("/tmp/%1").arg(blocklists_list);
+
+    if (! failedCommands.isEmpty()) {
+        setApplyButtonEnabled(true);
+        ErrorDialog dialog(failedCommands);
+        dialog.exec();
     }
     else {
+        WhitelistManager* whitelist = mPglCore->whitelistManager();
         whitelist->updateGuiSettings();
         mPglCore->load();
         updateGUI();
         setApplyButtonEnabled(false);
-        
+
         if (mReloadPgl)
             m_Control->reload();
         mReloadPgl = false;
     }
-    
-    m_FilesToMove.clear();
-}
-
-
-void Peerguardian::rootError(const CommandList& failedCommands)
-{
-    ErrorDialog dialog(failedCommands);
-    dialog.exec();
-
-    
-    /*QString errorMsg = QString("%1<br/><br/><i>%2</i><br/><br/>%3").arg(tr("The following commands failed:"))
-                                                    .arg(commands.join("<br/>"))
-                                                    .arg(tr("Please, check pgld's and/or pglcmd's log. You can do so through the <i>View menu</i>."));
-    QMessageBox::warning( this, tr("Error (One or more command(s) failed)"), errorMsg,
-	QMessageBox::Ok
-    );*/
- 
-    setApplyButtonEnabled(mPglCore->isChanged());
 }
 
 void Peerguardian::rootError(const QString& errorMsg)
@@ -619,7 +616,6 @@ QString Peerguardian::getUpdateFrequencyCurrentPath()
 
 void Peerguardian::applyChanges()
 {
-    mReloadPgl = false;
     WhitelistManager* whitelist = mPglCore->whitelistManager();
     BlocklistManager* blocklistManager = mPglCore->blocklistManager();
     QMap<QString, QString> filesToMove;
@@ -628,6 +624,7 @@ void Peerguardian::applyChanges()
     bool updatePglcmdConf = mPglCore->hasToUpdatePglcmdConf();
     bool updateBlocklistsFile = mPglCore->hasToUpdateBlocklistsFile();
     QString filepath;
+    mReloadPgl = mPglCore->hasToReloadBlocklists();
     
     if ( pglcmdConfPath.isEmpty() ) {
         QString errorMsg = tr("Could not determine pglcmd.conf path! Did you install pgld and pglcmd?");
@@ -643,7 +640,7 @@ void Peerguardian::applyChanges()
         // = whitelist->updateWhitelistItemsInIptables(getTreeItems(mUi.whitelistTreeWidget), guiOptions);
         QStringList iptablesCommands = whitelist->generateIptablesCommands();
         if ( ! iptablesCommands.isEmpty() )
-            m_Root->executeCommands(iptablesCommands, false);
+            m_Root->addCommands(iptablesCommands);
     }
     
     //================ update /etc/pgl/pglcmd.conf ================/
@@ -664,46 +661,53 @@ void Peerguardian::applyChanges()
 
         //add /tmp/pglcmd.conf to the filesToMove
         QString  pglcmdTempPath = QDir::temp().absoluteFilePath(getFileName(pglcmdConfPath));
-        filesToMove[pglcmdTempPath] = pglcmdConfPath;
+        m_Root->moveFile(pglcmdTempPath, pglcmdConfPath, false);
+        m_FilesToMove << pglcmdTempPath;
+        //filesToMove[pglcmdTempPath] = pglcmdConfPath;
         saveFileData(pglcmdConf, pglcmdTempPath);
     }
 
     //================ update /etc/pgl/blocklists.list ================/
     if ( updateBlocklistsFile ) {
-
-        mReloadPgl = true;
         QStringList data = blocklistManager->generateBlocklistsFile();
         QString outputFilePath = QDir::temp().absoluteFilePath(getFileName(blocklistManager->blocklistsFilePath()));
+        m_FilesToMove << outputFilePath;
         saveFileData(data, outputFilePath);
         
         //update the blocklists.list file
         if (QFile::exists(outputFilePath))
-            filesToMove[outputFilePath] = blocklistManager->blocklistsFilePath();
+            m_Root->moveFile(outputFilePath, blocklistManager->blocklistsFilePath(), false);
+            //filesToMove[outputFilePath] = blocklistManager->blocklistsFilePath();
+    }
 
-        //================ manage the local blocklists ====================/
-        QDir localBlocklistDir(blocklistManager->localBlocklistsDir());
-        QList<Blocklist*> localBlocklists = blocklistManager->localBlocklists();
-        QDir tempDir = QDir::temp();
-        
-        foreach(Blocklist* blocklist, localBlocklists) {
-            if (! blocklist->isChanged() || ! blocklist->exists())
-                continue;
+    //================ manage the local blocklists ====================/
+    QDir localBlocklistDir(blocklistManager->localBlocklistsDir());
+    QList<Blocklist*> localBlocklists = blocklistManager->localBlocklists();
+    QDir tempDir = QDir::temp();
 
-            filepath = blocklist->location();
-            if (blocklist->isAdded()) {
-                QFile::link(filepath, tempDir.absoluteFilePath(blocklist->name()));
-                filesToMove[tempDir.absoluteFilePath(blocklist->name())] = localBlocklistDir.absolutePath();
-            }
-            else if (blocklist->isRemoved()) {
-                filesToMove[blocklist->location()] = "/dev/null";
-            }
-            else if (blocklist->isEnabled()) {
-               filesToMove[blocklist->location()] = localBlocklistDir.absoluteFilePath(blocklist->name());
-            }
-            else if (blocklist->isDisabled()) {
-                filesToMove[blocklist->location()] = localBlocklistDir.absoluteFilePath("."+blocklist->name());
-            }
+    foreach(Blocklist* blocklist, localBlocklists) {
+        if (! blocklist->isChanged() || ! blocklist->exists())
+            continue;
+
+        filepath = blocklist->location();
+        if (blocklist->isAdded()) {
+            QFile::link(filepath, tempDir.absoluteFilePath(blocklist->name()));
+            m_Root->moveFile(tempDir.absoluteFilePath(blocklist->name()), localBlocklistDir.absolutePath(), false);
+            //filesToMove[tempDir.absoluteFilePath(blocklist->name())] = localBlocklistDir.absolutePath();
         }
+        else if (blocklist->isRemoved()) {
+            m_Root->removeFile(blocklist->location(), false);
+            //filesToMove[blocklist->location()] = "/dev/null";
+        }
+        else if (blocklist->isEnabled()) {
+           m_Root->moveFile(blocklist->location(), localBlocklistDir.absoluteFilePath(blocklist->name()), false);
+           //filesToMove[blocklist->location()] = localBlocklistDir.absoluteFilePath(blocklist->name());
+        }
+        else if (blocklist->isDisabled()) {
+            m_Root->moveFile(blocklist->location(), localBlocklistDir.absoluteFilePath("."+blocklist->name()), false);
+            //filesToMove[blocklist->location()] = localBlocklistDir.absoluteFilePath("."+blocklist->name());
+        }
+    }
         
         /*foreach(const QString& name, localFiles.keys())
         {
@@ -731,18 +735,17 @@ void Peerguardian::applyChanges()
                     filesToMove[symFilepath] = "/dev/null"; //temporary hack
             }
         }*/
-    }
-
 
     //====== update  frequency radio buttons ==========/
     filepath = getUpdateFrequencyPath();
     if ( ! QFile::exists(filepath) )
-        filesToMove[getUpdateFrequencyCurrentPath()] = filepath;
+        m_Root->moveFile(getUpdateFrequencyCurrentPath(), filepath, false);
+        //filesToMove[getUpdateFrequencyCurrentPath()] = filepath;
         
-    m_FilesToMove = filesToMove.keys();
+    /*m_FilesToMove = filesToMove.keys();
 
     if ( ! filesToMove.isEmpty() )
-        m_Root->moveFiles(filesToMove, false);
+        m_Root->moveFiles(filesToMove, false);*/
 
     //whitelist->updateSettings(getTreeItems(mUi.whitelistTreeWidget), guiOptions->getPositionFirstAddedWhitelistItem(), false);
     //guiOptions->updateWhitelist(guiOptions->getPositionFirstAddedWhitelistItem(), false);
@@ -750,7 +753,7 @@ void Peerguardian::applyChanges()
     //assume changes will be applied, if not this button will be enabled afterwards
     setApplyButtonEnabled(false);
 
-    m_Root->executeScript(); //execute previous gathered commands
+    m_Root->executeAll(); //execute previous gathered commands
 }
 
 
@@ -1296,8 +1299,8 @@ void Peerguardian::whitelistItem()
     {
         QStringList iptablesCommands = whitelist->getCommands(QStringList() << value, QStringList() << type, QStringList() << prot, QList<bool>() << true);
         QString testCommand = whitelist->getIptablesTestCommand(ip, type, prot);
-        m_Root->executeCommands(iptablesCommands, false);
-        m_Root->executeScript();
+        m_Root->addCommands(iptablesCommands);
+        m_Root->executeAll();
     }
     else if (  action == a_whitelistIpPerm || action == a_whitelistPortPerm )
     {
