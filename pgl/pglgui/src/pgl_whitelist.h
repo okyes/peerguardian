@@ -29,6 +29,7 @@
 
 #include "whitelist_item.h"
 #include "utils.h"
+#include "port.h"
 
 #define WHITE_IP_IN "WHITE_IP_IN"
 #define WHITE_IP_OUT "WHITE_IP_OUT"

@@ -24,6 +24,7 @@
 #include "blocklist.h"
 #include "pgl_lists.h"
 #include "pglcore.h"
+#include "port.h"
 
 enum openMode { ADD_MODE=0x000,
             EDIT_MODE,
