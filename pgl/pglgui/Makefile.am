@@ -35,7 +35,6 @@ dist_pglgui_SOURCES = \
 	src/command.cpp src/command.h \
 	src/error_dialog.cpp src/error_dialog.h \
 	src/file_transactions.cpp src/file_transactions.h \
-	src/gui_options.cpp src/gui_options.h \
 	src/peerguardian.cpp src/peerguardian.h \
 	src/peerguardian_info.cpp src/peerguardian_info.h \
 	src/pglcmd.cpp src/pglcmd.h \
