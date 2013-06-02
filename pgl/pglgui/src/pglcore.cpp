@@ -53,8 +53,6 @@ void PglCore::load()
     bool updateWeekly = false;
     bool updateMonthly = false;
 
-    qDebug() << "LOAD";
-
     PglSettings::loadSettings();
 
     if ( PglSettings::value("INIT") == "1" )
@@ -174,9 +172,18 @@ bool PglCore::hasToUpdatePglcmdConf()
 bool PglCore::hasToUpdateBlocklistsFile()
 {
     foreach(Blocklist* blocklist, mBlocklistManager->blocklists()) {
-        if (blocklist->isChanged())
+        if (!blocklist->isLocal() && blocklist->isChanged())
             return true;
     }
+
+    return false;
+}
+
+bool PglCore::hasToReloadBlocklists()
+{
+    foreach(Blocklist* blocklist, mBlocklistManager->blocklists())
+        if (blocklist->isChanged())
+            return true;
 
     return false;
 }

@@ -62,6 +62,7 @@ class PglCore : QObject {
         WhitelistManager* whitelistManager();
         bool hasToUpdatePglcmdConf();
         bool hasToUpdateBlocklistsFile();
+        bool hasToReloadBlocklists();
         QStringList generatePglcmdConf();
         void undo();
         void load();
