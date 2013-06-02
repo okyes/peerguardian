@@ -107,7 +107,6 @@ void WhitelistManager::load()
             values = value.split(" ", QString::SkipEmptyParts);
             foreach(const QString& value, values) {
                 WhitelistItem* item = new WhitelistItem(value, parseConnectionType(key), parseProtocol(key), true, false);
-                qDebug() << item->isRemoved();
                 mWhitelistItems.append(item);
             }
             m_WhitelistDisabled[key] = values;
@@ -486,8 +485,8 @@ QStringList WhitelistManager::getCommands( QStringList items, QStringList connec
     QString command_operator;
     QString ip_source_check, ip_destination_check, port_check;
     QString command_type("");
-    QString command, iptables_list_type("! iptables -L $IPTABLES_CHAIN -n | ");
-    QString chain, item, connection, protocol, conn, iptables_list, checkCmd;
+    QString command, iptables_list_type("iptables -L $IPTABLES_CHAIN -n | ");
+    QString chain, item, connection, protocol, conn, iptables_list, checkCmd, notOp;
     QStringList directions;
     QString portNum("0");
     bool ip;
@@ -537,11 +536,13 @@ QStringList WhitelistManager::getCommands( QStringList items, QStringList connec
         {
             option = "-I";
             command_operator = "||";
+            notOp = "";
         }
         else
         {
             option = "-D";
             command_operator = "||";
+            notOp = " !";
         }
         
         //convert incoming to in, outgoing to out, etc
@@ -563,31 +564,31 @@ QStringList WhitelistManager::getCommands( QStringList items, QStringList connec
         
         if ( ip )
         {      
-            foreach( QString direction, directions )
+            foreach(const QString& direction, directions )
             {
-                command = QString(command_type);
-                command.replace(QString("$OPTION"), option);
-                command.replace(QString("$COMMAND_OPERATOR"), command_operator);
-                command.replace(QString("$IPTABLES_CHAIN"), chain);
-                command.replace(QString("$FROM"), direction);
-                command.replace(QString("$IP "), item + " ");
+                command = command_type;
+                command.replace("$OPTION", option);
+                command.replace("$COMMAND_OPERATOR", command_operator);
+                command.replace("$IPTABLES_CHAIN", chain);
+                command.replace("$FROM", direction);
+                command.replace("$IP ", item + " ");
 
                 if ( direction == "--source" )
                     commands << iptables_list + ip_source_check + command;
                 else if ( direction == "--destination")
-                    commands << iptables_list + ip_destination_check + command;
+                    commands << notOp + '(' + iptables_list + ip_destination_check + ')' + command;
 
             }
         }
         else
         {
-            command = QString(command_type);
-            command.replace(QString("$OPTION"), option);
-            command.replace(QString("$COMMAND_OPERATOR"), command_operator);
-            command.replace(QString("$IPTABLES_CHAIN"), chain);
-            command.replace(QString("$PROT"), protocol);
-            command.replace(QString("$PORT"), portNum);
-            commands << iptables_list + port_check + command;
+            command = command_type;
+            command.replace("$OPTION", option);
+            command.replace("$COMMAND_OPERATOR", command_operator);
+            command.replace("$IPTABLES_CHAIN", chain);
+            command.replace("$PROT", protocol);
+            command.replace("$PORT", portNum);
+            commands <<  notOp + '(' + iptables_list + port_check + ')' + command;
         }
     }
     
