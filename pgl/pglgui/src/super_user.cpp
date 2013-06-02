@@ -43,7 +43,6 @@ SuperUser::SuperUser( QObject *parent, const QString& rootpath ):
     }
 }
 
-
 SuperUser::~SuperUser() 
 {
     QFile tmpfile(TMP_SCRIPT);
@@ -86,22 +85,21 @@ QString SuperUser::getRootPath()
 {
     return mSudoCmd;
 }
-	
-void SuperUser::executeCommand(QString& command, bool start) 
-{
-    executeCommands(QStringList() << command, start);
-}
 
-void SuperUser::executeCommands(QStringList commands, bool start) 
+void SuperUser::exec(QStringList commands)
 {
-    if ( (! start) || commands.isEmpty())
-    {
-        m_Commands << commands;
-        return;
+    if (commands.isEmpty()) {
+        commands = m_Commands;
+        if (commands.isEmpty())
+            return;
     }
 
-    if ( mSudoCmd.isEmpty() || (! QFile::exists(mSudoCmd)) )
-    {
+    /*if (commands.isEmpty()) {
+        m_Commands << commands;
+        return;
+    }*/
+
+    if ( mSudoCmd.isEmpty() || !QFile::exists(mSudoCmd) ){
         QString errorMsg = tr("Could not use either kdesu(do) or gksu(do) to execute the command requested.\
         You can set the path of the one you prefer in <b>\"Options - Settings - Sudo front-end\"</b>");
         qCritical() << errorMsg;
@@ -109,19 +107,20 @@ void SuperUser::executeCommands(QStringList commands, bool start)
         return;
     }
     
-    if ( m_ProcT->isRunning() )
-    {
+    if ( m_ProcT->isRunning() ) {
         qWarning() << "Another process is still running...";
         emit error("Another process is still running...");
         return;
     }
 
-    if ( ! hasPermissions("/etc") )//If the program is not run by root, use kdesu or gksu as first argument
-    {
-        for (int i=0; i < commands.size(); i++)
-        {
+    if ( ! hasPermissions("/etc") ) {//If the program is not run by root, use kdesu or gksu as first argument
+        QString command = commands.join(") && (");
+        command = QString ("%1 %2 sh -c \"(%3)\"").arg(mSudoCmd).arg(sudoParameters()).arg(command);
+        commands.clear();
+        commands << command;
+        /*for (int i=0; i < commands.size(); i++) {
             commands[i].insert(0, mSudoCmd + sudoParameters());
-        }
+        }*/
     }
     
     qDebug() << "Executing commands: \n" << commands << "\n";
@@ -129,33 +128,56 @@ void SuperUser::executeCommands(QStringList commands, bool start)
     m_ProcT->executeCommands(commands);
 }
 
-void SuperUser::execute(const QStringList& command ) 
+void SuperUser::addCommand(const QString& command, const QStringList& args)
 {
-    QStringList commands;
-    commands << command.join(" ");
-    executeCommands(commands);
+    m_Commands << QString("%1 %2").arg(command).arg(args.join(" "));
 }
 
-void SuperUser::executeScript()
+void SuperUser::addCommand(const QStringList& command)
+{
+    m_Commands << command.join(" ");
+}
+
+void SuperUser::addCommands(const QStringList& commands)
+{
+    m_Commands << commands;
+}
+
+void SuperUser::executeCommand(const QString& command, const QStringList& args)
+{
+    addCommand(command, args);
+    exec();
+    //executeCommands(QStringList() << command, start);
+}
+
+void SuperUser::executeCommand(const QStringList& command)
+{
+    addCommand(command);
+    exec();
+    //executeCommands(commands);
+}
+
+void SuperUser::executeAll()
 {
     if ( m_Commands.isEmpty() )
         return;
 
+    exec();
+
     //QStringList lines;
     //QString cmd = QString("sh %1").arg(TMP_SCRIPT);
-    QString cmd = QString("\"(%1)\"").arg(m_Commands.join(") && ("));
-    executeCommand(cmd);
+    //QString cmd = QString("sh -c '(%1)'").arg(m_Commands.join(") && ("));
+    //executeCommand(cmd);
 
     //create file with the commands to be executed
     /*lines << "#!/bin/sh";
     lines << "set -e";
     lines << m_Commands;
-    
+
     bool ok = saveFileData(lines, "/tmp/execute-all-pgl-commands.sh");
 
     if ( ok )
         executeCommand(cmd);*/
-    
 }
 
 void SuperUser::processFinished(const CommandList& commands)
@@ -178,30 +200,41 @@ void SuperUser::processFinished(const CommandList& commands)
     }
     
     
-    if (! failedCommands.isEmpty()) {
-        emit error(failedCommands);
-    }
+    //if (! failedCommands.isEmpty()) {
+     //   emit error(failedCommands);
+   // }
 
-    emit finished();
+    emit finished(commands);
 }
 
 
-void SuperUser::moveFile( const QString &source, const QString &dest ) 
+void SuperUser::moveFile( const QString &source, const QString &dest, bool now)
 {
-	execute( QStringList() <<  "mv" << source << dest );
+    QStringList cmd; cmd <<  "mv" << source << dest;
+    if (now)
+        executeCommand(cmd);
+    else
+        addCommand(cmd);
 }
 
-void SuperUser::copyFile( const QString &source, const QString &dest ) 
+void SuperUser::copyFile( const QString &source, const QString &dest, bool now)
 {
-	execute( QStringList() <<  "cp" << source << dest );
+    QStringList cmd; cmd <<  "cp" << source << dest;
+    if (now)
+        executeCommand(cmd);
+    else
+        addCommand(cmd);
 }
 
-void SuperUser::removeFile( const QString &source ) {
-	moveFile( source, "/dev/null" );
+void SuperUser::removeFile( const QString &source, bool now) {
+    QStringList cmd; cmd << "rm" << "-f" << source;
+    if (now)
+        executeCommand(cmd);
+    else
+        addCommand(cmd);
 }
 
-
-void SuperUser::moveFiles( const QMap<QString, QString> files, bool start)
+/*void SuperUser::moveFiles( const QMap<QString, QString> files, bool start)
 {
     if ( ! files.isEmpty() )
     {
@@ -214,7 +247,7 @@ void SuperUser::moveFiles( const QMap<QString, QString> files, bool start)
         
         executeCommands(commands, start);
     }
-}
+}*/
 
 QString SuperUser::sudoParameters()
 {

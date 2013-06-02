@@ -76,25 +76,24 @@ class SuperUser : public QObject
             * @param command QStringList containing the command to be executed.
             * @param detached Execute the command either detached or start it normally and wait for it to be finished. This is ingored if pglgui was started with sudo rights.
             */
-        void executeCommands( QStringList commands, bool start = true );
-        void execute( const QStringList& command);
+        void executeCommands( QStringList commands);
         /**
             * Move a file from one place of the filesystem to another, using the mv command.
             * @param source The current path of the file.
             * @param dest The file's new location.
             */
-        void moveFile( const QString &source, const QString &dest );
+        void moveFile( const QString &source, const QString &dest, bool now=false);
         /**
             * Copy a file from one place of the filesystem to another, using the cp command.
             * @param source The current path of the file.
             * @param dest The file's new location.
             */
-        void copyFile( const QString &source, const QString &dest );
+        void copyFile( const QString &source, const QString &dest, bool now=false);
         /**
             * Remove a file using the mv command.
             * @param source The current path of the file.
             */
-        void removeFile( const QString &source );
+        void removeFile( const QString &source, bool now=false );
 
         QString getRootPath();
         //static QString getFilePath();
@@ -106,16 +105,23 @@ class SuperUser : public QObject
         void moveFiles( const QMap<QString, QString>, bool start = true);
         void executeScript();
         void operator=(const SuperUser& su);
-        void executeCommand(QString& command, bool start = true);
-        void executeCommand(QStringList& command, bool start = true);
+        void executeCommand(const QString&, const QStringList& args=QStringList());
+        void executeCommand(const QStringList&);
+        void addCommand(const QString&, const QStringList& args=QStringList());
+        void addCommand(const QStringList&);
+        void addCommands(const QStringList&);
+        void executeAll();
 
     public slots:
         void processFinished(const CommandList&);
 
     signals:
-        void finished();
+        void finished(const CommandList&);
         void error(const CommandList&);
         void error(const QString&);
+
+protected:
+        void exec(QStringList commands=QStringList());
 
     private:
         SuperUser(const SuperUser& other);
