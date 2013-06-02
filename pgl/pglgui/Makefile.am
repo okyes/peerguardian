@@ -25,6 +25,7 @@ pglgui_LDADD = \
 
 dist_pglgui_SOURCES = \
 	src/enums.h \
+	src/port.h src/port.cpp \
 	src/option.cpp src/option.h src/option_p.h \
 	src/whitelist_item.cpp src/whitelist_item.h src/whitelist_item_p.h \
 	src/list_item.cpp src/list_item.h \
@@ -38,9 +39,9 @@ dist_pglgui_SOURCES = \
 	src/peerguardian.cpp src/peerguardian.h \
 	src/peerguardian_info.cpp src/peerguardian_info.h \
 	src/pglcmd.cpp src/pglcmd.h \
-	src/pgl_lists.cpp src/pgl_lists.h \
+	src/blocklist_manager.cpp src/blocklist_manager.h \
 	src/pgl_settings.cpp src/pgl_settings.h \
-	src/pgl_whitelist.cpp src/pgl_whitelist.h \
+	src/whitelist_manager.cpp src/whitelist_manager.h \
 	src/proc_thread.cpp src/proc_thread.h \
 	src/settings.cpp src/settings.h \
 	src/super_user.cpp src/super_user.h \
