@@ -18,7 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "pgl_lists.h"
+#include "blocklist_manager.h"
 #include "utils.h"
 #include "pgl_settings.h"
 
@@ -52,7 +52,6 @@ void BlocklistManager::loadBlocklists()
     for(int i=0; i < mBlocklists.size(); i++)
         delete mBlocklists[i];
     mBlocklists.clear();
-
     m_ListsFile.clear();
     
     loadBlocklistsFile();

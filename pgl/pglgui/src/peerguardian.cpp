@@ -13,7 +13,6 @@
 #include "peerguardian.h"
 #include "file_transactions.h"
 #include "utils.h"
-#include "gui_options.h"
 #include "pgl_settings.h"
 #include "viewer_widget.h"
 #include "error_dialog.h"

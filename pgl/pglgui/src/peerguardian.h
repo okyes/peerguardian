@@ -53,14 +53,14 @@
 #include "file_transactions.h"
 #include "pglcore.h"
 #include "pgl_settings.h"
-#include "pgl_lists.h"
+#include "blocklist_manager.h"
 #include "peerguardian_info.h"
 #include "pglcmd.h"
 #include "super_user.h"
 
 #include "settings.h"
 #include "add_exception_dialog.h"
-#include "pgl_whitelist.h"
+#include "whitelist_manager.h"
 
 
 #define VERSION_NUMBER VERSION

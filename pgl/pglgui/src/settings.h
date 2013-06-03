@@ -30,7 +30,7 @@
 #include "pglcmd.h"
 #include "peerguardian_info.h"
 #include "pgl_settings.h"
-#include "pgl_lists.h"
+#include "blocklist_manager.h"
 
 class QString;
 

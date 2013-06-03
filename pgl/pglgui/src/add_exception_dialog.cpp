@@ -9,7 +9,7 @@
 #include "add_exception_dialog.h"
 #include "utils.h"
 #include "file_transactions.h"
-#include "pgl_lists.h"
+#include "blocklist_manager.h"
 
 class WhitelistItem;
 

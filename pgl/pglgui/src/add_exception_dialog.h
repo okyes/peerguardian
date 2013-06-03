@@ -19,10 +19,10 @@
 #include <QHash>
 
 #include "ui_add_exception.h"
-#include "pgl_whitelist.h"
+#include "whitelist_manager.h"
 #include "utils.h"
 #include "blocklist.h"
-#include "pgl_lists.h"
+#include "blocklist_manager.h"
 #include "pglcore.h"
 #include "port.h"
 

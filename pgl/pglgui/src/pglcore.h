@@ -27,8 +27,8 @@
 
 #include "settings.h"
 #include "add_exception_dialog.h"
-#include "pgl_whitelist.h"
-#include "pgl_lists.h"
+#include "whitelist_manager.h"
+#include "blocklist_manager.h"
 #include "pgl_settings.h"
 #include "option.h"
 
