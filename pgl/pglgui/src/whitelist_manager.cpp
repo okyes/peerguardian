@@ -17,11 +17,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "pgl_whitelist.h"
+#include "whitelist_manager.h"
 #include "utils.h"
 #include "pgl_settings.h"
 #include "file_transactions.h"
-#include "gui_options.h"
 
 WhitelistManager::WhitelistManager(QSettings* settings)
 {
@@ -58,14 +57,12 @@ void WhitelistManager::load()
     QStringList values;
     QString key, skey, value;
 
-    if ( ! m_WhitelistEnabled.isEmpty() )
-        m_WhitelistEnabled.clear();
-
-    foreach(WhitelistItem* item, mWhitelistItems)
-        if (item)
-            delete item;
-    if (! mWhitelistItems.isEmpty())
+    if (! mWhitelistItems.isEmpty()) {
+        foreach(WhitelistItem* item, mWhitelistItems)
+            if (item)
+                delete item;
         mWhitelistItems.clear();
+    }
 
     foreach(const QString& line, fileData)
     {
@@ -75,30 +72,15 @@ void WhitelistManager::load()
         key = getVariable(line);
         if (m_Group.contains(key)) {
             values = getValue(line).split(" ", QString::SkipEmptyParts);
-            foreach(const QString& value, values)
-                mWhitelistItems.append(new WhitelistItem(value, parseConnectionType(key), parseProtocol(key), true));
-
-            m_WhitelistEnabled[key] = values;
-        }
-
-        /*foreach(const QString& key, m_Group.keys()) {
-            if ( line.contains(key) ) {
-                values = getValue(line).split(" ", QString::SkipEmptyParts);
-
-                foreach(const QString& value, values)
-                    mWhitelistItems.append(new WhitelistItem(value, parseProtocol(line), parseConnectionType(line)));
-
-                m_WhitelistEnabled[key] = getValue(line).split(" ", QString::SkipEmptyParts);
-                break;
+            foreach(const QString& value, values) {
+                WhitelistItem* item = new WhitelistItem(value, parseConnectionType(key), parseProtocol(key), true);
+                mWhitelistItems.append(item);
             }
-        }*/
+        }
     }
 
     //Since disabled whitelisted items (IPs or Ports) can't be easily stored
     //in /etc/plg/pglcmd.conf, the best option is to store them on the GUI settings file
-    
-    if ( ! m_WhitelistDisabled.isEmpty() )
-        m_WhitelistDisabled.clear();
 
     foreach (key, m_Group.keys() ) {
         skey = QString("whitelist/%1").arg(key);
@@ -109,7 +91,6 @@ void WhitelistManager::load()
                 WhitelistItem* item = new WhitelistItem(value, parseConnectionType(key), parseProtocol(key), true, false);
                 mWhitelistItems.append(item);
             }
-            m_WhitelistDisabled[key] = values;
         }
     }
 }

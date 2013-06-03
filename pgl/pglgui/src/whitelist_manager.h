@@ -41,9 +41,6 @@
 #define WHITE_TCP_FWD "WHITE_TCP_FWD"
 #define WHITE_UDP_FWD "WHITE_UDP_FWD"
 
-
-class GuiOptions;
-
 class WhitelistManager
 {
     QList<WhitelistItem*> mWhitelistItems;
