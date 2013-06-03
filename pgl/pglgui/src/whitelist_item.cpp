@@ -122,7 +122,8 @@ WhitelistItem::WhitelistItem(const QString& value, const QString& connType, cons
         *d_active_ptr = *d_ptr;
 }
 
-WhitelistItem::WhitelistItem(const WhitelistItem& item)
+WhitelistItem::WhitelistItem(const WhitelistItem& item) :
+    Option()
 {
     d_ptr = 0;
     d_active_ptr = 0;
@@ -192,17 +193,19 @@ void WhitelistItem::addAliases(const QStringList & aliases)
 
 WhitelistItem& WhitelistItem::operator=(const WhitelistItem& other)
 {
-    if (other.d_ptr && other.d_active_ptr) {
+    if (other.d_ptr) {
         if (! d_ptr)
             d_ptr = new WhitelistItemPrivate;
-        if (! d_active_ptr)
-            d_active_ptr = new WhitelistItemPrivate;
-
         *(d_ptr) = *(other.d_ptr);
-        *(d_active_ptr) = *(other.d_active_ptr);
-
         //set parent Option to point to same data
         setData(d_ptr);
+    }
+
+    if (other.d_active_ptr) {
+        if (! d_active_ptr)
+            d_active_ptr = new WhitelistItemPrivate;
+        *(d_active_ptr) = *(other.d_active_ptr);
+        //set parent Option to point to same data
         setActiveData(d_active_ptr);
     }
 

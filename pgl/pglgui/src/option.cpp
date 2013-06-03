@@ -171,13 +171,15 @@ bool Option::operator==(const Option& other)
 
 Option& Option::operator=(const Option& other)
 {
-    if (other.d_ptr && other.d_active_ptr) {
+    if (other.d_ptr) {
         if (! d_ptr)
             d_ptr = new OptionPrivate();
+        *d_ptr = *(other.d_ptr);
+    }
+
+    if (other.d_active_ptr) {
         if (! d_active_ptr)
             d_active_ptr = new OptionPrivate();
-
-        *d_ptr = *(other.d_ptr);
         *d_active_ptr = *(other.d_active_ptr);
     }
 
