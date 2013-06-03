@@ -55,13 +55,10 @@ nodist_EXTRA_pglgui_SOURCES = \
 	src/moc_command.cpp \
 	src/moc_error_dialog.cpp \
 	src/moc_file_transactions.cpp \
-	src/moc_gui_options.cpp \
 	src/moc_peerguardian.cpp \
 	src/moc_peerguardian_info.cpp \
 	src/moc_pglcmd.cpp \
-	src/moc_pgl_lists.cpp \
 	src/moc_pgl_settings.cpp \
-	src/moc_pgl_whitelist.cpp \
 	src/moc_proc_thread.cpp \
 	src/moc_settings.cpp \
 	src/moc_super_user.cpp \
