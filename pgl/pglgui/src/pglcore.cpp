@@ -76,6 +76,11 @@ void PglCore::load()
         }
     }
 
+    for(int i=0; i < mOptions.size(); i++)
+        if (mOptions[i])
+            delete mOptions[i];
+    mOptions.clear();
+
     setOption("startAtBoot", startAtBoot, true);
     setOption("updateAutomatically", updateAutomatically, true);
     setOption("updateDailyRadio", updateDaily, true);

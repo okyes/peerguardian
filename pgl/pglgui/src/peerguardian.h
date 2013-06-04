@@ -168,7 +168,7 @@ class Peerguardian : public QMainWindow {
         void g_MakeMenus();
         void g_ShowAddDialog(int);
         void startTimers();
-        void updateGUI();
+        void loadGUI();
         QList<QTreeWidgetItem*> getTreeItems(QTreeWidget *tree, int checkState=-1);
         QRadioButton * getAutoListUpdateDailyRadio() {return mUi.updateDailyRadio;}
         QRadioButton * getAutoListUpdateWeeklyRadio() {return mUi.updateWeeklyRadio;}
@@ -179,8 +179,8 @@ class Peerguardian : public QMainWindow {
         QTreeWidget * getWhitelistTreeWidget() { return mUi.whitelistTreeWidget; }
         QString getUpdateFrequencyPath();
         QString getUpdateFrequencyCurrentPath();
-        void updateWhitelistWidget();
-        void updateBlocklistWidget();
+        void loadWhitelistWidget();
+        void loadBlocklistWidget();
         int getMaxLogSize(){ return m_MaxLogSize; }
         virtual bool eventFilter(QObject*, QEvent*);
 

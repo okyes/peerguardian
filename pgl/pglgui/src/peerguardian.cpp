@@ -43,7 +43,7 @@ Peerguardian::Peerguardian( QWidget *parent) :
     g_MakeMenus();
     g_MakeConnections();
     updateInfo();
-    updateGUI();
+    loadGUI();
     
     //resize columns in log view
     QHeaderView * header = mUi.logTreeWidget->header();
@@ -225,41 +225,22 @@ void Peerguardian::restoreSettings()
     }
 }
 
-void Peerguardian::updateGUI()
+void Peerguardian::loadGUI()
 {
-
     mUi.startAtBootCheckBox->setChecked(mPglCore->option("startAtBoot")->isEnabled());
     mUi.updateAutomaticallyCheckBox->setChecked(mPglCore->option("updateAutomatically")->isEnabled());
     mUi.updateDailyRadio->setChecked(mPglCore->option("updateDailyRadio")->isEnabled());
     mUi.updateWeeklyRadio->setChecked(mPglCore->option("updateWeeklyRadio")->isEnabled());
     mUi.updateMonthlyRadio->setChecked(mPglCore->option("updateMonthlyRadio")->isEnabled());
 
-    /*if ( PglSettings::value("INIT") == "0" )
-        mUi.startAtBootCheckBox->setChecked(false);
-    else if ( PglSettings::value("INIT") == "1" )
-        mUi.startAtBootCheckBox->setChecked(true);
+    setButtonChanged(mUi.startAtBootCheckBox, mPglCore->option("startAtBoot")->isChanged());
+    setButtonChanged(mUi.updateAutomaticallyCheckBox, mPglCore->option("updateAutomatically")->isChanged());
+    setButtonChanged(mUi.updateDailyRadio, mPglCore->option("updateDailyRadio")->isChanged());
+    setButtonChanged(mUi.updateWeeklyRadio, mPglCore->option("updateWeeklyRadio")->isChanged());
+    setButtonChanged(mUi.updateMonthlyRadio, mPglCore->option("updateMonthlyRadio")->isChanged());
 
-
-    if ( PglSettings::value("CRON") == "0" )
-        mUi.updateAutomaticallyCheckBox->setChecked(false);
-    else
-    {
-        QString frequency = mPglCore->getUpdateFrequencyCurrentPath();
-
-        if ( ! frequency.isEmpty() )
-        {
-            mUi.updateAutomaticallyCheckBox->setChecked(true);
-            if (frequency.contains("daily/", Qt::CaseInsensitive))
-                mUi.updateDailyRadio->setChecked(true);
-            else if ( frequency.contains("weekly/", Qt::CaseInsensitive))
-                mUi.updateWeeklyRadio->setChecked(true);
-            else if ( frequency.contains("monthly/", Qt::CaseInsensitive))
-                mUi.updateMonthlyRadio->setChecked(true);
-        }
-    }*/
-
-    updateBlocklistWidget();
-    updateWhitelistWidget();
+    loadBlocklistWidget();
+    loadWhitelistWidget();
 }
 
 void Peerguardian::startTimers()
@@ -442,7 +423,7 @@ void Peerguardian::rootFinished(const CommandList& commands)
         WhitelistManager* whitelist = mPglCore->whitelistManager();
         whitelist->updateGuiSettings();
         mPglCore->load();
-        updateGUI();
+        loadGUI();
         setApplyButtonEnabled(false);
 
         if (mReloadPgl)
@@ -856,7 +837,7 @@ void Peerguardian::treeItemPressed(QTreeWidgetItem* item, int column)
 
 }
 
-void Peerguardian::updateBlocklistWidget()
+void Peerguardian::loadBlocklistWidget()
 {
 
     //m_List->loadBlocklists();
@@ -892,7 +873,7 @@ void Peerguardian::updateBlocklistWidget()
     mUi.blocklistTreeWidget->blockSignals(false);
 }
 
-void Peerguardian::updateWhitelistWidget()
+void Peerguardian::loadWhitelistWidget()
 {
     QStringList info;
     WhitelistManager *whitelist = mPglCore->whitelistManager();
@@ -1023,7 +1004,7 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
             newItems = true;
         }
 
-        updateWhitelistWidget();
+        loadWhitelistWidget();
         mUi.whitelistTreeWidget->scrollToBottom();
 
 	}
@@ -1042,7 +1023,7 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
             newItems = true;
         }
         
-        updateBlocklistWidget();
+        loadBlocklistWidget();
         mUi.blocklistTreeWidget->scrollToBottom();
     }
 
@@ -1187,7 +1168,7 @@ void Peerguardian::undoAll()
     
     if ( answer == QMessageBox::Yes) {
         mPglCore->undo();
-        updateGUI();
+        loadGUI();
         setApplyButtonEnabled(false);
     }
 }
