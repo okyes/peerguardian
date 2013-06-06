@@ -67,8 +67,6 @@
 #define DEFAULT_WINDOW_TITLE "PeerGuardian Linux"
 
 //Time related defines
-#define MEDIUM_TIMER_INTERVAL 2000
-#define SLOW_TIMER_INTERVAL 5000
 #define INFOMSG_DELAY 5000
 
 
@@ -118,9 +116,6 @@ class Peerguardian : public QMainWindow {
     QIcon mTrayIconDisabled;
     QMenu * m_TrayMenu;
     QMenu * m_LogMenu;
-    //Timers
-    QTimer *m_MediumTimer;
-    QTimer *m_SlowTimer;
     bool quitApp;
     bool m_WhitelistItemPressed;
     bool m_BlocklistItemPressed;
@@ -134,7 +129,6 @@ class Peerguardian : public QMainWindow {
     QAction *a_whitelistIpTemp;
     QAction *a_whitelistPortPerm;
     QAction *a_whitelistPortTemp;
-    bool mLastRunningState;
     CommandList mFailedCommands;
     volatile bool mAutomaticScroll;
     volatile bool mIgnoreScroll;
@@ -188,8 +182,7 @@ class Peerguardian : public QMainWindow {
         void showAddExceptionDialog();
         void showAddBlocklistDialog();
         void g_ShowAboutDialog();
-        void updateInfo();
-        void g_UpdateDaemonStatus();
+        void onDaemonChanged(bool);
         void treeItemChanged(QTreeWidgetItem*, int);
         void blocklistItemChanged(QTreeWidgetItem*, int);
         void whitelistItemChanged(QTreeWidgetItem*, int);
@@ -230,6 +223,7 @@ private:
         void setTreeWidgetItemChanged(QTreeWidgetItem*, bool, bool blockSignals=true);
         void restoreSettings();
         void saveSettings();
+        void checkDaemonStatus();
 };	
 
 #endif //PEERGUARDIAN_H

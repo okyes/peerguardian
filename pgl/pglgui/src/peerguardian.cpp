@@ -38,12 +38,11 @@ Peerguardian::Peerguardian( QWidget *parent) :
     setWindowIcon(mTrayIconDisabled);
     
     initCore();
-    startTimers();
     g_MakeTray();
     g_MakeMenus();
     g_MakeConnections();
-    updateInfo();
     loadGUI();
+    checkDaemonStatus();
     
     //resize columns in log view
     QHeaderView * header = mUi.logTreeWidget->header();
@@ -246,14 +245,9 @@ void Peerguardian::loadGUI()
 void Peerguardian::startTimers()
 {
 	//Intiallize the medium timer for less usual procedures
-	m_MediumTimer = new QTimer(this);
-	m_MediumTimer->setInterval( m_ProgramSettings->value("settings/medium_timer",MEDIUM_TIMER_INTERVAL ).toInt() );
-	m_MediumTimer->start();
-	//Intiallize the slow timer for even less usual procedures
-	m_SlowTimer = new QTimer(this);
-	m_SlowTimer->setInterval( m_ProgramSettings->value("settings/slow_timer", SLOW_TIMER_INTERVAL ).toInt() );
-	m_SlowTimer->start();
-
+    //m_MediumTimer = new QTimer(this);
+    //m_MediumTimer->setInterval( m_ProgramSettings->value("settings/medium_timer", MEDIUM_TIMER_INTERVAL ).toInt() );
+    //m_MediumTimer->start();
 }
 
 void Peerguardian::g_MakeConnections()
@@ -291,9 +285,6 @@ void Peerguardian::g_MakeConnections()
         connect( m_Control, SIGNAL( actionMessage(const QString&, int ) ), mUi.statusBar, SLOT( showMessage( const QString&, int ) ) );
     }
 
-    connect( m_MediumTimer, SIGNAL( timeout() ), this, SLOT( g_UpdateDaemonStatus() ) );
-	connect( m_MediumTimer, SIGNAL( timeout() ), this, SLOT( updateInfo() ) );
-
 	//Blocklist and Whitelist Tree Widgets
     connect(mUi.whitelistTreeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(whitelistItemChanged(QTreeWidgetItem*, int)));
     connect(mUi.blocklistTreeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(blocklistItemChanged(QTreeWidgetItem*,int)));
@@ -315,6 +306,9 @@ void Peerguardian::g_MakeConnections()
         connect(m_Root, SIGNAL(finished(const CommandList&)), this, SLOT(rootFinished(const CommandList&)));
         connect(m_Root, SIGNAL(error(const QString&)), this, SLOT(rootError(const QString&)));
     }
+
+    if (m_Info)
+        connect(m_Info, SIGNAL(stateChanged(bool)), this, SLOT(onDaemonChanged(bool)));
     
     //connect the remove buttons
     connect(mUi.removeBlocklistButton, SIGNAL(clicked()), this, SLOT(removeListItems()));
@@ -946,7 +940,6 @@ void Peerguardian::initCore()
     m_Root = 0;
     m_Control = 0;
     quitApp = false;
-    mLastRunningState = false;
 
     mPglCore = new PglCore();
     mPglCore->load();
@@ -1060,40 +1053,34 @@ void Peerguardian::updateBlocklists()
     }*/
 }
 
-
 void Peerguardian::g_MakeTray() 
 {
 	m_Tray = new QSystemTrayIcon( mTrayIconDisabled );
 	m_Tray->setVisible( true );
     m_Tray->setToolTip(tr("Pgld is not running"));
-	g_UpdateDaemonStatus();
 }
 
-
-void Peerguardian::g_UpdateDaemonStatus() {
-
-    if (! m_Info )
-        return;
-    
-	m_Info->updateDaemonState();
-	bool running = m_Info->daemonState();
-    
-    if ( mLastRunningState != running ) {
-        if ( ! running ) {
-            mUi.controlPglButtons->setCurrentIndex(0);
-            m_Tray->setIcon(mTrayIconDisabled);
-            setWindowIcon(mTrayIconDisabled);
-            m_Tray->setToolTip(tr("Pgld is not running"));
-        }
-        else {
-            mUi.controlPglButtons->setCurrentIndex(1);
-            m_Tray->setIcon(mTrayIconEnabled);
-            setWindowIcon(mTrayIconEnabled);
-            m_Tray->setToolTip(tr("Pgld is up and running"));
-        }
+void Peerguardian::onDaemonChanged(bool running)
+{
+    if ( running ) {
+        mUi.controlPglButtons->setCurrentIndex(1);
+        m_Tray->setIcon(mTrayIconEnabled);
+        setWindowIcon(mTrayIconEnabled);
+        setWindowTitle(QString("%1 - %2").arg(DEFAULT_WINDOW_TITLE).arg(m_Info->loadedRanges()));
+        m_Tray->setToolTip(tr("Pgld is up and running"));
     }
+    else {
+        mUi.controlPglButtons->setCurrentIndex(0);
+        m_Tray->setIcon(mTrayIconDisabled);
+        setWindowIcon(mTrayIconDisabled);
+        setWindowTitle(DEFAULT_WINDOW_TITLE);
+        m_Tray->setToolTip(tr("Pgld is not running"));
+    }
+}
 
-    mLastRunningState = running;
+void Peerguardian::checkDaemonStatus()
+{
+    this->onDaemonChanged(m_Info->daemonState());
 }
 
 void Peerguardian::g_MakeMenus() {
@@ -1135,30 +1122,6 @@ void Peerguardian::g_ShowAboutDialog()
 	QMessageBox::about( this, tr( "About PeerGuardian Linux GUI" ), tr( message.toUtf8() ));
 
 }
-
-void Peerguardian::updateInfo()
-{
-    if ( ! m_Info )
-        return;
-
-	QString lRanges = m_Info->loadedRanges();
-	QString dTime = m_Info->lastUpdateTime();
-
-	if ( lRanges.isEmpty() )
-		lRanges = "N/A";
-
-	if ( m_Info->daemonState() == false )
-		lRanges = "";
-    else
-        lRanges.insert(0, " - ");
-
-	//if ( dTime.isNull() )
-	//	dTime = "Unknown";
-        
-    if ( windowTitle() != DEFAULT_WINDOW_TITLE + lRanges )
-        setWindowTitle(DEFAULT_WINDOW_TITLE + lRanges);
-}
-
 
 void Peerguardian::undoAll()
 { 

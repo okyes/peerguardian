@@ -28,16 +28,17 @@
 #include <QTimer>
 #include <QProcess>
 #include <QtDebug>
+#include <QTimer>
 
 #include "file_transactions.h"
 
 #define DAEMON "pgld"
 #define EMIT_SIGNAL_DELAY 20000
-
+#define TIMER_INTERVAL 2000
 
 /**
 *
-* @short Simple class which loads data from the blockcontrol log and moblock's main log to display information about moblock. This class is also used to check the state of the moblock daemon.
+* @short Simple class which loads data from the blockcontrol log and pgld's main log to display information about pgld. This class is also used to check the state of the pgld daemon.
 *
 */
 
@@ -47,7 +48,7 @@ class PeerguardianInfo : public QObject {
 
 	public:
 		/**
-		 * Constructor. Creates a PeerguardianInfo object and loads data from the moblock log in the path specified
+         * Constructor. Creates a PeerguardianInfo object and loads data from the pgld log in the path specified
 		 * @param filename The path to the blockcontrol log
 		 * @param parent The QObject parent.
 		 */
@@ -57,15 +58,15 @@ class PeerguardianInfo : public QObject {
 		 */
 		~PeerguardianInfo() { }
 		/**
-		 * @return The number of the ranges moblock has loaded.
+         * @return The number of the ranges pgld has loaded.
 		 */
 		inline QString loadedRanges() const { return m_LoadedRanges; }	
 		/**
-		 * @return The number of the ranges moblock has skipped.
+         * @return The number of the ranges pgld has skipped.
 		 */
 		inline QString skippedRanges() const { return m_SkippedRanges; }
 		/**
-		 * @return The number of the ranges moblock has merged.
+         * @return The number of the ranges pgld has merged.
 		 */
 		inline QString mergedRanges() const { return m_MergedRanges; }
 		/**
@@ -74,15 +75,15 @@ class PeerguardianInfo : public QObject {
 		 */
 		inline QString lastUpdateTime() const { return m_LastUpdateTime; }
 		/**
-		 * The state of the moblock daemon.
-		 * @return True if moblock is running, otherwise false.
+         * The state of the pgld daemon.
+         * @return True if pgld is running, otherwise false.
 		 */
 		inline bool daemonState() const { return m_DaemonState; }
 		/**
-		 * The process PID of the moblock daemon.
-		 * @return The process PID, or a null string if moblock is not running.
+         * The process PID of the pgld daemon.
+         * @return The process PID, or a null string if pgld is not running.
 		 */
-		inline QString processPID() const { return m_ProcessPID; }
+        inline QString processPID() const { return m_ProcessID; }
 		/**
 		 * The blockcontrol log.
 		 * @return The contents of the blockcontrol log with slightly changed format.
@@ -100,21 +101,21 @@ class PeerguardianInfo : public QObject {
 	
 	signals:
 		/**
-		 * Emited when the state of the moblock daemon changes.
-		 * @param state True if moblock is running, otherwise false.
+         * Emited when the state of the pgld daemon changes.
+         * @param state True if pgld is running, otherwise false.
 		 */
-		void processStateChange( const bool &state );
+        void stateChanged( const bool &state );
 		/**
-		 * Emited when the PID of the moblock daemon changes.
-		 * @param PID The process PID of the moblock daemon.
+         * Emited when the PID of the pgld daemon changes.
+         * @param PID The process PID of the pgld daemon.
 		 */
-		void processPIDChange( const QString &PID );
+        void processIDChanged( const QString &PID );
 		/**
-		 * Emited when moblock starts running.
+         * Emited when pgld starts running.
 		 */
 		void pgldStarted();
 		/**
-		 * Emited when moblock is terminated.
+         * Emited when pgld is terminated.
 		 */
 		void pgldStopped();
 		/**
@@ -125,17 +126,19 @@ class PeerguardianInfo : public QObject {
 
 	
 	private:	
-		//Check if moblock is running
-		void checkProcess();
-		void processDate( QString &date );
+        //Check if pgld is running
+        QString checkProcessID();
+        void processDate( QString &date );
 		QString m_LoadedRanges;
 		QString m_SkippedRanges;
 		QString m_MergedRanges;
 		QString m_LastUpdateTime;
-		QString m_ProcessPID;
+        QString m_ProcessID;
         QString m_LogPath;
 		bool m_DaemonState;
 		bool m_infoLoaded;
+        bool mPrevDaemonState;
+        QTimer* mTimer;
 		QVector< QString > m_FileNames;
 		QVector< QString > m_LastUpdateLog;
 		QVector< QString > m_PreviousUpdateLog;

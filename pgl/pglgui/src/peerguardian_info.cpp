@@ -28,7 +28,11 @@ PeerguardianInfo::PeerguardianInfo( const QString &logPath, QObject *parent ) :
 	m_DaemonState = false;
     m_LogPath = logPath;
     getLoadedIps();
-	checkProcess();
+    updateDaemonState();
+    mTimer = new QTimer(this);
+    mTimer->setInterval(TIMER_INTERVAL);
+    connect(mTimer, SIGNAL(timeout()), this, SLOT(updateDaemonState()));
+    mTimer->start();
 }
 
 void PeerguardianInfo::getLoadedIps()
@@ -51,54 +55,37 @@ void PeerguardianInfo::getLoadedIps()
             m_LoadedRanges = parts[1];
         } 
     }
-    
 }
 
-void PeerguardianInfo::checkProcess() {
+QString PeerguardianInfo::checkProcessID() {
 
 	QString command = "pidof";
-	QString output;
-	QString pglProcess;
 
 	QProcess ps;
 	ps.start( command, QStringList() << DAEMON );
 	if ( ! ps.waitForStarted() ) {
 		qWarning() << Q_FUNC_INFO << "Could not get process status for pgl.";
-		m_DaemonState = false;
 	}
 	ps.closeWriteChannel();
 	ps.waitForFinished();
 
-
-	m_ProcessPID = ps.readAll().trimmed();
-	m_DaemonState = !m_ProcessPID.isEmpty();
-
+    return ps.readAll().trimmed();
 }
 
-
-void PeerguardianInfo::updateDaemonState() {
-
-
-	QString oldPID = m_ProcessPID;
-	bool oldState = m_DaemonState;
-
-	checkProcess();
+void PeerguardianInfo::updateDaemonState()
+{
+    QString pid = checkProcessID();
+    bool daemonState = !pid.isEmpty();
 	
-
-	if ( m_ProcessPID != oldPID ) {
-		emit processPIDChange( m_ProcessPID );
-	}
-	if ( m_DaemonState != oldState ) {
-		emit processStateChange( m_DaemonState );
-		if ( m_DaemonState == true ) {
-			emit pgldStarted();
-		}
-		else {
-			emit pgldStopped();
-		}
+    if ( pid != m_ProcessID ) {
+        m_ProcessID = pid;
+        emit processIDChanged( m_ProcessID );
 	}
 
-
+    if ( daemonState != m_DaemonState ) {
+        m_DaemonState = daemonState;
+        emit stateChanged( m_DaemonState );
+	}
 }
 
 void PeerguardianInfo::processDate( QString &date ) {
