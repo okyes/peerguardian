@@ -201,7 +201,8 @@ class Peerguardian : public QMainWindow {
         void openSettingsDialog();
         void showLogRightClickMenu(const QPoint&);
         void whitelistItem();
-
+        void addWhitelistItem(WhitelistItem*, bool blockSignals=true);
+        void addBlocklistItem(Blocklist*, bool blockSignals=true);
 
     protected:
         void closeEvent ( QCloseEvent * event );

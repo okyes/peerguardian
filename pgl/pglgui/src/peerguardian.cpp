@@ -309,6 +309,10 @@ void Peerguardian::g_MakeConnections()
 
     if (m_Info)
         connect(m_Info, SIGNAL(stateChanged(bool)), this, SLOT(onDaemonChanged(bool)));
+
+    //connect whitelist and blocklists managers
+    connect(mPglCore->whitelistManager(), SIGNAL(whitelistItemAdded(WhitelistItem*)), this, SLOT(addWhitelistItem(WhitelistItem*)));
+    connect(mPglCore->blocklistManager(), SIGNAL(blocklistAdded(Blocklist*)), this, SLOT(addBlocklistItem(Blocklist*)));
     
     //connect the remove buttons
     connect(mUi.removeBlocklistButton, SIGNAL(clicked()), this, SLOT(removeListItems()));
@@ -828,7 +832,6 @@ void Peerguardian::treeItemPressed(QTreeWidgetItem* item, int column)
         mUi.removeExceptionButton->setEnabled(true);
         mUi.removeBlocklistButton->setEnabled(false);
     }
-
 }
 
 void Peerguardian::loadBlocklistWidget()
@@ -839,32 +842,39 @@ void Peerguardian::loadBlocklistWidget()
     if (mUi.blocklistTreeWidget->topLevelItemCount())
         mUi.blocklistTreeWidget->clear();
 
-    QStringList info;
-
     //get information about the blocklists being used
     foreach(Blocklist* blocklist, blocklistManager->blocklists()) {
         if (blocklist->isRemoved())
             continue;
-        info << blocklist->name();
-        QTreeWidgetItem * item = new QTreeWidgetItem(mUi.blocklistTreeWidget, info);
-        item->setToolTip(0, blocklist->targetLocation());
-        item->setData(0, Qt::UserRole, qVariantFromValue((void *) blocklist));
-
-        if ( blocklist->isEnabled() )
-            item->setCheckState(0, Qt::Checked);
-        else
-            item->setCheckState(0, Qt::Unchecked);
-        setTreeWidgetItemChanged(item, blocklist->isChanged(), false);
-
-        info.clear();
+        addBlocklistItem(blocklist, false);
     }
 
     mUi.blocklistTreeWidget->blockSignals(false);
 }
 
+void Peerguardian::addBlocklistItem(Blocklist* blocklist, bool blockSignals)
+{
+    if (blockSignals)
+        mUi.blocklistTreeWidget->blockSignals(true);
+
+    QStringList info;
+    info << blocklist->name();
+    QTreeWidgetItem * item = new QTreeWidgetItem(mUi.blocklistTreeWidget, info);
+    item->setToolTip(0, blocklist->targetLocation());
+    item->setData(0, Qt::UserRole, qVariantFromValue((void *) blocklist));
+
+    if ( blocklist->isEnabled() )
+        item->setCheckState(0, Qt::Checked);
+    else
+        item->setCheckState(0, Qt::Unchecked);
+    setTreeWidgetItemChanged(item, blocklist->isChanged(), false);
+
+    if (blockSignals)
+        mUi.blocklistTreeWidget->blockSignals(false);
+}
+
 void Peerguardian::loadWhitelistWidget()
 {
-    QStringList info;
     WhitelistManager *whitelist = mPglCore->whitelistManager();
     
     mUi.whitelistTreeWidget->blockSignals(true);
@@ -875,60 +885,35 @@ void Peerguardian::loadWhitelistWidget()
     foreach(WhitelistItem * item, whitelist->whitelistItems()) {
         if (item->isRemoved())
             continue;
-        info << item->value() << item->connection() << item->protocol();
-        QTreeWidgetItem * treeItem = new QTreeWidgetItem(mUi.whitelistTreeWidget, info);
-        treeItem->setData(0, Qt::UserRole, qVariantFromValue((void *) item));
-
-        if (item->isEnabled())
-            treeItem->setCheckState(0, Qt::Checked );
-        else
-            treeItem->setCheckState(0, Qt::Unchecked );
-
-        setTreeWidgetItemChanged(treeItem, item->isChanged(), false);
-        info.clear();
+        addWhitelistItem(item, false);
     }
 
     mUi.whitelistTreeWidget->setSortingEnabled(true);
     mUi.whitelistTreeWidget->sortByColumn(0);
     mUi.whitelistTreeWidget->blockSignals(false);
-
-
-    /*mUi.whitelistTreeWidget->blockSignals(true);
-
-    //get enabled whitelisted IPs and ports
-    items = m_Whitelist->getEnabledWhitelistedItems();
-    foreach(QString key, items.keys())
-    {
-        values = items[key];
-        foreach( QString value, values )
-        {
-            info << value << m_Whitelist->getTypeAsString(key) << m_Whitelist->parseProtocol(key);
-            QTreeWidgetItem * tree_item = new QTreeWidgetItem(mUi.whitelistTreeWidget, info);
-            tree_item->setCheckState(0, Qt::Checked );
-            mUi.whitelistTreeWidget->addTopLevelItem(tree_item);
-            info.clear();
-        }
-    }
-
-    //get disabled whitelisted IPs and ports
-    items = m_Whitelist->getDisabledWhitelistedItems();
-    foreach(QString key, items.keys())
-    {
-        values = items[key];
-        foreach( QString value, values )
-        {
-            info << value << m_Whitelist->getTypeAsString(key) << m_Whitelist->parseProtocol(key);
-            QTreeWidgetItem * tree_item = new QTreeWidgetItem(mUi.whitelistTreeWidget, info);
-            tree_item->setCheckState(0, Qt::Unchecked );
-            mUi.whitelistTreeWidget->addTopLevelItem(tree_item);
-            info.clear();
-        }
-    }
-    
-    mUi.whitelistTreeWidget->setSortingEnabled(true);
-    
-    mUi.whitelistTreeWidget->blockSignals(false);*/
 }
+
+void Peerguardian::addWhitelistItem(WhitelistItem* wlItem, bool blockSignals)
+{
+    if (blockSignals)
+        mUi.whitelistTreeWidget->blockSignals(true);
+
+    QStringList info;
+    info << wlItem->value() << wlItem->connection() << wlItem->protocol();
+    QTreeWidgetItem * treeItem = new QTreeWidgetItem(mUi.whitelistTreeWidget, info);
+    treeItem->setData(0, Qt::UserRole, qVariantFromValue((void *) wlItem));
+
+    if (wlItem->isEnabled())
+        treeItem->setCheckState(0, Qt::Checked );
+    else
+        treeItem->setCheckState(0, Qt::Unchecked );
+
+    setTreeWidgetItemChanged(treeItem, wlItem->isChanged(), false);
+
+    if (blockSignals)
+        mUi.whitelistTreeWidget->blockSignals(false);
+}
+
 
 void Peerguardian::initCore()
 {
@@ -984,19 +969,12 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
             if (whitelist->contains(whiteItem))
                 whitelist->item(whiteItem)->setEnabled(true);
             else
-                whitelist->addItem(new WhitelistItem(whiteItem.value(), whiteItem.connection(), whiteItem.protocol()));
-            //QTreeWidgetItem * treeItem = new QTreeWidgetItem(mUi.whitelistTreeWidget, info);
-            //treeItem->setCheckState(0, Qt::Checked);
-            //treeItem->setIcon(0, QIcon(WARNING_ICON));
-            //treeItem->setStatusTip(0, tr("You need to click the Apply button so the changes take effect"));
-            //mUi.whitelistTreeWidget->addTopLevelItem(treeItem);
+                whitelist->addItem(whiteItem.value(), whiteItem.connection(), whiteItem.protocol());
 
             newItems = true;
         }
 
-        loadWhitelistWidget();
         mUi.whitelistTreeWidget->scrollToBottom();
-
 	}
     else if (  openmode == (ADD_MODE | BLOCKLIST_MODE) )
     {
@@ -1013,7 +991,6 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
             newItems = true;
         }
         
-        loadBlocklistWidget();
         mUi.blocklistTreeWidget->scrollToBottom();
     }
 
@@ -1247,7 +1224,6 @@ void Peerguardian::whitelistItem()
         if ( ! whitelist->contains(value, type, prot) )
         {
             whitelist->addItem(new WhitelistItem(value, type, prot));
-            loadWhitelistWidget();
             applyChanges();
         }
     }
