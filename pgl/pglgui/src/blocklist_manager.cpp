@@ -24,7 +24,8 @@
 
 // =========== BlocklistManager class =========== //
 
-BlocklistManager::BlocklistManager( const QString &path )
+BlocklistManager::BlocklistManager( const QString &path, QObject* parent ) :
+    QObject(parent)
 {
     if (path.isEmpty())
         setFilePath(getValidPath(path, PglSettings::value("BLOCKLISTS_LIST")), true);
@@ -43,7 +44,9 @@ BlocklistManager::~BlocklistManager()
 
 void BlocklistManager::addBlocklist(const QString & url)
 {
-    mBlocklists.append(new Blocklist(url));
+    Blocklist* bl = new Blocklist(url);
+    mBlocklists.append(bl);
+    emit blocklistAdded(bl);
 }
 
 void BlocklistManager::loadBlocklists()

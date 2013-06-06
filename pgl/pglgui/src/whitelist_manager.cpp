@@ -22,7 +22,8 @@
 #include "pgl_settings.h"
 #include "file_transactions.h"
 
-WhitelistManager::WhitelistManager(QSettings* settings)
+WhitelistManager::WhitelistManager(QSettings* settings, QObject* parent) :
+    QObject(parent)
 {
     m_WhitelistFile = PglSettings::value("CMD_CONF");
     m_Settings = settings;
@@ -709,6 +710,12 @@ WhitelistItem* WhitelistManager::whitelistItemAt(int index)
 void WhitelistManager::addItem(WhitelistItem * item)
 {
     mWhitelistItems.append(item);
+    emit whitelistItemAdded(item);
+}
+
+void WhitelistManager::addItem(const QString& value, const QString& conntype, const QString& prot)
+{
+    addItem(new WhitelistItem(value, conntype, prot));
 }
 
 void WhitelistManager::removeItemAt(int index)

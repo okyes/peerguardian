@@ -26,6 +26,7 @@
 #include <QStringList>
 #include <QSettings>
 #include <QList>
+#include <QObject>
 
 #include "whitelist_item.h"
 #include "utils.h"
@@ -41,8 +42,10 @@
 #define WHITE_TCP_FWD "WHITE_TCP_FWD"
 #define WHITE_UDP_FWD "WHITE_UDP_FWD"
 
-class WhitelistManager
+class WhitelistManager : public QObject
 {
+    Q_OBJECT
+
     QList<WhitelistItem*> mWhitelistItems;
     QList<WhitelistItem*> mRemovedWhitelistItems;
     QString m_WhitelistFile;
@@ -57,7 +60,7 @@ class WhitelistManager
 		/**
          * Constructor. Creates an emtpy WhitelistManager object with no data loaded.
 		 */
-        WhitelistManager(QSettings *);
+        WhitelistManager(QSettings *, QObject* parent=0);
 		/**
 		 * Destructor.
 		 */
@@ -91,6 +94,7 @@ class WhitelistManager
         QString parseConnectionType(const QString&);
         WhitelistItem* whitelistItemAt(int);
         void addItem(WhitelistItem*);
+        void addItem(const QString&, const QString&, const QString&);
         void removeItemAt(int);
         void updatePglSettings();
         void updateGuiSettings();
@@ -102,6 +106,9 @@ class WhitelistManager
         Port parsePort(QString);
         int portNumber(const QString&);
         bool isPort(const QString&);
+
+signals:
+        void whitelistItemAdded(WhitelistItem*);
 };
 
 #endif

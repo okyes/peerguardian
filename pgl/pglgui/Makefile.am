@@ -52,6 +52,8 @@ dist_pglgui_SOURCES = \
 nodist_EXTRA_pglgui_SOURCES = \
 	src/moc_add_exception_dialog.cpp \
 	src/moc_pglcore.cpp \
+	src/moc_whitelist_manager.cpp \
+	src/moc_blocklist_manager.cpp \
 	src/moc_command.cpp \
 	src/moc_error_dialog.cpp \
 	src/moc_file_transactions.cpp \

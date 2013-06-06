@@ -21,6 +21,7 @@
 #ifndef BLOCKLIST_MANAGER_H
 #define BLOCKLIST_MANAGER_H
 
+#include <QObject>
 #include <QVector>
 #include <QString>
 #include <QStringList>
@@ -44,14 +45,16 @@ class ListItem;
 *
 */
 
-class BlocklistManager {
+class BlocklistManager : public QObject {
+
+    Q_OBJECT
 
 	public:
 		/**
 		 * Constructor. Creates a PeerguardianList object and loads the data from the blockcontrol blocklists file.
 		 * @param path The path to the blockcontrol blocklists file.
 		 */
-        BlocklistManager( const QString &path = "");
+        BlocklistManager( const QString &path = "", QObject* parent=0);
 		/**
 		 * Destructor.
 		 */
@@ -178,6 +181,9 @@ class BlocklistManager {
         QStringList mLocalBlocklists;
         QString mLocalBlocklistsDir;
         QList<Blocklist*> mBlocklists;
+
+signals:
+        void blocklistAdded(Blocklist*);
 
 };
 
