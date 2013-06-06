@@ -833,10 +833,7 @@ void Peerguardian::treeItemPressed(QTreeWidgetItem* item, int column)
 
 void Peerguardian::loadBlocklistWidget()
 {
-
-    //m_List->loadBlocklists();
     BlocklistManager* blocklistManager = mPglCore->blocklistManager();
-    //blocklistManager->loadBlocklists();
 
     mUi.blocklistTreeWidget->blockSignals(true);
     if (mUi.blocklistTreeWidget->topLevelItemCount())
@@ -846,14 +843,12 @@ void Peerguardian::loadBlocklistWidget()
 
     //get information about the blocklists being used
     foreach(Blocklist* blocklist, blocklistManager->blocklists()) {
+        if (blocklist->isRemoved())
+            continue;
         info << blocklist->name();
         QTreeWidgetItem * item = new QTreeWidgetItem(mUi.blocklistTreeWidget, info);
         item->setToolTip(0, blocklist->targetLocation());
         item->setData(0, Qt::UserRole, qVariantFromValue((void *) blocklist));
-        /*QVariant bl = item->data(0, Qt::UserRole);
-        Blocklist *block = (Blocklist*) bl.value<void*>();
-        qDebug() << block << blocklist;*/
-
 
         if ( blocklist->isEnabled() )
             item->setCheckState(0, Qt::Checked);
@@ -878,6 +873,8 @@ void Peerguardian::loadWhitelistWidget()
         mUi.whitelistTreeWidget->clear();
     
     foreach(WhitelistItem * item, whitelist->whitelistItems()) {
+        if (item->isRemoved())
+            continue;
         info << item->value() << item->connection() << item->protocol();
         QTreeWidgetItem * treeItem = new QTreeWidgetItem(mUi.whitelistTreeWidget, info);
         treeItem->setData(0, Qt::UserRole, qVariantFromValue((void *) item));
@@ -1241,7 +1238,7 @@ void Peerguardian::whitelistItem()
     if ( action == a_whitelistIpTemp || action ==  a_whitelistPortTemp )
     {
         QStringList iptablesCommands = whitelist->getCommands(QStringList() << value, QStringList() << type, QStringList() << prot, QList<bool>() << true);
-        QString testCommand = whitelist->getIptablesTestCommand(ip, type, prot);
+        //QString testCommand = whitelist->getIptablesTestCommand(ip, type, prot);
         m_Root->addCommands(iptablesCommands);
         m_Root->executeAll();
     }
@@ -1249,13 +1246,8 @@ void Peerguardian::whitelistItem()
     {
         if ( ! whitelist->contains(value, type, prot) )
         {
-            QStringList info;
-            info << value << type << prot;
-            QTreeWidgetItem * treeItem = new QTreeWidgetItem(mUi.whitelistTreeWidget, info);
-            treeItem->setCheckState(0, Qt::Checked);
-            treeItem->setIcon(0, QIcon(WARNING_ICON));
-            treeItem->setStatusTip(0, tr("You need to click the Apply button so the changes take effect"));
-            mUi.whitelistTreeWidget->addTopLevelItem(treeItem);
+            whitelist->addItem(new WhitelistItem(value, type, prot));
+            loadWhitelistWidget();
             applyChanges();
         }
     }
