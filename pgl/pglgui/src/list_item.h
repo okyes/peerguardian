@@ -12,7 +12,7 @@ class Blocklist;
 
 /**
 *
-* @short Class representing both blocklist entries and comments in the blockcontrol blocklists file.
+* @short Class representing both blocklist entries and comments in the pglcmd blocklists file.
 *
 */
 
@@ -21,7 +21,7 @@ class ListItem {
     public:
         /**
          * Constructor. Creates a ListItem and analyzes the raw line from the configuration file.
-         * @param itemRawLine The line from the blockcontrol blocklists file.
+         * @param itemRawLine The line from the pglcmd blocklists file.
          */
         ListItem( const QString &itemRawLine );
         /**

@@ -38,7 +38,7 @@
 
 /**
 *
-* @short Simple class which loads data from the blockcontrol log and pgld's main log to display information about pgld. This class is also used to check the state of the pgld daemon.
+* @short Simple class which loads data from the pglcmd log and pgld's main log to display information about pgld. This class is also used to check the state of the pgld daemon.
 *
 */
 
@@ -49,7 +49,7 @@ class PeerguardianInfo : public QObject {
 	public:
 		/**
          * Constructor. Creates a PeerguardianInfo object and loads data from the pgld log in the path specified
-		 * @param filename The path to the blockcontrol log
+		 * @param filename The path to the pglcmd log
 		 * @param parent The QObject parent.
 		 */
 		PeerguardianInfo( const QString & logPath, QObject *parent = 0 );
@@ -85,8 +85,8 @@ class PeerguardianInfo : public QObject {
 		 */
         inline QString processPID() const { return m_ProcessID; }
 		/**
-		 * The blockcontrol log.
-		 * @return The contents of the blockcontrol log with slightly changed format.
+		 * The pglcmd log.
+		 * @return The contents of the pglcmd log with slightly changed format.
 		 */
 		inline QVector< QString > controlLog() const { return m_LastUpdateLog; }
         
@@ -119,7 +119,7 @@ class PeerguardianInfo : public QObject {
 		 */
 		void pgldStopped();
 		/**
-		 * Emited when there is a change in the blockcontrol log.
+		 * Emited when there is a change in the pglcmd log.
 		 */
 		void logChanged();
 

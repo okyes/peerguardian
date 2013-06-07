@@ -51,8 +51,8 @@ class BlocklistManager : public QObject {
 
 	public:
 		/**
-		 * Constructor. Creates a PeerguardianList object and loads the data from the blockcontrol blocklists file.
-		 * @param path The path to the blockcontrol blocklists file.
+		 * Constructor. Creates a PeerguardianList object and loads the data from the pglcmd blocklists file.
+		 * @param path The path to the pglcmd blocklists file.
 		 */
         BlocklistManager( const QString &path = "", QObject* parent=0);
 		/**
@@ -60,9 +60,9 @@ class BlocklistManager : public QObject {
 		 */
         ~BlocklistManager();
 		/**
-		 * Set the file path to the blockcontrol blocklists file.
+		 * Set the file path to the pglcmd blocklists file.
 		 * If the path is invalid and no path is already set, PGL_LIST_PATH is used.
-		 * @param path The path to the blockcontrol blocklists file.
+		 * @param path The path to the pglcmd blocklists file.
 		 */
 		void setFilePath( const QString &path, bool verified=false );
         QString blocklistsFilePath();
@@ -77,20 +77,20 @@ class BlocklistManager : public QObject {
 		 */
 		void addItem( const QString &line );
 		/**
-		 * Change the mode of a ListItem which already exists in the blockcontrol blocklists file.
+		 * Change the mode of a ListItem which already exists in the pglcmd blocklists file.
 		 * @param item The ListItem the mode of which is to be changed.
 		 * @param newMode The new mode of the ListItem.
 		 */
         void setMode( const ListItem &item, const ItemMode &newMode );
 		/**
-		 * Change the mode of a ListItem which already exists in the blockcontrol blocklists file.
+		 * Change the mode of a ListItem which already exists in the pglcmd blocklists file.
 		 * The ListItem will be found according to its location.
 		 * @param location The ListItem's location.
 		 * @param newMode The ListItem's new mode.
 		 */
         void setModeByLocation( const QString &location, const ItemMode &newMode );
 		/**
-		 * Change the mode of a ListItem which already exists in the blockcontrol blocklists file.
+		 * Change the mode of a ListItem which already exists in the pglcmd blocklists file.
 		 * The ListItem will be found according to its name.
 		 * @param location The ListItem's name.
 		 * @param newMode The ListItem's new mode.
@@ -135,7 +135,7 @@ class BlocklistManager : public QObject {
 		 */
         QVector< ListItem * > getItems( const ItemMode &mode );
  		/**
- 		 * Get all the ListItems which exist in the blockcontrol blocklists file.
+ 		 * Get all the ListItems which exist in the pglcmd blocklists file.
  		 * Items with mode COMMENT_ITEM are not returned by this function.
  		 * @return A vector of pointers containing the ListItems requested.
  		 */
@@ -143,7 +143,7 @@ class BlocklistManager : public QObject {
         QVector< ListItem * > getEnabledItems();
         QVector< ListItem * > getDisabledItems();
 		/**
-		 * Export the PeerguardianList object to a file as a blockcontrol blocklists file.
+		 * Export the PeerguardianList object to a file as a pglcmd blocklists file.
 		 * @param filename The path to the file where the object is to be exported.
 		 * @return True if the file was exported, otherwise false.
 		 */

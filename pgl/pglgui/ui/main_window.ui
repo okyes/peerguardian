@@ -786,7 +786,7 @@
     <string>Open info</string>
    </property>
   </action>
-  <action name="actionOpen_blockcontrol_log">
+  <action name="actionOpen_pglcmd_log">
    <property name="text">
     <string>Open blocklist</string>
    </property>
@@ -821,9 +821,9 @@
     <string>Select moblock.log</string>
    </property>
   </action>
-  <action name="actionSelect_blockcontrol_log">
+  <action name="actionSelect_pglcmd_log">
    <property name="text">
-    <string>Select blockcontrol.log</string>
+    <string>Select pglcmd.log</string>
    </property>
   </action>
   <action name="actionPreferences">
