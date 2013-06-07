@@ -53,7 +53,7 @@
 #include "pglcore.h"
 #include "pgl_settings.h"
 #include "blocklist_manager.h"
-#include "peerguardian_info.h"
+#include "pgl_daemon.h"
 #include "pglcmd.h"
 #include "super_user.h"
 
@@ -104,7 +104,7 @@ class PglGui : public QMainWindow {
     QSettings *m_ProgramSettings;
     QString m_Loaded_RootFile;
     SuperUser *m_Root;
-    PeerguardianInfo *m_Info;
+    PglDaemon *m_Info;
     PglCmd *m_Control;
     QSystemTrayIcon *m_Tray;
     QIcon mTrayIconEnabled;

@@ -36,7 +36,7 @@ dist_pglgui_SOURCES = \
 	src/error_dialog.cpp src/error_dialog.h \
 	src/file_transactions.cpp src/file_transactions.h \
 	src/pglgui.cpp src/pglgui.h \
-	src/peerguardian_info.cpp src/peerguardian_info.h \
+	src/pgl_daemon.cpp src/pgl_daemon.h \
 	src/pglcmd.cpp src/pglcmd.h \
 	src/blocklist_manager.cpp src/blocklist_manager.h \
 	src/pgl_settings.cpp src/pgl_settings.h \
@@ -58,7 +58,7 @@ nodist_EXTRA_pglgui_SOURCES = \
 	src/moc_error_dialog.cpp \
 	src/moc_file_transactions.cpp \
 	src/moc_pglgui.cpp \
-	src/moc_peerguardian_info.cpp \
+	src/moc_pgl_daemon.cpp \
 	src/moc_pglcmd.cpp \
 	src/moc_pgl_settings.cpp \
 	src/moc_proc_thread.cpp \

@@ -24,15 +24,9 @@
 #include <QFileDialog>
 #include <QtDebug>
 #include <QSettings>
-
+#include <QString>
 
 #include "ui_settings.h"
-#include "pglcmd.h"
-#include "peerguardian_info.h"
-#include "pgl_settings.h"
-#include "blocklist_manager.h"
-
-class QString;
 
 /**
  *

@@ -790,7 +790,7 @@ void PglGui::g_SetRoot( ) {
 
 void PglGui::g_SetInfoPath() {
     if (! m_Info)
-        m_Info = new PeerguardianInfo(PglSettings::value("DAEMON_LOG"), this);
+        m_Info = new PglDaemon(PglSettings::value("DAEMON_LOG"), this);
 }
 
 void PglGui::g_SetControlPath()

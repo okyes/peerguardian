@@ -1,26 +1,25 @@
-/***************************************************************************
- *   Copyright (C) 2007-2008 by Dimitris Palyvos-Giannas   *
- *   jimaras@gmail.com   *
- *   Copyright (C) 2011 Carlos Pais
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************/
+/*****************************************************************************
+ *   Copyright (C) 2011-2013 by Carlos Pais <freemind@lavabit.com>           *
+ *   Copyright (C) 2007-2008 by Dimitris Palyvos-Giannas <jimaras@gmail.com> *
+ *                                                                           *
+ *   This program is free software; you can redistribute it and/or modify    *
+ *   it under the terms of the GNU General Public License as published by    *
+ *   the Free Software Foundation; either version 3 of the License, or       *
+ *   (at your option) any later version.                                     *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ *   GNU General Public License for more details.                            *
+ *                                                                           *
+ *   You should have received a copy of the GNU General Public License       *
+ *   along with this program; if not, write to the                           *
+ *   Free Software Foundation, Inc.,                                         *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
+ *****************************************************************************/
 
-#ifndef PEERGUARDIAN_INFO_H
-#define PEERGUARDIAN_INFO_H
+#ifndef PGL_DAEMON_H
+#define PGL_DAEMON_H
 
 #include <QObject>
 #include <QVector>
@@ -42,21 +41,21 @@
 *
 */
 
-class PeerguardianInfo : public QObject {
+class PglDaemon : public QObject {
 
 	Q_OBJECT	
 
 	public:
 		/**
-         * Constructor. Creates a PeerguardianInfo object and loads data from the pgld log in the path specified
+         * Constructor. Creates a PglDaemon object and loads data from the pgld log in the path specified
 		 * @param filename The path to the pglcmd log
 		 * @param parent The QObject parent.
 		 */
-		PeerguardianInfo( const QString & logPath, QObject *parent = 0 );
+        PglDaemon( const QString & logPath, QObject *parent = 0 );
 		/**
 		 * Destructor.
 		 */
-		~PeerguardianInfo() { }
+        ~PglDaemon() { }
 		/**
          * @return The number of the ranges pgld has loaded.
 		 */
@@ -137,7 +136,6 @@ class PeerguardianInfo : public QObject {
         QString m_LogPath;
 		bool m_DaemonState;
 		bool m_infoLoaded;
-        bool mPrevDaemonState;
         QTimer* mTimer;
 		QVector< QString > m_FileNames;
 		QVector< QString > m_LastUpdateLog;
