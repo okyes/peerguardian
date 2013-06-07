@@ -49,6 +49,20 @@ void BlocklistManager::addBlocklist(const QString & url)
     emit blocklistAdded(bl);
 }
 
+void BlocklistManager::removeBlocklist(Blocklist* blocklist)
+{
+    if (! blocklist)
+        return;
+
+    if (blocklist->isAdded()) {
+        mBlocklists.removeAll(blocklist);
+        delete blocklist;
+    }
+    else {
+        blocklist->remove();
+    }
+}
+
 void BlocklistManager::loadBlocklists()
 {
     //clear all items, if any

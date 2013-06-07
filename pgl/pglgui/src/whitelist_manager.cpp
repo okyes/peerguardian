@@ -700,7 +700,7 @@ QList<WhitelistItem*> WhitelistManager::whitelistItems()
     return mWhitelistItems;
 }
 
-WhitelistItem* WhitelistManager::whitelistItemAt(int index)
+WhitelistItem* WhitelistManager::itemAt(int index)
 {
     if (index >= 0 && index < mWhitelistItems.size())
         return mWhitelistItems[index];
@@ -710,7 +710,7 @@ WhitelistItem* WhitelistManager::whitelistItemAt(int index)
 void WhitelistManager::addItem(WhitelistItem * item)
 {
     mWhitelistItems.append(item);
-    emit whitelistItemAdded(item);
+    emit itemAdded(item);
 }
 
 void WhitelistManager::addItem(const QString& value, const QString& conntype, const QString& prot)
@@ -722,6 +722,20 @@ void WhitelistManager::removeItemAt(int index)
 {
     if (index >= 0 && index < mWhitelistItems.size())
         mWhitelistItems[index]->remove();
+}
+
+void WhitelistManager::removeItem(WhitelistItem* item)
+{
+    if (! item)
+        return;
+
+    if (item->isAdded()) {
+        mWhitelistItems.removeAll(item);
+        delete item;
+    }
+    else {
+        item->remove();
+    }
 }
 
 void WhitelistManager::undo()

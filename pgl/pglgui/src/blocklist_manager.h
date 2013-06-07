@@ -166,6 +166,7 @@ class BlocklistManager : public QObject {
         QString localBlocklistPath(Blocklist*);
         Blocklist* blocklistAt(int);
         void removeBlocklistAt(int);
+        void removeBlocklist(Blocklist*);
         Blocklist* blocklist(const QString&);
         bool contains(const QString&);
 

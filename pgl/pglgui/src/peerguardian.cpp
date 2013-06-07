@@ -311,7 +311,7 @@ void Peerguardian::g_MakeConnections()
         connect(m_Info, SIGNAL(stateChanged(bool)), this, SLOT(onDaemonChanged(bool)));
 
     //connect whitelist and blocklists managers
-    connect(mPglCore->whitelistManager(), SIGNAL(whitelistItemAdded(WhitelistItem*)), this, SLOT(addWhitelistItem(WhitelistItem*)));
+    connect(mPglCore->whitelistManager(), SIGNAL(itemAdded(WhitelistItem*)), this, SLOT(addWhitelistItem(WhitelistItem*)));
     connect(mPglCore->blocklistManager(), SIGNAL(blocklistAdded(Blocklist*)), this, SLOT(addBlocklistItem(Blocklist*)));
     
     //connect the remove buttons
@@ -368,12 +368,14 @@ void Peerguardian::removeListItems()
 
         if ( isWhitelist ) {
             WhitelistItem* whitelistItem = (WhitelistItem*) _item.value<void*>();
-            whitelistItem->remove();
+            mPglCore->whitelistManager()->removeItem(whitelistItem);
         }
         else {
             Blocklist* blocklist = (Blocklist*) _item.value<void*>();
-            blocklist->remove();
+            mPglCore->blocklistManager()->removeBlocklist(blocklist);
         }
+
+        item->setData(0, Qt::UserRole, 0);
     }
 
     foreach(QTreeWidgetItem* item, tree->selectedItems())

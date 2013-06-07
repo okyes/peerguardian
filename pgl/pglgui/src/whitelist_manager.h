@@ -92,10 +92,11 @@ class WhitelistManager : public QObject
         QString getIptablesTestCommand(const QString& value, const QString& connectType, const QString& prot);
         QString parseProtocol(const QString&);
         QString parseConnectionType(const QString&);
-        WhitelistItem* whitelistItemAt(int);
+        WhitelistItem* itemAt(int);
         void addItem(WhitelistItem*);
         void addItem(const QString&, const QString&, const QString&);
         void removeItemAt(int);
+        void removeItem(WhitelistItem*);
         void updatePglSettings();
         void updateGuiSettings();
         bool isChanged();
@@ -108,7 +109,7 @@ class WhitelistManager : public QObject
         bool isPort(const QString&);
 
 signals:
-        void whitelistItemAdded(WhitelistItem*);
+        void itemAdded(WhitelistItem*);
 };
 
 #endif
