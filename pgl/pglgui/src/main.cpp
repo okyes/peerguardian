@@ -29,7 +29,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include "peerguardian.h"
+#include "pglgui.h"
 #include "command.h"
 
 void customOutput( QtMsgType type, const char *msg );
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 
         int i = qRegisterMetaType<Command> ("Command");
         i = qRegisterMetaType<CommandList> ("CommandList"); 
-	Peerguardian pgWindow;
+    PglGui pgWindow;
         //new Adaptor(&pgWindow);
 
 	QStringList args = QApplication::arguments();
