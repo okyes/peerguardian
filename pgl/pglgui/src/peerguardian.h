@@ -1,23 +1,22 @@
-
-/***************************************************************************
- *   Copyright (C) 2007-2008 by Dimitris Palyvos-Giannas   *
- *   jimaras@gmail.com   *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************/
+/*****************************************************************************
+ *   Copyright (C) 2011-2013 by Carlos Pais <freemind@lavabit.com>           *
+ *   Copyright (C) 2007-2008 by Dimitris Palyvos-Giannas <jimaras@gmail.com> *
+ *                                                                           *
+ *   This program is free software; you can redistribute it and/or modify    *
+ *   it under the terms of the GNU General Public License as published by    *
+ *   the Free Software Foundation; either version 3 of the License, or       *
+ *   (at your option) any later version.                                     *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ *   GNU General Public License for more details.                            *
+ *                                                                           *
+ *   You should have received a copy of the GNU General Public License       *
+ *   along with this program; if not, write to the                           *
+ *   Free Software Foundation, Inc.,                                         *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
+ *****************************************************************************/
 
 
 #ifndef PEERGUARDIAN_H
@@ -62,13 +61,11 @@
 #include "add_exception_dialog.h"
 #include "whitelist_manager.h"
 
-
 #define VERSION_NUMBER VERSION
 #define DEFAULT_WINDOW_TITLE "PeerGuardian Linux"
 
 //Time related defines
 #define INFOMSG_DELAY 5000
-
 
 //Icon related defines
 #define LOG_LIST_INFO_ICON ":/images/info.png"
@@ -91,8 +88,6 @@
 
 #define MAX_LOG_SIZE 512
 
-
-class GuiOptions;
 class QTreeWidgetItem;
 class QApplication;
 
@@ -119,7 +114,6 @@ class Peerguardian : public QMainWindow {
     bool quitApp;
     bool m_WhitelistItemPressed;
     bool m_BlocklistItemPressed;
-    QStringList m_FilesToMove;
     bool m_StopLogging;
     QHash<QString, QString> m_ConnectType;
     QHash<QString, QIcon> m_ConnectIconType;
@@ -161,7 +155,6 @@ class Peerguardian : public QMainWindow {
         void g_MakeTray();
         void g_MakeMenus();
         void g_ShowAddDialog(int);
-        void startTimers();
         void loadGUI();
         QList<QTreeWidgetItem*> getTreeItems(QTreeWidget *tree, int checkState=-1);
         QRadioButton * getAutoListUpdateDailyRadio() {return mUi.updateDailyRadio;}
@@ -183,7 +176,6 @@ class Peerguardian : public QMainWindow {
         void showAddBlocklistDialog();
         void g_ShowAboutDialog();
         void onDaemonChanged(bool);
-        void treeItemChanged(QTreeWidgetItem*, int);
         void blocklistItemChanged(QTreeWidgetItem*, int);
         void whitelistItemChanged(QTreeWidgetItem*, int);
         void treeItemPressed(QTreeWidgetItem* item, int column);
@@ -206,7 +198,6 @@ class Peerguardian : public QMainWindow {
 
     protected:
         void closeEvent ( QCloseEvent * event );
-        void updateBlocklists();
 
     protected slots:
         void quit();
@@ -228,4 +219,3 @@ private:
 };	
 
 #endif //PEERGUARDIAN_H
-

@@ -1,3 +1,22 @@
+/*****************************************************************************
+ *   Copyright (C) 2011-2013 by Carlos Pais <freemind@lavabit.com>           *
+ *   Copyright (C) 2007-2008 by Dimitris Palyvos-Giannas <jimaras@gmail.com> *
+ *                                                                           *
+ *   This program is free software; you can redistribute it and/or modify    *
+ *   it under the terms of the GNU General Public License as published by    *
+ *   the Free Software Foundation; either version 3 of the License, or       *
+ *   (at your option) any later version.                                     *
+ *                                                                           *
+ *   This program is distributed in the hope that it will be useful,         *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+ *   GNU General Public License for more details.                            *
+ *                                                                           *
+ *   You should have received a copy of the GNU General Public License       *
+ *   along with this program; if not, write to the                           *
+ *   Free Software Foundation, Inc.,                                         *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.               *
+ *****************************************************************************/
 
 #include <QDebug>
 #include <QMultiMap>
@@ -242,14 +261,6 @@ void Peerguardian::loadGUI()
     loadWhitelistWidget();
 }
 
-void Peerguardian::startTimers()
-{
-	//Intiallize the medium timer for less usual procedures
-    //m_MediumTimer = new QTimer(this);
-    //m_MediumTimer->setInterval( m_ProgramSettings->value("settings/medium_timer", MEDIUM_TIMER_INTERVAL ).toInt() );
-    //m_MediumTimer->start();
-}
-
 void Peerguardian::g_MakeConnections()
 {
 	//Log tab connections
@@ -409,11 +420,6 @@ void Peerguardian::rootFinished(const CommandList& commands)
             failedCommands << cmd;
     }
 
-    //QString pglcmd_conf = PglSettings::value("CMD_CONF").split("/").last();
-    //QString blocklists_list = PglSettings::value("BLOCKLISTS_LIST").split("/").last();
-    //QString tmp_pglcmd = QString("/tmp/%1").arg(pglcmd_conf);
-    //QString tmp_blocklists = QString("/tmp/%1").arg(blocklists_list);
-
     if (! failedCommands.isEmpty()) {
         setApplyButtonEnabled(true);
         ErrorDialog dialog(failedCommands);
@@ -466,47 +472,6 @@ void Peerguardian::updateRadioButtonToggled(bool toggled)
         setButtonChanged(radioButton, option->isChanged());
         setApplyButtonEnabled(mPglCore->isChanged());
     }
-
-
-    /*Option* updateFrequencyOption = mPglCore->option("blocklistsUpdateFrequency");
-    if (updateFrequencyOption == item->text())
-
-    if ( guiOptions->hasRadioButtonChanged(item) )
-    {
-        item->setIcon(QIcon(WARNING_ICON));
-        item->setStatusTip(tr("You need to click the Apply button so the changes take effect"));
-    }
-    else
-    {    
-        item->setIcon(QIcon());
-        item->setStatusTip("");
-    }
-
-    if (item == mUi.updateDailyRadio) {
-
-    }
-    else if (item == mUi.updateWeeklyRadio) {
-        mUi.updateDailyRadio->setIcon(QIcon());
-        mUi.updateDailyRadio->setStatusTip("");
-    }
-    
-    if ( item->objectName() != mUi.updateDailyRadio->objectName() )
-    {
-        mUi.updateDailyRadio->setIcon(QIcon());
-        mUi.updateDailyRadio->setStatusTip("");
-    }
-    	
-    if ( item->objectName() != mUi.updateWeeklyRadio->objectName() )
-    {
-        mUi.updateWeeklyRadio->setIcon(QIcon());
-        mUi.updateWeeklyRadio->setStatusTip("");
-    }
-	
-    if ( item->objectName() != mUi.updateMonthlyRadio->objectName() )
-    {
-        mUi.updateMonthlyRadio->setIcon(QIcon());
-        mUi.updateMonthlyRadio->setStatusTip("");
-    }*/
 }
 
 
@@ -531,36 +496,8 @@ void Peerguardian::checkboxChanged(bool state)
         return;
 
     setButtonChanged(button, changed);
-    /*if  (changed) {
-        item->setIcon(QIcon(WARNING_ICON));
-        item->setStatusTip(tr("You need to click the Apply button so the changes take effect"));
-    }
-    else {
-        item->setIcon(QIcon());
-        item->setStatusTip("");
-    }*/
-
     setApplyButtonEnabled(mPglCore->isChanged());
-
-    /*mUi.applyButton->setEnabled(guiOptions->isChanged());
-    mUi.undoButton->setEnabled(mUi.applyButton->isEnabled());
-    
-    QCheckBox *item = qobject_cast<QCheckBox*>(sender());
-
-    
-    if ( guiOptions->hasCheckboxChanged(item) )
-    {
-        item->setIcon(QIcon(WARNING_ICON));
-        item->setStatusTip(tr("You need to click the Apply button so the changes take effect"));
-    }
-    else
-    {
-        item->setIcon(QIcon());
-        item->setStatusTip("");
-    }*/
 }
-
-
 
 QString Peerguardian::getUpdateFrequencyPath()
 {
@@ -577,7 +514,6 @@ QString Peerguardian::getUpdateFrequencyPath()
     return QString("");
 }
 
-
 QString Peerguardian::getUpdateFrequencyCurrentPath()
 {
     QString path("/etc/cron.");
@@ -593,12 +529,10 @@ QString Peerguardian::getUpdateFrequencyCurrentPath()
     return QString("");
 }
 
-
 void Peerguardian::applyChanges()
 {
     WhitelistManager* whitelist = mPglCore->whitelistManager();
     BlocklistManager* blocklistManager = mPglCore->blocklistManager();
-    QMap<QString, QString> filesToMove;
     QStringList pglcmdConf;
     QString pglcmdConfPath = PglSettings::value("CMD_CONF");
     bool updatePglcmdConf = mPglCore->hasToUpdatePglcmdConf();
@@ -617,7 +551,6 @@ void Peerguardian::applyChanges()
     if ( m_Info->daemonState() )
     {
         //apply new changes directly in iptables
-        // = whitelist->updateWhitelistItemsInIptables(getTreeItems(mUi.whitelistTreeWidget), guiOptions);
         QStringList iptablesCommands = whitelist->generateIptablesCommands();
         if ( ! iptablesCommands.isEmpty() )
             m_Root->addCommands(iptablesCommands);
@@ -625,25 +558,11 @@ void Peerguardian::applyChanges()
     
     //================ update /etc/pgl/pglcmd.conf ================/
     if ( updatePglcmdConf ) {
-        //======== Whitelisted IPs are stored in pglcmd.conf too ==========/
-        //pglcmdConf = whitelist->updatePglcmdConf(getTreeItems(mUi.whitelistTreeWidget));
         pglcmdConf = mPglCore->generatePglcmdConf();
 
-        //========start at boot option ( pglcmd.conf )==========/
-        /*QString value (QString::number(int(mUi.startAtBootCheckBox->isChecked())));
-        if ( hasValueInData("INIT", pglcmdConf) || PglSettings::value("INIT") != value )
-            pglcmdConf = replaceValueInData(pglcmdConf, "INIT", value);
-
-        //====== update  frequency check box ( pglcmd.conf ) ==========/
-        value = QString::number(int(mUi.updateAutomaticallyCheckBox->isChecked()));
-        if ( hasValueInData("CRON", pglcmdConf) || PglSettings::value("CRON") != value )
-            pglcmdConf = replaceValueInData(pglcmdConf, "CRON", value);*/
-
-        //add /tmp/pglcmd.conf to the filesToMove
+        //replace pglcmd.conf
         QString  pglcmdTempPath = QDir::temp().absoluteFilePath(getFileName(pglcmdConfPath));
         m_Root->moveFile(pglcmdTempPath, pglcmdConfPath, false);
-        m_FilesToMove << pglcmdTempPath;
-        //filesToMove[pglcmdTempPath] = pglcmdConfPath;
         saveFileData(pglcmdConf, pglcmdTempPath);
     }
 
@@ -651,13 +570,11 @@ void Peerguardian::applyChanges()
     if ( updateBlocklistsFile ) {
         QStringList data = blocklistManager->generateBlocklistsFile();
         QString outputFilePath = QDir::temp().absoluteFilePath(getFileName(blocklistManager->blocklistsFilePath()));
-        m_FilesToMove << outputFilePath;
         saveFileData(data, outputFilePath);
         
         //update the blocklists.list file
         if (QFile::exists(outputFilePath))
             m_Root->moveFile(outputFilePath, blocklistManager->blocklistsFilePath(), false);
-            //filesToMove[outputFilePath] = blocklistManager->blocklistsFilePath();
     }
 
     //================ manage the local blocklists ====================/
@@ -673,69 +590,28 @@ void Peerguardian::applyChanges()
         if (blocklist->isAdded()) {
             QFile::link(filepath, tempDir.absoluteFilePath(blocklist->name()));
             m_Root->moveFile(tempDir.absoluteFilePath(blocklist->name()), localBlocklistDir.absolutePath(), false);
-            //filesToMove[tempDir.absoluteFilePath(blocklist->name())] = localBlocklistDir.absolutePath();
         }
         else if (blocklist->isRemoved()) {
             m_Root->removeFile(blocklist->location(), false);
-            //filesToMove[blocklist->location()] = "/dev/null";
         }
         else if (blocklist->isEnabled()) {
            m_Root->moveFile(blocklist->location(), localBlocklistDir.absoluteFilePath(blocklist->name()), false);
-           //filesToMove[blocklist->location()] = localBlocklistDir.absoluteFilePath(blocklist->name());
         }
         else if (blocklist->isDisabled()) {
             m_Root->moveFile(blocklist->location(), localBlocklistDir.absoluteFilePath("."+blocklist->name()), false);
-            //filesToMove[blocklist->location()] = localBlocklistDir.absoluteFilePath("."+blocklist->name());
         }
     }
         
-        /*foreach(const QString& name, localFiles.keys())
-        {
-            QFileInfo info(filepath);
-            if (! info.exists())
-                continue;
-            
-            //if local blocklist is active
-            if( localFiles[filepath] )
-            {
-                QString symFilepath = "/tmp/" + filepath.split("/").last();
-
-                //if symlink to the file doesn't exist, create it
-                if ( ! isPointingTo(localBlocklistDir, filepath) )
-                {
-                    QFile::link(filepath, symFilepath);
-                    filesToMove[symFilepath] = localBlocklistDir;
-                }
-            }
-            else
-            {
-                QString symFilepath = getPointer(localBlocklistDir, filepath);
-
-                if ( ! symFilepath.isEmpty() ) //if symlink exists, delete it
-                    filesToMove[symFilepath] = "/dev/null"; //temporary hack
-            }
-        }*/
-
     //====== update  frequency radio buttons ==========/
     filepath = getUpdateFrequencyPath();
     if ( ! QFile::exists(filepath) )
         m_Root->moveFile(getUpdateFrequencyCurrentPath(), filepath, false);
-        //filesToMove[getUpdateFrequencyCurrentPath()] = filepath;
         
-    /*m_FilesToMove = filesToMove.keys();
-
-    if ( ! filesToMove.isEmpty() )
-        m_Root->moveFiles(filesToMove, false);*/
-
-    //whitelist->updateSettings(getTreeItems(mUi.whitelistTreeWidget), guiOptions->getPositionFirstAddedWhitelistItem(), false);
-    //guiOptions->updateWhitelist(guiOptions->getPositionFirstAddedWhitelistItem(), false);
-
     //assume changes will be applied, if not this button will be enabled afterwards
     setApplyButtonEnabled(false);
 
-    m_Root->executeAll(); //execute previous gathered commands
+    m_Root->executeAll(); //execute previously gathered commands
 }
-
 
 QList<QTreeWidgetItem*> Peerguardian::getTreeItems(QTreeWidget *tree, int checkState)
 {
@@ -789,37 +665,6 @@ void Peerguardian::whitelistItemChanged(QTreeWidgetItem* item, int column)
         setTreeWidgetItemChanged(item, whitelistItem->isChanged());
         setApplyButtonEnabled(mPglCore->isChanged());
     }
-}
-
-void Peerguardian::treeItemChanged(QTreeWidgetItem* item, int column)
-{
-    //mUi.whitelistTreeWidget->blockSignals(true);
-    //mUi.blocklistTreeWidget->blockSignals(true);
-    /*QTreeWidget* treeWidget = item->treeWidget();
-    if (! treeWidget)
-        return;
-
-    treeWidget->blockSignals(true);
-
-    //bool changed = guiOptions->isChanged();
-    bool changed = mPglCore->isChanged();
-    mUi.applyButton->setEnabled(changed);
-    mUi.undoButton->setEnabled(changed);
-    
-    if ( guiOptions->isChanged(item) )
-    {
-        item->setIcon(0, QIcon(WARNING_ICON));
-        item->setStatusTip(0, tr("You need to click the Apply button so the changes take effect"));
-    }
-    else
-    {
-        item->setIcon(0, QIcon());
-        item->setStatusTip(0, "");
-    }
-    
-    treeWidget->blockSignals(false);
-    //mUi.whitelistTreeWidget->blockSignals(false);
-    //mUi.blocklistTreeWidget->blockSignals(false);*/
 }
 
 void Peerguardian::treeItemPressed(QTreeWidgetItem* item, int column)
@@ -919,7 +764,7 @@ void Peerguardian::addWhitelistItem(WhitelistItem* wlItem, bool blockSignals)
 
 void Peerguardian::initCore()
 {
-	//Intiallize all pointers to NULL before creating the objects with g_Set==Path
+    //Intiallize all pointers to zero before creating the objects
     m_Info = 0;
     m_Root = 0;
     m_Control = 0;
@@ -1000,33 +845,8 @@ void Peerguardian::g_ShowAddDialog(int openmode) {
         setApplyButtonEnabled(true);
     }
 
-
-
-	/*if ( dialog->exec() == QDialog::Accepted && dialog->isSettingChanged() ) {
-		emit g_SettingChanged();
-	}
-	else {
-		g_ReloadSettings();
-		m_SettingChanged = false;
-	}*/
-
     if ( dialog )
         delete dialog;
-}
-
-void Peerguardian::updateBlocklists()
-{
-    QList<Blocklist*> blocklists = mPglCore->blocklistManager()->blocklists();
-    
-    /*foreach(Blocklist* blocklist, blocklists) {
-        QStringList info; 
-        info << name <<  blocklist;
-        QTreeWidgetItem * treeItem = new QTreeWidgetItem(mUi.blocklistTreeWidget, info);
-        treeItem->setCheckState(0, Qt::Checked);
-        treeItem->setIcon(0, QIcon(WARNING_ICON));
-        treeItem->setStatusTip(0, tr("You need to click the Apply button so the changes take effect"));
-        newItems = true;
-    }*/
 }
 
 void Peerguardian::g_MakeTray() 
@@ -1059,24 +879,17 @@ void Peerguardian::checkDaemonStatus()
     this->onDaemonChanged(m_Info->daemonState());
 }
 
-void Peerguardian::g_MakeMenus() {
-
-
+void Peerguardian::g_MakeMenus()
+{
     //tray icon menu
 	m_TrayMenu = new QMenu(this);
     m_TrayMenu->addAction( mUi.a_Start );
     m_TrayMenu->addAction( mUi.a_Stop );
     m_TrayMenu->addAction( mUi.a_Restart );
     m_TrayMenu->addAction( mUi.a_Reload );
-	/*m_TrayMenu->addSeparator();
-	m_TrayMenu->addAction( a_AllowHttp );
-	m_TrayMenu->addAction( a_AllowHttps );
-	m_TrayMenu->addAction( a_AllowFtp );*/
 	m_TrayMenu->addSeparator();
     m_TrayMenu->addAction( mUi.a_Exit );
 	m_Tray->setContextMenu(m_TrayMenu);
-    
-
 }
 
 void Peerguardian::g_ShowAboutDialog() 
@@ -1147,7 +960,6 @@ void Peerguardian::openSettingsDialog()
     if ( dialog )
         delete dialog; 
 }
-
 
 void Peerguardian::showLogRightClickMenu(const QPoint& p)
 {
