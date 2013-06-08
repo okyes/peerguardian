@@ -55,7 +55,7 @@ PglGui::PglGui( QWidget *parent) :
     mTrayIconDisabled = QIcon(TRAY_DISABLED_ICON);
     mTrayIconEnabled = QIcon(TRAY_ICON);
     setWindowIcon(mTrayIconDisabled);
-    
+
     initCore();
     g_MakeTray();
     g_MakeMenus();
@@ -896,7 +896,7 @@ void PglGui::g_ShowAboutDialog()
 {
 
     QString message;
-    message += QString("<b><i>PglGui Linux version %1</b><br>A Graphical User Interface for PglGui Linux<br><br>").arg( VERSION_NUMBER );
+    message += QString("<b><i>Peerguardian Linux version %1</b><br>A Graphical User Interface for Peerguardian Linux<br><br>").arg( VERSION_NUMBER );
     message += "Copyright (C) 2007-2008 Dimitris Palyvos-Giannas<br>";
     message += "Copyright (C) 2011-2013 Carlos Pais <br><br>";
     message += "pgl is licensed under the GNU General Public License v3, or (at\
@@ -908,7 +908,7 @@ void PglGui::g_ShowAboutDialog()
     message += "I would also like to thank Art_Fowl from e-pcmag.gr for providing valuable help with Qt4 and for helping me with the project's development. <br>";
     message += "Special credit goes to Evangelos Foutras for developing the old project's website, <a href=http://mobloquer.sourceforge.net>mobloquer.foutrelis.com</a></font></i>";
 
-    QMessageBox::about( this, tr( "About PglGui Linux GUI" ), tr( message.toUtf8() ));
+    QMessageBox::about( this, tr( "About Peerguardian Linux GUI" ), tr( message.toUtf8() ));
 
 }
 
@@ -1010,7 +1010,7 @@ void PglGui::whitelistItem()
         return;
     
     if (! m_Info->daemonState()) {
-        QMessageBox::information(this, tr("PglGui is not running"), tr("It's not possible to whitelist while PglGui is not running."));
+        QMessageBox::information(this, tr("Peerguardian is not running"), tr("It's not possible to whitelist while Peerguardian is not running."));
         return;
     }
     

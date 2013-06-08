@@ -62,7 +62,7 @@
 #include "whitelist_manager.h"
 
 #define VERSION_NUMBER VERSION
-#define DEFAULT_WINDOW_TITLE "PglGui Linux"
+#define DEFAULT_WINDOW_TITLE "Peerguardian Linux"
 
 //Time related defines
 #define INFOMSG_DELAY 5000
