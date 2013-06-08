@@ -17,8 +17,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef PGL_CORE_H
-#define PGL_CORE_H
+#ifndef PGLCORE_H
+#define PGLCORE_H
 
 #include <QObject>
 #include <QSettings>
@@ -48,10 +48,9 @@ class PglCore : QObject {
     BlocklistManager* mBlocklistManager;
     QString mBlocklistsFilePath;
     QString mLocalBlocklistsDir;
-    QSettings* mSettings;
 
 	public:
-        PglCore(QObject* parent=0);
+        PglCore(QSettings* settings, QObject* parent=0);
         virtual ~PglCore();
         Option* option(const QString&);
         void setOption(const QString&, const QVariant&, bool active=false);

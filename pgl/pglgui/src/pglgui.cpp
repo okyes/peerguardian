@@ -770,11 +770,11 @@ void PglGui::initCore()
     m_Control = 0;
     quitApp = false;
 
-    mPglCore = new PglCore();
-    mPglCore->load();
-    
     m_ProgramSettings = new QSettings(QSettings::UserScope, "pgl", "pglgui", this);
-    
+
+    mPglCore = new PglCore(m_ProgramSettings);
+    mPglCore->load();
+
     g_SetRoot();
     g_SetInfoPath();
     g_SetControlPath();

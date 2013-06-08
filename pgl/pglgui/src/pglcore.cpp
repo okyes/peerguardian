@@ -21,14 +21,12 @@
 
 #include <QDebug>
 
-PglCore::PglCore(QObject* parent):
+PglCore::PglCore(QSettings* settings, QObject* parent):
     QObject(parent)
 {
-    mSettings = new QSettings(QSettings::UserScope, "pgl", "pglgui", this);
-
     //whitelisted Ips and ports - /etc/pgl/pglcmd.conf and /etc/pgl/allow.p2p and
     //$HOME/.config/pgl/pglgui.conf for disabled items
-    mWhitelistManager = new WhitelistManager(mSettings);
+    mWhitelistManager = new WhitelistManager(settings);
     mBlocklistManager = new BlocklistManager();
 }
 
