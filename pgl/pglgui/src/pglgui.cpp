@@ -813,8 +813,14 @@ void PglGui::g_ShowAddDialog(int openmode) {
 
         foreach(WhitelistItem whiteItem, dialog->getItems()) {
             QStringList info; info << whiteItem.value() << whiteItem.connection() << whiteItem.protocol();
-            if (whitelist->contains(whiteItem))
-                whitelist->item(whiteItem)->setEnabled(true);
+            if (whitelist->contains(whiteItem)) {
+                WhitelistItem *wlitem = whitelist->item(whiteItem);
+                wlitem->setEnabled(true);
+                if (wlitem->isRemoved()) {
+                    wlitem->setRemoved(false);
+                    addWhitelistItem(wlitem);
+                }
+            }
             else
                 whitelist->addItem(whiteItem.value(), whiteItem.connection(), whiteItem.protocol());
 
@@ -823,16 +829,21 @@ void PglGui::g_ShowAddDialog(int openmode) {
 
         mUi.whitelistTreeWidget->scrollToBottom();
 	}
-    else if (  openmode == (ADD_MODE | BLOCKLIST_MODE) )
+    else if ( openmode == (ADD_MODE | BLOCKLIST_MODE) )
     {
-
         dialog = new AddExceptionDialog( this, openmode, mPglCore);
         dialog->exec();
         BlocklistManager* blocklistManager = mPglCore->blocklistManager();
 
         foreach(const QString& blocklist, dialog->getBlocklists()) {
-            if (blocklistManager->contains(blocklist))
-                blocklistManager->blocklist(blocklist)->setEnabled(true);
+            if (blocklistManager->contains(blocklist)) {
+                Blocklist *bl = blocklistManager->blocklist(blocklist);
+                bl->setEnabled(true);
+                if (bl->isRemoved()) {
+                    bl->setRemoved(false);
+                    addBlocklistItem(bl);
+                }
+            }
             else
                 blocklistManager->addBlocklist(blocklist);
             newItems = true;
@@ -842,7 +853,7 @@ void PglGui::g_ShowAddDialog(int openmode) {
     }
 
     if ( newItems ) {
-        setApplyButtonEnabled(true);
+        setApplyButtonEnabled(mPglCore->isChanged());
     }
 
     if ( dialog )

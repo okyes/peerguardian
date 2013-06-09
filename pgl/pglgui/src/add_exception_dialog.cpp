@@ -376,7 +376,7 @@ void AddExceptionDialog::addBlocklist()
             reason = tr("Not recognized as a valid local path nor it seems a valid URL (did you forget to prepend http, https or ftp?).");
             invalidValues << value;
         }
-        else if (blocklist && blocklist->isEnabled()) {
+        else if (blocklist && blocklist->isEnabled() && ! blocklist->isRemoved()) {
             reason = QObject::tr("It's already added");
             invalidValues << value;
         }
