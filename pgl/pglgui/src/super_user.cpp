@@ -1,22 +1,22 @@
-/***************************************************************************
- *   Copyright (C) 2007-2008 by Dimitris Palyvos-Giannas   *
- *   jimaras@gmail.com   *
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
- *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
- *   along with this program; if not, write to the                         *
- *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
- ***************************************************************************/
+/******************************************************************************
+ *   Copyright (C) 2011-2013 by Carlos Pais <freemind@lavabit.com>            *
+ *   Copyright (C) 2007-2008 by Dimitris Palyvos-Giannas <jimaras@gmail.com>  *
+ *                                                                            *
+ *   This program is free software; you can redistribute it and/or modify     *
+ *   it under the terms of the GNU General Public License as published by     *
+ *   the Free Software Foundation; either version 3 of the License, or        *
+ *   (at your option) any later version.                                      *
+ *                                                                            *
+ *   This program is distributed in the hope that it will be useful,          *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of           *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
+ *   GNU General Public License for more details.                             *
+ *                                                                            *
+ *   You should have received a copy of the GNU General Public License        *
+ *   along with this program; if not, write to the                            *
+ *   Free Software Foundation, Inc.,                                          *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.                *
+ ******************************************************************************/
 
 #include "super_user.h"
 
@@ -94,11 +94,6 @@ void SuperUser::exec(QStringList commands)
             return;
     }
 
-    /*if (commands.isEmpty()) {
-        m_Commands << commands;
-        return;
-    }*/
-
     if ( mSudoCmd.isEmpty() || !QFile::exists(mSudoCmd) ){
         QString errorMsg = tr("Could not use either kdesu(do) or gksu(do) to execute the command requested.\
         You can set the path of the one you prefer in <b>\"Options - Settings - Sudo front-end\"</b>");
@@ -147,14 +142,12 @@ void SuperUser::executeCommand(const QString& command, const QStringList& args)
 {
     addCommand(command, args);
     exec();
-    //executeCommands(QStringList() << command, start);
 }
 
 void SuperUser::executeCommand(const QStringList& command)
 {
     addCommand(command);
     exec();
-    //executeCommands(commands);
 }
 
 void SuperUser::executeAll()
@@ -163,33 +156,12 @@ void SuperUser::executeAll()
         return;
 
     exec();
-
-    //QStringList lines;
-    //QString cmd = QString("sh %1").arg(TMP_SCRIPT);
-    //QString cmd = QString("sh -c '(%1)'").arg(m_Commands.join(") && ("));
-    //executeCommand(cmd);
-
-    //create file with the commands to be executed
-    /*lines << "#!/bin/sh";
-    lines << "set -e";
-    lines << m_Commands;
-
-    bool ok = saveFileData(lines, "/tmp/execute-all-pgl-commands.sh");
-
-    if ( ok )
-        executeCommand(cmd);*/
 }
 
 void SuperUser::processFinished(const CommandList& commands)
 {
     if ( ! m_Commands.isEmpty() )
         m_Commands.clear();
-    
-    CommandList failedCommands;
-    foreach(const Command& cmd, commands) {
-        if (cmd.error())
-            failedCommands << cmd;
-    }
     
     if (mGetSudoCommand && ! commands.isEmpty()) {
         Command command = commands.first();
@@ -198,11 +170,6 @@ void SuperUser::processFinished(const CommandList& commands)
             mGetSudoCommand = false;
         }
     }
-    
-    
-    //if (! failedCommands.isEmpty()) {
-     //   emit error(failedCommands);
-   // }
 
     emit finished(commands);
 }
@@ -233,21 +200,6 @@ void SuperUser::removeFile( const QString &source, bool now) {
     else
         addCommand(cmd);
 }
-
-/*void SuperUser::moveFiles( const QMap<QString, QString> files, bool start)
-{
-    if ( ! files.isEmpty() )
-    {
-        QStringList commands;
-        foreach(const QString& key, files.keys()) {
-            if (key.isEmpty() || files[key].isEmpty()) 
-                continue;
-            commands << QString("mv %1 %2").arg(key).arg(files[key]);
-        }
-        
-        executeCommands(commands, start);
-    }
-}*/
 
 QString SuperUser::sudoParameters()
 {

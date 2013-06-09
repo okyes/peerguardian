@@ -1,3 +1,21 @@
+/***************************************************************************
+ *   Copyright (C) 2011-2013 by Carlos Pais <freemind@lavabit.com>         *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 3 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
 
 #include "utils.h"
 #include "file_transactions.h"
@@ -274,17 +292,9 @@ QStringList cleanData(QStringList& data)
 
 void setValueInData(QStringList& data, const QString & variable, const QString & value)
 {
-    //this function is usually used to receive pglcmd.conf and check for variables and values there
-    //QRegExp re(QString("^%1=.*").arg(variable));
-    //QRegExp validPattern("^.*[a-zA-Z]+[ ]*=[ ]*\"[a-zA-Z0-9\.]+\"$");
     QString var, comment;
     QString line;
     bool found = false;
-    //int pos = data.indexOf(re);
-
-    //Usual case: if the variable doesn't exist in pglcmd.conf and it's the same as in pglcmd.defaults
-    //if ( pos == -1 && value == PglSetting::getStoredValue(variable))
-        //return data;
 
     for(int i=0; i < data.size(); i++) {
         line = data[i].trimmed();
@@ -311,14 +321,6 @@ void setValueInData(QStringList& data, const QString & variable, const QString &
     if (! found) {
         data.append(variable + "=\"" + value + '"');
     }
-
-    /*while ( pos != -1 )
-    {
-        data.removeAt(pos);
-        pos = data.indexOf(re);
-    }
-
-    data << variable + QString("=\"") + value + QString('"');*/
 }
 
 void replaceValueInFile(const QString& path, const QString & variable, const QString & value)
@@ -396,4 +398,3 @@ bool isNumber(const QString& str)
 
     return true;
 }
-
