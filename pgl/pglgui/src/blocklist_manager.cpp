@@ -59,7 +59,7 @@ void BlocklistManager::removeBlocklist(Blocklist* blocklist)
         delete blocklist;
     }
     else {
-        blocklist->remove();
+        blocklist->setRemoved(true);
     }
 }
 
@@ -371,7 +371,7 @@ Blocklist* BlocklistManager::blocklistAt(int index)
 void BlocklistManager::removeBlocklistAt(int index)
 {
     if (index >= 0 && index < mBlocklists.size())
-        mBlocklists[index]->remove();
+        mBlocklists[index]->setRemoved(true);
 }
 
 Blocklist* BlocklistManager::blocklist(const QString & value)

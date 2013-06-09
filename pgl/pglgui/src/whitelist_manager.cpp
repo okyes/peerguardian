@@ -126,7 +126,7 @@ QString WhitelistManager::getTypeAsString(const QString& key)
 
 QString WhitelistManager::getGroup(QStringList& info)
 {
-    /*info should contain the value (a port or an ip address) and the connection type (in, out or fwd)*/
+    //info should contain the value (a port or an ip address) and the connection type (in, out or fwd)
     if ( info.size() != 3 )
         return "";
 
@@ -166,71 +166,7 @@ QStringList WhitelistManager::updateWhitelistFile()
     }
 
     return fileData;
-    //QString filepath = "/tmp/" + m_WhitelistFile.split("/").last();
-    //saveFileData(newData, filepath);
 }
-
-
-/*void WhitelistManager::addTreeWidgetItemToWhitelist(QTreeWidgetItem* treeItem)
-{
-    QStringList info;
-    QString group;
-    info << treeItem->text(0) << treeItem->text(1) << treeItem->text(2);
-
-    group = getGroup(info);
-
-    if ( m_Group.contains(group) )
-        m_WhitelistDisabled[group] << treeItem->text(0);
-}
-
-void WhitelistManager::updateSettings(const QList<QTreeWidgetItem*>& treeItems, int firstAddedItemPos, bool updateAll)
-{
-    QTreeWidgetItem * treeItem;
-    
-    foreach ( QString key, m_WhitelistDisabled.keys() )
-        m_WhitelistDisabled[key] = QStringList();
-    
-    if ( updateAll )
-    {
-        foreach(QTreeWidgetItem* treeItem, treeItems)
-        {
-            //if ( treeItem->checkState(0) == Qt::Unchecked && treeItem->icon(0).isNull() ||
-             //   treeItem->checkState(0) == Qt::Checked && ( ! treeItem->icon(0).isNull()))
-             if ( treeItem->checkState(0) == Qt::Unchecked )
-                addTreeWidgetItemToWhitelist(treeItem);
-        }
-    }
-    else if (firstAddedItemPos >= 0 ) //added items
-    {
-        //add older items
-        //We don't go through the newly added items here, because their state can be
-        //misleading.
-        for(int i=0; i < firstAddedItemPos; i++)
-        {
-            treeItem = treeItems[i];
-            if ( (treeItem->checkState(0) == Qt::Unchecked && treeItem->icon(0).isNull() ) ||
-                (treeItem->checkState(0) == Qt::Checked && ( ! treeItem->icon(0).isNull())))
-                    addTreeWidgetItemToWhitelist(treeItem);
-        }        
-
-        //Special case for newly added items.
-        for(int i=firstAddedItemPos; i < treeItems.size(); i++)
-        {
-            if ( treeItems[i]->checkState(0) == Qt::Unchecked )
-            {
-                addTreeWidgetItemToWhitelist(treeItems[i]);
-                treeItems[i]->setIcon(0, QIcon());
-            }
-        }
-    }
-    
-    //write changes to settings' file
-    foreach(QString key, m_WhitelistDisabled.keys() )
-        if ( m_WhitelistDisabled[key].isEmpty() )
-             m_Settings->remove(QString("whitelist/%1").arg(key));
-        else
-            m_Settings->setValue(QString("whitelist/%1").arg(key), m_WhitelistDisabled[key].join(" "));
-}*/
 
 bool WhitelistManager::isChanged()
 {
@@ -293,58 +229,8 @@ void WhitelistManager::updateGuiSettings()
             values.clear();
             info.clear();
         }
-        /*if (item->isDisabled()) {
-            QStringList info; info << item->value() << item->connection() << item->protocol();
-            groups[getGroup(info)] += item->value();
-            info.clear();
-        }*/
     }
-
-    //write changes to settings' file
-    /*foreach(const QString& group, m_Group.keys() ) {
-        key = QString("whitelist/%1").arg(group);
-        if (! groups.contains(group) && m_Settings->contains(group))
-            m_Settings->remove(group);
-        else if (groups.contains(group))
-            m_Settings->setValue(group, groups[group]);
-    }*/
 }
-
-
-
-/*QStringList WhitelistManager::updatePglcmdConf(QList<QTreeWidgetItem*> treeItems)
-{
-    if ( m_WhitelistFile.isEmpty() )
-        return QStringList();
-
-    QStringList fileData;
-    QStringList info;
-    QString group;
-
-    /////////// Update the Enabled Whitelist ////////////
-    foreach ( QString key, m_WhitelistEnabled.keys() )
-        m_WhitelistEnabled[key] = QStringList();
-
-    foreach(QTreeWidgetItem* treeItem, treeItems)
-    {
-        if ( treeItem->checkState(0) == Qt::Unchecked )
-            continue;
-
-        info << treeItem->text(0) << treeItem->text(1) << treeItem->text(2);
-
-        group = getGroup(info);
-
-        if ( m_Group.contains(group) )
-            m_WhitelistEnabled[group] << treeItem->text(0);
-
-        info.clear();
-    }
-
-    fileData = updateWhitelistFile();
-
-
-    return fileData;
-}*/
 
 QString WhitelistManager::translateConnection(const QString& conn_type)
 {
@@ -397,71 +283,8 @@ QStringList WhitelistManager::generateIptablesCommands()
     return getCommands(values, connections, protocols, allows);
 }
 
-/*QStringList WhitelistManager::updateWhitelistItemsInIptables(QList<QTreeWidgetItem*> items, GuiOptions *guiOptions)
-{
-    QStringList values, connections, protocols;
-    QList<bool> allows;
-    QList<QTreeWidgetItem*> removedItems = guiOptions->getRemovedWhitelistItemsForIptablesRemoval();
-    int firstAddedItem = guiOptions->getPositionFirstAddedWhitelistItem();
-    int totalPrevItems = guiOptions->getWhitelistPrevSize();
-    QTreeWidgetItem * item;
-    
-    //append removed items
-    if ( ! removedItems.isEmpty() )
-    {
-        foreach(item, removedItems)
-        {
-            values << item->text(0);
-            connections << item->text(1);
-            protocols << item->text(2);
-            allows << false;
-        }
-    }
-    
-    //append added items
-    if ( (totalPrevItems > 0 && firstAddedItem > 0)  || (totalPrevItems == 0 && firstAddedItem == 0) )
-    {
-        for(int i=firstAddedItem; i < items.size(); i++)
-        {
-            item = items[i];
-            if ( item->checkState(0) == Qt::Checked  )
-            {
-                values << item->text(0);
-                connections << item->text(1);
-                protocols << item->text(2);
-                allows << true;
-            }
-        }
-        
-    }
-    else 
-        firstAddedItem = items.size();
-    
-    for(int i=0; i < firstAddedItem; i++)
-    {
-        item = items[i];
-    
-        //if it has a warning icon and is not one of the newly added items
-        if ( ! item->icon(0).isNull() )
-        {
-            values << item->text(0);
-            connections << item->text(1);
-            protocols << item->text(2);
-
-            if ( item->checkState(0) == Qt::Checked )
-                allows << true;
-            else
-                allows << false;
-        }
-    }
-    
-    return getCommands(values, connections, protocols, allows);
-        
-}*/
-
 QStringList WhitelistManager::getCommands( QStringList items, QStringList connections, QStringList protocols, QList<bool> allows)
 {
-
     QStringList commands;
     QString option;
     QString command_operator;
@@ -477,7 +300,6 @@ QStringList WhitelistManager::getCommands( QStringList items, QStringList connec
     QString ip_destination_check_type = QString("grep -x \'%1 *all *-- *0.0.0.0/0 *$IP *\'").arg(iptables_target_whitelisting);
     QString port_check_type = QString("grep -x \'%1 *$PROTO *-- *0.0.0.0/0 *0.0.0.0/0 *$PROTO dpt:$PORT *\'").arg(iptables_target_whitelisting);
 
-    
     for (int i=0; i < items.size(); i++ )
     {
         item = items[i];
@@ -574,8 +396,7 @@ QStringList WhitelistManager::getCommands( QStringList items, QStringList connec
         }
     }
     
-    return commands;
-        
+    return commands;     
 }
 
 bool WhitelistManager::isPortAdded(const QString& value, const QString & portRange)
@@ -652,7 +473,7 @@ bool WhitelistManager::contains(const QString& value, const QString& connectType
 bool WhitelistManager::isValid(const WhitelistItem & other, QString & reason)
 {
     WhitelistItem* item = this->item(other);
-    if (item && item->isEnabled()) {
+    if (item && item->isEnabled() && ! item->isRemoved()) {
         reason = QObject::tr("It's already added");
         return false;
     }
@@ -674,26 +495,6 @@ bool WhitelistManager::isValid(const QString& value, const QString& connectType,
 {
     return isValid(WhitelistItem(value, connectType, prot), reason);
 }
-
-/*bool WhitelistManager::isInPglcmd(const QString& value, const QString& connectType, const QString& prot)
-{
-    QList<QTreeWidgetItem*> items = m_GuiOptions->getWhitelist();
-    QString protocol = prot;
-
-    if ( isValidIp(value) )
-        protocol = "IP";
-
-    foreach(QTreeWidgetItem*item, items) {
-        if ( connectType == item->text(1) && protocol == item->text(2) ) {
-            if ( value == item->text(0) )
-                return true;
-            else if ( isPortAdded(value, item->text(0)) ) //could be a port range
-                return true;
-        }
-    }
-    
-    return false;
-}*/
 
 QList<WhitelistItem*> WhitelistManager::whitelistItems()
 {
@@ -721,7 +522,7 @@ void WhitelistManager::addItem(const QString& value, const QString& conntype, co
 void WhitelistManager::removeItemAt(int index)
 {
     if (index >= 0 && index < mWhitelistItems.size())
-        mWhitelistItems[index]->remove();
+        mWhitelistItems[index]->setRemoved(true);
 }
 
 void WhitelistManager::removeItem(WhitelistItem* item)
@@ -734,7 +535,7 @@ void WhitelistManager::removeItem(WhitelistItem* item)
         delete item;
     }
     else {
-        item->remove();
+        item->setRemoved(true);
     }
 }
 

@@ -17,8 +17,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef PGL_WHITELIST_H
-#define PGL_WHITELIST_H
+#ifndef WHITELIST_MANAGER_H
+#define WHITELIST_MANAGER_H
 
 #include <QMultiMap>
 #include <QMap>
@@ -74,16 +74,12 @@ class WhitelistManager : public QObject
         QString getTypeAsString(const QString&);
         QString getGroup(QStringList&);
         QStringList updateWhitelistFile();
-        //void updateSettings(const QList<QTreeWidgetItem*>& treeItems, int firstAddedItemPos=0, bool updateAll=true);
         QString translateConnection(const QString&);
         QStringList getDirections(const QString& chain);
         QStringList getCommands(QStringList items, QStringList connections, QStringList protocols, QList<bool> allows);
-        //void addTreeWidgetItemToWhitelist(QTreeWidgetItem* item);
         void load();
         QStringList generateIptablesCommands();
-        //QStringList updateWhitelistItemsInIptables(QList<QTreeWidgetItem*> items, GuiOptions *guiOptions);
         bool isPortAdded(const QString& value, const QString & portRange);
-        //bool isInPglcmd(const QString& value, const QString& connectType, const QString& prot);
         bool contains(const QString&, const QString&, const QString&);
         bool contains(const WhitelistItem&);
         bool isValid(const QString&, const QString&, const QString&, QString&);
