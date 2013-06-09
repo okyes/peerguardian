@@ -20,15 +20,12 @@
 #include "option.h"
 #include "option_p.h"
 
-#include <QDebug>
-
 OptionPrivate::OptionPrivate()
 {
 }
 
 OptionPrivate::~OptionPrivate()
 {
-    //qDebug() << "~OptionPrivatePrivate()";
 }
 
 bool OptionPrivate::operator ==(const OptionPrivate& other)
@@ -42,8 +39,8 @@ Option::Option(const QString& name, const QVariant& value, bool active) :
     d_active_ptr(new OptionPrivate),
     d_ptr(new OptionPrivate)
 {
-    d_ptr->enabled = false;
-    d_ptr->removed = false;
+    setEnabled(false);
+    setRemoved(false);
     setName(name);
     setValue(value);
     if (active)
@@ -76,27 +73,36 @@ Option::~Option()
 
 bool Option::isActive() const
 {
-    return (*d_active_ptr == *d_ptr);
+    if (d_ptr && d_active_ptr)
+        return (*d_active_ptr == *d_ptr);
+    return false;
 }
 
 bool Option::isChanged() const
 {
-    return ! isActive();
+    if (d_ptr)
+        return ! isActive();
+    return false;
 }
 
 QString Option::name() const
 {
-    return d_ptr->name;
+    if (d_ptr)
+        return d_ptr->name;
+    return "";
 }
 
 void Option::setName(const QString& name)
 {
-    d_ptr->name = name;
+    if (d_ptr)
+        d_ptr->name = name;
 }
 
 QVariant Option::value() const
 {
-    return d_ptr->value;
+    if (d_ptr)
+        return d_ptr->value;
+    return "";
 }
 
 void Option::setValue(const QVariant& value)
@@ -108,12 +114,16 @@ void Option::setValue(const QVariant& value)
 
 bool Option::isEnabled() const
 {
-    return d_ptr->enabled;
+    if (d_ptr)
+        return d_ptr->enabled;
+    return false;
 }
 
 bool Option::isDisabled() const
 {
-    return ! d_ptr->enabled;
+    if (d_ptr)
+        return ! d_ptr->enabled;
+    return false;
 }
 
 void Option::setEnabled(bool enabled)
@@ -125,12 +135,14 @@ void Option::setEnabled(bool enabled)
 
 void Option::applyChanges()
 {
-    *d_active_ptr = *d_ptr;
+    if (d_ptr && d_active_ptr)
+        *d_active_ptr = *d_ptr;
 }
 
 void Option::undo()
 {
-    *d_ptr = *d_active_ptr;
+    if (d_ptr && d_active_ptr)
+        *d_ptr = *d_active_ptr;
 }
 
 bool Option::isAdded() const
@@ -145,9 +157,10 @@ bool Option::isRemoved() const
     return d_ptr->removed;
 }
 
-void Option::remove()
+void Option::setRemoved(bool removed)
 {
-    d_ptr->removed = true;
+    if (d_ptr)
+        d_ptr->removed = removed;
 }
 
 void Option::setActiveData(OptionPrivate * other_ptr)
@@ -166,7 +179,11 @@ void Option::setData(OptionPrivate * other_ptr)
 
 bool Option::operator==(const Option& other)
 {
-    return (*d_ptr == *(other.d_ptr));
+    if (d_ptr == other.d_ptr)
+        return true;
+    if (d_ptr && other.d_ptr)
+        return (*d_ptr == *(other.d_ptr));
+    return false;
 }
 
 Option& Option::operator=(const Option& other)

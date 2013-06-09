@@ -53,7 +53,7 @@ class Option {
         bool isDisabled() const;
         bool isRemoved() const;
         bool isAdded() const;
-        void remove();
+        void setRemoved(bool);
         void setEnabled(bool);
         void applyChanges();
         void undo();

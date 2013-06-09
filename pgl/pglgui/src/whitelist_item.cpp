@@ -140,46 +140,63 @@ WhitelistItem::~WhitelistItem()
 
 QString WhitelistItem::value() const
 {
-    return d_ptr->value.toString();
+    if (d_ptr)
+        return d_ptr->value.toString();
+    return "";
 }
 
 QStringList WhitelistItem::values() const
 {
-    return d_ptr->values;
+    if (d_ptr)
+        return d_ptr->values;
+    return QStringList();
 }
 
 QString WhitelistItem::connection() const
 {
-    return d_ptr->connection;
+    if (d_ptr)
+        return d_ptr->connection;
+    return "";
 }
 
 int WhitelistItem::type()
 {
-    return d_ptr->type;
+    if (d_ptr)
+        return d_ptr->type;
+    return -1;
 }
 
 QString WhitelistItem::protocol() const
 {
-    return d_ptr->protocol;
+    if (d_ptr)
+        return d_ptr->protocol;
+    return "";
 }
 
 QString WhitelistItem::group() const
 {
-    return d_ptr->group;
+    if (d_ptr)
+        return d_ptr->group;
+    return "";
 }
 
 bool WhitelistItem::operator==(const WhitelistItem& other)
 {
-    return (*d_ptr == *(other.d_ptr));
+    if (d_ptr == other.d_ptr)
+        return true;
+    if (d_ptr && other.d_ptr)
+        return (*d_ptr == *(other.d_ptr));
+    return false;
 }
 
 void WhitelistItem::addAlias(const QString & alias )
 {
     if ( alias.isEmpty() )
         return;
-
-    d_ptr->values << alias;
-    d_active_ptr->values << alias;
+    if (d_ptr)
+        d_ptr->values << alias;
+    if (d_active_ptr)
+        d_active_ptr->values << alias;
 }
 
 void WhitelistItem::addAliases(const QStringList & aliases)

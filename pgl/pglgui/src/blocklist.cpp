@@ -3,6 +3,7 @@
 #include "blocklist_p.h"
 
 #include <QFile>
+#include <QDebug>
 
 Blocklist::Blocklist(const QString& text, bool active, bool enabled) :
     Option(),
@@ -37,6 +38,8 @@ Blocklist::Blocklist(const QString& text, bool active, bool enabled) :
 
 Blocklist::Blocklist(const Blocklist& blocklist)
 {
+    d_ptr = 0;
+    d_active_ptr = 0;
     *this = blocklist;
 }
 
@@ -49,29 +52,40 @@ Blocklist::~Blocklist()
 
 bool Blocklist::isSymLink() const
 {
-    return d_ptr->isSymLink;
+    if (d_ptr)
+        return d_ptr->isSymLink;
+    return false;
 }
 
 bool Blocklist::isLocal() const
 {
-    return d_ptr->local;
+    if (d_ptr)
+        return d_ptr->local;
+    return false;
 }
 
 bool Blocklist::isValid() const
 {
-    return d_ptr->valid;
+    if (d_ptr)
+        return d_ptr->valid;
+    return false;
 }
 
 QString Blocklist::location() const
 {
-    return d_ptr->value.toString();
+    if (d_ptr)
+        return d_ptr->value.toString();
+    return "";
 }
 
 QString Blocklist::targetLocation() const
 {
-    if (d_ptr->isSymLink)
-        return d_ptr->targetLocation;
-    return location();
+    if (d_ptr) {
+        if (d_ptr->isSymLink)
+            return d_ptr->targetLocation;
+        return location();
+    }
+    return "";
 }
 
 bool Blocklist::exists() const
@@ -83,9 +97,6 @@ bool Blocklist::exists() const
 
 bool Blocklist::isValid(const QString & url)
 {
-    //QStringList formats;
-    //formats << "7z" << "dat" << "gz" << "p2p" << "zip" << "txt" << "";
-
     if ( url.contains("list.iblocklist.com") )
         return true;
 
@@ -94,9 +105,6 @@ bool Blocklist::isValid(const QString & url)
 
     if ( QFile::exists(url) )
         return true;
-    //foreach(const QString& format, formats)
-    //    if ( line.endsWith(format) )
-    //        return true;
 
     return false;
 }
