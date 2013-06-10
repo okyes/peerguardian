@@ -206,6 +206,9 @@ QString SuperUser::sudoParameters()
     if (mSudoCmd.endsWith("kdesudo")) {
         return " -c ";
     }
+    else if (mSudoCmd.endsWith("gksudo") || mSudoCmd.endsWith("gksu")) {
+        return " -- sh -c ";
+    }
 
     return " ";
 }
