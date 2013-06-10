@@ -90,7 +90,7 @@ class WhitelistManager : public QObject
         QString parseConnectionType(const QString&);
         WhitelistItem* itemAt(int);
         void addItem(WhitelistItem*);
-        void addItem(const QString&, const QString&, const QString&);
+        void addItem(const QString&, const QString&, const QString&, bool active=false, bool enabled=true);
         void removeItemAt(int);
         void removeItem(WhitelistItem*);
         void updatePglSettings();

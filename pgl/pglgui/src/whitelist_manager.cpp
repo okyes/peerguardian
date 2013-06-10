@@ -58,6 +58,8 @@ void WhitelistManager::load()
     QStringList values;
     QString key, skey, value;
 
+     this->blockSignals(true);
+
     if (! mWhitelistItems.isEmpty()) {
         foreach(WhitelistItem* item, mWhitelistItems)
             if (item)
@@ -74,8 +76,7 @@ void WhitelistManager::load()
         if (m_Group.contains(key)) {
             values = getValue(line).split(" ", QString::SkipEmptyParts);
             foreach(const QString& value, values) {
-                WhitelistItem* item = new WhitelistItem(value, parseConnectionType(key), parseProtocol(key), true);
-                mWhitelistItems.append(item);
+                addItem(value, parseConnectionType(key), parseProtocol(key), true);
             }
         }
     }
@@ -89,11 +90,12 @@ void WhitelistManager::load()
             value = m_Settings->value(skey).toString();
             values = value.split(" ", QString::SkipEmptyParts);
             foreach(const QString& value, values) {
-                WhitelistItem* item = new WhitelistItem(value, parseConnectionType(key), parseProtocol(key), true, false);
-                mWhitelistItems.append(item);
+                addItem(value, parseConnectionType(key), parseProtocol(key), true, false);
             }
         }
     }
+
+    this->blockSignals(false);
 }
 
 QString WhitelistManager::parseProtocol(const QString& key)
@@ -510,13 +512,21 @@ WhitelistItem* WhitelistManager::itemAt(int index)
 
 void WhitelistManager::addItem(WhitelistItem * item)
 {
+    //fetch aliases
+    foreach(const Port& port, mSystemPorts) {
+        if (port.containsName(item->value())) {
+            item->addAliases(port.names());
+            break;
+        }
+    }
+
     mWhitelistItems.append(item);
     emit itemAdded(item);
 }
 
-void WhitelistManager::addItem(const QString& value, const QString& conntype, const QString& prot)
+void WhitelistManager::addItem(const QString& value, const QString& conntype, const QString& prot, bool active, bool enabled)
 {
-    addItem(new WhitelistItem(value, conntype, prot));
+    addItem(new WhitelistItem(value, conntype, prot, active, enabled));
 }
 
 void WhitelistManager::removeItemAt(int index)
