@@ -10,6 +10,7 @@ Type=forking
 ExecStart=@BIN_DIR@/pglcmd start
 ExecStop=@BIN_DIR@/pglcmd stop
 PIDFile=@PID_DIR@/pgld.pid
+RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
