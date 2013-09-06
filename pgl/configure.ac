@@ -45,21 +45,21 @@ AC_ARG_WITH([initddir],
     [AS_HELP_STRING([--with-initddir=DIR],
         [path to init script directory (default: sysconfdir/init.d)])],
     [INITDDIR="$withval"],
-    [INITDDIR="$sysconfdir/init.d"])
+    [INITDDIR='$(sysconfdir)/init.d'])
 
 # let user specify LOGDIR
 AC_ARG_WITH([logdir],
     [AS_HELP_STRING([--with-logdir=DIR],
         [path to log directory (default: localstatedir/log/pgl)])],
     [LOGDIR="$withval"],
-    [LOGDIR="$localstatedir/log/$PACKAGE"])
+    [LOGDIR='$(localstatedir)/log/'$PACKAGE])
 
 # let user specify PIDDIR
 AC_ARG_WITH([piddir],
     [AS_HELP_STRING([--with-piddir=DIR],
         [path to PID directory (default: localstatedir/run)])],
     [PIDDIR="$withval"],
-    [PIDDIR="$localstatedir/run"])
+    [PIDDIR='$(localstatedir)/run'])
 
 # let user specify TMPDIR
 AC_ARG_WITH([tmpdir],
@@ -73,21 +73,21 @@ AC_ARG_WITH([blocklists],
     [AS_HELP_STRING([--with-blocklists=DIR],
         [path to blocklists directory (default: localstatedir/spool/pgl)])],
     [BLOCKLISTS_DIR="$withval"],
-    [BLOCKLISTS_DIR="$localstatedir/spool/$PACKAGE"])
+    [BLOCKLISTS_DIR='$(localstatedir)/spool/'$PACKAGE])
 
 # let user specify LOCAL_BLOCKLIST_DIR
 AC_ARG_WITH([localblocklist],
     [AS_HELP_STRING([--with-localblocklist=DIR],
         [path to local blocklist directory (default: sysconfdir/pgl/blocklists.local)])],
     [LOCAL_BLOCKLIST_DIR="$withval"],
-    [LOCAL_BLOCKLIST_DIR="$sysconfdir/$PACKAGE/blocklists.local"])
+    [LOCAL_BLOCKLIST_DIR='$(sysconfdir)'/$PACKAGE/blocklists.local])
 
 # let user specify MASTER_BLOCKLIST_DIR
 AC_ARG_WITH([masterblocklist],
     [AS_HELP_STRING([--with-masterblocklist=DIR],
         [path to master blocklist directory (default: localstatedir/lib/pgl)])],
     [MASTER_BLOCKLIST_DIR="$withval"],
-    [MASTER_BLOCKLIST_DIR="$localstatedir/lib/$PACKAGE"])
+    [MASTER_BLOCKLIST_DIR='$(localstatedir)/lib/'$PACKAGE])
 
 # let user specify LSB
 AC_ARG_WITH([lsb],
@@ -148,7 +148,7 @@ AC_ARG_WITH([iconsdir],
     [AS_HELP_STRING([--with-iconsdir=DIR],
         [path where icons get installed (default: datadir/pixmaps)])],
     [ICONSDIR="$withval"],
-    [ICONSDIR="$datadir/pixmaps"])
+    [ICONSDIR='$(datadir)/pixmaps'])
 
 
 
@@ -158,7 +158,7 @@ AC_ARG_WITH([iconsdir],
 # pkg-config module check, generates $1_LIBS and $1_CFLAGS vars
 PKG_CHECK_MODULES([libnetfilterqueue],[libnetfilter_queue])
 PGLD_CFLAGS=""
-PGLD_CPPFLAGS="$libnetfilterqueue_CFLAGS -DVERSION=\\\"$VERSION\\\" -DPACKAGE_NAME=\\\"$PACKAGE\\\" -DPIDFILE=\\\"${localstatedir}/run/${PACKAGE}d.pid\\\""
+PGLD_CPPFLAGS="$libnetfilterqueue_CFLAGS -DVERSION=\\\"$VERSION\\\" -DPACKAGE_NAME=\\\"$PACKAGE\\\""
 PGLD_LDFLAGS=""
 PGLD_LIBS="$libnetfilterqueue_LIBS"
 
@@ -191,7 +191,7 @@ AS_IF([test "x$enable_dbus" = "xyes"],
     [PKG_CHECK_MODULES([DBUS],
         [dbus-1])]
     [PGLD_CFLAGS="$PGLD_CFLAGS -fPIC"]
-    [PGLD_CPPFLAGS="$PGLD_CPPFLAGS $DBUS_CFLAGS -DHAVE_DBUS -DPLUGINDIR=\\\"${libdir}/$PACKAGE\\\""]
+    [PGLD_CPPFLAGS="$PGLD_CPPFLAGS $DBUS_CFLAGS -DHAVE_DBUS"]
     [PGLD_LDFLAGS="-Wl,-export-dynamic"]
     [PGLD_LIBS="$PGLD_LIBS $DBUS_LIBS -ldl"])
 
@@ -214,7 +214,7 @@ AS_IF([test "x$enable_lowmem" = "xyes"],
 ##
 # initial QT_flags
 QT_CXXFLAGS=""
-QT_CPPFLAGS="-DVERSION=\\\"$VERSION\\\" -DPGLCMDDEFAULTSPATH=\\\"${libdir}/${PACKAGE}/${PACKAGE}cmd.defaults\\\" -D_REENTRANT -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_SHARED"
+QT_CPPFLAGS="-DVERSION=\\\"$VERSION\\\" -D_REENTRANT -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_SHARED"
 QT_LDFLAGS=""
 QT_LIBS=""
 

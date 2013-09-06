@@ -1,6 +1,7 @@
 # flags
 AM_CFLAGS = @PGLD_CFLAGS@
-AM_CPPFLAGS = @PGLD_CPPFLAGS@
+AM_CPPFLAGS = @PGLD_CPPFLAGS@ \
+			  -DPIDFILE=\"$(localstatedir)/run/${PACKAGE}d.pid\"
 AM_LDFLAGS = @PGLD_LDFLAGS@
 
 # sources for pgld binary
@@ -14,6 +15,7 @@ sbin_PROGRAMS = pgld
 
 # build dbus library for --enable-dbus
 if DBUSMAKE
+AM_CPPFLAGS += -DPLUGINDIR=\"$(libdir)/$(PACKAGE)\"
 libdbusdir = $(libdir)/$(PACKAGE_NAME)
 libdbus_LTLIBRARIES = libdbus.la
 libdbus_la_SOURCES = src/dbus.c src/dbus.h
