@@ -8,5 +8,5 @@
 # any tracked files which get ignored after the change.
 
 qrc_images.cpp
-pgl_gui
+pglgui
 
