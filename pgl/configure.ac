@@ -14,9 +14,7 @@ AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
-AC_PATH_PROG([PKG_CONFIG], [pkg-config])
-AS_IF([test "x$PKG_CONFIG" = "x"],
-    [AC_MSG_ERROR([pkg-config not found!])])
+PKG_PROG_PKG_CONFIG
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h inttypes.h limits.h netinet/in.h stdlib.h string.h sys/time.h syslog.h unistd.h])
@@ -134,14 +132,14 @@ AM_CONDITIONAL(GENTOOINIT, [test "x$gentoo_init" = "xyes"])
 
 # use systemd service file (yes, if user specifies a path)
 # http://www.freedesktop.org/software/systemd/man/daemon.html
-PKG_PROG_PKG_CONFIG
-AC_ARG_WITH([systemdsystemunitdir],
-        AS_HELP_STRING([--with-systemdsystemunitdir=DIR], [Directory for systemd service files]),
-        [], [with_systemdsystemunitdir=$($PKG_CONFIG --variable=systemdsystemunitdir systemd)])
-if test "x$with_systemdsystemunitdir" != xno; then
-        AC_SUBST([systemdsystemunitdir], [$with_systemdsystemunitdir])
-fi
-AM_CONDITIONAL(HAVE_SYSTEMD, [test -n "$with_systemdsystemunitdir" -a "x$with_systemdsystemunitdir" != xno ])
+AC_ARG_WITH([systemd],
+        [AS_HELP_STRING([--with-systemd=UNITDIR], [install systemd unit file (into UNITDIR if given)])],
+        [with_systemd="$withval"],
+        [with_systemd="no"])
+AS_IF([test "x$with_systemd" != xno],
+	  [AS_IF([test "$with_systemd" = yes], [with_systemd="`$PKG_CONFIG --variable=systemdsystemunitdir systemd`"])]
+	  [AC_SUBST([SYSTEMDUNITDIR], [$with_systemd])])
+AM_CONDITIONAL(HAVE_SYSTEMD, [test -n "$with_systemd" -a "x$with_systemd" != xno ])
 
 # let user specify iconsdir
 AC_ARG_WITH([iconsdir],
@@ -326,8 +324,9 @@ echo Gentoo init script........................... : yes
 else
 echo Gentoo init script........................... : no
 fi
-if test -n "$with_systemdsystemunitdir" -a "x$with_systemdsystemunitdir" != xno; then
-echo systemdsystemunitdir......................... : $systemdsystemunitdir
+if test -n "$with_systemd" -a "x$with_systemd" != xno; then
+echo systemd ..................................... : yes
+echo systemd unit dir ............................ : $with_systemd
 else
 echo systemd...................................... : no
 fi

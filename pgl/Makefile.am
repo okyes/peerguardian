@@ -6,7 +6,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 # Ensure that make distcheck continues to work
 DISTCHECK_CONFIGURE_FLAGS = \
-	--with-systemdsystemunitdir=$$dc_install_base/$(systemdsystemunitdir)
+	--with-systemd=$$dc_install_base/$(SYSTEMDUNITDIR)
 
 SUBDIRS = \
 	docs \

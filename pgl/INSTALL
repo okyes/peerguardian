@@ -116,8 +116,10 @@ Debian system, installs most things to /usr/local/):
     --localstatedir=/var \
     --with-lsb=/lib/lsb/init-functions
 
-If you use systemd on your system, use something like:
-  --with-systemdsystemunitdir=/usr/lib/systemd/system/
+If you use systemd on your system, use:
+  --with-systemd
+You can also specify the unit dir path like (usually not necessary):
+  --with-systemd=/usr/lib/systemd/system/
 
 Gentoo has its own init file, use it with:
   --with-gentoo-init
