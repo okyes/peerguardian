@@ -14,7 +14,7 @@ pgld:
     if IP is not found: return 1
     when implemented, adapt "pglcmd search"
 
-  - replace NIPQUAD (removed from kernel 2.6.36) (Note: still works on 3.2)
+  - replace NIPQUAD (removed from kernel 2.6.36) (Note: still works on 3.10)
 
   - improve logging: object org/netfilter/pgl/IpMatch consisting of separate
     items (srcip, srcport, destip, destport, proto, description) instead of a
@@ -24,6 +24,8 @@ pgld:
 
   - send total of blocked connections over dbus (then show it in pglgui)
 
+  - probably integrate listtools (libp2p/mergep2p) from
+    peerguardian.sourceforge.com ported by David Walluck
 
 
 
@@ -44,8 +46,8 @@ pglcmd:
     requires search function in pgld, see above.
     Use this function instead of grep'ping for REGEX.
 
-  - FIX: since 2011-08-11 I get system mails claiming I tried to send a mail
-    without recipient. Seems to be related at least to "restart".
+  - adapt test function for peerguardian .p2b v2 binary format blocklist
+    formats.
 
   - FIX: on stop (and probably other commands), only dump/reset stats once
 
@@ -56,9 +58,14 @@ pglcmd:
     see http://jengelh.medozas.de/2008/0219-ifconfig-sucks.php
 
   - add dbus support, especially for logging.
+    pglcmd errors should be presented by pglgui!
     - Completely rework the logging part, and check if all messages go where
       they should.
     - send error messages to console (STDERR 1>&2), logfile and dbus.
+      #!/bin/bash
+      some_command | tee /some/log/file
+      (tee outputs to standard output and the log file. Add the -a option to
+      append to the log file, rather than overwriting)
     - when implemented pglgui should watch for the error messages
 
   - add pidfiles for update and start/reload
@@ -88,15 +95,10 @@ pglcmd:
     Further the debconf database is not cleared properly on purge.
     Probably related to http://bugs.debian.org/476946?
 
-  - adapt test function for peerguardian .p2b v2 binary format blocklist
-    formats.
-
-  - [DISCUSS]: if any blocklist is unavailable, should pglcmd exit (as it
-    does currently, in order to give no false security), or continue but return
-    an error (if one list is missing, it's still better to use at least the
-    other blocklists).
-
   - [DISCUSS] Block IPv6 completely because currently only IPv4 is checked?
+
+===========================================================================
+
 
 
 
@@ -127,6 +129,9 @@ pglgui:
   - save some space to allow a smaller window, while "Whitelist" in the
     Configuration Tab is still visible with one line (Jerriy, 2011-10-11,
     http://ubuntuforums.org/showpost.php?p=11331774&postcount=554)
+
+  - update pglcmd and pgld log live when they are opened
+
 
   NEW FEATURES:
 

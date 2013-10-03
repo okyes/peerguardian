@@ -24,8 +24,19 @@ pgl 2.2.3~pre1 UNRELEASED
 
   [hasufell]
   * MAKE: do not recreate already existent dirs (Closes: SF bug #325)
+  * BUILD: do not expand path variables in configure.ac
+  * BUILD: small cleanup to systemd bits
 
- -- jre <jre-phoenix@users.sourceforge.net>  Mon, 12 Nov 2012 18:23:03 +0100
+  [freemind]
+  * major refactoring of the pglgui code
+  * fixed issues with local blocklists
+  * Added port aliases (if any) when adding new whitelist items.
+  * Fixed bug when removing an added item.
+  * Fixed warning icon not disapearing from option after applying changes.
+  * Improved validation of ports/ips.
+  * Added call to cleanData to remove possible empty config variables in pglcmd.conf.
+  
+ -- jre <jre-phoenix@users.sourceforge.net>  Thu, 03 Oct 2013 13:52:02 +0200
 
 
 pgl 2.2.2
@@ -47,7 +58,7 @@ pgl 2.2.2
     names (fix)
   * fixed pglgui crashes if you try to whitelist permanently, while pgl is not
     running.
-  * code refacturing
+  * code refactoring
 
  -- jre <jre-phoenix@users.sourceforge.net>  Mon, 25 Jun 2012 16:09:21 +0200
 

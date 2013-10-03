@@ -4,7 +4,7 @@ Default: true
 _Description: Turn on automatic start? This may block the complete network access!
  Configuration variable: INIT
  .
- pgl blocks traffic to and from all IPs that are listed in the configured 
+ pgl blocks traffic to and from all IPs that are listed in your
  blocklists. This may block much more than what you want - including your own
  LAN, gateway and DNS server, many webpages, services like eMail, instant
  messaging or the "weather applet" and even remote access to this machine.

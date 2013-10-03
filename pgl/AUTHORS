@@ -18,6 +18,7 @@ Authors:
     hasufell <julian.ospald@googlemail.com>, added autotools support
 
 Contributors:
+    Pierre Buard (Gilrain): AUR maintainer, contributed systemd file
     godmachine81, slackware packager
     Santiago M. Mola, nfblock build fixes and cleanups
     uljanow <uljanow@users.sourceforge.net>, author of iplist
@@ -28,6 +29,9 @@ Contributors:
         the best wishes.
     sloter <laurent at sloter.org>, initial man page for moblock and
         moblock-control, initial moblock-control test function
+    David Walluck, contributor to MoBlock, porter of listtools (libp2p/
+	mergep2p) from peerguardian.sourceforge.com (not yet integrated in pgl),
+	worked on RPM packaging
     lestlest <clessing@users.sourceforge.net>, original Debian packaging, some
         parts of the scripts, moblock logfile rotation patches, moblock pid file
         creation
