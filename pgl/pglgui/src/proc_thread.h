@@ -102,7 +102,7 @@ class ProcessT : public QThread
         QProcess::ProcessChannelMode m_ChanMode;
         QString m_Output;
         
-    private slots:
+    public slots:
         void executeCommand(const QString& command="", const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels, bool startNow = true);
 
 };

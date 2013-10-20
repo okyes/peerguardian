@@ -117,7 +117,7 @@ class SuperUser : public QObject
         void error(const QString&);
 
 protected:
-        void exec(QStringList commands=QStringList());
+        void exec(QString cmd);
 
     private:
         SuperUser(const SuperUser& other);

@@ -86,14 +86,8 @@ QString SuperUser::getRootPath()
     return mSudoCmd;
 }
 
-void SuperUser::exec(QStringList commands)
+void SuperUser::exec(QString cmd)
 {
-    if (commands.isEmpty()) {
-        commands = m_Commands;
-        if (commands.isEmpty())
-            return;
-    }
-
     if ( mSudoCmd.isEmpty() || !QFile::exists(mSudoCmd) ){
         QString errorMsg = tr("Could not use either kdesu(do) or gksu(do) to execute the command requested.\
         You can set the path of the one you prefer in <b>\"Options - Settings - Sudo front-end\"</b>");
@@ -108,19 +102,14 @@ void SuperUser::exec(QStringList commands)
         return;
     }
 
-    if ( ! hasPermissions("/etc") ) {//If the program is not run by root, use kdesu or gksu as first argument
-        QString command = commands.join(") && (");
-        command = QString ("%1 %2 \"(%3)\"").arg(mSudoCmd).arg(sudoParameters()).arg(command);
-        commands.clear();
-        commands << command;
-        /*for (int i=0; i < commands.size(); i++) {
-            commands[i].insert(0, mSudoCmd + sudoParameters());
-        }*/
+    //If the program is not run by root, use kdesu or gksu as first argument
+    if ( ! hasPermissions("/etc") ) {
+        cmd = QString("%1 %2").arg(mSudoCmd).arg(cmd);
     }
     
-    qDebug() << "Executing commands: \n" << commands << "\n";
+    qDebug() << "Executing command: \n" << cmd << "\n";
 
-    m_ProcT->executeCommands(commands);
+    m_ProcT->executeCommand(cmd);
 }
 
 void SuperUser::addCommand(const QString& command, const QStringList& args)
@@ -140,14 +129,13 @@ void SuperUser::addCommands(const QStringList& commands)
 
 void SuperUser::executeCommand(const QString& command, const QStringList& args)
 {
-    addCommand(command, args);
-    exec();
+    QString cmd = QString("%1 %2").arg(command).arg(args.join(" "));
+    exec(cmd);
 }
 
 void SuperUser::executeCommand(const QStringList& command)
 {
-    addCommand(command);
-    exec();
+    exec(command.join(" "));
 }
 
 void SuperUser::executeAll()
@@ -155,7 +143,17 @@ void SuperUser::executeAll()
     if ( m_Commands.isEmpty() )
         return;
 
-    exec();
+    QString cmd = QString("sh %1").arg(TMP_SCRIPT);
+    QStringList lines;
+    //create file with the commands to be executed
+    lines << "#!/bin/sh";
+    lines << "set -e";
+    lines << m_Commands;
+
+    bool ok = saveFileData(lines, TMP_SCRIPT);
+
+    if ( ok )
+        exec(cmd);
 }
 
 void SuperUser::processFinished(const CommandList& commands)
