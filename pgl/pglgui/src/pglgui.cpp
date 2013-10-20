@@ -431,10 +431,6 @@ void PglGui::rootFinished(const CommandList& commands)
         mPglCore->load();
         loadGUI();
         setApplyButtonEnabled(false);
-
-        if (mReloadPgl)
-            m_Control->reload();
-        mReloadPgl = false;
     }
 }
 
@@ -538,7 +534,7 @@ void PglGui::applyChanges()
     bool updatePglcmdConf = mPglCore->hasToUpdatePglcmdConf();
     bool updateBlocklistsFile = mPglCore->hasToUpdateBlocklistsFile();
     QString filepath;
-    mReloadPgl = mPglCore->hasToReloadBlocklists();
+    bool reload = mPglCore->hasToReloadBlocklists();
     
     if ( pglcmdConfPath.isEmpty() ) {
         QString errorMsg = tr("Could not determine pglcmd.conf path! Did you install pgld and pglcmd?");
@@ -610,6 +606,8 @@ void PglGui::applyChanges()
     //assume changes will be applied, if not this button will be enabled afterwards
     setApplyButtonEnabled(false);
 
+    if (reload)
+        m_Root->addCommand(m_Control->getPath(), QStringList() << "reload");
     m_Root->executeAll(); //execute previously gathered commands
 }
 
