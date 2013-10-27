@@ -25,6 +25,7 @@ aclocal.m4
 ar-lib
 config.*
 configure
+compile
 depcomp
 install-sh
 libtool
