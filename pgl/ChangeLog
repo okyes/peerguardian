@@ -1,6 +1,5 @@
 ChangeLog PeerGuardian Linux (pgl)
 
-
 pgl 2.2.3~pre1 UNRELEASED
 
   [jre]
@@ -34,9 +33,11 @@ pgl 2.2.3~pre1 UNRELEASED
   * Fixed bug when removing an added item.
   * Fixed warning icon not disapearing from option after applying changes.
   * Improved validation of ports/ips.
-  * Added call to cleanData to remove possible empty config variables in pglcmd.conf.
-  
  -- jre <jre-phoenix@users.sourceforge.net>  Thu, 03 Oct 2013 13:52:02 +0200
+  * Added call to cleanData to remove possible empty config variables in
+    pglcmd.conf.
+  * Added reload command to execute script instead of reloading pgl after.
+
 
 
 pgl 2.2.2

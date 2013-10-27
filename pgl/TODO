@@ -1,8 +1,5 @@
 TODO
 
-
-
-
 pgld:
 
   - implement "long run whitelisting concept" (see "All components" below").
@@ -30,6 +27,11 @@ pgld:
 
 
 pglcmd:
+
+  - (Sometime in the future) use "wget --content-disposition" to download
+    http://www.example.com/download.cgi?file=foobar.txt as foobar.txt instead
+    of download.cgi?file=foobar.txt. Note: currently not recommended since
+    not efficient and a bit buggy according to wget's man page..
 
   - update dependency, cf. to apt:
 // Send email to this address for problems or packages upgrades
@@ -107,6 +109,25 @@ pglgui:
 
   [freemind]
 
+  - adapt to systemd:
+    Start: systemctl start pgl.service
+    Restart: systemctl restart pgl.service
+    Reload: systemctl reload pgl.service
+    Stop: systemctl stop pgl.service
+    Start PeerGuardian at system boot: systemctl enable pgl.service
+    Don't start PeerGuardian at system boot is: systemctl disable pgl.service
+
+    Three possibilities to figure out whether in systemd automatic boot is
+    currently enabled (in order to show the (un)tick in pglgui correctly:
+    - commandline: 'systemctl --quiet is-enabled pgl.service' exits with 0 if
+      the service is enabled, 1 when disabled. --quiet suppresses the textual
+      outputs 'enabled' or 'disabled'.
+    - parsing: 'systemctl show --property=UnitFileState pgl.service' outputs
+      'UnitFileState=enabled', 'disabled' being its other state.
+    - dbus: http://www.freedesktop.org/wiki/Software/systemd/dbus/
+
+    dbus may also be used instead of the systemctl commands above. So that's (at least in the long run) the solution to go for.
+
   FIX:
 
   - enable "Allow Port" on right-click only for protocols TCP and UDP.
@@ -176,6 +197,9 @@ pglgui:
 
 
 All components:
+
+  - Check http://www.freedesktop.org/software/systemd/man/daemon.html for
+    security tasks.
 
   - long run whitelisting concept:
     * allow.p2p etc.:
@@ -256,3 +280,4 @@ Packaging:
 
 Web:
     [TODO] add information for new developers, short git intro to wiki
+    update screenshots, add them to wiki (HOWTO installation and configuration)
