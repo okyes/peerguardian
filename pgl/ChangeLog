@@ -20,6 +20,7 @@ pgl 2.2.3~pre1 UNRELEASED
   * cd / after downloading blocklists (instead of only cd'ing into the
     directory, but not leaving again)
   * init: added firewalld and moved $syslog to Should-Start|Stop
+  * BUILD: added AUTOMAKE_OPTIONS = subdir-objects
 
   [hasufell]
   * MAKE: do not recreate already existent dirs (Closes: SF bug #325)

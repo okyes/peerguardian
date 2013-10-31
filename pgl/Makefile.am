@@ -4,6 +4,8 @@ MASTER_BLOCKLIST_DIR = @MASTER_BLOCKLIST_DIR@
 
 ACLOCAL_AMFLAGS = -I m4
 
+AUTOMAKE_OPTIONS = subdir-objects
+
 # Ensure that make distcheck continues to work
 DISTCHECK_CONFIGURE_FLAGS = \
 	--with-systemd=$$dc_install_base/$(SYSTEMDUNITDIR)

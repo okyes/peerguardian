@@ -1,3 +1,5 @@
+AUTOMAKE_OPTIONS = subdir-objects
+
 # flags
 AM_CFLAGS = @PGLD_CFLAGS@
 AM_CPPFLAGS = @PGLD_CPPFLAGS@ \

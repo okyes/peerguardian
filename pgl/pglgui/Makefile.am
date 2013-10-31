@@ -1,6 +1,8 @@
 # dependency tracking does not work well with our
 # moc rules
-AUTOMAKE_OPTIONS = no-dependencies
+AUTOMAKE_OPTIONS = \
+	no-dependencies \
+	subdir-objects
 
 # QT tools
 RCC = @RCC@
