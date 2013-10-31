@@ -1,6 +1,6 @@
 ChangeLog PeerGuardian Linux (pgl)
 
-pgl 2.2.3~pre1 UNRELEASED
+pgl 2.2.3
 
   [jre]
   * use conntrack instead of state netfilter module
@@ -9,6 +9,7 @@ pgl 2.2.3~pre1 UNRELEASED
   * added systemd file by Pierre Buard, tested for months by the Arch Linux
     guinea pigs. Thanks!
     Closes: https://sourceforge.net/p/peerguardian/patches/2/
+    Note: pglgui still needs to be adapted.
   * fix: (re-)enable MARKing for incoming matched packets.
     Thanks Jason Hill,
     https://sourceforge.net/p/peerguardian/discussion/446996/thread/ed9a443f
@@ -34,11 +35,11 @@ pgl 2.2.3~pre1 UNRELEASED
   * Fixed bug when removing an added item.
   * Fixed warning icon not disapearing from option after applying changes.
   * Improved validation of ports/ips.
- -- jre <jre-phoenix@users.sourceforge.net>  Thu, 03 Oct 2013 13:52:02 +0200
   * Added call to cleanData to remove possible empty config variables in
     pglcmd.conf.
   * Added reload command to execute script instead of reloading pgl after.
 
+ -- jre <jre-phoenix@users.sourceforge.net>  Thu, 31 Oct 2013 18:28:50 +0100
 
 
 pgl 2.2.2

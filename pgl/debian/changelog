@@ -1,11 +1,12 @@
-pgl (2.2.3~pre1-1) UNRELEASED; urgency=low
+pgl (2.2.3-1) unstable; urgency=low
 
-  * started development of new release 2.2.3
-  * added packages for Ubuntu Raring (13.04) and Saucy (13.10), dropped Hardy
-    (8.04), Natty (11.04) and Oneiric (11.04)
+  * new release
+  * added packages for Debian Jessie and Ubuntu Raring (13.04), Saucy
+    (13.10), Trusty (14.04), dropped Hardy (8.04), Natty (11.04) and
+    Oneiric (11.04)
   * dropped the transitional packages
 
- -- jre <jre-phoenix@users.sourceforge.net>  Mon, 12 Nov 2012 18:23:43 +0100
+ -- jre <jre-phoenix@users.sourceforge.net>  Thu, 31 Oct 2013 18:28:50 +0100
 
 pgl (2.2.2-1) unstable; urgency=low
 
