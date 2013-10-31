@@ -54,8 +54,8 @@ override_dh_installinit:
 	dh_installinit -p pglcmd --name=pgl -- start 60 2 3 4 5 . stop 20 0 1 6 .
 
 override_dh_strip:
-	# Just act if pglcmd package is built:
-ifneq (,$(findstring pglcmd, $(shell dh_listpackages)))
+	# Just act if pgld package is built:
+ifneq (,$(findstring pgld, $(shell dh_listpackages)))
 	dh_strip -p pgld --dbg-package=pgld-dbg
 endif
 	# Just act if pglgui package is built:
