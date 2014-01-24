@@ -480,13 +480,15 @@ bool WhitelistManager::isValid(const WhitelistItem & other, QString & reason)
         return false;
     }
 
-    foreach(const Port& port, mSystemPorts) {
-        if ( port.containsName(other.value()) ) {
-            if ( ! port.hasProtocol(other.protocol()) ) {
-                reason += other.value();
-                reason += QObject::tr(" doesn't work over ") + other.protocol();
-                return false;
-            }
+    QHashIterator<int, Port> it(mSystemPorts);
+
+    while (it.hasNext()) {
+        it.next();
+        Port port = (Port) it.value();
+        if ( port.containsName(other.value()) && ! port.hasProtocol(other.protocol()) ) {
+            reason += other.value();
+            reason += QObject::tr(" doesn't work over ") + other.protocol();
+            return false;
         }
     }
 
@@ -513,7 +515,10 @@ WhitelistItem* WhitelistManager::itemAt(int index)
 void WhitelistManager::addItem(WhitelistItem * item)
 {
     //fetch aliases
-    foreach(const Port& port, mSystemPorts) {
+    QHashIterator<int, Port> it(mSystemPorts);
+    while(it.hasNext()) {
+        it.next();
+        Port port = (Port) it.value();
         if (port.containsName(item->value())) {
             item->addAliases(port.names());
             break;
@@ -566,7 +571,7 @@ void WhitelistManager::undo()
     }
 }
 
-QList<Port> WhitelistManager::systemPorts()
+QHash<int, Port> WhitelistManager::systemPorts()
 {
     return mSystemPorts;
 }
@@ -574,11 +579,16 @@ QList<Port> WhitelistManager::systemPorts()
 QHash<QString, int> WhitelistManager::systemPortsNameToNumber()
 {
   QHash<QString, int> ports;
+  QHashIterator<int, Port> it(mSystemPorts);
+  Port port;
 
-  foreach(const Port& port, mSystemPorts)
-    foreach(const QString& name, port.names())
-      if (! isNumber(name))
-        ports[name] = port.number();
+  while(it.hasNext()) {
+      it.next();
+      port = (Port) it.value();
+      foreach(const QString& name, port.names())
+        if (! isNumber(name))
+          ports[name] = port.number();
+  }
 
   return ports;
 }
@@ -588,9 +598,13 @@ int WhitelistManager::portNumber(const QString& name)
   if (isNumber(name))
     return name.toInt();
 
-  foreach(const Port& port, mSystemPorts)
-      if (port.containsName(name))
-        return port.number();
+  QHashIterator<int, Port> it(mSystemPorts);
+  while(it.hasNext()) {
+      it.next();
+      Port p = (Port) it.value();
+      if (p.containsName(name))
+          return p.number();
+  }
 
   return -1;
 }
@@ -601,25 +615,25 @@ void WhitelistManager::loadSystemPorts()
         mSystemPorts.clear();
 
     QStringList fileData = getFileData("/etc/services");
-    Port port1, port2;
+    Port port, _port;
+
+    mSystemPorts.contains(0);
 
     for ( int i=0; i < fileData.size(); i++ )
     {
-        port1 = parsePort(fileData[i]);
+        port = parsePort(fileData[i]);
+        if (port.number() == 0)
+            continue;
 
-        if ( i < fileData.size()-1 )
-        {
-            //get next line
-            port2 = parsePort(fileData[i+1]);
-
-            if ( port1.name() == port2.name() )
-            {
-                port1.addProtocols(port2.protocols());
-                ++i; //ignores next line
-            }
+        if (mSystemPorts.contains(port.number())) {
+            _port = (Port) mSystemPorts.value(port.number());
+            _port.addProtocols(port.protocols());
+            _port.addNames(port.names());
+            mSystemPorts.insert(_port.number(), _port);
         }
-
-        mSystemPorts.append(port1);
+        else {
+            mSystemPorts.insert(port.number(), port);
+        }
     }
 }
 

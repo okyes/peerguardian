@@ -22,6 +22,7 @@
 
 #include <QMultiMap>
 #include <QMap>
+#include <QHash>
 #include <QString>
 #include <QStringList>
 #include <QSettings>
@@ -54,7 +55,7 @@ class WhitelistManager : public QObject
     QSettings * m_Settings;
     QMap<QString, QStringList> m_WhitelistEnabled;
     QMap<QString, QStringList> m_WhitelistDisabled;
-    QList<Port> mSystemPorts;
+    QHash<int, Port> mSystemPorts;
 
 	public:
 		/**
@@ -98,7 +99,7 @@ class WhitelistManager : public QObject
         bool isChanged();
         void undo();
         void loadSystemPorts();
-        QList<Port> systemPorts();
+        QHash<int, Port> systemPorts();
         QHash<QString, int> systemPortsNameToNumber();
         Port parsePort(QString);
         int portNumber(const QString&);
