@@ -36,6 +36,7 @@ class Port
         virtual ~Port(){};
         void addProtocols(const QStringList&);
         void addName(const QString&);
+        void addNames(const QStringList&);
         bool containAlias(const QString&);
         int number() const;
         QStringList names() const;

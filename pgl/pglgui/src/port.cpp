@@ -76,14 +76,22 @@ bool Port::hasProtocol(const QString& protocol) const
 
 void Port::addProtocols(const QStringList& protocols)
 {
-    mProtocols << protocols;
-    mProtocols.removeDuplicates();
+    foreach(const QString &prot, protocols)
+        if (! mProtocols.contains(prot))
+            mProtocols.append(prot);
 }
 
 void Port::addName(const QString& name)
 {
     if ( ! mNames.contains(name) )
         mNames << name;
+}
+
+void Port::addNames(const QStringList& names)
+{
+    foreach(const QString &name, names)
+        if (! mNames.contains(name))
+            mNames.append(name);
 }
 
 /*Port& Port::operator=(const Port& other)
