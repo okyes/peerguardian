@@ -28,6 +28,10 @@ pgld:
 
 pglcmd:
 
+  - systemd: Update has no placeholder and needs to go in a dedicated file.
+    This, in turn, would allow the creation of a timer service to update the
+    blocklists at regular intervals.
+
   - (Sometime in the future) use "wget --content-disposition" to download
     http://www.example.com/download.cgi?file=foobar.txt as foobar.txt instead
     of download.cgi?file=foobar.txt. Note: currently not recommended since
@@ -126,26 +130,17 @@ pglgui:
       'UnitFileState=enabled', 'disabled' being its other state.
     - dbus: http://www.freedesktop.org/wiki/Software/systemd/dbus/
 
-    dbus may also be used instead of the systemctl commands above. So that's (at least in the long run) the solution to go for.
+    dbus may also be used instead of the systemctl commands above. So that's
+    (at least in the long run) the solution to go for.
 
   FIX:
+
+  - don't show local blocklists (all files in /etc/pgl/blocklists.local/)
+    which end in "~".
 
   - enable "Allow Port" on right-click only for protocols TCP and UDP.
 
   - "Whitelist temporarily" should be explained to the user
-
-  - show local blocklists (all files in /etc/pgl/blocklists.local/, except
-    those in subdirectories, or which end in "~" or start with ".") in
-    Configure/Blocklists (adding them works flawlessly)
-    allow all filetypes for local blocklists (unpacked blocklists may have any
-    file extension).
-    Suggestion for implementation:
-    remove a local blocklist (LIST):
-        rm /etc/pgl/blocklists.local/LIST
-    untick a local blocklist (LIST):
-        mv /etc/pgl/blocklists.local/LIST /etc/pgl/blocklists.local/.LIST
-        and/or save in pglgui.conf as it is done currently
-        show hidden files as unticked
 
   - save some space to allow a smaller window, while "Whitelist" in the
     Configuration Tab is still visible with one line (Jerriy, 2011-10-11,

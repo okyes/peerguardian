@@ -1,4 +1,4 @@
-pgl/INSTALL                                    Wed, 20 Jun 2012 22:57:43 +0200
+pgl/INSTALL                                    Fri Nov  1 12:45:36 CET 2013
 
 
 Table of Contents:
@@ -278,8 +278,17 @@ Debian RFP: http://bugs.debian.org/578192
 Ubuntu RFP: https://bugs.launchpad.net/ubuntu/+bug/109822
 
 
-rpm packages [outdated]:
-------------------------
+rpm packages:
+-------------
+peerguardian is in Mageia Cauldron, see
+https://bugs.mageia.org/show_bug.cgi?id=8502
+
+[outdated]
+by pixecs (last update 06-03-2011, pgl 2.0.4):
+  http://forums.phoenixlabs.org/thread-15882-post-120482.html#pid120482
+
+
+[outdated]
 CentOS by agent86 (last update 06-20-2011, pgl 2.0.4):
 http://forums.phoenixlabs.org/thread-16383-post-120468.html
 spec and patch file
@@ -288,8 +297,17 @@ RedHat's system initialization:
   chkconfig add pgl
   chkconfig pgl on
 
-openSUSE 11.3/x64 [outdated]:
------------------------------
+
+openSUSE:
+---------
+Giorgos successfully compiled pgl 2.3.4, keeping all options, except Gentoo
+  script and lowmem.
+        ./configure --sysconfdir=/etc --with-systemd
+        make
+        su
+        make install
+
+[outdated]
 by pixecs (last update 06-03-2011, pgl 2.0.4):
 http://forums.phoenixlabs.org/thread-15882-post-120482.html#pid120482
 
@@ -312,7 +330,7 @@ by godmachine81:
 branch "pgl_slackware" in the git repository, slack tar available.
 
 
-synology:
+synology [outdated]:
 ---------
 2009 by dino:
 http://forums.phoenixlabs.org/thread-1622-post-119717.html#pid119717

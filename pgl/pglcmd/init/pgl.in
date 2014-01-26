@@ -70,8 +70,6 @@ case "$1" in
             0)
                 if [ "$VERBOSE" -eq 1 ] ; then
                     log_warning_msg "$(basename $0) is configured not to start automatically at boot time."
-                    log_warning_msg "To change this edit the INIT entry in $CMD_CONF."
-                    log_warning_msg "If you don't want to see this message set VERBOSE=\"2\" there."
                 fi
                 exit 0
                 ;;

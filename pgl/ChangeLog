@@ -1,5 +1,18 @@
 ChangeLog PeerGuardian Linux (pgl)
 
+pgl 2.2.4
+
+  [freemind]
+  * Fixed bug when reading /etc/services file in OpenSUSE.
+  * Added addNames method and improved addProtocols method.
+
+  [jre]
+  * init: removed hint how to reenable automatic start.
+  * documentation updates
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 26 Jan 2014 23:50:14 +0100
+
+
 pgl 2.2.3
 
   [jre]
