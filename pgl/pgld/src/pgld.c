@@ -414,7 +414,8 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
     struct nfqnl_msg_packet_hdr *ph;
     block_entry_t *found_range;
     struct iphdr *ip;
-    char *payload, proto[5], src[23], dst[23];  //src and dst are 23 for IP(16)+port(5) + : + NULL
+    unsigned char *payload;
+    char proto[5], src[23], dst[23];  //src and dst are 23 for IP(16)+port(5) + : + NULL
 
     ph = nfq_get_msg_packet_hdr(nfa);
     if (ph) {
@@ -428,7 +429,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                 if (reject_mark) {
                     // we set the user-defined reject_mark and set NF_REPEAT verdict
                     // it's up to other iptables rules to decide what to do with this marked packet
-                    status = nfq_set_verdict_mark(qh, id, NF_REPEAT, reject_mark, 0, NULL);
+                    nfq_set_verdict2(qh, id, NF_REPEAT, reject_mark, 0, NULL);
                 } else {
                     status = nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
                 }
@@ -444,7 +445,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
             } else if (accept_mark) {
                 // we set the user-defined accept_mark and set NF_REPEAT verdict
                 // it's up to other iptables rules to decide what to do with this marked packet
-                status = nfq_set_verdict_mark(qh, id, NF_REPEAT, accept_mark, 0, NULL);
+                nfq_set_verdict2(qh, id, NF_REPEAT, accept_mark, 0, NULL);
             } else {
                 // no accept_mark, just NF_ACCEPT the packet
                 status = nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
@@ -457,7 +458,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                 if (reject_mark) {
                     // we set the user-defined reject_mark and set NF_REPEAT verdict
                     // it's up to other iptables rules to decide what to do with this marked packet
-                    status = nfq_set_verdict_mark(qh, id, NF_REPEAT, reject_mark, 0, NULL);
+                    nfq_set_verdict2(qh, id, NF_REPEAT, reject_mark, 0, NULL);
                 } else {
                     status = nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
                 }
@@ -485,7 +486,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
             } else if (accept_mark) {
                 // we set the user-defined accept_mark and set NF_REPEAT verdict
                 // it's up to other iptables rules to decide what to do with this marked packet
-                status = nfq_set_verdict_mark(qh, id, NF_REPEAT, accept_mark, 0, NULL);
+                nfq_set_verdict2(qh, id, NF_REPEAT, accept_mark, 0, NULL);
             } else {
                 // no accept_mark, just NF_ACCEPT the packet
                 status = nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
@@ -500,7 +501,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                 if (reject_mark) {
                     // we set the user-defined reject_mark and set NF_REPEAT verdict
                     // it's up to other iptables rules to decide what to do with this marked packet
-                    status = nfq_set_verdict_mark(qh, id, NF_REPEAT, reject_mark, 0, NULL);
+                    nfq_set_verdict2(qh, id, NF_REPEAT, reject_mark, 0, NULL);
                 } else {
                     status = nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
                 }
@@ -515,7 +516,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
             } else if (accept_mark) {
                 // we set the user-defined accept_mark and set NF_REPEAT verdict
                 // it's up to other iptables rules to decide what to do with this marked packet
-                status = nfq_set_verdict_mark(qh, id, NF_REPEAT, accept_mark, 0, NULL);
+                nfq_set_verdict2(qh, id, NF_REPEAT, accept_mark, 0, NULL);
             } else {
                 // no accept_mark, just NF_ACCEPT the packet
                 status = nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
@@ -553,10 +554,10 @@ static int nfqueue_bind() {
 
     do_log(LOG_INFO, "INFO: NFQUEUE: binding to queue %d", ntohs(queue_num));
     if (accept_mark) {
-        do_log(LOG_INFO, "INFO: ACCEPT mark: %u", ntohl(accept_mark));
+        do_log(LOG_INFO, "INFO: ACCEPT mark: %u", accept_mark);
     }
     if (reject_mark) {
-        do_log(LOG_INFO, "INFO: REJECT mark: %u", ntohl(reject_mark));
+        do_log(LOG_INFO, "INFO: REJECT mark: %u", reject_mark);
     }
     nfqueue_qh = nfq_create_queue(nfqueue_h, ntohs(queue_num), &nfqueue_cb, NULL);
     if (!nfqueue_qh) {
@@ -675,10 +676,10 @@ int main(int argc, char *argv[]) {
             queue_num = htons((uint16_t)atoi(optarg));
             break;
         case 'r':
-            reject_mark = htonl((uint32_t)atoi(optarg));
+            reject_mark = (uint32_t)atoi(optarg);
             break;
         case 'a':
-            accept_mark = htonl((uint32_t)atoi(optarg));
+            accept_mark = (uint32_t)atoi(optarg);
             break;
         case 'm':
             opt_merge = 1;
