@@ -1,5 +1,14 @@
 ChangeLog PeerGuardian Linux (pgl)
 
+pgl 2.2.4+git
+
+  [cader]
+  * Update nfq_set_verdict_mark calls to nfq_set_verdict2
+  * Change declaration of "payload" to match what NFQ expects
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Wed, 29 Jan 2014 16:40:30 +0100
+
+
 pgl 2.2.4
 
   [freemind]
