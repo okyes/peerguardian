@@ -15,10 +15,10 @@ Build-Depends: po-debconf,
                dh-autoreconf,
                debhelper (>= 9~)
 Build-Conflicts: autoconf2.13, automake1.4
-Standards-Version: 3.9.3.0
+Standards-Version: 3.9.5
 Homepage: http://peerguardian.sourceforge.net/
 Vcs-Browser: http://peerguardian.git.sourceforge.net/
-Vcs-Git: git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerguardian
+Vcs-Git: git://git.code.sf.net/p/peerguardian/code
 
 Package: pgld
 Architecture: any
