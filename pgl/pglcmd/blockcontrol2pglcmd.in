@@ -1,7 +1,7 @@
 #!/bin/sh
 # blockcontrol2pglcmd - transition blockcontrol to pglcmd configuration
 #
-# Copyright (C) 2011 jre <jre-phoenix@users.sourceforge.net>
+# Copyright (C) 2011-2014 jre <jre-phoenix@users.sourceforge.net>
 #
 # This file is part of pgl.
 #

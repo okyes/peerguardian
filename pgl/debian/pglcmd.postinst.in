@@ -2,7 +2,7 @@
 # postinst script for pglcmd
 # see: dh_installdeb(1)
 
-# Copyright (C) 2008 - 2010 jre <jre-phoenix@users.sourceforge.net>
+# Copyright (C) 2008 - 2014 jre <jre-phoenix@users.sourceforge.net>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
