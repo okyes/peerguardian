@@ -20,8 +20,7 @@ SUBDIRS = \
 dist_doc_DATA = \
 	BUGS \
 	README.blocklists \
-	README.dbus \
-	README.pglgui
+	README.dbus
 
 EXTRA_DIST = \
 	autogen.sh \

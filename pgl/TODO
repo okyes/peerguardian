@@ -189,6 +189,8 @@ pglgui:
 
   - add menu item "View - View pglcmd status output"
 
+  - allow to configure every or at least some more pglcmd variables, e.g. IP_REMOVE
+
 
 
 All components:
