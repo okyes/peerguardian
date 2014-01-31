@@ -2,6 +2,9 @@ ChangeLog PeerGuardian Linux (pgl)
 
 pgl 2.2.4+git
 
+  [jre]
+  * documentation updates
+
   [cader]
   * Update nfq_set_verdict_mark calls to nfq_set_verdict2
   * Change declaration of "payload" to match what NFQ expects
