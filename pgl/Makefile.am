@@ -43,7 +43,6 @@ EXTRA_DIST = \
 	debian/pgld.docs \
 	debian/pgld.install \
 	debian/pgld.manpages \
-	debian/pglgui.docs \
 	debian/pglgui.install \
 	debian/pglgui.links \
 	debian/pglgui.postinst \
