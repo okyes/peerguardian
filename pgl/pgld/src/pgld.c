@@ -273,15 +273,6 @@ static void sighandler(int sig, siginfo_t *info, void *context) {
         blocklist_stats(0);
         break;
     case SIGHUP:
-// Disabled for testing purposes (SF bug ID: 3495654)
-// Do we really need to close and reopen dbus on SIGHUP?
-// But even if we take this out here, I still don't know why pgld crashed for
-// the Ubuntu Oneiric/Precise and Mint12 builds
-//         // close dbus
-// #ifdef HAVE_DBUS
-//         if (use_dbus)
-//             close_dbus();
-// #endif
         if (logfile_name != NULL) {
             do_log(LOG_INFO, "INFO: Closing logfile: %s", logfile_name);
             fclose(logfile);
@@ -294,23 +285,6 @@ static void sighandler(int sig, siginfo_t *info, void *context) {
                 do_log(LOG_INFO, "INFO: Reopened logfile: %s", logfile_name);
             }
         }
-// Disabled for testing purposes (SF bug ID: 3495654), see above.
-//         // connect to dbus
-// #ifdef HAVE_DBUS
-//     if (try_dbus) {
-//         if (open_dbus() < 0) {
-//             do_log(LOG_ERR, "ERROR: Cannot load D-Bus plugin");
-//             try_dbus = 0;
-//             exit(1);
-//         }
-//         if (pgl_dbus_init() < 0) {
-//             do_log(LOG_ERR, "ERROR: Cannot initialize D-Bus");
-//             try_dbus = 0;
-//             exit(1);
-//         }
-//     }
-//     use_dbus = try_dbus;
-// #endif
         if (load_all_lists() < 0) {
             do_log(LOG_ERR, "ERROR: Cannot reload the blocklist(s).");
         }
