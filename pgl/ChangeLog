@@ -9,6 +9,7 @@ pgl 2.2.4+git
       WHITE_TCP_FORWARD -> WHITE_TCP_FWD
       WHITE_UDP_FORWARD -> WHITE_UDP_FWD
       WHITE_IP_FORWARD -> WHITE_IP_FWD
+  * dropped code for transition 2011-05-28: remove old master blocklists
 
   [cader]
   * Update nfq_set_verdict_mark calls to nfq_set_verdict2
