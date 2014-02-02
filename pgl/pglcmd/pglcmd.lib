@@ -1516,17 +1516,16 @@ do_start () {
                 fi
 
             # ipt_REJECT
-            [ -f /proc/net/ip_tables_targets ] && grep -q REJECT /proc/net/ip_tables_targets ||
+            if [ "$REJECT_OUT" = REJECT ] || [ "$REJECT_FWD" = REJECT ] || [ "$REJECT_IN" = REJECT ] ; then
+                [ -f /proc/net/ip_tables_targets ] && grep -q REJECT /proc/net/ip_tables_targets ||
                 modprobe -q xt_REJECT ||
-                modprobe -q ipt_REJECT ||
-                if [ "$REJECT_OUT" = REJECT ] || [ "$REJECT_FWD" = REJECT ] || [ "$REJECT_IN" = REJECT ] ; then
-                    log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module ipt_REJECT, not starting $NAME!"
-                    log_failure_msg "Use a kernel with netfilter REJECT support or reconfigure $(basename $0)"
-                    log_failure_msg "to DROP instead of REJECT blocked packets."
-                    exit $E_XEXTERNAL
-                else
-                    log_warning_msg "Warning: Could not load kernel module ipt_REJECT, continuing anyway."
-                fi
+                modprobe -q ipt_REJECT || {
+                log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module ipt_REJECT, not starting ${NAME}."
+                log_failure_msg "Use a kernel with netfilter REJECT support or configure $(basename $0)"
+                log_failure_msg "to DROP instead of REJECT blocked packets."
+                }
+                exit $E_XEXTERNAL
+            fi
 
             # xt_conntrack
             # TODO: nf_conntrack
