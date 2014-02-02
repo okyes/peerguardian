@@ -25,7 +25,7 @@
 .SH SYNOPSIS
 .B pgld
 [\fI\-s\fR] [\fI\-l LOGFILE\fR] [\fI\-d\fR] [\fI\-c CHARSET\fR] [\fI\-p
-PIDFILE\fR] [\fI\-q 0-65535\fR] [\fI\-r MARK\fR] [\fI\-a MARK\fR] BLOCKLIST(S)
+PIDFILE\fR] [\fI\-q 0-65535\fR] \fI\-r MARK\fR \fI\-a MARK\fR BLOCKLIST(S)
 .PP
 .B pgld
 [\fI\-c CHARSET\fR] \-m [\fIBLOCKLIST(S)\fR]
@@ -277,15 +277,11 @@ the necessary netfilter support is not built in the kernel directly, pglcmd will
 load the necessary kernel modules. If they are not available, pgld can not be
 started.
 .PP
-If a packet matches the blocklist, then pgld DROPs it directly. If configured
-pgld MARKs the packet instead. Per default the MARKing feature is on if you use
-pglcmd. So blocked packets get the MARK "10", which is shown as "0xa" by
-iptables.
+If a packet matches the blocklist, then pgld MARKs the packet. Blocked packets
+get the MARK "10", which is shown as "0xa" by iptables.
 .PP
-If a packet doesn't match the blocklist, then pgld ACCEPTs it directly. If
-configured pgld MARKs the packet instead. Per default the MARKing feature is on
-if you use pglcmd. So allowed packets get the MARK "20", which is shown as
-"0x14" by iptables.
+If a packet doesn't match the blocklist, then pgld MARKs the packet. Allowed
+packets get the MARK "20", which is shown as "0x14" by iptables.
 .PP
 A MARKed packet repeats the hook function (NF_REPEAT). So it is sent back to
 the head of the iptables chain again. This means it enters the chain INPUT,
@@ -307,12 +303,9 @@ packet will loop forever.
 
 .SH WARNING: Users with firewall (iptables rules)
 \fBpgl\fR does not conflict with other firewalls (iptables rules) as long as you
-make sure the following three conditions hold:
+make sure the following two conditions hold:
 .IP \(em 3
-pgl marks non-matched (IP is not in the blocklist) packets. (The marking feature
-is on per default in pglcmd.)
-.IP \(em 3
-Other firewalls must not mark packets.
+Other firewalls must not MARK packets.
 .IP \(em 3
 pgl is started after other firewalls. If other firewalls are started or reloaded
 after pgl, then you may need to restart pglcmd again. You will be fine, if the

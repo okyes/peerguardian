@@ -223,19 +223,15 @@ IPTABLES_TARGET="NFQUEUE"
 # Valid queue numbers are 0 to 65535.
 NFQUEUE_NUMBER="92"
 
-# Set what happens to matched packets (IP is in the blocklist).
-# 0 - DROP them directly (as in MoBlock 0.8).
-# 1 - MARK them. Further iptables rules decide what happens to them. E.g. this
-#     allows to REJECT packets to avoid the long timeout, which occurs when
-#     packets are DROPped, see below. This setting is also necessary for
-#     iptables logging to syslog, see below.
-REJECT="1"
-
-# Set the corresponding MARK
+# Set the iptables MARK that is assigned to matched packets (IP is in the
+# blocklist).
+# MARKed packets repeat the complete hook function. Further iptables rules
+# decide what happens to them. E.g. this allows to REJECT outgoing packets to
+# avoid the long timeout, which occurs when packets are DROPped, see below.
 REJECT_MARK="10"
 
-# Set the iptables target for "marked block" packets.
-# This section works only for IPTABLES_ACTIVATION="1" and REJECT="1".
+# Set the iptables target for matched packets (IP is in the blocklist).
+# This section works only for IPTABLES_ACTIVATION="1".
 # Valid values are all iptables targets. Be careful: senseless values are also
 # accepted.
 # REJECT: The sender of the packet is notified that the packet was blocked.
@@ -244,13 +240,10 @@ REJECT_IN="DROP"
 REJECT_OUT="REJECT"
 REJECT_FWD="DROP"
 
-# Set what happens to non-matched packets (IP is not in the blocklist).
-# 0 - ACCEPT them directly (as in MoBlock 0.8)
-# 1 - MARK them. pgl will then ignore them. This allows an integration with
-#     other firewalls.
-ACCEPT="1"
-
-# Set the corresponding MARK
+# Set the iptables MARK that is assigned to non-matched packets (IP is not in
+# the blocklist).
+# MARKed packets repeat the complete hook function. pgl ignores packets with
+# this MARK. This allows an integration with other firewalls.
 ACCEPT_MARK="20"
 
 # Set the iptables target for whitelisting packets.
@@ -353,8 +346,7 @@ LOG_SYSLOG="0"
 LOG_LOGFILE="1"
 
 # Iptables logging of blocked packets
-# Set an iptables target for blocked packets. This will only work if marking
-# matched (IP is in the blocklist) packets is on (i.e. REJECT="1").
+# Set an iptables target for blocked packets.
 # The iptables rules will be inserted directly before the iptables rule which
 # decides what happens to "marked block" packets.
 # Examples:

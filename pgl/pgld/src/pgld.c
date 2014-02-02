@@ -400,13 +400,9 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
         case NF_IP_LOCAL_IN:
             found_range = blocklist_find(ntohl(ip->saddr));
             if (found_range) {
-                if (reject_mark) {
-                    // we set the user-defined reject_mark and set NF_REPEAT verdict
-                    // it's up to other iptables rules to decide what to do with this marked packet
-                    nfq_set_verdict2(qh, id, NF_REPEAT, reject_mark, 0, NULL);
-                } else {
-                    status = nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
-                }
+                // we set the user-defined reject_mark and set NF_REPEAT verdict
+                // it's up to other iptables rules to decide what to do with this marked packet
+                nfq_set_verdict2(qh, id, NF_REPEAT, reject_mark, 0, NULL);
                 found_range->hits++;
                 // NOTE: "setipinfo" sets the formats.
                 // TODO: Separate IP and port in there.
@@ -416,26 +412,19 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
 #else
                 do_log(LOG_NOTICE, " IN: %-22s %-22s %-4s",src,dst,proto);
 #endif
-            } else if (accept_mark) {
+            } else {
                 // we set the user-defined accept_mark and set NF_REPEAT verdict
                 // it's up to other iptables rules to decide what to do with this marked packet
                 nfq_set_verdict2(qh, id, NF_REPEAT, accept_mark, 0, NULL);
-            } else {
-                // no accept_mark, just NF_ACCEPT the packet
-                status = nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
             }
             break;
         case NF_IP_LOCAL_OUT:
 
             found_range = blocklist_find(ntohl(ip->daddr));
             if (found_range) {
-                if (reject_mark) {
-                    // we set the user-defined reject_mark and set NF_REPEAT verdict
-                    // it's up to other iptables rules to decide what to do with this marked packet
-                    nfq_set_verdict2(qh, id, NF_REPEAT, reject_mark, 0, NULL);
-                } else {
-                    status = nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
-                }
+                // we set the user-defined reject_mark and set NF_REPEAT verdict
+                // it's up to other iptables rules to decide what to do with this marked packet
+                nfq_set_verdict2(qh, id, NF_REPEAT, reject_mark, 0, NULL);
                 found_range->hits++;
                 // NOTE: "setipinfo" sets the formats.
                 // TODO: Separate IP and port in there.
@@ -457,13 +446,10 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
 #else
                 do_log(LOG_NOTICE, "OUT: %-22s %-22s %-4su", src,dst,proto);
 #endif
-            } else if (accept_mark) {
+            } else {
                 // we set the user-defined accept_mark and set NF_REPEAT verdict
                 // it's up to other iptables rules to decide what to do with this marked packet
                 nfq_set_verdict2(qh, id, NF_REPEAT, accept_mark, 0, NULL);
-            } else {
-                // no accept_mark, just NF_ACCEPT the packet
-                status = nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
             }
             break;
         case NF_IP_FORWARD:
@@ -472,14 +458,9 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
                 found_range = blocklist_find(ntohl(ip->daddr));
             }
             if (found_range) {
-                if (reject_mark) {
-                    // we set the user-defined reject_mark and set NF_REPEAT verdict
-                    // it's up to other iptables rules to decide what to do with this marked packet
-                    nfq_set_verdict2(qh, id, NF_REPEAT, reject_mark, 0, NULL);
-                } else {
-                    status = nfq_set_verdict(qh, id, NF_DROP, 0, NULL);
-                }
-
+                // we set the user-defined reject_mark and set NF_REPEAT verdict
+                // it's up to other iptables rules to decide what to do with this marked packet
+                nfq_set_verdict2(qh, id, NF_REPEAT, reject_mark, 0, NULL);
                 found_range->hits++;
                 setipinfo(src, dst, proto, ip, payload);
 #ifndef LOWMEM
@@ -487,13 +468,10 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
 #else
                 do_log(LOG_NOTICE, "FWD: %-22s %-22s %-4s",src,dst,proto);
 #endif
-            } else if (accept_mark) {
+            } else {
                 // we set the user-defined accept_mark and set NF_REPEAT verdict
                 // it's up to other iptables rules to decide what to do with this marked packet
                 nfq_set_verdict2(qh, id, NF_REPEAT, accept_mark, 0, NULL);
-            } else {
-                // no accept_mark, just NF_ACCEPT the packet
-                status = nfq_set_verdict(qh, id, NF_ACCEPT, 0, NULL);
             }
             break;
         default:
@@ -589,7 +567,7 @@ static void print_usage() {
 #ifdef HAVE_DBUS
     fprintf(stderr, " [-d]");
 #endif
-    fprintf(stderr, " [-c CHARSET] [-p PIDFILE] [-a MARK] [-r MARK] [-q 0-65535] BLOCKLIST(S)\n");
+    fprintf(stderr, " [-c CHARSET] [-p PIDFILE] -a MARK -r MARK [-q 0-65535] BLOCKLIST(S)\n");
     fprintf(stderr, "  pgld [-c CHARSET] -m [BLOCKLIST(S)]\n\n");
     fprintf(stderr, "Options:\n");
     fprintf(stderr, "  -s                Enable logging to syslog.\n");

@@ -614,40 +614,26 @@ test_IPTABLES_TARGET () {
     esac
 }
 
-test_REJECT () {
-    case "$REJECT" in
-        '0')
-            true
-            ;;
-        '1')
-            # No test for REJECT_MARK. Valid: decimal and hexadecimal!?
-            # No test for REJECT_IN. Valid: all iptables targets
-            # No test for REJECT_OUT. Valid: all iptables targets
-            # No test for REJECT_FWD. Valid: all iptables targets
-            true
-            ;;
-        *)
-            log_failure_msg "Error $E_CONFIG: Check the REJECT setting."
-            exit $E_CONFIG
-            ;;
-    esac
+# TODO (remove some day): Transition 2014-01-30
+test_ACCEPT () {
+    if [ -n "$ACCEPT" ] && [ "$ACCEPT" = 0 ] ; then
+        log_failure_msg "Error $E_CONFIG: You have set ACCEPT=0. This setting isn't supported anymore. Aborting ..."
+        exit $E_CONFIG
+    fi
 }
 
-test_ACCEPT () {
-    case "$ACCEPT" in
-        '0')
-            true
-            ;;
-        '1')
-            # No test for ACCEPT_MARK. Valid: decimal and hexadecimal!?
-            true
-            ;;
-        *)
-            log_failure_msg "Error $E_CONFIG: Check the ACCEPT setting."
-            exit $E_CONFIG
-            ;;
-    esac
+# TODO (remove some day): Transition 2014-01-30
+test_REJECT () {
+    if [ -n "$REJECT" ] && [ "$REJECT" = 0 ] ; then
+        log_failure_msg "Error $E_CONFIG: You have set REJECT=0. This setting isn't supported anymore. Aborting ..."
+        exit $E_CONFIG
+    fi
 }
+
+# No test for REJECT_MARK. Valid: decimal and hexadecimal!?
+# No test for REJECT_IN. Valid: all iptables targets
+# No test for REJECT_OUT. Valid: all iptables targets
+# No test for REJECT_FWD. Valid: all iptables targets
 
 test_BLOCKLISTS_DIR () {
     [ -d "$BLOCKLISTS_DIR" ] || {
@@ -732,7 +718,6 @@ test_IPTABLES_VARS () {
             #   network IP address (with /mask), or a plain IP address.
             # No test for WHITE_IP_OUT.
             # No test for WHITE_IP_FWD.
-
             # No test for INTERFACES.
             # No test for IP_REMOVE. Valid: all regular expressions for grep
             ;;
@@ -1191,18 +1176,16 @@ insert_iptables () {
             # INPUT/OUTPUT/FORWARD chains, but I decided against that in order to
             # keep those chains cleaner. It has to be made sure that the MARK of the
             # packets is not changed by other iptables rules.
-            if [ "$REJECT" -eq 1 ] ; then
-                echo -n "....Inserting block rule"
-                iptables -I $PGL_CHAIN -m mark --mark $REJECT_MARK -j $REJECT_TARGET || fail_insert_iptables
-                # Log "Marked block" packages: The log-iptables-rules should be
-                # placed directly before the block-iptables-rules (i.e. Insert them
-                # directly after them)
-                if [ -n "$LOG_IPTABLES" ] ; then    # string is not empty
-                    echo -n " and log rule"
-                    iptables -I $PGL_CHAIN -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || fail_insert_iptables
-                fi
-                log_end_msg "$?"
+            echo -n "....Inserting block rule"
+            iptables -I $PGL_CHAIN -m mark --mark $REJECT_MARK -j $REJECT_TARGET || fail_insert_iptables
+            # Log "Marked block" packages: The log-iptables-rules should be
+            # placed directly before the block-iptables-rules (i.e. Insert them
+            # directly after them)
+            if [ -n "$LOG_IPTABLES" ] ; then    # string is not empty
+                echo -n " and log rule"
+                iptables -I $PGL_CHAIN -m mark --mark $REJECT_MARK -j $LOG_IPTABLES || fail_insert_iptables
             fi
+            log_end_msg "$?"
         done
 
         # Automatically whitelist LAN of all up interfaces, loopback interface
@@ -1228,6 +1211,7 @@ insert_iptables () {
             ;;
         '1'|'2')
             echo "..Activating chains:"
+            # Don't send RELATED or ESTABLISHED packets to the pglcmd_* chains.
             case "$IPTABLES_ACTIVATION" in
             '1')
                 CMD_STATE="-m conntrack ! --ctstate RELATED,ESTABLISHED"
@@ -1236,19 +1220,12 @@ insert_iptables () {
                 CMD_STATE=""
                 ;;
             esac
-            case "$ACCEPT" in
-            '0')
-                CMD_MARK_ACCEPT=""
-                ;;
-            '1')
-                # Send all NEW packets, except the "marked accept" packets, to the pglcmd_* chains.
-                # From there "marked" packets are sent back to the head of the chain again
-                # (NF_REPEAT repeats the hook function). Thus "marked accept" packets traverse to
-                # the rest of the iptables setup.
-                # Problem: If another rule changes the MARK the packet will loop forever.
-                CMD_MARK_ACCEPT="-m mark ! --mark $ACCEPT_MARK"
-                ;;
-            esac
+            # Don't send "marked accept" packets to the pglcmd_* chains.
+            # From there "marked" packets are sent back to the head of the chain again
+            # (NF_REPEAT repeats the hook function). Thus "marked accept" packets traverse to
+            # the rest of the iptables setup.
+            # Problem: If another rule changes the MARK the packet will loop forever.
+            CMD_MARK_ACCEPT="-m mark ! --mark $ACCEPT_MARK"
 
             # If INTERFACES is empty/not set, then set it to "all".
             INTERFACES=${INTERFACES:-all}
@@ -1508,8 +1485,7 @@ do_start () {
                 modprobe -q ipt_mark ||
                 if [ "$REJECT" = 1 ] || [ "$ACCEPT" = 1 ] ; then
                     log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_mark, not starting $NAME!"
-                    log_failure_msg "Use a kernel with netfilter MARK support or reconfigure $(basename $0)"
-                    log_failure_msg "to not use the MARKing feature (options REJECT and ACCEPT)."
+                    log_failure_msg "Use a kernel with netfilter MARK support."
                     exit $E_XEXTERNAL
                 else
                     log_warning_msg "Warning: Could not load kernel module xt_mark, continuing anyway."
@@ -1605,18 +1581,10 @@ do_start () {
             fi
 
             # Set the options for marking matched packets
-            if [ "$REJECT" -eq 1 ] ; then
-                REJECT_OPT="-r $REJECT_MARK"
-            else
-                REJECT_OPT=""
-            fi
+            REJECT_OPT="-r $REJECT_MARK"
 
             # Set the options for marking not matched packets
-            if [ "$ACCEPT" -eq 1 ] ; then
-                ACCEPT_OPT="-a $ACCEPT_MARK"
-            else
-                ACCEPT_OPT=""
-            fi
+            ACCEPT_OPT="-a $ACCEPT_MARK"
 
             # Set the NFQUEUE number only if NFQUEUE and not QUEUE is used
             case "$IPTABLES_TARGET" in
@@ -2313,12 +2281,9 @@ test_ipblocking () {
     echo "CAUTION: This is just a simple test to check if $DESC blocks"
     echo "outgoing connections. For this, an IP from the blocklist will be pinged. Then "
     echo "the test checks if this IP appears in $TEST_LOG."
-    if [ "$REJECT" -eq 1 ] ; then
-        echo "$NAME marks packets to be blocked. This means you have to make sure that the"
-        echo "marked packets are also blocked later (with appropriate iptables rules). If you"
-        echo "are using the default configuration and $NAME is started after other firewalls"
-        echo "this will be the case."
-    fi
+    echo "$NAME MARKs packets to be blocked. This means you have to make sure that the"
+    echo "MARKed packets are also blocked later (with appropriate iptables rules)."
+    echo "To do that you can use LOG_IPTABLES=\"LOG --log-level info\""
     echo "This test does not check if you have sane iptables rules. Therefore success"
     echo "doesn't imply that everything is working as you expect it."
     echo ""
@@ -2348,32 +2313,19 @@ test_ipblocking () {
 
     if [ "$RETVAL" -eq 0 ] ; then    # IP in logfile
         if [ "$RETVAL_PING" -eq 1 ] ; then    # No reply to ping
-            if [ "$REJECT" -eq 1 ] ; then
-                echo "$NAME marked the IP to be blocked and the IP did not answer."
-                echo "Test succeeded."
-            else
-                echo "$NAME blocked the IP. Test succeeded."
-            fi
+            echo "$NAME marked the IP to be blocked and the IP did not answer."
+            echo "Test succeeded."
         elif [ "$RETVAL_PING" -eq 0 ] ; then    # Reply to ping
-            if [ "$REJECT" -eq 1 ] ; then
-                echo "$NAME blocked the IP, but ping got an answer or failed."
-                echo "Check the iptables settings and make sure that \"marked block\" packets really"
-                echo "get blocked."
-                RETVAL=2
-            else    # REJECT is 0
-                echo "$NAME blocked the IP, but ping got an answer or failed - strange."
-                RETVAL=2
-            fi
+            echo "$NAME blocked the IP, but ping got an answer or failed."
+            echo "Check the iptables settings and make sure that \"marked block\" packets really"
+            echo "get blocked."
+            RETVAL=2
         else
             echo "Some error occured with ping, no test result."
             RETVAL=2
         fi
     elif [ "$RETVAL" -eq 1 ] ; then    # IP not in logfile
-        if [ "$REJECT" -eq 1 ] ; then
-            echo "$NAME did not mark the IP to be blocked."
-        else    # REJECT is 0
-            echo "$NAME did not block the IP."
-        fi
+        echo "$NAME did not mark the IP to be blocked."
         if [ "$RETVAL_PING" -eq 0 ] ; then    # Reply to ping
             echo "$TEST_IP answered. Test failed."
         elif [ "$RETVAL_PING" -eq 1 ] ; then    # No reply to ping
