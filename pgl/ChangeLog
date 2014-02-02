@@ -4,6 +4,11 @@ pgl 2.2.4+git
 
   [jre]
   * documentation updates
+  * dropped backup code and checks for transitions (2010-08-11)
+      REJECT_FW -> REJECT_FWD
+      WHITE_TCP_FORWARD -> WHITE_TCP_FWD
+      WHITE_UDP_FORWARD -> WHITE_UDP_FWD
+      WHITE_IP_FORWARD -> WHITE_IP_FWD
 
   [cader]
   * Update nfq_set_verdict_mark calls to nfq_set_verdict2

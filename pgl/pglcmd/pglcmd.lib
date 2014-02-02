@@ -624,12 +624,6 @@ test_REJECT () {
             # No test for REJECT_IN. Valid: all iptables targets
             # No test for REJECT_OUT. Valid: all iptables targets
             # No test for REJECT_FWD. Valid: all iptables targets
-            # TODO (remove some day): Transition 2010-08-12: REJECT_FW REJECT_FWD.
-            # If old var is not-empty, but new var is empty, then take old value.
-            [ -z "$REJECT_FW" ] || {
-                REJECT_FWD=${REJECT_FWD:-${REJECT_FWD}}
-                log_warning_msg "REJECT_FW is deprecated. Use REJECT_FWD instead."
-                }
             true
             ;;
         *)
@@ -732,30 +726,12 @@ test_IPTABLES_VARS () {
             # No test for WHITE_TCP_OUT.
             # No test for WHITE_UDP_OUT.
             # No test for WHITE_TCP_FWD.
-            # TODO (remove some day): Transition 2010-08-11: WHITE_TCP_FORWARD WHITE_TCP_FWD.
-            # If old var is not-empty, but new var is empty, then take old value.
-            [ -z "$WHITE_TCP_FORWARD" ] || {
-                WHITE_TCP_FWD=${WHITE_TCP_FWD:-${WHITE_TCP_FORWARD}}
-                log_warning_msg "WHITE_TCP_FORWARD is deprecated. Use WHITE_TCP_FWD instead."
-                }
             # No test for WHITE_UDP_FWD.
-            # TODO (remove some day): Transition 2010-08-11: WHITE_UDP_FORWARD WHITE_UDP_FWD.
-            # If old var is not-empty, but new var is empty, then take old value.
-            [ -z "$WHITE_UDP_FORWARD" ] || {
-                WHITE_UDP_FWD=${WHITE_UDP_FWD:-${WHITE_UDP_FORWARD}}
-                log_warning_msg "WHITE_UDP_FORWARD is deprecated. Use WHITE_UDP_FWD instead."
-                }
             # No test for WHITE_IP_IN. Valid: network name, a hostname (please note that specifying
             #   any name to be resolved with a remote query such as DNS is a really bad idea), a
             #   network IP address (with /mask), or a plain IP address.
             # No test for WHITE_IP_OUT.
             # No test for WHITE_IP_FWD.
-            # TODO (remove some day): Transition 2010-08-11: WHITE_IP_FORWARD WHITE_IP_FWD.
-            # If old var is not-empty, but new var is empty, then take old value.
-            [ -z "$WHITE_IP_FORWARD" ] || {
-                WHITE_IP_FWD=${WHITE_IP_FWD:-${WHITE_IP_FORWARD}}
-                log_warning_msg "WHITE_IP_FORWARD is deprecated. Use WHITE_IP_FWD instead."
-                }
 
             # No test for INTERFACES.
             # No test for IP_REMOVE. Valid: all regular expressions for grep
