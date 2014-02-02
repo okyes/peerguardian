@@ -72,8 +72,8 @@ Per default pglcmd sets iptables rules to REJECT outgoing packets, and to DROP
 incoming and forwarded packets, if they were "marked block". If they were
 "marked allow", pglcmd's iptables setup just ignores them, so other iptables
 rules decide what happens to them.
-A packet may only bear one mark, so there mustn't be any other applications or
-iptables rules that mark packets. Otherwise the setup will not work and the
+A packet may only bear one MARK, so there mustn't be any other applications or
+iptables rules that MARK packets. Otherwise the setup will not work and the
 packet will loop forever.
 
 ================================================================================

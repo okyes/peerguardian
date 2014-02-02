@@ -92,10 +92,10 @@ Specify blocklist file CHARSET.
 Use a PIDFILE.
 .TP
 .B \-a MARK
-Place a 32-bit MARK on accepted packets.
+Place a 32-bit MARK on accepted packets (packet in not in blocklist).
 .TP
 .B \-r MARK
-Place a 32-bit MARK on rejected packets.
+Place a 32-bit MARK on rejected packets (packet in in blocklist).
 .TP
 .B \-q 0-65535
 Specify a 16-bit NFQUEUE number. Must match \-\-queue-num used in iptables
@@ -296,8 +296,8 @@ rules decide what happens to them.
 It is strongly recommended to use the MARKing feature, because this allows one
 to integrate pgl with other firewalls.
 .PP
-A packet may only bear one mark, so there mustn't be any other applications or
-iptables rules that mark packets. Otherwise the setup will not work and the
+A packet may only bear one MARK, so there mustn't be any other applications or
+iptables rules that MARK packets. Otherwise the setup will not work and the
 packet will loop forever.
 .PP
 

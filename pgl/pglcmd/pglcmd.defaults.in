@@ -352,8 +352,8 @@ LOG_LOGFILE="1"
 # Examples:
 # "" (empty string): no rule will be inserted
 # "LOG --log-level info": blocked packets will be logged to syslog with "info"
-#     log level. This allows to find out e.g. the port and to verify if a packet
-#     is really blocked and not just "marked block".
+#     log level. This allows to verify if a packet is really blocked and not
+#     just "marked block".
 LOG_IPTABLES=""
 
 # Set the verbosity of pglcmd

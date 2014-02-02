@@ -21,7 +21,7 @@ Install the build requirements:
         debhelper (>= 9~) \
         libtool
 
-Get the source (see pgl/README, Step 1: Get the source).
+Get the source (see pgl/INSTALL, Get the source).
 
 Change to the source directory "peerguardian/pgl/".
 
@@ -31,4 +31,4 @@ Then issue
 You will get deb packages called pgld, pglcmd, pglgui, pgld-dbg and pglgui-dbg
 in the "peerguardian/" directory.
 
- -- jre <jre-phoenix@users.sourceforge.net>  Wed, 20 Apr 2011 22:41:53 +0200
+ -- jre <jre-phoenix@users.sourceforge.net>  Sun, 02 Feb 2014 19:18:59 +0100
