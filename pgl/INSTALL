@@ -307,9 +307,11 @@ Giorgos successfully compiled pgl 2.3.4, keeping all options, except Gentoo
         su
         make install
 
-[outdated]
-by pixecs (last update 06-03-2011, pgl 2.0.4):
-http://forums.phoenixlabs.org/thread-15882-post-120482.html#pid120482
+interesting, but unverified [outdated: pgl 2.2.2 of 25 Jun 2012, retrieved:
+ April 2014]:
+http://software.opensuse.org/package/pgl
+https://build.opensuse.org/package/show?project=home%3Afabio_s&package=pgl
+http://software.opensuse.org/package/pgl-gui
 
 
 ARCH / AUR (Arch User Repo):
