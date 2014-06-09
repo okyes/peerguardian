@@ -715,7 +715,7 @@ int main(int argc, char *argv[]) {
     }
 
     nfqueue_loop();
-
+/*
     // Is the following code necessary at all now that we always daemonize. I
     // think the only way to leave nfqueue_loop is SIGINT.
     do_log(LOG_INFO, "DEBUG: this code really gets executed!");
@@ -736,5 +736,5 @@ int main(int argc, char *argv[]) {
         fclose(pidfile);
         unlink(pidfile_name);
     }
-    return 0;
+    return 0;*/
 }
