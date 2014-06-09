@@ -636,18 +636,18 @@ int main(int argc, char *argv[]) {
         add_blocklist(argv[optind + i], current_charset);
     }
 
-    if (blockfile_count == 0) {
-        fprintf(stderr, "\nERROR: No blocklist specified!\n\n");
-        print_usage();
-        exit(1);
-    }
-
     // Do merge and exit - for just merging lists and not daemonizing.
     if (opt_merge) {
         blocklist_init();
         load_all_lists();
         blocklist_dump();
         exit(0);
+    }
+
+    if (blockfile_count == 0) {
+        fprintf(stderr, "\nERROR: No blocklist specified!\n\n");
+        print_usage();
+        exit(1);
     }
 
     if (queue_num < 0 || queue_num > 65535) {
