@@ -21,21 +21,11 @@
 
 #include "pgld.h"
 
-static int opt_merge = 0;
-static uint16_t queue_num = 0;
-static int use_syslog = 0;
-static uint32_t accept_mark = 0, reject_mark = 0;
-static char *pidfile_name = NULL;
+static unsigned int accept_mark = 0, reject_mark = 0, use_syslog = 0, queue_num = 0, opt_merge = 0, blockfile_count = 0;
+static char *pidfile_name = NULL, *logfile_name=NULL, timestr[17];
 static FILE *logfile;
-static char *logfile_name=NULL;
-
-static const char *current_charset = 0;
-
-static int blockfile_count = 0;
-static const char **blocklist_filenames = 0;
-static const char **blocklist_charsets = 0;
+static const char *current_charset = 0, **blocklist_filenames = 0, **blocklist_charsets = 0;
 static FILE* pidfile = NULL;
-static char timestr[17];
 
 #ifdef HAVE_DBUS
 static int try_dbus = 0;
@@ -254,7 +244,7 @@ static int load_all_lists() {
 static void nfqueue_unbind() {
     if (!nfqueue_h)
         return;
-    do_log(LOG_INFO, "INFO: Unbinding from nfqueue.");
+    do_log(LOG_INFO, "INFO: Unbinding from nfqueue: %u", queue_num);
     nfq_destroy_queue(nfqueue_qh);
     if (nfq_unbind_pf(nfqueue_h, AF_INET) < 0) {
         do_log(LOG_ERR, "ERROR: Error during nfq_unbind_pf(): %s", strerror(errno));
@@ -504,14 +494,14 @@ static int nfqueue_bind() {
         return -1;
     }
 
-    do_log(LOG_INFO, "INFO: NFQUEUE: binding to queue %d", ntohs(queue_num));
+    do_log(LOG_INFO, "INFO: Binding to queue %u", queue_num);
     if (accept_mark) {
         do_log(LOG_INFO, "INFO: ACCEPT mark: %u", accept_mark);
     }
     if (reject_mark) {
         do_log(LOG_INFO, "INFO: REJECT mark: %u", reject_mark);
     }
-    nfqueue_qh = nfq_create_queue(nfqueue_h, ntohs(queue_num), &nfqueue_cb, NULL);
+    nfqueue_qh = nfq_create_queue(nfqueue_h, queue_num, &nfqueue_cb, NULL);
     if (!nfqueue_qh) {
         do_log(LOG_ERR, "ERROR: Error during nfq_create_queue(): %s", strerror(errno));
         nfq_close(nfqueue_h);
@@ -534,7 +524,7 @@ static void nfqueue_loop () {
 //  struct pollfd fds[1];
 
     if (nfqueue_bind() < 0) {
-        do_log(LOG_ERR, "ERROR: Error binding to queue.");
+        do_log(LOG_ERR, "ERROR: Error binding to queue: %u", queue_num);
         exit(1);
     }
 
@@ -545,7 +535,7 @@ static void nfqueue_loop () {
         nfq_handle_packet(nfqueue_h, buf, rv);
     }
     int err=errno;
-    do_log(LOG_ERR, "ERROR: Unbinding from queue '%hd', recv returned %s", queue_num, strerror(err));
+    do_log(LOG_ERR, "ERROR: Unbinding from queue '%u', recv returned %s", queue_num, strerror(err));
     if ( err == ENOBUFS ) {
         /* close and return, nfq_destroy_queue() won't work as we've no buffers */
         nfq_close(nfqueue_h);
@@ -625,7 +615,7 @@ int main(int argc, char *argv[]) {
             strcpy(pidfile_name,optarg);
             break;
         case 'q':
-            queue_num = htons((uint16_t)atoi(optarg));
+            queue_num = (uint32_t)atoi(optarg);
             break;
         case 'r':
             reject_mark = (uint32_t)atoi(optarg);
@@ -646,6 +636,13 @@ int main(int argc, char *argv[]) {
         add_blocklist(argv[optind + i], current_charset);
     }
 
+    if (blockfile_count == 0) {
+        fprintf(stderr, "\nERROR: No blocklist specified!\n\n");
+        print_usage();
+        exit(1);
+    }
+
+    // Do merge and exit - for just merging lists and not daemonizing.
     if (opt_merge) {
         blocklist_init();
         load_all_lists();
@@ -653,17 +650,7 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
-    if (blockfile_count == 0) {
-        fprintf(stderr, "\nERROR: No blocklist specified!\n\n");
-        print_usage();
-        exit(1);
-    }
-
-    if (!queue_num) {
-        queue_num = htons(0);
-    }
-
-    if ((ntohs(queue_num) < 0 || ntohs(queue_num) > 65535) && !opt_merge) {
+    if (queue_num < 0 || queue_num > 65535) {
         fprintf(stderr, "\nERROR: Invalid queue number! Must be 0-65535\n\n");
         print_usage();
         exit(1);
