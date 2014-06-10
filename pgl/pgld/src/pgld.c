@@ -21,7 +21,8 @@
 
 #include "pgld.h"
 
-static unsigned int accept_mark = 0, reject_mark = 0, use_syslog = 0, queue_num = 0, queue_length = 0, opt_merge = 0, blockfile_count = 0;
+static unsigned int accept_mark = 0, reject_mark = 0, use_syslog = 0, queue_length = 0, opt_merge = 0, blockfile_count = 0;
+static unsigned short queue_num = 0;
 static char *pidfile_name = NULL, *logfile_name=NULL, timestr[17];
 static FILE *logfile;
 static const char *current_charset = 0, **blocklist_filenames = 0, **blocklist_charsets = 0;
@@ -244,7 +245,7 @@ static int load_all_lists() {
 static void nfqueue_unbind() {
     if (!nfqueue_h)
         return;
-    do_log(LOG_INFO, "INFO: Unbinding from nfqueue: %u", queue_num);
+    do_log(LOG_INFO, "INFO: Unbinding from nfqueue: %hu", queue_num);
     nfq_destroy_queue(nfqueue_qh);
     if (nfq_unbind_pf(nfqueue_h, AF_INET) < 0) {
         do_log(LOG_ERR, "ERROR: Error during nfq_unbind_pf(): %s", strerror(errno));
@@ -494,7 +495,7 @@ static int nfqueue_bind() {
         return -1;
     }
 
-    do_log(LOG_INFO, "INFO: Binding to queue %u", queue_num);
+    do_log(LOG_INFO, "INFO: Binding to queue %hu", queue_num);
     if (accept_mark) {
         do_log(LOG_INFO, "INFO: ACCEPT mark: %u", accept_mark);
     }
@@ -537,7 +538,7 @@ static void nfqueue_loop () {
 //  struct pollfd fds[1];
 
     if (nfqueue_bind() < 0) {
-        do_log(LOG_ERR, "ERROR: Error binding to queue: %u", queue_num);
+        do_log(LOG_ERR, "ERROR: Error binding to queue: %hu", queue_num);
         exit(1);
     }
 
@@ -548,7 +549,7 @@ static void nfqueue_loop () {
         nfq_handle_packet(nfqueue_h, buf, rv);
     }
     int err=errno;
-    do_log(LOG_ERR, "ERROR: Unbinding from queue '%u', recv returned %s", queue_num, strerror(err));
+    do_log(LOG_ERR, "ERROR: Unbinding from queue '%hu', recv returned %s", queue_num, strerror(err));
     if ( err == ENOBUFS ) {
         /* close and return, nfq_destroy_queue() won't work as we've no buffers */
         nfq_close(nfqueue_h);
@@ -631,7 +632,7 @@ int main(int argc, char *argv[]) {
             strcpy(pidfile_name,optarg);
             break;
         case 'q':
-            queue_num = (uint32_t)atoi(optarg);
+            queue_num = (uint16_t)atoi(optarg);
             break;
         case 'Q':
             queue_length = (uint32_t)atoi(optarg);
