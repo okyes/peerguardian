@@ -760,11 +760,15 @@ test_net () {
         log_failure_msg "Error $E_XEXTERNAL: wget not installed."
         exit $E_XEXTERNAL
         }
+    # Get TESTHOST (per default this is lists.xml from iblocklist,
+    # which is later on parsed to figure out human readable listnames.
+    # Save it first with a backup name.
     $WGET_OPTS -O "${BLOCKLISTS_DIR}/lists.xml~" $TESTHOST    # Don't quote WGET_OPTS!
     if [ "$?" -ne 0 ] ; then
         log_failure_msg "Error $E_NETWORK_DOWN: No connection to $TESTHOST. Aborting!"
         exit $E_NETWORK_DOWN
     fi
+    # If file is valid rename it to original name.
     if [ "$( wc -l < ${BLOCKLISTS_DIR}/lists.xml~ )" -gt 0 ] ; then
         mv ${BLOCKLISTS_DIR}/lists.xml~ ${BLOCKLISTS_DIR}/lists.xml
     fi
@@ -2028,8 +2032,8 @@ update_blocklists () {
     # Remove the old MD5SUM file now, so that if anything goes wrong,
     # it's clear we have to rebuild the blocklist:
     [ -f "$MD5SUM_FILE" ] && {
-    rm "$MD5SUM_FILE" || { log_failure_msg " Error: rm exited with $?" ; exit 1 ; }
-    }
+        rm "$MD5SUM_FILE" || { log_failure_msg " Error: rm exited with $?" ; exit 1 ; }
+        }
 
     UPDATE_FAIL=""          # Lists failed blocklist updates
     UPDATE_403=""           # Lists failed blocklist updates with "access forbidden"
