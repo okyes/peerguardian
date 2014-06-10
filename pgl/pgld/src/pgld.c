@@ -575,7 +575,9 @@ static void print_usage() {
     fprintf(stderr, "Options:\n");
     fprintf(stderr, "  -s                Enable logging to syslog.\n");
     fprintf(stderr, "  -l LOGFILE        Enable logging to LOGFILE.\n");
+#ifdef HAVE_DBUS
     fprintf(stderr, "  -d                Enable D-Bus support.\n");
+#endif
     fprintf(stderr, "  -c CHARSET        Specify blocklist file CHARSET.\n");
     fprintf(stderr, "  -p PIDFILE        Use a PIDFILE.\n");
     fprintf(stderr, "  -q 0-65535        Specify a 16-bit NFQUEUE number.\n");
