@@ -760,6 +760,10 @@ test_net () {
         log_failure_msg "Error $E_XEXTERNAL: wget not installed."
         exit $E_XEXTERNAL
         }
+    # Create BLOCKLISTS_DIR if missing
+    [ -d "$BLOCKLISTS_DIR" ] ||
+        mkdir -p "$BLOCKLISTS_DIR" ||
+        { log_failure_msg " Error: mkdir -p exited with $?" ; exit 1 ; }
     # Get TESTHOST (per default this is lists.xml from iblocklist,
     # which is later on parsed to figure out human readable listnames.
     # Save it first with a backup name.
