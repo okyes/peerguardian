@@ -21,7 +21,7 @@
 
 #include "pgld.h"
 
-static unsigned int accept_mark = 0, reject_mark = 0, use_syslog = 0, queue_num = 0, opt_merge = 0, blockfile_count = 0;
+static unsigned int accept_mark = 0, reject_mark = 0, use_syslog = 0, queue_num = 0, queue_length = 0, opt_merge = 0, blockfile_count = 0;
 static char *pidfile_name = NULL, *logfile_name=NULL, timestr[17];
 static FILE *logfile;
 static const char *current_charset = 0, **blocklist_filenames = 0, **blocklist_charsets = 0;
@@ -514,6 +514,19 @@ static int nfqueue_bind() {
         nfq_close(nfqueue_h);
         return -1;
     }
+
+    if ( queue_length > 0) {
+//         do_log(LOG_INFO, "INFO: Setting netfilter queue length to %d", queue_length);
+        if (nfq_set_queue_maxlen(nfqueue_qh, queue_length) < 0)
+        {
+            do_log(LOG_ERR, "ERROR: Can't set queue max length: %s", strerror(errno));
+//         nfq_destroy_queue(nfqueue_qh);
+//         nfq_close(nfqueue_h);
+//         return -1;
+        } else {
+            do_log(LOG_INFO, "INFO: Set netfilter queue length to %d packets", queue_length);
+        }
+    }
     return 0;
 }
 
@@ -557,7 +570,7 @@ static void print_usage() {
 #ifdef HAVE_DBUS
     fprintf(stderr, " [-d]");
 #endif
-    fprintf(stderr, " [-c CHARSET] [-p PIDFILE] -a MARK -r MARK [-q 0-65535] BLOCKLIST(S)\n");
+    fprintf(stderr, " [-c CHARSET] [-p PIDFILE] -a MARK -r MARK [-q 0-65535] [-Q queue_size] BLOCKLIST(S)\n");
     fprintf(stderr, "  pgld [-c CHARSET] -m [BLOCKLIST(S)]\n\n");
     fprintf(stderr, "Options:\n");
     fprintf(stderr, "  -s                Enable logging to syslog.\n");
@@ -567,6 +580,7 @@ static void print_usage() {
     fprintf(stderr, "  -p PIDFILE        Use a PIDFILE.\n");
     fprintf(stderr, "  -q 0-65535        Specify a 16-bit NFQUEUE number.\n");
     fprintf(stderr, "                    Must match --queue-num used in iptables rules.\n");
+    fprintf(stderr, "  -Q queue_size     Specify a queue length in packets. If not specified use default.\n");
     fprintf(stderr, "  -r MARK           Place a 32-bit MARK on rejected packets.\n");
     fprintf(stderr, "  -a MARK           Place a 32-bit MARK on accepted packets.\n");
     fprintf(stderr, "  -m [BLOCKLIST(S)] Load, sort, merge, and dump blocklist(s) to stdout.\n");
@@ -591,7 +605,7 @@ int main(int argc, char *argv[]) {
 #ifdef HAVE_DBUS
         "d"
 #endif
-        "c:p:q:r:a:mh" )) != -1) {
+        "c:p:q:Q:r:a:mh" )) != -1) {
         switch (opt) {
         case 's':
             use_syslog = 1;
@@ -616,6 +630,9 @@ int main(int argc, char *argv[]) {
             break;
         case 'q':
             queue_num = (uint32_t)atoi(optarg);
+            break;
+        case 'Q':
+            queue_length = (uint32_t)atoi(optarg);
             break;
         case 'r':
             reject_mark = (uint32_t)atoi(optarg);
