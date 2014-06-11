@@ -549,13 +549,13 @@ static void nfqueue_loop () {
         nfq_handle_packet(nfqueue_h, buf, rv);
     }
     int err=errno;
-    do_log(LOG_ERR, "ERROR: Unbinding from queue '%hu', recv returned %s", queue_num, strerror(err));
     if ( err == ENOBUFS ) {
+        do_log(LOG_ERR, "ERROR: ENOBUFS error on queue '%hu'. Use -Q to increase buffers, recv returned %s", queue_num, strerror(err));
         /* close and return, nfq_destroy_queue() won't work as we've no buffers */
-        nfq_close(nfqueue_h);
-        exit(1);
-
+//         nfq_close(nfqueue_h);
+//         exit(1);
     } else {
+        do_log(LOG_ERR, "ERROR: Error on queue '%hu', recv returned %s", queue_num, strerror(err));
         nfqueue_unbind();
         exit(0);
     }
