@@ -1454,7 +1454,7 @@ do_start () {
             # Note 1: I (jre) have not seen documentation how this works. E.g. loading (modprobe) a module does
             #         not give the specified entries in /proc/net. But once pgld was started they are there.
             # Note 2: On a first glance some modules might be loaded conditional on some configuration. I decided
-            #         against that to allow for e.g, custom iptables rules.
+            #         against that to allow for e.g. custom iptables rules.
 
             # TODO: iptable_filter
             # TODO: ip_tables
@@ -1564,7 +1564,7 @@ do_start () {
                 }
 
             # Execute old REMOVE_SCRIPT if it still exists for any reason, because we may run into troubles
-            # if there are still old iptables
+            # if there are still old iptables.
             if [ -f "$REMOVE_SCRIPT" ] ; then
                 echo -n "Old iptables remove script $REMOVE_SCRIPT still exists! Executing and then removing it"
                 sh $REMOVE_SCRIPT

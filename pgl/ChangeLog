@@ -34,6 +34,9 @@ pgl 2.2.4+git
   * Change declaration of "payload" to match what NFQ expects
   * pgld: added option -Q to set kernel queue maximum length. See
     http://sourceforge.net/p/peerguardian/discussion/446997/thread/0df72ba6/
+    Therefore increased kernel version requirement from >= 2.6.13 for NFQUEUE
+    support to >= 2.6.20 (If you don't use the new option older kernel still
+    work.)
 
  -- jre <jre-phoenix@users.sourceforge.net>  Wed, 29 Jan 2014 16:40:30 +0100
 

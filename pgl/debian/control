@@ -39,8 +39,7 @@ Description: PeerGuardian Linux - pgld
  .
  pgl is based on the Linux kernel netfilter framework and iptables.
  .
- This is the pgl daemon pgld. It uses the netfilter xt_NFQUEUE kernel module
- (available since kernel 2.6.13).
+ This is the pgl daemon pgld. It uses the netfilter xt_NFQUEUE kernel module.
 
 Package: pgld-dbg
 Architecture: any
@@ -55,8 +54,7 @@ Description: PeerGuardian Linux - pgld (debug)
  .
  pgl is based on the Linux kernel netfilter framework and iptables.
  .
- This is the pgl daemon pgld. It uses the netfilter xt_NFQUEUE kernel module
- (available since kernel 2.6.13).
+ This is the pgl daemon pgld. It uses the netfilter xt_NFQUEUE kernel module.
  .
  This package contains the debugging symbols for pgld.
 

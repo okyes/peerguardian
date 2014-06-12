@@ -1,4 +1,4 @@
-pgl/INSTALL                                    Fri Nov  1 12:45:36 CET 2013
+pgl/INSTALL                                   Thu Jun 12 16:30:37 CEST 2014
 
 
 Table of Contents:
@@ -201,7 +201,8 @@ Build dependencies:
 Runtime environment pgld:
 - the above libraries
 - iptables (required)
-- netfilter kernel support (Linux kernel >= 2.6.13 for NFQUEUE support)
+- netfilter kernel support (Linux kernel >= 2.6.13 for NFQUEUE support or
+  >= 2.6.20 to use the queue maxlen option).
   Either as modules or directly built in the kernel. These are the modules that
   are loaded here. Note that "xt_" may be named "ip_" or "ipt_" on older
   systems. This list was compiled with:
