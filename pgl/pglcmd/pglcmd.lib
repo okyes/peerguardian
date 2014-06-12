@@ -1591,10 +1591,10 @@ do_start () {
             # Set the kernel queue maximum length option
             if [ ! -n "$NFQUEUE_MAXLEN" ] ; then
                 true
-            elif [ "$NFQUEUE_MAXLEN" -ge 0 ] && [ "$NFQUEUE_MAXLEN" -le 2147483647 ] ; then
+            elif [ "$NFQUEUE_MAXLEN" -ge 1 ] && [ "$NFQUEUE_MAXLEN" -le 4294967295 ] ; then
                 NFQUEUE_MAXLEN_OPT="-Q $NFQUEUE_MAXLEN"
             else
-                echo "\nWARN: NFQUEUE_MAXLEN $NFQUEUE_MAXLEN has to be in range 0 - 2147483647. Ignoring."
+                echo "\nWARN: NFQUEUE_MAXLEN $NFQUEUE_MAXLEN has to be in range 1 - 4294967295. Ignoring."
             fi
 
             # Set the options for marking matched packets
