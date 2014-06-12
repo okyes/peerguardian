@@ -496,6 +496,10 @@ static int nfqueue_bind() {
     }
 
     do_log(LOG_INFO, "INFO: Binding to queue %hu", queue_num);
+    //For debugging the -Q option only, remove later:
+    if (queue_length) {
+        do_log(LOG_INFO, "INFO: Kernel queue maximum length: %u", queue_length);
+    }
     if (accept_mark) {
         do_log(LOG_INFO, "INFO: ACCEPT mark: %u", accept_mark);
     }
@@ -550,7 +554,7 @@ static void nfqueue_loop () {
     }
     int err=errno;
     if ( err == ENOBUFS ) {
-        do_log(LOG_ERR, "ERROR: ENOBUFS error on queue '%hu'. Use -Q to increase buffers, recv returned %s", queue_num, strerror(err));
+        do_log(LOG_ERR, "ERROR: ENOBUFS error on queue '%hu'. Use pgld -Q option or set in pglcmd.conf NFQUEUE_MAXLEN to increase buffers, recv returned %s", queue_num, strerror(err));
         /* close and return, nfq_destroy_queue() won't work as we've no buffers */
 //         nfq_close(nfqueue_h);
 //         exit(1);

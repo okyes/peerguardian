@@ -1588,6 +1588,15 @@ do_start () {
                 LOG_LOGFILE_OPT=""
             fi
 
+            # Set the kernel queue maximum length option
+            if [ ! -n "$NFQUEUE_MAXLEN" ] ; then
+                true
+            elif [ "$NFQUEUE_MAXLEN" -ge 0 ] && [ "$NFQUEUE_MAXLEN" -le 2147483647 ] ; then
+                NFQUEUE_MAXLEN_OPT="-Q $NFQUEUE_MAXLEN"
+            else
+                echo "\nWARN: NFQUEUE_MAXLEN $NFQUEUE_MAXLEN has to be in range 0 - 2147483647. Ignoring."
+            fi
+
             # Set the options for marking matched packets
             REJECT_OPT="-r $REJECT_MARK"
 
@@ -1613,7 +1622,7 @@ do_start () {
             fi
 
             # Set the options the daemon is started with
-            DAEMON_OPTS="$LOG_SYSLOG_OPT $LOG_LOGFILE_OPT $DBUS_OPT -p $PIDFILE $NFQUEUE_NUMBER_OPT $REJECT_OPT $ACCEPT_OPT $MASTER_BLOCKLIST"
+            DAEMON_OPTS="$LOG_SYSLOG_OPT $LOG_LOGFILE_OPT $DBUS_OPT -p $PIDFILE $NFQUEUE_NUMBER_OPT $NFQUEUE_MAXLEN_OPT $REJECT_OPT $ACCEPT_OPT $MASTER_BLOCKLIST"
 
             # Test NICE_LEVEL setting.
             [ "$NICE_LEVEL" -ge -20 ] && [ "$NICE_LEVEL" -le 19 ] || {

@@ -26,10 +26,14 @@ pgl 2.2.4+git
   * blocklists: removed atma_atma, no more provided by iblocklist
   * pglcmd test_net: Create BLOCKLISTS_DIR if missing
     Closes: https://sourceforge.net/p/peerguardian/bugs/328/
+  * pglcmd: Set kernel queue maximum length with pglcmd variable
+    NFQUEUE_MAXLEN to trigger pgld -Q option
 
   [cader]
   * Update nfq_set_verdict_mark calls to nfq_set_verdict2
   * Change declaration of "payload" to match what NFQ expects
+  * pgld: added option -Q to set kernel queue maximum length. See
+    http://sourceforge.net/p/peerguardian/discussion/446997/thread/0df72ba6/
 
  -- jre <jre-phoenix@users.sourceforge.net>  Wed, 29 Jan 2014 16:40:30 +0100
 
