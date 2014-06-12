@@ -43,104 +43,104 @@
 
 class PglDaemon : public QObject {
 
-	Q_OBJECT	
+        Q_OBJECT
 
-	public:
-		/**
+        public:
+                /**
          * Constructor. Creates a PglDaemon object and loads data from the pgld log in the path specified
-		 * @param filename The path to the pglcmd log
-		 * @param parent The QObject parent.
-		 */
+                 * @param filename The path to the pglcmd log
+                 * @param parent The QObject parent.
+                 */
         PglDaemon( const QString & logPath, QObject *parent = 0 );
-		/**
-		 * Destructor.
-		 */
+                /**
+                 * Destructor.
+                 */
         ~PglDaemon() { }
-		/**
+                /**
          * @return The number of the ranges pgld has loaded.
-		 */
-		inline QString loadedRanges() const { return m_LoadedRanges; }	
-		/**
+                 */
+                inline QString loadedRanges() const { return m_LoadedRanges; }
+                /**
          * @return The number of the ranges pgld has skipped.
-		 */
-		inline QString skippedRanges() const { return m_SkippedRanges; }
-		/**
+                 */
+                inline QString skippedRanges() const { return m_SkippedRanges; }
+                /**
          * @return The number of the ranges pgld has merged.
-		 */
-		inline QString mergedRanges() const { return m_MergedRanges; }
-		/**
-		 * Get the date/time of the last update of the blocklists.
-		 * @return
-		 */
-		inline QString lastUpdateTime() const { return m_LastUpdateTime; }
-		/**
+                 */
+                inline QString mergedRanges() const { return m_MergedRanges; }
+                /**
+                 * Get the date/time of the last update of the blocklists.
+                 * @return
+                 */
+                inline QString lastUpdateTime() const { return m_LastUpdateTime; }
+                /**
          * The state of the pgld daemon.
          * @return True if pgld is running, otherwise false.
-		 */
-		inline bool daemonState() const { return m_DaemonState; }
-		/**
+                 */
+                inline bool daemonState() const { return m_DaemonState; }
+                /**
          * The process PID of the pgld daemon.
          * @return The process PID, or a null string if pgld is not running.
-		 */
+                 */
         inline QString processPID() const { return m_ProcessID; }
-		/**
-		 * The pglcmd log.
-		 * @return The contents of the pglcmd log with slightly changed format.
-		 */
-		inline QVector< QString > controlLog() const { return m_LastUpdateLog; }
-        
+                /**
+                 * The pglcmd log.
+                 * @return The contents of the pglcmd log with slightly changed format.
+                 */
+                inline QVector< QString > controlLog() const { return m_LastUpdateLog; }
+
         void getLoadedIps();
         void setLoadedIps(const QString& loadedIps) { m_LoadedRanges = loadedIps; }
 
-	public slots:
-		/**
-		 * Update the daemon state.
-		 */
-		void updateDaemonState();
-	
-	signals:
-		/**
+        public slots:
+                /**
+                 * Update the daemon state.
+                 */
+                void updateDaemonState();
+
+        signals:
+                /**
          * Emited when the state of the pgld daemon changes.
          * @param state True if pgld is running, otherwise false.
-		 */
+                 */
         void stateChanged( const bool &state );
-		/**
+                /**
          * Emited when the PID of the pgld daemon changes.
          * @param PID The process PID of the pgld daemon.
-		 */
+                 */
         void processIDChanged( const QString &PID );
-		/**
+                /**
          * Emited when pgld starts running.
-		 */
-		void pgldStarted();
-		/**
+                 */
+                void pgldStarted();
+                /**
          * Emited when pgld is terminated.
-		 */
-		void pgldStopped();
-		/**
-		 * Emited when there is a change in the pglcmd log.
-		 */
-		void logChanged();
+                 */
+                void pgldStopped();
+                /**
+                 * Emited when there is a change in the pglcmd log.
+                 */
+                void logChanged();
 
 
-	
-	private:	
+
+        private:
         //Check if pgld is running
         QString checkProcessID();
         void processDate( QString &date );
-		QString m_LoadedRanges;
-		QString m_SkippedRanges;
-		QString m_MergedRanges;
-		QString m_LastUpdateTime;
+                QString m_LoadedRanges;
+                QString m_SkippedRanges;
+                QString m_MergedRanges;
+                QString m_LastUpdateTime;
         QString m_ProcessID;
         QString m_LogPath;
-		bool m_DaemonState;
-		bool m_infoLoaded;
+                bool m_DaemonState;
+                bool m_infoLoaded;
         QTimer* mTimer;
-		QVector< QString > m_FileNames;
-		QVector< QString > m_LastUpdateLog;
-		QVector< QString > m_PreviousUpdateLog;
-		QVector< QString > m_ControlLogNewL;
+                QVector< QString > m_FileNames;
+                QVector< QString > m_LastUpdateLog;
+                QVector< QString > m_PreviousUpdateLog;
+                QVector< QString > m_ControlLogNewL;
 };
 
 #endif

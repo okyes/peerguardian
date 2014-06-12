@@ -56,7 +56,7 @@ class SuperUser : public QObject
     Q_OBJECT
 
     public:
-        
+
         /**
         * Constructor.
         */

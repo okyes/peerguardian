@@ -37,45 +37,45 @@ void customOutput( QtMsgType type, const char *msg );
 int main(int argc, char *argv[])
 {
 
-	qInstallMsgHandler( customOutput );
+        qInstallMsgHandler( customOutput );
 
-	//Start the real application
-	QApplication app(argc, argv);
-	//Set the application information here so QSettings objects can be easily used later.
-	QApplication::setOrganizationName( "pgl" );
-	QApplication::setOrganizationDomain( "https://sourceforge.net/projects/peerguardian" );
-	QApplication::setApplicationName( "pglgui" );
+        //Start the real application
+        QApplication app(argc, argv);
+        //Set the application information here so QSettings objects can be easily used later.
+        QApplication::setOrganizationName( "pgl" );
+        QApplication::setOrganizationDomain( "https://sourceforge.net/projects/peerguardian" );
+        QApplication::setApplicationName( "pglgui" );
     app.setQuitOnLastWindowClosed(false);
 
         int i = qRegisterMetaType<Command> ("Command");
-        i = qRegisterMetaType<CommandList> ("CommandList"); 
+        i = qRegisterMetaType<CommandList> ("CommandList");
     PglGui pgWindow;
         //new Adaptor(&pgWindow);
 
-	QStringList args = QApplication::arguments();
-	//If tray argument was not given show the window normally
-	//Otherwise show minimized in tray
-	pgWindow.setVisible( !args.contains( "--tray" ) );
+        QStringList args = QApplication::arguments();
+        //If tray argument was not given show the window normally
+        //Otherwise show minimized in tray
+        pgWindow.setVisible( !args.contains( "--tray" ) );
 
-	return app.exec();
+        return app.exec();
 
 }
 
 void customOutput( QtMsgType type, const char *msg ) {
 
-	switch( type ) {
-		case QtDebugMsg:
-			fprintf( stderr, "** Debug: %s\n", msg );
-			break;
-		case QtWarningMsg:
-			fprintf( stderr, "** Warning: %s\n", msg );
-			break;
-		case QtCriticalMsg:
-			fprintf( stderr, "** Critical: %s\n", msg );
-			break;
-		case QtFatalMsg:
-			fprintf( stderr, "** Fatal: %s\n", msg );
-			break;
-	}
+        switch( type ) {
+                case QtDebugMsg:
+                        fprintf( stderr, "** Debug: %s\n", msg );
+                        break;
+                case QtWarningMsg:
+                        fprintf( stderr, "** Warning: %s\n", msg );
+                        break;
+                case QtCriticalMsg:
+                        fprintf( stderr, "** Critical: %s\n", msg );
+                        break;
+                case QtFatalMsg:
+                        fprintf( stderr, "** Fatal: %s\n", msg );
+                        break;
+        }
 
 }

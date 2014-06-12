@@ -43,10 +43,10 @@
 
 class PglCmd : public SuperUser {
 
-	Q_OBJECT
+        Q_OBJECT
 
 
-	public:
+        public:
             /**
                 * Default constructor, creates a pglcmd object using the script specified in path.
                 * @param path The path of the pglcmd script.
@@ -73,43 +73,43 @@ class PglCmd : public SuperUser {
             static QString getFilePath();
             static QString getFilePath(const QString &path);
 
-	public slots:
-		/**
-		 * Start the pgld daemon using pglcmd
-		 */
-		void start();
-		/**
-		 * Restart the pgld daemon using pglcmd
-		 */
-		void restart();
-		/**
-		 * Stop the pgld daemon using pglcmd
-		 */
-		void stop();
-		/**
-		 * Reload pgld using pglcmd
-		 */
-		void reload();
-		/**
-		 * Update pgld using pglcmd
-		 */
-		void update();
-		/**
-		 * Get the pglcmd status.
-		 */
-		void status();
+        public slots:
+                /**
+                 * Start the pgld daemon using pglcmd
+                 */
+                void start();
+                /**
+                 * Restart the pgld daemon using pglcmd
+                 */
+                void restart();
+                /**
+                 * Stop the pgld daemon using pglcmd
+                 */
+                void stop();
+                /**
+                 * Reload pgld using pglcmd
+                 */
+                void reload();
+                /**
+                 * Update pgld using pglcmd
+                 */
+                void update();
+                /**
+                 * Get the pglcmd status.
+                 */
+                void status();
 
 
-	signals:
-		/**
-		 * Message describing the currently running action
-		 * @param  message The message describing the action
-		 * @param timeout The time the message will be displayed
-		 */
-		void actionMessage( const QString &message, const int &timeout );
-	
-	private:
-		QString m_FileName;
+        signals:
+                /**
+                 * Message describing the currently running action
+                 * @param  message The message describing the action
+                 * @param timeout The time the message will be displayed
+                 */
+                void actionMessage( const QString &message, const int &timeout );
+
+        private:
+                QString m_FileName;
 
 };
 

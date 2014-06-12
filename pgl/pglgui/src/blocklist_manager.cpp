@@ -70,7 +70,7 @@ void BlocklistManager::loadBlocklists()
         delete mBlocklists[i];
     mBlocklists.clear();
     m_ListsFile.clear();
-    
+
     loadBlocklistsFile();
     loadLocalBlocklists();
 }
@@ -95,10 +95,10 @@ void BlocklistManager::loadLocalBlocklists()
 {
     if (! QFile::exists(mLocalBlocklistsDir))
         return;
-    
+
     QDir blocklistsDir(mLocalBlocklistsDir);
     QString path;
-    
+
     //enabled local blocklists
     foreach(const QFileInfo& info, blocklistsDir.entryInfoList(QDir::NoDotAndDotDot|QDir::Files|QDir::Hidden)) {
         path = info.absoluteFilePath();
@@ -147,7 +147,7 @@ int BlocklistManager::indexOfName( const QString &name )
 }
 
 void BlocklistManager::addItem( const ListItem &newItem )
-{ 
+{
     m_ListsFile.append( newItem );
 }
 
@@ -233,7 +233,7 @@ QVector< ListItem *> BlocklistManager::getItems(const ItemMode &mode ) {
     for ( QVector< ListItem >::iterator s = m_ListsFile.begin(); s != m_ListsFile.end(); s++ )
         if ( s->mode == mode )
             result.push_back(s);
-        
+
     return result;
 }
 

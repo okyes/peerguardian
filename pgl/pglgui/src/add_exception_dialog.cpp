@@ -14,9 +14,9 @@
 class WhitelistItem;
 
 AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, PglCore* pglCore) :
-	QDialog( p )
+        QDialog( p )
 {
-	setupUi( this );
+        setupUi( this );
 
     mPglCore = pglCore;
     m_validExtensions << ".p2p" << ".zip" << ".7z" << ".gzip" << ".dat";
@@ -29,7 +29,7 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, PglCore* pglCore) :
         //setPortsFromFile();
         //completer for the ports' names
         QStringList portNames = mPglCore->whitelistManager()->systemPortsNameToNumber().keys();
-        
+
         QCompleter * completer = new QCompleter(portNames, m_addEdit);
         m_addEdit->setCompleter(completer);
         m_browseButton->hide();
@@ -63,7 +63,7 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, PglCore* pglCore) :
 
             QFileSystemModel * model = new QFileSystemModel(m_addEdit);
             model->setRootPath(QDir::homePath());
-           
+
             QCompleter * completer = new QCompleter(model, m_addEdit);
             m_addEdit->setCompleter(completer);
 
@@ -88,11 +88,11 @@ AddExceptionDialog::AddExceptionDialog(QWidget *p, int mode, PglCore* pglCore) :
 
         connect(m_addEdit, SIGNAL(returnPressed()), this, SLOT(addBlocklist()));
         connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(addBlocklist()));
-        
+
        setMinimumSize(0, 200);
        resize(width(), height()/1.8);
     }
-    
+
     m_helpLabel->setText(QObject::tr(help.toUtf8 ()));
 
     /*else if ( mode == (EDIT_MODE | EXCEPTION_MODE) )
@@ -166,16 +166,16 @@ QStringList AddExceptionDialog::getParams(const QString& text)
         QFileInfo file("");
         bool append = false;
         params = text.split(' ');
- 
- 
+
+
         for(int i=0; i < params.size(); i++)
         {
-            
+
             if ( append )
                 param += params[i];
             else
                 param = params[i];
-                
+
             //if it's a filepath
             if ( param.trimmed()[0] == '/' || append)
             {
@@ -201,10 +201,10 @@ QStringList AddExceptionDialog::getParams(const QString& text)
                 param.clear();
             }
         }
-        
+
         if ( ! param.isEmpty() )
             paths << param;
-        
+
         return paths;
     }
     else
@@ -331,7 +331,7 @@ void AddExceptionDialog::addEntry()
             QTreeWidgetItem *item = new QTreeWidgetItem(m_notValidTreeWidget, info);
             m_notValidTreeWidget->addTopLevelItem(item);
         }
-        
+
         resize(width(), minimumSize().height()*1.3);
 
     }
@@ -369,7 +369,7 @@ void AddExceptionDialog::addBlocklist()
     {
         if ( value.simplified().isEmpty() )
             continue;
-        
+
         Blocklist* blocklist = blocklistManager->blocklist(value);
 
         if ( ! Blocklist::isValid(value)) {
@@ -393,7 +393,7 @@ void AddExceptionDialog::addBlocklist()
             resize(width(), height()*2);
             groupBox_2->setVisible(true);
         }
-        
+
         for(int i=0; i < invalidValues.size(); i++)
         {
             QStringList info;

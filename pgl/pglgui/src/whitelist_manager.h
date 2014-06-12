@@ -57,14 +57,14 @@ class WhitelistManager : public QObject
     QMap<QString, QStringList> m_WhitelistDisabled;
     QHash<int, Port> mSystemPorts;
 
-	public:
-		/**
+        public:
+                /**
          * Constructor. Creates an emtpy WhitelistManager object with no data loaded.
-		 */
+                 */
         WhitelistManager(QSettings *, QObject* parent=0);
-		/**
-		 * Destructor.
-		 */
+                /**
+                 * Destructor.
+                 */
         ~WhitelistManager();
 
         QList<WhitelistItem*> whitelistItems();

@@ -40,12 +40,12 @@
 //using namespace PolkitQt1::Gui;
 
 PglGui::PglGui( QWidget *parent) :
-	QMainWindow( parent )
+        QMainWindow( parent )
 {
     mUi.setupUi( this );
-    
+
     mUi.logTreeWidget->setContextMenuPolicy ( Qt::CustomContextMenu );
-    
+
     if ( ! PglSettings::loadSettings() )
         QMessageBox::warning(this, tr("Error"), PglSettings::lastError(), QMessageBox::Ok);
 
@@ -62,7 +62,7 @@ PglGui::PglGui( QWidget *parent) :
     g_MakeConnections();
     loadGUI();
     checkDaemonStatus();
-    
+
     //resize columns in log view
     QHeaderView * header = mUi.logTreeWidget->header();
     header->resizeSection(0, header->sectionSize(0) / 1.5 );
@@ -70,12 +70,12 @@ PglGui::PglGui( QWidget *parent) :
     header->resizeSection(3, header->sectionSize(0) / 1.4 );
     header->resizeSection(5, header->sectionSize(0) / 1.4 );
     header->resizeSection(6, header->sectionSize(6) / 2);
-    
+
     //resize column in whitelist view
     header = mUi.whitelistTreeWidget->header();
     header->resizeSection(0, header->sectionSize(0) * 2);
     header->resizeSection(2, header->sectionSize(2) / 2);
-        
+
     a_whitelistIpTemp = new QAction(tr("Allow temporarily"), this);
     a_whitelistIpTemp->setToolTip(tr("Allows until pgld is restarted."));
     a_whitelistIpPerm = new QAction(tr("Allow permanently"), this);
@@ -84,21 +84,21 @@ PglGui::PglGui( QWidget *parent) :
     a_whitelistPortPerm = new QAction(tr("Allow permanently"), this);
     aWhoisIp = new QAction(tr("Whois "), this);
 
-    m_ConnectType["OUT"] = tr("Outgoing"); 
+    m_ConnectType["OUT"] = tr("Outgoing");
     m_ConnectType["IN"] = tr("Incoming");
     m_ConnectType["FWD"] = tr("Forward");
-    
+
     m_ConnectIconType[tr("Outgoing")] = QIcon(LOG_LIST_OUTGOING_ICON);
     m_ConnectIconType[tr("Incoming")] = QIcon(LOG_LIST_INCOMING_ICON);
     m_ConnectIconType[tr("Forward")] = QIcon();
-    
+
 
     QDBusConnection connection (QDBusConnection::systemBus());
     QString service("");
     QString name("pgld_message");
     QString path("/org/netfilter/pgl");
     QString interface("org.netfilter.pgl");
-    
+
     bool ok = connection.connect(service, path, interface, name, qobject_cast<QObject*>(this), SLOT(addLogItem(QString)));
 
     if ( ! ok )
@@ -111,19 +111,19 @@ PglGui::PglGui( QWidget *parent) :
     int yy = desktop->height()/2-height()/2;
     int xx = desktop->width() /2-width()/2;
     move(xx, yy);
-    
+
     mUi.logTreeWidget->verticalScrollBar()->installEventFilter(this);
-    
+
     connect(aWhoisIp, SIGNAL(triggered()), this, SLOT(onWhoisTriggered()));
     connect(a_whitelistIpTemp, SIGNAL(triggered()), this, SLOT(whitelistItem()));
     connect(a_whitelistIpPerm, SIGNAL(triggered()), this, SLOT(whitelistItem()));
     connect(a_whitelistPortTemp, SIGNAL(triggered()), this, SLOT(whitelistItem()));
     connect(a_whitelistPortPerm, SIGNAL(triggered()), this, SLOT(whitelistItem()));
-    
+
     //ActionButton *bt;
     //bt = new ActionButton(kickPB, "org.qt.policykit.examples.kick", this);
     //bt->setText("Kick... (long)");
-	
+
     restoreSettings();
 }
 
@@ -142,26 +142,26 @@ void PglGui::addLogItem(QString itemString)
 {
     if ( m_StopLogging )
         return;
-    
+
     if ( itemString.contains("INFO:") && itemString.contains("Blocking") )
     {
-        
+
         QStringList parts = itemString.split("INFO:", QString::SkipEmptyParts);
         m_Info->setLoadedIps(parts[0]);
         return;
     }
-    
+
     if ( itemString.contains("||") )
     {
         QStringList parts = itemString.split("||", QString::SkipEmptyParts);
         QStringList firstPart = parts.first().split(" ", QString::SkipEmptyParts);
         QString connectType, srcip, destip, srcport, destport;
-        
+
         if ( firstPart.first().contains(":") )
             connectType = m_ConnectType[firstPart.first().split(":")[0]];
         else
             connectType = m_ConnectType[firstPart.first()];
-            
+
         if ( firstPart[3] == "TCP" || firstPart[3] == "UDP" )
         {
             srcip = firstPart[1].split(":", QString::SkipEmptyParts)[0];
@@ -176,21 +176,21 @@ void PglGui::addLogItem(QString itemString)
             destip = firstPart[2];
             destport = "";
         }
-            
+
         QStringList info;
-        
+
         if ( mUi.logTreeWidget->topLevelItemCount() > m_MaxLogSize ) {
             //mIgnoreScroll = true;
             mUi.logTreeWidget->takeTopLevelItem(0);
             //mIgnoreScroll = false;
         }
-        
+
         info << QTime::currentTime().toString("hh:mm:ss") << parts.last() << srcip << srcport << destip << destport << firstPart[3] << connectType;
         QTreeWidgetItem * item = new QTreeWidgetItem(mUi.logTreeWidget, info);
         item->setIcon(7, m_ConnectIconType[connectType]);
         mUi.logTreeWidget->addTopLevelItem(item);
-            
-        
+
+
         if (mAutomaticScroll)
             mUi.logTreeWidget->scrollToBottom();
     }
@@ -263,7 +263,7 @@ void PglGui::loadGUI()
 
 void PglGui::g_MakeConnections()
 {
-	//Log tab connections
+        //Log tab connections
     connect( mUi.logTreeWidget, SIGNAL(customContextMenuRequested ( const QPoint &)), this, SLOT(showLogRightClickMenu(const QPoint &)));
     connect( mUi.logTreeWidget->verticalScrollBar(), SIGNAL(sliderMoved(int)), this, SLOT(onLogViewVerticalScrollbarMoved(int)));
     connect( mUi.logTreeWidget->verticalScrollBar(), SIGNAL(actionTriggered(int)), this, SLOT(onLogViewVerticalScrollbarActionTriggered(int)));
@@ -296,7 +296,7 @@ void PglGui::g_MakeConnections()
         connect( m_Control, SIGNAL( actionMessage(const QString&, int ) ), mUi.statusBar, SLOT( showMessage( const QString&, int ) ) );
     }
 
-	//Blocklist and Whitelist Tree Widgets
+        //Blocklist and Whitelist Tree Widgets
     connect(mUi.whitelistTreeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(whitelistItemChanged(QTreeWidgetItem*, int)));
     connect(mUi.blocklistTreeWidget, SIGNAL(itemChanged(QTreeWidgetItem*, int)), this, SLOT(blocklistItemChanged(QTreeWidgetItem*,int)));
     connect(mUi.whitelistTreeWidget, SIGNAL(itemPressed(QTreeWidgetItem*, int)), this, SLOT(treeItemPressed(QTreeWidgetItem*, int)));
@@ -324,11 +324,11 @@ void PglGui::g_MakeConnections()
     //connect whitelist and blocklists managers
     connect(mPglCore->whitelistManager(), SIGNAL(itemAdded(WhitelistItem*)), this, SLOT(addWhitelistItem(WhitelistItem*)));
     connect(mPglCore->blocklistManager(), SIGNAL(blocklistAdded(Blocklist*)), this, SLOT(addBlocklistItem(Blocklist*)));
-    
+
     //connect the remove buttons
     connect(mUi.removeBlocklistButton, SIGNAL(clicked()), this, SLOT(removeListItems()));
     connect(mUi.removeExceptionButton, SIGNAL(clicked()), this, SLOT(removeListItems()));
-    
+
     //tray iconPath
     connect(m_Tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(onTrayIconClicked(QSystemTrayIcon::ActivationReason)));
 
@@ -338,13 +338,13 @@ void PglGui::g_MakeConnections()
 void PglGui::quit()
 {
     int answer;
-    
+
     if (mUi.applyButton->isEnabled()) {
         answer = confirm(tr("Really quit?"), tr("You have <b>unapplied</b> changes, do you really want to quit?"), this);
         if ( answer == QMessageBox::No )
             return;
     }
-    
+
     qApp->quit();
 }
 
@@ -413,7 +413,7 @@ void PglGui::controlFinished(const CommandList & commands)
 }
 
 void PglGui::rootFinished(const CommandList& commands)
-{    
+{
     CommandList failedCommands;
     foreach(const Command& cmd, commands) {
         if (cmd.error())
@@ -437,9 +437,9 @@ void PglGui::rootFinished(const CommandList& commands)
 void PglGui::rootError(const QString& errorMsg)
 {
     QMessageBox::warning( this, tr("Error"), errorMsg,
-	QMessageBox::Ok
+        QMessageBox::Ok
     );
-    
+
     setApplyButtonEnabled(mPglCore->isChanged());
 }
 
@@ -449,7 +449,7 @@ void PglGui::updateRadioButtonToggled(bool toggled)
    QRadioButton * radioButton = qobject_cast<QRadioButton*>(sender());
    if (! radioButton)
        return;
-     
+
     QList<QRadioButton*> radioButtons;
     radioButtons.append(mUi.updateDailyRadio);
     radioButtons.append(mUi.updateWeeklyRadio);
@@ -535,14 +535,14 @@ void PglGui::applyChanges()
     bool updateBlocklistsFile = mPglCore->hasToUpdateBlocklistsFile();
     QString filepath;
     bool reload = mPglCore->hasToReloadBlocklists();
-    
+
     if ( pglcmdConfPath.isEmpty() ) {
         QString errorMsg = tr("Could not determine pglcmd.conf path! Did you install pgld and pglcmd?");
         QMessageBox::warning( this, tr("Error"), errorMsg, QMessageBox::Ok);
         qWarning() << errorMsg;
         return;
     }
-    
+
     //only apply IPtables commands if the daemon is running
     if ( m_Info->daemonState() )
     {
@@ -551,7 +551,7 @@ void PglGui::applyChanges()
         if ( ! iptablesCommands.isEmpty() )
             m_Root->addCommands(iptablesCommands);
     }
-    
+
     //================ update /etc/pgl/pglcmd.conf ================/
     if ( updatePglcmdConf ) {
         pglcmdConf = mPglCore->generatePglcmdConf();
@@ -567,7 +567,7 @@ void PglGui::applyChanges()
         QStringList data = blocklistManager->generateBlocklistsFile();
         QString outputFilePath = QDir::temp().absoluteFilePath(getFileName(blocklistManager->blocklistsFilePath()));
         saveFileData(data, outputFilePath);
-        
+
         //update the blocklists.list file
         if (QFile::exists(outputFilePath))
             m_Root->moveFile(outputFilePath, blocklistManager->blocklistsFilePath(), false);
@@ -597,12 +597,12 @@ void PglGui::applyChanges()
             m_Root->moveFile(blocklist->location(), localBlocklistDir.absoluteFilePath("."+blocklist->name()), false);
         }
     }
-        
+
     //====== update  frequency radio buttons ==========/
     filepath = getUpdateFrequencyPath();
     if ( ! QFile::exists(filepath) )
         m_Root->moveFile(getUpdateFrequencyCurrentPath(), filepath, false);
-        
+
     //assume changes will be applied, if not this button will be enabled afterwards
     setApplyButtonEnabled(false);
 
@@ -613,13 +613,13 @@ void PglGui::applyChanges()
 
 QList<QTreeWidgetItem*> PglGui::getTreeItems(QTreeWidget *tree, int checkState)
 {
-	QList<QTreeWidgetItem*> items;
+        QList<QTreeWidgetItem*> items;
 
-	for (int i=0; i < tree->topLevelItemCount(); i++ )
-		if ( tree->topLevelItem(i)->checkState(0) == checkState || checkState == -1)
-			items << tree->topLevelItem(i);
+        for (int i=0; i < tree->topLevelItemCount(); i++ )
+                if ( tree->topLevelItem(i)->checkState(0) == checkState || checkState == -1)
+                        items << tree->topLevelItem(i);
 
-	return items;
+        return items;
 }
 
 void PglGui::blocklistItemChanged(QTreeWidgetItem* item, int column)
@@ -721,12 +721,12 @@ void PglGui::addBlocklistItem(Blocklist* blocklist, bool blockSignals)
 void PglGui::loadWhitelistWidget()
 {
     WhitelistManager *whitelist = mPglCore->whitelistManager();
-    
+
     mUi.whitelistTreeWidget->blockSignals(true);
-    
+
     if ( mUi.whitelistTreeWidget->topLevelItemCount() > 0 )
         mUi.whitelistTreeWidget->clear();
-    
+
     foreach(WhitelistItem * item, whitelist->whitelistItems()) {
         if (item->isRemoved())
             continue;
@@ -779,10 +779,10 @@ void PglGui::initCore()
 }
 
 void PglGui::g_SetRoot( ) {
-    
+
     if ( m_Root )
         delete m_Root;
-    
+
     m_Root = new SuperUser(this, m_ProgramSettings->value("paths/super_user", "").toString());
 }
 
@@ -795,7 +795,7 @@ void PglGui::g_SetControlPath()
 {
     QString  gSudo = m_ProgramSettings->value("paths/super_user").toString();
     m_Control = new PglCmd(this, PglSettings::value("CMD_PATHNAME"), gSudo);
-    
+
 }
 
 void PglGui::g_ShowAddDialog(int openmode) {
@@ -826,7 +826,7 @@ void PglGui::g_ShowAddDialog(int openmode) {
         }
 
         mUi.whitelistTreeWidget->scrollToBottom();
-	}
+        }
     else if ( openmode == (ADD_MODE | BLOCKLIST_MODE) )
     {
         dialog = new AddExceptionDialog( this, openmode, mPglCore);
@@ -846,7 +846,7 @@ void PglGui::g_ShowAddDialog(int openmode) {
                 blocklistManager->addBlocklist(blocklist);
             newItems = true;
         }
-        
+
         mUi.blocklistTreeWidget->scrollToBottom();
     }
 
@@ -860,8 +860,8 @@ void PglGui::g_ShowAddDialog(int openmode) {
 
 void PglGui::g_MakeTray()
 {
-	m_Tray = new QSystemTrayIcon( mTrayIconDisabled );
-	m_Tray->setVisible( true );
+        m_Tray = new QSystemTrayIcon( mTrayIconDisabled );
+        m_Tray->setVisible( true );
     m_Tray->setToolTip(tr("Pgld is not running"));
 }
 
@@ -891,14 +891,14 @@ void PglGui::checkDaemonStatus()
 void PglGui::g_MakeMenus()
 {
     //tray icon menu
-	m_TrayMenu = new QMenu(this);
+        m_TrayMenu = new QMenu(this);
     m_TrayMenu->addAction( mUi.a_Start );
     m_TrayMenu->addAction( mUi.a_Stop );
     m_TrayMenu->addAction( mUi.a_Restart );
     m_TrayMenu->addAction( mUi.a_Reload );
-	m_TrayMenu->addSeparator();
+        m_TrayMenu->addSeparator();
     m_TrayMenu->addAction( mUi.a_Exit );
-	m_Tray->setContextMenu(m_TrayMenu);
+        m_Tray->setContextMenu(m_TrayMenu);
 }
 
 void PglGui::g_ShowAboutDialog()
@@ -922,11 +922,11 @@ void PglGui::g_ShowAboutDialog()
 }
 
 void PglGui::undoAll()
-{ 
+{
     int answer = 0;
-    
+
     answer = confirm(tr("Really Undo?"), tr("Are you sure you want to ignore the unsaved changes?"), this);
-    
+
     if ( answer == QMessageBox::Yes) {
         mPglCore->undo();
         loadGUI();
@@ -935,11 +935,11 @@ void PglGui::undoAll()
 }
 
 void PglGui::startStopLogging()
-{ 
+{
     m_StopLogging = ! m_StopLogging;
-    
-    QPushButton *button = qobject_cast<QPushButton*> (sender()); 
-    
+
+    QPushButton *button = qobject_cast<QPushButton*> (sender());
+
     if ( m_StopLogging )
     {
         button->setIcon(QIcon(ENABLED_ICON));
@@ -955,9 +955,9 @@ void PglGui::startStopLogging()
 void PglGui::openSettingsDialog()
 {
     SettingsDialog * dialog = new SettingsDialog(m_ProgramSettings, this);
-    
+
     int exitCode = dialog->exec();
-    
+
     if ( exitCode )
     {
         m_ProgramSettings->setValue("paths/super_user", dialog->file_GetRootPath());
@@ -965,45 +965,45 @@ void PglGui::openSettingsDialog()
         m_MaxLogSize = dialog->getMaxLogEntries();
         m_ProgramSettings->setValue("maximum_log_entries", QString::number(m_MaxLogSize));
     }
-    
+
     if ( dialog )
-        delete dialog; 
+        delete dialog;
 }
 
 void PglGui::showLogRightClickMenu(const QPoint& p)
 {
     QTreeWidgetItem * item = mUi.logTreeWidget->itemAt(p);
-    
+
     if ( ! item )
         return;
-    
+
     QMenu menu(this);
     QMenu *menuIp;
     QMenu *menuPort;
     int index = 4;
-    
+
     if ( item->text(7) == "Incoming" )
         index = 2;
-    
+
     QVariantMap data;
     data.insert("ip", item->text(index));
     data.insert("port", item->text(5));
     data.insert("prot", item->text(6));
     data.insert("type", item->text(7));
-    
+
     a_whitelistIpTemp->setData(data);
     a_whitelistIpPerm->setData(data);
     a_whitelistPortTemp->setData(data);
     a_whitelistPortPerm->setData(data);
-    
+
     menuIp =  menu.addMenu("Allow IP " + item->text(index));
     menuPort = menu.addMenu("Allow Port " + item->text(5));
-    
+
     menu.addSeparator();
     aWhoisIp->setData(item->text(index));
     aWhoisIp->setText(tr("Whois ") + item->text(index));
     menu.addAction(aWhoisIp);
-    
+
     menuIp->addAction(a_whitelistIpTemp);
     menuIp->addAction(a_whitelistIpPerm);
     menuPort->addAction(a_whitelistPortTemp);
@@ -1017,12 +1017,12 @@ void PglGui::whitelistItem()
     QAction* action = qobject_cast<QAction*>(sender());
     if (! action)
         return;
-    
+
     if (! m_Info->daemonState()) {
         QMessageBox::information(this, tr("Peerguardian is not running"), tr("It's not possible to whitelist while Peerguardian is not running."));
         return;
     }
-    
+
     WhitelistManager* whitelist = mPglCore->whitelistManager();
     QVariantMap data = action->data().toMap();
     QString ip = data.value("ip").toString();
@@ -1034,7 +1034,7 @@ void PglGui::whitelistItem()
         value = ip;
     else
         value = port;
-        
+
     if ( action == a_whitelistIpTemp || action ==  a_whitelistPortTemp )
     {
         QStringList iptablesCommands = whitelist->getCommands(QStringList() << value, QStringList() << type, QStringList() << prot, QList<bool>() << true);
@@ -1062,7 +1062,7 @@ void PglGui::onViewerWidgetRequested()
     else if (mUi.viewPgldLogAction == sender()) {
         path = PglSettings::value("DAEMON_LOG");
     }
-    
+
     ViewerWidget viewer(path);
     viewer.exec();
 }
@@ -1071,15 +1071,15 @@ bool PglGui::eventFilter(QObject* obj, QEvent* event)
 {
     //if (obj == mUi.logTreeWidget->verticalScrollBar() && mIgnoreScroll)
     //    return true;
-    
+
     if (obj == mUi.logTreeWidget->verticalScrollBar() && event->type() == QEvent::Wheel) {
-        
+
         if (mUi.logTreeWidget->verticalScrollBar()->value() == mUi.logTreeWidget->verticalScrollBar()->maximum())
             mAutomaticScroll = true;
         else
             mAutomaticScroll = false;
     }
-    
+
     return false;
 }
 
@@ -1087,7 +1087,7 @@ void PglGui::onLogViewVerticalScrollbarMoved(int value)
 {
     QScrollBar *bar = static_cast<QScrollBar*>(sender());
 
-    if (bar->maximum() == value) 
+    if (bar->maximum() == value)
         mAutomaticScroll = true;
     else
         mAutomaticScroll = false;
@@ -1096,30 +1096,30 @@ void PglGui::onLogViewVerticalScrollbarMoved(int value)
 void PglGui::onLogViewVerticalScrollbarActionTriggered(int action)
 {
     QScrollBar *scrollBar = static_cast<QScrollBar*>(sender());
-    
+
     if (mAutomaticScroll && scrollBar->value() < scrollBar->maximum())
         scrollBar->setSliderPosition(scrollBar->maximum());
-        
+
 }
 
 void PglGui::showCommandsOutput(const CommandList& commands)
 {
-    
+
     QString output("");
     QString title("");
     foreach(const Command& command, commands) {
         output += command.output();
         output += "\n";
-        
+
         if (! title.isEmpty())
             title += tr(" and ");
         title += command.command();
     }
-    
+
     ViewerWidget viewer(output);
     viewer.setWindowTitle(title);
     viewer.exec();
-} 
+}
 
 void PglGui::onWhoisTriggered()
 {

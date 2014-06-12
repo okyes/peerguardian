@@ -99,7 +99,7 @@ class QApplication;
 
 class PglGui : public QMainWindow {
 
-	Q_OBJECT
+        Q_OBJECT
 
     QSettings *m_ProgramSettings;
     QString m_Loaded_RootFile;
@@ -130,26 +130,26 @@ class PglGui : public QMainWindow {
     PglCore *mPglCore;
     Ui::MainWindow mUi;
 
-	public:
-		/**
-		 * Constructor.
-		 * This function calls several other functions to do the following:
-		 * a)Setup the GUI.
-		 * b)Create objects of the main classes.
-		 * c)Create the connections between the objects.
-		 * @param parent The QWidget parent of the object.
-		 */
+        public:
+                /**
+                 * Constructor.
+                 * This function calls several other functions to do the following:
+                 * a)Setup the GUI.
+                 * b)Create objects of the main classes.
+                 * c)Create the connections between the objects.
+                 * @param parent The QWidget parent of the object.
+                 */
         PglGui( QWidget *parent = 0);
-		/**
+                /**
          * Destructor. Takes the appropriate actions when PglGui is destroyed.
-		 * Deletes object pointers and saves settings.
-		 */
+                 * Deletes object pointers and saves settings.
+                 */
         virtual ~PglGui();
 
         void g_MakeConnections();
         void initCore();
-		void g_SetRoot();
-		void g_SetInfoPath();
+                void g_SetRoot();
+                void g_SetInfoPath();
         void g_SetControlPath();
         void g_MakeTray();
         void g_MakeMenus();
@@ -201,7 +201,7 @@ class PglGui : public QMainWindow {
     protected slots:
         void quit();
         void onViewerWidgetRequested();
-    
+
     private slots:
         void onLogViewVerticalScrollbarMoved(int);
         void onLogViewVerticalScrollbarActionTriggered(int);
@@ -215,6 +215,6 @@ private:
         void restoreSettings();
         void saveSettings();
         void checkDaemonStatus();
-};	
+};
 
 #endif //PglGui_H

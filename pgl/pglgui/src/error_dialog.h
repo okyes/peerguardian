@@ -12,12 +12,13 @@ class ErrorDialog : public QDialog
     Q_OBJECT
 
     QTreeWidget* mErrorWidget;
-    
+
     public:
         explicit ErrorDialog(const CommandList& commands, QWidget* parent = 0);
         virtual ~ErrorDialog();
     private slots:
-    
+
 };
 
 #endif
+

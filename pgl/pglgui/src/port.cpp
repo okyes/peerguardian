@@ -65,13 +65,13 @@ QString Port::name() const
 {
     if ( ! mNames.isEmpty() )
         return mNames[0];
-  
+
     return QString("");
 }
 
 bool Port::hasProtocol(const QString& protocol) const
 {
-  return mProtocols.contains(protocol, Qt::CaseInsensitive); 
+  return mProtocols.contains(protocol, Qt::CaseInsensitive);
 }
 
 void Port::addProtocols(const QStringList& protocols)
@@ -99,7 +99,7 @@ void Port::addNames(const QStringList& names)
     m_number = other.number();
     m_protocols = other.protocols();
     m_values = other.values();
-    
+
     return *this;
 }*/
 
@@ -117,6 +117,6 @@ bool Port::containsName(const QString& name) const
   foreach(const QString& _name, mNames)
     if (name == _name)
       return true;
-    
+
   return false;
 }

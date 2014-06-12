@@ -37,34 +37,34 @@
 
 class SettingsDialog : public QDialog, private Ui::SettingsDialog {
 
-	Q_OBJECT
-    
+        Q_OBJECT
+
     QSettings * m_Settings;
 
-	public:
-		/**
-		 * Constructor.
-		 * Intiallizes the UI.
-		 * @param parent The QWidget parent of the this object.
-		 */
-		SettingsDialog( QSettings  *settings , QWidget *parent = 0);
-		/**
-		 * Set the text in the "Sudo frontend" line edit.
-		 * @param path QString with the new text.
-		 */
-		inline void file_SetRootPath( const QString &path ) { m_RootPathEdit->setText( path ); }
+        public:
+                /**
+                 * Constructor.
+                 * Intiallizes the UI.
+                 * @param parent The QWidget parent of the this object.
+                 */
+                SettingsDialog( QSettings  *settings , QWidget *parent = 0);
+                /**
+                 * Set the text in the "Sudo frontend" line edit.
+                 * @param path QString with the new text.
+                 */
+                inline void file_SetRootPath( const QString &path ) { m_RootPathEdit->setText( path ); }
 
-		 /* Get the "sudo front end" line edit's text.
-		 * @return QString with the text of the line edit.
-		 */
-		inline QString file_GetRootPath() const { return m_RootPathEdit->text(); }
-        
+                 /* Get the "sudo front end" line edit's text.
+                 * @return QString with the text of the line edit.
+                 */
+                inline QString file_GetRootPath() const { return m_RootPathEdit->text(); }
+
         inline int getMaxLogEntries() const { return m_MaxLogEntries->value(); }
 
-	private slots:
-		void file_BrowseRootPath();
-		void file_SetDefaults();
-		
+        private slots:
+                void file_BrowseRootPath();
+                void file_SetDefaults();
+
 };
 
 #endif

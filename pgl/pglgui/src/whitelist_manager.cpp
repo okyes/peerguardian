@@ -238,14 +238,14 @@ QString WhitelistManager::translateConnection(const QString& conn_type)
 {
 
     QString conn(conn_type.toUpper());
-    
+
     if ( conn == "INCOMING")
         return "IN";
     else if ( conn == "OUTGOING" )
         return "OUT";
     else if ( conn == "FORWARD" )
         return "FWD";
-    
+
     return conn;
 
 }
@@ -253,14 +253,14 @@ QString WhitelistManager::translateConnection(const QString& conn_type)
 QStringList WhitelistManager::getDirections(const QString& chain)
 {
     QStringList directions;
-    
+
     if ( chain == "IN" )
         directions << QString("--source");
     else if ( chain == "OUT")
         directions << QString("--destination");
     else if ( chain == "FWD" )
         directions << QString("--source") << QString("--destination");
-        
+
     return directions;
 }
 
@@ -309,9 +309,9 @@ QStringList WhitelistManager::getCommands( QStringList items, QStringList connec
         protocol = protocols[i];
         iptables_list = iptables_list_type;
         int _port = 0;
-        
+
         ip = isValidIp(item);
-        
+
         if (! ip ) {
           _port = portNumber(item);
           if (_port != -1)
@@ -319,7 +319,7 @@ QStringList WhitelistManager::getCommands( QStringList items, QStringList connec
           else
             portNum = item;
         }
-        
+
         if ( ip )
         {
             command_type = " $COMMAND_OPERATOR iptables $OPTION $IPTABLES_CHAIN $FROM $IP -j " + iptables_target_whitelisting;
@@ -337,7 +337,7 @@ QStringList WhitelistManager::getCommands( QStringList items, QStringList connec
             port_check.replace("$PROTO", protocol.toLower());
             port_check.replace("$PORT", portNum);
         }
-        
+
         if ( allows[i] )
         {
             option = "-I";
@@ -350,14 +350,14 @@ QStringList WhitelistManager::getCommands( QStringList items, QStringList connec
             command_operator = "||";
             notOp = " !";
         }
-        
+
         //convert incoming to in, outgoing to out, etc
         conn = translateConnection(connection);
         //get iptables chain name from pglcmd.defaults
         chain = PglSettings::value("IPTABLES_" + conn);
-        
+
         iptables_list.replace("$IPTABLES_CHAIN", chain);
-        
+
         //FWD needs --source and --destination
         if ( ip )
             directions = getDirections(conn);
@@ -367,9 +367,9 @@ QStringList WhitelistManager::getCommands( QStringList items, QStringList connec
             if ( protocol != "tcp" && protocol != "udp")
                 continue;
         }
-        
+
         if ( ip )
-        {      
+        {
             foreach(const QString& direction, directions )
             {
                 command = command_type;
@@ -397,14 +397,14 @@ QStringList WhitelistManager::getCommands( QStringList items, QStringList connec
             commands <<  notOp + '(' + iptables_list + port_check + ')' + command;
         }
     }
-    
-    return commands;     
+
+    return commands;
 }
 
 bool WhitelistManager::isPortAdded(const QString& value, const QString & portRange)
 {
     bool ok = false;
-    
+
     if ( portRange.contains(":") )
     {
         int part1 = portRange.split(":")[0].toInt(&ok);
@@ -413,11 +413,11 @@ bool WhitelistManager::isPortAdded(const QString& value, const QString & portRan
         if ( ! ok ) return false;
         int val = value.toInt(&ok);
         if ( ! ok ) return false;
-        
+
         if ( val >= part1 && val <= part2 )
             return true;
     }
-    
+
     return false;
 }
 
@@ -428,10 +428,10 @@ QString WhitelistManager::getIptablesTestCommand(const QString& value, const QSt
     QString chain;
     QString portNum = value;
     int _port = 0;
-    
+
     chain = translateConnection(connectType);
     chain = PglSettings::value("IPTABLES_" + chain);
-    
+
     if ( isValidIp(value) )
     {
         cmd = QString("iptables -L \"$CHAIN\" -n | grep \"$TARGET\" | grep -F \"$VALUE\"");
@@ -444,7 +444,7 @@ QString WhitelistManager::getIptablesTestCommand(const QString& value, const QSt
         if (_port != -1)
           portNum = QString::number(_port);
     }
-    
+
     cmd.replace("$CHAIN", chain);
     cmd.replace("$TARGET", target);
     cmd.replace("$VALUE", portNum);

@@ -21,9 +21,9 @@
 #include "utils.h"
 
 PglDaemon::PglDaemon( const QString &logPath, QObject *parent ) :
-	QObject( parent )
+        QObject( parent )
 {
-	m_DaemonState = false;
+        m_DaemonState = false;
     m_LogPath = logPath;
     getLoadedIps();
     updateDaemonState();
@@ -35,37 +35,37 @@ PglDaemon::PglDaemon( const QString &logPath, QObject *parent ) :
 
 void PglDaemon::getLoadedIps()
 {
-    
+
     if ( QFile::exists(m_LogPath) )
     {
         QStringList fileData = getFileData( m_LogPath );
         QString blocklist_line("");
-        
+
         for(int i=0; i < fileData.size(); i++)
         {
             if ( fileData[i].contains("INFO:") && fileData[i].contains("Blocking") )
                 blocklist_line = fileData[i];
         }
-        
+
         if ( ! blocklist_line.isEmpty() )
         {
             QStringList parts = blocklist_line.split("INFO:", QString::SkipEmptyParts);
             m_LoadedRanges = parts[1];
-        } 
+        }
     }
 }
 
 QString PglDaemon::checkProcessID() {
 
-	QString command = "pidof";
+        QString command = "pidof";
 
-	QProcess ps;
-	ps.start( command, QStringList() << DAEMON );
-	if ( ! ps.waitForStarted() ) {
-		qWarning() << Q_FUNC_INFO << "Could not get process status for pgl.";
-	}
-	ps.closeWriteChannel();
-	ps.waitForFinished();
+        QProcess ps;
+        ps.start( command, QStringList() << DAEMON );
+        if ( ! ps.waitForStarted() ) {
+                qWarning() << Q_FUNC_INFO << "Could not get process status for pgl.";
+        }
+        ps.closeWriteChannel();
+        ps.waitForFinished();
 
     return ps.readAll().trimmed();
 }
@@ -74,40 +74,40 @@ void PglDaemon::updateDaemonState()
 {
     QString pid = checkProcessID();
     bool daemonState = !pid.isEmpty();
-	
+
     if ( pid != m_ProcessID ) {
         m_ProcessID = pid;
         emit processIDChanged( m_ProcessID );
-	}
+        }
 
     if ( daemonState != m_DaemonState ) {
         m_DaemonState = daemonState;
         emit stateChanged( m_DaemonState );
-	}
+        }
 }
 
 void PglDaemon::processDate( QString &date ) {
 
-	static QString prevDate;
-	static QString prevResult;
-	
-	//Calculate the result only one time if the date is the same
-	if ( prevDate == date ) {
-		date = prevResult;
-		return;
-	}
+        static QString prevDate;
+        static QString prevResult;
 
-	prevDate = date;
+        //Calculate the result only one time if the date is the same
+        if ( prevDate == date ) {
+                date = prevResult;
+                return;
+        }
 
-	QString year = date.section("-", 0, 0 );
-	QString month = date.section( "-", 1, 1 );
-	QString day = date.section( "-", 2, 2 );
+        prevDate = date;
 
-	month = ( month.startsWith( "0" )  ?  QString( month[1] )  : month );
-	day = ( day.startsWith( "0" )  ? QString( day[1] ) : day );
+        QString year = date.section("-", 0, 0 );
+        QString month = date.section( "-", 1, 1 );
+        QString day = date.section( "-", 2, 2 );
 
-	date = tr( "%1/%2/%3" ).arg(day).arg(month).arg(year);
-	prevResult = date;
+        month = ( month.startsWith( "0" )  ?  QString( month[1] )  : month );
+        day = ( day.startsWith( "0" )  ? QString( day[1] ) : day );
+
+        date = tr( "%1/%2/%3" ).arg(day).arg(month).arg(year);
+        prevResult = date;
 
 }
 

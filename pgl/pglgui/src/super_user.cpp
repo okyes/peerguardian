@@ -35,7 +35,7 @@ SuperUser::SuperUser( QObject *parent, const QString& rootpath ):
     m_ProcT = new ProcessT(this);
     connect(m_ProcT, SIGNAL(finished(const CommandList&)), this, SLOT(processFinished(const CommandList&)));
     mGetSudoCommand = false;
-    
+
     if (mSudoCmd.isEmpty() && ! mGetSudoCommand) {
         mSudoCmd = rootpath;
         if ( rootpath.isEmpty() )
@@ -43,13 +43,13 @@ SuperUser::SuperUser( QObject *parent, const QString& rootpath ):
     }
 }
 
-SuperUser::~SuperUser() 
+SuperUser::~SuperUser()
 {
     QFile tmpfile(TMP_SCRIPT);
-    
+
     if ( tmpfile.exists() )
         tmpfile.remove();
-    
+
     m_ProcT->wait();
 }
 
@@ -60,21 +60,21 @@ void SuperUser::findGraphicalSudo()
 
     gSudos << KDESUDO << KDESU << GKSUDO << GKSU;
     prefixes << PREFIX1 << PREFIX2;
-    
+
     QDir prefix3 = QDir::home();
     if (prefix3.cd(".local") && prefix3.cd("bin"))
         prefixes << prefix3.absolutePath();
-    
-    for(int i=0; i < prefixes.size(); i++) 
-        for(int j=0; j < gSudos.size(); j++) 
+
+    for(int i=0; i < prefixes.size(); i++)
+        for(int j=0; j < gSudos.size(); j++)
             if (QFile::exists(prefixes[i] + gSudos[j])) {
                 mSudoCmd = prefixes[i] + gSudos[j];
                 return;
             }
-            
-    
+
+
     //if the graphical sudo hasn't been found yet, try the 'which' command as last resource.
-    for(int i=0; i < gSudos.size(); i++) 
+    for(int i=0; i < gSudos.size(); i++)
         gSudos[i].insert(0, "which ");
 
     mGetSudoCommand = true;
@@ -95,7 +95,7 @@ void SuperUser::exec(QString cmd)
         emit error(errorMsg);
         return;
     }
-    
+
     if ( m_ProcT->isRunning() ) {
         qWarning() << "Another process is still running...";
         emit error("Another process is still running...");
@@ -106,7 +106,7 @@ void SuperUser::exec(QString cmd)
     if ( ! hasPermissions("/etc") ) {
         cmd = QString("%1 %2").arg(mSudoCmd).arg(cmd);
     }
-    
+
     qDebug() << "Executing command: \n" << cmd << "\n";
 
     m_ProcT->executeCommand(cmd);
@@ -160,7 +160,7 @@ void SuperUser::processFinished(const CommandList& commands)
 {
     if ( ! m_Commands.isEmpty() )
         m_Commands.clear();
-    
+
     if (mGetSudoCommand && ! commands.isEmpty()) {
         Command command = commands.first();
         if ( command.contains("which") && mSudoCmd.isEmpty() && QFile::exists(command.output())) {

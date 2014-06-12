@@ -28,7 +28,7 @@
 #include <QDialogButtonBox>
 #include <QScrollBar>
 #include <QTimer>
-#include <QPushButton> 
+#include <QPushButton>
 
 ViewerWidget::ViewerWidget(const QString& info, QWidget* parent) :
     QDialog(parent)
@@ -42,7 +42,7 @@ ViewerWidget::ViewerWidget(const QString& info, QWidget* parent) :
     mTextView->setReadOnly(true);
     mTextView->document()->setMaximumBlockCount(5000);
     //connect(mTextView, SIGNAL(cursorPositionChanged ()), this, SLOT(moveScrollBarToBottom()));
-    
+
     connect(mButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
     connect(mFilterEdit, SIGNAL(textEdited(const QString&)), this, SLOT(onFilterTextEdited(const QString&)));
     connect(mFilterEdit, SIGNAL(returnPressed()), this, SLOT(onReturnPressed()));
@@ -50,13 +50,13 @@ ViewerWidget::ViewerWidget(const QString& info, QWidget* parent) :
     vlayout->addWidget(mTextView);
     vlayout->addWidget(mFilterEdit);
     vlayout->addWidget(mButtonBox);
-    
+
     resize(500, 300);
-    
+
     mFilterEdit->setFocus();
-    
+
     QString text = info;
-    
+
     if (QFile::exists(info)) {
         setWindowTitle(info);
         ReadFile *readFile = new ReadFile(info, this);
@@ -67,7 +67,7 @@ ViewerWidget::ViewerWidget(const QString& info, QWidget* parent) :
     else {
         setWindowTitle( windowTitle() + tr(" (File doesn't exist)"));
     }
-    
+
     if (text.isEmpty()) {
         mTextView->setDisabled(true);
         mFilterEdit->setDisabled(true);
@@ -100,15 +100,15 @@ void ViewerWidget::onFilterTextEdited(const QString& text)
     QStringList lines;
     QString txt;
     int index;
-    
+
     if (text.isEmpty())
         return;
-    
+
     if (plainText.contains("\n"))
         lines = plainText.split("\n");
     else if (plainText.contains("<br/>"))
         lines = plainText.split("<br/>");
-    else 
+    else
         lines << plainText;
 
     bool changed = false;
@@ -120,15 +120,15 @@ void ViewerWidget::onFilterTextEdited(const QString& text)
             changed = true;
         }
     }
-    
+
     if (changed) {
         mTextView->setText(lines.join("<br/>"));
         if (mFilterEdit)
             mFilterEdit->setStyleSheet("");
-        
+
         index = plainText.indexOf(text, 0, Qt::CaseInsensitive);
 
-        while(mTextView->textCursor().position() < index) 
+        while(mTextView->textCursor().position() < index)
             mTextView->moveCursor(QTextCursor::Down);
     }
     else{
@@ -146,19 +146,19 @@ void ViewerWidget::onReturnPressed()
     QString mFilterEditText = mFilterEdit->text();
     if (mFilterEditText.isEmpty())
         return;
-        
+
     QString text = mTextView->toPlainText();
     QTextCursor cursor = mTextView->textCursor();
     QStringList lines;
     int from=0, index=0;
-    
+
     from = mTextView->textCursor().position();
     index = text.indexOf(mFilterEditText, from, Qt::CaseInsensitive);
-    
+
     if (index == -1)
         return;
-        
-    while(mTextView->textCursor().position() <= index) 
+
+    while(mTextView->textCursor().position() <= index)
         mTextView->moveCursor(QTextCursor::Down);
 }
 
@@ -173,12 +173,12 @@ void ViewerWidget::onReadFileFinished()
     ReadFile * readFile = qobject_cast<ReadFile*>(sender());
     if (! readFile)
         return;
-    
+
     QString data = readFile->data();
-    
+
     if (data.isEmpty())
         return;
-    
+
     mTextView->setEnabled(true);
     mFilterEdit->setEnabled(true);
     mTextView->setPlainText(readFile->data());

@@ -29,7 +29,7 @@ OptionPrivate::~OptionPrivate()
 }
 
 bool OptionPrivate::operator ==(const OptionPrivate& other)
-{    
+{
     if (this->name == other.name && this->value == other.value && this->enabled == other.enabled && this->removed == other.removed)
         return true;
     return false;

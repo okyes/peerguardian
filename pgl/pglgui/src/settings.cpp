@@ -22,15 +22,15 @@
 #include "super_user.h"
 
 SettingsDialog::SettingsDialog(QSettings *settings, QWidget *parent) :
-	QDialog( parent )
+        QDialog( parent )
 {
-	setupUi( this );
-    
-    
+        setupUi( this );
+
+
     file_SetRootPath( SuperUser::sudoCommand() );
     int val = settings->value("maximum_log_entries").toInt();
     m_MaxLogEntries->setValue(val);
-    
+
     connect( m_RootPathButton, SIGNAL( clicked() ), this, SLOT( file_BrowseRootPath() ) );
 
 }
@@ -38,17 +38,17 @@ SettingsDialog::SettingsDialog(QSettings *settings, QWidget *parent) :
 
 void SettingsDialog::file_BrowseRootPath() {
 
-	QString path = QFileDialog::getOpenFileName( this, tr( "Choose the appropriate file" ), "/usr/bin" );
+        QString path = QFileDialog::getOpenFileName( this, tr( "Choose the appropriate file" ), "/usr/bin" );
 
-	if ( path.isNull() )
-		return;
+        if ( path.isNull() )
+                return;
 
-	m_RootPathEdit->setText( path );
+        m_RootPathEdit->setText( path );
 
 }
-	
+
 
 void SettingsDialog::file_SetDefaults() {
 
-	file_SetRootPath( SuperUser::sudoCommand() );
+        file_SetRootPath( SuperUser::sudoCommand() );
 }

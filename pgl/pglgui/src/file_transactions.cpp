@@ -22,56 +22,56 @@
 
 QStringList getFileData( const QString &path ) {
 
-	QStringList fileContents;
-	QFile file( path );
-	if ( path.isEmpty() ) {
-		qWarning() << Q_FUNC_INFO << "Empty file path given, doing nothing";
-		return fileContents;
-	}
-	else if ( ! file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
-		qWarning() << Q_FUNC_INFO << "Could not read from file" << path;
-		return fileContents;
-	}
-	
-	QTextStream in( &file );
-	while ( ! in.atEnd() ) {
-		QString line = in.readLine();
-		line = line.trimmed();
-		fileContents.push_back(line);
-	}
+        QStringList fileContents;
+        QFile file( path );
+        if ( path.isEmpty() ) {
+                qWarning() << Q_FUNC_INFO << "Empty file path given, doing nothing";
+                return fileContents;
+        }
+        else if ( ! file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
+                qWarning() << Q_FUNC_INFO << "Could not read from file" << path;
+                return fileContents;
+        }
 
-	return fileContents;
+        QTextStream in( &file );
+        while ( ! in.atEnd() ) {
+                QString line = in.readLine();
+                line = line.trimmed();
+                fileContents.push_back(line);
+        }
+
+        return fileContents;
 
 }
 
 bool saveFileData( const QStringList &data, const QString &path ) {
 
-	QFile file( path );
-	if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
-		qWarning() << Q_FUNC_INFO << "Could not write to file" << path;
-		return false;
-	}
-	QTextStream out(&file);
-	for ( QStringList::const_iterator s = data.begin(); s != data.end(); s++ ) {
-		out << *s << "\n";
-	}
-	return true;
+        QFile file( path );
+        if ( !file.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
+                qWarning() << Q_FUNC_INFO << "Could not write to file" << path;
+                return false;
+        }
+        QTextStream out(&file);
+        for ( QStringList::const_iterator s = data.begin(); s != data.end(); s++ ) {
+                out << *s << "\n";
+        }
+        return true;
 }
 
 bool compareFileData( const QString &pathA, const QString &pathB ) {
 
-	QStringList fileA = getFileData( pathA );
-	QStringList fileB = getFileData( pathB );
+        QStringList fileA = getFileData( pathA );
+        QStringList fileB = getFileData( pathB );
 
-	if ( fileA.isEmpty() || fileB.isEmpty() ) {
-		return false;	
-	}
-	
-	if ( fileA == fileB ) {
-		return true;
-	}
+        if ( fileA.isEmpty() || fileB.isEmpty() ) {
+                return false;
+        }
 
-	return false;
+        if ( fileA == fileB ) {
+                return true;
+        }
+
+        return false;
 
 }
 

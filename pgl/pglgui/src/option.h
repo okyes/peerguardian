@@ -35,7 +35,7 @@ class OptionPrivate;
 
 class Option {
 
-	public:
+        public:
         Option(const QString&, const QVariant&, bool active=false);
         Option(const Option&);
         explicit Option();
@@ -65,7 +65,7 @@ protected:
 private:
     OptionPrivate* d_ptr;
     OptionPrivate* d_active_ptr;
-};	
+};
 
 #endif //OPTION_H
 

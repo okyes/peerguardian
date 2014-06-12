@@ -36,7 +36,7 @@ class PglCore;
 
 class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
 
-	Q_OBJECT
+        Q_OBJECT
 
     QList<Port> mPorts;
     QHash<QString, int> mPortsPair;
@@ -48,8 +48,8 @@ class AddExceptionDialog : public QDialog, private Ui::AddExceptionDialog {
     QStringList m_validExtensions;
     QStringList m_blocklists;
     PglCore* mPglCore;
-	
-	public:
+
+        public:
         AddExceptionDialog(QWidget *p = 0, int mode=0);
         AddExceptionDialog(QWidget *p, int mode, PglCore*);
         ~AddExceptionDialog();

@@ -24,8 +24,8 @@
 #include "utils.h"
 
 PglCmd::PglCmd( QObject *parent, const QString &path, const QString& gSudoPath) :
-	SuperUser( parent , gSudoPath)
-{	
+        SuperUser( parent , gSudoPath)
+{
     m_FileName = path;
 }
 
@@ -34,7 +34,7 @@ QString PglCmd::getPath()
     return m_FileName;
 }
 
-void PglCmd::setFilePath( const QString &path, bool verified) 
+void PglCmd::setFilePath( const QString &path, bool verified)
 {
 
     if ( verified )
@@ -44,13 +44,13 @@ void PglCmd::setFilePath( const QString &path, bool verified)
 
     if ( m_FileName.isEmpty() ){
         qCritical() << Q_FUNC_INFO << "File " << m_FileName << " could not be found.";
-		qCritical() << Q_FUNC_INFO << "pglcmd will probably not work";
+                qCritical() << Q_FUNC_INFO << "pglcmd will probably not work";
     }
 }
 
 
 
-void PglCmd::start() 
+void PglCmd::start()
 {
     if (  m_FileName.isEmpty() )
     {
@@ -59,13 +59,13 @@ void PglCmd::start()
     }
 
     SuperUser::executeCommand( QStringList() << m_FileName << "start" );
-	emit actionMessage( tr( "Starting Peerguardian..." ), MESSAGE_TIMEOUT );
+        emit actionMessage( tr( "Starting Peerguardian..." ), MESSAGE_TIMEOUT );
 
 }
 
-void PglCmd::restart() 
+void PglCmd::restart()
 {
-    
+
     if (  m_FileName.isEmpty() )
     {
         qCritical() << Q_FUNC_INFO << "File " << m_FileName << " could not be found.";
@@ -73,12 +73,12 @@ void PglCmd::restart()
     }
 
     SuperUser::executeCommand( QStringList() << m_FileName << "restart" );
-	emit actionMessage( tr( "Restarting Peerguardian..." ), MESSAGE_TIMEOUT );
+        emit actionMessage( tr( "Restarting Peerguardian..." ), MESSAGE_TIMEOUT );
 }
 
 void PglCmd::stop()
 {
-    
+
     if (  m_FileName.isEmpty() )
     {
         qCritical() << Q_FUNC_INFO << "File " << m_FileName << " could not be found.";
@@ -86,13 +86,13 @@ void PglCmd::stop()
     }
 
     SuperUser::executeCommand( QStringList() << m_FileName << "stop" );
-	emit actionMessage( tr( "Stopping Peerguardian..." ), MESSAGE_TIMEOUT );
+        emit actionMessage( tr( "Stopping Peerguardian..." ), MESSAGE_TIMEOUT );
 
 }
 
-void PglCmd::reload() 
+void PglCmd::reload()
 {
-    
+
     if (  m_FileName.isEmpty() )
     {
         qCritical() << Q_FUNC_INFO << "File " << m_FileName << " could not be found.";
@@ -100,13 +100,13 @@ void PglCmd::reload()
     }
 
     SuperUser::executeCommand( QStringList() << m_FileName << "reload" );
-	emit actionMessage( tr( "Reloading Peerguardian..." ), MESSAGE_TIMEOUT );
+        emit actionMessage( tr( "Reloading Peerguardian..." ), MESSAGE_TIMEOUT );
 
 }
 
 void PglCmd::update()
 {
-    
+
     if (  m_FileName.isEmpty() )
     {
         qCritical() << Q_FUNC_INFO << "File " << m_FileName << " could not be found.";
@@ -114,14 +114,14 @@ void PglCmd::update()
     }
 
     SuperUser::executeCommand( QStringList() << m_FileName << "update" );
-	emit actionMessage( tr( "Updating Peerguardian..." ), MESSAGE_TIMEOUT );
+        emit actionMessage( tr( "Updating Peerguardian..." ), MESSAGE_TIMEOUT );
 
 
 }
 
-void PglCmd::status() 
+void PglCmd::status()
 {
-    
+
     if (  m_FileName.isEmpty() )
     {
         qCritical() << Q_FUNC_INFO << "File " << m_FileName << " could not be found.";

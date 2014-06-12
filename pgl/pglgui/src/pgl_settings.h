@@ -49,7 +49,7 @@ class PglSettings
         static QStringList values(const QString&);
         static bool contains(const QString&, const QString&val="");
         static QStringList generatePglcmdConf();
-    
+
 };
 
 

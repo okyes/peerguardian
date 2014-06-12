@@ -49,7 +49,7 @@ class PglCore : QObject {
     QString mBlocklistsFilePath;
     QString mLocalBlocklistsDir;
 
-	public:
+        public:
         PglCore(QSettings* settings, QObject* parent=0);
         virtual ~PglCore();
         Option* option(const QString&);
@@ -65,7 +65,7 @@ class PglCore : QObject {
         QStringList generatePglcmdConf();
         void undo();
         void load();
-};	
+};
 
 #endif //PGL_CORE_H
 

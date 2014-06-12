@@ -31,7 +31,7 @@
 
 class OptionPrivate {
 
-	public:
+        public:
         explicit OptionPrivate();
         virtual ~OptionPrivate();
         bool operator==(const OptionPrivate&);
@@ -41,7 +41,7 @@ public:
     bool enabled;
     QVariant value;
     QString name;
-};	
+};
 
 #endif //OPTION_PRIVATE_H
 

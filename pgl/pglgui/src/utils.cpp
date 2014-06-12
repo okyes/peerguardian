@@ -31,10 +31,10 @@ QString getValidPath(const QString &path, const QString &defaultPath )
     QString new_path;
 
     if ( ! path.isEmpty() && QFile::exists(path) )
-		new_path = path;
-	else if ( QFile::exists(defaultPath) )
-		new_path = defaultPath;
-	else
+                new_path = path;
+        else if ( QFile::exists(defaultPath) )
+                new_path = defaultPath;
+        else
         new_path = "";
 
     return new_path;
@@ -96,22 +96,22 @@ QString getValue(const QString& path, const QString& search)
 }
 
 QString getLineWith(const QString& path, const QString& search)
-{	
+{
     QFile file( path );
     QString line ("");
     QString searchLine("");
-	if ( path.isEmpty() ) {
-		qWarning() << Q_FUNC_INFO << "Empty file path given, doing nothing";
-		return line;
-	}
+        if ( path.isEmpty() ) {
+                qWarning() << Q_FUNC_INFO << "Empty file path given, doing nothing";
+                return line;
+        }
     else if ( ! file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
-		qWarning() << Q_FUNC_INFO << "Could not read from file" << path;
-		return line;
-	}
+                qWarning() << Q_FUNC_INFO << "Could not read from file" << path;
+                return line;
+        }
 
     QTextStream in( &file );
 
-	while ( ! in.atEnd() )
+        while ( ! in.atEnd() )
     {
         line = in.readLine().trimmed();
         if ( line.contains(search) )
@@ -119,7 +119,7 @@ QString getLineWith(const QString& path, const QString& search)
             searchLine = line;
             break;
         }
-	}
+        }
 
     file.close();
     return searchLine;
@@ -127,61 +127,61 @@ QString getLineWith(const QString& path, const QString& search)
 
 bool isValidIp( const QString &text ){
 
-	QString ip = text.trimmed();
+        QString ip = text.trimmed();
 
-	if ( ip.isEmpty() ) {
-		return false;
-	}
-	else {
-		//Split the string into two sections
-		//For example the string 127.0.0.1/24 will be split into two strings:
-		//mainIP = "127.0.0.1"
-		//range = "24"
-		QVector< QString > ipSections = QVector< QString >::fromList( ip.split( "/" ) );
-		if ( ipSections.size() < 1 || ipSections.size() > 2 ) {
-			return false;
-		}
-		QString mainIp = ipSections[0];
-		QString range = ( ipSections.size() == 2 ) ? ipSections[1] : QString();
-		//Split the IP address
-		//E.g. split 127.0.0.1 to "127", "0", "0", "1"
-		QVector< QString > ipParts = QVector<QString>::fromList( mainIp.split( "." ) );
-		//If size != 4 then it's not an IP
-		if ( ipParts.size() != 4 ) {
-			return false;
-		}
-		
-		for ( int i = 0; i < ipParts.size(); i++ ) {
-			if ( ipParts[i].isEmpty() ) {
-				return false;
-			}
-			//Check that every part of the IP is a positive  integers less or equal to 255
-			if ( QVariant( ipParts[i] ).toInt() > 255 || QVariant( ipParts[i] ).toInt() < 0 ) {
-				return false;
-			}
-			for ( int j = 0; j < ipParts[i].length(); j++ ) {
-				if ( !ipParts[i][j].isNumber() ) {
-					return false;
-				}
-			}
-		}
-		//Check if the range is a valid subnet mask
-		if ( !isValidIp( range ) ) {
-			//Check that the range is a positive integer less or equal to 24
-			if ( QVariant( range ).toInt() <= 24 && QVariant( range ).toInt() >= 0 ) {
-				for ( int i = 0; i < range.length(); i++ ) {
-					if ( !range[i].isNumber() ) {
-						return false;
-					}
-			}
-		}
-			else {
-				return false;
-			}
-		}
-	}
-		
-	return true;
+        if ( ip.isEmpty() ) {
+                return false;
+        }
+        else {
+                //Split the string into two sections
+                //For example the string 127.0.0.1/24 will be split into two strings:
+                //mainIP = "127.0.0.1"
+                //range = "24"
+                QVector< QString > ipSections = QVector< QString >::fromList( ip.split( "/" ) );
+                if ( ipSections.size() < 1 || ipSections.size() > 2 ) {
+                        return false;
+                }
+                QString mainIp = ipSections[0];
+                QString range = ( ipSections.size() == 2 ) ? ipSections[1] : QString();
+                //Split the IP address
+                //E.g. split 127.0.0.1 to "127", "0", "0", "1"
+                QVector< QString > ipParts = QVector<QString>::fromList( mainIp.split( "." ) );
+                //If size != 4 then it's not an IP
+                if ( ipParts.size() != 4 ) {
+                        return false;
+                }
+
+                for ( int i = 0; i < ipParts.size(); i++ ) {
+                        if ( ipParts[i].isEmpty() ) {
+                                return false;
+                        }
+                        //Check that every part of the IP is a positive  integers less or equal to 255
+                        if ( QVariant( ipParts[i] ).toInt() > 255 || QVariant( ipParts[i] ).toInt() < 0 ) {
+                                return false;
+                        }
+                        for ( int j = 0; j < ipParts[i].length(); j++ ) {
+                                if ( !ipParts[i][j].isNumber() ) {
+                                        return false;
+                                }
+                        }
+                }
+                //Check if the range is a valid subnet mask
+                if ( !isValidIp( range ) ) {
+                        //Check that the range is a positive integer less or equal to 24
+                        if ( QVariant( range ).toInt() <= 24 && QVariant( range ).toInt() >= 0 ) {
+                                for ( int i = 0; i < range.length(); i++ ) {
+                                        if ( !range[i].isNumber() ) {
+                                                return false;
+                                        }
+                        }
+                }
+                        else {
+                                return false;
+                        }
+                }
+        }
+
+        return true;
 
 }
 
@@ -238,9 +238,9 @@ QString getNewFileName(QString dir, const QString name)
 bool hasPermissions(const QString & filepath)
 {
     if ( filepath.isEmpty() ) {
-		qWarning() << Q_FUNC_INFO << "Empty file path given, doing nothing";
-		return false;
-	}
+                qWarning() << Q_FUNC_INFO << "Empty file path given, doing nothing";
+                return false;
+        }
 
     QFileInfo fileInfo (filepath);
     QFile file;
@@ -250,8 +250,8 @@ bool hasPermissions(const QString & filepath)
         file.setFileName(fileInfo.filePath() + "/test_file");
 
     if ( ! file.open( QIODevice::ReadWrite | QIODevice::Text ) ) {
-		return false;
-	}
+                return false;
+        }
 
     file.close();
 
@@ -331,13 +331,13 @@ void replaceValueInFile(const QString& path, const QString & variable, const QSt
     QString line("");
 
     if ( path.isEmpty() ) {
-		qWarning() << Q_FUNC_INFO << "Empty file path given, doing nothing";
-		return;
-	}
+                qWarning() << Q_FUNC_INFO << "Empty file path given, doing nothing";
+                return;
+        }
     else if ( ! file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
-		qWarning() << Q_FUNC_INFO << "Could not read from file" << path;
-		return;
-	}
+                qWarning() << Q_FUNC_INFO << "Could not read from file" << path;
+                return;
+        }
 
     QTextStream in( &file );
     QFileInfo fileInfo( path );
@@ -353,7 +353,7 @@ void replaceValueInFile(const QString& path, const QString & variable, const QSt
         }
         else
             newData << line;
-	}
+        }
 
     if ( ! found )
         newData << variable + QString("=\"") + value + QString('"');
@@ -380,13 +380,13 @@ bool hasValueInData(const QString& value, const QStringList& data)
 
 int confirm(QString title, QString msg, QWidget *parent)
 {
-       int confirm = QMessageBox::warning( 
-        parent, 
+       int confirm = QMessageBox::warning(
+        parent,
         title,
-	msg,
-	QMessageBox::Yes, QMessageBox::No
+        msg,
+        QMessageBox::Yes, QMessageBox::No
         );
-       
+
        return confirm;
 }
 

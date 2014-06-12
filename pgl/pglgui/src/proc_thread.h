@@ -42,66 +42,66 @@
 *
 */
 
-class ProcessT : public QThread 
+class ProcessT : public QThread
 {
 
-	Q_OBJECT
+        Q_OBJECT
 
-	public:
-		/**
-		 * Constructor. Creats a new ProcessT object.
-		 * @param parent The QObject parent of this object.
-		 */
-		ProcessT( QObject *parent = 0 );
+        public:
+                /**
+                 * Constructor. Creats a new ProcessT object.
+                 * @param parent The QObject parent of this object.
+                 */
+                ProcessT( QObject *parent = 0 );
         ProcessT(ProcessT const& other);
-		/**
-		 * Destructor.
-		 */
-		virtual ~ProcessT();
-		/**
-		 * Reimplementation of QThread::run().
-		 * Executes the command which was set using setCommand().
-		 * If no command was set, this function does nothing.
-		 */
-		void run();
-		/**
-		 * Set the given command to be executed when run() is called.
-		 * @param name The name of the program.
-		 * @param args The command line arguments.
-		 * @param mode The process channel modes of the command which will be executed.
-		 */
-		void setCommand( const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels );
+                /**
+                 * Destructor.
+                 */
+                virtual ~ProcessT();
+                /**
+                 * Reimplementation of QThread::run().
+                 * Executes the command which was set using setCommand().
+                 * If no command was set, this function does nothing.
+                 */
+                void run();
+                /**
+                 * Set the given command to be executed when run() is called.
+                 * @param name The name of the program.
+                 * @param args The command line arguments.
+                 * @param mode The process channel modes of the command which will be executed.
+                 */
+                void setCommand( const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels );
 
 
         void operator=(const ProcessT& p){ *this = p;}
-        
-        
+
+
         void executeCommands(const QStringList& commands , const QProcess::ProcessChannelMode &mode=QProcess::SeparateChannels, bool startNow=true);
         void execute(const QStringList& command, const QProcess::ProcessChannelMode &mode );
-        
+
         //for backwards compatibility with the old Mobloquer code
         void execute( const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels );
         bool allFinished() { return mCommandsToExecute.isEmpty() && (! this->isRunning()); }
-            
-	signals:
-		/**
-		 * Emitted when a command has finished running.
-		 * @param output The output of the command which was executed.
-		 */
-		void commandOutput(const QString&);
+
+        signals:
+                /**
+                 * Emitted when a command has finished running.
+                 * @param output The output of the command which was executed.
+                 */
+                void commandOutput(const QString&);
         void finished(const CommandList&);
         void newCommand();
-		
-	private:
+
+        private:
         QHash<QString, QString> commandToOutput;
         QList<Command> mCommands;
-		QString m_Command;
+                QString m_Command;
         QStringList mCommandsToExecute;
         QStringList m_ExecutedCommands;
         QStringList m_Args;
         QProcess::ProcessChannelMode m_ChanMode;
         QString m_Output;
-        
+
     public slots:
         void executeCommand(const QString& command="", const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels, bool startNow = true);
 
