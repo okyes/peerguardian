@@ -1,4 +1,4 @@
-pgl (2.2.4+git-1) unstable; urgency=low
+pgl (2.2.4+git-1) unstable; urgency=medium
 
   * preparing new release
   * control: updated Vcs-Git field
@@ -8,7 +8,6 @@ pgl (2.2.4+git-1) unstable; urgency=low
   * dropped old transition code
 
  -- jre <jre-phoenix@users.sourceforge.net>  Wed, 29 Jan 2014 16:40:30 +0100
-
 
 pgl (2.2.4-1) unstable; urgency=low
 
