@@ -11,8 +11,6 @@ Build-Depends: po-debconf,
                libpolkit-qt-1-dev,
                libqt4-dev,
                zlib1g-dev,
-               autoconf (>= 2.68~),
-               dh-autoreconf,
                debhelper (>= 7.0.50~)
 Build-Conflicts: autoconf2.13, automake1.4
 Standards-Version: 3.9.5
