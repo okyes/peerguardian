@@ -1,6 +1,6 @@
-usr/lib/*/pgl/pglcmd.defaults
-usr/lib/*/pgl/pglcmd.lib
-usr/lib/*/pgl/pglcmd.main
+usr/lib/pgl/pglcmd.defaults
+usr/lib/pgl/pglcmd.lib
+usr/lib/pgl/pglcmd.main
 usr/sbin/pglcmd.wd
 usr/bin/pglcmd
 etc/pgl/pglcmd.conf
