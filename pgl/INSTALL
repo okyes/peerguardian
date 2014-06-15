@@ -192,7 +192,8 @@ To uninstall issue the following command:
 Build dependencies:
 - autotools (autoconf, automake, libtoolize)
 - nfnetlink development files
-- libnetfilter-queue development files
+- libnetfilter-queue development files (>= 1.0, or use the git pgl_backport
+  branch if you have a lower version)
 - libdbus development files (optional, required for the GUI)
 - Qt4 development files including Qt4 dbus (optional, required for the GUI)
 - zlib development files (optional, for loading gz compressed blocklists

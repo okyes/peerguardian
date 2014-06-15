@@ -6,7 +6,7 @@ Uploaders: jre <jre-phoenix@users.sourceforge.net>
 Bugs: mailto:peerguardian-devel@lists.sourceforge.net
 Build-Depends: po-debconf,
                libdbus-1-dev,
-               libnetfilter-queue-dev,
+               libnetfilter-queue-dev (>= 1.0~),
                libnfnetlink-dev,
                libpolkit-qt-1-dev,
                libqt4-dev,

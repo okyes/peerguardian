@@ -30,7 +30,9 @@ pgl 2.2.4+git
     NFQUEUE_MAXLEN to trigger pgld -Q option
 
   [cader]
-  * Update nfq_set_verdict_mark calls to nfq_set_verdict2
+  * Update nfq_set_verdict_mark calls to nfq_set_verdict2, requires
+    libnetfilter-queue >= 1.0. A version without this commit is maintained
+    in the git branch pgl_backport.
   * Change declaration of "payload" to match what NFQ expects
   * pgld: added option -Q to set kernel queue maximum length. See
     http://sourceforge.net/p/peerguardian/discussion/446997/thread/0df72ba6/
