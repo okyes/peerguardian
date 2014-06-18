@@ -1529,6 +1529,8 @@ do_start () {
                 fi
 
             # xt_iprange
+            # If module is missing only error out if it is really needed (= allow file with IP ranges exists),
+            # else just warn about missing module.
             [ -f /proc/net/ip_tables_matches ] && grep -q iprange /proc/net/ip_tables_matches ||
                 modprobe -q xt_iprange ||
                 modprobe -q ipt_iprange ||
@@ -1560,7 +1562,6 @@ do_start () {
                     fi
                 done
                 log_warning_msg "Warning: Could not load kernel module xt_iprange, continuing anyway."
-
                 }
 
             # Execute old REMOVE_SCRIPT if it still exists for any reason, because we may run into troubles
