@@ -519,9 +519,7 @@ static int nfqueue_bind() {
     if ( queue_length > 0) {
         if (nfq_set_queue_maxlen(nfqueue_qh, queue_length) < 0) {
             do_log(LOG_ERR, "ERROR: Can't set queue max length: %s", strerror(errno));
-//         nfq_destroy_queue(nfqueue_qh);
-//         nfq_close(nfqueue_h);
-//         return -1;
+            do_log(LOG_INFO, "INFO: Continuing anyway with default queue max length.");
         } else {
             do_log(LOG_INFO, "INFO: Set netfilter queue length to %u packets", queue_length);
         }
@@ -733,26 +731,4 @@ int main(int argc, char *argv[]) {
     }
 
     nfqueue_loop();
-/*
-    // Is the following code necessary at all now that we always daemonize. I
-    // think the only way to leave nfqueue_loop is SIGINT.
-    do_log(LOG_INFO, "DEBUG: this code really gets executed!");
-
-    blocklist_stats(0);
-#ifdef HAVE_DBUS
-    if (use_dbus)
-        close_dbus();
-#endif
-    blocklist_clear(0);
-    free(blocklist_filenames);
-    free(blocklist_charsets);
-    // close syslog
-    if (use_syslog) {
-        closelog();
-    }
-    if (pidfile) {
-        fclose(pidfile);
-        unlink(pidfile_name);
-    }
-    return 0;*/
 }
