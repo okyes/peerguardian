@@ -16,3 +16,4 @@ TimeoutStartSec=0
 
 [Install]
 WantedBy=multi-user.target
+Also=pgl-update.timer

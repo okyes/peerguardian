@@ -18,7 +18,7 @@ Authors:
     hasufell <julian.ospald@googlemail.com>, added autotools support.
 
 Contributors:
-    Pierre Buard (Gilrain): AUR maintainer, contributed systemd file.
+    Pierre Buard (Gilrain): AUR maintainer, contributed systemd files.
     godmachine81: slackware packager.
     Santiago M. Mola: nfblock build fixes and cleanups.
     uljanow <uljanow@users.sourceforge.net>: author of iplist

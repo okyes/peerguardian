@@ -50,7 +50,10 @@ pgllib_DATA = \
 
 if HAVE_SYSTEMD
 systemdsystemunit_DATA = \
-	init/pgl.service
+	init/pgl.service \
+	init/pgl-update.service \
+	init/pgl-update.timer
+
 systemdsystemunitdir = @SYSTEMDUNITDIR@
 endif
 
@@ -118,6 +121,12 @@ init/pgl.service:
 	-e 's|@PID_DIR@|$(PIDDIR)|g' \
 	< init/pgl.service.in > init/pgl.service
 
+init/pgl-update.service:
+	sed \
+	-e 's|@data_root_dir@|$(datarootdir)|g' \
+	-e 's|@BIN_DIR@|$(bindir)|g' \
+	< init/pgl-update.service.in > init/pgl-update.service
+
 networkmanager/20pglcmd:
 	$(do_subst) < networkmanager/20pglcmd.in > networkmanager/20pglcmd
 	chmod +x networkmanager/20pglcmd
@@ -135,6 +144,8 @@ EXTRA_DIST = \
 	init/pgl.in \
 	init/pgl.gentoo.in \
 	init/pgl.service.in \
+	init/pgl-update.service.in \
+	init/pgl-update.timer \
 	networkmanager/20pglcmd.in \
 	pglcmd.lib
 
@@ -148,4 +159,6 @@ CLEANFILES = \
 	cron.daily/pglcmd \
 	init/pgl \
 	init/pgl.service \
+	init/pgl-update.service \
+	init/pgl-update.timer \
 	networkmanager/20pglcmd

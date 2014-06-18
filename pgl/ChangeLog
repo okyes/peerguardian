@@ -28,6 +28,9 @@ pgl 2.2.4+git
     Closes: https://sourceforge.net/p/peerguardian/bugs/328/
   * pglcmd: Set kernel queue maximum length with pglcmd variable
     NFQUEUE_MAXLEN to trigger pgld -Q option
+  * systemd/cron: added systemd service for blocklists update by Pierre Buard
+    (Gilrain). Closes: https://sourceforge.net/p/peerguardian/patches/3/
+    This only gets installed if pgl is compiled with --with-systemd.
 
   [cader]
   * Update nfq_set_verdict_mark calls to nfq_set_verdict2, requires
