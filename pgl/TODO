@@ -28,9 +28,6 @@ pgld:
 
 pglcmd:
 
-  - systemd: Update has no placeholder and needs to go in a dedicated file.
-    This, in turn, would allow the creation of a timer service to update the
-    blocklists at regular intervals.
 
   - (Sometime in the future) use "wget --content-disposition" to download
     http://www.example.com/download.cgi?file=foobar.txt as foobar.txt instead
@@ -132,6 +129,8 @@ pglgui:
 
     dbus may also be used instead of the systemctl commands above. So that's
     (at least in the long run) the solution to go for.
+
+    Do the same for pglcmd update (pgl-update.service).
 
   FIX:
 
