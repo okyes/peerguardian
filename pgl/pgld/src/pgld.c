@@ -548,8 +548,8 @@ static void nfqueue_loop () {
     if ( err == ENOBUFS ) {
         do_log(LOG_ERR, "ERROR: ENOBUFS error on queue '%hu'. Use pgld -Q option or set in pglcmd.conf NFQUEUE_MAXLEN to increase buffers, recv returned %s", queue_num, strerror(err));
         /* close and return, nfq_destroy_queue() won't work as we've no buffers */
-//         nfq_close(nfqueue_h);
-//         exit(1);
+        nfq_close(nfqueue_h);
+        exit(1);
     } else {
         do_log(LOG_ERR, "ERROR: Error on queue '%hu', recv returned %s", queue_num, strerror(err));
         nfqueue_unbind();
