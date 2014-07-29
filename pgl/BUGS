@@ -2,6 +2,20 @@ BUGS of pgl:
 
 Minor bugs may be listed in docs/TODO.
 
+- pgld crashes with ENOBUFS recv error under heavy load on slow machines,
+  especially after updating the blocklists.
+  There are some workarounds to prevent this, or at least reduce the frequency
+  of these crashes. Use a combination of them:
+  1. Increase buffers:
+     Set NFQUEUE_MAXLEN to a higher value, e.g. 4096 or 8192
+  2. Increase pgld's priority:
+     Set the variable NICE to a lower value, e.g. -10 (max. -20)
+  3. Increase the default receive/send window:
+     Add this to your system's config (you may use /etc/pgl/insert.sh
+     if you don't know a better file)
+       sysctl -w net.core.rmem_default=8388608
+       sysctl -w net.core.wmem_default=8388608
+
 - pglgui shows the number of IPs and IP ranges that it is blocking. Due to the
   technical implementation this number keeps unchanged if you whitelist IPs,
   although you should think that it gets smaller. So this is just a "visibility"

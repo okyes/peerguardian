@@ -24,7 +24,10 @@ pgld:
   - probably integrate listtools (libp2p/mergep2p) from
     peerguardian.sourceforge.com ported by David Walluck
 
+  - check if --queue-balance option in NFQUEUE target for multi-threaded apps 
+    (requires Linux kernel >= 2.6.31) helps to prevent ENOBUFS recv errors.
 
+  - prevent pgld from crashing on ENOBUFS recv errors.
 
 pglcmd:
 
@@ -74,17 +77,6 @@ pglcmd:
   - add pidfiles for update and start/reload
     (prevent 2 starts at nearly the same time, but still allow a simultaneous
     start and update)
-
-  - Send traffic to several NFQUEUE nums with --queue-balance and run multiple
-    pgld instances for these nums. This might help on heavy load.
-    --
-    Alternatively increasing the default receive/send window seems to fix the
-    problem. Add this to your system's config (you may use /etc/pgl/insert.sh
-    if you don't know a better file)
-        sysctl -w net.core.rmem_default=8388608
-        sysctl -w net.core.wmem_default=8388608
-    --
-    peerguardian-devel@lists.sourceforge.net by dogg@retroject.net - 2010-04-20
 
   - on "stop" remove kernel modules that were inserted by pglcmd. (see dino's
     synology packaging http://forums.phoenixlabs.org/showpost.php?p=128371&postc
