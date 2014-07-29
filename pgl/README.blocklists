@@ -1,6 +1,8 @@
 README.blocklists              Mon Jan  5 02:07:24 CET 2009
 
+
 ============================================================
+
 
 Table of contents:
 
@@ -13,7 +15,9 @@ Lists from IBlocklist.com
 Lists from peerguardian.sourceforge.net
 Local (custom) blocklists
 
+
 ============================================================
+
 
 Introduction:
 
@@ -30,7 +34,9 @@ are by the blocklist authors, not me.
 Only use the blocklists that you need. More is not always better! You may also
 use "pglcmd search PATTERN" to examine the single blocklists.
 
+
 ============================================================
+
 
 Note about different blocklist formats:
 
@@ -60,7 +66,9 @@ peerguardian .p2p text format, but without the description:
 1.0.0.0-1.255.255.255
 8.0.0.0-8.255.255.255
 
+
 ============================================================
+
 
 Lists from The Blocklist Group (TBG)
 
@@ -225,6 +233,7 @@ filter which blocks business ISPs, which we all feel is very important to do. We
 expect that many more people will be willing to use a filter which blocks hard
 in that area if it excludes the blocking of students, such as Bluetack's
 Paranoid filter does.
+
 
 ============================================================
 
@@ -399,7 +408,9 @@ http://www.bluetack.co.uk/config/pipfilter.dat.gz
 
 These lists are no more provided since December 2008.
 
+
 ============================================================
+
 
 Lists from nexus23.org
 
@@ -417,6 +428,7 @@ overbloated ipfilter.
 
 ============================================================
 
+
 Lists from IBlocklist.com
 
 I-Blocklist is a site dedicated to the creation and distribution of quality IP
@@ -431,8 +443,8 @@ both at the same time!
 
 Some iblocklist update URLs are mapped from a 20 character random list name to
 human readable URLs in the format http://list.iblocklist.com/lists/LISTPROVIDER/
-LISTNAME. These mappings are also hardcoded in pglcmd for e.g. the naming of the
-/var/spool/pgl/LISTNAME folders.
+LISTNAME. These mappings are resolved in pglcmd with http://www.iblocklist.com/
+lists.xml.
 
 
 ============================================================
@@ -451,9 +463,8 @@ cause unnecessary traffic.
 
 Local (custom) blocklists:
 
-Put a line starting with "locallist" and the pathname of your local blocklist
-to /etc/pgl/blocklists.list.
-Of course your local blocklist has to be in the same format as your other
-blocklists and the corresponding option has to be given in pglcmd.conf.
+Put a file or link to a file in LOCAL_BLOCKLIST_DIR (per default
+/etc/pgl/blocklists.local/).
+
 
 ============================================================

@@ -29,6 +29,10 @@ pgld:
 
   - prevent pgld from crashing on ENOBUFS recv errors.
 
+
+===========================================================================
+
+
 pglcmd:
 
 
@@ -92,10 +96,8 @@ pglcmd:
 
   - [DISCUSS] Block IPv6 completely because currently only IPv4 is checked?
 
+
 ===========================================================================
-
-
-
 
 
 pglgui:
@@ -182,6 +184,8 @@ pglgui:
 
   - allow to configure every or at least some more pglcmd variables, e.g. IP_REMOVE
 
+
+===========================================================================
 
 
 All components:

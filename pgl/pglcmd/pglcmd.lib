@@ -1757,7 +1757,6 @@ set_LISTS_URL () {
 # This function depends on LIST:
 LIST_URL2LIST_NAME () {
     # Set LIST_URL depending on LIST
-    # If you change this function also adapt the function LIST_NAME2LIST_URL in debian/postinst!
     # Since IFS now is standard IFS, separate words (not the complete lines from
     # blocklists.list) are used for LIST.
     # Assuming remote blocklists (supported through wget) for all blocklists in blocklists.list:
