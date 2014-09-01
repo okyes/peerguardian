@@ -6,6 +6,8 @@ pgl (2.2.4+git-1) unstable; urgency=medium
   * dropped support for Debian Squeeze (oldstable), Ubuntu Quantal (12.10)
     and Ubuntu Raring (13.10), added Ubuntu Utopic (14.10)
   * dropped old transition code
+  * link other package's docs' directory to pgld's instead of linking
+    single files
 
  -- jre <jre-phoenix@users.sourceforge.net>  Wed, 29 Jan 2014 16:40:30 +0100
 

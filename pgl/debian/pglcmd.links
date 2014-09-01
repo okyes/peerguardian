@@ -1,11 +1,2 @@
-usr/share/doc/pgld/AUTHORS usr/share/doc/pglcmd/AUTHORS
-usr/share/doc/pgld/BUGS usr/share/doc/pglcmd/BUGS
-usr/share/doc/pgld/NEWS.gz usr/share/doc/pglcmd/NEWS.gz
-usr/share/doc/pgld/README.blocklists.gz usr/share/doc/pglcmd/README.blocklists.gz
-usr/share/doc/pgld/README.dbus usr/share/doc/pglcmd/README.dbus
-usr/share/doc/pgld/README.Debian usr/share/doc/pglcmd/README.Debian
-usr/share/doc/pgld/README.gz usr/share/doc/pglcmd/README.gz
-usr/share/doc/pgld/THANKS usr/share/doc/pglcmd/THANKS
-usr/share/doc/pgld/TODO.gz usr/share/doc/pglcmd/TODO.gz
 usr/share/man/man1/pgld.1.gz usr/share/man/man1/pglcmd.1.gz
 usr/share/man/man1/pgld.1.gz usr/share/man/man1/pglcmd.wd.1.gz
