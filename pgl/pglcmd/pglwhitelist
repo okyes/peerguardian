@@ -151,9 +151,10 @@ COMMAND="$COMMAND &&"
 
 done
 
-#COMMAND="$COMMAND mv /tmp/pglcmd.conf /etc/pgl/pglcmd.conf"
-echo $COMMAND
-COMMAND="$COMMAND echo test"
+# Move the newly generated pglcmd.conf
+# TODO: generate pglcmd.conf in this file
+COMMAND="$COMMAND mv /tmp/pglcmd.conf /etc/pgl/pglcmd.conf"
+
 # And finally execute all commands
 eval $COMMAND
 exit $?
