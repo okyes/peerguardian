@@ -1,0 +1,159 @@
+#!/bin/sh
+# pglWhitelist - whitelisting helper script
+#
+# Copyright (C) 2014 jre <jre-phoenix@users.sourceforge.net>
+#
+# pgl is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# pgl is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+# This script is a helper script for pglgui.
+# Although it may also be called from command line, it will only be useful with
+# the default setup of pgl.
+# It uses all iptables chains (INPUT, OUTPUT and FORWARD), uses RETURN as
+# whitelisting target and assumes pgl's chains to have the default names.
+
+set -e
+
+for OPTION in $@ ; do
+case $OPTION in
+ADD_TCP_IN=*)
+    PORT="$(echo $OPTION | sed s"|ADD_TCP_IN=||")"
+    COMMAND="$COMMAND iptables -L pgl_in -n | grep -qx 'RETURN *tcp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' || \
+                      iptables -I pgl_in -p tcp --dport $PORT -j RETURN ; }"
+    ;;
+ADD_TCP_OUT=*)
+    PORT="$(echo $OPTION | sed s"|ADD_TCP_OUT=||")"
+    COMMAND="$COMMAND { iptables -L pgl_out -n | grep -qx 'RETURN *tcp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' || \
+                      iptables -I pgl_out -p tcp --dport $PORT -j RETURN ; }"
+    ;;
+ADD_TCP_FWD=*)
+    PORT="$(echo $OPTION | sed s"|ADD_TCP_FWD=||")"
+    COMMAND="$COMMAND { iptables -L pgl_fwd -n | grep -qx 'RETURN *tcp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' || \
+                      iptables -I pgl_fwd -p tcp --dport $PORT -j RETURN ; }"
+    ;;
+ADD_UDP_IN=*)
+    PORT="$(echo $OPTION | sed s"|ADD_UDP_IN=||")"
+    COMMAND="$COMMAND { iptables -L pgl_in -n | grep -qx 'RETURN *udp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' || \
+                      iptables -I pgl_in -p udp --dport $PORT -j RETURN ; }"
+    ;;
+ADD_UDP_OUT=*)
+    PORT="$(echo $OPTION | sed s"|ADD_UDP_OUT=||")"
+    COMMAND="$COMMAND { iptables -L pgl_out -n | grep -qx 'RETURN *udp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' || \
+                      iptables -I pgl_out -p udp --dport $PORT -j RETURN ; }"
+    ;;
+ADD_UDP_FWD=*)
+    PORT="$(echo $OPTION | sed s"|ADD_UDP_FWD=||")"
+    COMMAND="$COMMAND { iptables -L pgl_fwd -n | grep -qx 'RETURN *udp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' || \
+                      iptables -I pgl_fwd -p udp --dport $PORT -j RETURN ; }"
+    ;;
+ADD_IP_IN=*)
+    IP="$(echo $OPTION | sed s"|ADD_IP_IN=||")"
+    COMMAND="$COMMAND { iptables -L pgl_in -n | grep -qx 'RETURN *all *-- *$IP *0.0.0.0/0 *' || \
+                      iptables -I pgl_in --source $IP -j RETURN ; }"
+    ;;
+ADD_IP_OUT=*)
+    IP="$(echo $OPTION | sed s"|ADD_IP_OUT=||")"
+    COMMAND="$COMMAND { iptables -L pgl_out -n | grep -qx 'RETURN *all *-- *0.0.0.0/0 *$IP *' || \
+                      iptables -I pgl_out --destination $IP -j RETURN ; }"
+    ;;
+ADD_IP_FWD=*)
+    IP="$(echo $OPTION | sed s"|ADD_IP_FWD=||")"
+    COMMAND="$COMMAND { iptables -L pgl_fwd -n | grep -qx 'RETURN *all *-- *$IP *0.0.0.0/0 *' || \
+                      iptables -I pgl_fwd --source $IP -j RETURN && \
+                      iptables -L pgl_fwd -n | grep -qx 'RETURN *all *-- *0.0.0.0/0 *$IP *' || \
+                      iptables -I pgl_fwd --destination $IP -j RETURN ; }"
+    ;;
+REMOVE_TCP_IN=*)
+    PORT="$(echo $OPTION | sed s"|REMOVE_TCP_IN=||")"
+    COMMAND="$COMMAND { iptables -L pgl_in -n | grep -qx 'RETURN *tcp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' && \
+                      iptables -D pgl_in -p tcp --dport $PORT -j RETURN ; }"
+    ;;
+REMOVE_TCP_OUT=*)
+    PORT="$(echo $OPTION | sed s"|REMOVE_TCP_OUT=||")"
+    COMMAND="$COMMAND { iptables -L pgl_out -n | grep -qx 'RETURN *tcp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' && \
+                      iptables -D pgl_out -p tcp --dport $PORT -j RETURN ; }"
+    ;;
+REMOVE_TCP_FWD=*)
+    PORT="$(echo $OPTION | sed s"|REMOVE_TCP_FWD=||")"
+    COMMAND="$COMMAND { iptables -L pgl_fwd -n | grep -qx 'RETURN *tcp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' && \
+                      iptables -D pgl_fwd -p tcp --dport $PORT -j RETURN ; }"
+    ;;
+REMOVE_UDP_IN=*)
+    PORT="$(echo $OPTION | sed s"|REMOVE_UDP_IN=||")"
+    COMMAND="$COMMAND { iptables -L pgl_in -n | grep -qx 'RETURN *udp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' && \
+                      iptables -D pgl_in -p udp --dport $PORT -j RETURN ; }"
+    ;;
+REMOVE_UDP_OUT=*)
+    PORT="$(echo $OPTION | sed s"|REMOVE_UDP_OUT=||")"
+    COMMAND="$COMMAND { iptables -L pgl_out -n | grep -qx 'RETURN *udp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' && \
+                      iptables -D pgl_out -p udp --dport $PORT -j RETURN ; }"
+    ;;
+REMOVE_UDP_FWD=*)
+    PORT="$(echo $OPTION | sed s"|REMOVE_UDP_FWD=||")"
+    COMMAND="$COMMAND { iptables -L pgl_fwd -n | grep -qx 'RETURN *udp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' && \
+                      iptables -D pgl_fwd -p udp --dport $PORT -j RETURN ; }"
+    ;;
+REMOVE_IP_IN=*)
+    IP="$(echo $OPTION | sed s"|REMOVE_IP_IN=||")"
+    COMMAND="$COMMAND { iptables -L pgl_in -n | grep -qx 'RETURN *all *-- *$IP *0.0.0.0/0 *' && \
+                      iptables -D pgl_in --source $IP -j RETURN ; }"
+    ;;
+REMOVE_IP_OUT=*)
+    IP="$(echo $OPTION | sed s"|REMOVE_IP_OUT=||")"
+    COMMAND="$COMMAND { iptables -L pgl_out -n | grep -qx 'RETURN *all *-- *0.0.0.0/0 *$IP *' && \
+                      iptables -D pgl_out --destination $IP -j RETURN ; }"
+    ;;
+REMOVE_IP_FWD=*)
+    IP="$(echo $OPTION | sed s"|REMOVE_IP_FWD=||")"
+    COMMAND="$COMMAND { iptables -L pgl_fwd -n | grep -qx 'RETURN *all *-- *$IP *0.0.0.0/0 *' && \
+                      iptables -D pgl_fwd --source $IP -j RETURN ; } && \
+                      { iptables -L pgl_fwd -n | grep -qx 'RETURN *all *-- *0.0.0.0/0 *$IP *' && \
+                      iptables -D pgl_fwd --destination $IP -j RETURN ; }"
+    ;;
+*)
+    echo "Usage: $0 option1 [option2 ...]"
+    echo "Options (port and ip are your chosen values):"
+    echo "  ADD_TCP_IN=port"
+    echo "  ADD_TCP_OUT=port"
+    echo "  ADD_TCP_FWD=port"
+    echo "  ADD_UDP_IN=port"
+    echo "  ADD_UDP_OUT=port"
+    echo "  ADD_UDP_FWD=port"
+    echo "  ADD_IP_IN=ip"
+    echo "  ADD_IP_OUT=ip"
+    echo "  ADD_IP_FWD=ip"
+    echo "  REMOVE_TCP_IN=port"
+    echo "  REMOVE_TCP_OUT=port"
+    echo "  REMOVE_TCP_FWD=port"
+    echo "  REMOVE_UDP_IN=port"
+    echo "  REMOVE_UDP_OUT=port"
+    echo "  REMOVE_UDP_FWD=port"
+    echo "  REMOVE_IP_IN=ip"
+    echo "  REMOVE_IP_OUT=ip"
+    echo "  REMOVE_IP_FWD=ip"
+    exit 1
+    ;;
+esac
+
+# This connects every new COMMAND instance with &&
+COMMAND="$COMMAND &&"
+
+done
+
+#COMMAND="$COMMAND mv /tmp/pglcmd.conf /etc/pgl/pglcmd.conf"
+echo $COMMAND
+COMMAND="$COMMAND echo test"
+# And finally execute all commands
+eval $COMMAND
+exit $?
