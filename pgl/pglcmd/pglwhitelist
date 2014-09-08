@@ -30,96 +30,96 @@ case $OPTION in
 ADD_TCP_IN=*)
     PORT="$(echo $OPTION | sed s"|ADD_TCP_IN=||")"
     COMMAND="$COMMAND { iptables -L pgl_in -n | grep -qx 'RETURN *tcp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' || \
-                      iptables -I pgl_in -p tcp --dport $PORT -j RETURN ; }"
+                        iptables -I pgl_in -p tcp --dport $PORT -j RETURN ; }"
     ;;
 ADD_TCP_OUT=*)
     PORT="$(echo $OPTION | sed s"|ADD_TCP_OUT=||")"
     COMMAND="$COMMAND { iptables -L pgl_out -n | grep -qx 'RETURN *tcp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' || \
-                      iptables -I pgl_out -p tcp --dport $PORT -j RETURN ; }"
+                        iptables -I pgl_out -p tcp --dport $PORT -j RETURN ; }"
     ;;
 ADD_TCP_FWD=*)
     PORT="$(echo $OPTION | sed s"|ADD_TCP_FWD=||")"
     COMMAND="$COMMAND { iptables -L pgl_fwd -n | grep -qx 'RETURN *tcp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' || \
-                      iptables -I pgl_fwd -p tcp --dport $PORT -j RETURN ; }"
+                        iptables -I pgl_fwd -p tcp --dport $PORT -j RETURN ; }"
     ;;
 ADD_UDP_IN=*)
     PORT="$(echo $OPTION | sed s"|ADD_UDP_IN=||")"
     COMMAND="$COMMAND { iptables -L pgl_in -n | grep -qx 'RETURN *udp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' || \
-                      iptables -I pgl_in -p udp --dport $PORT -j RETURN ; }"
+                        iptables -I pgl_in -p udp --dport $PORT -j RETURN ; }"
     ;;
 ADD_UDP_OUT=*)
     PORT="$(echo $OPTION | sed s"|ADD_UDP_OUT=||")"
     COMMAND="$COMMAND { iptables -L pgl_out -n | grep -qx 'RETURN *udp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' || \
-                      iptables -I pgl_out -p udp --dport $PORT -j RETURN ; }"
+                        iptables -I pgl_out -p udp --dport $PORT -j RETURN ; }"
     ;;
 ADD_UDP_FWD=*)
     PORT="$(echo $OPTION | sed s"|ADD_UDP_FWD=||")"
     COMMAND="$COMMAND { iptables -L pgl_fwd -n | grep -qx 'RETURN *udp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' || \
-                      iptables -I pgl_fwd -p udp --dport $PORT -j RETURN ; }"
+                        iptables -I pgl_fwd -p udp --dport $PORT -j RETURN ; }"
     ;;
 ADD_IP_IN=*)
     IP="$(echo $OPTION | sed s"|ADD_IP_IN=||")"
     COMMAND="$COMMAND { iptables -L pgl_in -n | grep -qx 'RETURN *all *-- *$IP *0.0.0.0/0 *' || \
-                      iptables -I pgl_in --source $IP -j RETURN ; }"
+                        iptables -I pgl_in --source $IP -j RETURN ; }"
     ;;
 ADD_IP_OUT=*)
     IP="$(echo $OPTION | sed s"|ADD_IP_OUT=||")"
     COMMAND="$COMMAND { iptables -L pgl_out -n | grep -qx 'RETURN *all *-- *0.0.0.0/0 *$IP *' || \
-                      iptables -I pgl_out --destination $IP -j RETURN ; }"
+                        iptables -I pgl_out --destination $IP -j RETURN ; }"
     ;;
 ADD_IP_FWD=*)
     IP="$(echo $OPTION | sed s"|ADD_IP_FWD=||")"
     COMMAND="$COMMAND { iptables -L pgl_fwd -n | grep -qx 'RETURN *all *-- *$IP *0.0.0.0/0 *' || \
-                      iptables -I pgl_fwd --source $IP -j RETURN ; } && \
+                        iptables -I pgl_fwd --source $IP -j RETURN ; } && \
                       { iptables -L pgl_fwd -n | grep -qx 'RETURN *all *-- *0.0.0.0/0 *$IP *' || \
-                      iptables -I pgl_fwd --destination $IP -j RETURN ; }"
+                        iptables -I pgl_fwd --destination $IP -j RETURN ; }"
     ;;
 REMOVE_TCP_IN=*)
     PORT="$(echo $OPTION | sed s"|REMOVE_TCP_IN=||")"
     COMMAND="$COMMAND { iptables -L pgl_in -n | grep -qx 'RETURN *tcp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' && \
-                      iptables -D pgl_in -p tcp --dport $PORT -j RETURN ; }"
+                        iptables -D pgl_in -p tcp --dport $PORT -j RETURN ; }"
     ;;
 REMOVE_TCP_OUT=*)
     PORT="$(echo $OPTION | sed s"|REMOVE_TCP_OUT=||")"
     COMMAND="$COMMAND { iptables -L pgl_out -n | grep -qx 'RETURN *tcp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' && \
-                      iptables -D pgl_out -p tcp --dport $PORT -j RETURN ; }"
+                        iptables -D pgl_out -p tcp --dport $PORT -j RETURN ; }"
     ;;
 REMOVE_TCP_FWD=*)
     PORT="$(echo $OPTION | sed s"|REMOVE_TCP_FWD=||")"
     COMMAND="$COMMAND { iptables -L pgl_fwd -n | grep -qx 'RETURN *tcp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' && \
-                      iptables -D pgl_fwd -p tcp --dport $PORT -j RETURN ; }"
+                        iptables -D pgl_fwd -p tcp --dport $PORT -j RETURN ; }"
     ;;
 REMOVE_UDP_IN=*)
     PORT="$(echo $OPTION | sed s"|REMOVE_UDP_IN=||")"
     COMMAND="$COMMAND { iptables -L pgl_in -n | grep -qx 'RETURN *udp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' && \
-                      iptables -D pgl_in -p udp --dport $PORT -j RETURN ; }"
+                        iptables -D pgl_in -p udp --dport $PORT -j RETURN ; }"
     ;;
 REMOVE_UDP_OUT=*)
     PORT="$(echo $OPTION | sed s"|REMOVE_UDP_OUT=||")"
     COMMAND="$COMMAND { iptables -L pgl_out -n | grep -qx 'RETURN *udp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' && \
-                      iptables -D pgl_out -p udp --dport $PORT -j RETURN ; }"
+                        iptables -D pgl_out -p udp --dport $PORT -j RETURN ; }"
     ;;
 REMOVE_UDP_FWD=*)
     PORT="$(echo $OPTION | sed s"|REMOVE_UDP_FWD=||")"
     COMMAND="$COMMAND { iptables -L pgl_fwd -n | grep -qx 'RETURN *udp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' && \
-                      iptables -D pgl_fwd -p udp --dport $PORT -j RETURN ; }"
+                        iptables -D pgl_fwd -p udp --dport $PORT -j RETURN ; }"
     ;;
 REMOVE_IP_IN=*)
     IP="$(echo $OPTION | sed s"|REMOVE_IP_IN=||")"
     COMMAND="$COMMAND { iptables -L pgl_in -n | grep -qx 'RETURN *all *-- *$IP *0.0.0.0/0 *' && \
-                      iptables -D pgl_in --source $IP -j RETURN ; }"
+                        iptables -D pgl_in --source $IP -j RETURN ; }"
     ;;
 REMOVE_IP_OUT=*)
     IP="$(echo $OPTION | sed s"|REMOVE_IP_OUT=||")"
     COMMAND="$COMMAND { iptables -L pgl_out -n | grep -qx 'RETURN *all *-- *0.0.0.0/0 *$IP *' && \
-                      iptables -D pgl_out --destination $IP -j RETURN ; }"
+                        iptables -D pgl_out --destination $IP -j RETURN ; }"
     ;;
 REMOVE_IP_FWD=*)
     IP="$(echo $OPTION | sed s"|REMOVE_IP_FWD=||")"
     COMMAND="$COMMAND { iptables -L pgl_fwd -n | grep -qx 'RETURN *all *-- *$IP *0.0.0.0/0 *' && \
-                      iptables -D pgl_fwd --source $IP -j RETURN ; } && \
+                        iptables -D pgl_fwd --source $IP -j RETURN ; } && \
                       { iptables -L pgl_fwd -n | grep -qx 'RETURN *all *-- *0.0.0.0/0 *$IP *' && \
-                      iptables -D pgl_fwd --destination $IP -j RETURN ; }"
+                        iptables -D pgl_fwd --destination $IP -j RETURN ; }"
     ;;
 *)
     echo "Usage: $0 option1 [option2 ...]"
