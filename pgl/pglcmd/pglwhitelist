@@ -29,7 +29,7 @@ for OPTION in $@ ; do
 case $OPTION in
 ADD_TCP_IN=*)
     PORT="$(echo $OPTION | sed s"|ADD_TCP_IN=||")"
-    COMMAND="$COMMAND iptables -L pgl_in -n | grep -qx 'RETURN *tcp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' || \
+    COMMAND="$COMMAND { iptables -L pgl_in -n | grep -qx 'RETURN *tcp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *' || \
                       iptables -I pgl_in -p tcp --dport $PORT -j RETURN ; }"
     ;;
 ADD_TCP_OUT=*)
@@ -70,8 +70,8 @@ ADD_IP_OUT=*)
 ADD_IP_FWD=*)
     IP="$(echo $OPTION | sed s"|ADD_IP_FWD=||")"
     COMMAND="$COMMAND { iptables -L pgl_fwd -n | grep -qx 'RETURN *all *-- *$IP *0.0.0.0/0 *' || \
-                      iptables -I pgl_fwd --source $IP -j RETURN && \
-                      iptables -L pgl_fwd -n | grep -qx 'RETURN *all *-- *0.0.0.0/0 *$IP *' || \
+                      iptables -I pgl_fwd --source $IP -j RETURN ; } && \
+                      { iptables -L pgl_fwd -n | grep -qx 'RETURN *all *-- *0.0.0.0/0 *$IP *' || \
                       iptables -I pgl_fwd --destination $IP -j RETURN ; }"
     ;;
 REMOVE_TCP_IN=*)
