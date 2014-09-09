@@ -313,4 +313,5 @@ CMD="$CMD cat "$TEMP" > /etc/pgl/pglcmd.conf"
 
 # And finally execute all commands
 eval $CMD
+rm $TEMP
 exit $?
