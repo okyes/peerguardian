@@ -85,7 +85,7 @@ make_permanent () {
                  ITEMS="$ITEMS $ITEM"
                  [ "$ITEM" = "$VALUE" ] || [ "$ITEM" = "$VALUE2" ] 2>/dev/null && is_present=yes
             done
-            if [ is_present = no ] ; then
+            if [ "$is_present" = no ] ; then
                 # Add VALUE to VARIABLE values in pglcmd.conf.
                 sed -i "s|^[[:space:]]*$VARIABLE=.*|$VARIABLE=\"$ITEMS $VALUE\"|g" $TEMP
             fi
@@ -103,7 +103,7 @@ make_permanent () {
                 # Keep all ITEMs except VALUE(2).
                 { [ "$ITEM" = "$VALUE" ] || [ "$ITEM" = "$VALUE2" ] 2>/dev/null ; } && is_present=yes || ITEMS="$ITEMS $ITEM"
             done
-            if [ is_present = yes ] ; then
+            if [ "$is_present" = yes ] ; then
                 # Remove VALUE from the VARIABLE values in pglcmd.conf.
                 sed -i "s|^[[:space:]]*$VARIABLE=.*|$VARIABLE=\"$ITEMS\"|g" $TEMP
             fi
