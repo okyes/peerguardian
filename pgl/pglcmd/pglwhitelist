@@ -29,8 +29,10 @@
 set -e
 
 usage () {
-    echo "Usage: $0 arg1 [arg2 ...]"
-    echo "Arguments (port and ip are your chosen values):"
+    echo "Usage: $(basename $0) arg1 [arg2 ...]"
+    echo "Arguments (port,ip and blocklist are your chosen values):"
+    echo "$(basename $0) updates pgl's iptables setup. If the argument starts"
+    echo "with PERMANENT_ the value is also added to /etc/pgl/pglcmd.conf."
     echo "  [PERMANENT_]ADD_TCP_IN=port"
     echo "  [PERMANENT_]ADD_TCP_OUT=port"
     echo "  [PERMANENT_]ADD_TCP_FWD=port"
@@ -49,20 +51,31 @@ usage () {
     echo "  [PERMANENT_]REMOVE_IP_IN=ip"
     echo "  [PERMANENT_]REMOVE_IP_OUT=ip"
     echo "  [PERMANENT_]REMOVE_IP_FWD=ip"
-    echo "$(basename $0) updates pgl's iptables setup. If the argument starts"
-    echo "with PERMANENT_ the value is also added to /etc/pgl/pglcmd.conf."
+    echo "  CRON=0|1"
+    echo "  INIT=0|1"
+    echo "  UNTICK_BLOCKLIST=blocklist"
+    echo "  ADD_BLOCKLIST=blocklist"
+    echo "  REMOVE_BLOCKLIST=blocklist"
 }
 
 [ $# -gt 0 ] || { usage; exit 1; }
 
-# Create temporary file TEMP safely:
-TEMP=$(mktemp)
-cat /etc/pgl/pglcmd.conf > "$TEMP"
+# Create temporary file CONF (pglcmd.conf) safely:
+CONF=$(mktemp)
+cat /etc/pgl/pglcmd.conf > "$CONF"
+conf_updated=0
 
+# Create temporary file LIST (blocklists.list) safely:
+LIST=$(mktemp)
+cat /etc/pgl/blocklists.list > "$LIST"
+list_updated=0
+
+# Function to set the whitelisting configuration WHITE_... in pglcmd.conf.
+# Uses the variables VALUE, MODE, PROTO, VARIABLE and PERMANENT.
 make_permanent () {
     local is_present=no VALUE2=
 
-    . "$TEMP"
+    . "$CONF"
 
     # VALUE is a port.
     if [ ! -z "$PROTO" ] ; then
@@ -80,7 +93,7 @@ make_permanent () {
     # Add VALUE.
     if [ "$MODE" = add ] ; then
         # VARIABLE is set in pglcmd.conf.
-        if grep -q "^[[:space:]]*$VARIABLE=" $TEMP ; then
+        if grep -q "^[[:space:]]*$VARIABLE=" $CONF ; then
             for ITEM in $(eval echo \$$VARIABLE) ; do 
                  ITEMS="$ITEMS $ITEM"
                  [ "$ITEM" = "$VALUE" ] || [ "$ITEM" = "$VALUE2" ] 2>/dev/null && is_present=yes
@@ -89,18 +102,18 @@ make_permanent () {
                 # Remove trailing space
                 ITEMS=$(echo $ITEMS)
                 # Add VALUE to VARIABLE values in pglcmd.conf.
-                sed -i "s|^[[:space:]]*$VARIABLE=.*|$VARIABLE=\"$ITEMS $VALUE\"|g" $TEMP
+                sed -i "s|^[[:space:]]*$VARIABLE=.*|$VARIABLE=\"$ITEMS $VALUE\"|g" $CONF
             fi
         # VARIABLE is not set in pglcmd.conf.
         else
-            echo "" >> $TEMP
+#            echo "" >> $CONF
             # Add VARIABLE with VALUE set to pglcmd.conf.
-            echo "$VARIABLE=\"$VALUE\"" >> $TEMP
+            echo "$VARIABLE=\"$VALUE\"" >> $CONF
         fi
     # Remove VALUE.
     else
         # VARIABLE is set in pglcmd.conf.
-        if grep -q "^[[:space:]]*$VARIABLE=" $TEMP ; then
+        if grep -q "^[[:space:]]*$VARIABLE=" $CONF ; then
             for ITEM in $(eval echo \$$VARIABLE) ; do 
                 # Keep all ITEMs except VALUE(2).
                 { [ "$ITEM" = "$VALUE" ] || [ "$ITEM" = "$VALUE2" ] 2>/dev/null ; } && is_present=yes || ITEMS="$ITEMS $ITEM"
@@ -109,13 +122,18 @@ make_permanent () {
                 # Remove trailing space
                 ITEMS=$(echo $ITEMS)
                 # Remove VALUE from the VARIABLE values in pglcmd.conf.
-                sed -i "s|^[[:space:]]*$VARIABLE=.*|$VARIABLE=\"$ITEMS\"|g" $TEMP
+                sed -i "s|^[[:space:]]*$VARIABLE=.*|$VARIABLE=\"$ITEMS\"|g" $CONF
             fi
         fi
     fi
+    conf_updated=1
 }
 
 for ARG in $@ ; do
+
+# This connects every new CMD instance with &&
+[ -z "$CMD" ] || CMD="$CMD &&"
+
 case $ARG in
 *ADD_TCP_IN=*)
     VALUE="$(echo $ARG | sed s"|.*ADD_TCP_IN=||")"
@@ -301,21 +319,82 @@ case $ARG in
               { iptables -L pgl_fwd -n | grep -qx 'RETURN *all *-- *0.0.0.0/0 *$VALUE *' && \
                 iptables -D pgl_fwd --destination $VALUE -j RETURN ; }"
     ;;
+"CRON=0"|"CRON=1")
+    VALUE=$(echo $ARG | sed s"|CRON=||")
+    VARIABLE=CRON
+    # CRON is set in pglcmd.conf.
+    if grep -q "^[[:space:]]*$VARIABLE=" $CONF ; then
+        # Set CRON to new value in pglcmd.conf.
+        sed -i "s|^[[:space:]]*$VARIABLE=.*|$VARIABLE=\"$VALUE\"|g" $CONF
+    # CRON is not set in pglcmd.conf.
+    else
+#        echo "" >> $CONF
+        # Add VARIABLE with VALUE set to pglcmd.conf.
+        echo "$VARIABLE=\"$VALUE\"" >> $CONF
+    fi
+    conf_updated=1
+    ;;
+"INIT=0"|"INIT=1")
+    VALUE=$(echo $ARG | sed s"|INIT=||")
+    VARIABLE=INIT
+    # INIT is set in pglcmd.conf.
+    if grep -q "^[[:space:]]*$VARIABLE=" $CONF ; then
+        # Set INIT to new value in pglcmd.conf.
+        sed -i "s|^[[:space:]]*$VARIABLE=.*|$VARIABLE=\"$VALUE\"|g" $CONF
+    # INIT is not set in pglcmd.conf.
+    else
+#        echo "" >> $CONF
+        # Add VARIABLE with VALUE set to pglcmd.conf.
+        echo "$VARIABLE=\"$VALUE\"" >> $CONF
+    fi
+    conf_updated=1
+    ;;
+ADD_BLOCKLIST=*)
+    VALUE=
+    VALUE=$(echo $ARG | sed s"|.*BLOCKLIST=||")
+    [ ! -z "$VALUE" ] || { echo "Error on argument ${ARG}."; usage; exit 1; }
+    # Blocklist entry exists in blocklists.list, enable it.
+    if grep -q "^.*${VALUE}$" $LIST ; then
+        sed -i "s|^.*${VALUE}$|${VALUE}|" $LIST
+    # Add new blocklist entry to blocklists.list.
+    else
+#        echo "" >> $CONF
+        echo "$VALUE" >> $LIST
+    fi
+    list_updated=1
+    ;;
+UNTICK_BLOCKLIST=*)
+    VALUE=
+    VALUE=$(echo $ARG | sed s"|.*BLOCKLIST=||")
+    [ ! -z "$VALUE" ] || { echo "Error on argument ${ARG}."; usage; exit 1; }
+    # Disable blocklist entry/entries in blocklists.list.
+    sed -i "s|^[[:space:]]*${VALUE}$|# ${VALUE}|g" $LIST
+    list_updated=1
+    ;;
+REMOVE_BLOCKLIST=*)
+    VALUE=
+    VALUE=$(echo $ARG | sed s"|.*BLOCKLIST=||")
+    [ ! -z "$VALUE" ] || { echo "Error on argument ${ARG}."; usage; exit 1; }
+    # Remove blocklist entry/entries from blocklists.list.
+    grep -v "$VALUE" $LIST > ${LIST}.tmp && mv ${LIST}.tmp $LIST
+    list_updated=1
+    ;;
 *)
+    echo "Error on argument ${ARG}."
     usage
     exit 1
     ;;
 esac
 
-# This connects every new CMD instance with &&
-CMD="$CMD &&"
-
 done
 
-# Move the newly generated pglcmd.conf content.
-CMD="$CMD cat "$TEMP" > /etc/pgl/pglcmd.conf"
+# Add command to move the newly generated pglcmd.conf content, connect with && if necessary.
+[ "$conf_updated" = 1 ] && { [ -z "$CMD" ] || CMD="$CMD &&" ;} && CMD="$CMD cat $CONF > /etc/pgl/pglcmd.conf" || true
+
+# Add command to move the newly generated blocklists.list content, connect with && if necessary.
+[ "$list_updated" = 1 ] && { [ -z "$CMD" ] || CMD="$CMD &&" ;} && CMD="$CMD cat $LIST > /etc/pgl/blocklists.list && pglcmd reload"
 
 # And finally execute all commands
 eval $CMD
-rm $TEMP
+rm -f $CONF $LIST
 exit $?
