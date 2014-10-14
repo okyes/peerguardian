@@ -2,6 +2,8 @@
 Description=PeerGuardian Linux - daily blocklists update
 Documentation=man:pgld(1)
 Documentation=file://@data_root_dir@/doc/pgl/README.blocklists
+Wants=network-online.target
+After=network-online.target pgl.service
 
 [Service]
 Type=oneshot
