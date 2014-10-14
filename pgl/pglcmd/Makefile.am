@@ -119,12 +119,19 @@ init/pgl.service:
 	-e 's|@LIB_DIR@|$(libdir)|g' \
 	-e 's|@BIN_DIR@|$(bindir)|g' \
 	-e 's|@PID_DIR@|$(PIDDIR)|g' \
+	-e 's|@TMP_DIR@|$(TMPDIR)|g' \
+	-e 's|@LOG_DIR@|$(LOGDIR)|g' \
+	-e 's|@MASTERBLOCKLISTDIR@|$(MASTER_BLOCKLIST_DIR)|g' \
+	-e 's|@BLOCKLISTSDIR@|$(BLOCKLISTS_DIR)|g' \
 	< init/pgl.service.in > init/pgl.service
 
 init/pgl-update.service:
 	sed \
 	-e 's|@data_root_dir@|$(datarootdir)|g' \
 	-e 's|@BIN_DIR@|$(bindir)|g' \
+	-e 's|@LOG_DIR@|$(LOGDIR)|g' \
+	-e 's|@MASTERBLOCKLISTDIR@|$(MASTER_BLOCKLIST_DIR)|g' \
+	-e 's|@BLOCKLISTSDIR@|$(BLOCKLISTS_DIR)|g' \
 	< init/pgl-update.service.in > init/pgl-update.service
 
 networkmanager/20pglcmd:

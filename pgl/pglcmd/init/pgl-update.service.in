@@ -11,3 +11,7 @@ ExecStart=@BIN_DIR@/pglcmd update
 Nice=19
 IOSchedulingClass=best-effort
 IOSchedulingPriority=7
+CapabilityBoundingSet=
+ProtectSystem=true
+ProtectHome=true
+ReadWriteDirectories=@MASTERBLOCKLISTDIR@ @LOG_DIR@ @BLOCKLISTSDIR@

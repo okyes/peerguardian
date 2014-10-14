@@ -13,6 +13,10 @@ ExecReload=@BIN_DIR@/pglcmd reload
 ExecStop=@BIN_DIR@/pglcmd stop
 PIDFile=@PID_DIR@/pgld.pid
 TimeoutStartSec=0
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW CAP_SYS_MODULE CAP_SYS_NICE
+ProtectSystem=true
+ProtectHome=true
+ReadWriteDirectories=@PID_DIR@ @TMP_DIR@ @MASTERBLOCKLISTDIR@ @LOG_DIR@ @BLOCKLISTSDIR@
 
 [Install]
 WantedBy=multi-user.target
