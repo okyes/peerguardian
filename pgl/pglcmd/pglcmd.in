@@ -177,6 +177,10 @@ case "$1" in
         if [ "$(id -ru)" -eq 0 ] ; then
             echo "Current IPv4 iptables rules (this may take a while):"
             echo
+            test_external iptables || {
+                log_failure_msg "Error $E_XEXTERNAL: iptables not installed."
+                exit $E_XEXTERNAL
+            }
             iptables -L -nv
             if lsmod | grep -Eq "ipv?6" ; then
                 echo
