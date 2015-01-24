@@ -2189,10 +2189,8 @@ build_blocklist () {
         if [ -n "$IP_REMOVE" ] ; then
             # Cat together all single blocklists
             cat --squeeze-blank $BLOCKLISTSCAT |
-            # Ignore comment lines
-            grep -Ev "^[[:space:]]*#" |
-            # Remove lines from IP_REMOVE (case-insensitive)
-            grep -Eiv "$SINGLE_REMOVE" |
+            # Ignore comment lines and remove lines from IP_REMOVE (case-insensitive)
+            grep -Eiv "^[[:space:]]*#|$SINGLE_REMOVE" |
             # Replace repeated whitespace with a single occurence
             tr -s [:space:] |
             # Delete everything complimentary to the following characters/regex
