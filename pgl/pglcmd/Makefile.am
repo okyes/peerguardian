@@ -167,5 +167,4 @@ CLEANFILES = \
 	init/pgl \
 	init/pgl.service \
 	init/pgl-update.service \
-	init/pgl-update.timer \
 	networkmanager/20pglcmd
