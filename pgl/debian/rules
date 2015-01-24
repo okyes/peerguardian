@@ -50,7 +50,7 @@ endif
 	dh_clean
 
 override_dh_installdocs:
-        dh_installdocs --link-doc=pgld
+	dh_installdocs --link-doc=pgld
 
 override_dh_installinit:
 	dh_installinit -p pglcmd --name=pgl -- start 60 2 3 4 5 . stop 20 0 1 6 .
