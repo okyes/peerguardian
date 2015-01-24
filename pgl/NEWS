@@ -1,6 +1,15 @@
-pgl 2.3.0 The everybody loves MARKing release
+pgl 2.3.0 New default blocklists and MARKing for everyone
 
   [jre]
+  * The default blocklist setup changed to a lighter one with Bluetack lists:
+    TBG has been dropped because it isn't updated on iblocklist anymore. Search
+    the web to learn how to continue to get them.
+    Instead we are back to some Bluetack lists, although probably with a less
+    paranoid selection.
+    Everybody is strongly encouraged to do his own research on the quality of
+    the several blocklist providers. Then you can select the correct blocklists
+    based on your own personal needs.
+    Comments welcome!
   * removed the (non-default) feature to directly DROP and ACCEPT packets
     (as in MoBlock 0.8), instead of using the (default) MARKing feature.
     Reason:
@@ -13,7 +22,7 @@ pgl 2.3.0 The everybody loves MARKing release
     DROPing directly should not yield any drawbacks, but I decided to also
     remove it in order to make the code simpler.
 
- -- jre <jre-phoenix@users.sourceforge.net>  Sun, 02 Feb 2014 20:27:44 +0100
+ -- jre <jre-phoenix@users.sourceforge.net>  Sat, 24 Jan 2015 14:25:28 +0000
 
 
 pgl 2.2.0 The autotools release
