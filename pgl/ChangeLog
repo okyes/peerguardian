@@ -1,8 +1,20 @@
 ChangeLog PeerGuardian Linux (pgl)
 
-pgl 2.2.4+git
+pgl 2.3.0
 
   [jre]
+  * blocklists:
+    - Removed atma_atma, discontinued upstream
+    - Removed TBG blocklists, TBG's blocklists haven't been updated by
+      iblocklist.com since 2014-10-20. But AFAIK TBG still maintains them, so
+      search the web if you want to continue to use them.
+    - New default set by Bluetack, probably less paranoid then in the
+    past. Comments welcome:
+      ads-trackers-and-bad-pr0n
+      bad-peers
+      level-1
+      range-test
+      spyware
   * removed the (non-default) feature to directly DROP and ACCEPT packets
     (as in MoBlock 0.8), instead of using the (default) MARKing feature.
     Dropped the configuration variables ACCEPT and REJECT.
@@ -23,11 +35,12 @@ pgl 2.2.4+git
       WHITE_IP_FORWARD -> WHITE_IP_FWD
   * dropped code for transition 2011-05-28: remove old master blocklists
   * improved the test for kernel REJECT support
-  * blocklists: commented atma_atma, discontinued upstream
+  * pglcmd status: add test for iptables
   * pglcmd test_net: Create BLOCKLISTS_DIR if missing
     Closes: https://sourceforge.net/p/peerguardian/bugs/328/
   * pglcmd: Set kernel queue maximum length with pglcmd variable
     NFQUEUE_MAXLEN to trigger pgld -Q option
+  * pglcmd build_blocklist: merge 2 grep commands
   * systemd/cron: added systemd service for blocklists update by Pierre Buard
     (Gilrain). Closes: https://sourceforge.net/p/peerguardian/patches/3/
     This only gets installed if pgl is compiled with --with-systemd.
@@ -43,7 +56,7 @@ pgl 2.2.4+git
     support to >= 2.6.20 (If you don't use the new option older kernel still
     work.)
 
- -- jre <jre-phoenix@users.sourceforge.net>  Wed, 29 Jan 2014 16:40:30 +0100
+ -- jre <jre-phoenix@users.sourceforge.net>  Sat, 24 Jan 2015 14:25:28 +0000
 
 
 pgl 2.2.4

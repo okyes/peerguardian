@@ -1,15 +1,23 @@
-pgl (2.2.4+git-1) unstable; urgency=medium
+pgl (2.3.0-1) unstable; urgency=medium
 
-  * preparing new release
+  * new release
   * control: updated Vcs-Git field
   * control: bumped Standards-Version: 3.9.5
-  * dropped support for Debian Squeeze (oldstable), Ubuntu Quantal (12.10)
-    and Ubuntu Raring (13.10), added Ubuntu Utopic (14.10)
-  * dropped old transition code
+  * dropped support for Debian Squeeze (oldstable), Debian Wheezy (stable),
+    Ubuntu Lucid (10.04), Ubuntu Quantal (12.10), Ubuntu Raring (13.04)
+    and Ubuntu Saucy (13.10).
+    Drop the git pgl_backport branch, since it isn't needed anymore for now
+    with Wheezy and Lucid dropped. The latter two haven't reached their
+    official upstream end-of-life yet (Wheezy in 14 months if a new Debian
+    stable is released in probably 2 months, and Lucid in 3 months). If anyone
+    really relies on them, please drop me a mail.
+  * added Ubuntu Utopic (14.10) and Ubuntu Vivid (15.04)
+  * added "armhf" on Ubuntu launchpad
+  * dropped some old transition code
   * link other package's docs' directory to pgld's instead of linking
     single files
 
- -- jre <jre-phoenix@users.sourceforge.net>  Wed, 29 Jan 2014 16:40:30 +0100
+ -- jre <jre-phoenix@users.sourceforge.net>  Sat, 24 Jan 2015 14:25:28 +0000
 
 pgl (2.2.4-1) unstable; urgency=low
 
