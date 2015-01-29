@@ -30,19 +30,23 @@ EXTRA_DIST = \
 	debian/copyright \
 	debian/pglcmd.config \
 	debian/pglcmd.dirs \
-	debian/pgld.examples \
 	debian/pglcmd.install \
 	debian/pglcmd.links \
+	debian/pglcmd.maintscript \
 	debian/pglcmd.postinst.in \
 	debian/pglcmd.postrm \
 	debian/pglcmd.preinst \
 	debian/pglcmd.templates \
+	debian/pgld-dbg.maintscript \
 	debian/pgld.dirs \
 	debian/pgld.docs \
+	debian/pgld.examples \
 	debian/pgld.install \
 	debian/pgld.manpages \
+	debian/pglgui-dbg.maintscript \
 	debian/pglgui.install \
 	debian/pglgui.links \
+	debian/pglgui.maintscript \
 	debian/pglgui.postinst \
 	debian/po/POTFILES.in \
 	debian/po/templates.pot \
