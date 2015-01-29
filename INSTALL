@@ -1,4 +1,5 @@
-pgl/INSTALL                                   Thu Jun 12 16:30:37 CEST 2014
+pgl/INSTALL                                   Sun, 25 Jan 2015 13:15:50 +0100
+
 
 
 Table of Contents:
@@ -25,9 +26,8 @@ Step 1: Get the source:
 Either get the latest stable release from peerguardian.sourceforge.net and
 unpack it.
 
-Or get the current development code (the following is one command line!):
-  git clone git://peerguardian.git.sourceforge.net/gitroot/peerguardian/peerg
-  uardian
+Or get the current development code:
+  git clone git://git.code.sf.net/p/peerguardian/code pgl
 
 
 Step 2: Install pgl's dependencies
@@ -44,7 +44,7 @@ Step 3.0: Create/update autotools files (only required for git version)
 -----------------------------------------------------------------------
 
 If you are using the development version from the git repository generate
-the autotools files first. Go to the peerguardian/pgl directory and run:
+the autotools files first. Go to the pgl/ directory and run:
   ./autogen.sh
 
 To update the files run:
@@ -310,16 +310,18 @@ Giorgos successfully compiled pgl 2.3.4, keeping all options, except Gentoo
         make install
 
 interesting, but unverified [outdated: pgl 2.2.2 of 25 Jun 2012, retrieved:
- April 2014]:
-http://software.opensuse.org/package/pgl
+ Jan 2015]:
 https://build.opensuse.org/package/show?project=home%3Afabio_s&package=pgl
+http://software.opensuse.org/package/pgl
 http://software.opensuse.org/package/pgl-gui
 
 
 ARCH / AUR (Arch User Repo):
 ----------------------------
 PKGBUILD by Pierre Buard (Gilrain), Arch Linux maintainer
-https://aur.archlinux.org/packages.php?ID=51839
+https://aur.archlinux.org/packages/pgl
+https://aur.archlinux.org/packages/pgl-cli
+https://aur.archlinux.org/packages/pgl-git/
 
 
 Gentoo:
