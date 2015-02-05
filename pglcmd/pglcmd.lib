@@ -75,7 +75,7 @@ start_daemon () {
     exec="$1"; shift
 
     args="--start --nicelevel $nice --quiet --oknodo"
-    if [ "$force" ]; then
+    if [ -n "$force" ]; then
       if test_external start-stop-daemon ; then
         start-stop-daemon $args \
             --chdir "$PWD" --startas $exec --pidfile /dev/null -- "$@"
@@ -173,7 +173,7 @@ pidofproc () {
         fi
         return 0
     fi
-    if [ "$specified" ]; then
+    if [ -n "$specified" ]; then
         return 3 # almost certain it's not running
     fi
 
@@ -256,7 +256,7 @@ killproc () {
         return 3 # program is not running
     fi
 
-    if [ "$status" = 0 ] && [ "$is_term_sig" ] && [ "$pidfile" ]; then
+    if [ "$status" = 0 ] && [ -n "$is_term_sig" ] && [ -n "$pidfile" ]; then
         pidofproc -p "$pidfile" "$1" >/dev/null || rm -f "$pidfile"
     fi
     return 0
@@ -2347,7 +2347,7 @@ test_ipblocking () {
             echo "$TEST_IP did not answer the ping."
             echo ""
             echo "No clear test result! Trying \"$TRACEROUTE -n -m 2 ${TEST_IP} ${TRACEROUTE_PORT}\" now:"
-            if [ "$TRACEROUTE" ] && test_external $TRACEROUTE ; then
+            if [ -n "$TRACEROUTE" ] && test_external $TRACEROUTE ; then
                 TRACE_LOG="${TMPDIR}/$(basename $0).test.log"
                 $TRACEROUTE -n -m 2 $TEST_IP ${TRACEROUTE_PORT} > $TRACE_LOG 2>&1
                 RETVAL_TRACEROUTE=$?    # the traceroute exit status
