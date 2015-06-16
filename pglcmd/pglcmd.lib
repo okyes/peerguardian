@@ -1109,11 +1109,13 @@ insert_iptables () {
                 ;;
             esac
 
-            # Create new pgl_ chain and remember iptables remove rules
+            # Create new pgl_ chain and remember iptables removal rules.
+            # Remember the removal command before actually inserting, because one of the possible reasons for
+            # the iptables command to fail is that the chain already exists (for whatever reason).
             echo -n "....Creating chain" &&
-                iptables -N $PGL_CHAIN &&
                 echo "iptables -F $PGL_CHAIN" >> $REMOVE_SCRIPT &&
-                echo "iptables -X $PGL_CHAIN" >> $REMOVE_SCRIPT ||
+                echo "iptables -X $PGL_CHAIN" >> $REMOVE_SCRIPT &&
+                iptables -N $PGL_CHAIN ||
                 fail_insert_iptables
 
             # Insert NFQUEUE rule.
@@ -1254,30 +1256,32 @@ insert_iptables () {
                         ;;
                     esac
 
-                    # Activate iptables chain and remember iptables remove rules
+                    # Activate iptables chain and remember iptables removal command.
+                    # Remember the removal command before actually inserting, because one of the possible reasons for
+                    # the iptables command to fail is that the rule already exists (for whatever reason).
                     if [ "$INTERFACE" = all ] ; then
                         echo  "....$CHAIN"
-                        iptables -I $CHAIN $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
-                        echo "iptables -D $CHAIN $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp ||
+                        echo "iptables -D $CHAIN $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp &&
+                        iptables -I $CHAIN $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN ||
                         fail_insert_iptables
                     else
                         echo  "....$CHAIN on $INTERFACE"
                         case $CHAIN in
                         INPUT)
-                            iptables -I $CHAIN -i $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
-                            echo "iptables -D $CHAIN -i $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp ||
+                            echo "iptables -D $CHAIN -i $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp &&
+                            iptables -I $CHAIN -i $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN ||
                             fail_insert_iptables
                             ;;
                         OUTPUT)
-                            iptables -I $CHAIN -o $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
-                            echo "iptables -D $CHAIN -o $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp ||
+                            echo "iptables -D $CHAIN -o $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp &&
+                            iptables -I $CHAIN -o $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN ||
                             fail_insert_iptables
                             ;;
                         FORWARD)
-                            iptables -I $CHAIN -i $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
                             echo "iptables -D $CHAIN -i $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp &&
-                            iptables -I $CHAIN -o $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
-                            echo "iptables -D $CHAIN -o $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp ||
+                            iptables -I $CHAIN -i $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN &&
+                            echo "iptables -D $CHAIN -o $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN" >> ${REMOVE_SCRIPT}.tmp &&
+                            iptables -I $CHAIN -o $INTERFACE $CMD_STATE $CMD_MARK_ACCEPT -j $PGL_CHAIN ||
                             fail_insert_iptables
                             ;;
                         # Valid CHAINs was already tested above. No test needed here.
