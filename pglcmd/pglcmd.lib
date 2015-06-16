@@ -1033,8 +1033,9 @@ insert_iptables () {
         exit $E_XEXTERNAL
         }
     if [ -f "$REMOVE_SCRIPT" ] ; then
-        echo -n "Old iptables remove script $REMOVE_SCRIPT exists. Strange. Executing now and then removing it"
+        echo -n "Old iptables remove script $REMOVE_SCRIPT exists. Strange. Executing"
         sh $REMOVE_SCRIPT
+        echo -n " and removing it"
         rm $REMOVE_SCRIPT
         log_end_msg $?
     fi
@@ -1567,8 +1568,9 @@ do_start () {
             # Execute old REMOVE_SCRIPT if it still exists for any reason, because we may run into troubles
             # if there are still old iptables.
             if [ -f "$REMOVE_SCRIPT" ] ; then
-                echo -n "Old iptables remove script $REMOVE_SCRIPT still exists! Executing and then removing it"
+                echo -n "Old iptables remove script $REMOVE_SCRIPT still exists! Executing"
                 sh $REMOVE_SCRIPT
+                echo -n " and removing it"
                 rm $REMOVE_SCRIPT
                 log_end_msg $?
             fi
