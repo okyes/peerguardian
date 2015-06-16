@@ -1,6 +1,6 @@
 # pglcmd.lib - shell functions for pglcmd
 #
-# Copyright (C) 2005 - 2014 jre <jre-phoenix@users.sourceforge.net>
+# Copyright (C) 2005 - 2015 jre <jre-phoenix@users.sourceforge.net>
 # Parts and ideas from JFM, /meth/usr, lestlest (clessing), Morpheus and
 # perhaps others. More Info: http://forums.phoenixlabs.org
 # This file is part of pgl.
@@ -1291,6 +1291,9 @@ insert_iptables () {
             done
             echo "..Chains activated."
             # Build the REMOVE_SCRIPT
+            # In REMOVE_SCRIPT are the flush&remove-chains commands (first inserted),
+            # in REMOVE_SCRIPT.tmp the remove-the-activation-rules commands.
+            # The way the script is built, this order is reversed:
             cat $REMOVE_SCRIPT >> ${REMOVE_SCRIPT}.tmp &&
                 mv ${REMOVE_SCRIPT}.tmp $REMOVE_SCRIPT ||
                 { echo "Error: Could not build the iptables remove script!" ; fail_insert_iptables ; }
