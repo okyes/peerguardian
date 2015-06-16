@@ -1016,7 +1016,7 @@ white_local () {
 fail_insert_iptables () {
     log_end_msg $?
     # Try to build the REMOVE_SCRIPT in any case
-    cat $REMOVE_SCRIPT >> ${REMOVE_SCRIPT}.tmp &&
+    [ ! -e "${REMOVE_SCRIPT}" ] || cat ${REMOVE_SCRIPT} >> ${REMOVE_SCRIPT}.tmp
     mv ${REMOVE_SCRIPT}.tmp $REMOVE_SCRIPT
     delete_iptables
     exit $E_IPTABLES
