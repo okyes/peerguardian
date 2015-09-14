@@ -2,19 +2,23 @@ Source: pgl
 Section: net
 Priority: optional
 Maintainer: PeerGuardian Linux Developers <peerguardian-devel@lists.sourceforge.net>
-Uploaders: jre <jre-phoenix@users.sourceforge.net>
+Uploaders:
+ jre <jre-phoenix@users.sourceforge.net>,
 Bugs: mailto:peerguardian-devel@lists.sourceforge.net
-Build-Depends: po-debconf,
-               libdbus-1-dev,
-               libnetfilter-queue-dev (>= 1.0~),
-               libnfnetlink-dev,
-               libpolkit-qt-1-dev,
-               libqt4-dev,
-               zlib1g-dev,
-               autoconf (>= 2.68~),
-               dh-autoreconf,
-               debhelper (>= 9~)
-Build-Conflicts: autoconf2.13, automake1.4
+Build-Depends:
+ autoconf (>= 2.68~),
+ debhelper (>= 9~),
+ dh-autoreconf,
+ libdbus-1-dev,
+ libnetfilter-queue-dev (>= 1.0~),
+ libnfnetlink-dev,
+ libpolkit-qt-1-dev,
+ libqt4-dev,
+ po-debconf,
+ zlib1g-dev,
+Build-Conflicts:
+ autoconf2.13,
+ automake1.4,
 Standards-Version: 3.9.5
 Homepage: http://peerguardian.sourceforge.net/
 Vcs-Browser: http://peerguardian.git.sourceforge.net/
@@ -22,16 +26,21 @@ Vcs-Git: git://git.code.sf.net/p/peerguardian/code
 
 Package: pgld
 Architecture: any
-Depends: ${shlibs:Depends},
-         ${misc:Depends},
-         iptables
-Recommends: pglcmd,
-        pglgui,
-        dbus
-Breaks: moblock (<<2~)
-Replaces: moblock (<<2~)
-Conflicts: iplist,
-        nfblock
+Depends:
+ iptables,
+ ${misc:Depends},
+ ${shlibs:Depends},
+Recommends:
+ dbus,
+ pglcmd,
+ pglgui,
+Breaks:
+ moblock (<<2~),
+Replaces:
+ moblock (<<2~),
+Conflicts:
+ iplist,
+ nfblock,
 Description: PeerGuardian Linux - pgld
  PeerGuardian is a privacy oriented firewall application. It blocks connections
  to and from hosts specified in huge blocklists (thousands or millions of IP
@@ -45,8 +54,9 @@ Package: pgld-dbg
 Architecture: any
 Section: debug
 Priority: extra
-Depends: ${misc:Depends},
-         pgld (= ${binary:Version})
+Depends:
+ pgld (= ${binary:Version}),
+ ${misc:Depends},
 Description: PeerGuardian Linux - pgld (debug)
  PeerGuardian is a privacy oriented firewall application. It blocks connections
  to and from hosts specified in huge blocklists (thousands or millions of IP
@@ -60,20 +70,25 @@ Description: PeerGuardian Linux - pgld (debug)
 
 Package: pglcmd
 Architecture: any
-Depends: ${misc:Depends},
-         iptables,
-         lsb-base,
-         pgld (>= ${source:Version}),
-         pgld (<< ${source:Version}.1~)
-Recommends: pglgui,
-        wget,
-        unzip,
-        p7zip | p7zip-full
-Suggests: mail-transport-agent
-Breaks: moblock-control (<<2~),
-        blockcontrol (<<2~)
-Replaces: moblock-control (<<2~),
-        blockcontrol (<<2~)
+Depends:
+ iptables,
+ lsb-base,
+ pgld (<< ${source:Version}.1~),
+ pgld (>= ${source:Version}),
+ ${misc:Depends},
+Recommends:
+ p7zip | p7zip-full,
+ pglgui,
+ unzip,
+ wget,
+Suggests:
+ mail-transport-agent,
+Breaks:
+ blockcontrol (<<2~),
+ moblock-control (<<2~),
+Replaces:
+ blockcontrol (<<2~),
+ moblock-control (<<2~),
 Description: PeerGuardian Linux - pglcmd
  PeerGuardian is a privacy oriented firewall application. It blocks connections
  to and from hosts specified in huge blocklists (thousands or millions of IP
@@ -103,14 +118,18 @@ Description: PeerGuardian Linux - pglcmd
 
 Package: pglgui
 Architecture: any
-Depends: ${shlibs:Depends},
-         ${misc:Depends},
-         pgld (>= ${source:Version}),
-         pgld (<< ${source:Version}.1~),
-         pglcmd (>= ${source:Version}),
-         pglcmd (<< ${source:Version}.1~)
-Breaks: mobloquer (<<2~)
-Replaces: mobloquer (<<2~), pgl-gui
+Depends:
+ pglcmd (<< ${source:Version}.1~),
+ pglcmd (>= ${source:Version}),
+ pgld (<< ${source:Version}.1~),
+ pgld (>= ${source:Version}),
+ ${misc:Depends},
+ ${shlibs:Depends},
+Breaks:
+ mobloquer (<<2~),
+Replaces:
+ mobloquer (<<2~),
+ pgl-gui,
 Description: PeerGuardian Linux GUI - pglgui
  PeerGuardian is a privacy oriented firewall application. It blocks connections
  to and from hosts specified in huge blocklists (thousands or millions of IP
@@ -124,9 +143,11 @@ Package: pglgui-dbg
 Architecture: any
 Section: debug
 Priority: extra
-Depends: ${misc:Depends},
-         pglgui (= ${binary:Version})
-Replaces: pgl-gui-dbg
+Depends:
+ pglgui (= ${binary:Version}),
+ ${misc:Depends},
+Replaces:
+ pgl-gui-dbg,
 Description: PeerGuardian Linux GUI - pglgui (debug)
  PeerGuardian is a privacy oriented firewall application. It blocks connections
  to and from hosts specified in huge blocklists (thousands or millions of IP
