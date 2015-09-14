@@ -124,8 +124,6 @@ Architecture: any
 Multi-Arch: foreign
 Depends:
  pglcmd (= ${source:Version}),
- pgld (<< ${source:Version}.1~),
- pgld (>= ${source:Version}),
  ${misc:Depends},
  ${shlibs:Depends},
 Breaks:
