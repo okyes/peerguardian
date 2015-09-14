@@ -26,6 +26,7 @@ Vcs-Git: git://git.code.sf.net/p/peerguardian/code
 
 Package: pgld
 Architecture: any
+Multi-Arch: foreign
 Depends:
  iptables,
  ${misc:Depends},
@@ -52,6 +53,7 @@ Description: PeerGuardian Linux - pgld
 
 Package: pgld-dbg
 Architecture: any
+Multi-Arch: foreign
 Section: debug
 Priority: extra
 Depends:
@@ -70,6 +72,7 @@ Description: PeerGuardian Linux - pgld (debug)
 
 Package: pglcmd
 Architecture: any
+Multi-Arch: foreign
 Depends:
  iptables,
  lsb-base,
@@ -118,6 +121,7 @@ Description: PeerGuardian Linux - pglcmd
 
 Package: pglgui
 Architecture: any
+Multi-Arch: foreign
 Depends:
  pglcmd (<< ${source:Version}.1~),
  pglcmd (>= ${source:Version}),
@@ -142,6 +146,7 @@ Description: PeerGuardian Linux GUI - pglgui
 
 Package: pglgui-dbg
 Architecture: any
+Multi-Arch: foreign
 Section: debug
 Priority: extra
 Depends:
