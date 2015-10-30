@@ -93,7 +93,7 @@ run something similar to:
     --sysconfdir=/etc
 
 Full example configure line for a complete build and full system integration
-(on a Debian system, but not adapted to multiarch /usr/lib/ARCH/pgl/ paths):
+(on a Debian system):
   ./configure \
     --prefix=/usr \
     --mandir=/usr/share/man \
