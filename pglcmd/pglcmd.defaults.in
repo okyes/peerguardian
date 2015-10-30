@@ -3,9 +3,8 @@
 # This file is sourced by a shell script. Any line which starts with a hash (#)
 # is a comment and is ignored.
 
-# This file sets sane defaults for pglcmd, so do not modify it.
-# Write your changes to pglcmd.conf (/etc/pgl/pglcmd.conf)
-# instead.
+# Do not modify this file. Write your changes to pglcmd.conf
+# (/etc/pgl/pglcmd.conf) instead.
 
 ################################ Paths and names ###############################
 
