@@ -29,6 +29,7 @@ export LC_ALL=C
 if [ -f "$CMD_DEFAULTS" ] ; then
     . $CMD_DEFAULTS || { echo "$0 Error: Failed to source $CMD_DEFAULTS although this file exists."; exit 1; }
 else
+    # Do not use E_XFILE here, because it is not known here.
     echo "$0: Missing file $CMD_DEFAULTS (Error 7)."
     exit 7
 fi
