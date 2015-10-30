@@ -84,7 +84,7 @@ ALLOW_FWD=""
 IPTABLES_CUSTOM_DIR="${CONFDIR}"
 
 # The path of the file with the md5sum of all blocklist configurations
-MD5SUM_FILE="$BLOCKLISTS_DIR/MD5SUM"
+MD5SUM_FILE="${BLOCKLISTS_DIR}/MD5SUM"
 
 # The path of the LSB init-functions.
 # If LSB file does not exist or variable is set to an empty value, pglcmd's
