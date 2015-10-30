@@ -14,7 +14,7 @@ Authors:
     jpv, initially created dbus support for nfblock.
     Cader <cade.robinson@gmail.com>, heavily modified nfblockd, so that it
         became pgld. Also worked on pglcmd and previously much other stuff.
-    freemind <freemind@lavabit.com>, wrote pglgui, based on mobloquer.
+    freemind <fr33mind@users.sourceforge.net>, wrote pglgui, based on mobloquer.
     hasufell <julian.ospald@googlemail.com>, added autotools support.
 
 Contributors:
