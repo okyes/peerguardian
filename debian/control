@@ -35,9 +35,9 @@ Recommends:
  pglcmd,
  pglgui,
 Breaks:
- moblock (<<2~),
+ moblock (<< 2~),
 Replaces:
- moblock (<<2~),
+ moblock (<< 2~),
 Conflicts:
  iplist,
  nfblock,
@@ -84,11 +84,11 @@ Recommends:
 Suggests:
  mail-transport-agent,
 Breaks:
- blockcontrol (<<2~),
- moblock-control (<<2~),
+ blockcontrol (<< 2~),
+ moblock-control (<< 2~),
 Replaces:
- blockcontrol (<<2~),
- moblock-control (<<2~),
+ blockcontrol (<< 2~),
+ moblock-control (<< 2~),
 Description: PeerGuardian Linux - pglcmd
  PeerGuardian is a privacy oriented firewall application. It blocks connections
  to and from hosts specified in huge blocklists (thousands or millions of IP
@@ -126,9 +126,10 @@ Depends:
  ${misc:Depends},
  ${shlibs:Depends},
 Breaks:
- mobloquer (<<2~),
+ mobloquer (<< 2~),
+ pgl-gui,
 Replaces:
- mobloquer (<<2~),
+ mobloquer (<< 2~),
  pgl-gui,
 Description: PeerGuardian Linux GUI - pglgui
  PeerGuardian is a privacy oriented firewall application. It blocks connections
@@ -146,6 +147,8 @@ Priority: extra
 Depends:
  pglgui (= ${binary:Version}),
  ${misc:Depends},
+Breaks:
+ pgl-gui-dbg,
 Replaces:
  pgl-gui-dbg,
 Description: PeerGuardian Linux GUI - pglgui (debug)
