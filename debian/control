@@ -18,7 +18,7 @@ Build-Depends:
 Build-Conflicts:
  autoconf2.13,
  automake1.4,
-Standards-Version: 3.9.5
+Standards-Version: 3.9.6
 Bugs: mailto:peerguardian-devel@lists.sourceforge.net
 Homepage: http://peerguardian.sourceforge.net/
 Vcs-Browser: http://peerguardian.git.sourceforge.net/
