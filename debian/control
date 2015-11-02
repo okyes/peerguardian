@@ -1,10 +1,9 @@
 Source: pgl
-Section: net
-Priority: optional
 Maintainer: PeerGuardian Linux Developers <peerguardian-devel@lists.sourceforge.net>
 Uploaders:
  jre <jre-phoenix@users.sourceforge.net>,
-Bugs: mailto:peerguardian-devel@lists.sourceforge.net
+Section: net
+Priority: optional
 Build-Depends:
  autoconf (>= 2.68~),
  debhelper (>= 9~),
@@ -20,6 +19,7 @@ Build-Conflicts:
  autoconf2.13,
  automake1.4,
 Standards-Version: 3.9.5
+Bugs: mailto:peerguardian-devel@lists.sourceforge.net
 Homepage: http://peerguardian.sourceforge.net/
 Vcs-Browser: http://peerguardian.git.sourceforge.net/
 Vcs-Git: git://git.code.sf.net/p/peerguardian/code
@@ -52,10 +52,10 @@ Description: PeerGuardian Linux - pgld
  This is the pgl daemon pgld. It uses the netfilter xt_NFQUEUE kernel module.
 
 Package: pgld-dbg
-Architecture: any
-Multi-Arch: foreign
 Section: debug
 Priority: extra
+Architecture: any
+Multi-Arch: foreign
 Depends:
  pgld (= ${binary:Version}),
  ${misc:Depends},
@@ -142,10 +142,10 @@ Description: PeerGuardian Linux GUI - pglgui
  This is the pgl Graphical User Interface pglgui (C++, Qt4).
 
 Package: pglgui-dbg
-Architecture: any
-Multi-Arch: foreign
 Section: debug
 Priority: extra
+Architecture: any
+Multi-Arch: foreign
 Depends:
  pglgui (= ${binary:Version}),
  ${misc:Depends},
