@@ -71,13 +71,12 @@ Description: PeerGuardian Linux - pgld (debug)
  This package contains the debugging symbols for pgld.
 
 Package: pglcmd
-Architecture: all
+Architecture: any
 Multi-Arch: foreign
 Depends:
  iptables,
  lsb-base,
- pgld (<< ${source:Version}.1~),
- pgld (>= ${source:Version}),
+ pgld (= ${binary:Version}),
  ${misc:Depends},
 Recommends:
  p7zip | p7zip-full,
@@ -117,7 +116,7 @@ Package: pglgui
 Architecture: any
 Multi-Arch: foreign
 Depends:
- pglcmd (= ${source:Version}),
+ pglcmd (= ${binary:Version}),
  ${misc:Depends},
  ${shlibs:Depends},
 Breaks:
