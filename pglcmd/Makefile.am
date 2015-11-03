@@ -31,7 +31,7 @@ initddir = @INITDDIR@
 initd_SCRIPTS = init/pgl
 
 pglcmddir = $(bindir)
-pglcmd_SCRIPTS = pglcmd blockcontrol2pglcmd
+pglcmd_SCRIPTS = pglcmd
 
 pglcmdwddir = $(sbindir)
 pglcmdwd_SCRIPTS = pglcmd.wd
@@ -82,10 +82,6 @@ pglcmd.main:
 	< pglcmd.main.in > pglcmd.main
 
 do_subst = sed -e 's|^CONTROL_MAIN=.*|CONTROL_MAIN=\"$(pgllibdir)/pglcmd.main\"|g'
-
-blockcontrol2pglcmd:
-	$(do_subst) < blockcontrol2pglcmd.in > blockcontrol2pglcmd
-	chmod +x blockcontrol2pglcmd
 
 pglcmd:
 	$(do_subst) < pglcmd.in > pglcmd
@@ -144,7 +140,6 @@ networkmanager/20pglcmd:
 EXTRA_DIST = \
 	pglcmd.defaults.in \
 	pglcmd.main.in \
-	blockcontrol2pglcmd.in \
 	pglcmd.in \
 	pglcmd.wd.in \
 	cron.daily/pglcmd.in \
@@ -160,7 +155,6 @@ EXTRA_DIST = \
 CLEANFILES = \
 	pglcmd.defaults \
 	pglcmd.main \
-	blockcontrol2pglcmd \
 	pglcmd \
 	pglcmd.wd \
 	cron.daily/pglcmd \

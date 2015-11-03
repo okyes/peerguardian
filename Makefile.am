@@ -35,7 +35,6 @@ EXTRA_DIST = \
 	debian/pglcmd.maintscript \
 	debian/pglcmd.postinst.in \
 	debian/pglcmd.postrm \
-	debian/pglcmd.preinst \
 	debian/pglcmd.templates \
 	debian/pgld-dbg.maintscript \
 	debian/pgld.dirs \
@@ -47,7 +46,6 @@ EXTRA_DIST = \
 	debian/pglgui.install \
 	debian/pglgui.links \
 	debian/pglgui.maintscript \
-	debian/pglgui.postinst \
 	debian/po/POTFILES.in \
 	debian/po/templates.pot \
 	debian/README.Debian \

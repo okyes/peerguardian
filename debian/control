@@ -86,12 +86,6 @@ Recommends:
  wget,
 Suggests:
  mail-transport-agent,
-Breaks:
- blockcontrol (<< 2~),
- moblock-control (<< 2~),
-Replaces:
- blockcontrol (<< 2~),
- moblock-control (<< 2~),
 Description: PeerGuardian Linux - pglcmd
  PeerGuardian is a privacy oriented firewall application. It blocks connections
  to and from hosts specified in huge blocklists (thousands or millions of IP

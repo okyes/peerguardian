@@ -21,7 +21,7 @@
 
 ################################################################################
 # The following code is common between pglcmd, pglcmd.wd,
-# cron.daily, init, debian/pglcmd.postinst and blockcontrol2pglcmd.
+# cron.daily, init and debian/pglcmd.postinst.
 
 # if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
 # This can happen in early boot stages before local file systems are mounted.
