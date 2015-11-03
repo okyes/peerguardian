@@ -28,6 +28,7 @@ EXTRA_DIST = \
 	debian/compat \
 	debian/control \
 	debian/copyright \
+	debian/gbp.conf \
 	debian/pglcmd.config \
 	debian/pglcmd.dirs \
 	debian/pglcmd.install \
