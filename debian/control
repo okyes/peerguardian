@@ -9,7 +9,7 @@ Build-Depends:
  debhelper (>= 9~),
  dh-autoreconf,
  libdbus-1-dev,
- libnetfilter-queue-dev (>= 1.0~),
+ libnetfilter-queue-dev,
  libnfnetlink-dev,
  libpolkit-qt-1-dev,
  libqt4-dev,
