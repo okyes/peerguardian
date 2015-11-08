@@ -1,0 +1,110 @@
+From: jre <jre-phoenix@users.sourceforge.net>
+Date: Sat, 31 Oct 2015 03:44:42 +0100
+Subject: Use deprecated nfq_set_verdict_mark instead of nfq_set_verdict2.
+
+Revert "Update nfq_set_verdict_mark calls to nfq_set_verdict2"
+This reverts commit b5bbde83530f948d787bf4a9b769cd89e15c42f1.
+Handled conflicts in pgl/pgld/src/pgld.c caused by commit
+a9978a6c8b3e53c1815500de22d321b71eed6eb5
+"Removed the (non-default) feature to directly DROP and ACCEPT packets"
+
+Necessary for Debian Wheezy and Ubuntu Lucid (10.04 LTS),
+Precise (12.04 LTS) and Raring (13.04)
+---
+ pgld/src/pgld.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
+
+diff --git a/pgld/src/pgld.c b/pgld/src/pgld.c
+index 2e39846..87605de 100644
+--- a/pgld/src/pgld.c
++++ b/pgld/src/pgld.c
+@@ -379,8 +379,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
+     struct nfqnl_msg_packet_hdr *ph;
+     block_entry_t *found_range;
+     struct iphdr *ip;
+-    unsigned char *payload;
+-    char proto[5], src[23], dst[23];  //src and dst are 23 for IP(16)+port(5) + : + NULL
++    char *payload, proto[5], src[23], dst[23];  //src and dst are 23 for IP(16)+port(5) + : + NULL
+ 
+     ph = nfq_get_msg_packet_hdr(nfa);
+     if (ph) {
+@@ -393,7 +392,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
+             if (found_range) {
+                 // we set the user-defined reject_mark and set NF_REPEAT verdict
+                 // it's up to other iptables rules to decide what to do with this marked packet
+-                nfq_set_verdict2(qh, id, NF_REPEAT, reject_mark, 0, NULL);
++                status = nfq_set_verdict_mark(qh, id, NF_REPEAT, reject_mark, 0, NULL);
+                 found_range->hits++;
+                 // NOTE: "setipinfo" sets the formats.
+                 // TODO: Separate IP and port in there.
+@@ -406,7 +405,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
+             } else {
+                 // we set the user-defined accept_mark and set NF_REPEAT verdict
+                 // it's up to other iptables rules to decide what to do with this marked packet
+-                nfq_set_verdict2(qh, id, NF_REPEAT, accept_mark, 0, NULL);
++                status = nfq_set_verdict_mark(qh, id, NF_REPEAT, accept_mark, 0, NULL);
+             }
+             break;
+         case NF_IP_LOCAL_OUT:
+@@ -415,7 +414,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
+             if (found_range) {
+                 // we set the user-defined reject_mark and set NF_REPEAT verdict
+                 // it's up to other iptables rules to decide what to do with this marked packet
+-                nfq_set_verdict2(qh, id, NF_REPEAT, reject_mark, 0, NULL);
++                status = nfq_set_verdict_mark(qh, id, NF_REPEAT, reject_mark, 0, NULL);
+                 found_range->hits++;
+                 // NOTE: "setipinfo" sets the formats.
+                 // TODO: Separate IP and port in there.
+@@ -440,7 +439,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
+             } else {
+                 // we set the user-defined accept_mark and set NF_REPEAT verdict
+                 // it's up to other iptables rules to decide what to do with this marked packet
+-                nfq_set_verdict2(qh, id, NF_REPEAT, accept_mark, 0, NULL);
++                status = nfq_set_verdict_mark(qh, id, NF_REPEAT, accept_mark, 0, NULL);
+             }
+             break;
+         case NF_IP_FORWARD:
+@@ -451,7 +450,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
+             if (found_range) {
+                 // we set the user-defined reject_mark and set NF_REPEAT verdict
+                 // it's up to other iptables rules to decide what to do with this marked packet
+-                nfq_set_verdict2(qh, id, NF_REPEAT, reject_mark, 0, NULL);
++                status = nfq_set_verdict_mark(qh, id, NF_REPEAT, reject_mark, 0, NULL);
+                 found_range->hits++;
+                 setipinfo(src, dst, proto, ip, payload);
+ #ifndef LOWMEM
+@@ -462,7 +461,7 @@ static int nfqueue_cb(struct nfq_q_handle *qh, struct nfgenmsg *nfmsg, struct nf
+             } else {
+                 // we set the user-defined accept_mark and set NF_REPEAT verdict
+                 // it's up to other iptables rules to decide what to do with this marked packet
+-                nfq_set_verdict2(qh, id, NF_REPEAT, accept_mark, 0, NULL);
++                status = nfq_set_verdict_mark(qh, id, NF_REPEAT, accept_mark, 0, NULL);
+             }
+             break;
+         default:
+@@ -497,10 +496,10 @@ static int nfqueue_bind() {
+ 
+     do_log(LOG_INFO, "INFO: Binding to queue %hu", queue_num);
+     if (accept_mark) {
+-        do_log(LOG_INFO, "INFO: ACCEPT mark: %u", accept_mark);
++        do_log(LOG_INFO, "INFO: ACCEPT mark: %u", ntohl(accept_mark));
+     }
+     if (reject_mark) {
+-        do_log(LOG_INFO, "INFO: REJECT mark: %u", reject_mark);
++        do_log(LOG_INFO, "INFO: REJECT mark: %u", ntohl(reject_mark));
+     }
+     nfqueue_qh = nfq_create_queue(nfqueue_h, queue_num, &nfqueue_cb, NULL);
+     if (!nfqueue_qh) {
+@@ -634,10 +633,10 @@ int main(int argc, char *argv[]) {
+             queue_length = (uint32_t)atoi(optarg);
+             break;
+         case 'r':
+-            reject_mark = (uint32_t)atoi(optarg);
++            reject_mark = htonl((uint32_t)atoi(optarg));
+             break;
+         case 'a':
+-            accept_mark = (uint32_t)atoi(optarg);
++            accept_mark = htonl((uint32_t)atoi(optarg));
+             break;
+         case 'm':
+             opt_merge = 1;
