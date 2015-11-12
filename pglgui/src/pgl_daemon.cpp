@@ -1,5 +1,5 @@
 /******************************************************************************
- *   Copyright (C) 2011-2013 by Carlos Pais <freemind@lavabit.com>            *
+ *   Copyright (C) 2011-2013 by Carlos Pais <fr33mind@users.sourceforge.net>  *
  *   Copyright (C) 2007-2008 by Dimitris Palyvos-Giannas <jimaras@gmail.com>  *
  *                                                                            *
  *   This file is part of pgl.                                                *

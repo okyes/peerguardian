@@ -1,4 +1,5 @@
 /******************************************************************************
+ *   Copyright (C) 2013 by Carlos Pais <fr33mind@users.sourceforge.net>       *
  *                                                                            *
  *   This file is part of pgl.                                                *
  *                                                                            *
