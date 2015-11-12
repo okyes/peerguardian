@@ -1,10 +1,8 @@
 pgl for Debian
 --------------
 
-pgl is released with a debian/ directory. This should not be a problem, since it
-uses the Debian 3.0 (quilt) source format. This is supported since Debian
-Lenny's dpkg (user site), and by DAK (Debian project site). More information on
-http://wiki.debian.org/Projects/DebSrc3.0.
+pgl is released with a debian/ directory. It uses the Debian 3.0 (quilt) source
+format. More information on http://wiki.debian.org/Projects/DebSrc3.0.
 
 Make Debian packages:
 
@@ -23,12 +21,12 @@ Install the build requirements:
 
 Get the source (see pgl/INSTALL, Get the source).
 
-Change to the source directory "peerguardian/pgl/".
+Change to the source directory "pgl/".
 
 Then issue
   debuild --no-lintian -us -uc -tc -b
 
 You will get deb packages called pgld, pglcmd, pglgui, pgld-dbg and pglgui-dbg
-in the "peerguardian/" directory.
+in the parent directory.
 
  -- jre <jre-phoenix@users.sourceforge.net>  Sun, 02 Feb 2014 19:18:59 +0100
