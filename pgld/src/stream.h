@@ -1,5 +1,6 @@
 // pgld - stream reader
 //
+// Copyright (C) 2009 Cader <cade.robinson@gmail.com>
 // Copyright (C) 2008 Jindrich Makovicka (makovick@gmail.com)
 //
 // This file is part of pgl.
