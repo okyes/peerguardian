@@ -1,8 +1,8 @@
 #!/bin/sh
 # pglcmd - pgl command line interface
 #
-# Copyright (C) 2005 - 2014 jre <jre-phoenix@users.sourceforge.net>
-# Parts and ideas from JFM, /meth/usr, lestlest (clessing), Morpheus and
+# Copyright (C) 2005 - 2015 jre <jre-phoenix@users.sourceforge.net>
+# Parts and ideas by JFM, /meth/usr, lestlest (clessing), Morpheus and
 # perhaps others. More Info: http://forums.phoenixlabs.org
 #
 # This file is part of pgl.
@@ -18,7 +18,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with pgl.  If not, see <http://www.gnu.org/licenses/>.
 
 
 ################################################################################

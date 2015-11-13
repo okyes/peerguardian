@@ -1,6 +1,6 @@
 # pglcmd.main: pglcmd configuration script
 #
-# Copyright (C) 2005 - 2014 jre <jre-phoenix@users.sourceforge.net>
+# Copyright (C) 2005 - 2015 jre <jre-phoenix@users.sourceforge.net>
 # Parts and ideas from JFM, /meth/usr, lestlest (clessing), Morpheus and
 # perhaps others. More Info: http://forums.phoenixlabs.org
 #
@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with pgl.  If not, see <http://www.gnu.org/licenses/>.
 
 
 CMD_DEFAULTS="/usr/lib/pgl/pglcmd.defaults"
