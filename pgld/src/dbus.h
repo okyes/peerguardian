@@ -2,8 +2,8 @@
 //
 // Copyright (C) 2011 Dimitris Palyvos-Giannas <jimaras@gmail.com>
 // Copyright (C) 2009 Cader <cade.robinson@gmail.com>
-// Copyright (C) 2008 jpv (jpv950@gmail.com)
-// Copyright (C) 2008 Jindrich Makovicka (makovick@gmail.com)
+// Copyright (C) 2008 jpv <jpv950@gmail.com>
+// Copyright (C) 2008 Jindrich Makovicka <makovick@gmail.com>
 //
 // This file is part of pgl.
 //

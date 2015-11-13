@@ -3,8 +3,8 @@
 // Copyright (C) 2009, 2014 Cader <cade.robinson@gmail.com>
 // Copyright (C) 2012 hasufell <julian.ospald@googlemail.com>
 // Copyright (C) 2011 Dimitris Palyvos-Giannas <jimaras@gmail.com>
-// Copyright (C) 2008 Jindrich Makovicka (makovick@gmail.com)
-// Copyright (C) 2004 Morpheus (ebutera@users.berlios.de)
+// Copyright (C) 2008 Jindrich Makovicka <makovick@gmail.com>
+// Copyright (C) 2004 Morpheus <ebutera@users.berlios.de>
 //
 // This file is part of pgl.
 //
