@@ -155,6 +155,7 @@ EXTRA_DIST = \
 CLEANFILES = \
 	cron.daily/pglcmd \
 	init/pgl \
+	init/pgl.gentoo \
 	init/pgl.service \
 	init/pgl-update.service \
 	networkmanager/20pglcmd \
