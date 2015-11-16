@@ -86,9 +86,10 @@ IPTABLES_CUSTOM_DIR="${CONFDIR}"
 # The path of the file with the md5sum of all blocklist configurations
 MD5SUM_FILE="${BLOCKLISTS_DIR}/MD5SUM"
 
+# The path of the builtin LSB init-functions.
+LSB_BUILTIN="${LIBDIR}/${CMD_NAME}.lsb.lib"
+
 # The path of the LSB init-functions.
-# If LSB file does not exist or variable is set to an empty value, pglcmd's
-# builtin LSB init functions are used.
 LSB=""
 
 # The name of the sendmail executable, a link pointing there, or any other

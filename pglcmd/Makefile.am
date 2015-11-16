@@ -46,6 +46,7 @@ pgllibdir = $(libdir)/$(PACKAGE_NAME)
 pgllib_DATA = \
 	pglcmd.defaults \
 	pglcmd.lib \
+	pglcmd.lsb.lib \
 	pglcmd.main
 
 if HAVE_SYSTEMD
@@ -148,6 +149,7 @@ EXTRA_DIST = \
 	pglcmd.defaults.in \
 	pglcmd.in \
 	pglcmd.lib \
+	pglcmd.lsb.lib \
 	pglcmd.main.in \
 	pglcmd.wd.in
 
