@@ -1,8 +1,8 @@
 # pglcmd.main: pglcmd configuration script
 #
-# Copyright (C) 2005 - 2014 jre <jre-phoenix@users.sourceforge.net>
-# Parts and ideas from JFM, /meth/usr, lestlest (clessing), Morpheus and
-# perhaps others. More Info: http://forums.phoenixlabs.org
+# Copyright (C) 2005 - 2015 jre <jre-phoenix@users.sourceforge.net>
+# Parts and ideas 2005 - 2007 by JFM, /meth/usr, lestlest (clessing), Morpheus
+# and perhaps others. More Info: http://forums.phoenixlabs.org
 #
 # This file is part of pgl.
 #
@@ -17,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with pgl.  If not, see <http://www.gnu.org/licenses/>.
 
 
 CMD_DEFAULTS="/usr/lib/pgl/pglcmd.defaults"
@@ -39,17 +39,22 @@ if [ -f "$CMD_CONF" ] ; then
     . $CMD_CONF || echo "$0 Warning: Failed to source $CMD_CONF although this file exists."
 fi
 
+# Load fallback LSB init-functions shell library.
+# Those functions will be overwritten by the system's LSB init-functions
+# (if $LSB provides the used functions).
+if [ -f "$LSB_BUILTIN" ] ; then
+    . "$LSB_BUILTIN" || echo "$0 Warning: Failed to source ${LSB_BUILTIN} although this file exists."
+fi
+
+# Load LSB init-functions shell library
+if [ -f "$LSB" ] ; then
+    . "$LSB" || echo "$0 Warning: Failed to source $LSB although this file exists."
+fi
+
 # Load pglcmd library.
 if [ -f "$CMD_LIB" ] ; then
     . $CMD_LIB || { echo "$0 Error: Failed to source $CMD_LIB although this file exists."; exit 1; }
 else
     echo "$0: Missing file $CMD_LIB (Error $E_XFILE)."
     exit $E_XFILE
-fi
-
-# Load LSB init-functions shell library
-# As fallback there's a modified copy of the Debian init-functions in
-# pglcmd.lib. Those functions will be overwritten by the following functions.
-if [ -f "$LSB" ] ; then
-    . $LSB || echo "$0 Warning: Failed to source $LSB although this file exists."
 fi

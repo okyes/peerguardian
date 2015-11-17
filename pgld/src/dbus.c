@@ -1,7 +1,9 @@
 // pgld - D-Bus messaging interface
 //
-// Copyright (C) 2008 jpv (jpv950@gmail.com)
-// Copyright (C) 2008 Jindrich Makovicka (makovick@gmail.com)
+// Copyright (C) 2011 Dimitris Palyvos-Giannas <jimaras@gmail.com>
+// Copyright (C) 2009 Cader <cade.robinson@gmail.com>
+// Copyright (C) 2008 jpv <jpv950@gmail.com>
+// Copyright (C) 2008 Jindrich Makovicka <makovick@gmail.com>
 //
 // This file is part of pgl.
 //
@@ -16,7 +18,7 @@
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// along with pgl.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "dbus.h"

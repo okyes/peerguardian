@@ -1,9 +1,9 @@
 #!/bin/sh
 # pglcmd - pgl command line interface
 #
-# Copyright (C) 2005 - 2014 jre <jre-phoenix@users.sourceforge.net>
-# Parts and ideas from JFM, /meth/usr, lestlest (clessing), Morpheus and
-# perhaps others. More Info: http://forums.phoenixlabs.org
+# Copyright (C) 2005 - 2015 jre <jre-phoenix@users.sourceforge.net>
+# Parts and ideas 2005 - 2007 by JFM, /meth/usr, lestlest (clessing), Morpheus
+# and perhaps others. More Info: http://forums.phoenixlabs.org
 #
 # This file is part of pgl.
 #
@@ -18,12 +18,12 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with pgl.  If not, see <http://www.gnu.org/licenses/>.
 
 
 ################################################################################
 # The following code is common between pglcmd, pglcmd.wd,
-# cron.daily, initan and debian/pglcmd.postinst.
+# cron.daily, init and debian/pglcmd.postinst.
 
 # if-up is similar, but exits successfully if CONTROL_MAIN is not there, yet.
 # This can happen in early boot stages before local file systems are mounted.

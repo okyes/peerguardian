@@ -46,6 +46,7 @@ pgllibdir = $(libdir)/$(PACKAGE_NAME)
 pgllib_DATA = \
 	pglcmd.defaults \
 	pglcmd.lib \
+	pglcmd.lsb.lib \
 	pglcmd.main
 
 if HAVE_SYSTEMD
@@ -138,10 +139,6 @@ networkmanager/20pglcmd:
 # If the files get modified on "make", only the corresponding *.in files are
 # listed here. Otherwise the file that gets installed is listed here.
 EXTRA_DIST = \
-	pglcmd.defaults.in \
-	pglcmd.main.in \
-	pglcmd.in \
-	pglcmd.wd.in \
 	cron.daily/pglcmd.in \
 	init/pgl.in \
 	init/pgl.gentoo.in \
@@ -149,16 +146,22 @@ EXTRA_DIST = \
 	init/pgl-update.service.in \
 	init/pgl-update.timer \
 	networkmanager/20pglcmd.in \
-	pglcmd.lib
+	pglcmd.defaults.in \
+	pglcmd.in \
+	pglcmd.lib \
+	pglcmd.lsb.lib \
+	pglcmd.main.in \
+	pglcmd.wd.in
 
 # These files get removed on clean
 CLEANFILES = \
-	pglcmd.defaults \
-	pglcmd.main \
-	pglcmd \
-	pglcmd.wd \
 	cron.daily/pglcmd \
 	init/pgl \
+	init/pgl.gentoo \
 	init/pgl.service \
 	init/pgl-update.service \
-	networkmanager/20pglcmd
+	networkmanager/20pglcmd \
+	pglcmd.defaults \
+	pglcmd \
+	pglcmd.main \
+	pglcmd.wd
