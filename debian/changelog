@@ -1,3 +1,20 @@
+pgl (2.3.1-1) unstable; urgency=medium
+
+  * Link all package's docs' directory to pgld's (part 3).
+  * Apply wrap-and-sort, sort field names.
+  * Refactor Breaks/Replaces.
+  * Add Multi-Arch fields.
+  * Drop unneeded pglgui dependency on pgld.
+  * Update Standards-Version to 3.9.6.
+  * Add gbp.conf.
+  * Update watch file and check PGP signature.
+  * New release process, separate branches for backport dists.
+    (Re-)Add support for Debian 7 Wheezy (branch dists/debian7_wheezy), and
+    Debian 9 Stretch, Ubuntu 12.04 Precise (branch dists/ubuntu1204_precise),
+    Ubuntu 15.10 Wily and Ubuntu 16.04 Xenial.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Tue, 17 Nov 2015 03:12:52 +0100
+
 pgl (2.3.0-1) unstable; urgency=medium
 
   * new release

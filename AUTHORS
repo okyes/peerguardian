@@ -43,11 +43,13 @@ Contributors:
 
 3rd party:
 
-pglgui is using the crystal icon theme, released under the LGPL license.
+pglgui is using the Crystal Project Icons.
         Some icons may have been modified.
         More information:
         http://www.everaldo.com/
-        http://www.yellowicon.com/
+        http://web.archive.org/web/20101122171453/http://everaldo.com/crystal/
+        License: LGPL
 
 pglcmd.lib is using a modified version of the Debian LSB init-functions.
-        Copyright 2002-08 Chris Lawrence
+        Copyright 2002-08 Chris Lawrence - All rights reserved.
+        License: BSD-3-clause

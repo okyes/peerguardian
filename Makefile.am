@@ -35,7 +35,6 @@ EXTRA_DIST = \
 	debian/pglcmd.links \
 	debian/pglcmd.maintscript \
 	debian/pglcmd.postinst.in \
-	debian/pglcmd.postrm \
 	debian/pglcmd.templates \
 	debian/pgld-dbg.maintscript \
 	debian/pgld.dirs \

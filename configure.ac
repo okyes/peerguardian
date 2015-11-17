@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([pgl], [2.3.0], [http://sourceforge.net/p/peerguardian/bugs/])
+AC_INIT([pgl], [2.3.1], [http://sourceforge.net/p/peerguardian/bugs/])
 AC_CONFIG_SRCDIR([pgld/src/pgld.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -231,9 +231,9 @@ AS_IF([test "x$with_qt4" = "xyes"],
         [PKG_CHECK_MODULES([QT4DBUS], [QtDBus])],
         [AC_MSG_ERROR([qt4 needs dbus!])])]
     [AC_CHECK_QT4(["4.3.0"])] # from qt4.m4
-    [PKG_CHECK_MODULES([QT4], [QtCore QtGui polkit-qt-1])]
+    [PKG_CHECK_MODULES([QT4], [QtCore QtGui])]
     [AC_SEARCH_LIBS([pthread_create], [pthread])] # adds -lpthread to LIBS
-    [QT_CPPFLAGS="$QT_CPPFLAGS $QT4_CFLAGS $QT4DBUS_CFLAGS -I`$PKG_CONFIG --variable includedir polkit-qt-1`/polkit-qt-1"] # see https://bugs.kde.org/show_bug.cgi?id=297340
+    [QT_CPPFLAGS="$QT_CPPFLAGS $QT4_CFLAGS $QT4DBUS_CFLAGS"]
     [QT_LIBS="$QT_LIBS $QT4_LIBS $QT4DBUS_LIBS"]
     [QT_SUB="pglgui"])
 

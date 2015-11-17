@@ -1,7 +1,8 @@
 #!/bin/sh
 # if-up - insert pglcmd iptables whitelisting rules for newly brought up
 # interfaces.
-# Copyright (C) 2008 - 2011 jre <jre-phoenix@users.sourceforge.net>
+#
+# Copyright (C) 2008 - 2015 jre <jre-phoenix@users.sourceforge.net>
 #
 # This file is part of pgl.
 #
@@ -16,7 +17,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with pgl.  If not, see <http://www.gnu.org/licenses/>.
 
 
 # If used with NetworkManager, then only continue if an interface is brought up
