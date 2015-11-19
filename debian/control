@@ -6,7 +6,7 @@ Section: net
 Priority: optional
 Build-Depends:
  autoconf (>= 2.68~),
- debhelper (>= 9~),
+ debhelper (>= 9),
  dh-autoreconf,
  libdbus-1-dev,
  libnetfilter-queue-dev (>= 1.0~),
