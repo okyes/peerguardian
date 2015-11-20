@@ -42,14 +42,25 @@ fi
 # Load fallback LSB init-functions shell library.
 # Those functions will be overwritten by the system's LSB init-functions
 # (if $LSB provides the used functions).
+LSB_LOADED=0
 if [ -f "$LSB_BUILTIN" ] ; then
-    . "$LSB_BUILTIN" || echo "$0 Warning: Failed to source ${LSB_BUILTIN} although this file exists."
+    . "$LSB_BUILTIN" &&
+        LSB_LOADED=1 ||
+            echo "$0 Warning: Failed to source ${LSB_BUILTIN} although this file exists."
 fi
 
 # Load LSB init-functions shell library
 if [ -f "$LSB" ] ; then
-    . "$LSB" || echo "$0 Warning: Failed to source $LSB although this file exists."
+    . "$LSB" &&
+        LSB_LOADED=1 ||
+            echo "$0 Warning: Failed to source $LSB although this file exists."
 fi
+
+[ "$LSB_LOADED" = 1 ] ||
+    {
+        echo "$0 Error $E_XEXTERNAL: Couldn't load any of LSB_BUILTIN ($LSB_BUILTIN) or LSB ($LSB)."
+        exit $E_XEXTERNAL
+    }
 
 # Load pglcmd library.
 if [ -f "$CMD_LIB" ] ; then
