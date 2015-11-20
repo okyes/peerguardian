@@ -1,4 +1,4 @@
-# pglcmd.lib - shell functions for pglcmd
+# pglcmd.lib - shell functions for pglcmd -*-mode:shell-script-*-
 #
 # Copyright (C) 2005 - 2015 jre <jre-phoenix@users.sourceforge.net>
 # Parts and ideas 2005 - 2007 by JFM, /meth/usr, lestlest (clessing), Morpheus

@@ -1,4 +1,4 @@
-# pglcmd.defaults - default configuration file for pglcmd
+# pglcmd.defaults - default configuration file for pglcmd -*-mode:shell-script-*-
 
 # This file is sourced by a shell script. Any line which starts with a hash (#)
 # is a comment and is ignored.
