@@ -150,7 +150,7 @@ test
   answered).
 
 search
-  outputs the occurrences of a keyword and the names of the single blocklists.
+  outputs the occurences of a keyword and the names of the single blocklists.
 
 stats
   reports pgld's statistics.
