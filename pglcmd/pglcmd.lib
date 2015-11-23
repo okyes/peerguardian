@@ -141,22 +141,6 @@ test_IPTABLES_TARGET () {
     esac
 }
 
-# TODO (remove some day): Transition 2014-01-30
-test_ACCEPT () {
-    if [ -n "$ACCEPT" ] && [ "$ACCEPT" = 0 ] ; then
-        log_failure_msg "Error $E_CONFIG: You have set ACCEPT=0. This setting isn't supported anymore. Aborting ..."
-        exit $E_CONFIG
-    fi
-}
-
-# TODO (remove some day): Transition 2014-01-30
-test_REJECT () {
-    if [ -n "$REJECT" ] && [ "$REJECT" = 0 ] ; then
-        log_failure_msg "Error $E_CONFIG: You have set REJECT=0. This setting isn't supported anymore. Aborting ..."
-        exit $E_CONFIG
-    fi
-}
-
 # No test for REJECT_MARK. Valid: decimal and hexadecimal!?
 # No test for REJECT_IN. Valid: all iptables targets
 # No test for REJECT_OUT. Valid: all iptables targets
