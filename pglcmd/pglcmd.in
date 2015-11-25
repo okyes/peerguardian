@@ -108,6 +108,11 @@ case "$1" in
         ;;
 esac
 
+if [ "$#" = 1 ] || [ "$1" = search ] ; then
+    true
+else
+    usage
+fi
 
 # And now, make this script usable:
 case "$1" in
