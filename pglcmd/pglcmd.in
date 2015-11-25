@@ -47,6 +47,38 @@ fi
 
 RETVAL=0
 
+usage () {
+    cat <<EOF
+$DESC $VERSION
+
+pgl is licensed under the GNU General Public License v3, or (at your option)
+any later version. This program comes with ABSOLUTELY NO WARRANTY. This is
+free software, and you are welcome to modify and/or redistribute it.
+
+Usage: $(basename $0) MODE"
+Modes:
+    start
+    stop
+    start_wd
+    stop_wd
+    stop_quick
+    restart
+    reload
+    update
+    force-restart
+    force-reload
+    force-update
+    status
+    test
+    stats
+    reset_stats
+    email_stats
+    show_config
+    search pattern
+EOF
+    exit $E_BADARGS
+}
+
 # Set a trap on exit for commands with log_end_msg.
 # Then on exit do log_end_msg. Fixes output for failed commands.
 case "$1" in
@@ -291,33 +323,7 @@ case "$1" in
         RETVAL=$?
         ;;
     *)
-        echo "$DESC $VERSION"
-        echo
-        echo "pgl is licensed under the GNU General Public License v3, or (at your option)"
-        echo "any later version. This program comes with ABSOLUTELY NO WARRANTY. This is"
-        echo "free software, and you are welcome to modify and/or redistribute it."
-        echo
-        echo "Usage: $(basename $0) OPTION"
-        echo "Options:"
-        echo "    start"
-        echo "    stop"
-        echo "    start_wd"
-        echo "    stop_wd"
-        echo "    stop_quick"
-        echo "    restart"
-        echo "    reload"
-        echo "    update"
-        echo "    force-restart"
-        echo "    force-reload"
-        echo "    force-update"
-        echo "    status"
-        echo "    test"
-        echo "    stats"
-        echo "    reset_stats"
-        echo "    email_stats"
-        echo "    show_config"
-        echo "    search"
-        exit $E_BADARGS
+        usage
         ;;
 esac
 
