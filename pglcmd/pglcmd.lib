@@ -659,7 +659,7 @@ insert_iptables () {
                 log_end_msg "$?"
 
             # IP ranges whitelisting
-            if [ -f "$ALLOW_FILE" ] ; then
+            if [ -n "$ALLOW_FILE" ] && [ -f "$ALLOW_FILE" ] ; then
                 echo -n "....Whitelisting IP ranges"
                 # Read the non-comment|not-empty lines from the allow file:
                 ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOW_FILE)"
