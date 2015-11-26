@@ -563,8 +563,6 @@ insert_iptables () {
 
         # Variable tests
         test_IPTABLES_TARGET
-        test_REJECT
-        test_ACCEPT
 
         # Set constant variables for iptables commands
         case "$IPTABLES_TARGET" in
@@ -963,8 +961,6 @@ do_start () {
                 build_blocklist
 
             test_IPTABLES_TARGET
-            test_REJECT
-            test_ACCEPT
             test_IPTABLES_VARS
             test_LOG_SYSLOG
             test_PIDFILE
@@ -1010,13 +1006,11 @@ do_start () {
             [ -f /proc/net/ip_tables_matches ] && grep -q mark /proc/net/ip_tables_matches ||
                 modprobe -q xt_mark ||
                 modprobe -q ipt_mark ||
-                if [ "$REJECT" = 1 ] || [ "$ACCEPT" = 1 ] ; then
+                {
                     log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_mark, not starting $NAME!"
                     log_failure_msg "Use a kernel with netfilter MARK support."
                     exit $E_XEXTERNAL
-                else
-                    log_warning_msg "Warning: Could not load kernel module xt_mark, continuing anyway."
-                fi
+                }
 
             # ipt_REJECT
             if [ "$REJECT_OUT" = REJECT ] || [ "$REJECT_FWD" = REJECT ] || [ "$REJECT_IN" = REJECT ] ; then
@@ -1768,7 +1762,6 @@ build_blocklist () {
 test_ipblocking () {
     # First check some preconditions for the test:
     test_DAEMON
-    test_REJECT
 
     [ -f "$MASTER_BLOCKLIST" ] || {
         log_failure_msg " Error $E_BLOCKLIST: $MASTER_BLOCKLIST not available."
