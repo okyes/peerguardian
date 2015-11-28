@@ -47,6 +47,7 @@ fi
 
 RETVAL=0
 
+# Prints a usage message and errors out.
 usage () {
     cat <<EOF
 $DESC $VERSION
@@ -55,8 +56,8 @@ pgl is licensed under the GNU General Public License v3, or (at your option)
 any later version. This program comes with ABSOLUTELY NO WARRANTY. This is
 free software, and you are welcome to modify and/or redistribute it.
 
-Usage: $(basename $0) MODE"
-Modes:
+Usage: $(basename $0) command"
+Commands:
     start
     stop
     start_wd
