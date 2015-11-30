@@ -523,43 +523,341 @@ white_local () {
 }
 
 # Function to be executed if iptables insert command fails:
-# removes all iptables rules again and aborts
+# - Removes all iptables rules again (if not in configure mode)
+# - Aborts.
 fail_insert_iptables () {
     log_end_msg $?
-    # Try to build the REMOVE_SCRIPT in any case
-    [ ! -e "${REMOVE_SCRIPT}" ] || cat ${REMOVE_SCRIPT} >> ${REMOVE_SCRIPT}.tmp
-    mv ${REMOVE_SCRIPT}.tmp $REMOVE_SCRIPT
-    delete_iptables
+    if [ "$CMD_OPTION" != configure ] ; then
+        # Try to build the REMOVE_SCRIPT in any case
+        [ ! -e "${REMOVE_SCRIPT}" ] || cat ${REMOVE_SCRIPT} >> ${REMOVE_SCRIPT}.tmp
+        mv ${REMOVE_SCRIPT}.tmp $REMOVE_SCRIPT
+        delete_iptables
+    fi
     exit $E_IPTABLES
+}
+
+# Called by "pglcmd configure" with $@.
+configure () {
+
+    # Create temporary file CMD_CONF_TMP (pglcmd.conf) safely:
+    if echo "$@" | grep -q "\-\-permanent" ; then
+        CMD_CONF_TMP=$(mktemp)
+        cat "$CMD_CONF" > "$CMD_CONF_TMP"
+    fi
+    conf_updated=0
+
+    OPT=
+    OPTARG=
+    while [ "$#" -gt 0 ] ; do
+        case $1 in
+        configure)
+            shift
+            continue
+            ;;
+        --*)
+            # Remember the option (and if permanent) for all following args.
+            # Remove leading "--" and "permanent_" from the option, we only
+            # work with the following part as OPT.
+            OPT="$( echo "$1" | sed -e "s|--\(.*\)|\1|" -e "s|permanent_\(.*\)|\1|" )"
+            if [ "$1" = "--permanent_$OPT" ] ; then
+                permanent=1
+            else
+                permanent=0
+            fi
+            shift
+            continue
+            ;;
+        *)
+            if [ -z "$OPT" ] ; then
+                usage # Error out if in "configure", but no OPT was given first.
+            fi
+            OPTARG="$1"
+            ;;
+        esac
+
+        case $OPT in
+        add_tcp_in)
+            ADD_TCP_IN="$ADD_TCP_IN $OPTARG"
+            [ "$permanent" = 0 ] || configure_permanent WHITE_TCP_IN
+            ;;
+        add_tcp_out)
+            ADD_TCP_OUT="$ADD_TCP_OUT $OPTARG"
+            [ "$permanent" = 0 ] || configure_permanent WHITE_TCP_OUT
+            ;;
+        add_tcp_fwd)
+            ADD_TCP_FWD="$ADD_TCP_FWD $OPTARG"
+            [ "$permanent" = 0 ] || configure_permanent WHITE_TCP_FWD
+            ;;
+        add_udp_in)
+            ADD_UDP_IN="$ADD_UDP_IN $OPTARG"
+            [ "$permanent" = 0 ] || configure_permanent WHITE_UDP_IN
+            ;;
+        add_udp_out)
+            ADD_UDP_OUT="$ADD_UDP_OUT $OPTARG"
+            [ "$permanent" = 0 ] || configure_permanent WHITE_UDP_OUT
+            ;;
+        add_udp_fwd)
+            ADD_UDP_FWD="$ADD_UDP_FWD $OPTARG"
+            [ "$permanent" = 0 ] || configure_permanent WHITE_UDP_FWD
+            ;;
+        add_ip_in)
+            ADD_IP_IN="$ADD_IP_IN $OPTARG"
+            [ "$permanent" = 0 ] || configure_permanent WHITE_IP_IN
+            ;;
+        add_ip_out)
+            ADD_IP_OUT="$ADD_IP_OUT $OPTARG"
+            [ "$permanent" = 0 ] || configure_permanent WHITE_IP_OUT
+            ;;
+        add_ip_fwd)
+            ADD_IP_FWD="$ADD_IP_FWD $OPTARG"
+            [ "$permanent" = 0 ] || configure_permanent WHITE_IP_FWD
+            ;;
+        drop_tcp_in)
+            DROP_TCP_IN="$DROP_TCP_IN $OPTARG"
+            [ "$permanent" = 0 ] || configure_permanent WHITE_TCP_IN
+            ;;
+        drop_tcp_out)
+            DROP_TCP_OUT="$DROP_TCP_OUT $OPTARG"
+            [ "$permanent" = 0 ] || configure_permanent WHITE_TCP_OUT
+            ;;
+        drop_tcp_fwd)
+            DROP_TCP_FWD="$DROP_TCP_FWD $OPTARG"
+            [ "$permanent" = 0 ] || configure_permanent WHITE_TCP_FWD
+            ;;
+        drop_udp_in)
+            DROP_UDP_IN="$DROP_UDP_IN $OPTARG"
+            [ "$permanent" = 0 ] || configure_permanent WHITE_UDP_IN
+            ;;
+        drop_udp_out)
+            DROP_UDP_OUT="$DROP_UDP_OUT $OPTARG"
+            [ "$permanent" = 0 ] || configure_permanent WHITE_UDP_OUT
+            ;;
+        drop_udp_fwd)
+            DROP_UDP_FWD="$DROP_UDP_FWD $OPTARG"
+            [ "$permanent" = 0 ] || configure_permanent WHITE_UDP_FWD
+            ;;
+        drop_ip_in)
+            DROP_IP_IN="$DROP_IP_IN $OPTARG"
+            [ "$permanent" = 0 ] || configure_permanent WHITE_IP_IN
+            ;;
+        drop_ip_out)
+            DROP_IP_OUT="$DROP_IP_OUT $OPTARG"
+            [ "$permanent" = 0 ] || configure_permanent WHITE_IP_OUT
+            ;;
+        drop_ip_fwd)
+            DROP_IP_FWD="$DROP_IP_FWD $OPTARG"
+            [ "$permanent" = 0 ] || configure_permanent WHITE_IP_FWD
+            ;;
+        *)
+            echo "Invalid option: $1"
+            usage
+            ;;
+        esac
+
+        shift
+    done
+
+    # If any ADD_ variable is set ...
+    if [ -n "$ADD_TCP_IN" ] ||
+       [ -n "$ADD_TCP_OUT" ] ||
+       [ -n "$ADD_TCP_FWD" ] ||
+       [ -n "$ADD_UDP_IN" ] ||
+       [ -n "$ADD_UDP_OUT" ] ||
+       [ -n "$ADD_UDP_FWD" ] ||
+       [ -n "$ADD_IP_IN" ] ||
+       [ -n "$ADD_IP_OUT" ] ||
+       [ -n "$ADD_IP_FWD" ] ; then
+
+        if status_of_proc $DAEMON $NAME > /dev/null 2>&1 ; then
+            IPTABLES_MODE=add
+            WHITE_TCP_IN="$ADD_TCP_IN"
+            WHITE_TCP_OUT="$ADD_TCP_OUT"
+            WHITE_TCP_FWD="$ADD_TCP_FWD"
+            WHITE_UDP_IN="$ADD_UDP_IN"
+            WHITE_UDP_OUT="$ADD_UDP_OUT"
+            WHITE_UDP_FWD="$ADD_UDP_FWD"
+            WHITE_IP_IN="$ADD_IP_IN"
+            WHITE_IP_OUT="$ADD_IP_OUT"
+            WHITE_IP_FWD="$ADD_IP_FWD"
+            insert_iptables
+        else
+            echo "$DAEMON is not running, not changing the iptables rules."
+        fi
+    fi
+
+    # If any DROP_ variable is set ...
+    if [ -n "$DROP_TCP_IN" ] ||
+       [ -n "$DROP_TCP_OUT" ] ||
+       [ -n "$DROP_TCP_FWD" ] ||
+       [ -n "$DROP_UDP_IN" ] ||
+       [ -n "$DROP_UDP_OUT" ] ||
+       [ -n "$DROP_UDP_FWD" ] ||
+       [ -n "$DROP_IP_IN" ] ||
+       [ -n "$DROP_IP_OUT" ] ||
+       [ -n "$DROP_IP_FWD" ] ; then
+        if status_of_proc $DAEMON $NAME > /dev/null 2>&1 ; then
+            IPTABLES_MODE=remove
+            WHITE_TCP_IN="$DROP_TCP_IN"
+            WHITE_TCP_OUT="$DROP_TCP_OUT"
+            WHITE_TCP_FWD="$DROP_TCP_FWD"
+            WHITE_UDP_IN="$DROP_UDP_IN"
+            WHITE_UDP_OUT="$DROP_UDP_OUT"
+            WHITE_UDP_FWD="$DROP_UDP_FWD"
+            WHITE_IP_IN="$DROP_IP_IN"
+            WHITE_IP_OUT="$DROP_IP_OUT"
+            WHITE_IP_FWD="$DROP_IP_FWD"
+            insert_iptables
+        else
+            echo "$DAEMON is not running, not changing the iptables rules."
+        fi
+    fi
+
+    # Write back the changed conffiles.
+    [ "$conf_updated" = 0 ] || cat "$CMD_CONF_TMP" > "$CMD_CONF"
+
+}
+
+# Called from "pglcmd configure" to write changed settings to pglcmd.conf.
+configure_permanent() {
+    local is_present=no SEARCHTERMS= VALUE= VALUES=
+
+    [ -n "$OPT" ] || { echo "Internal error: configure_permanent OPT not set." ; exit 1 ; }
+    [ -n "$OPTARG" ] || { echo "Internal error: configure_permanent OPTARG not set." ; exit 1 ; }
+    [ "$#" = 1 ] || { echo "Internal error: Usage \"configure_permanent VARIABLE\", arguments were: \"${@}\"." ; exit 1 ; }
+
+    case $OPT in
+    *tcp*)
+        PROTO=tcp
+        ;;
+    *udp*)
+        PROTO=udp
+        ;;
+    *ip*)
+        PROTO=
+        ;;
+    *)
+        echo "Internal error: configure_permanent OPT $OPT not known."
+        exit 1
+        ;;
+    esac
+
+    # Find the SEARCHTERMS (OPTARG and synonyms) that we are looking for.
+    if [ -n "$PROTO" ] && [ -f /etc/services ] ; then # Working on ports and port-mapping file exists.
+        # SEARCHTERMS is the port number and the corresponding servicenames/whatever (column 1 and 3 of /etc/services)
+        if [ "$OPTARG" -gt 0 ] 2>/dev/null ; then # OPTARG is a portnumber.
+            # Only take the one line matching " port/proto" (with space in front of port, because 8080 != 80) in /etc/services,
+            # then remove /proto and comments.
+            # Note: command always succeeds because last command sed always succeeds.
+            SEARCHTERMS="$(grep "^.*[[:space:]]${OPTARG}/${PROTO}" /etc/services | sed "s|/${PROTO}||;s|#.*||")"
+        else # OPTARG is a servicename.
+            # line 1: only lines matching PROTO
+            # line 2: remove /proto and comments
+            # line 3: only match whole word, defined by 3 possibilities: surrounded by
+            #         - line-beginning and whitespace
+            #         - whitespace and whitespace
+            #         - whitespace and end of line
+            SEARCHTERMS="$(grep $PROTO /etc/services |
+                        sed "s|#.*||g;s|/${PROTO}||g" |
+                        grep -E "^$OPTARG[[:space:]]{1,}|[[:space:]]{1,}$OPTARG[[:space:]]{1,}|[[:space:]]{1,}$OPTARG$" || true )"
+        fi
+    fi
+    # SEARCHTERM is still empty if nothing was found in /etc/services, or if not working on ports.
+    [ -n "$SEARCHTERMS" ] || SEARCHTERMS="$OPTARG"
+
+    # OPT            is the option given to "pglcmd configure", e.g. add_tcp_out
+    # $1             is the corresponding VARIABLE name, e.g. WHITE_IP_OUT
+    # OPTARG         is the value that we want to add/drop to/from the variable, e.g. 80 or 123.123.123.123[/24]
+    # eval echo \$$1 is the current value of the VARIABLE
+    case $OPT in
+    *add*)
+        for i in $SEARCHTERMS ; do          # Check if the value (or corresponding values) ...
+            for j in $(eval echo \$$1) ; do # ... is already present in the VARIABLE.
+                if [ "$i" = "$j" ] ; then
+                    is_present=yes
+                    break
+                fi
+            done
+            [ "$is_present" = no ] || break  # break if is_present=yes
+        done
+
+        if grep -q "^[[:space:]]*$1=" "$CMD_CONF_TMP" ; then # Variable ($1) is set in pglcmd.conf.
+            if [ "$is_present" = no ] ; then
+                # Add VALUE to VARIABLE values in pglcmd.conf.
+                sed -i "s|^[[:space:]]*$1=.*|$1=\"$(eval echo \$$1) $OPTARG\"|g" "$CMD_CONF_TMP"
+            fi
+        else # VARIABLE is not set in pglcmd.conf.
+            # Make sure the file has an eol.
+            sed -i -e '$a\' "$CMD_CONF_TMP"
+            # Add VAR with OPTARG set to pglcmd.conf.
+            echo "$1=\"$OPTARG\"" >> "$CMD_CONF_TMP"
+        fi
+        ;;
+    *drop*)
+        if grep -q "^[[:space:]]*$1=" "$CMD_CONF_TMP" ; then # VARIABLE ($1) is set in pglcmd.conf.
+            for i in $SEARCHTERMS ; do                            # Check if the value (or corresponding values) ...
+                for j in $(eval echo \$$1) ; do                   # ... is already present in the VARIABLE.
+                    # Remove values from VARIABLE.
+                    if [ "$i" = "$j" ] ; then
+                        is_present=yes
+                    else
+                        VALUES="$VALUES $j"
+                    fi
+                done
+            done
+            if [ "$is_present" = yes ] ; then
+                # Remove VALUE from VARIABLE values in pglcmd.conf.
+                sed -i "s|^[[:space:]]*$1=.*|$1=\"$VALUES\"|g" "$CMD_CONF_TMP"
+            fi
+        fi
+        ;;
+    esac
+
+    # Reload (temporary) conf
+    . "$CMD_CONF_TMP"
+
+    conf_updated=1
 }
 
 # Set REMOVE_SCRIPT needed by insert_iptables and delete_iptables
 REMOVE_SCRIPT="$MASTER_BLOCKLIST_DIR/.${CMD_NAME}.iptables.remove.sh"
 
 # Function that inserts the iptables rules
+# This is designed to be called on "start". If necessary make exceptions if it is
+# called from another command, e.g. "configure".
 insert_iptables () {
+
     # test_IPTABLES_VARS # Already tested in do_start
     test_external iptables || {
         log_failure_msg "Error $E_XEXTERNAL: iptables not installed."
         exit $E_XEXTERNAL
         }
-    if [ -f "$REMOVE_SCRIPT" ] ; then
+
+    if [ "$CMD_OPTION" != configure ] && [ -f "$REMOVE_SCRIPT" ] ; then
         echo -n "Old iptables remove script $REMOVE_SCRIPT exists. Strange. Executing"
         sh $REMOVE_SCRIPT
         echo -n " and removing it"
         rm $REMOVE_SCRIPT
         log_end_msg $?
     fi
+
     case "$IPTABLES_SETTINGS" in
+
     '0')
         test_VERBOSE
         if [ "$VERBOSE" -eq 1 ] ; then
             log_warning_msg "$(basename $0) is configured not to insert iptables rules."
         fi
         ;;
+
     # Place iptables rules in separate iptables chains (pgl_in, pgl_out and pgl_fwd).
     '1')
-        echo "Inserting iptables ..."
+        # If not set, set IPTABLES_MODE to default "add".
+        IPTABLES_MODE=${IPTABLES_MODE:-add}
+        if [ "$CMD_OPTION" = configure ] && [ "$IPTABLES_MODE" = remove ] ; then
+            echo "Removing some iptables rules ..."
+        else
+            echo "Inserting iptables ..."
+        fi
 
         # Variable tests
         test_IPTABLES_TARGET
@@ -584,30 +882,30 @@ insert_iptables () {
             case $CHAIN in
             INPUT)
                 PGL_CHAIN="$IPTABLES_IN"
-                WHITE_TCP="$WHITE_TCP_IN"
-                WHITE_UDP="$WHITE_UDP_IN"
+                WHITE_TCP="$WHITE_TCP_IN" # read from conffile or set by "configure"
+                WHITE_UDP="$WHITE_UDP_IN" # read from conffile or set by "configure"
                 CMD_WHITE_IP="--source"
-                WHITE_IP="$WHITE_IP_IN"
+                WHITE_IP="$WHITE_IP_IN"   # read from conffile or set by "configure"
                 CMD_ALLOW="--src-range"
                 ALLOW_FILE="$ALLOW_IN"
                 REJECT_TARGET="$REJECT_IN"
                 ;;
             OUTPUT)
                 PGL_CHAIN="$IPTABLES_OUT"
-                WHITE_TCP="$WHITE_TCP_OUT"
-                WHITE_UDP="$WHITE_UDP_OUT"
+                WHITE_TCP="$WHITE_TCP_OUT" # read from conffile or set by "configure"
+                WHITE_UDP="$WHITE_UDP_OUT" # read from conffile or set by "configure"
                 CMD_WHITE_IP="--destination"
-                WHITE_IP="$WHITE_IP_OUT"
+                WHITE_IP="$WHITE_IP_OUT"   # read from conffile or set by "configure"
                 CMD_ALLOW="--dst-range"
                 ALLOW_FILE="$ALLOW_OUT"
                 REJECT_TARGET="$REJECT_OUT"
                 ;;
             FORWARD)
                 PGL_CHAIN="$IPTABLES_FWD"
-                WHITE_TCP="$WHITE_TCP_FWD"
-                WHITE_UDP="$WHITE_UDP_FWD"
+                WHITE_TCP="$WHITE_TCP_FWD" # read from conffile or set by "configure"
+                WHITE_UDP="$WHITE_UDP_FWD" # read from conffile or set by "configure"
                 CMD_WHITE_IP="--source --destination"
-                WHITE_IP="$WHITE_IP_FWD"
+                WHITE_IP="$WHITE_IP_FWD"   # read from conffile or set by "whitelist"
                 CMD_ALLOW="--src-range --dst-range"
                 ALLOW_FILE="$ALLOW_FWD"
                 REJECT_TARGET="$REJECT_FWD"
@@ -618,45 +916,158 @@ insert_iptables () {
                 ;;
             esac
 
-            # Create new pgl_ chain and remember iptables removal rules.
-            # Remember the removal command before actually inserting, because one of the possible reasons for
-            # the iptables command to fail is that the chain already exists (for whatever reason).
-            echo -n "....Creating chain" &&
+            if [ "$CMD_OPTION" != configure ] ; then
+
+                # Create new pgl_ chain and remember iptables removal rules.
+                # Remember the removal command before actually inserting, because one of the possible reasons for
+                # the iptables command to fail is that the chain already exists (for whatever reason).
+                echo -n "....Creating chain"
                 echo "iptables -F $PGL_CHAIN" >> $REMOVE_SCRIPT &&
                 echo "iptables -X $PGL_CHAIN" >> $REMOVE_SCRIPT &&
-                iptables -N $PGL_CHAIN ||
-                fail_insert_iptables
+                iptables -N $PGL_CHAIN || fail_insert_iptables
 
-            # Insert NFQUEUE rule.
-            echo -n " and inserting $IPTABLES_TARGET rule" &&
+                # Insert NFQUEUE rule.
+                echo -n " and inserting $IPTABLES_TARGET rule"
                 iptables -I $PGL_CHAIN -j $IPTABLES_TARGET_BLOCK &&
-                log_end_msg "$?" ||
-                fail_insert_iptables
+                log_end_msg "$?" || fail_insert_iptables
 
-            # Port Whitelisting
-            [ -z "$WHITE_TCP" ] && [ -z "$WHITE_UDP" ] ||
-                {
-                echo -n "....Whitelisting ports" &&
-                for PORT in $WHITE_TCP ; do
-                    iptables -I $PGL_CHAIN -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
-                done &&
-                for PORT in $WHITE_UDP ; do
-                    iptables -I $PGL_CHAIN -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
-                done &&
-                log_end_msg "$?"
-                }
-
-            # IP Whitelisting
-            [ -n "$WHITE_IP" ] &&
-                echo -n "....Whitelisting IPs" &&
-                for IP in $WHITE_IP ; do
-                    # Add whitelisting rule
-                    # (add 2 rules in the FORWARD chain: once for --source, once for --destination)
-                    for CMD in $CMD_WHITE_IP ; do
-                        iptables -I $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                # Port Whitelisting
+                if [ -n "$WHITE_TCP" ] || [ -n "$WHITE_UDP" ] ; then
+                    echo -n "....Whitelisting ports"
+                    for PORT in $WHITE_TCP ; do
+                        iptables -I $PGL_CHAIN -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
                     done
-                done &&
-                log_end_msg "$?"
+                    for PORT in $WHITE_UDP ; do
+                        iptables -I $PGL_CHAIN -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                    done
+                    log_end_msg "$?"
+                fi
+
+                # IP Whitelisting
+                if [ -n "$WHITE_IP" ] ; then
+                    echo -n "....Whitelisting IPs"
+                    for IP in $WHITE_IP ; do
+                        # Add whitelisting rule
+                        # (add 2 rules in the FORWARD chain: once for --source, once for --destination)
+                        for CMD in $CMD_WHITE_IP ; do
+                            iptables -I $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                        done
+                    done
+                    log_end_msg "$?"
+                fi
+            else # in configure mode
+                # The port and ip whitelisting rules from above, but
+                # - always with a test if necessary,
+                # - reversed logic if in remove mode (NOT_IF_REMOVE).
+
+                # Port Whitelisting
+                if [ -n "$WHITE_TCP" ] || [ -n "$WHITE_UDP" ] ; then
+                    echo -n "....Whitelisting ports"
+                    for PORT in $WHITE_TCP ; do
+
+                        if ! [ "$PORT" -gt 0 ] 2>/dev/null ; then # Port is not a number, try to find it in /etc/services.
+                            # line 1: only lines matching PROTO
+                            # line 2: strip comments
+                            # line 3: only match whole PORT, defined by 3 possibilities: surrounded by
+                            #         - line-beginning and whitespace
+                            #         - whitespace and whitespace
+                            #         - whitespace and end of line
+                            # line 4: take only numbers/PROTO
+                            # line 5: strip PROTO
+                            PORT_NEW="$( grep tcp /etc/services |
+                                         sed "s|#.*||" |
+                                         grep -E "^$PORT[[:space:]]{1,}|[[:space:]]{1,}$PORT[[:space:]]{1,}|[[:space:]]{1,}$PORT$" |
+                                         grep -o "[[:digit:]]*/tcp" |
+                                         sed "s|/tcp||" )"
+                            if [ "$PORT_NEW" -gt 0 ] ; then
+                                PORT="$PORT_NEW"
+                            else
+                                echo "Error: PORT_NEW $PORT_NEW for PORT $PORT is not a number."
+                                exit "$E_BADARGS"
+                            fi
+                        fi
+
+                        if [ "$IPTABLES_MODE" = add ] ; then
+                            iptables -L $PGL_CHAIN -n | grep -Exq ".*$IPTABLES_TARGET_WHITELISTING *tcp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *" ||
+                            iptables -I $PGL_CHAIN -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                        else
+                            ! iptables -L $PGL_CHAIN -n | grep -Exq ".*$IPTABLES_TARGET_WHITELISTING *tcp *-- *0.0.0.0/0 *0.0.0.0/0 *tcp dpt:$PORT *" ||
+                            iptables -D $PGL_CHAIN -p tcp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                        fi
+                    done
+                    for PORT in $WHITE_UDP ; do
+
+                        if ! [ "$PORT" -gt 0 ] 2>/dev/null ; then # Port is not a number, try to find it in /etc/services.
+                            # line 1: only lines matching PROTO
+                            # line 2: strip comments
+                            # line 3: only match whole PORT, defined by 3 possibilities: surrounded by
+                            #         - line-beginning and whitespace
+                            #         - whitespace and whitespace
+                            #         - whitespace and end of line
+                            # line 4: take only numbers/PROTO
+                            # line 5: strip PROTO
+                            PORT_NEW="$( grep udp /etc/services |
+                                         sed "s|#.*||" |
+                                         grep -E "^$PORT[[:space:]]{1,}|[[:space:]]{1,}$PORT[[:space:]]{1,}|[[:space:]]{1,}$PORT$" |
+                                         grep -o "[[:digit:]]*/udp" |
+                                         sed "s|/udp||" )"
+                            if [ "$PORT_NEW" -gt 0 ] ; then
+                                PORT="$PORT_NEW"
+                            else
+                                echo "Error: PORT_NEW $PORT_NEW for PORT $PORT is not a number."
+                                exit "$E_BADARGS"
+                            fi
+                        fi
+
+                        if [ "$IPTABLES_MODE" = add ] ; then
+                            iptables -L $PGL_CHAIN -n | grep -Exq ".*$IPTABLES_TARGET_WHITELISTING *udp *-- *0.0.0.0/0 *0.0.0.0/0 *udp dpt:$PORT *" ||
+                            iptables -I $PGL_CHAIN -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                        else
+                            ! iptables -L $PGL_CHAIN -n | grep -Exq ".*$IPTABLES_TARGET_WHITELISTING *udp *-- *0.0.0.0/0 *0.0.0.0/0 *udp dpt:$PORT *" ||
+                            iptables -D $PGL_CHAIN -p udp --dport $PORT -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                        fi
+
+                    done
+                    log_end_msg "$?"
+                fi
+
+                # IP Whitelisting
+                if [ -n "$WHITE_IP" ] ; then
+                    echo -n "....Whitelisting IPs"
+                    for IP in $WHITE_IP ; do
+                        # Add whitelisting rule
+                        # (add 2 rules in the FORWARD chain: once for --source, once for --destination)
+                        for CMD in $CMD_WHITE_IP ; do
+
+                            if [ "$CMD" = --source ] ; then
+                                if [ "$IPTABLES_MODE" = add ] ; then
+                                    iptables -L $PGL_CHAIN -n | grep -Exq ".*$IPTABLES_TARGET_WHITELISTING *all *-- *$IP *0.0.0.0/0 *" ||
+                                    iptables -I $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                                else
+                                    ! iptables -L $PGL_CHAIN -n | grep -Exq ".*$IPTABLES_TARGET_WHITELISTING *all *-- *$IP *0.0.0.0/0 *" ||
+                                    iptables -D $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                                fi
+                            fi
+
+                            if [ "$CMD" = --destination ] ; then
+                                if [ "$IPTABLES_MODE" = add ] ; then
+                                    iptables -L $PGL_CHAIN -n | grep -Exq ".*$IPTABLES_TARGET_WHITELISTING *all *-- *0.0.0.0/0 *$IP *" ||
+                                    iptables -I $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                                else
+                                    ! iptables -L $PGL_CHAIN -n | grep -Exq ".*$IPTABLES_TARGET_WHITELISTING *all *-- *0.0.0.0/0 *$IP *" ||
+                                    iptables -D $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                                fi
+                            fi
+                        done
+                    done
+                    log_end_msg "$?"
+                fi
+
+                continue
+            fi
+
+            # Nothing left to do for configure insert_iptables, leave the loop, can't leave the function here.
+            [ "$CMD_OPTION" != configure ] || return
 
             # IP ranges whitelisting
             if [ -n "$ALLOW_FILE" ] && [ -f "$ALLOW_FILE" ] ; then
@@ -707,6 +1118,9 @@ insert_iptables () {
             fi
             log_end_msg "$?"
         done
+
+        # Nothing left to do for configure insert_iptables, leave the function.
+        [ "$CMD_OPTION" != configure ] || return
 
         # Automatically whitelist LAN of all up interfaces, loopback interface
         # and DNS server(s) (if configured)

@@ -76,6 +76,29 @@ Commands:
     email_stats
     show_config
     search pattern
+    configure --option arg [arg ...] [--option arg [arg ...] ...]
+        Whitelisting iptables rules are instantly updated if $NAME is running.
+        If the arg starts with permanent_ they  are also saved in
+        ${CMD_CONF}.
+        The following options are available, they may be combined freely:
+        --[permanent_]add_tcp_in port [port ...]
+        --[permanent_]add_tcp_out port [port ...]
+        --[permanent_]add_tcp_fwd port [port ...]
+        --[permanent_]add_udp_in port [port ...]
+        --[permanent_]add_udp_out port [port ...]
+        --[permanent_]add_udp_fwd port [port ...]
+        --[permanent_]add_ip_in ip [ip ...]
+        --[permanent_]add_ip_out ip [ip ...]
+        --[permanent_]add_ip_fwd ip [ip ...]
+        --[permanent_]drop_tcp_in port [port ...]
+        --[permanent_]drop_tcp_out port [port ...]
+        --[permanent_]drop_tcp_fwd port [port ...]
+        --[permanent_]drop_udp_in port [port ...]
+        --[permanent_]drop_udp_out port [port ...]
+        --[permanent_]drop_udp_fwd port [port ...]
+        --[permanent_]drop_ip_in ip [ip ...]
+        --[permanent_]drop_ip_out ip [ip ...]
+        --[permanent_]drop_ip_fwd ip [ip ...]
 EOF
     exit $E_BADARGS
 }
@@ -95,7 +118,8 @@ case "$1" in
         'stop'|\
         'stop_quick'|\
         'stop_wd'|\
-        'update'\
+        'update'|\
+        'configure'\
     )
         test_root
         # Define an exit function for trapped signals
@@ -109,7 +133,7 @@ case "$1" in
         ;;
 esac
 
-if [ "$#" = 1 ] || [ "$1" = search ] ; then
+if [ "$#" = 1 ] || [ "$1" = configure ] || [ "$1" = search ] ; then
     true
 else
     usage
@@ -327,6 +351,13 @@ case "$1" in
         SEARCHPATTERN="$2"
         search
         RETVAL=$?
+        ;;
+    'configure')
+        # Note: configure does not fail if a single arg fails.
+        test_CMD_LOG
+        echo "$(date +%F" "%X" "%Z) Begin: $(basename $0) $@" >> $CMD_LOG 2>&1
+        configure $@ >> $CMD_LOG 2>&1
+        echo "$(date +%F" "%X" "%Z) End: $(basename $0) $@">> $CMD_LOG 2>&1
         ;;
     *)
         usage
