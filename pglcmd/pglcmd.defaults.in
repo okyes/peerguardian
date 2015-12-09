@@ -155,7 +155,11 @@ NICE_LEVEL="+0"
 # options are hardcoded in pglcmd.lib and so are not changeable here.
 # The default options make sure that pglcmd plays nice with the list
 # servers.
-# For example you may specify a proxy:
+# Note: iblocklist.com compresses the blocklists with 7z if the user-agent is
+# pglcmd. If 7z isn't installed on your system the user-agent is changed
+# automatically to "${CMD_NAME}_7xz/${VERSION}". So if you set WGET_OPTS
+# manually and don't have 7z installed, you have to do the same.
+# Example for specifying a proxy URL:
 # WGET_OPTS="env http_proxy=URL wget -q -t 5 -T 120 -w 5 --user-agent=${CMD_NAME}/${VERSION}"
 WGET_OPTS="wget -q -t 5 -T 120 -w 5 --user-agent=${CMD_NAME}/${VERSION}"
 

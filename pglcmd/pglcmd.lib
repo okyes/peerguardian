@@ -1487,7 +1487,16 @@ extract_blocklist () {
             { test_external 7za && EXTRACT_CMD='7za x "$BLOCKLIST_DOWNLOADED" -so > "${BLOCKLIST_EXTRACTED}.tmp"' ; } ||
             { test_external 7z && EXTRACT_CMD='7z x "$BLOCKLIST_DOWNLOADED" -so > "${BLOCKLIST_EXTRACTED}.tmp"' ; } ||
             { test_external p7zip && EXTRACT_CMD="p7zip -d < $BLOCKLIST_DOWNLOADED > ${BLOCKLIST_EXTRACTED}.tmp" ; } ||
+            {
+                log_failure_msg "Error $E_XEXTERNAL: 7z not installed."
+                if grep -q WGET_OPTS "$CMD_CONF" && echo "$LIST_URL"|grep -q "iblocklist.com" ; then
+                    echo "You are using blocklists from iblocklist.com and have in $CMD_CONF:"
+                    echo "WGET_OPTS=\"$WGET_OPTS\""
+                    echo "iblocklist.com compresses the blocklists with 7z if the user-agent is pglcmd (\$CMD_NAME)."
+                    echo "Remove the user-agent or change it to pglcmd_x7z to receive gz blocklists."
+                fi
                 exit $E_XEXTERNAL
+            }
             eval $EXTRACT_CMD || {
                 log_failure_msg "Error $E_BLOCKLIST: Failed to extract $LIST_NAME."
                 log_failure_msg "Removing $BLOCKLIST_DOWNLOADED."
