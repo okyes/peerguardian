@@ -1591,6 +1591,21 @@ update_blocklists () {
         done
 
         echo "Blocklists updated."
+
+        if [ "$GIT" = 1 ] ; then
+            cd "$BLOCKLISTS_DIR"
+            test_external git ||
+                {
+                    log_failure_msg "Error $E_XEXTERNAL: git not installed."
+                    exit $E_XEXTERNAL
+                }
+            [ -d .git ] || git init
+            [ -f .gitignore ] || cat > .gitignore <<EOF
+*/download*
+EOF
+            git add .
+            git commit -m "Blocklist update $(date +%F" "%X" "%Z)."
+fi
     else
         echo "Automatic blocklist management disabled."
     fi

@@ -123,6 +123,12 @@ INIT="1"
 # 1 - Update the blocklists automatically
 CRON="1"
 
+# Turn on/off tracking the downloaded blocklists in a git repository.
+# This creates a git repository in BLOCKLISTS_DIR, gitignores some files,
+# and commits the changes after every blocklist update.
+# You can safely remove the .git directory at every time.
+GIT="0"
+
 # Turn on/off pglcmd.wd.
 # 0 - Don't use watchdog
 # 1 - Start watchdog

@@ -83,6 +83,7 @@ Recommends:
  unzip,
  wget,
 Suggests:
+ git,
  mail-transport-agent,
 Description: PeerGuardian Linux - pglcmd
  PeerGuardian is a privacy oriented firewall application. It blocks connections
