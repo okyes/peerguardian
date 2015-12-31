@@ -52,7 +52,6 @@ PglGui::PglGui( QWidget *parent) :
 
     m_StopLogging = false;
     mAutomaticScroll = true;
-    mIgnoreScroll = false;
     mTrayIconDisabled = QIcon(TRAY_DISABLED_ICON);
     mTrayIconEnabled = QIcon(TRAY_ICON);
     setWindowIcon(mTrayIconDisabled);
@@ -112,8 +111,6 @@ PglGui::PglGui( QWidget *parent) :
     int yy = desktop->height()/2-height()/2;
     int xx = desktop->width() /2-width()/2;
     move(xx, yy);
-
-    mUi.logTreeWidget->verticalScrollBar()->installEventFilter(this);
 
     connect(aWhoisIp, SIGNAL(triggered()), this, SLOT(onWhoisTriggered()));
     connect(a_whitelistIpTemp, SIGNAL(triggered()), this, SLOT(whitelistItem()));
@@ -181,16 +178,17 @@ void PglGui::addLogItem(QString itemString)
         QStringList info;
 
         if ( mUi.logTreeWidget->topLevelItemCount() > m_MaxLogSize ) {
-            //mIgnoreScroll = true;
+            QScrollBar *scrollBar = mUi.logTreeWidget->verticalScrollBar();
+            int value = scrollBar->value();
             mUi.logTreeWidget->takeTopLevelItem(0);
-            //mIgnoreScroll = false;
+            if (scrollBar->value() != value)
+                scrollBar->setValue(value);
         }
 
         info << QTime::currentTime().toString("hh:mm:ss") << parts.last() << srcip << srcport << destip << destport << firstPart[3] << connectType;
         QTreeWidgetItem * item = new QTreeWidgetItem(mUi.logTreeWidget, info);
         item->setIcon(7, m_ConnectIconType[connectType]);
         mUi.logTreeWidget->addTopLevelItem(item);
-
 
         if (mAutomaticScroll)
             mUi.logTreeWidget->scrollToBottom();
@@ -266,9 +264,9 @@ void PglGui::g_MakeConnections()
 {
         //Log tab connections
     connect( mUi.logTreeWidget, SIGNAL(customContextMenuRequested ( const QPoint &)), this, SLOT(showLogRightClickMenu(const QPoint &)));
-    connect( mUi.logTreeWidget->verticalScrollBar(), SIGNAL(sliderMoved(int)), this, SLOT(onLogViewVerticalScrollbarMoved(int)));
+    connect( mUi.logTreeWidget->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(onLogViewVerticalScrollbarValueChanged(int)));
     connect( mUi.logTreeWidget->verticalScrollBar(), SIGNAL(actionTriggered(int)), this, SLOT(onLogViewVerticalScrollbarActionTriggered(int)));
-    connect( mUi.clearLogButton, SIGNAL( clicked() ), mUi.logTreeWidget, SLOT( clear() ) );
+    connect( mUi.clearLogButton, SIGNAL( clicked() ), this, SLOT( clearLogView() ) );
     connect(mUi.stopLoggingButton, SIGNAL(clicked()), this, SLOT(startStopLogging()));
 
 
@@ -1068,39 +1066,26 @@ void PglGui::onViewerWidgetRequested()
     viewer.exec();
 }
 
-bool PglGui::eventFilter(QObject* obj, QEvent* event)
+void PglGui::onLogViewVerticalScrollbarActionTriggered(int action)
 {
-    //if (obj == mUi.logTreeWidget->verticalScrollBar() && mIgnoreScroll)
-    //    return true;
-
-    if (obj == mUi.logTreeWidget->verticalScrollBar() && event->type() == QEvent::Wheel) {
-
-        if (mUi.logTreeWidget->verticalScrollBar()->value() == mUi.logTreeWidget->verticalScrollBar()->maximum())
-            mAutomaticScroll = true;
-        else
-            mAutomaticScroll = false;
-    }
-
-    return false;
+    mLogViewScrollbarMoved = false;
+    if (action > 0)
+        mLogViewScrollbarMoved = true;
 }
 
-void PglGui::onLogViewVerticalScrollbarMoved(int value)
+void PglGui::onLogViewVerticalScrollbarValueChanged(int value)
 {
+    if (! mLogViewScrollbarMoved)
+        return;
+
     QScrollBar *bar = static_cast<QScrollBar*>(sender());
 
     if (bar->maximum() == value)
         mAutomaticScroll = true;
     else
         mAutomaticScroll = false;
-}
 
-void PglGui::onLogViewVerticalScrollbarActionTriggered(int action)
-{
-    QScrollBar *scrollBar = static_cast<QScrollBar*>(sender());
-
-    if (mAutomaticScroll && scrollBar->value() < scrollBar->maximum())
-        scrollBar->setSliderPosition(scrollBar->maximum());
-
+    mLogViewScrollbarMoved = false;
 }
 
 void PglGui::showCommandsOutput(const CommandList& commands)
@@ -1181,4 +1166,10 @@ void PglGui::setTreeWidgetItemChanged(QTreeWidgetItem* item, bool changed, bool 
 
     if (blockSignals)
         treeWidget->blockSignals(false);
+}
+
+void PglGui::clearLogView()
+{
+    mUi.logTreeWidget->clear();
+    mAutomaticScroll = true;
 }

@@ -125,7 +125,7 @@ class PglGui : public QMainWindow {
     QAction *a_whitelistPortTemp;
     CommandList mFailedCommands;
     volatile bool mAutomaticScroll;
-    volatile bool mIgnoreScroll;
+    volatile bool mLogViewScrollbarMoved;
     QAction *aWhoisIp;
     PglCore *mPglCore;
     Ui::MainWindow mUi;
@@ -168,7 +168,6 @@ class PglGui : public QMainWindow {
         void loadWhitelistWidget();
         void loadBlocklistWidget();
         int getMaxLogSize(){ return m_MaxLogSize; }
-        virtual bool eventFilter(QObject*, QEvent*);
 
     public slots:
         void showAddExceptionDialog();
@@ -203,8 +202,9 @@ class PglGui : public QMainWindow {
         void onViewerWidgetRequested();
 
     private slots:
-        void onLogViewVerticalScrollbarMoved(int);
+        void onLogViewVerticalScrollbarValueChanged(int);
         void onLogViewVerticalScrollbarActionTriggered(int);
+        void clearLogView();
         void onWhoisTriggered();
         void showCommandsOutput(const CommandList&);
 
