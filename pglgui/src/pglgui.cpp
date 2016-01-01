@@ -971,42 +971,78 @@ void PglGui::openSettingsDialog()
 
 void PglGui::showLogRightClickMenu(const QPoint& p)
 {
-    QTreeWidgetItem * item = mUi.logTreeWidget->itemAt(p);
+    QList<QTreeWidgetItem *> items = mUi.logTreeWidget->selectedItems();
 
-    if ( ! item )
+    if (items.isEmpty())
         return;
 
     QMenu menu(this);
-    QMenu *menuIp;
-    QMenu *menuPort;
+    QMenu* menuIp = 0;
+    QMenu* menuPort = 0;
     int index = 4;
+    QTreeWidgetItem* item = 0;
+    QVariantList data;
+    QVariantMap itemData;
+    QString ip, port;
+    bool hasPort = false;
 
-    if ( item->text(7) == "Incoming" )
-        index = 2;
+    for(int i=0; i < items.size(); i++) {
+        item = items.at(i);
+        if (! item)
+            continue;
 
-    QVariantMap data;
-    data.insert("ip", item->text(index));
-    data.insert("port", item->text(5));
-    data.insert("prot", item->text(6));
-    data.insert("type", item->text(7));
+        index = 4;
+        if ( item->text(7) == "Incoming" )
+            index = 2;
+
+        ip = item->text(index);
+        port = item->text(5);
+
+        itemData.clear();
+        itemData.insert("ip", ip);
+        itemData.insert("port", port);
+        itemData.insert("prot", item->text(6));
+        itemData.insert("type", item->text(7));
+        data.append(itemData);
+
+        if (! port.isEmpty())
+            hasPort = true;
+    }
 
     a_whitelistIpTemp->setData(data);
     a_whitelistIpPerm->setData(data);
     a_whitelistPortTemp->setData(data);
     a_whitelistPortPerm->setData(data);
 
-    menuIp =  menu.addMenu("Allow IP " + item->text(index));
-    menuPort = menu.addMenu("Allow Port " + item->text(5));
+    if (items.size() == 1) {
+        itemData = data.at(0).toMap();
+        ip = itemData.value("ip").toString();
+        menuIp =  menu.addMenu(tr("Allow IP %1").arg(ip));
 
-    menu.addSeparator();
-    aWhoisIp->setData(item->text(index));
-    aWhoisIp->setText(tr("Whois ") + item->text(index));
-    menu.addAction(aWhoisIp);
+        port = itemData.value("port").toString();
+        if (! port.isEmpty())
+            menuPort = menu.addMenu(tr("Allow Port %1").arg(port));
 
-    menuIp->addAction(a_whitelistIpTemp);
-    menuIp->addAction(a_whitelistIpPerm);
-    menuPort->addAction(a_whitelistPortTemp);
-    menuPort->addAction(a_whitelistPortPerm);
+        menu.addSeparator();
+        aWhoisIp->setData(ip);
+        aWhoisIp->setText(tr("Whois %1").arg(ip));
+        menu.addAction(aWhoisIp);
+    }
+    else {
+        menuIp =  menu.addMenu(tr("Allow multiple IPs"));
+        if (hasPort)
+            menuPort = menu.addMenu(tr("Allow multiple Ports"));
+    }
+
+    if (menuIp) {
+        menuIp->addAction(a_whitelistIpTemp);
+        menuIp->addAction(a_whitelistIpPerm);
+    }
+
+    if (menuPort) {
+        menuPort->addAction(a_whitelistPortTemp);
+        menuPort->addAction(a_whitelistPortPerm);
+    }
 
     menu.exec(mUi.logTreeWidget->mapToGlobal(p));
 }
@@ -1023,31 +1059,43 @@ void PglGui::whitelistItem()
     }
 
     WhitelistManager* whitelist = mPglCore->whitelistManager();
-    QVariantMap data = action->data().toMap();
-    QString ip = data.value("ip").toString();
-    QString port = data.value("port").toString();
-    QString type = data.value("type").toString();
-    QString prot = data.value("prot").toString();
-    QString value = "";
-    if (action == a_whitelistIpPerm || action == a_whitelistIpTemp)
-        value = ip;
-    else
-        value = port;
+    QVariantList data = action->data().toList();
+    QVariantMap itemData;
+    QStringList values, types, protocols;
+    QString value;
+    QList<bool> allows;
+
+    for(int i=0; i < data.size(); i++) {
+        itemData = data.at(i).toMap();
+        if (action == a_whitelistIpPerm || action == a_whitelistIpTemp)
+            value = itemData.value("ip").toString();
+        else
+            value = itemData.value("port").toString();
+
+        if (value.isEmpty())
+            continue;
+
+        values << value;
+        types << itemData.value("type").toString();
+        protocols <<  itemData.value("prot").toString();
+        allows << true;
+    }
 
     if ( action == a_whitelistIpTemp || action ==  a_whitelistPortTemp )
     {
-        QStringList iptablesCommands = whitelist->getCommands(QStringList() << value, QStringList() << type, QStringList() << prot, QList<bool>() << true);
+        QStringList iptablesCommands = whitelist->getCommands(values, types, protocols, allows);
         //QString testCommand = whitelist->getIptablesTestCommand(ip, type, prot);
         m_Root->addCommands(iptablesCommands);
         m_Root->executeAll();
     }
     else if (  action == a_whitelistIpPerm || action == a_whitelistPortPerm )
     {
-        if ( ! whitelist->contains(value, type, prot) )
-        {
-            whitelist->addItem(new WhitelistItem(value, type, prot));
-            applyChanges();
+        for(int i=0; i < values.size(); i++) {
+            if ( ! whitelist->contains(values.at(i), types.at(i), protocols.at(i)) )
+                whitelist->addItem(new WhitelistItem(values.at(i), types.at(i), protocols.at(i)));
         }
+
+        applyChanges();
     }
 }
 
