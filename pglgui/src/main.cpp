@@ -32,12 +32,12 @@
 #include "pglgui.h"
 #include "command.h"
 
-void customOutput( QtMsgType type, const char *msg );
+void customOutput(QtMsgType, const QMessageLogContext &, const QString &);
 
 int main(int argc, char *argv[])
 {
 
-        qInstallMsgHandler( customOutput );
+        qInstallMessageHandler( customOutput );
 
         //Start the real application
         QApplication app(argc, argv);
@@ -61,20 +61,21 @@ int main(int argc, char *argv[])
 
 }
 
-void customOutput( QtMsgType type, const char *msg ) {
+void customOutput(QtMsgType type, const QMessageLogContext & context, const QString & msg) {
 
+        QByteArray localMsg = msg.toLocal8Bit();
         switch( type ) {
                 case QtDebugMsg:
-                        fprintf( stderr, "** Debug: %s\n", msg );
+                        fprintf( stderr, "** Debug: %s\n", localMsg.constData() );
                         break;
                 case QtWarningMsg:
-                        fprintf( stderr, "** Warning: %s\n", msg );
+                        fprintf( stderr, "** Warning: %s\n", localMsg.constData() );
                         break;
                 case QtCriticalMsg:
-                        fprintf( stderr, "** Critical: %s\n", msg );
+                        fprintf( stderr, "** Critical: %s\n", localMsg.constData() );
                         break;
                 case QtFatalMsg:
-                        fprintf( stderr, "** Fatal: %s\n", msg );
+                        fprintf( stderr, "** Fatal: %s\n", localMsg.constData() );
                         break;
         }
 

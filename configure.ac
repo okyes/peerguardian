@@ -212,29 +212,28 @@ AS_IF([test "x$enable_lowmem" = "xyes"],
 
 ##
 # initial QT_flags
-QT_CXXFLAGS=""
+QT_CXXFLAGS="-fPIC"
 QT_CPPFLAGS="-DVERSION=\\\"$VERSION\\\" -D_REENTRANT -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB -DQT_SHARED"
 QT_LDFLAGS=""
 QT_LIBS=""
+QT_MODULES="Qt5Core Qt5Gui Qt5Widgets"
 
-# configure-switch for qt4
-AC_ARG_WITH([qt4],
-    [AS_HELP_STRING([--without-qt4],
+# configure-switch for qt5
+AC_ARG_WITH([qt5],
+    [AS_HELP_STRING([--without-qt5],
         [build without gui])],
-    [with_qt4="$withval"],
-    [with_qt4="yes"]) # this only reflects the default ("if not given")
+    [with_qt5="$withval"],
+    [with_qt5="yes"]) # this only reflects the default ("if not given")
 
-# modify QT4_flags if qt4 enabled and
+# modify QT5_flags if qt5 enabled and
 # include pglgui as subdir in Makefile.am (QT_SUB)
-AS_IF([test "x$with_qt4" = "xyes"],
+AS_IF([test "x$with_qt5" = "xyes"],
     [AS_IF([test "x$enable_dbus" = "xyes"],
-        [PKG_CHECK_MODULES([QT4DBUS], [QtDBus])],
-        [AC_MSG_ERROR([qt4 needs dbus!])])]
-    [AC_CHECK_QT4(["4.3.0"])] # from qt4.m4
-    [PKG_CHECK_MODULES([QT4], [QtCore QtGui])]
+        [QT_MODULES="$QT_MODULES Qt5DBus"])]
+    [AC_CHECK_QT5(["5.0.0"], ["$QT_MODULES"])] #from qt5.m4
     [AC_SEARCH_LIBS([pthread_create], [pthread])] # adds -lpthread to LIBS
-    [QT_CPPFLAGS="$QT_CPPFLAGS $QT4_CFLAGS $QT4DBUS_CFLAGS"]
-    [QT_LIBS="$QT_LIBS $QT4_LIBS $QT4DBUS_LIBS"]
+    [QT_CPPFLAGS="$QT_CPPFLAGS $QT_CFLAGS"]
+    [QT_LIBS="$QT_LIBS"]
     [QT_SUB="pglgui"])
 
 # targets
@@ -315,7 +314,7 @@ echo lowmem....................................... : yes
 else
 echo lowmem....................................... : no
 fi
-if test "x$with_qt4" = "xyes"; then
+if test "x$with_qt5" = "xyes"; then
 echo QT-gui....................................... : yes
 else
 echo QT-gui....................................... : no
