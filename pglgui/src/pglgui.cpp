@@ -819,7 +819,7 @@ void PglGui::g_ShowAddDialog(int openmode) {
                 }
             }
             else
-                whitelist->addItem(whiteItem.value(), whiteItem.connection(), whiteItem.protocol());
+                whitelist->addItem(whiteItem);
 
             newItems = true;
         }
@@ -1091,8 +1091,7 @@ void PglGui::whitelistItem()
     else if (  action == a_whitelistIpPerm || action == a_whitelistPortPerm )
     {
         for(int i=0; i < values.size(); i++) {
-            if ( ! whitelist->contains(values.at(i), types.at(i), protocols.at(i)) )
-                whitelist->addItem(new WhitelistItem(values.at(i), types.at(i), protocols.at(i)));
+            whitelist->addItem(WhitelistItem(values.at(i), types.at(i), protocols.at(i)));
         }
 
         applyChanges();

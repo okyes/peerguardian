@@ -77,7 +77,7 @@ void WhitelistManager::load()
         if (m_Group.contains(key)) {
             values = getValue(line).split(" ", QString::SkipEmptyParts);
             foreach(const QString& value, values) {
-                addItem(value, parseConnectionType(key), parseProtocol(key), true);
+                addItem(WhitelistItem(value, parseConnectionType(key), parseProtocol(key), true));
             }
         }
     }
@@ -91,7 +91,7 @@ void WhitelistManager::load()
             value = m_Settings->value(skey).toString();
             values = value.split(" ", QString::SkipEmptyParts);
             foreach(const QString& value, values) {
-                addItem(value, parseConnectionType(key), parseProtocol(key), true, false);
+                addItem(WhitelistItem(value, parseConnectionType(key), parseProtocol(key), true, false));
             }
         }
     }
@@ -453,12 +453,29 @@ QString WhitelistManager::getIptablesTestCommand(const QString& value, const QSt
     return cmd;
 }
 
+int WhitelistManager::indexOfItem(WhitelistItem* item)
+{
+    if (! item)
+        return -1;
+
+    return mWhitelistItems.indexOf(item);
+}
+
+int WhitelistManager::indexOfItem(const WhitelistItem& other)
+{
+    WhitelistItem* item = 0;
+    for(int i=0; i < mWhitelistItems.size(); i++) {
+        item = mWhitelistItems.at(i);
+        if (item && *item == other)
+            return i;
+    }
+
+    return -1;
+}
+
 WhitelistItem* WhitelistManager::item(const WhitelistItem& other)
 {
-    foreach(WhitelistItem* item, mWhitelistItems)
-        if (*item == other)
-            return item;
-    return 0;
+    return itemAt(indexOfItem(other));
 }
 
 bool WhitelistManager::contains(const WhitelistItem & other)
@@ -466,11 +483,6 @@ bool WhitelistManager::contains(const WhitelistItem & other)
     if (item(other))
         return  true;
     return false;
-}
-
-bool WhitelistManager::contains(const QString& value, const QString& connectType, const QString& prot)
-{
-    return contains(WhitelistItem(value, connectType, prot));
 }
 
 bool WhitelistManager::isValid(const WhitelistItem & other, QString & reason)
@@ -496,11 +508,6 @@ bool WhitelistManager::isValid(const WhitelistItem & other, QString & reason)
     return true;
 }
 
-bool WhitelistManager::isValid(const QString& value, const QString& connectType, const QString& prot, QString& reason)
-{
-    return isValid(WhitelistItem(value, connectType, prot), reason);
-}
-
 QList<WhitelistItem*> WhitelistManager::whitelistItems()
 {
     return mWhitelistItems;
@@ -513,8 +520,12 @@ WhitelistItem* WhitelistManager::itemAt(int index)
     return 0;
 }
 
-void WhitelistManager::addItem(WhitelistItem * item)
+void WhitelistManager::addItem(const WhitelistItem& other)
 {
+    if (contains(other))
+        return;
+
+    WhitelistItem* item = new WhitelistItem(other);
     //fetch aliases
     QHashIterator<int, Port> it(mSystemPorts);
     while(it.hasNext()) {
@@ -530,29 +541,30 @@ void WhitelistManager::addItem(WhitelistItem * item)
     emit itemAdded(item);
 }
 
-void WhitelistManager::addItem(const QString& value, const QString& conntype, const QString& prot, bool active, bool enabled)
-{
-    addItem(new WhitelistItem(value, conntype, prot, active, enabled));
-}
-
 void WhitelistManager::removeItemAt(int index)
 {
-    if (index >= 0 && index < mWhitelistItems.size())
-        mWhitelistItems[index]->setRemoved(true);
-}
+    WhitelistItem* item = this->itemAt(index);
 
-void WhitelistManager::removeItem(WhitelistItem* item)
-{
     if (! item)
         return;
 
     if (item->isAdded()) {
-        mWhitelistItems.removeAll(item);
+        mWhitelistItems.removeAt(index);
         delete item;
     }
     else {
         item->setRemoved(true);
     }
+}
+
+void WhitelistManager::removeItem(const WhitelistItem& item)
+{
+    removeItemAt(indexOfItem(item));
+}
+
+void WhitelistManager::removeItem(WhitelistItem* item)
+{
+    removeItemAt(indexOfItem(item));
 }
 
 void WhitelistManager::undo()
