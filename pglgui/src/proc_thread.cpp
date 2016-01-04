@@ -18,7 +18,6 @@
  *   along with pgl.  If not, see <http://www.gnu.org/licenses/>.             *
  *****************************************************************************/
 
-
 #include "proc_thread.h"
 
 #include "utils.h"
@@ -55,7 +54,7 @@ void ProcessT::run()
         proc.setProcessChannelMode( m_ChanMode );
     proc.start( m_Command );
         proc.waitForStarted();
-        proc.waitForFinished();
+        proc.waitForFinished(-1);
         proc.closeWriteChannel();
 
         m_Output = proc.readAll().trimmed();
