@@ -53,7 +53,6 @@ class ProcessT : public QThread
                  * @param parent The QObject parent of this object.
                  */
                 ProcessT( QObject *parent = 0 );
-        ProcessT(ProcessT const& other);
                 /**
                  * Destructor.
                  */
@@ -78,6 +77,7 @@ class ProcessT : public QThread
 
         void executeCommands(const QStringList& commands , const QProcess::ProcessChannelMode &mode=QProcess::SeparateChannels, bool startNow=true);
         void execute(const QStringList& command, const QProcess::ProcessChannelMode &mode );
+        void stop();
 
         //for backwards compatibility with the old Mobloquer code
         void execute( const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels );
@@ -93,6 +93,7 @@ class ProcessT : public QThread
         void newCommand();
 
         private:
+        ProcessT(ProcessT const& other);
         QHash<QString, QString> commandToOutput;
         QList<Command> mCommands;
                 QString m_Command;
@@ -101,6 +102,7 @@ class ProcessT : public QThread
         QStringList m_Args;
         QProcess::ProcessChannelMode m_ChanMode;
         QString m_Output;
+        QProcess* m_Process;
 
     public slots:
         void executeCommand(const QString& command="", const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels, bool startNow = true);

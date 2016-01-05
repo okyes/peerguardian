@@ -344,6 +344,14 @@ void PglGui::quit()
             return;
     }
 
+    if (m_Root && m_Root->isRunning()) {
+        answer = confirm(tr("Really quit?"), tr("A background process is still running, are you sure you want to quit?"), this);
+        if ( answer == QMessageBox::No )
+            return;
+
+        m_Root->stop();
+    }
+
     qApp->quit();
 }
 

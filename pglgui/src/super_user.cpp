@@ -212,6 +212,19 @@ QString SuperUser::sudoParameters()
     return " ";
 }
 
+bool SuperUser::isRunning() const
+{
+    if (m_ProcT && m_ProcT->isRunning())
+        return true;
+    return false;
+}
+
+void SuperUser::stop()
+{
+    if (isRunning())
+        m_ProcT->stop();
+}
+
 /*** Static methods ***/
 
 QString SuperUser::sudoCommand()

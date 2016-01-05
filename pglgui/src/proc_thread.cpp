@@ -27,13 +27,8 @@ ProcessT::ProcessT( QObject *parent ) :
         QThread( parent )
 {
     m_ChanMode = QProcess::SeparateChannels;
+    m_Process = 0;
     connect(this, SIGNAL(newCommand()), this, SLOT(executeCommand()));
-}
-
-ProcessT::ProcessT(const ProcessT& other):
-    QThread(other.parent())
-{
-    *this = other;
 }
 
 ProcessT::~ProcessT()
@@ -50,9 +45,10 @@ void ProcessT::run()
         }
 
         QProcess proc;
+        m_Process = &proc;
 
         proc.setProcessChannelMode( m_ChanMode );
-    proc.start( m_Command );
+        proc.start( m_Command );
         proc.waitForStarted();
         proc.waitForFinished(-1);
         proc.closeWriteChannel();
@@ -75,6 +71,7 @@ void ProcessT::run()
         emit newCommand();
     }
 
+    m_Process = 0;
 }
 
 void ProcessT::setCommand( const QString &name, const QStringList &args, const QProcess::ProcessChannelMode &mode )
@@ -149,6 +146,14 @@ void ProcessT::executeCommands(const QStringList& commands , const QProcess::Pro
 
     executeCommand(mCommandsToExecute.takeFirst(), mode, startNow);
 
+}
+
+void ProcessT::stop()
+{
+    if (m_Process && m_Process->state() == QProcess::Running)
+        m_Process->kill();
+
+    wait();
 }
 
 
