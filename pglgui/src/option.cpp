@@ -23,6 +23,9 @@
 
 OptionPrivate::OptionPrivate()
 {
+    this->enabled = false;
+    this->removed = false;
+    this->name = "";
 }
 
 OptionPrivate::~OptionPrivate()
@@ -40,8 +43,6 @@ Option::Option(const QString& name, const QVariant& value, bool active) :
     d_active_ptr(new OptionPrivate),
     d_ptr(new OptionPrivate)
 {
-    setEnabled(false);
-    setRemoved(false);
     setName(name);
     setValue(value);
     if (active)
