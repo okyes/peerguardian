@@ -411,9 +411,9 @@ void PglGui::controlFinished(const CommandList & commands)
     }
 
     if (! failedCommands.isEmpty()) {
-        setApplyButtonEnabled(true);
         ErrorDialog dialog(failedCommands);
         dialog.exec();
+        cleanup();
     }
 
     mUi.statusBar->clearMessage();
@@ -428,9 +428,9 @@ void PglGui::rootFinished(const CommandList& commands)
     }
 
     if (! failedCommands.isEmpty()) {
-        setApplyButtonEnabled(true);
         ErrorDialog dialog(failedCommands);
         dialog.exec();
+        cleanup();
     }
     else {
         WhitelistManager* whitelist = mPglCore->whitelistManager();
@@ -1098,8 +1098,11 @@ void PglGui::whitelistItem()
     }
     else if (  action == a_whitelistIpPerm || action == a_whitelistPortPerm )
     {
+        WhitelistItem item;
         for(int i=0; i < values.size(); i++) {
-            whitelist->addItem(WhitelistItem(values.at(i), types.at(i), protocols.at(i)));
+            item = WhitelistItem(values.at(i), types.at(i), protocols.at(i));
+            whitelist->addItem(item);
+            mLogViewWhitelistItems.append(item);
         }
 
         applyChanges();
@@ -1227,4 +1230,25 @@ void PglGui::clearLogView()
 {
     mUi.logTreeWidget->clear();
     mAutomaticScroll = true;
+}
+
+void PglGui::clearLogViewWhitelistItems()
+{
+    if(mLogViewWhitelistItems.isEmpty())
+        return;
+
+    WhitelistManager* whitelist = mPglCore->whitelistManager();
+
+    for(int i=0; i < mLogViewWhitelistItems.size(); i++) {
+        whitelist->removeItem(mLogViewWhitelistItems.at(i));
+    }
+
+    mLogViewWhitelistItems.clear();
+    loadWhitelistWidget();
+}
+
+void PglGui::cleanup()
+{
+    clearLogViewWhitelistItems();
+    setApplyButtonEnabled(mPglCore->isChanged());
 }

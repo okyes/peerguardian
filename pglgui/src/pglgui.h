@@ -129,6 +129,7 @@ class PglGui : public QMainWindow {
     QAction *aWhoisIp;
     PglCore *mPglCore;
     Ui::MainWindow mUi;
+    QList<WhitelistItem> mLogViewWhitelistItems;
 
         public:
                 /**
@@ -215,6 +216,8 @@ private:
         void restoreSettings();
         void saveSettings();
         void checkDaemonStatus();
+        void cleanup();
+        void clearLogViewWhitelistItems();
 };
 
 #endif //PglGui_H
