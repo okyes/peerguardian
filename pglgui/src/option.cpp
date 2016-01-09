@@ -49,10 +49,10 @@ Option::Option(const QString& name, const QVariant& value, bool active) :
         *d_active_ptr = *d_ptr;
 }
 
-Option::Option()
+Option::Option() :
+    d_ptr(new OptionPrivate)
 {
     d_active_ptr = 0;
-    d_ptr = 0;
 }
 
 Option::Option(const Option& other)
