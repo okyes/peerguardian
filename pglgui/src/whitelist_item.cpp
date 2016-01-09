@@ -28,6 +28,10 @@
 
 WhitelistItemPrivate::WhitelistItemPrivate()
 {
+    this->protocol = "";
+    this->connection = "";
+    this->group = "";
+    this->type = -1;
 }
 
 WhitelistItemPrivate::~WhitelistItemPrivate()
@@ -123,6 +127,14 @@ WhitelistItem::WhitelistItem(const QString& value, const QString& connType, cons
         *d_active_ptr = *d_ptr;
 }
 
+WhitelistItem::WhitelistItem() :
+    Option(),
+    d_ptr(new WhitelistItemPrivate)
+{
+    setData(d_ptr);
+    d_active_ptr = 0;
+}
+
 WhitelistItem::WhitelistItem(const WhitelistItem& item) :
     Option()
 {
@@ -130,7 +142,6 @@ WhitelistItem::WhitelistItem(const WhitelistItem& item) :
     d_active_ptr = 0;
     *this = item;
 }
-
 
 WhitelistItem::~WhitelistItem()
 {

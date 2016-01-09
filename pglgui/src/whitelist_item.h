@@ -48,7 +48,7 @@ class WhitelistItem : public Option
     WhitelistItemPrivate* d_active_ptr;
 
     public:
-        WhitelistItem();
+        explicit WhitelistItem();
         WhitelistItem(const QString&, const QString&, const QString&, bool active=false, bool enabled=true);
         WhitelistItem(const WhitelistItem&);
         virtual ~WhitelistItem();
