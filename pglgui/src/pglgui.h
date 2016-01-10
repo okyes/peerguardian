@@ -129,6 +129,7 @@ class PglGui : public QMainWindow {
     QAction *aWhoisIp;
     PglCore *mPglCore;
     Ui::MainWindow mUi;
+    QVariantList mLogViewRightClickData;
     QList<WhitelistItem> mLogViewWhitelistItems;
 
         public:

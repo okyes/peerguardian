@@ -1017,10 +1017,7 @@ void PglGui::showLogRightClickMenu(const QPoint& p)
             hasPort = true;
     }
 
-    a_whitelistIpTemp->setData(data);
-    a_whitelistIpPerm->setData(data);
-    a_whitelistPortTemp->setData(data);
-    a_whitelistPortPerm->setData(data);
+    mLogViewRightClickData = data;
 
     if (items.size() == 1) {
         itemData = data.at(0).toMap();
@@ -1067,7 +1064,7 @@ void PglGui::whitelistItem()
     }
 
     WhitelistManager* whitelist = mPglCore->whitelistManager();
-    QVariantList data = action->data().toList();
+    QVariantList data = mLogViewRightClickData;
     QVariantMap itemData;
     QStringList values, types, protocols;
     QString value;
