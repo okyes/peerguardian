@@ -1145,6 +1145,9 @@ void PglGui::onLogViewVerticalScrollbarValueChanged(int value)
 
 void PglGui::showCommandsOutput(const CommandList& commands)
 {
+    ProcessT* processT = qobject_cast<ProcessT*>(sender());
+    if (processT)
+        processT->deleteLater();
 
     QString output("");
     QString title("");
