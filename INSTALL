@@ -76,7 +76,7 @@ installation! Otherwise you should expect e.g. dbus errors.
 
 For a slick installation you can build without the GUI and turn off dbus
 support:
-  --without-qt4
+  --without-qt5
   --disable-dbus
 
 Especially for embedded devices (like router or NAS box) you might disable
@@ -106,7 +106,7 @@ Full example configure line for a complete build and full system integration
     --enable-logrotate \
     --enable-networkmanager \
     --enable-zlib \
-    --with-qt4 \
+    --with-qt5 \
     --disable-lowmem
 
 Minimal example line for a complete build and full system integration (on a
@@ -195,7 +195,7 @@ Build dependencies:
 - libnetfilter-queue development files (>= 1.0, or use the git pgl_backport
   branch if you have a lower version)
 - libdbus development files (optional, required for the GUI)
-- Qt4 development files including Qt4 dbus (optional, required for the GUI)
+- Qt5 development files including Qt dbus (optional, required for the GUI)
 - zlib development files (optional, for loading gz compressed blocklists
   directly)
 
@@ -243,7 +243,7 @@ Runtime environment pgld:
  Runtime environment pglgui:
 - pgld
 - pglcmd
-- Qt4
+- Qt5
 - dbus
 - whois
 
