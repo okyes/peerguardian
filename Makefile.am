@@ -48,7 +48,6 @@ EXTRA_DIST = \
 	debian/pglgui.maintscript \
 	debian/po/POTFILES.in \
 	debian/po/templates.pot \
-	debian/README.Debian \
 	debian/rules \
 	debian/source/format \
 	debian/watch
