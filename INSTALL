@@ -273,8 +273,12 @@ LSB="/lib/lsb/init-functions" works.
 deb packages:
 -------------
 jre provides official packages in a repository for automatic updates:
+
 Debian at http://moblock-deb.sourceforge.net
 Ubuntu at https://launchpad.net/~jre-phoenix/+archive/ppa
+
+See http://sourceforge.net/p/peerguardian/wiki/pgl-Install-DebianUbuntu/
+for installation instructions.
 
 Debian RFP: http://bugs.debian.org/578192
 Ubuntu RFP: https://bugs.launchpad.net/ubuntu/+bug/109822
