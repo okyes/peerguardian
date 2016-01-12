@@ -138,7 +138,7 @@ Comment:   Entry generated with "debmake -cc".
  Manually added ar-lib and config.h.in.
  See http://www.gnu.org/licenses/exceptions.html
 
-Files:     m4/qt4.m4
+Files:     m4/qt5.m4
 Copyright: 2004, 2007-2009, Juergen Heinemann, http://www.hjcms.de
 License:   GPL-2+
  This program is free software; you can redistribute it and/or modify

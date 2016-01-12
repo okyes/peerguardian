@@ -5,6 +5,10 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+# Build with Qt5:
+# See http://pkg-kde.alioth.debian.org/packagingqtbasedstuff.html
+export QT_SELECT=5
+
 %:
 	dh $@ --with autoreconf
 

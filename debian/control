@@ -11,8 +11,8 @@ Build-Depends:
  libdbus-1-dev,
  libnetfilter-queue-dev (>= 1.0~),
  libnfnetlink-dev,
- libqt4-dev,
  po-debconf,
+ qtbase5-dev,
  zlib1g-dev,
 Build-Conflicts:
  autoconf2.13,
@@ -132,7 +132,7 @@ Description: PeerGuardian Linux GUI - pglgui
  .
  pgl is based on the Linux kernel netfilter framework and iptables.
  .
- This is the pgl Graphical User Interface pglgui (C++, Qt4).
+ This is the pgl Graphical User Interface pglgui (C++, Qt).
 
 Package: pglgui-dbg
 Section: debug
@@ -153,6 +153,6 @@ Description: PeerGuardian Linux GUI - pglgui (debug)
  .
  pgl is based on the Linux kernel netfilter framework and iptables.
  .
- This is the pgl Graphical User Interface pglgui (C++, Qt4).
+ This is the pgl Graphical User Interface pglgui (C++, Qt).
  .
  This package contains the debugging symbols for pglgui.
