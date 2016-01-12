@@ -301,7 +301,6 @@ set_NETWORK () {
     IFS=.
     i=1
     for OCTET in $1 ; do
-        # Don't know why eval is necessary, but it is.
         eval NETIP${i}="${OCTET}"
         i=$(($i+1))
     done
@@ -434,6 +433,7 @@ white_local () {
         # Automatically whitelist LAN of all up interfaces
         # TODO: Only do this if checking the corresponding interface is enabled
         # For this the output of "ifconfig" and "iptables -L -nv" is scanned for certain patterns
+        # TODO: Use "ip addr" instead of ifconfig.
 
         # Get IPs of interfaces that are up
         LOCAL_IPS="$(ifconfig |
