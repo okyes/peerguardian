@@ -27,6 +27,7 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QScrollBar>
+#include <QClipboard>
 //#include <Action>
 //#include <ActionButton>
 
@@ -83,6 +84,7 @@ PglGui::PglGui( QWidget *parent) :
     a_whitelistPortTemp->setToolTip(tr("Allows until pgld is restarted."));
     a_whitelistPortPerm = new QAction(tr("Allow permanently"), this);
     aWhoisIp = new QAction(tr("Whois "), this);
+    aCopyIps = new QAction(tr("Copy "), this);
 
     m_ConnectType["OUT"] = tr("Outgoing");
     m_ConnectType["IN"] = tr("Incoming");
@@ -113,6 +115,7 @@ PglGui::PglGui( QWidget *parent) :
     move(xx, yy);
 
     connect(aWhoisIp, SIGNAL(triggered()), this, SLOT(onWhoisTriggered()));
+    connect(aCopyIps, SIGNAL(triggered()), this, SLOT(onCopyIpsTriggered()));
     connect(a_whitelistIpTemp, SIGNAL(triggered()), this, SLOT(whitelistItem()));
     connect(a_whitelistIpPerm, SIGNAL(triggered()), this, SLOT(whitelistItem()));
     connect(a_whitelistPortTemp, SIGNAL(triggered()), this, SLOT(whitelistItem()));
@@ -993,6 +996,7 @@ void PglGui::showLogRightClickMenu(const QPoint& p)
     QVariantMap itemData;
     QString ip, port;
     bool hasPort = false;
+    QVariantList ips;
 
     for(int i=0; i < items.size(); i++) {
         item = items.at(i);
@@ -1012,6 +1016,7 @@ void PglGui::showLogRightClickMenu(const QPoint& p)
         itemData.insert("prot", item->text(6));
         itemData.insert("type", item->text(7));
         data.append(itemData);
+        ips << ip;
 
         if (! port.isEmpty())
             hasPort = true;
@@ -1032,11 +1037,17 @@ void PglGui::showLogRightClickMenu(const QPoint& p)
         aWhoisIp->setData(ip);
         aWhoisIp->setText(tr("Whois %1").arg(ip));
         menu.addAction(aWhoisIp);
+        aCopyIps->setData(ips);
+        aCopyIps->setText(tr("Copy IP %1 to clipboard").arg(ip));
+        menu.addAction(aCopyIps);
     }
     else {
         menuIp =  menu.addMenu(tr("Allow multiple IPs"));
         if (hasPort)
             menuPort = menu.addMenu(tr("Allow multiple Ports"));
+        aCopyIps->setData(ips);
+        aCopyIps->setText(tr("Copy multiple IPs to clipboard"));
+        menu.addAction(aCopyIps);
     }
 
     if (menuIp) {
@@ -1174,6 +1185,23 @@ void PglGui::onWhoisTriggered()
     connect(process, SIGNAL(finished(const CommandList&)), this, SLOT(showCommandsOutput(const CommandList&)));
     if (action->text().contains(" "))
         process->execute("whois", QStringList() << action->data().toString());
+}
+
+void PglGui::onCopyIpsTriggered()
+{
+    QAction* action = qobject_cast<QAction*>(sender());
+    if (! action)
+        return;
+
+    QVariantList ips = action->data().toList();
+    if (! ips.isEmpty()) {
+        QStringList _ips;
+        foreach(const QVariant& ip, ips)  {
+            _ips << ip.toString();
+        }
+        QClipboard* clipboard = QApplication::clipboard();
+        clipboard->setText(_ips.join("\n"));
+    }
 }
 
 void PglGui::showAddBlocklistDialog()

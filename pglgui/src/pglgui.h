@@ -127,6 +127,7 @@ class PglGui : public QMainWindow {
     volatile bool mAutomaticScroll;
     volatile bool mLogViewScrollbarMoved;
     QAction *aWhoisIp;
+    QAction* aCopyIps;
     PglCore *mPglCore;
     Ui::MainWindow mUi;
     QVariantList mLogViewRightClickData;
@@ -208,6 +209,7 @@ class PglGui : public QMainWindow {
         void onLogViewVerticalScrollbarActionTriggered(int);
         void clearLogView();
         void onWhoisTriggered();
+        void onCopyIpsTriggered();
         void showCommandsOutput(const CommandList&);
 
 private:
