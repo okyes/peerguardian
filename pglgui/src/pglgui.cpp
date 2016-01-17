@@ -284,15 +284,11 @@ void PglGui::g_MakeConnections()
 
     //Control related
     if ( m_Control ) {
-        connect( mUi.startPglButton, SIGNAL( clicked() ), m_Control, SLOT( start() ) );
-        connect( mUi.stopPglButton, SIGNAL( clicked() ), m_Control, SLOT( stop() ) );
-        connect( mUi.restartPglButton, SIGNAL( clicked() ), m_Control, SLOT( restart() ) );
-        connect( mUi.reloadPglButton, SIGNAL( clicked() ), m_Control, SLOT( reload() ) );
         connect( mUi.a_Start, SIGNAL( triggered() ), m_Control, SLOT( start() ) );
         connect( mUi.a_Stop, SIGNAL( triggered() ), m_Control, SLOT( stop() ) );
         connect( mUi.a_Restart, SIGNAL( triggered() ), m_Control, SLOT( restart() ) );
         connect( mUi.a_Reload, SIGNAL( triggered() ), m_Control, SLOT( reload() ) );
-        connect( mUi.updatePglButton, SIGNAL( clicked() ), m_Control, SLOT( update() ) );
+        connect( mUi.a_Update, SIGNAL( triggered() ), m_Control, SLOT( update() ) );
         connect( m_Control, SIGNAL(error(const QString&)), this, SLOT(rootError(const QString&)));
         connect( m_Control, SIGNAL(finished(const CommandList&)), this, SLOT(controlFinished(const CommandList&)));
         connect( m_Control, SIGNAL( actionMessage(const QString&, int ) ), mUi.statusBar, SLOT( showMessage( const QString&, int ) ) );
@@ -878,14 +874,16 @@ void PglGui::g_MakeTray()
 void PglGui::onDaemonChanged(bool running)
 {
     if ( running ) {
-        mUi.controlPglButtons->setCurrentIndex(1);
+        mUi.a_Start->setDisabled(true);
+        mUi.a_Stop->setEnabled(true);
         m_Tray->setIcon(mTrayIconEnabled);
         setWindowIcon(mTrayIconEnabled);
         setWindowTitle(QString("%1 - %2").arg(DEFAULT_WINDOW_TITLE).arg(m_Info->loadedRanges()));
         m_Tray->setToolTip(tr("Pgld is up and running"));
     }
     else {
-        mUi.controlPglButtons->setCurrentIndex(0);
+        mUi.a_Start->setEnabled(true);
+        mUi.a_Stop->setDisabled(true);
         m_Tray->setIcon(mTrayIconDisabled);
         setWindowIcon(mTrayIconDisabled);
         setWindowTitle(DEFAULT_WINDOW_TITLE);
