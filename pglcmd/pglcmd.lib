@@ -1296,6 +1296,7 @@ set_BLOCKLISTS_LOCAL () {
     [ -d "$LOCAL_BLOCKLIST_DIR" ] &&
     BLOCKLISTS_LOCAL="$(find -L $LOCAL_BLOCKLIST_DIR -maxdepth 1 -type f \
         ! -name "*~" \
+        ! -name "#~" \
         ! -name ".*" |
         tr "\n" " ")"
 }
