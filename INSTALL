@@ -1,4 +1,4 @@
-pgl/INSTALL                                   Sun, 25 Jan 2015 13:15:50 +0100
+pgl/INSTALL                                   Mon, 18 Jan 2016 05:26:47 +0100
 
 
 
@@ -51,7 +51,15 @@ To update the files run:
   autoreconf
 
 
-Step 3.1: Configure
+Step 3.1: Set correct Qt version.
+---------------------------------
+
+If you have multiple Qt versions installed on your system you might have to use
+qtchooser to select Qt5:
+   export QT_SELECT=5
+
+
+Step 3.2: Configure
 -------------------
 
 Pgl uses autotools which comes with several configure-switches you have
@@ -125,7 +133,7 @@ Gentoo has its own init file, use it with:
   --with-gentoo-init
 
 
-Step 3.2: Build and install
+Step 3.3: Build and install
 ---------------------------
 
 After configure you can build and install the package, just issue:
@@ -133,7 +141,7 @@ After configure you can build and install the package, just issue:
   make install
 
 
-Step 3.3: Activate pgl on system initialization
+Step 3.4: Activate pgl on system initialization
 -----------------------------------------------
 
 
