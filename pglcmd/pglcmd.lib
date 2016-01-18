@@ -349,6 +349,43 @@ set_NETWORK () {
     echo ${NET1}.${NET2}.${NET3}.${NET4}${BITS}
 }
 
+# Function to add whitelisting rules from an allowlist.
+# Depends: ALLOW_FILE CMD_ALLOW.
+# Checks every non-comment|not-empty line in ALLOW_FILE.
+# TODO: If one IPv4 is found it is whitelisted separately.
+# If more IPv4s are found they are whitelisted with iprange.
+# The format is not specified explicitly. P2P and LOWMEM must work.
+white_allow_file () {
+    if [ -f "$ALLOW_FILE" ] ; then
+        # Read the non-comment|not-empty lines from the allow file:
+        ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOW_FILE)"
+        IFS=$'
+' # Set IFS to newline only for LINE
+        for LINE in $ALLOW ; do
+            IPRANGE_BEGIN="$(echo $LINE | grep -Eo "$IPv4_REGEX" | head -n1)"
+            IPRANGE_END="$(echo $LINE | grep -Eo "$IPv4_REGEX" | tail -n1)"
+            # TODO: if IPRANGE_BEGIN = IPRANGE_END ; then (# IP Whitelisting, move code from above)
+            # Reset IFS for CMD
+            IFS=$STDIFS
+            for CMD in $CMD_ALLOW ; do
+                # Add whitelisting rule
+                # (add 2 rules in the FORWARD chain: once for --src-range, once for --dst-range)
+                iptables -I $PGL_CHAIN -m iprange $CMD $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
+                    # If iptables insertion failed assume that the line is malformed.
+                    # Comment this line out.
+                    sed -i "s|^$LINE$|# Malformed line commented out by $(basename $0): &|" $ALLOW_FILE
+                    log_failure_msg "Commented out malformed line \"$LINE\" in $ALLOW_FILE."
+                    fail_insert_iptables
+                }
+            done
+            IFS=$'
+' # Set IFS to newline only again for the next LINE
+        done
+        # Reset IFS
+        IFS=$STDIFS
+    fi
+}
+
 white_local () {
     # If CHAINS is empty/not set, then set it to "all". Replace all with the single names.
     CHAINS=${CHAINS:-all}
@@ -1072,31 +1109,7 @@ insert_iptables () {
             # IP ranges whitelisting
             if [ -n "$ALLOW_FILE" ] && [ -f "$ALLOW_FILE" ] ; then
                 echo -n "....Whitelisting IP ranges"
-                # Read the non-comment|not-empty lines from the allow file:
-                ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOW_FILE)"
-                IFS=$'
-' # Set IFS to newline only for LINE
-                for LINE in $ALLOW ; do
-                    IPRANGE_BEGIN="$(echo $LINE | grep -Eo "$IPv4_REGEX" | head -n1)"
-                    IPRANGE_END="$(echo $LINE | grep -Eo "$IPv4_REGEX" | tail -n1)"
-                    # Reset IFS for CMD
-                    IFS=$STDIFS
-                    for CMD in $CMD_ALLOW ; do
-                        # Add whitelisting rule
-                        # (add 2 rules in the FORWARD chain: once for --src-range, once for --dst-range)
-                        iptables -I $PGL_CHAIN -m iprange $CMD $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
-                            # If iptables insertion failed assume that the line is malformed.
-                            # Comment this line out.
-                            sed -i "s|^$LINE$|# Malformed line commented out by $(basename $0): &|" $ALLOW_FILE
-                            log_failure_msg "Commented out malformed line \"$LINE\" in $ALLOW_FILE."
-                            fail_insert_iptables
-                            }
-                    done
-                    IFS=$'
-' # Set IFS to newline only again for the next LINE
-                done
-                # Reset IFS
-                IFS=$STDIFS
+                white_allow_file
                 log_end_msg "$?"
             fi
 
