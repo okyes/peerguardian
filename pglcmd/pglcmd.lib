@@ -1514,7 +1514,9 @@ do_start () {
                 rm $REMOVE_SCRIPT
                 log_end_msg $?
             fi
+
             insert_iptables
+
             echo -n "Starting $NAME"
 
             # Set the log to syslog option
