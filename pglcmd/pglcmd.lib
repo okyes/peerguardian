@@ -823,7 +823,7 @@ configure_permanent() {
                 sed -i "s|^[[:space:]]*$1=.*|$1=\"$(eval echo \$$1) $OPTARG\"|g" "$CMD_CONF_TMP"
             fi
         else # VARIABLE is not set in pglcmd.conf.
-            # Make sure the file has an eol.
+            # Add a newline at end of file if it was missing.
             sed -i -e '$a\' "$CMD_CONF_TMP"
             # Add VAR with OPTARG set to pglcmd.conf.
             echo "$1=\"$OPTARG\"" >> "$CMD_CONF_TMP"
@@ -1971,8 +1971,8 @@ extract_blocklist () {
     esac
     # Count the lines in the list and check if there are any lines.
     if [ "$( wc -l < ${BLOCKLIST_EXTRACTED}.tmp )" -gt 0 ] ; then
-        # Add a newline at end of file if it was missing
-        # This creates a copy of local blocklists even if nothing is changed instead of just linking
+        # Add a newline at end of file if it was missing.
+        # This creates a copy of local blocklists even if nothing is changed instead of just linking.
         sed -e '$a\' "${BLOCKLIST_EXTRACTED}.tmp" > "${BLOCKLIST_EXTRACTED}" &&
             rm ${BLOCKLIST_EXTRACTED}.tmp ||
             { log_failure_msg "Error: $? Failed to save extracted blocklist ${BLOCKLIST_EXTRACTED}" ; exit 1 ; }
