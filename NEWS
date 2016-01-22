@@ -1,3 +1,19 @@
+pgl 2.3.2 (unreleased)
+
+  This is still work in progress, not everything works, don't use blindly!
+
+  * pgl supports multiple allowlists now. All files in the directories
+    LOCAL_ALLOWLISTS_IN_DIR, LOCAL_ALLOWLISTS_OUT_DIR and
+    LOCAL_ALLOWLISTS_FWD_DIR are used as allowlists for their respective
+    connection direction.
+  * The IP whitelisting variables WHITE_IP_IN, WHITE_IP_OUT and WHITE_IP_FWD
+    aren't used anymore. Their settings are moved automatically to the
+    allowlists pgl.p2p in their respective directories.
+  * New pglcmd option configure. ... wip
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Fri, 22 Jan 2016 03:24:40 +0100
+
+
 pgl 2.3.0 New default blocklists and MARKing for everyone
 
   [jre]

@@ -1,3 +1,10 @@
+pgl (2.3.1+git-1) UNRELEASED; urgency=medium
+
+  * We're working on some bigger changes in the git repo currently. Expect it
+    to break, do not use blindly.
+
+ -- jre <jre-phoenix@users.sourceforge.net>  Fri, 22 Jan 2016 03:33:16 +0100
+
 pgl (2.3.1-1) unstable; urgency=medium
 
   * Link all package's docs' directory to pgld's (part 3).
