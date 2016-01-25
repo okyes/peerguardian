@@ -259,6 +259,20 @@ test_root () {
     esac
 }
 
+# Sets NET_IPRANGE=1 if netfilter iprange is supported.
+# Outputs warning and sets NET_IPRANGE=0 otherwise.
+test_net_iprange () {
+    # If module is missing only remember and warn about missing module.
+    NET_IPRANGE=1
+    [ -f /proc/net/ip_tables_matches ] && grep -q iprange /proc/net/ip_tables_matches ||
+            modprobe -q xt_iprange ||
+            modprobe -q ipt_iprange ||
+            {
+                log_warning_msg "Warning: Could not load kernel module xt_iprange."
+                NET_IPRANGE="0"
+            }
+}
+
 ################################################################################
 # Functions
 
@@ -351,6 +365,7 @@ set_NETWORK () {
 
 # Function to add whitelisting rules from an allowlist.
 # Depends: ALLOW_FILE CMD_ALLOW.
+#  NET_IPRANGE
 # Checks every non-comment|not-empty line in ALLOW_FILE.
 # TODO: If one IPv4 is found it is whitelisted separately.
 # If more IPv4s are found they are whitelisted with iprange.
@@ -1469,41 +1484,6 @@ do_start () {
                     log_warning_msg "Warning: Could not load kernel module xt_conntrack, continuing anyway."
                 fi
 
-            # xt_iprange
-            # If module is missing only error out if it is really needed (= allow file with IP ranges exists),
-            # else just warn about missing module.
-            [ -f /proc/net/ip_tables_matches ] && grep -q iprange /proc/net/ip_tables_matches ||
-                modprobe -q xt_iprange ||
-                modprobe -q ipt_iprange ||
-                {
-                # If CHAINS is empty/not set, then set it to "all". Replace all with the single names.
-                CHAINS=${CHAINS:-all}
-                [ "$CHAINS" != all ] || CHAINS="INPUT OUTPUT FORWARD"
-                for CHAIN in $CHAINS ; do
-                    case $CHAIN in
-                    INPUT)
-                        ALLOW_FILE="$ALLOW_IN"
-                        ;;
-                    OUTPUT)
-                        ALLOW_FILE="$ALLOW_OUT"
-                        ;;
-                    FORWARD)
-                        ALLOW_FILE="$ALLOW_FWD"
-                        ;;
-                    *)
-                        echo "Unknown CHAIN $CHAIN specified."
-                        exit 1
-                        ;;
-                    esac
-                    if [ -n "$ALLOW_FILE" ] && [ -f "$ALLOW_FILE" ] ; then
-                        log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_iprange, not starting $NAME!"
-                        log_failure_msg "Use a kernel with netfilter IPRANGE support or reconfigure $(basename $0)"
-                        log_failure_msg "to not use the allow list $ALLOW_FILE."
-                        exit $E_XEXTERNAL
-                    fi
-                done
-                log_warning_msg "Warning: Could not load kernel module xt_iprange, continuing anyway."
-                }
 
             # Execute old REMOVE_SCRIPT if it still exists for any reason, because we may run into troubles
             # if there are still old iptables.
