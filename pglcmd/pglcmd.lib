@@ -1359,7 +1359,7 @@ set_BLOCKLISTS_LOCAL () {
     [ -d "$LOCAL_BLOCKLIST_DIR" ] &&
     BLOCKLISTS_LOCAL="$(find -L $LOCAL_BLOCKLIST_DIR -maxdepth 1 -type f \
         ! -name "*~" \
-        ! -name "#~" \
+        ! -name "#*" \
         ! -name ".*" |
         tr "\n" " ")"
 }
@@ -1368,7 +1368,7 @@ set_LOCAL_ALLOWLISTS_IN () {
     [ -d "$LOCAL_ALLOWLISTS_IN_DIR" ] &&
     LOCAL_ALLOWLISTS_IN="$(find -L $LOCAL_ALLOWLISTS_IN_DIR -maxdepth 1 -type f \
         ! -name "*~" \
-        ! -name "#~" \
+        ! -name "#*" \
         ! -name ".*" |
         tr "\n" " ")"
 }
@@ -1377,7 +1377,7 @@ set_LOCAL_ALLOWLISTS_OUT () {
     [ -d "$LOCAL_ALLOWLISTS_OUT_DIR" ] &&
     LOCAL_ALLOWLISTS_OUT="$(find -L $LOCAL_ALLOWLISTS_OUT_DIR -maxdepth 1 -type f \
         ! -name "*~" \
-        ! -name "#~" \
+        ! -name "#*" \
         ! -name ".*" |
         tr "\n" " ")"
 }
@@ -1386,7 +1386,7 @@ set_LOCAL_ALLOWLISTS_FWD () {
     [ -d "$LOCAL_ALLOWLISTS_FWD_DIR" ] &&
     LOCAL_ALLOWLISTS_FWD="$(find -L $LOCAL_ALLOWLISTS_FWD_DIR -maxdepth 1 -type f \
         ! -name "*~" \
-        ! -name "#~" \
+        ! -name "#*" \
         ! -name ".*" |
         tr "\n" " ")"
 }
