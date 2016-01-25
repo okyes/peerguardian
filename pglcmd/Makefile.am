@@ -88,6 +88,9 @@ pglcmd:
 	$(do_subst) < pglcmd.in > pglcmd
 	chmod +x pglcmd
 
+pglcmd.conf:
+	sed -e 's|@LIB_DIR@|$(libdir)|g' < pglcmd.conf.in > pglcmd.conf
+
 pglcmd.wd:
 	$(do_subst) < pglcmd.wd.in > pglcmd.wd
 	chmod +x pglcmd.wd
@@ -148,6 +151,7 @@ EXTRA_DIST = \
 	networkmanager/20pglcmd.in \
 	pglcmd.defaults.in \
 	pglcmd.in \
+	pglcmd.conf.in \
 	pglcmd.lib \
 	pglcmd.lsb.lib \
 	pglcmd.main.in \
@@ -163,5 +167,6 @@ CLEANFILES = \
 	networkmanager/20pglcmd \
 	pglcmd.defaults \
 	pglcmd \
+	pglcmd.conf \
 	pglcmd.main \
 	pglcmd.wd
