@@ -17,6 +17,7 @@ tmp/*
 *.debhelper.log
 *.substvars
 autoreconf.*
+debhelper-build-stamp
 files
 pglcmd.cron.daily
 pglcmd.debhelper.log
