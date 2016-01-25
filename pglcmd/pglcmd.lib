@@ -364,7 +364,8 @@ set_NETWORK () {
 }
 
 # Function to add whitelisting rules from an allowlist.
-#  ALLOW_FILE
+# Depends:
+#  ALLOWLIST
 #  CMD_WHITE_IP
 #  CMD_WHITE_IPRANGE
 #  NET_IPRANGE
@@ -372,8 +373,9 @@ set_NETWORK () {
 # TODO: If one IPv4 is found it is whitelisted separately.
 # If more IPv4s are found they are whitelisted with iprange.
 # The format is not specified explicitly. P2P and LOWMEM must work.
-white_allow_file () {
-    if [ -f "$ALLOW_FILE" ] ; then
+white_allowlist () {
+    if [ -f "$ALLOWLIST" ] ; then
+        echo -n " $ALLOWLIST"
         # Read the non-comment|not-empty lines from the allow file:
         ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOWLIST)"
         IFS=$'
@@ -984,7 +986,8 @@ insert_iptables () {
                 CMD_WHITE_IP="--source"
                 CMD_WHITE_IPRANGE="--src-range"
                 WHITE_IP="$WHITE_IP_IN"   # read from conffile or set by "configure"
-                ALLOW_FILE="$ALLOW_IN"
+                set_LOCAL_ALLOWLISTS_IN
+                LOCAL_ALLOWLISTS="$LOCAL_ALLOWLISTS_IN"
                 REJECT_TARGET="$REJECT_IN"
                 ;;
             OUTPUT)
@@ -994,7 +997,8 @@ insert_iptables () {
                 CMD_WHITE_IP="--destination"
                 CMD_WHITE_IPRANGE="--dst-range"
                 WHITE_IP="$WHITE_IP_OUT"   # read from conffile or set by "configure"
-                ALLOW_FILE="$ALLOW_OUT"
+                set_LOCAL_ALLOWLISTS_OUT
+                LOCAL_ALLOWLISTS="$LOCAL_ALLOWLISTS_OUT"
                 REJECT_TARGET="$REJECT_OUT"
                 ;;
             FORWARD)
@@ -1004,7 +1008,8 @@ insert_iptables () {
                 CMD_WHITE_IP="--source --destination"
                 CMD_WHITE_IPRANGE="--src-range --dst-range"
                 WHITE_IP="$WHITE_IP_FWD"   # read from conffile or set by "whitelist"
-                ALLOW_FILE="$ALLOW_FWD"
+                set_LOCAL_ALLOWLISTS_FWD
+                LOCAL_ALLOWLISTS="$LOCAL_ALLOWLISTS_FWD"
                 REJECT_TARGET="$REJECT_FWD"
                 ;;
             *)
@@ -1166,10 +1171,15 @@ insert_iptables () {
             # Nothing left to do for configure insert_iptables, leave the loop, can't leave the function here.
             [ "$CMD_OPTION" != configure ] || return
 
-            # IP ranges whitelisting
-            if [ -n "$ALLOW_FILE" ] && [ -f "$ALLOW_FILE" ] ; then
-                echo -n "....Whitelisting IP ranges"
-                white_allow_file
+            # Allowlist whitelisting.
+            if [ -n "$LOCAL_ALLOWLISTS" ] ; then
+                echo -n "....Allowlists"
+                # Sets NET_IPRANGE=1 if netfilter iprange is supported.
+                # Outputs warning and sets NET_IPRANGE=0 otherwise.
+                test_net_iprange
+                for ALLOWLIST in $LOCAL_ALLOWLISTS ; do
+                    white_allowlist
+                done
                 log_end_msg "$?"
             fi
 
@@ -1360,14 +1370,41 @@ set_md5sum () {
     MD5SUM="$(echo $SUM | md5sum | cut -c -32)"
 }
 
-# All blocklists in the LOCAL_BLOCKLIST_DIR directory (except those in
-# subdirectories, or which end in "~" or start with ".") are merged in the
-# MASTER_BLOCKLIST and thus used by pgld.
+# Set local allow- and blocklists variables.
+# All files and links (except those which start with "#" or ".", or end in "~" )
+# in the top-level of their directories are used.
 # Spaces in listnames are not allowed.
 set_BLOCKLISTS_LOCAL () {
     BLOCKLISTS_LOCAL=""
     [ -d "$LOCAL_BLOCKLIST_DIR" ] &&
     BLOCKLISTS_LOCAL="$(find -L $LOCAL_BLOCKLIST_DIR -maxdepth 1 -type f \
+        ! -name "*~" \
+        ! -name "#~" \
+        ! -name ".*" |
+        tr "\n" " ")"
+}
+set_LOCAL_ALLOWLISTS_IN () {
+    LOCAL_ALLOWLISTS_IN=""
+    [ -d "$LOCAL_ALLOWLISTS_IN_DIR" ] &&
+    LOCAL_ALLOWLISTS_IN="$(find -L $LOCAL_ALLOWLISTS_IN_DIR -maxdepth 1 -type f \
+        ! -name "*~" \
+        ! -name "#~" \
+        ! -name ".*" |
+        tr "\n" " ")"
+}
+set_LOCAL_ALLOWLISTS_OUT () {
+    LOCAL_ALLOWLISTS_OUT=""
+    [ -d "$LOCAL_ALLOWLISTS_OUT_DIR" ] &&
+    LOCAL_ALLOWLISTS_OUT="$(find -L $LOCAL_ALLOWLISTS_OUT_DIR -maxdepth 1 -type f \
+        ! -name "*~" \
+        ! -name "#~" \
+        ! -name ".*" |
+        tr "\n" " ")"
+}
+set_LOCAL_ALLOWLISTS_FWD () {
+    LOCAL_ALLOWLISTS_FWD=""
+    [ -d "$LOCAL_ALLOWLISTS_FWD_DIR" ] &&
+    LOCAL_ALLOWLISTS_FWD="$(find -L $LOCAL_ALLOWLISTS_FWD_DIR -maxdepth 1 -type f \
         ! -name "*~" \
         ! -name "#~" \
         ! -name ".*" |

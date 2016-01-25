@@ -44,10 +44,16 @@ CMD_LIB="${LIBDIR}/${CMD_NAME}.lib"
 # The path to the user configuration
 CMD_CONF="${CONFDIR}/${CMD_NAME}.conf"
 
-# The path of the local blocklist dir.
-# All blocklists in the LOCAL_BLOCKLIST_DIR directory (except those in
-# subdirectories, or which end in "~" or start with ".") are used.
+# The paths of the local allow- and blocklist directories.
+# Allowlists are applied separately for each incoming, outgoing or forwarded
+# connections, blocklists are merged into a single MASTER_BLOCKLIST.
+# All files and links (except those which start with "#" or ".", or end in "~" )
+# in the top-level of their directories are used.
 # Spaces in listnames are not allowed.
+# This supersedes the old allowlists ALLOW_* and the variables WHITE_IP_*.
+LOCAL_ALLOWLISTS_IN_DIR="${CONFDIR}/local.allowlists.in"
+LOCAL_ALLOWLISTS_OUT_DIR="${CONFDIR}/local.allowlists.out"
+LOCAL_ALLOWLISTS_FWD_DIR="${CONFDIR}/local.allowlists.fwd"
 LOCAL_BLOCKLIST_DIR="${CONFDIR}/blocklists.local"
 
 # The path of blocklists.list.
@@ -65,18 +71,6 @@ MASTER_BLOCKLIST_DIR="/var/lib/pgl"
 # All single local and remote blocklists are merged in this list by pglcmd. pgld
 # is then started with only this blocklist spcified.
 MASTER_BLOCKLIST="${MASTER_BLOCKLIST_DIR}/master_blocklist.p2p"
-
-# The path to the allow lists
-# Note that per default the same allow list is used for all input and output
-# connections, and is disabled for forward.
-# The path to the allow list for incoming connections
-ALLOW_IN="${CONFDIR}/allow.p2p"
-# The path to the allow list for outgoing connections
-ALLOW_OUT="${CONFDIR}/allow.p2p"
-# The path to the allow list for forwarded connections.
-# WARNING: Don't add your own IP / LAN to the forward allow list or pgl will not
-# work at all for FORWARD.
-ALLOW_FWD=""
 
 # The directory of the custom iptables scripts.
 # All files in this directory, that end in insert.sh/remove.sh will be executed
