@@ -362,10 +362,10 @@ white_allow_file () {
         IFS=$'
 ' # Set IFS to newline only for LINE
         for LINE in $ALLOW ; do
-            IPRANGE_BEGIN="$(echo $LINE | grep -Eo "$IPv4_REGEX" | head -n1)"
-            IPRANGE_END="$(echo $LINE | grep -Eo "$IPv4_REGEX" | tail -n1)"
             # TODO: if IPRANGE_BEGIN = IPRANGE_END ; then (# IP Whitelisting, move code from above)
             # Reset IFS for CMD
+            IPRANGE_BEGIN="$(echo $LINE | sed "s|.*:||" | grep -Eo "$IPv4_REGEX" | head -n1)"
+            IPRANGE_END="$(echo $LINE | sed "s|.*:||" | grep -Eo "$IPv4_REGEX" | tail -n1)"
             IFS=$STDIFS
             for CMD in $CMD_ALLOW ; do
                 # Add whitelisting rule
