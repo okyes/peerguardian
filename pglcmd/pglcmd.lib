@@ -224,11 +224,6 @@ test_IPTABLES_VARS () {
             # No test for WHITE_UDP_OUT.
             # No test for WHITE_TCP_FWD.
             # No test for WHITE_UDP_FWD.
-            # No test for WHITE_IP_IN. Valid: network name, a hostname (please note that specifying
-            #   any name to be resolved with a remote query such as DNS is a really bad idea), a
-            #   network IP address (with /mask), or a plain IP address.
-            # No test for WHITE_IP_OUT.
-            # No test for WHITE_IP_FWD.
             # No test for INTERFACES.
             # No test for IP_REMOVE. Valid: all regular expressions for grep
             ;;
@@ -985,7 +980,6 @@ insert_iptables () {
                 WHITE_UDP="$WHITE_UDP_IN" # read from conffile or set by "configure"
                 CMD_WHITE_IP="--source"
                 CMD_WHITE_IPRANGE="--src-range"
-                WHITE_IP="$WHITE_IP_IN"   # read from conffile or set by "configure"
                 set_LOCAL_ALLOWLISTS_IN
                 LOCAL_ALLOWLISTS="$LOCAL_ALLOWLISTS_IN"
                 REJECT_TARGET="$REJECT_IN"
@@ -996,7 +990,6 @@ insert_iptables () {
                 WHITE_UDP="$WHITE_UDP_OUT" # read from conffile or set by "configure"
                 CMD_WHITE_IP="--destination"
                 CMD_WHITE_IPRANGE="--dst-range"
-                WHITE_IP="$WHITE_IP_OUT"   # read from conffile or set by "configure"
                 set_LOCAL_ALLOWLISTS_OUT
                 LOCAL_ALLOWLISTS="$LOCAL_ALLOWLISTS_OUT"
                 REJECT_TARGET="$REJECT_OUT"
@@ -1007,7 +1000,6 @@ insert_iptables () {
                 WHITE_UDP="$WHITE_UDP_FWD" # read from conffile or set by "configure"
                 CMD_WHITE_IP="--source --destination"
                 CMD_WHITE_IPRANGE="--src-range --dst-range"
-                WHITE_IP="$WHITE_IP_FWD"   # read from conffile or set by "whitelist"
                 set_LOCAL_ALLOWLISTS_FWD
                 LOCAL_ALLOWLISTS="$LOCAL_ALLOWLISTS_FWD"
                 REJECT_TARGET="$REJECT_FWD"
@@ -1045,18 +1037,6 @@ insert_iptables () {
                     log_end_msg "$?"
                 fi
 
-                # IP Whitelisting
-                if [ -n "$WHITE_IP" ] ; then
-                    echo -n "....Whitelisting IPs"
-                    for IP in $WHITE_IP ; do
-                        # Add whitelisting rule
-                        # (add 2 rules in the FORWARD chain: once for --source, once for --destination)
-                        for CMD in $CMD_WHITE_IP ; do
-                            iptables -I $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
-                        done
-                    done
-                    log_end_msg "$?"
-                fi
             else # in configure mode
                 # The port and ip whitelisting rules from above, but
                 # - always with a test if necessary,

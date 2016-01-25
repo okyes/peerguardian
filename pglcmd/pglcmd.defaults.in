@@ -302,34 +302,6 @@ WHITE_UDP_FWD=""
 # This is an example to whitelist the port range 1000-1024:
 # WHITE_TCP_OUT="1000:1024"
 
-################################ Whitelist IPs ################################
-
-# Possibility 1:
-# You can specify IP ranges that shall not be checked by pgl in a separate file.
-# Per default this is /etc/pgl/allow.p2p. Change the ALLOW_[IN|OUT|FWD]
-# variables if you want to use different allow lists for incoming, outgoing and
-# forwarded traffic.
-# DEPRECATION WARNING: This will be changed to use the same allow list for all
-# directions. The underlying technical change is that currently the IP ranges
-# from the allow lists get whitelisting iptables rules, but the planned new
-# implementation is that these IP ranges get removed from the blocklist.
-
-# Possibility 2:
-# Whitelist IPs (traffic from/to these IPs will not be checked)
-# Valid values: plain IPs or network IP addresses (with /mask). The mask can
-# be either a network mask or a plain number, specifying the number of 1's at
-# the left side of the network  mask. Thus, a mask of 24 is equivalent to
-# 255.255.255.0.
-# Separate several entries with whitespace (" ")
-# Technical implementation: iptables rules in the corresponding iptables chains,
-# matching --source/destination IP, target IPTABLES_TARGET_WHITELISTING.
-# This section works only for IPTABLES_SETTINGS="1"
-# Do a "pglcmd restart" when you have changed these settings.
-
-WHITE_IP_IN=""
-WHITE_IP_OUT=""
-WHITE_IP_FWD=""
-
 ###################### Remove lines from the blocklist ########################
 
 # Remove lines from the blocklist matching the specified pattern (the search
