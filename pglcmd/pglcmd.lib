@@ -364,7 +364,9 @@ set_NETWORK () {
 }
 
 # Function to add whitelisting rules from an allowlist.
-# Depends: ALLOW_FILE CMD_ALLOW.
+#  ALLOW_FILE
+#  CMD_WHITE_IP
+#  CMD_WHITE_IPRANGE
 #  NET_IPRANGE
 # Checks every non-comment|not-empty line in ALLOW_FILE.
 # TODO: If one IPv4 is found it is whitelisted separately.
@@ -373,32 +375,75 @@ set_NETWORK () {
 white_allow_file () {
     if [ -f "$ALLOW_FILE" ] ; then
         # Read the non-comment|not-empty lines from the allow file:
-        ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOW_FILE)"
+        ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOWLIST)"
         IFS=$'
 ' # Set IFS to newline only for LINE
         for LINE in $ALLOW ; do
-            # TODO: if IPRANGE_BEGIN = IPRANGE_END ; then (# IP Whitelisting, move code from above)
-            # Reset IFS for CMD
+            IPRANGE_BEGIN=
+            IPRANGE_END=
+            NETWORK_IP=
+            # Check every line
+            # - ignore the comment part if it exists (everything before and including a colon ":")
+            # - remember
+            #   - the first and last IPv4
+            #     If they are not identical assume an IP range (see
+            #     https://sourceforge.net/p/peerguardian/wiki/dev-Main/#blocklist-format-specifications
+            #     for some blocklist format specifications. Note that these are not exactly implemented,
+            #     but are mainly caught by this general approach.
+            #   - IPv4/mask, and assume a network IP address.
             IPRANGE_BEGIN="$(echo $LINE | sed "s|.*:||" | grep -Eo "$IPv4_REGEX" | head -n1)"
             IPRANGE_END="$(echo $LINE | sed "s|.*:||" | grep -Eo "$IPv4_REGEX" | tail -n1)"
+            NETWORK_IP="$(echo $LINE | sed "s|.*:||" | grep -Eo "${IPv4_REGEX}/[0-9]{1,3}" | tail -n1)"
+            [ x"$IPRANGE_BEGIN$IPRANGE_END$NETWORK_IP" != x ] || continue
+            # Reset IFS for CMD (TODO: check if really necessary).
             IFS=$STDIFS
-            for CMD in $CMD_ALLOW ; do
-                # Add whitelisting rule
-                # (add 2 rules in the FORWARD chain: once for --src-range, once for --dst-range)
-                iptables -I $PGL_CHAIN -m iprange $CMD $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING || {
-                    # If iptables insertion failed assume that the line is malformed.
-                    # Comment this line out.
-                    sed -i "s|^$LINE$|# Malformed line commented out by $(basename $0): &|" $ALLOW_FILE
-                    log_failure_msg "Commented out malformed line \"$LINE\" in $ALLOW_FILE."
+            # Add whitelisting rule
+            # (add 2 rules in the FORWARD chain: once for --src-range, once for --dst-range)
+            if [ -n "$NETWORK_IP" ] ; then
+                # Network ip address.
+                for CMD in $CMD_WHITE_IP ; do
+                    iptables -I $PGL_CHAIN $CMD $NETWORK_IP -j $IPTABLES_TARGET_WHITELISTING ||
+                        fail_white_allowlist
+                done
+            elif [ "$IPRANGE_BEGIN" = "$IPRANGE_END" ] ; then
+                # Single IP, not an iprange.
+                for CMD in $CMD_WHITE_IP ; do
+                    iptables -I $PGL_CHAIN $CMD $IPRANGE_BEGIN -j $IPTABLES_TARGET_WHITELISTING ||
+                        fail_white_allowlist
+                done
+            elif [ "$IPRANGE_BEGIN" != "$IPRANGE_END" ] ; then
+                # IP range.
+                if [ "$NET_IPRANGE" = 1 ] ; then
+                    # netfilter iprange kernel support is available.
+                    for CMD in $CMD_WHITE_IPRANGE ; do
+                        iptables -I $PGL_CHAIN -m iprange $CMD $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING ||
+                            fail_white_allowlist
+                    done
+                else
+                    log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_iprange!"
+                    log_failure_msg "Use a kernel with netfilter iprange support."
+                    log_failure_msg "Could not handle line \"$LINE\" in $ALLOWLIST."
                     fail_insert_iptables
-                }
-            done
+                fi
+            else
+                echo "DEBUG: Ignored line \"$LINE\". Please report if this is an error."
+            fi
             IFS=$'
 ' # Set IFS to newline only again for the next LINE
         done
         # Reset IFS
         IFS=$STDIFS
     fi
+}
+
+# To be called from white_allowlist:
+# Depends: LINE, ALLOWLIST
+fail_white_allowlist () {
+    # If iptables insertion failed assume that the line is malformed.
+    # Comment this line out.
+    sed -i "s|^$LINE$|# Malformed line commented out by $(basename $0): &|" $ALLOWLIST
+    log_failure_msg "Commented out malformed line \"$LINE\" in $ALLOWLIST."
+    fail_insert_iptables
 }
 
 white_local () {
@@ -937,8 +982,8 @@ insert_iptables () {
                 WHITE_TCP="$WHITE_TCP_IN" # read from conffile or set by "configure"
                 WHITE_UDP="$WHITE_UDP_IN" # read from conffile or set by "configure"
                 CMD_WHITE_IP="--source"
+                CMD_WHITE_IPRANGE="--src-range"
                 WHITE_IP="$WHITE_IP_IN"   # read from conffile or set by "configure"
-                CMD_ALLOW="--src-range"
                 ALLOW_FILE="$ALLOW_IN"
                 REJECT_TARGET="$REJECT_IN"
                 ;;
@@ -947,8 +992,8 @@ insert_iptables () {
                 WHITE_TCP="$WHITE_TCP_OUT" # read from conffile or set by "configure"
                 WHITE_UDP="$WHITE_UDP_OUT" # read from conffile or set by "configure"
                 CMD_WHITE_IP="--destination"
+                CMD_WHITE_IPRANGE="--dst-range"
                 WHITE_IP="$WHITE_IP_OUT"   # read from conffile or set by "configure"
-                CMD_ALLOW="--dst-range"
                 ALLOW_FILE="$ALLOW_OUT"
                 REJECT_TARGET="$REJECT_OUT"
                 ;;
@@ -957,8 +1002,8 @@ insert_iptables () {
                 WHITE_TCP="$WHITE_TCP_FWD" # read from conffile or set by "configure"
                 WHITE_UDP="$WHITE_UDP_FWD" # read from conffile or set by "configure"
                 CMD_WHITE_IP="--source --destination"
+                CMD_WHITE_IPRANGE="--src-range --dst-range"
                 WHITE_IP="$WHITE_IP_FWD"   # read from conffile or set by "whitelist"
-                CMD_ALLOW="--src-range --dst-range"
                 ALLOW_FILE="$ALLOW_FWD"
                 REJECT_TARGET="$REJECT_FWD"
                 ;;
