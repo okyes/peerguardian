@@ -1547,6 +1547,147 @@ do_start () {
                 fi
 
 
+            # Transition 2016-01-25: multiple allowlists
+
+            # Step 1: Add old allowlists ALLOW_* to LOCAL_ALLOWLISTS_*_DIR/pgl.p2p
+            # and disable them in CMD_CONF.
+            # ALLOW_IN
+            if [ -n "$ALLOW_IN" ] && [ -f "$ALLOW_IN" ] ; then
+                echo "Allowlists for incoming connections are now in ${LOCAL_ALLOWLISTS_IN_DIR}/."
+                echo -n "Adding old allowlist $ALLOW_IN to ${LOCAL_ALLOWLISTS_IN_DIR}/pgl.p2p"
+                # Add a newline at end of pgl.p2p if it was missing.
+                [ ! -f "${LOCAL_ALLOWLISTS_IN_DIR}/pgl.p2p" ] ||
+                    sed -i -e '$a\' "${LOCAL_ALLOWLISTS_IN_DIR}/pgl.p2p"
+                mkdir -p ${LOCAL_ALLOWLISTS_IN_DIR} &&
+                    cat "$ALLOW_IN" >> "${LOCAL_ALLOWLISTS_IN_DIR}/pgl.p2p"
+                [ ! -f "$CMD_CONF" ] ||
+                    sed -i "s|^[[:space:]]*\(ALLOW_IN=.*\)|# $(date -I) superseded by LOCAL_ALLOWLISTS_IN_DIR: \1|g" "$CMD_CONF"
+                echo "."
+            elif [ -f "$CMD_CONF" ] &&  grep -vq "^[[:space:]]*ALLOW_IN=" "$CMD_CONF" && [ -f "${CONFDIR}/allow.p2p" ] ; then
+                # ALLOW_IN was not set in CMD_CONF, transition the old default allowlist.
+                echo "Allowlists for incoming connections are now in ${LOCAL_ALLOWLISTS_IN_DIR}/."
+                echo -n "Adding old allowlist "${CONFDIR}/allow.p2p" to ${LOCAL_ALLOWLISTS_IN_DIR}/pgl.p2p"
+                # Add a newline at end of pgl.p2p if it was missing.
+                [ ! -f "${LOCAL_ALLOWLISTS_IN_DIR}/pgl.p2p" ] ||
+                    sed -i -e '$a\' "${LOCAL_ALLOWLISTS_IN_DIR}/pgl.p2p"
+                mkdir -p ${LOCAL_ALLOWLISTS_IN_DIR} &&
+                    cat "${CONFDIR}/allow.p2p" >> "${LOCAL_ALLOWLISTS_IN_DIR}/pgl.p2p"
+                sed -i "s|^[[:space:]]*\(ALLOW_IN=.*\)|# $(date -I) superseded by LOCAL_ALLOWLISTS_IN_DIR: \1|g" "$CMD_CONF"
+                echo "."
+            elif [ -f "$CMD_CONF" ] && grep -q "^[[:space:]]*ALLOW_IN=" "$CMD_CONF" ; then
+                # Finally disable any remaining setting (ALLOW_IN="") from CMD_CONF
+                sed -i "s|^[[:space:]]*\(ALLOW_IN=.*\)|# $(date -I) superseded by LOCAL_ALLOWLISTS_IN_DIR: \1|g" "$CMD_CONF"
+            fi
+            # ALLOW_OUT
+            if [ -n "$ALLOW_OUT" ] && [ -f "$ALLOW_OUT" ] ; then
+                echo "Allowlists for outgoing connections are now in ${LOCAL_ALLOWLISTS_OUT_DIR}/."
+                echo -n "Adding old allowlist $ALLOW_OUT to ${LOCAL_ALLOWLISTS_OUT_DIR}/pgl.p2p"
+                # Add a newline at end of pgl.p2p if it was missing.
+                [ ! -f "${LOCAL_ALLOWLISTS_OUT_DIR}/pgl.p2p" ] ||
+                    sed -i -e '$a\' "${LOCAL_ALLOWLISTS_OUT_DIR}/pgl.p2p"
+                mkdir -p ${LOCAL_ALLOWLISTS_OUT_DIR} &&
+                    cat "$ALLOW_OUT" >> "${LOCAL_ALLOWLISTS_OUT_DIR}/pgl.p2p"
+                [ ! -f "$CMD_CONF" ] ||
+                    sed -i "s|^[[:space:]]*\(ALLOW_OUT=.*\)|# $(date -I) superseded by LOCAL_ALLOWLISTS_OUT_DIR: \1|g" "$CMD_CONF"
+                echo "."
+            elif [ -f "$CMD_CONF" ] && grep -vq "^[[:space:]]*ALLOW_OUT=" "$CMD_CONF" && [ -f "${CONFDIR}/allow.p2p" ] ; then
+                # ALLOW_OUT was not (un-)set in CMD_CONF, transition the old default allowlist.
+                echo "Allowlists for outgoing connections are now in ${LOCAL_ALLOWLISTS_OUT_DIR}/."
+                echo -n "Adding old allowlist "${CONFDIR}/allow.p2p" to ${LOCAL_ALLOWLISTS_OUT_DIR}/pgl.p2p"
+                # Add a newline at end of pgl.p2p if it was missing.
+                [ ! -f "${LOCAL_ALLOWLISTS_OUT_DIR}/pgl.p2p" ] ||
+                    sed -i -e '$a\' "${LOCAL_ALLOWLISTS_OUT_DIR}/pgl.p2p"
+                mkdir -p ${LOCAL_ALLOWLISTS_OUT_DIR} &&
+                    cat "${CONFDIR}/allow.p2p" >> "${LOCAL_ALLOWLISTS_OUT_DIR}/pgl.p2p"
+                sed -i "s|^[[:space:]]*\(ALLOW_OUT=.*\)|# $(date -I) superseded by LOCAL_ALLOWLISTS_OUT_DIR: \1|g" "$CMD_CONF"
+                echo "."
+            elif [ -f "$CMD_CONF" ] && grep -q "^[[:space:]]*ALLOW_OUT=" "$CMD_CONF" ; then
+                # Finally disable any remaining setting (ALLOW_OUT="") from CMD_CONF
+                sed -i "s|^[[:space:]]*\(ALLOW_OUT=.*\)|# $(date -I) superseded by LOCAL_ALLOWLISTS_OUT_DIR: \1|g" "$CMD_CONF"
+            fi
+            # ALLOW_FWD
+            if [ -n "$ALLOW_FWD" ] && [ -f "$ALLOW_FWD" ] ; then
+                echo "Allowlists for forwarded connections are now in ${LOCAL_ALLOWLISTS_FWD_DIR}/."
+                echo -n "Adding old allowlist $ALLOW_FWD to ${LOCAL_ALLOWLISTS_FWD_DIR}/pgl.p2p"
+                # Add a newline at end of pgl.p2p if it was missing.
+                [ ! -f "${LOCAL_ALLOWLISTS_FWD_DIR}/pgl.p2p" ] ||
+                    sed -i -e '$a\' "${LOCAL_ALLOWLISTS_FWD_DIR}/pgl.p2p"
+                mkdir -p ${LOCAL_ALLOWLISTS_FWD_DIR} &&
+                    cat "$ALLOW_FWD" >> "${LOCAL_ALLOWLISTS_FWD_DIR}/pgl.p2p"
+                [ ! -f "$CMD_CONF" ] ||
+                    sed -i "s|^[[:space:]]*\(ALLOW_FWD=.*\)|# $(date -I) superseded by LOCAL_ALLOWLISTS_FWD_DIR: \1|g" "$CMD_CONF"
+                echo "."
+            elif [ -f "$CMD_CONF" ] && grep -q "^[[:space:]]*ALLOW_FWD=" "$CMD_CONF" ; then
+                # Finally disable any remaining setting (ALLOW_FWD="") from CMD_CONF
+                sed -i "s|^[[:space:]]*\(ALLOW_FWD=.*\)|# $(date -I) superseded by LOCAL_ALLOWLISTS_FWD_DIR: \1|g" "$CMD_CONF"
+            fi
+
+            # Step 2: Rename old allowlists.
+            # Note: Users might have used the same filepath for several connection directions,
+            # so we couldn't do this above.
+            if [ -n "${ALLOW_IN}" ] && [ -f "${ALLOW_IN}" ] ; then
+                mv "${ALLOW_IN}" "${ALLOW_IN}.orig.$(date -Iseconds)"
+            fi
+            if [ -n "${ALLOW_OUT}" ] && [ -f "${ALLOW_OUT}" ] ; then
+                mv "${ALLOW_OUT}" "${ALLOW_OUT}.orig.$(date -Iseconds)"
+            fi
+            if [ -n "${ALLOW_FWD}" ] && [ -f "${ALLOW_FWD}" ] ; then
+                mv "${ALLOW_FWD}" "${ALLOW_FWD}.orig.$(date -Iseconds)"
+            fi
+            if [ -f "${CONFDIR}/allow.p2p" ] ; then
+                mv "${CONFDIR}/allow.p2p" "${CONFDIR}/allow.p2p.orig.$(date -Iseconds)"
+            fi
+
+            # Step 3: Add contents of WHITE_IP_ to LOCAL_ALLOWLISTS_*_DIR/pgl.p2p
+            # WHITE_IP_IN
+            if [ -n "$WHITE_IP_IN" ] ; then
+                echo "Usage of WHITE_IP_IN is superseded by using allowlists in ${LOCAL_ALLOWLISTS_IN_DIR}."
+                echo -n "Adding old WHITE_IP_IN settings to ${LOCAL_ALLOWLISTS_IN_DIR}/pgl.p2p"
+                # Add a newline at end of pgl.p2p if it was missing.
+                [ ! -f "${LOCAL_ALLOWLISTS_IN_DIR}/pgl.p2p" ] ||
+                    sed -i -e '$a\' "${LOCAL_ALLOWLISTS_IN_DIR}/pgl.p2p"
+                mkdir -p ${LOCAL_ALLOWLISTS_IN_DIR}
+                # Add every item as new line to the allowlist.
+                for IP in $WHITE_IP_IN ; do
+                    echo "$(date -I) moved from WHITE_IP_IN:$IP" >> "${LOCAL_ALLOWLISTS_IN_DIR}/pgl.p2p"
+                done
+                # Comment the variable in CMD_CONF (the variable has been removed from .defaults)
+                sed -i "s|^[[:space:]]*\(WHITE_IP_IN=.*\)|# $(date -I) moved to ${LOCAL_ALLOWLISTS_IN_DIR}/pgl.p2p: \1|g" "$CMD_CONF"
+                echo "."
+            fi
+            # WHITE_IP_OUT
+            if [ -n "$WHITE_IP_OUT" ] ; then
+                echo "Usage of WHITE_IP_OUT is superseded by using allowlists in ${LOCAL_ALLOWLISTS_OUT_DIR}."
+                echo -n "Adding old WHITE_IP_OUT settings to ${LOCAL_ALLOWLISTS_OUT_DIR}/pgl.p2p"
+                # Add a newline at end of pgl.p2p if it was missing.
+                [ ! -f "${LOCAL_ALLOWLISTS_OUT_DIR}/pgl.p2p" ] ||
+                    sed -i -e '$a\' "${LOCAL_ALLOWLISTS_OUT_DIR}/pgl.p2p"
+                mkdir -p ${LOCAL_ALLOWLISTS_OUT_DIR}
+                # Add every item as new line to the allowlist.
+                for IP in $WHITE_IP_OUT ; do
+                    echo "$(date -I) moved from WHITE_IP_OUT:$IP" >> "${LOCAL_ALLOWLISTS_OUT_DIR}/pgl.p2p"
+                done
+                # Comment the variable in CMD_CONF (the variable has been removed from .defaults)
+                sed -i "s|^[[:space:]]*\(WHITE_IP_OUT=.*\)|# $(date -I) moved to ${LOCAL_ALLOWLISTS_OUT_DIR}/pgl.p2p: \1|g" "$CMD_CONF"
+                echo "."
+            fi
+            # WHITE_IP_FWD
+            if [ -n "$WHITE_IP_FWD" ] ; then
+                echo "Usage of WHITE_IP_FWD is superseded by using allowlists in ${LOCAL_ALLOWLISTS_FWD_DIR}."
+                echo -n "Adding old WHITE_IP_FWD settings to ${LOCAL_ALLOWLISTS_FWD_DIR}/pgl.p2p"
+                # Add a newline at end of pgl.p2p if it was missing.
+                [ ! -f "${LOCAL_ALLOWLISTS_FWD_DIR}/pgl.p2p" ] ||
+                    sed -i -e '$a\' "${LOCAL_ALLOWLISTS_FWD_DIR}/pgl.p2p"
+                mkdir -p ${LOCAL_ALLOWLISTS_FWD_DIR}
+                # Add every item as new line to the allowlist.
+                for IP in $WHITE_IP_FWD ; do
+                    echo "$(date -I) moved from WHITE_IP_FWD:$IP" >> "${LOCAL_ALLOWLISTS_FWD_DIR}/pgl.p2p"
+                done
+                # Comment the variable in CMD_CONF (the variable has been removed from .defaults)
+                sed -i "s|^[[:space:]]*\(WHITE_IP_FWD=.*\)|# $(date -I) moved to ${LOCAL_ALLOWLISTS_FWD_DIR}/pgl.p2p: \1|g" "$CMD_CONF"
+                echo "."
+            fi
+
             # Execute old REMOVE_SCRIPT if it still exists for any reason, because we may run into troubles
             # if there are still old iptables.
             if [ -f "$REMOVE_SCRIPT" ] ; then
