@@ -4,7 +4,7 @@
 # is a comment and is ignored. If you set the same variable several times,
 # then only the last line will be used.
 
-# Refer to @LIB_DIR@/pglcmd.defaults for the complete set of
+# Refer to @PGLLIBDIR@/pglcmd.defaults for the complete set of
 # possible configuration variables with comments.
 
 # Do a "pglcmd restart" (sometimes even "reload" is enough) when you have

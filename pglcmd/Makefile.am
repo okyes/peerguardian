@@ -89,7 +89,7 @@ pglcmd:
 	chmod +x pglcmd
 
 pglcmd.conf:
-	sed -e 's|@LIB_DIR@|$(libdir)|g' < pglcmd.conf.in > pglcmd.conf
+	sed -e 's|@PGLLIBDIR@|$(pgllibdir)|g' < pglcmd.conf.in > pglcmd.conf
 
 pglcmd.wd:
 	$(do_subst) < pglcmd.wd.in > pglcmd.wd
