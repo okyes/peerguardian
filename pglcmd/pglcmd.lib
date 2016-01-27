@@ -877,8 +877,8 @@ configure_permanent() {
         ;;
     *drop*)
         if grep -q "^[[:space:]]*$1=" "$CMD_CONF" ; then # VARIABLE ($1) is set in pglcmd.conf.
-            for i in $SEARCHTERMS ; do                            # Check if the value (or corresponding values) ...
-                for j in $(eval echo \$$1) ; do                   # ... is already present in the VARIABLE.
+            for i in $SEARCHTERMS ; do                   # Check if the value (or corresponding values) ...
+                for j in $(eval echo \$$1) ; do          # ... is already present in the VARIABLE.
                     # Remove values from VARIABLE.
                     if [ "$i" = "$j" ] ; then
                         is_present=yes
