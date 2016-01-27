@@ -359,16 +359,15 @@ set_NETWORK () {
 }
 
 # Function to add whitelisting rules from an allowlist.
-# Depends:
-#  ALLOWLIST
-#  CMD_WHITE_IP
-#  CMD_WHITE_IPRANGE
-#  NET_IPRANGE
-# Checks every non-comment|not-empty line in ALLOW_FILE.
-# TODO: If one IPv4 is found it is whitelisted separately.
-# If more IPv4s are found they are whitelisted with iprange.
+# Supports network IPs (IPv4/mask), single IPv4s and IPv4 ranges.
 # The format is not specified explicitly. P2P and LOWMEM must work.
 white_allowlist () {
+
+    [ -n "$ALLOWLIST" ] || { echo "Internal error: white_allowlist ALLOWLIST not set." ; exit 1 ; }
+    [ -n "$CMD_WHITE_IP" ] || { echo "Internal error: white_allowlist CMD_WHITE_IP not set." ; exit 1 ; }
+    [ -n "$CMD_WHITE_IPRANGE" ] || { echo "Internal error: white_allowlist CMD_WHITE_IPRANGE not set." ; exit 1 ; }
+    [ -n "$NET_IPRANGE" ] || { echo "Internal error: white_allowlist NET_IPRANGE not set." ; exit 1 ; }
+
     if [ -f "$ALLOWLIST" ] ; then
         echo -n " $ALLOWLIST"
         # Read the non-comment|not-empty lines from the allow file:
