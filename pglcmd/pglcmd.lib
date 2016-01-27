@@ -633,13 +633,6 @@ fail_insert_iptables () {
 # Called by "pglcmd configure" with $@.
 configure () {
 
-    # Create temporary file CMD_CONF_TMP (pglcmd.conf) safely:
-    if echo "$@" | grep -q "\-\-permanent" ; then
-        CMD_CONF_TMP=$(mktemp)
-        cat "$CMD_CONF" > "$CMD_CONF_TMP"
-    fi
-    conf_updated=0
-
     OPT=
     OPTARG=
     while [ "$#" -gt 0 ] ; do
@@ -806,9 +799,6 @@ configure () {
         fi
     fi
 
-    # Write back the changed conffiles.
-    [ "$conf_updated" = 0 ] || cat "$CMD_CONF_TMP" > "$CMD_CONF"
-
 }
 
 # Called from "pglcmd configure" to write changed settings to pglcmd.conf.
@@ -874,20 +864,20 @@ configure_permanent() {
             [ "$is_present" = no ] || break  # break if is_present=yes
         done
 
-        if grep -q "^[[:space:]]*$1=" "$CMD_CONF_TMP" ; then # Variable ($1) is set in pglcmd.conf.
+        if grep -q "^[[:space:]]*$1=" "$CMD_CONF" ; then # Variable ($1) is set in pglcmd.conf.
             if [ "$is_present" = no ] ; then
                 # Add VALUE to VARIABLE values in pglcmd.conf.
-                sed -i "s|^[[:space:]]*$1=.*|$1=\"$(eval echo \$$1) $OPTARG\"|g" "$CMD_CONF_TMP"
+                sed -i "s|^[[:space:]]*$1=.*|$1=\"$(eval echo \$$1) $OPTARG\"|g" "$CMD_CONF"
             fi
         else # VARIABLE is not set in pglcmd.conf.
             # Add a newline at end of file if it was missing.
-            sed -i -e '$a\' "$CMD_CONF_TMP"
+            sed -i -e '$a\' "$CMD_CONF"
             # Add VAR with OPTARG set to pglcmd.conf.
-            echo "$1=\"$OPTARG\"" >> "$CMD_CONF_TMP"
+            echo "$1=\"$OPTARG\"" >> "$CMD_CONF"
         fi
         ;;
     *drop*)
-        if grep -q "^[[:space:]]*$1=" "$CMD_CONF_TMP" ; then # VARIABLE ($1) is set in pglcmd.conf.
+        if grep -q "^[[:space:]]*$1=" "$CMD_CONF" ; then # VARIABLE ($1) is set in pglcmd.conf.
             for i in $SEARCHTERMS ; do                            # Check if the value (or corresponding values) ...
                 for j in $(eval echo \$$1) ; do                   # ... is already present in the VARIABLE.
                     # Remove values from VARIABLE.
@@ -900,16 +890,14 @@ configure_permanent() {
             done
             if [ "$is_present" = yes ] ; then
                 # Remove VALUE from VARIABLE values in pglcmd.conf.
-                sed -i "s|^[[:space:]]*$1=.*|$1=\"$VALUES\"|g" "$CMD_CONF_TMP"
+                sed -i "s|^[[:space:]]*$1=.*|$1=\"$VALUES\"|g" "$CMD_CONF"
             fi
         fi
         ;;
     esac
 
-    # Reload (temporary) conf
-    . "$CMD_CONF_TMP"
-
-    conf_updated=1
+    # Reload conf
+    . "$CMD_CONF"
 }
 
 # Set REMOVE_SCRIPT needed by insert_iptables and delete_iptables
