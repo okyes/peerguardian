@@ -662,76 +662,76 @@ configure () {
         esac
 
         case $OPT in
-        add_tcp_in)
-            ADD_TCP_IN="$ADD_TCP_IN $OPTARG"
+        add_allow_tcp_in)
+            ADD_ALLOW_TCP_IN="$ADD_ALLOW_TCP_IN $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_TCP_IN
             ;;
-        add_tcp_out)
-            ADD_TCP_OUT="$ADD_TCP_OUT $OPTARG"
+        add_allow_tcp_out)
+            ADD_ALLOW_TCP_OUT="$ADD_ALLOW_TCP_OUT $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_TCP_OUT
             ;;
-        add_tcp_fwd)
-            ADD_TCP_FWD="$ADD_TCP_FWD $OPTARG"
+        add_allow_tcp_fwd)
+            ADD_ALLOW_TCP_FWD="$ADD_ALLOW_TCP_FWD $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_TCP_FWD
             ;;
-        add_udp_in)
-            ADD_UDP_IN="$ADD_UDP_IN $OPTARG"
+        add_allow_udp_in)
+            ADD_ALLOW_UDP_IN="$ADD_ALLOW_UDP_IN $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_UDP_IN
             ;;
-        add_udp_out)
-            ADD_UDP_OUT="$ADD_UDP_OUT $OPTARG"
+        add_allow_udp_out)
+            ADD_ALLOW_UDP_OUT="$ADD_ALLOW_UDP_OUT $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_UDP_OUT
             ;;
-        add_udp_fwd)
-            ADD_UDP_FWD="$ADD_UDP_FWD $OPTARG"
+        add_allow_udp_fwd)
+            ADD_ALLOW_UDP_FWD="$ADD_ALLOW_UDP_FWD $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_UDP_FWD
             ;;
-        add_ip_in)
-            ADD_IP_IN="$ADD_IP_IN $OPTARG"
+        add_allow_ip_in)
+            ADD_ALLOW_IP_IN="$ADD_ALLOW_IP_IN $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_IP_IN
             ;;
-        add_ip_out)
-            ADD_IP_OUT="$ADD_IP_OUT $OPTARG"
+        add_allow_ip_out)
+            ADD_ALLOW_IP_OUT="$ADD_ALLOW_IP_OUT $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_IP_OUT
             ;;
-        add_ip_fwd)
-            ADD_IP_FWD="$ADD_IP_FWD $OPTARG"
+        add_allow_ip_fwd)
+            ADD_ALLOW_IP_FWD="$ADD_ALLOW_IP_FWD $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_IP_FWD
             ;;
-        drop_tcp_in)
-            DROP_TCP_IN="$DROP_TCP_IN $OPTARG"
+        drop_allow_tcp_in)
+            DROP_ALLOW_TCP_IN="$DROP_ALLOW_TCP_IN $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_TCP_IN
             ;;
-        drop_tcp_out)
-            DROP_TCP_OUT="$DROP_TCP_OUT $OPTARG"
+        drop_allow_tcp_out)
+            DROP_ALLOW_TCP_OUT="$DROP_ALLOW_TCP_OUT $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_TCP_OUT
             ;;
-        drop_tcp_fwd)
-            DROP_TCP_FWD="$DROP_TCP_FWD $OPTARG"
+        drop_allow_tcp_fwd)
+            DROP_ALLOW_TCP_FWD="$DROP_ALLOW_TCP_FWD $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_TCP_FWD
             ;;
-        drop_udp_in)
-            DROP_UDP_IN="$DROP_UDP_IN $OPTARG"
+        drop_allow_udp_in)
+            DROP_ALLOW_UDP_IN="$DROP_ALLOW_UDP_IN $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_UDP_IN
             ;;
-        drop_udp_out)
-            DROP_UDP_OUT="$DROP_UDP_OUT $OPTARG"
+        drop_allow_udp_out)
+            DROP_ALLOW_UDP_OUT="$DROP_ALLOW_UDP_OUT $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_UDP_OUT
             ;;
-        drop_udp_fwd)
-            DROP_UDP_FWD="$DROP_UDP_FWD $OPTARG"
+        drop_allow_udp_fwd)
+            DROP_ALLOW_UDP_FWD="$DROP_ALLOW_UDP_FWD $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_UDP_FWD
             ;;
-        drop_ip_in)
-            DROP_IP_IN="$DROP_IP_IN $OPTARG"
+        drop_allow_ip_in)
+            DROP_ALLOW_IP_IN="$DROP_ALLOW_IP_IN $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_IP_IN
             ;;
-        drop_ip_out)
-            DROP_IP_OUT="$DROP_IP_OUT $OPTARG"
+        drop_allow_ip_out)
+            DROP_ALLOW_IP_OUT="$DROP_ALLOW_IP_OUT $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_IP_OUT
             ;;
-        drop_ip_fwd)
-            DROP_IP_FWD="$DROP_IP_FWD $OPTARG"
+        drop_allow_ip_fwd)
+            DROP_ALLOW_IP_FWD="$DROP_ALLOW_IP_FWD $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_IP_FWD
             ;;
         *)
@@ -743,55 +743,55 @@ configure () {
         shift
     done
 
-    # If any ADD_ variable is set ...
-    if [ -n "$ADD_TCP_IN" ] ||
-       [ -n "$ADD_TCP_OUT" ] ||
-       [ -n "$ADD_TCP_FWD" ] ||
-       [ -n "$ADD_UDP_IN" ] ||
-       [ -n "$ADD_UDP_OUT" ] ||
-       [ -n "$ADD_UDP_FWD" ] ||
-       [ -n "$ADD_IP_IN" ] ||
-       [ -n "$ADD_IP_OUT" ] ||
-       [ -n "$ADD_IP_FWD" ] ; then
+    # If any ADD_ALLOW_ variable is set ...
+    if [ -n "$ADD_ALLOW_TCP_IN" ] ||
+       [ -n "$ADD_ALLOW_TCP_OUT" ] ||
+       [ -n "$ADD_ALLOW_TCP_FWD" ] ||
+       [ -n "$ADD_ALLOW_UDP_IN" ] ||
+       [ -n "$ADD_ALLOW_UDP_OUT" ] ||
+       [ -n "$ADD_ALLOW_UDP_FWD" ] ||
+       [ -n "$ADD_ALLOW_IP_IN" ] ||
+       [ -n "$ADD_ALLOW_IP_OUT" ] ||
+       [ -n "$ADD_ALLOW_IP_FWD" ] ; then
 
         if status_of_proc $DAEMON $NAME > /dev/null 2>&1 ; then
             IPTABLES_MODE=add
-            WHITE_TCP_IN="$ADD_TCP_IN"
-            WHITE_TCP_OUT="$ADD_TCP_OUT"
-            WHITE_TCP_FWD="$ADD_TCP_FWD"
-            WHITE_UDP_IN="$ADD_UDP_IN"
-            WHITE_UDP_OUT="$ADD_UDP_OUT"
-            WHITE_UDP_FWD="$ADD_UDP_FWD"
-            WHITE_IP_IN="$ADD_IP_IN"
-            WHITE_IP_OUT="$ADD_IP_OUT"
-            WHITE_IP_FWD="$ADD_IP_FWD"
+            WHITE_TCP_IN="$ADD_ALLOW_TCP_IN"
+            WHITE_TCP_OUT="$ADD_ALLOW_TCP_OUT"
+            WHITE_TCP_FWD="$ADD_ALLOW_TCP_FWD"
+            WHITE_UDP_IN="$ADD_ALLOW_UDP_IN"
+            WHITE_UDP_OUT="$ADD_ALLOW_UDP_OUT"
+            WHITE_UDP_FWD="$ADD_ALLOW_UDP_FWD"
+            WHITE_IP_IN="$ADD_ALLOW_IP_IN"
+            WHITE_IP_OUT="$ADD_ALLOW_IP_OUT"
+            WHITE_IP_FWD="$ADD_ALLOW_IP_FWD"
             insert_iptables
         else
             echo "$DAEMON is not running, not changing the iptables rules."
         fi
     fi
 
-    # If any DROP_ variable is set ...
-    if [ -n "$DROP_TCP_IN" ] ||
-       [ -n "$DROP_TCP_OUT" ] ||
-       [ -n "$DROP_TCP_FWD" ] ||
-       [ -n "$DROP_UDP_IN" ] ||
-       [ -n "$DROP_UDP_OUT" ] ||
-       [ -n "$DROP_UDP_FWD" ] ||
-       [ -n "$DROP_IP_IN" ] ||
-       [ -n "$DROP_IP_OUT" ] ||
-       [ -n "$DROP_IP_FWD" ] ; then
+    # If any DROP_ALLOW_ variable is set ...
+    if [ -n "$DROP_ALLOW_TCP_IN" ] ||
+       [ -n "$DROP_ALLOW_TCP_OUT" ] ||
+       [ -n "$DROP_ALLOW_TCP_FWD" ] ||
+       [ -n "$DROP_ALLOW_UDP_IN" ] ||
+       [ -n "$DROP_ALLOW_UDP_OUT" ] ||
+       [ -n "$DROP_ALLOW_UDP_FWD" ] ||
+       [ -n "$DROP_ALLOW_IP_IN" ] ||
+       [ -n "$DROP_ALLOW_IP_OUT" ] ||
+       [ -n "$DROP_ALLOW_IP_FWD" ] ; then
         if status_of_proc $DAEMON $NAME > /dev/null 2>&1 ; then
             IPTABLES_MODE=remove
-            WHITE_TCP_IN="$DROP_TCP_IN"
-            WHITE_TCP_OUT="$DROP_TCP_OUT"
-            WHITE_TCP_FWD="$DROP_TCP_FWD"
-            WHITE_UDP_IN="$DROP_UDP_IN"
-            WHITE_UDP_OUT="$DROP_UDP_OUT"
-            WHITE_UDP_FWD="$DROP_UDP_FWD"
-            WHITE_IP_IN="$DROP_IP_IN"
-            WHITE_IP_OUT="$DROP_IP_OUT"
-            WHITE_IP_FWD="$DROP_IP_FWD"
+            WHITE_TCP_IN="$DROP_ALLOW_TCP_IN"
+            WHITE_TCP_OUT="$DROP_ALLOW_TCP_OUT"
+            WHITE_TCP_FWD="$DROP_ALLOW_TCP_FWD"
+            WHITE_UDP_IN="$DROP_ALLOW_UDP_IN"
+            WHITE_UDP_OUT="$DROP_ALLOW_UDP_OUT"
+            WHITE_UDP_FWD="$DROP_ALLOW_UDP_FWD"
+            WHITE_IP_IN="$DROP_ALLOW_IP_IN"
+            WHITE_IP_OUT="$DROP_ALLOW_IP_OUT"
+            WHITE_IP_FWD="$DROP_ALLOW_IP_FWD"
             insert_iptables
         else
             echo "$DAEMON is not running, not changing the iptables rules."
@@ -847,7 +847,7 @@ configure_permanent() {
     # SEARCHTERM is still empty if nothing was found in /etc/services, or if not working on ports.
     [ -n "$SEARCHTERMS" ] || SEARCHTERMS="$OPTARG"
 
-    # OPT            is the option given to "pglcmd configure", e.g. add_tcp_out
+    # OPT            is the option given to "pglcmd configure", e.g. add_allow_tcp_out
     # $1             is the corresponding VARIABLE name, e.g. WHITE_IP_OUT
     # OPTARG         is the value that we want to add/drop to/from the variable, e.g. 80 or 123.123.123.123[/24]
     # eval echo \$$1 is the current value of the VARIABLE
