@@ -1166,7 +1166,6 @@ insert_iptables () {
                         # Add whitelisting rule
                         # (add 2 rules in the FORWARD chain: once for --source, once for --destination)
                         for CMD in $CMD_WHITE_IP ; do
-
                             if [ "$CMD" = --source ] ; then
                                 if [ "$IPTABLES_MODE" = add ] ; then
                                     iptables -L $PGL_CHAIN -n | grep -Exq ".*$IPTABLES_TARGET_WHITELISTING *all *-- *$IP *0.0.0.0/0 *" ||
@@ -1176,7 +1175,6 @@ insert_iptables () {
                                     iptables -D $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
                                 fi
                             fi
-
                             if [ "$CMD" = --destination ] ; then
                                 if [ "$IPTABLES_MODE" = add ] ; then
                                     iptables -L $PGL_CHAIN -n | grep -Exq ".*$IPTABLES_TARGET_WHITELISTING *all *-- *0.0.0.0/0 *$IP *" ||
