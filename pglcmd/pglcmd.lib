@@ -823,7 +823,7 @@ configure_permanent() {
         ;;
     esac
 
-    # Find the SEARCHTERMS (OPTARG and synonyms) that we are looking for.
+    # Find the SEARCHTERMS (based on OPTARG) that we are looking for.
     if [ -n "$PROTO" ] && [ -f /etc/services ] ; then # Working on ports and port-mapping file exists.
         # SEARCHTERMS is the port number and the corresponding servicenames/whatever (column 1 and 3 of /etc/services)
         if [ "$OPTARG" -gt 0 ] 2>/dev/null ; then # OPTARG is a portnumber.
@@ -842,16 +842,19 @@ configure_permanent() {
                         sed "s|#.*||g;s|/${PROTO}||g" |
                         grep -E "^$OPTARG[[:space:]]{1,}|[[:space:]]{1,}$OPTARG[[:space:]]{1,}|[[:space:]]{1,}$OPTARG$" || true )"
         fi
+    elif [ -z "$PROTO" ] ; then # Working on IPs
+        SEARCHTERMS=$(echo "$OPTARG" | sed "s|.*:||") # Ignore any descriptions
     fi
-    # SEARCHTERM is still empty if nothing was found in /etc/services, or if not working on ports.
+    # SEARCHTERM is still empty if nothing was found in /etc/services.
     [ -n "$SEARCHTERMS" ] || SEARCHTERMS="$OPTARG"
 
     # OPT            is the option given to "pglcmd configure", e.g. add_allow_tcp_out
     # $1             is the corresponding VARIABLE name, e.g. WHITE_IP_OUT
-    # OPTARG         is the value that we want to add/drop to/from the variable, e.g. 80 or 123.123.123.123[/24]
-    # eval echo \$$1 is the current value of the VARIABLE
+    # OPTARG         is the value that we want to add/drop, e.g. 80 or 123.123.123.123[/24]
+    # eval echo \$$1 is the current value of the VARIABLE. Using eval here should be safe,
+    #                because it works on internally set $1 without any public interface.
     case $OPT in
-    *add*)
+    add_allow_tcp*|add_allow_udp*)
         for i in $SEARCHTERMS ; do          # Check if the value (or corresponding values) ...
             for j in $(eval echo \$$1) ; do # ... is already present in the VARIABLE.
                 if [ "$i" = "$j" ] ; then
@@ -874,7 +877,36 @@ configure_permanent() {
             echo "$1=\"$OPTARG\"" >> "$CMD_CONF"
         fi
         ;;
-    *drop*)
+    add_allow_ip*)
+        # SEARCHTERMS is the non-comment part of OPTARG
+        # LOCAL_ALLOWLISTS is LOCAL_ALLOWLISTS_[IN|OUT|FWD]_DIR/pgl.p2p (one file here!)
+
+        # Check for SEARCHTERMS, and make sure that LOCAL_ALLOWLISTS
+        # exists and ends with a newline.
+        if [ -f "$LOCAL_ALLOWLISTS" ] ; then
+            # grep only matches whole lines.
+            if grep -E -qx ".*:*$SEARCHTERMS" "$LOCAL_ALLOWLISTS" ; then
+                is_present=yes
+            else
+                # Add a newline at end of file if it was missing.
+                sed -i -e '$a\' "$LOCAL_ALLOWLISTS"
+            fi
+        elif  [ -d "$(dirname $LOCAL_ALLOWLISTS)" ] ; then
+            touch "$LOCAL_ALLOWLISTS"
+        else
+            mkdir -p "$(dirname $LOCAL_ALLOWLISTS)"
+            touch "$LOCAL_ALLOWLISTS"
+        fi
+
+        if [ "$is_present" = no ] ; then
+            # Add OPTARG to pglcmd.conf.
+            cat "$OPTARG" >> "LOCAL_ALLOWLISTS"
+        else
+            # Update the description in the lines matching the IP part.
+            sed -i "s|.*:*$SEARCHTERMS$|$OPTARG|g"
+        fi
+        ;;
+    drop_allow_tcp*|drop_allow_udp*)
         if grep -q "^[[:space:]]*$1=" "$CMD_CONF" ; then # VARIABLE ($1) is set in pglcmd.conf.
             for i in $SEARCHTERMS ; do                   # Check if the value (or corresponding values) ...
                 for j in $(eval echo \$$1) ; do          # ... is already present in the VARIABLE.
@@ -890,6 +922,21 @@ configure_permanent() {
                 # Remove VALUE from VARIABLE values in pglcmd.conf.
                 sed -i "s|^[[:space:]]*$1=.*|$1=\"$VALUES\"|g" "$CMD_CONF"
             fi
+        fi
+        ;;
+    drop_allow_ip*)
+        # SEARCHTERMS is the non-comment part of OPTARG
+        # LOCAL_ALLOWLISTS is LOCAL_ALLOWLISTS_[IN|OUT|FWD]_DIR/pgl.p2p (one file here!)
+
+        # Remove lines matching in their IP part SEARCHTERMS.
+        if [ -f "$LOCAL_ALLOWLISTS" ] &&
+               grep -E -qx ".*:*$SEARCHTERMS" "$LOCAL_ALLOWLISTS" ; then
+            # TODO: set a trap to remove on fail
+            TMP="$(mktemp)"
+            grep -E -qvx ".*:*$SEARCHTERMS" "$LOCAL_ALLOWLISTS" > "$TMP"
+            # Use cat to preserve file permissions and ownership.
+            # TODO: Check best practices.
+            cat "$TMP" > "$LOCAL_ALLOWLISTS"
         fi
         ;;
     esac
@@ -966,7 +1013,12 @@ insert_iptables () {
                 WHITE_UDP="$WHITE_UDP_IN" # read from conffile or set by "configure"
                 CMD_WHITE_IP="--source"
                 CMD_WHITE_IPRANGE="--src-range"
-                set_LOCAL_ALLOWLISTS_IN
+                if [ "$CMD_OPTION" = configure ] ; then
+                    LOCAL_ALLOWLISTS="${LOCAL_ALLOWLISTS_IN_DIR}/pgl.p2p"
+                else
+                    set_LOCAL_ALLOWLISTS_IN
+                    LOCAL_ALLOWLISTS="$LOCAL_ALLOWLISTS_IN"
+                fi
                 LOCAL_ALLOWLISTS="$LOCAL_ALLOWLISTS_IN"
                 REJECT_TARGET="$REJECT_IN"
                 ;;
@@ -976,8 +1028,12 @@ insert_iptables () {
                 WHITE_UDP="$WHITE_UDP_OUT" # read from conffile or set by "configure"
                 CMD_WHITE_IP="--destination"
                 CMD_WHITE_IPRANGE="--dst-range"
-                set_LOCAL_ALLOWLISTS_OUT
-                LOCAL_ALLOWLISTS="$LOCAL_ALLOWLISTS_OUT"
+                if [ "$CMD_OPTION" = configure ] ; then
+                    LOCAL_ALLOWLISTS="${LOCAL_ALLOWLISTS_OUT_DIR}/pgl.p2p"
+                else
+                    set_LOCAL_ALLOWLISTS_OUT
+                    LOCAL_ALLOWLISTS="$LOCAL_ALLOWLISTS_OUT"
+                fi
                 REJECT_TARGET="$REJECT_OUT"
                 ;;
             FORWARD)
@@ -986,8 +1042,12 @@ insert_iptables () {
                 WHITE_UDP="$WHITE_UDP_FWD" # read from conffile or set by "configure"
                 CMD_WHITE_IP="--source --destination"
                 CMD_WHITE_IPRANGE="--src-range --dst-range"
-                set_LOCAL_ALLOWLISTS_FWD
-                LOCAL_ALLOWLISTS="$LOCAL_ALLOWLISTS_FWD"
+                if [ "$CMD_OPTION" = configure ] ; then
+                    LOCAL_ALLOWLISTS="${LOCAL_ALLOWLISTS_FWD_DIR}/pgl.p2p"
+                else
+                    set_LOCAL_ALLOWLISTS_FWD
+                    LOCAL_ALLOWLISTS="$LOCAL_ALLOWLISTS_FWD"
+                fi
                 REJECT_TARGET="$REJECT_FWD"
                 ;;
             *)
