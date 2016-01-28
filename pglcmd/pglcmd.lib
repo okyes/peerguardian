@@ -358,87 +358,86 @@ set_NETWORK () {
     echo ${NET1}.${NET2}.${NET3}.${NET4}${BITS}
 }
 
-# Function to add whitelisting rules from an allowlist.
-# Supports network IPs (IPv4/mask), single IPv4s and IPv4 ranges.
-# The format is not specified explicitly. P2P and LOWMEM must work.
-white_allowlist () {
-
-    [ -n "$ALLOWLIST" ] || { echo "Internal error: white_allowlist ALLOWLIST not set." ; exit 1 ; }
-    [ -n "$CMD_WHITE_IP" ] || { echo "Internal error: white_allowlist CMD_WHITE_IP not set." ; exit 1 ; }
-    [ -n "$CMD_WHITE_IPRANGE" ] || { echo "Internal error: white_allowlist CMD_WHITE_IPRANGE not set." ; exit 1 ; }
-    [ -n "$NET_IPRANGE" ] || { echo "Internal error: white_allowlist NET_IPRANGE not set." ; exit 1 ; }
-
-    if [ -f "$ALLOWLIST" ] ; then
-        echo -n " $ALLOWLIST"
+# Function to pass lines from an allowlist to allow_ip.
+allow_list () {
+    [ -n "$ALLOWLIST" ] || { echo "Internal error: allow_list ALLOWLIST not set." ; exit 1 ; }
+    [ -f "$ALLOWLIST" ] || {
+        log_failure_msg "Error $E_XFILE: allow_list ALLOWLIST $ALLOWLIST doesn't exist. Aborting!"
+        exit $E_XFILE
+        }
+        echo -n " $ALLOWLIST" # Text before in insert_iptables: ....Allowing IPs
         # Read the non-comment|not-empty lines from the allow file:
         ALLOW="$(grep -Ev "^[[:space:]]*#|^[[:space:]]*$" $ALLOWLIST)"
         IFS=$'
 ' # Set IFS to newline only for LINE
         for LINE in $ALLOW ; do
-            IPRANGE_BEGIN=
-            IPRANGE_END=
-            NETWORK_IP=
-            # Check every line
-            # - ignore the comment part if it exists (everything before and including a colon ":")
-            # - remember
-            #   - the first and last IPv4
-            #     If they are not identical assume an IP range (see
-            #     https://sourceforge.net/p/peerguardian/wiki/dev-Main/#blocklist-format-specifications
-            #     for some blocklist format specifications. Note that these are not exactly implemented,
-            #     but are mainly caught by this general approach.
-            #   - IPv4/mask, and assume a network IP address.
-            IPRANGE_BEGIN="$(echo $LINE | sed "s|.*:||" | grep -Eo "$IPv4_REGEX" | head -n1)"
-            IPRANGE_END="$(echo $LINE | sed "s|.*:||" | grep -Eo "$IPv4_REGEX" | tail -n1)"
-            NETWORK_IP="$(echo $LINE | sed "s|.*:||" | grep -Eo "${IPv4_REGEX}/[0-9]{1,3}" | tail -n1)"
-            [ x"$IPRANGE_BEGIN$IPRANGE_END$NETWORK_IP" != x ] || continue
-            # Reset IFS for CMD (TODO: check if really necessary).
             IFS=$STDIFS
-            # Add whitelisting rule
-            # (add 2 rules in the FORWARD chain: once for --src-range, once for --dst-range)
-            if [ -n "$NETWORK_IP" ] ; then
-                # Network ip address.
-                for CMD in $CMD_WHITE_IP ; do
-                    iptables -I $PGL_CHAIN $CMD $NETWORK_IP -j $IPTABLES_TARGET_WHITELISTING ||
-                        fail_white_allowlist
-                done
-            elif [ "$IPRANGE_BEGIN" = "$IPRANGE_END" ] ; then
-                # Single IP, not an iprange.
-                for CMD in $CMD_WHITE_IP ; do
-                    iptables -I $PGL_CHAIN $CMD $IPRANGE_BEGIN -j $IPTABLES_TARGET_WHITELISTING ||
-                        fail_white_allowlist
-                done
-            elif [ "$IPRANGE_BEGIN" != "$IPRANGE_END" ] ; then
-                # IP range.
-                if [ "$NET_IPRANGE" = 1 ] ; then
-                    # netfilter iprange kernel support is available.
-                    for CMD in $CMD_WHITE_IPRANGE ; do
-                        iptables -I $PGL_CHAIN -m iprange $CMD $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING ||
-                            fail_white_allowlist
-                    done
-                else
-                    log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_iprange!"
-                    log_failure_msg "Use a kernel with netfilter iprange support."
-                    log_failure_msg "Could not handle line \"$LINE\" in $ALLOWLIST."
-                    fail_insert_iptables
-                fi
-            else
-                echo "DEBUG: Ignored line \"$LINE\". Please report if this is an error."
-            fi
-            IFS=$'
-' # Set IFS to newline only again for the next LINE
+            allow_ip
         done
-        # Reset IFS
+        # Reset IFS again, in case ALLOW was empty.
         IFS=$STDIFS
     fi
 }
 
-# To be called from white_allowlist:
-# Depends: LINE, ALLOWLIST
-fail_white_allowlist () {
-    # If iptables insertion failed assume that the line is malformed.
-    # Comment this line out.
-    sed -i "s|^$LINE$|# Malformed line commented out by $(basename $0): &|" $ALLOWLIST
-    log_failure_msg "Commented out malformed line \"$LINE\" in $ALLOWLIST."
+# Function to add whitelisting rules from "for LINE in ...".
+# Supports network IPs (IPv4/mask), single IPv4s and IPv4 ranges.
+# The format is not specified explicitly. P2P and LOWMEM must work.
+allow_ip () {
+    [ -n "$LINE" ] || { echo "Internal error: allow_ip LINE not set." ; exit 1 ; }
+    [ -n "$CMD_WHITE_IP" ] || { echo "Internal error: allow_ip CMD_WHITE_IP not set." ; exit 1 ; }
+    [ -n "$CMD_WHITE_IPRANGE" ] || { echo "Internal error: allow_ip CMD_WHITE_IPRANGE not set." ; exit 1 ; }
+    [ -n "$NET_IPRANGE" ] || { echo "Internal error: allow_ip NET_IPRANGE not set." ; exit 1 ; }
+    IPRANGE_BEGIN=
+    IPRANGE_END=
+    NETWORK_IP=
+    # Check every LINE
+    # - ignore the comment part if it exists (everything before and including a colon ":")
+    # - remember
+    #   - the first and last IPv4
+    #     If they are not identical assume an IP range (see
+    #     https://sourceforge.net/p/peerguardian/wiki/dev-Main/#blocklist-format-specifications
+    #     for some blocklist format specifications. Note that these are not exactly implemented,
+    #     but are mainly caught by this general approach.
+    #   - IPv4/mask, and assume a network IP address.
+    IPRANGE_BEGIN="$(echo $LINE | sed "s|.*:||" | grep -Eo "$IPv4_REGEX" | head -n1)"
+    IPRANGE_END="$(echo $LINE | sed "s|.*:||" | grep -Eo "$IPv4_REGEX" | tail -n1)"
+    NETWORK_IP="$(echo $LINE | sed "s|.*:||" | grep -Eo "${IPv4_REGEX}/[0-9]{1,3}" | tail -n1)"
+    [ x"$IPRANGE_BEGIN$IPRANGE_END$NETWORK_IP" != x ] || continue
+    # Add whitelisting rule
+    # (add 2 rules in the FORWARD chain: once for --src-range, once for --dst-range)
+    if [ -n "$NETWORK_IP" ] ; then
+        # Network ip address.
+        for CMD in $CMD_WHITE_IP ; do
+            iptables -I $PGL_CHAIN $CMD $NETWORK_IP -j $IPTABLES_TARGET_WHITELISTING ||
+                fail_allow_ip
+        done
+    elif [ "$IPRANGE_BEGIN" = "$IPRANGE_END" ] ; then
+        # Single IP, not an iprange.
+        for CMD in $CMD_WHITE_IP ; do
+            iptables -I $PGL_CHAIN $CMD $IPRANGE_BEGIN -j $IPTABLES_TARGET_WHITELISTING ||
+                fail_allow_ip
+        done
+    elif [ "$IPRANGE_BEGIN" != "$IPRANGE_END" ] ; then
+        # IP range.
+        if [ "$NET_IPRANGE" = 1 ] ; then
+            # netfilter iprange kernel support is available.
+            for CMD in $CMD_WHITE_IPRANGE ; do
+                iptables -I $PGL_CHAIN -m iprange $CMD $IPRANGE_BEGIN-$IPRANGE_END -j $IPTABLES_TARGET_WHITELISTING ||
+                    fail_allow_ip
+            done
+        else
+            log_failure_msg "Error $E_XEXTERNAL: Could not load kernel module xt_iprange!"
+            log_failure_msg "Use a kernel with netfilter iprange support."
+            fail_allow_ip
+        fi
+    else
+        echo "DEBUG: Ignored line \"$LINE\". Please report if this is an error."
+    fi
+}
+
+# To be called from allow_ip:
+fail_allow_ip () {
+    log_failure_msg "allow_ip: Could not handle \"$LINE\"."
     fail_insert_iptables
 }
 
@@ -1140,12 +1139,12 @@ insert_iptables () {
 
             # Allowlist whitelisting.
             if [ -n "$LOCAL_ALLOWLISTS" ] ; then
-                echo -n "....Allowlists"
+                echo -n "....Allowing IPs"
                 # Sets NET_IPRANGE=1 if netfilter iprange is supported.
                 # Outputs warning and sets NET_IPRANGE=0 otherwise.
                 test_net_iprange
                 for ALLOWLIST in $LOCAL_ALLOWLISTS ; do
-                    white_allowlist
+                    allow_list
                 done
                 log_end_msg "$?"
             fi
