@@ -1,3 +1,5 @@
 branches:
   only:
     - /^travis-.*$/
+notifications:
+  email: false
