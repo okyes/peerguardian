@@ -1,0 +1,10 @@
+script:
+- git remote add upstream https://git.code.sf.net/p/peerguardian/code
+- git fetch upstream master
+- echo -e "machine github.com\nlogin $(echo $TRAVIS_REPO_SLUG | cut -d '/' -f 1)\npassword $GITHUB_TOKEN" >> ~/.netrc
+- git push origin upstream/master:master
+branches:
+  except:
+    - /^deploy-.*$/
+notifications:
+  email: false
