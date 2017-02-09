@@ -1,5 +1,14 @@
+script:
+- git remote add upstream https://git.code.sf.net/p/peerguardian/code
+- curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/$GITHUB_NAME/peerguardian > lol.txt
+- git remote add fork $(cat lol.txt | jq -r '.clone_url')
+- git fetch upstream $(cat lol.txt | jq -r '.default_branch')
+- echo -e "machine github.com\nlogin $GITHUB_NAME\npassword $GITHUB_TOKEN" >> ~/.netrc
+- git push origin upstream/$(cat lol.txt | jq -r '.default_branch'):$(cat lol.txt | jq -r '.default_branch')
 branches:
-  only:
-    - /^travis-.*$/
+  except:
+    - /^deploy-.*$/
 notifications:
   email: false
+env:
+- GITHUB_NAME=$(echo $TRAVIS_REPO_SLUG | cut -d '/' -f 1)
