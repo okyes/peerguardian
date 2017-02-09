@@ -1,6 +1,7 @@
 script:
 - git remote add upstream https://git.code.sf.net/p/peerguardian/code
-- curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/$GITHUB_NAME/peerguardian > lol.txt
+- |
+  curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/$GITHUB_NAME/peerguardian > lol.txt
 - git remote add fork $(cat lol.txt | jq -r '.clone_url')
 - git fetch upstream $(cat lol.txt | jq -r '.default_branch')
 - echo -e "machine github.com\nlogin $GITHUB_NAME\npassword $GITHUB_TOKEN" >> ~/.netrc
