@@ -5,7 +5,7 @@ script:
 - git remote add fork $(cat lol.txt | jq -r '.clone_url')
 - git fetch upstream $(cat lol.txt | jq -r '.default_branch')
 - echo -e "machine github.com\nlogin $GITHUB_NAME\npassword $GITHUB_TOKEN" >> ~/.netrc
-- git push origin upstream/$(cat lol.txt | jq -r '.default_branch'):$(cat lol.txt | jq -r '.default_branch')
+- git push fork upstream/$(cat lol.txt | jq -r '.default_branch'):$(cat lol.txt | jq -r '.default_branch')
 branches:
   except:
     - /^deploy-.*$/
