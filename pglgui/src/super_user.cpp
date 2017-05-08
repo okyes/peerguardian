@@ -51,6 +51,7 @@ SuperUser::~SuperUser()
     if ( tmpfile.exists() )
         tmpfile.remove();
 
+    terminate();
     m_ProcT->wait();
 }
 
@@ -219,7 +220,7 @@ bool SuperUser::isRunning() const
     return false;
 }
 
-void SuperUser::stop()
+void SuperUser::terminate()
 {
     if (isRunning())
         m_ProcT->stop();

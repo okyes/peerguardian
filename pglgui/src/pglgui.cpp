@@ -348,7 +348,7 @@ void PglGui::quit()
         if ( answer == QMessageBox::No )
             return;
 
-        m_Root->stop();
+        m_Root->terminate();
     }
 
     qApp->quit();

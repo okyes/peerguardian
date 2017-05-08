@@ -108,10 +108,10 @@ class SuperUser : public QObject
         void addCommands(const QStringList&);
         void executeAll();
         bool isRunning() const;
-        void stop();
 
     public slots:
         void processFinished(const CommandList&);
+        void terminate();
 
     signals:
         void finished(const CommandList&);
