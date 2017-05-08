@@ -151,9 +151,7 @@ void ProcessT::executeCommands(const QStringList& commands , const QProcess::Pro
 void ProcessT::stop()
 {
     if (m_Process && m_Process->state() == QProcess::Running)
-        m_Process->kill();
-
-    wait();
+        m_Process->terminate();
 }
 
 
