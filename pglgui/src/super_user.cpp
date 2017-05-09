@@ -35,6 +35,7 @@ SuperUser::SuperUser( QObject *parent, const QString& rootpath ):
 {
     m_ProcT = new ProcessT(this);
     connect(m_ProcT, SIGNAL(finished(const CommandList&)), this, SLOT(processFinished(const CommandList&)));
+    connect(m_ProcT, SIGNAL(outputUpdated(const QByteArray&)), this, SIGNAL(outputUpdated(const QByteArray&)));
     mGetSudoCommand = false;
 
     if (mSudoCmd.isEmpty() && ! mGetSudoCommand) {
@@ -112,6 +113,7 @@ void SuperUser::exec(QString cmd)
     qDebug() << "Executing command: \n" << cmd << "\n";
 
     m_ProcT->executeCommand(cmd);
+    emit started();
 }
 
 void SuperUser::addCommand(const QString& command, const QStringList& args)

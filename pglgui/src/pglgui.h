@@ -56,7 +56,7 @@
 #include "pgl_daemon.h"
 #include "pglcmd.h"
 #include "super_user.h"
-
+#include "process_dialog.h"
 #include "settings.h"
 #include "add_exception_dialog.h"
 #include "whitelist_manager.h"
@@ -132,6 +132,7 @@ class PglGui : public QMainWindow {
     Ui::MainWindow mUi;
     QVariantList mLogViewRightClickData;
     QList<WhitelistItem> mLogViewWhitelistItems;
+    ProcessDialog* m_ProcessDialog;
 
         public:
                 /**
@@ -211,6 +212,7 @@ class PglGui : public QMainWindow {
         void onWhoisTriggered();
         void onCopyIpsTriggered();
         void showCommandsOutput(const CommandList&);
+        void onProcessStarted();
 
 private:
         void setApplyButtonEnabled(bool enable);

@@ -91,6 +91,7 @@ class ProcessT : public QThread
                 void commandOutput(const QString&);
         void finished(const CommandList&);
         void newCommand();
+        void outputUpdated(const QByteArray&);
 
         private:
         ProcessT(ProcessT const& other);
@@ -106,6 +107,9 @@ class ProcessT : public QThread
 
     public slots:
         void executeCommand(const QString& command="", const QProcess::ProcessChannelMode &mode = QProcess::SeparateChannels, bool startNow = true);
+
+    private slots:
+        void onProcessReadyRead();
 
 };
 

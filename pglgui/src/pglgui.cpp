@@ -51,6 +51,7 @@ PglGui::PglGui( QWidget *parent) :
     if ( ! PglSettings::loadSettings() )
         QMessageBox::warning(this, tr("Error"), PglSettings::lastError(), QMessageBox::Ok);
 
+    m_ProcessDialog = new ProcessDialog(this);
     m_StopLogging = false;
     mAutomaticScroll = true;
     mTrayIconDisabled = QIcon(TRAY_DISABLED_ICON);
@@ -292,6 +293,8 @@ void PglGui::g_MakeConnections()
         connect( m_Control, SIGNAL(error(const QString&)), this, SLOT(rootError(const QString&)));
         connect( m_Control, SIGNAL(finished(const CommandList&)), this, SLOT(controlFinished(const CommandList&)));
         connect( m_Control, SIGNAL( actionMessage(const QString&, int ) ), mUi.statusBar, SLOT( showMessage( const QString&, int ) ) );
+        connect( m_Control, SIGNAL(outputUpdated(const QByteArray&)), m_ProcessDialog, SLOT(writeOutput(const QByteArray&)));
+        connect( m_Control, SIGNAL( started() ), this, SLOT( onProcessStarted() ) );
     }
 
         //Blocklist and Whitelist Tree Widgets
@@ -314,6 +317,8 @@ void PglGui::g_MakeConnections()
     if ( m_Root ) {
         connect(m_Root, SIGNAL(finished(const CommandList&)), this, SLOT(rootFinished(const CommandList&)));
         connect(m_Root, SIGNAL(error(const QString&)), this, SLOT(rootError(const QString&)));
+        connect(m_Root, SIGNAL(outputUpdated(const QByteArray&)), m_ProcessDialog, SLOT(writeOutput(const QByteArray&)));
+        connect(m_Root, SIGNAL( started() ), this, SLOT( onProcessStarted() ) );
     }
 
     if (m_Info)
@@ -403,6 +408,9 @@ void PglGui::removeListItems()
 
 void PglGui::controlFinished(const CommandList & commands)
 {
+    if (m_ProcessDialog)
+        m_ProcessDialog->accept();
+
     CommandList failedCommands;
     foreach(const Command& cmd, commands) {
         if (cmd.error())
@@ -427,6 +435,9 @@ void PglGui::rootFinished(const CommandList& commands)
     }
 
     if (! failedCommands.isEmpty()) {
+        if (m_ProcessDialog)
+            m_ProcessDialog->accept();
+
         ErrorDialog dialog(failedCommands);
         dialog.exec();
         cleanup();
@@ -437,6 +448,9 @@ void PglGui::rootFinished(const CommandList& commands)
         mPglCore->load();
         loadGUI();
         setApplyButtonEnabled(false);
+
+        if (m_ProcessDialog)
+            m_ProcessDialog->accept();
     }
 }
 
@@ -1277,4 +1291,11 @@ void PglGui::cleanup()
 {
     clearLogViewWhitelistItems();
     setApplyButtonEnabled(mPglCore->isChanged());
+}
+
+void PglGui::onProcessStarted()
+{
+    if (m_ProcessDialog) {
+        m_ProcessDialog->start(sender(), SLOT(terminate()));
+    }
 }

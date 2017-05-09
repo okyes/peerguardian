@@ -37,6 +37,7 @@ dist_pglgui_SOURCES = \
 	src/add_exception_dialog.cpp src/add_exception_dialog.h \
 	src/command.cpp src/command.h \
 	src/error_dialog.cpp src/error_dialog.h \
+	src/process_dialog.cpp src/process_dialog.h \
 	src/file_transactions.cpp src/file_transactions.h \
 	src/pglgui.cpp src/pglgui.h \
 	src/pgl_daemon.cpp src/pgl_daemon.h \
@@ -59,6 +60,7 @@ nodist_EXTRA_pglgui_SOURCES = \
 	src/moc_blocklist_manager.cpp \
 	src/moc_command.cpp \
 	src/moc_error_dialog.cpp \
+	src/moc_process_dialog.cpp \
 	src/moc_file_transactions.cpp \
 	src/moc_pglgui.cpp \
 	src/moc_pgl_daemon.cpp \

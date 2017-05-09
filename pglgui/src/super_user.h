@@ -117,6 +117,8 @@ class SuperUser : public QObject
         void finished(const CommandList&);
         void error(const CommandList&);
         void error(const QString&);
+        void outputUpdated(const QByteArray&);
+        void started();
 
 protected:
         void exec(QString cmd);

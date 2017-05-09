@@ -47,6 +47,8 @@ void ProcessT::run()
         QProcess proc;
         m_Process = &proc;
 
+        connect(&proc, SIGNAL(readyReadStandardOutput()), this, SLOT(onProcessReadyRead()));
+        connect(&proc, SIGNAL(readyReadStandardError()), this, SLOT(onProcessReadyRead()));
         proc.setProcessChannelMode( m_ChanMode );
         proc.start( m_Command );
         proc.waitForStarted();
@@ -154,4 +156,10 @@ void ProcessT::stop()
         m_Process->terminate();
 }
 
+void ProcessT::onProcessReadyRead()
+{
+    if (! m_Process)
+        return;
 
+    emit outputUpdated(m_Process->readAll());
+}
