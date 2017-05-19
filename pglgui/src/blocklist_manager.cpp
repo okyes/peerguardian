@@ -321,7 +321,7 @@ QList<Blocklist*> BlocklistManager::localBlocklists()
     return localBlocklists;
 }
 
-QStringList BlocklistManager::localBlocklistsUpdate(const QList<QTreeWidgetItem*>& treeItems)
+void BlocklistManager::localBlocklistsUpdate(const QList<QTreeWidgetItem*>& treeItems)
 {
     bool state;
     foreach(QTreeWidgetItem * treeItem, treeItems) {

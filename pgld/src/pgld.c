@@ -734,4 +734,5 @@ int main(int argc, char *argv[]) {
     }
 
     nfqueue_loop();
+    return 0;
 }

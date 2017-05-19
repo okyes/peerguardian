@@ -153,7 +153,7 @@ class BlocklistManager : public QObject {
         static QString getFilePath();
         static QString getFilePath(const QString &path);
         void update(QList<QTreeWidgetItem*>);
-        QStringList localBlocklistsUpdate(const QList<QTreeWidgetItem*>&);
+        void localBlocklistsUpdate(const QList<QTreeWidgetItem*>&);
         QHash<QString, bool> getLocalLists(){ return m_localLists; }
         QString localBlocklistsDir();
         //QFileInfoList localBlocklists();
