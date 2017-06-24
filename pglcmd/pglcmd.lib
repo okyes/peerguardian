@@ -376,7 +376,6 @@ allow_list () {
         done
         # Reset IFS again, in case ALLOW was empty.
         IFS=$STDIFS
-    fi
 }
 
 # Function to add whitelisting rules from "for LINE in ...".
