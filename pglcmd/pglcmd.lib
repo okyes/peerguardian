@@ -800,7 +800,7 @@ configure () {
 
 # Called from "pglcmd configure" to write changed settings to pglcmd.conf.
 configure_permanent() {
-    local is_present=no SEARCHTERMS= VALUE= VALUES=
+    local is_present=no SEARCHTERMS= VALUE= VALUES= LOCAL_ALLOWLISTS= CONN=
 
     [ -n "$OPT" ] || { echo "Internal error: configure_permanent OPT not set." ; exit 1 ; }
     [ -n "$OPTARG" ] || { echo "Internal error: configure_permanent OPTARG not set." ; exit 1 ; }
@@ -880,6 +880,11 @@ configure_permanent() {
         # SEARCHTERMS is the non-comment part of OPTARG
         # LOCAL_ALLOWLISTS is LOCAL_ALLOWLISTS_[IN|OUT|FWD]_DIR/pgl.p2p (one file here!)
 
+        CONN="$(echo "$1" | sed 's|WHITE_IP_\([A-Z]*\)|\1|')"
+        LOCAL_ALLOWLISTS="LOCAL_ALLOWLISTS_${CONN}_DIR"
+        LOCAL_ALLOWLISTS="$(eval echo \$${LOCAL_ALLOWLISTS})"
+        LOCAL_ALLOWLISTS="${LOCAL_ALLOWLISTS}/pgl.p2p"
+
         # Check for SEARCHTERMS, and make sure that LOCAL_ALLOWLISTS
         # exists and ends with a newline.
         if [ -f "$LOCAL_ALLOWLISTS" ] ; then
@@ -898,8 +903,8 @@ configure_permanent() {
         fi
 
         if [ "$is_present" = no ] ; then
-            # Add OPTARG to pglcmd.conf.
-            cat "$OPTARG" >> "LOCAL_ALLOWLISTS"
+            # Add OPTARG to allowlist
+            echo "$OPTARG" >> "$LOCAL_ALLOWLISTS"
         else
             # Update the description in the lines matching the IP part.
             sed -i "s|.*:*$SEARCHTERMS$|$OPTARG|g"
