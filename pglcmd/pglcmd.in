@@ -356,7 +356,7 @@ case "$1" in
         # Note: configure does not fail if a single arg fails.
         test_CMD_LOG
         echo "$(date +%F" "%X" "%Z) Begin: $(basename $0) $@" >> $CMD_LOG 2>&1
-        configure $@ >> $CMD_LOG 2>&1
+        configure "$@" >> $CMD_LOG 2>&1
         echo "$(date +%F" "%X" "%Z) End: $(basename $0) $@">> $CMD_LOG 2>&1
         ;;
     *)

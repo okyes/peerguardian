@@ -655,7 +655,8 @@ configure () {
             if [ -z "$OPT" ] ; then
                 usage # Error out if in "configure", but no OPT was given first.
             fi
-            OPTARG="$1"
+            #Remove spaces from beginning and end of first arg
+            OPTARG="$(echo "$1" | sed -e 's|[[:space:]]*||' -e 's|[[:space:]]*$||')"
             ;;
         esac
 
@@ -842,7 +843,7 @@ configure_permanent() {
                         grep -E "^$OPTARG[[:space:]]{1,}|[[:space:]]{1,}$OPTARG[[:space:]]{1,}|[[:space:]]{1,}$OPTARG$" || true )"
         fi
     elif [ -z "$PROTO" ] ; then # Working on IPs
-        SEARCHTERMS=$(echo "$OPTARG" | sed "s|.*:||") # Ignore any descriptions
+        SEARCHTERMS=$(echo "$OPTARG" | sed -r "s|^(.*:)?[[:space:]]*||") # Ignore any descriptions
     fi
     # SEARCHTERM is still empty if nothing was found in /etc/services.
     [ -n "$SEARCHTERMS" ] || SEARCHTERMS="$OPTARG"
@@ -889,7 +890,7 @@ configure_permanent() {
         # exists and ends with a newline.
         if [ -f "$LOCAL_ALLOWLISTS" ] ; then
             # grep only matches whole lines.
-            if grep -E -qx ".*:*$SEARCHTERMS" "$LOCAL_ALLOWLISTS" ; then
+            if grep -E -x "[[:space:]]*[^#].*" "$LOCAL_ALLOWLISTS" | grep -E -qx "^(.*:)?[[:space:]]*$SEARCHTERMS[[:space:]]*$" "$LOCAL_ALLOWLISTS" ; then
                 is_present=yes
             else
                 # Add a newline at end of file if it was missing.
@@ -907,7 +908,7 @@ configure_permanent() {
             echo "$OPTARG" >> "$LOCAL_ALLOWLISTS"
         else
             # Update the description in the lines matching the IP part.
-            sed -i "s|.*:*$SEARCHTERMS$|$OPTARG|g"
+            sed -i -r '/^[[:space:]]*#/! s|^(.*:)?[[:space:]]*'"$SEARCHTERMS"'[[:space:]]*$|'"$OPTARG"'|' "$LOCAL_ALLOWLISTS"
         fi
         ;;
     drop_allow_tcp*|drop_allow_udp*)
