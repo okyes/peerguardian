@@ -1014,6 +1014,7 @@ insert_iptables () {
             case $CHAIN in
             INPUT)
                 PGL_CHAIN="$IPTABLES_IN"
+                WHITE_IP="$WHITE_IP_IN"
                 WHITE_TCP="$WHITE_TCP_IN" # read from conffile or set by "configure"
                 WHITE_UDP="$WHITE_UDP_IN" # read from conffile or set by "configure"
                 CMD_WHITE_IP="--source"
@@ -1029,6 +1030,7 @@ insert_iptables () {
                 ;;
             OUTPUT)
                 PGL_CHAIN="$IPTABLES_OUT"
+                WHITE_IP="$WHITE_IP_OUT"
                 WHITE_TCP="$WHITE_TCP_OUT" # read from conffile or set by "configure"
                 WHITE_UDP="$WHITE_UDP_OUT" # read from conffile or set by "configure"
                 CMD_WHITE_IP="--destination"
@@ -1043,6 +1045,7 @@ insert_iptables () {
                 ;;
             FORWARD)
                 PGL_CHAIN="$IPTABLES_FWD"
+                WHITE_IP="$WHITE_IP_FWD"
                 WHITE_TCP="$WHITE_TCP_FWD" # read from conffile or set by "configure"
                 WHITE_UDP="$WHITE_UDP_FWD" # read from conffile or set by "configure"
                 CMD_WHITE_IP="--source --destination"
