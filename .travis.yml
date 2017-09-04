@@ -17,3 +17,5 @@ env:
   matrix:
   - GITHUB_REPO=peerguardian GIT_URL=https://git.code.sf.net/p/peerguardian/code
   - GITHUB_REPO=stg GIT_URL=http://git.stg.codes/stg.git
+  - GITHUB_REPO=orbot GIT_URL=https://git.torproject.org/orbot.git
+  - GITHUB_REPO=tor GIT_URL=https://git.torproject.org/tor.git
