@@ -1,11 +1,12 @@
 script:
 - git remote add upstream $GIT_URL
-- |
-  curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/$GITHUB_NAME/$GITHUB_REPO > lol.txt
-- git remote add fork $(cat lol.txt | jq -r '.clone_url')
-- git fetch upstream $(cat lol.txt | jq -r '.default_branch')
+- git fetch upstream
+- cp -Rf .git/refs/remotes/origin/* .git/refs/heads/
+- rm -f .git/refs/heads/HEAD
+- cat .git/packed-refs | grep ' refs/remotes/origin/' | sed 's& refs/remotes/origin/& refs/heads/&' >> .git/packed-refs
+- git remote add fork https://github.com/$GITHUB_NAME/$GITHUB_REPO.git
 - echo -e "machine github.com\nlogin $GITHUB_NAME\npassword $GITHUB_TOKEN" >> ~/.netrc
-- git push fork upstream/$(cat lol.txt | jq -r '.default_branch'):$(cat lol.txt | jq -r '.default_branch')
+- git push fork --all
 branches:
   except:
     - /^deploy-.*$/
