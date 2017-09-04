@@ -1,9 +1,9 @@
 script:
 - git remote add upstream $GIT_URL
 - git fetch upstream
-- cp -Rf .git/refs/remotes/origin/* .git/refs/heads/
+- cp -Rf .git/refs/remotes/upstream/* .git/refs/heads/
 - rm -f .git/refs/heads/HEAD
-- cat .git/packed-refs | grep ' refs/remotes/origin/' | sed 's& refs/remotes/origin/& refs/heads/&' >> .git/packed-refs
+- cat .git/packed-refs | grep ' refs/remotes/upstream/' | sed 's& refs/remotes/upstream/& refs/heads/&' >> .git/packed-refs
 - git remote add fork https://github.com/$GITHUB_NAME/$GITHUB_REPO.git
 - echo -e "machine github.com\nlogin $GITHUB_NAME\npassword $GITHUB_TOKEN" >> ~/.netrc
 - git push fork --all
