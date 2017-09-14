@@ -932,13 +932,18 @@ configure_permanent() {
     drop_allow_ip*)
         # SEARCHTERMS is the non-comment part of OPTARG
         # LOCAL_ALLOWLISTS is LOCAL_ALLOWLISTS_[IN|OUT|FWD]_DIR/pgl.p2p (one file here!)
+        
+        CONN="$(echo "$1" | sed 's|WHITE_IP_\([A-Z]*\)|\1|')"
+        LOCAL_ALLOWLISTS="LOCAL_ALLOWLISTS_${CONN}_DIR"
+        LOCAL_ALLOWLISTS="$(eval echo \$${LOCAL_ALLOWLISTS})"
+        LOCAL_ALLOWLISTS="${LOCAL_ALLOWLISTS}/pgl.p2p"
 
         # Remove lines matching in their IP part SEARCHTERMS.
         if [ -f "$LOCAL_ALLOWLISTS" ] &&
-               grep -E -qx ".*:*$SEARCHTERMS" "$LOCAL_ALLOWLISTS" ; then
+            grep -E -qx "^[[:space:]]*([^#[:space:]].*:)?[[:space:]]*$SEARCHTERMS[[:space:]]*$" "$LOCAL_ALLOWLISTS"; then
             # TODO: set a trap to remove on fail
             TMP="$(mktemp)"
-            grep -E -qvx ".*:*$SEARCHTERMS" "$LOCAL_ALLOWLISTS" > "$TMP"
+            grep -E -vx "^[[:space:]]*([^#[:space:]].*:)?[[:space:]]*$SEARCHTERMS[[:space:]]*$" "$LOCAL_ALLOWLISTS" > "$TMP"
             # Use cat to preserve file permissions and ownership.
             # TODO: Check best practices.
             cat "$TMP" > "$LOCAL_ALLOWLISTS"
