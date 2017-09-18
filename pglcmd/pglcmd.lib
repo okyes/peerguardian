@@ -1184,8 +1184,10 @@ insert_iptables () {
                                     iptables -L $PGL_CHAIN -n | grep -Exq ".*$IPTABLES_TARGET_WHITELISTING *all *-- *$IP *0.0.0.0/0 *" ||
                                     iptables -I $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
                                 else
-                                    ! iptables -L $PGL_CHAIN -n | grep -Exq ".*$IPTABLES_TARGET_WHITELISTING *all *-- *$IP *0.0.0.0/0 *" ||
-                                    iptables -D $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                                    #Loop through all matches to delete IP duplicates
+                                    iptables -L $PGL_CHAIN -n | grep -Ex ".*$IPTABLES_TARGET_WHITELISTING *all *-- *$IP *0.0.0.0/0 *" | while read line; do
+                                        iptables -D $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                                    done
                                 fi
                             fi
                             if [ "$CMD" = --destination ] ; then
@@ -1193,8 +1195,10 @@ insert_iptables () {
                                     iptables -L $PGL_CHAIN -n | grep -Exq ".*$IPTABLES_TARGET_WHITELISTING *all *-- *0.0.0.0/0 *$IP *" ||
                                     iptables -I $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
                                 else
-                                    ! iptables -L $PGL_CHAIN -n | grep -Exq ".*$IPTABLES_TARGET_WHITELISTING *all *-- *0.0.0.0/0 *$IP *" ||
-                                    iptables -D $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables
+                                    #Loop through all matches to delete IP duplicates
+                                    iptables -L $PGL_CHAIN -n | grep -Ex ".*$IPTABLES_TARGET_WHITELISTING *all *-- *0.0.0.0/0 *$IP *" | while read line; do
+                                        iptables -D $PGL_CHAIN $CMD $IP -j $IPTABLES_TARGET_WHITELISTING || fail_insert_iptables;
+                                    done
                                 fi
                             fi
                         done
