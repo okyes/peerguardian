@@ -913,17 +913,26 @@ configure_permanent() {
         ;;
     drop_allow_tcp*|drop_allow_udp*)
         if grep -q "^[[:space:]]*$1=" "$CMD_CONF" ; then # VARIABLE ($1) is set in pglcmd.conf.
-            for i in $SEARCHTERMS ; do                   # Check if the value (or corresponding values) ...
-                for j in $(eval echo \$$1) ; do          # ... is already present in the VARIABLE.
-                    # Remove values from VARIABLE.
+            local update_variable=no
+            for i in $(eval echo \$$1) ; do          # Go through all values in VARIABLE
+                is_present=no
+                for j in $SEARCHTERMS ; do                   # Check if the value is in the values to remove
                     if [ "$i" = "$j" ] ; then
                         is_present=yes
-                    else
-                        VALUES="$VALUES $j"
+                        break
                     fi
                 done
+
+                if [ "$is_present" != yes ] ; then
+                    VALUES="$VALUES $i"
+                else
+                    update_variable=yes
+                fi
             done
-            if [ "$is_present" = yes ] ; then
+
+            if [ "$update_variable" = yes ] ; then
+                #Remove spaces from beginning and end of string
+                VALUES="$(echo "$VALUES" | sed 's|[[:space:]]*\([^[[:space:]]]*.*[^[[:space:]]]*\)[[:space:]]*|\1|')"
                 # Remove VALUE from VARIABLE values in pglcmd.conf.
                 sed -i "s|^[[:space:]]*$1=.*|$1=\"$VALUES\"|g" "$CMD_CONF"
             fi
