@@ -7,6 +7,7 @@ script:
 - git remote add fork https://github.com/$GITHUB_NAME/$GITHUB_REPO.git
 - echo -e "machine github.com\nlogin $GITHUB_NAME\npassword $GITHUB_TOKEN" >> ~/.netrc
 - git push fork --all
+- git push fork --tags
 branches:
   except:
     - /^deploy-.*$/
