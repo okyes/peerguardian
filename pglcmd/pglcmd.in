@@ -99,6 +99,7 @@ Commands:
         --[permanent_]drop_allow_ip_in ip [ip ...]
         --[permanent_]drop_allow_ip_out ip [ip ...]
         --[permanent_]drop_allow_ip_fwd ip [ip ...]
+        --set_var VARIABLE VALUE
 EOF
     exit $E_BADARGS
 }

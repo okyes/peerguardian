@@ -632,6 +632,7 @@ configure () {
 
     OPT=
     OPTARG=
+    VALUE=
     while [ "$#" -gt 0 ] ; do
         case $1 in
         configure)
@@ -732,6 +733,25 @@ configure () {
         drop_allow_ip_fwd)
             DROP_ALLOW_IP_FWD="$DROP_ALLOW_IP_FWD $OPTARG"
             [ "$permanent" = 0 ] || configure_permanent WHITE_IP_FWD
+            ;;
+        set_var)
+            if [ -z "$OPTARG" ] || [ "$#" -ne 2 ] ; then
+                usage
+            fi
+
+            shift
+            #Remove spaces from beginning and end of first arg
+            VALUE="$(echo "$1" | sed -e 's|[[:space:]]*||' -e 's|[[:space:]]*$||')"
+
+            #Check if variable already exists in pglcmd.conf
+            if  grep -q "^[[:space:]]*$OPTARG=" "$CMD_CONF"; then
+                sed -i "s|^[[:space:]]*$OPTARG=.*|$OPTARG=\"$VALUE\"|g" "$CMD_CONF"
+            else
+                # Add a newline at end of file if it was missing.
+                sed -i -e '$a\' "$CMD_CONF"
+                # Add VAR with OPTARG set to pglcmd.conf.
+                echo "$OPTARG=\"$VALUE\"" >> "$CMD_CONF"
+            fi
             ;;
         *)
             echo "Invalid option: $1"
