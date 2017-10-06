@@ -661,6 +661,11 @@ configure () {
             ;;
         esac
 
+        if [ -z "$OPTARG" ] ; then
+            shift
+            continue
+        fi
+
         case $OPT in
         add_allow_tcp_in)
             ADD_ALLOW_TCP_IN="$ADD_ALLOW_TCP_IN $OPTARG"
