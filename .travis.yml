@@ -21,3 +21,4 @@ env:
   - GITHUB_REPO=stg GIT_URL=http://git.stg.codes/stg.git
   - GITHUB_REPO=orbot GIT_URL=https://git.torproject.org/orbot.git
   - GITHUB_REPO=tor GIT_URL=https://git.torproject.org/tor.git
+  - GITHUB_REPO=wive-ng-rtnl-viatravis GIT_URL=https://git.code.sf.net/p/wive-ng/wive-ng-rtnl
